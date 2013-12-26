@@ -1,0 +1,5 @@
+enum TransactionType
+{
+
+}
+export = TransactionType

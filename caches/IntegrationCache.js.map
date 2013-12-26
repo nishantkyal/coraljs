@@ -1,0 +1,1 @@
+{"version":3,"file":"IntegrationCache.js","sourceRoot":"","sources":["IntegrationCache.ts"],"names":["IntegrationCache","IntegrationCache.constructor","IntegrationCache.getIntegrations","IntegrationCache.getIntegration"],"mappings":"AAAA;IAAAA;;AAeCA,IAXGA,0BAD0BA;iDAC1BA;IAGAE,CAACA;;IAGDF,2BAD2BA;gDAC3BA,UAAeA,aAAoBA;IAGnCG,CAACA;IAELH;AAACA,CAAAA,IAAA;;;AACwB"}

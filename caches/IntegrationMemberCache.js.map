@@ -1,0 +1,1 @@
+{"version":3,"file":"IntegrationMemberCache.js","sourceRoot":"","sources":["IntegrationMemberCache.ts"],"names":["IntegrationMemberCache","IntegrationMemberCache.constructor","IntegrationMemberCache.getMemberRole"],"mappings":"AAAA,4BAAkD,yCAAgC;;AAElF;IAAAA;;AAQCA,IALGA,uCADuCA;qDACvCA,UAAcA,aAAoBA,EAAEA,MAAaA;IAGjDE,CAACA;IAELF;AAACA,CAAAA,IAAA;;;AAC8B"}

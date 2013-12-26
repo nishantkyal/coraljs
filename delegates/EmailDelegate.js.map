@@ -1,0 +1,1 @@
+{"version":3,"file":"EmailDelegate.js","sourceRoot":"","sources":["EmailDelegate.ts"],"names":["EmailDelegate","EmailDelegate.constructor","EmailDelegate.getDao"],"mappings":"AAAA,YAA8B,0BAAiB;;AAE/C,eAA8B,0BAAiB;;AAE/C;;;;;EAKG;AACH;IAAAA;;AAECA,IADGA,iCAAAA;QAAgBE,OAAOA,QAAQA,CAACA;IAACA,CAACA;IACtCF;AAACA,CAAAA,IAAA;;;AACqB"}

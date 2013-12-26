@@ -1,0 +1,38 @@
+import BaseModel = require('./BaseModel')
+
+/**
+ Bean class for Integration
+**/
+class Integration extends BaseModel {
+
+    static TABLE_NAME = 'integration';
+    static PRIMARY_KEY = 'integration_id';
+
+    private integration_id:string;
+    private title:string;
+    private website_url:string;
+    private redirect_url:string;
+    private integration_type:string;
+    private secret:string;
+    private status:string;
+
+    /** Getters */
+    getIntegrationId():string { return this.integration_id; }
+    getTitle():string { return this.title; }
+    getWebsiteUrl():string { return this.website_url; }
+    getRedirectUrl():string { return this.redirect_url; }
+    getType():string { return this.integration_type; }
+    getSecret():string { return this.secret; }
+    getStatus():string { return this.status; }
+
+    /** Setters */
+    setIntegrationId(val:string) { this.integration_id = val; }
+    setTitle(val:string) { this.title = val; }
+    setWebsiteUrl(val:string) { this.website_url = val; }
+    setRedirectUrl(val:string) { this.redirect_url = val; }
+    setType(val:string) { this.integration_type = val; }
+    setSecret(val:string) { this.secret = val; }
+    setStatus(val:string) { this.status = val; }
+
+}
+export = Integration

@@ -1,0 +1,5 @@
+enum ProductType
+{
+
+}
+export = ProductType
