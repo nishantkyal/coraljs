@@ -1,0 +1,24 @@
+{
+    "name"        : "Coral",
+    "version"     : "0.0.1",
+    "private"     : true,
+    "scripts"     : {
+        "start": "node app.js",
+        "test" : "nodeunit test"
+    },
+    "dependencies": {
+        "express"             : "3.4.1",
+        "jade"                : "*",
+        "nconf"               : "*",
+        "mysql"               : "*",
+        "q"                   : "0.9.7",
+        "underscore"          : "1.5.2",
+        "i18n"                : "0.4.1",
+        "log4js"              : "0.6.9",
+        "passport"            : "*",
+        "passport-http-bearer": "1.0.1",
+        "grunt"               : "*",
+        "nodeunit"            : "0.8.2",
+        "redis"               : "0.10.0"
+    }
+}
