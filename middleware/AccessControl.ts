@@ -1,10 +1,10 @@
 import q                                = require('q');
 import express                          = require('express');
 import log4js                           = require('log4js');
-import Config                           = require('../Config');
 import IntegrationMemberDelegate        = require('../delegates/IntegrationMemberDelegate');
 import IntegrationMemberRole            = require('../enums/IntegrationMemberRole');
 import Utils                            = require('../Utils');
+import Config                           = require('../Config');
 
 /**
  * Middleware to access control Integration REST APIs
@@ -12,7 +12,7 @@ import Utils                            = require('../Utils');
  */
 class AccessControl {
 
-    private static logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
+    private static logger:log4js.Logger = log4js.getLogger(Utils.getClassName('AccessControl'));
 
     /** For forum plugins **/
     static allowOwner(req, res, next:Function)

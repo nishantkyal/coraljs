@@ -1,10 +1,10 @@
 
 
 var log4js = require('log4js');
-var Config = '../Config';
 var IntegrationMemberDelegate = require('../delegates/IntegrationMemberDelegate');
 var IntegrationMemberRole = require('../enums/IntegrationMemberRole');
-var Utils = '../Utils';
+var Utils = require('../Utils');
+var Config = require('../Config');
 
 /**
 * Middleware to access control Integration REST APIs
@@ -80,7 +80,7 @@ else
 
         return new IntegrationMemberDelegate().findValidAccessToken(accessToken, integrationMemberId);
     };
-    AccessControl.logger = log4js.getLogger(Utils.getClassName(this));
+    AccessControl.logger = log4js.getLogger(Utils.getClassName('AccessControl'));
     return AccessControl;
 })();
 

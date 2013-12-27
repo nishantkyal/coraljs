@@ -47,7 +47,10 @@ class IntegrationMemberDelegate extends BaseDaoDelegate {
 
         function tokenFetched(result)
         {
-            if (integrationMemberId && result['integration_member_id'] === integrationMemberId)
+            if (_.isArray(result))
+                result = result[0];
+
+            if (result && (!integrationMemberId || result['integration_member_id'] === integrationMemberId))
                 return new IntegrationMember(result);
             else
                 return null;

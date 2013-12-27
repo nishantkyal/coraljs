@@ -19,7 +19,7 @@ var Config = (function () {
     Config.DASHBOARD_INTEGRATION_ID = 'dashboard_integration_id';
 
     Config.ctor = (function () {
-        nconf.file({ file: "/var/searchntalk/config.json" });
+        nconf.file({ file: "/var/searchntalk/config/config.json" });
     })();
     return Config;
 })();

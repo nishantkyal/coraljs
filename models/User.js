@@ -5,7 +5,7 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 var BaseModel = require('./BaseModel');
-
+var Utils = require('../Utils');
 
 /**
 Bean class for User

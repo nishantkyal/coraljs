@@ -1,4 +1,5 @@
 
+var log4js = require('log4js');
 var Utils = require('../Utils');
 
 /**
@@ -7,17 +8,14 @@ var Utils = require('../Utils');
 var BaseModel = (function () {
     function BaseModel(data) {
         if (typeof data === "undefined") { data = {}; }
-        this.init(data);
-        for (var key in this) {
-            if (typeof this[key] != 'function') {
+        this.logger = log4js.getLogger(Utils.getClassName(this));
+        for (var classProperty in this.__proto__) {
+            if (typeof this.__proto__[classProperty] == 'function' && classProperty.match(/^set/) != null) {
+                var key = classProperty.replace(/^set/, '');
                 this[key] = data[key];
             }
         }
     }
-    BaseModel.prototype.init = function (data) {
-        Utils.copyProperties(data, this);
-    };
-
     /* Getters */
     BaseModel.prototype.getId = function () {
         return this.id;

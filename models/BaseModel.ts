@@ -1,4 +1,5 @@
 import _            = require('underscore');
+import log4js       = require('log4js');
 import Utils        = require('../Utils');
 
 /**
@@ -9,24 +10,22 @@ class BaseModel {
     static TABLE_NAME:string = null;
     static PRIMARY_KEY:string = 'id';
 
+    private __proto__;
     private id:number;
     private created:number;
     private updated:number;
     private deleted:boolean;
 
+    private logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
+
     constructor(data:Object = {})
     {
-        this.init(data);
-        for (var key in this) {
-            if (typeof this[key] != 'function') {
+        for (var classProperty in this.__proto__) {
+            if (typeof this.__proto__[classProperty] == 'function' && classProperty.match(/^set/) != null) {
+                var key:string = classProperty.replace(/^set/, '');
                 this[key] = data[key];
             }
         }
-    }
-
-    init(data:Object)
-    {
-        Utils.copyProperties(data, this);
     }
 
     /* Getters */

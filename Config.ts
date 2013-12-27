@@ -11,7 +11,7 @@ class Config {
     /** Static constructor workaround */
     private static ctor = (() =>
     {
-        nconf.file({file: "/var/searchntalk/config.json"});
+        nconf.file({file: "/var/searchntalk/config/config.json"});
     })();
 
     /** Getters */
