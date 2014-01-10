@@ -1,5 +1,6 @@
 var mysql = require('mysql');
 var q = require('q');
+var log4js = require('log4js');
 var Config = require('../Config');
 
 /**
@@ -8,6 +9,27 @@ Delegate class to manage mysql connections
 var MysqlDelegate = (function () {
     function MysqlDelegate() {
     }
+    MysqlDelegate.createConnection = /**
+    * Helper method to get a connection from pool
+    */
+    function () {
+        var deferred = q.defer();
+        var connection = mysql.createConnection({
+            host: Config.get('database.host'),
+            user: Config.get('database.user'),
+            password: Config.get('database.pass')
+        });
+
+        connection.connect(function (err) {
+            if (err) {
+                log4js.getDefaultLogger().error('Error when establishing a mysql connection, error: ' + err);
+                deferred.reject(err);
+            } else
+                deferred.resolve(connection);
+        });
+        return deferred.promise;
+    };
+
     MysqlDelegate.getConnectionFromPool = /**
     * Helper method to get a connection from pool
     */
@@ -85,7 +107,8 @@ else
             host: Config.get('database.host'),
             database: Config.get('database.name'),
             user: Config.get('database.user'),
-            password: Config.get('database.pass')
+            password: Config.get('database.pass'),
+            supportBigNumbers: true
         });
     })();
     return MysqlDelegate;
@@ -93,4 +116,3 @@ else
 
 module.exports = MysqlDelegate;
 
-//# sourceMappingURL=MysqlDelegate.js.map

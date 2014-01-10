@@ -1,5 +1,7 @@
 
+var ApiConstants = require('./ApiConstants');
 var ApiUrlDelegate = require('../delegates/ApiUrlDelegate');
+var PhoneCallDelegate = require('../delegates/PhoneCallDelegate');
 var AccessControl = require('../middleware/AccessControl');
 var ValidateRequest = require('../middleware/ValidateRequest');
 
@@ -8,6 +10,8 @@ var ValidateRequest = require('../middleware/ValidateRequest');
 */
 var PhoneCallApi = (function () {
     function PhoneCallApi(app) {
+        var phoneCallDelegate = new PhoneCallDelegate();
+
         /**
         * Create call
         * Allow via searchntalk.com only
@@ -47,7 +51,14 @@ var PhoneCallApi = (function () {
         * Get all calls
         * Allow searchntalk.com
         */
-        app.get(ApiUrlDelegate.phoneCall(), ValidateRequest.requireFilters, function (req, res) {
+        app.get(ApiUrlDelegate.phoneCall(), ValidateRequest.requireFilters, AccessControl.allowDashboard, function (req, res) {
+            var filters = req.body[ApiConstants.FILTERS];
+
+            phoneCallDelegate.search(filters).then(function handleCallSearched(response) {
+                res.json(response);
+            }, function handleCallSearchFailed(error) {
+                res.status(500).json(error);
+            });
         });
     }
     return PhoneCallApi;
@@ -55,4 +66,3 @@ var PhoneCallApi = (function () {
 
 module.exports = PhoneCallApi;
 
-//# sourceMappingURL=PhoneCallApi.js.map

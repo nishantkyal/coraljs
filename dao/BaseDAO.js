@@ -32,9 +32,16 @@ var BaseDAO = (function () {
         data['created'] = new Date().getTime();
         data['updated'] = new Date().getTime();
 
+        // Remove inserts with undefined values
+        _.each(data, function (value, key) {
+            if (value == undefined)
+                delete [data[key]];
+        });
+
         var inserts = _.keys(data);
         var values = _.map(_.values(data), function addQuotesIfString(val) {
-            val = val || '';
+            if (val == undefined)
+                return 'null';
             return typeof val === 'string' ? "'" + val + "'" : val;
         });
 
@@ -46,24 +53,16 @@ var BaseDAO = (function () {
 else
                 return { id: generatedId };
         }, function createFailure(error) {
-            this.logger.error('Error while creating a new ' + that.tableName);
+            that.logger.error('Error while creating a new ' + that.tableName);
             throw (error);
         });
     };
 
     /* Get by id */
     BaseDAO.prototype.get = function (id, fields) {
-        if (this.primaryKey != 'id') {
-            var search = {};
-            search[this.primaryKey] = id;
-            return this.search(search, { 'fields': fields }).then(function handleSearchComplete(rows) {
-                return rows[0];
-            });
-        }
-
         var that = this;
         var selectColumns = fields ? fields.join(',') : '*';
-        var query = 'SELECT ' + selectColumns + ' FROM ' + this.tableName + ' WHERE id = ?';
+        var query = 'SELECT ' + selectColumns + ' FROM ' + this.tableName + ' WHERE ' + this.primaryKey + ' = ?';
         return MysqlDelegate.executeQuery(query, [id]).then(function objectFetched(rows) {
             switch (rows.length) {
                 case 0:
@@ -166,4 +165,3 @@ else
 
 module.exports = BaseDAO;
 
-//# sourceMappingURL=BaseDAO.js.map

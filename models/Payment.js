@@ -57,4 +57,3 @@ var Payment = (function (_super) {
 
 module.exports = Payment;
 
-//# sourceMappingURL=Payment.js.map

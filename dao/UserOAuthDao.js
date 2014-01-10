@@ -5,6 +5,7 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 var BaseDAO = require('../dao/BaseDAO');
+var BaseModel = require('../models/BaseModel');
 var UserOAuth = require('../models/UserOauth');
 var MysqlDelegate = require('../delegates/MysqlDelegate');
 
@@ -51,16 +52,16 @@ var UserAuthDao = (function (_super) {
         values.push(userOAuth.getProviderId());
         values.push(userOAuth.getOauthUserId());
 
-        var query = 'UPDATE ' + this.getTableName() + ' SET ' + updateFields.join(',') + ' WHERE provider_id = ? AND oauth_user_id = ?';
+        var query = 'UPDATE ' + UserAuthDao.TABLE_NAME + ' SET ' + updateFields.join(',') + ' WHERE provider_id = ? AND oauth_user_id = ?';
         MysqlDelegate.executeQuery(query, values, callback);
     };
 
-    UserAuthDao.getTableName = function () {
-        return 'user_oauth';
+    UserAuthDao.prototype.getModel = function () {
+        return UserOAuth;
     };
+    UserAuthDao.TABLE_NAME = 'user_oauth';
     return UserAuthDao;
 })(BaseDAO);
 
 module.exports = UserAuthDao;
 
-//# sourceMappingURL=UserOAuthDao.js.map

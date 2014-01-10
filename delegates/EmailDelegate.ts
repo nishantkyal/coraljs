@@ -9,6 +9,6 @@ import EmailDao     = require('../dao/EmailDao');
  3. Search emails
  */
 class EmailDelegate {
-    getDao():IDao { return EmailDao; }
+    getDao():IDao { return new EmailDao(); }
 }
 export = EmailDelegate

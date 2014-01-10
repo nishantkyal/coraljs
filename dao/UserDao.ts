@@ -1,4 +1,6 @@
 import BaseDAO          = require('../dao/BaseDAO')
+import BaseModel        = require('../models/BaseModel');
+import User             = require('../models/User');
 
 /**
  DAO for User
@@ -7,8 +9,10 @@ import BaseDAO          = require('../dao/BaseDAO')
 class UserDao extends BaseDAO
 {
 
-    static getTableName():string { return 'user'; }
-    static getGeneratedIdName():string { return 'user_id'; }
+    static TABLE_NAME:string = 'user'
+    static PRIMARY_KEY:string = 'user_id';
+
+    getModel():typeof BaseModel { return User; }
 
 }
 export = UserDao

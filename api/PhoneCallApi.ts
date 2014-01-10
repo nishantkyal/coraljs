@@ -1,15 +1,20 @@
 import express              = require('express');
+import ApiConstants         = require('./ApiConstants');
 import ApiUrlDelegate       = require('../delegates/ApiUrlDelegate');
+import PhoneCallDelegate    = require('../delegates/PhoneCallDelegate');
 import AccessControl        = require('../middleware/AccessControl');
 import ValidateRequest      = require('../middleware/ValidateRequest');
 
 /**
  * API calls for managing phone calls
  */
-class PhoneCallApi {
+class PhoneCallApi
+{
 
     constructor(app)
     {
+        var phoneCallDelegate = new PhoneCallDelegate();
+
         /**
          * Create call
          * Allow via searchntalk.com only
@@ -22,7 +27,7 @@ class PhoneCallApi {
         /**
          * Update call
          */
-        app.post(ApiUrlDelegate.phoneCallById(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.post(ApiUrlDelegate.phoneCallById(), AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
 
         });
@@ -58,9 +63,15 @@ class PhoneCallApi {
          * Get all calls
          * Allow searchntalk.com
          */
-        app.get(ApiUrlDelegate.phoneCall(), ValidateRequest.requireFilters, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(ApiUrlDelegate.phoneCall(), ValidateRequest.requireFilters, AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
+            var filters = req.body[ApiConstants.FILTERS];
 
+            phoneCallDelegate.search(filters)
+                .then(
+                function handleCallSearched(response) { res.json(response); },
+                function handleCallSearchFailed(error) { res.status(500).json(error); }
+            );
         });
 
     }

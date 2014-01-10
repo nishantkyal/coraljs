@@ -1,9 +1,12 @@
+import log4js           = require('log4js');
 import BaseModel        = require('./BaseModel');
 
 /**
  * Bean class for User's oauth settings (FB, LinkedIn tokens)
  */
 class UserOauth extends BaseModel {
+
+    static TABLE_NAME:string = 'user_oauth';
 
     private user_id:string;
     private provider_id:string;

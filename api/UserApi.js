@@ -11,7 +11,7 @@ var ValidateRequest = require('../middleware/ValidateRequest');
 var UserOauth = require('../models/UserOauth');
 var User = require('../models/User');
 var IntegrationMember = require('../models/IntegrationMember');
-var Utils = '../Utils';
+var Utils = require('../Utils');
 
 /**
 Rest Calls for User
@@ -149,4 +149,3 @@ else
 
 module.exports = UserApi;
 
-//# sourceMappingURL=UserApi.js.map

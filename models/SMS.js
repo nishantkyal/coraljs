@@ -61,4 +61,3 @@ var SMS = (function (_super) {
 
 module.exports = SMS;
 
-//# sourceMappingURL=SMS.js.map

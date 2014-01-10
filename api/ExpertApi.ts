@@ -12,14 +12,15 @@ import IntegrationMemberRole            = require('../enums/IntegrationMemberRol
  * API calls for managing settings to IntegrationMembers who are experts
  * e.g. Call schedules, viewing reports, manage payment details
  */
-class ExpertApi {
+class ExpertApi
+{
 
     constructor(app)
     {
         var integrationMemberDelegate = new IntegrationMemberDelegate();
 
         /** Search expert **/
-        app.get(ApiUrlDelegate.expert(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(ApiUrlDelegate.expert(), AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var searchCriteria:Object = req.body;
 
@@ -31,7 +32,7 @@ class ExpertApi {
         });
 
         /** Get expert profile  **/
-        app.get(ApiUrlDelegate.expertById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(ApiUrlDelegate.expertById(), function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var expertId = req.param[ApiConstants.EXPERT_ID];
 
@@ -44,10 +45,7 @@ class ExpertApi {
                 {
                     new IntegrationDelegate().get(integrationMember.integration_id)
                         .then(
-                        function handleIntegration(integration)
-                        {
-                            res.json(_.extend(integrationMember, integration));
-                        }
+                        function handleIntegration(integration) { res.json(_.extend(integrationMember, integration)); }
                     )
                 },
                 function handleExpertSearchError(err) { res.status(500).json(err); }
@@ -55,20 +53,23 @@ class ExpertApi {
         });
 
         /** Convert user to expert for integrationId **/
-        app.put(ApiUrlDelegate.expert(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.put(ApiUrlDelegate.expert(), AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var integrationMember:IntegrationMember = new IntegrationMember(req.body);
             integrationMember.setRole(IntegrationMemberRole.EXPERT);
 
-            integrationMemberDelegate.create(integrationMember)
-                .then(
-                function expertCreated(integrationMemberExpert:IntegrationMember) { res.json(integrationMemberExpert); },
-                function expertCreateFailed(error) { res.status(500).json(error); }
-            )
+            if (integrationMember.getUserId() != null)
+                integrationMemberDelegate.create(integrationMember)
+                    .then(
+                    function expertCreated(integrationMemberExpert:IntegrationMember) { res.json(integrationMemberExpert); },
+                    function expertCreateFailed(error) { res.status(500).json(error); }
+                )
+            else
+                res.status(401).json('User needs to be registered before becoming an expert');
         });
 
         /** Remove expert status of user for integrationId **/
-        app.delete(ApiUrlDelegate.expertById(), AccessControl.allowAdmin, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.delete(ApiUrlDelegate.expertById(), AccessControl.allowAdmin, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var expertId = req.params[ApiConstants.EXPERT_ID];
 
@@ -83,7 +84,7 @@ class ExpertApi {
          * Update expert's details (revenue share, enabled/disabled status)
          * Allow owner or admin
          **/
-        app.post(ApiUrlDelegate.expertById(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.post(ApiUrlDelegate.expertById(), AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var expertId = req.params[ApiConstants.EXPERT_ID];
             var integrationMember:IntegrationMember = req.body[ApiConstants.EXPERT];
@@ -100,7 +101,7 @@ class ExpertApi {
          * Get activity summary for expert
          * Allow expert
          */
-        app.get(ApiUrlDelegate.expertActivitySummary(), AccessControl.allowExpert, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(ApiUrlDelegate.expertActivitySummary(), AccessControl.allowExpert, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
 
         });

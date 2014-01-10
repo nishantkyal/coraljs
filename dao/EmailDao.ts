@@ -1,13 +1,13 @@
-import IDao                 = require('./IDao');
-import BaseDao              = require('./BaseDAO');
-import MysqlDelegate        = require('../delegates/MysqlDelegate')
+import BaseDao          = require('./BaseDAO');
+import BaseModel        = require('../models/BaseModel');
+import Email            = require('../models/Email');
 
 /**
  * DAO class for Email queue
  */
 class EmailDao extends BaseDao {
 
-    static getTableName():string { return 'email'; }
+    getModel():typeof BaseModel { return Email; }
 
 }
 export = EmailDao

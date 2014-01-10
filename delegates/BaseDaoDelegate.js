@@ -45,4 +45,3 @@ var BaseDaoDelegate = (function () {
 
 module.exports = BaseDaoDelegate;
 
-//# sourceMappingURL=BaseDaoDelegate.js.map

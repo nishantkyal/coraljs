@@ -4,6 +4,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+
 var BaseModel = require('./BaseModel');
 
 /**
@@ -62,9 +63,9 @@ var UserOauth = (function (_super) {
     UserOauth.prototype.setRefreshTokenExpiry = function (val) {
         this.refresh_token = val;
     };
+    UserOauth.TABLE_NAME = 'user_oauth';
     return UserOauth;
 })(BaseModel);
 
 module.exports = UserOauth;
 
-//# sourceMappingURL=UserOauth.js.map

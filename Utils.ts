@@ -60,5 +60,14 @@ class Utils
         }
     }
 
+    static camelToUnderscore(camelCasedString:string)
+    {
+        var frags:Array = camelCasedString.match(/[A-Z][a-z]+/g);
+        var lowerCasedFrags:Array = _.map(frags, function(frag:string) {
+            return frag.toLowerCase();
+        })
+        return lowerCasedFrags.join('_');
+    }
+
 }
 export = Utils

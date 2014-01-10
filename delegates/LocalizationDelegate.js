@@ -29,4 +29,3 @@ var LocalizationDelegate = (function () {
 
 module.exports = LocalizationDelegate;
 
-//# sourceMappingURL=LocalizationDelegate.js.map

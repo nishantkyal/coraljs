@@ -49,4 +49,3 @@ var Transaction = (function (_super) {
 
 module.exports = Transaction;
 
-//# sourceMappingURL=Transaction.js.map

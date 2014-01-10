@@ -4,9 +4,9 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-
 var BaseDao = require('./BaseDAO');
-var MysqlDelegate = require('../delegates/MysqlDelegate');
+var BaseModel = require('../models/BaseModel');
+var Email = require('../models/Email');
 
 /**
 * DAO class for Email queue
@@ -16,12 +16,11 @@ var EmailDao = (function (_super) {
     function EmailDao() {
         _super.apply(this, arguments);
     }
-    EmailDao.getTableName = function () {
-        return 'email';
+    EmailDao.prototype.getModel = function () {
+        return Email;
     };
     return EmailDao;
 })(BaseDao);
 
 module.exports = EmailDao;
 
-//# sourceMappingURL=EmailDao.js.map

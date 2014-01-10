@@ -34,4 +34,3 @@ var Expert = (function (_super) {
     return Expert;
 })(IntegrationMember);
 
-//# sourceMappingURL=Expert.js.map

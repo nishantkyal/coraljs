@@ -22,4 +22,3 @@ var ScheduleDao = (function (_super) {
 
 module.exports = ScheduleDao;
 
-//# sourceMappingURL=ScheduleDao.js.map

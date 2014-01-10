@@ -31,4 +31,3 @@ var IntegrationDao = (function (_super) {
 
 module.exports = IntegrationDao;
 
-//# sourceMappingURL=IntegrationDao.js.map

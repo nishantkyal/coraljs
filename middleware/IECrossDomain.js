@@ -27,4 +27,3 @@ var IECrossDomain = (function () {
 
 module.exports = IECrossDomain;
 
-//# sourceMappingURL=IECrossDomain.js.map

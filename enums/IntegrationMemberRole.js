@@ -7,4 +7,3 @@ var IntegrationMemberRole;
 
 module.exports = IntegrationMemberRole;
 
-//# sourceMappingURL=IntegrationMemberRole.js.map

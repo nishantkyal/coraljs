@@ -14,7 +14,6 @@ class AccessControl {
 
     private static logger:log4js.Logger = log4js.getLogger(Utils.getClassName('AccessControl'));
 
-    /** For forum plugins **/
     static allowOwner(req, res, next:Function)
     {
         var accessToken = req.query['token'];
@@ -36,7 +35,6 @@ class AccessControl {
         )
     }
 
-    /** For forum plugins **/
     static allowAdmin(req, res, next)
     {
         var accessToken = req.query['token'];
@@ -58,7 +56,6 @@ class AccessControl {
         )
     }
 
-    /** For forum plugins **/
     static allowExpert(req, res, next)
     {
         var accessToken = req.query['token'];
@@ -80,28 +77,23 @@ class AccessControl {
         )
     }
 
-    /** For searchntalk.com **/
     static allowDashboard(req, res, next)
     {
-        var accessToken = req.query['token'];
-        AccessControl.getIntegration(accessToken)
-            .then(
-            function handleRoleFetched(integrationMember)
-            {
-                if (integrationMember && integrationMember.integration_id === Config.get(Config.DASHBOARD_INTEGRATION_ID))
-                    next();
-                else
-                    res.status(401).json('Unauthorized');
-            },
-            function roleFetchError(error)
-            {
-                AccessControl.logger.error('Error fetching role for accessToken: ' + accessToken + ', ' + error);
-                res.status(500).json("Couldn't authenticate request");
-            }
-        )
+        var remoteAddress = req.ip;
+        var searchntalkHosts = Config.get('SearchNTalk.hosts');
+
+        if (!searchntalkHosts && searchntalkHosts.length == 0)
+            this.logger.error('NO SEARCHNTALK HOSTS CONFIGURED, DASHBOARD WONT AUTHENTICATE');
+
+        if (searchntalkHosts.indexOf(remoteAddress) != -1)
+            next();
+        else {
+            AccessControl.logger.error('Auth failed for IP: ' + req.ip);
+            res.status(500).json("Couldn't authenticate request");
+        }
     }
 
-    /** Helper method to get details of integration corresponding to token and member id**/
+    /* Helper method to get details of integration corresponding to token and member id */
     static getIntegration(accessToken:string, integrationMemberId?:string):q.makePromise
     {
         var search = {'access_token': accessToken};

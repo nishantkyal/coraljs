@@ -19,6 +19,8 @@ class UserOAuthDelegate extends BaseDaoDelegate {
      */
     addOrUpdateToken(userOAuth:UserOAuth):q.makePromise
     {
+        var that = this;
+
         // 1. Try updating the token
         // 2. If it fails for uniqueness constraint, create a new user and add token to it
         return this.getDao().search({oauth_user_id: userOAuth.getOauthUserId(), provider_id: userOAuth.getProviderId()}, {'fields': ['id', 'user_id']})
@@ -29,7 +31,7 @@ class UserOAuthDelegate extends BaseDaoDelegate {
                     var token = new UserOAuth(existingTokens[0]);
                     var oauthId:number = token.getId();
                     userOAuth.setUserId(token.getUserId());
-                    return this.update(oauthId, userOAuth);
+                    return that.update(oauthId, userOAuth);
                 }
                 else {
                     var transaction = null;
@@ -46,7 +48,7 @@ class UserOAuthDelegate extends BaseDaoDelegate {
                         {
                             newUser = user;
                             userOAuth.setUserId(newUser.getId());
-                            return this.getDao().create(userOAuth, transaction);
+                            return that.getDao().create(userOAuth, transaction);
                         })
                         .then(
                         function oauthCreated(oauth:UserOAuth)

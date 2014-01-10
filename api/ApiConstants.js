@@ -23,4 +23,3 @@ var ApiConstants = (function () {
 
 module.exports = ApiConstants;
 
-//# sourceMappingURL=ApiConstants.js.map

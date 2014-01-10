@@ -4,4 +4,3 @@ var ProductType;
 
 module.exports = ProductType;
 
-//# sourceMappingURL=ProductType.js.map

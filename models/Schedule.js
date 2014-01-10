@@ -37,4 +37,3 @@ var Schedule = (function (_super) {
 
 module.exports = Schedule;
 
-//# sourceMappingURL=Schedule.js.map

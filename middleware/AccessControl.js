@@ -13,8 +13,7 @@ var Config = require('../Config');
 var AccessControl = (function () {
     function AccessControl() {
     }
-    AccessControl.allowOwner = /** For forum plugins **/
-    function (req, res, next) {
+    AccessControl.allowOwner = function (req, res, next) {
         var accessToken = req.query['token'];
         var integrationMemberId = req.params['memberId'];
         AccessControl.getIntegration(accessToken, integrationMemberId).then(function handleRoleFetched(integrationMember) {
@@ -28,8 +27,7 @@ else
         });
     };
 
-    AccessControl.allowAdmin = /** For forum plugins **/
-    function (req, res, next) {
+    AccessControl.allowAdmin = function (req, res, next) {
         var accessToken = req.query['token'];
         var integrationMemberId = req.params['memberId'];
         AccessControl.getIntegration(accessToken, integrationMemberId).then(function handleRoleFetched(integrationMember) {
@@ -43,8 +41,7 @@ else
         });
     };
 
-    AccessControl.allowExpert = /** For forum plugins **/
-    function (req, res, next) {
+    AccessControl.allowExpert = function (req, res, next) {
         var accessToken = req.query['token'];
         var integrationMemberId = req.params['expertId'];
         AccessControl.getIntegration(accessToken, integrationMemberId).then(function handleRoleFetched(integrationMember) {
@@ -58,21 +55,22 @@ else
         });
     };
 
-    AccessControl.allowDashboard = /** For searchntalk.com **/
-    function (req, res, next) {
-        var accessToken = req.query['token'];
-        AccessControl.getIntegration(accessToken).then(function handleRoleFetched(integrationMember) {
-            if (integrationMember && integrationMember.integration_id === Config.get(Config.DASHBOARD_INTEGRATION_ID))
-                next();
-else
-                res.status(401).json('Unauthorized');
-        }, function roleFetchError(error) {
-            AccessControl.logger.error('Error fetching role for accessToken: ' + accessToken + ', ' + error);
+    AccessControl.allowDashboard = function (req, res, next) {
+        var remoteAddress = req.ip;
+        var searchntalkHosts = Config.get('SearchNTalk.hosts');
+
+        if (!searchntalkHosts && searchntalkHosts.length == 0)
+            this.logger.error('NO SEARCHNTALK HOSTS CONFIGURED, DASHBOARD WONT AUTHENTICATE');
+
+        if (searchntalkHosts.indexOf(remoteAddress) != -1)
+            next();
+else {
+            AccessControl.logger.error('Auth failed for IP: ' + req.ip);
             res.status(500).json("Couldn't authenticate request");
-        });
+        }
     };
 
-    AccessControl.getIntegration = /** Helper method to get details of integration corresponding to token and member id**/
+    AccessControl.getIntegration = /* Helper method to get details of integration corresponding to token and member id */
     function (accessToken, integrationMemberId) {
         var search = { 'access_token': accessToken };
         if (integrationMemberId)
@@ -86,4 +84,3 @@ else
 
 module.exports = AccessControl;
 
-//# sourceMappingURL=AccessControl.js.map

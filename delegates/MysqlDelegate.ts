@@ -1,5 +1,6 @@
 import mysql                = require('mysql');
 import q                    = require('q');
+import log4js               = require('log4js');
 import Config               = require('../Config');
 
 /**
@@ -14,12 +15,38 @@ class MysqlDelegate {
     private static ctor = (() =>
     {
         MysqlDelegate.pool = mysql.createPool({
-            host    : Config.get('database.host'),
-            database: Config.get('database.name'),
-            user    : Config.get('database.user'),
-            password: Config.get('database.pass')
+            host             : Config.get('database.host'),
+            database         : Config.get('database.name'),
+            user             : Config.get('database.user'),
+            password         : Config.get('database.pass'),
+            supportBigNumbers: true
         });
     })();
+
+    /**
+     * Helper method to get a connection from pool
+     */
+    static createConnection():q.makePromise
+    {
+        var deferred = q.defer();
+        var connection = mysql.createConnection({
+            host             : Config.get('database.host'),
+            user             : Config.get('database.user'),
+            password         : Config.get('database.pass')
+        });
+
+        connection.connect(function(err)
+        {
+            if (err)
+            {
+                log4js.getDefaultLogger().error('Error when establishing a mysql connection, error: ' + err);
+                deferred.reject(err);
+            }
+            else
+                deferred.resolve(connection);
+        });
+        return deferred.promise;
+    }
 
     /**
      * Helper method to get a connection from pool
@@ -99,7 +126,8 @@ class MysqlDelegate {
                 connection.release();
                 return rows;
             },
-            function queryFailed(err) {
+            function queryFailed(err)
+            {
                 connection.release();
                 throw(err);
             });

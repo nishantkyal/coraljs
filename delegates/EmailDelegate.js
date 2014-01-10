@@ -12,11 +12,10 @@ var EmailDelegate = (function () {
     function EmailDelegate() {
     }
     EmailDelegate.prototype.getDao = function () {
-        return EmailDao;
+        return new EmailDao();
     };
     return EmailDelegate;
 })();
 
 module.exports = EmailDelegate;
 
-//# sourceMappingURL=EmailDelegate.js.map

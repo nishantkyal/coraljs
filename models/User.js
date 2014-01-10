@@ -63,9 +63,9 @@ var User = (function (_super) {
     User.prototype.setActivated = function (val) {
         this.activated = val;
     };
+    User.TABLE_NAME = 'user';
     return User;
 })(BaseModel);
 
 module.exports = User;
 
-//# sourceMappingURL=User.js.map

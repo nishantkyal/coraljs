@@ -6,6 +6,8 @@ import Utils            = require('../Utils');
  **/
 class User extends BaseModel
 {
+    static TABLE_NAME:string = 'user';
+
     private first_name:string;
     private last_name:string;
     private mobile:string;

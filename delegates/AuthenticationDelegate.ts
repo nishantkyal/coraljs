@@ -10,8 +10,8 @@ class AuthenticationDelegate {
     /** Static constructor workaround */
     private static ctor = (() =>
     {
-        /** Username password strategy **/
-        passport.use(AuthenticationDelegate.STRATEGY_OAUTH, new passportBearer.Strategy(
+        /** Username password strategy *
+        passport.use(AuthenticationDelegate.STRATEGY_OAUTH, new passportBearer.HttpBearerStrategy (
             function(token, done)
             {
                 new IntegrationMemberDelegate().findValidAccessToken(token)
@@ -30,7 +30,7 @@ class AuthenticationDelegate {
                     }
                 )
             }
-        ));
+        ));*/
 
         /** Serialize user **/
         passport.serializeUser(function(user, done)

@@ -95,4 +95,3 @@ var IntegrationApi = (function () {
 
 module.exports = IntegrationApi;
 
-//# sourceMappingURL=IntegrationApi.js.map

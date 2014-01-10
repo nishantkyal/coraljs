@@ -19,4 +19,3 @@ var TransactionLineDao = (function (_super) {
 
 module.exports = TransactionLineDao;
 
-//# sourceMappingURL=TransactionLineDao.js.map

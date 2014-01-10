@@ -34,15 +34,15 @@ class IntegrationMember extends BaseModel {
     }
 
     /** Setters */
-    setIntegrationMemberId(val:number):void {  this.integration_member_id= val; }
-    setIntegrationId(val:number):void {  this.integration_id= val; }
-    setUserId(val:number):void {  this.user_id= val; }
-    setRole(val:number):void {  this.role= val; }
-    setAuthCode(val:string):void {  this.auth_code= val; }
-    setAccessToken(val:string):void {  this.access_token= val; }
-    setAccessTokenExpiry(val:string):void {  this.access_token_expiry= val; }
-    setRefreshToken(val:string):void {  this.refresh_token= val; }
-    setRefreshTokenExpiry(val:string):void {  this.refresh_token_expiry= val; }
+    setIntegrationMemberId(val:number):void {  this.integration_member_id = val; }
+    setIntegrationId(val:number):void {  this.integration_id = val; }
+    setUserId(val:number):void {  this.user_id = val; }
+    setRole(val:number):void {  this.role = val; }
+    setAuthCode(val:string):void {  this.auth_code = val; }
+    setAccessToken(val:string):void {  this.access_token = val; }
+    setAccessTokenExpiry(val:string):void {  this.access_token_expiry = val; }
+    setRefreshToken(val:string):void {  this.refresh_token = val; }
+    setRefreshTokenExpiry(val:string):void {  this.refresh_token_expiry = val; }
 
 }
 export = IntegrationMember

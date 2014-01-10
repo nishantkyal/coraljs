@@ -1,7 +1,7 @@
 ///<reference path='../node.d.ts'/>
 var q = require('q');
 var log4js = require('log4js');
-
+var _ = require('underscore');
 
 var Utils = (function () {
     function Utils() {
@@ -54,9 +54,16 @@ var Utils = (function () {
             }
         }
     };
+
+    Utils.camelToUnderscore = function (camelCasedString) {
+        var frags = camelCasedString.match(/[A-Z][a-z]+/g);
+        var lowerCasedFrags = _.map(frags, function (frag) {
+            return frag.toLowerCase();
+        });
+        return lowerCasedFrags.join('_');
+    };
     return Utils;
 })();
 
 module.exports = Utils;
 
-//# sourceMappingURL=Utils.js.map

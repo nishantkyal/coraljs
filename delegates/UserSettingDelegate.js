@@ -9,8 +9,8 @@ var q = require('q');
 var BaseDaoDelegate = require('./BaseDaoDelegate');
 var MysqlDelegate = require('./MysqlDelegate');
 var UserSetting = require('../enums/UserSetting');
-var Utils = '../Utils';
-var Config = '../Config';
+var Utils = require('../Utils');
+var Config = require('../Config');
 
 var UserSettingDelegate = (function (_super) {
     __extends(UserSettingDelegate, _super);
@@ -99,4 +99,3 @@ var UserSettingDelegate = (function (_super) {
 
 module.exports = UserSettingDelegate;
 
-//# sourceMappingURL=UserSettingDelegate.js.map

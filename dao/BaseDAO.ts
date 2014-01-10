@@ -41,10 +41,17 @@ class BaseDAO implements IDao {
         data['created'] = new Date().getTime();
         data['updated'] = new Date().getTime();
 
+        // Remove inserts with undefined values
+        _.each(data, function (value, key) {
+           if (value == undefined)
+            delete[data[key]];
+        });
+
         var inserts:string[] = _.keys(data);
         var values:any[] = _.map(_.values(data), function addQuotesIfString(val)
         {
-            val = val || '';
+            if (val == undefined)
+                return 'null';
             return typeof val === 'string' ? "'" + val + "'" : val;
         });
 
@@ -63,7 +70,7 @@ class BaseDAO implements IDao {
             },
             function createFailure(error)
             {
-                this.logger.error('Error while creating a new ' + that.tableName);
+                that.logger.error('Error while creating a new ' + that.tableName);
                 throw(error);
             });
 
@@ -72,18 +79,9 @@ class BaseDAO implements IDao {
     /* Get by id */
     get(id:any, fields?:string[]):q.makePromise
     {
-        if (this.primaryKey != 'id') {
-            var search = {};
-            search[this.primaryKey] = id;
-            return this.search(search, {'fields': fields})
-                .then(
-                    function handleSearchComplete(rows) { return rows[0]; }
-                );
-        }
-
         var that:BaseDAO = this;
         var selectColumns = fields ? fields.join(',') : '*';
-        var query = 'SELECT ' + selectColumns + ' FROM ' + this.tableName + ' WHERE id = ?';
+        var query = 'SELECT ' + selectColumns + ' FROM ' + this.tableName + ' WHERE ' + this.primaryKey + ' = ?';
         return MysqlDelegate.executeQuery(query, [id])
             .then(
             function objectFetched(rows:Object[])
@@ -193,7 +191,7 @@ class BaseDAO implements IDao {
             return MysqlDelegate.executeQuery('DELETE FROM ' + this.tableName + ' WHERE id = ?', [id], transaction);
     }
 
-    getModel():any { throw('Model class not defined for ' + Utils.getClassName(this)); }
+    getModel():typeof BaseModel { throw('Model class not defined for ' + Utils.getClassName(this)); }
 
 }
 export = BaseDAO

@@ -1,5 +1,5 @@
 var passport = require('passport');
-var passportBearer = require('passport-http-bearer');
+
 var IntegrationMemberDelegate = require('../delegates/IntegrationMemberDelegate');
 var IntegrationMember = require('../models/IntegrationMember');
 
@@ -9,19 +9,27 @@ var AuthenticationDelegate = (function () {
     AuthenticationDelegate.STRATEGY_OAUTH = 'oauth';
 
     AuthenticationDelegate.ctor = (function () {
-        /** Username password strategy **/
-        passport.use(AuthenticationDelegate.STRATEGY_OAUTH, new passportBearer.Strategy(function (token, done) {
-            new IntegrationMemberDelegate().findValidAccessToken(token).then(function integrationSearched(result) {
-                var integrationMember = new IntegrationMember(result);
-                if (integrationMember.isValid())
-                    done(null, integrationMember);
-else
-                    done(null);
-            }, function integrationSearchError(err) {
-                done(err);
-            });
-        }));
-
+        /** Username password strategy *
+        passport.use(AuthenticationDelegate.STRATEGY_OAUTH, new passportBearer.HttpBearerStrategy (
+        function(token, done)
+        {
+        new IntegrationMemberDelegate().findValidAccessToken(token)
+        .then(
+        function integrationSearched(result)
+        {
+        var integrationMember = new IntegrationMember(result);
+        if (integrationMember.isValid())
+        done(null, integrationMember);
+        else
+        done(null);
+        },
+        function integrationSearchError(err)
+        {
+        done(err);
+        }
+        )
+        }
+        ));*/
         /** Serialize user **/
         passport.serializeUser(function (user, done) {
             done(null, user);
@@ -37,4 +45,3 @@ else
 
 module.exports = AuthenticationDelegate;
 
-//# sourceMappingURL=AuthenticationDelegate.js.map

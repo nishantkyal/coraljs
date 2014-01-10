@@ -5,6 +5,8 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 var BaseDAO = require('../dao/BaseDAO');
+var BaseModel = require('../models/BaseModel');
+var User = require('../models/User');
 
 /**
 DAO for User
@@ -15,15 +17,13 @@ var UserDao = (function (_super) {
     function UserDao() {
         _super.apply(this, arguments);
     }
-    UserDao.getTableName = function () {
-        return 'user';
+    UserDao.prototype.getModel = function () {
+        return User;
     };
-    UserDao.getGeneratedIdName = function () {
-        return 'user_id';
-    };
+    UserDao.TABLE_NAME = 'user';
+    UserDao.PRIMARY_KEY = 'user_id';
     return UserDao;
 })(BaseDAO);
 
 module.exports = UserDao;
 
-//# sourceMappingURL=UserDao.js.map

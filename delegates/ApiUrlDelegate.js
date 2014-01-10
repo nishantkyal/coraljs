@@ -163,4 +163,3 @@ var ApiUrlDelegate = (function () {
 
 module.exports = ApiUrlDelegate;
 
-//# sourceMappingURL=ApiUrlDelegate.js.map

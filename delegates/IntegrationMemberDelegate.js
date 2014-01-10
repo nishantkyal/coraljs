@@ -75,4 +75,3 @@ else
 
 module.exports = IntegrationMemberDelegate;
 
-//# sourceMappingURL=IntegrationMemberDelegate.js.map

@@ -25,4 +25,3 @@ var TransactionDao = (function (_super) {
 
 module.exports = TransactionDao;
 
-//# sourceMappingURL=TransactionDao.js.map

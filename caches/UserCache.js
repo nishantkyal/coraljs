@@ -1,6 +1,6 @@
 
 var User = require('../models/User');
-var Config = '../Config';
+var Config = require('../Config');
 
 /**
 User Cache
@@ -22,4 +22,3 @@ var UserCache = (function () {
 
 module.exports = UserCache;
 
-//# sourceMappingURL=UserCache.js.map

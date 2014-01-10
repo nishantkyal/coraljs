@@ -53,4 +53,3 @@ var GlobalIDDelegate = (function () {
 
 module.exports = GlobalIDDelegate;
 
-//# sourceMappingURL=GlobalIDDelegate.js.map

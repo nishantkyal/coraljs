@@ -1,4 +1,5 @@
 import BaseDAO          = require('../dao/BaseDAO')
+import BaseModel        = require('../models/BaseModel')
 import UserOAuth        = require('../models/UserOauth');
 import MysqlDelegate    = require('../delegates/MysqlDelegate');
 
@@ -7,6 +8,8 @@ import MysqlDelegate    = require('../delegates/MysqlDelegate');
  No business logic goes here, only data access layer
  **/
 class UserAuthDao extends BaseDAO {
+
+    static TABLE_NAME:string = 'user_oauth'
 
     /**
      * Update token for given provider and oauth_uid without knowing the user
@@ -42,11 +45,12 @@ class UserAuthDao extends BaseDAO {
         values.push(userOAuth.getProviderId());
         values.push(userOAuth.getOauthUserId());
 
-        var query = 'UPDATE ' + this.getTableName() + ' SET ' + updateFields.join(',') + ' WHERE provider_id = ? AND oauth_user_id = ?';
+        var query = 'UPDATE ' + UserAuthDao.TABLE_NAME + ' SET ' + updateFields.join(',') + ' WHERE provider_id = ? AND oauth_user_id = ?';
         MysqlDelegate.executeQuery(query, values, callback);
     }
 
-    static getTableName():string { return 'user_oauth'; }
+    getModel():typeof BaseModel { return UserOAuth; }
+
 
 }
 export = UserAuthDao

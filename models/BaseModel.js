@@ -1,5 +1,4 @@
 
-var log4js = require('log4js');
 var Utils = require('../Utils');
 
 /**
@@ -8,10 +7,9 @@ var Utils = require('../Utils');
 var BaseModel = (function () {
     function BaseModel(data) {
         if (typeof data === "undefined") { data = {}; }
-        this.logger = log4js.getLogger(Utils.getClassName(this));
         for (var classProperty in this.__proto__) {
             if (typeof this.__proto__[classProperty] == 'function' && classProperty.match(/^set/) != null) {
-                var key = classProperty.replace(/^set/, '');
+                var key = Utils.camelToUnderscore(classProperty.replace(/^set/, ''));
                 this[key] = data[key];
             }
         }
@@ -43,11 +41,9 @@ var BaseModel = (function () {
     BaseModel.prototype.setDeleted = function (val) {
         this.deleted = val;
     };
-    BaseModel.TABLE_NAME = null;
     BaseModel.PRIMARY_KEY = 'id';
     return BaseModel;
 })();
 
 module.exports = BaseModel;
 
-//# sourceMappingURL=BaseModel.js.map

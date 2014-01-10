@@ -48,11 +48,14 @@ var ExpertApi = (function () {
             var integrationMember = new IntegrationMember(req.body);
             integrationMember.setRole(IntegrationMemberRole.EXPERT);
 
-            integrationMemberDelegate.create(integrationMember).then(function expertCreated(integrationMemberExpert) {
-                res.json(integrationMemberExpert);
-            }, function expertCreateFailed(error) {
-                res.status(500).json(error);
-            });
+            if (integrationMember.getUserId() != null)
+                integrationMemberDelegate.create(integrationMember).then(function expertCreated(integrationMemberExpert) {
+                    res.json(integrationMemberExpert);
+                }, function expertCreateFailed(error) {
+                    res.status(500).json(error);
+                });
+else
+                res.status(401).json('User needs to be registered before becoming an expert');
         });
 
         /** Remove expert status of user for integrationId **/
@@ -93,4 +96,3 @@ var ExpertApi = (function () {
 
 module.exports = ExpertApi;
 
-//# sourceMappingURL=ExpertApi.js.map

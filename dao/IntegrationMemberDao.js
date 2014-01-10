@@ -5,6 +5,7 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 var BaseDAO = require('./BaseDAO');
+var BaseModel = require('../models/BaseModel');
 var IntegrationMember = require('../models/IntegrationMember');
 
 var IntegrationMemberDao = (function (_super) {
@@ -26,4 +27,3 @@ var IntegrationMemberDao = (function (_super) {
 
 module.exports = IntegrationMemberDao;
 
-//# sourceMappingURL=IntegrationMemberDao.js.map

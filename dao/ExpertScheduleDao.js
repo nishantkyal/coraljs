@@ -22,4 +22,3 @@ var ExpertScheduleDao = (function (_super) {
 
 module.exports = ExpertScheduleDao;
 
-//# sourceMappingURL=ExpertScheduleDao.js.map

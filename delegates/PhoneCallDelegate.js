@@ -6,7 +6,7 @@ var __extends = this.__extends || function (d, b) {
 };
 var _ = require('underscore');
 
-var Utils = '../Utils';
+var Utils = require('../Utils');
 
 var PhoneCallDao = require('../dao/PhoneCallDao');
 var BaseDAODelegate = require('./BaseDaoDelegate');
@@ -34,4 +34,3 @@ var PhoneCallDelegate = (function (_super) {
 
 module.exports = PhoneCallDelegate;
 
-//# sourceMappingURL=PhoneCallDelegate.js.map

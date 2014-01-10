@@ -27,6 +27,8 @@ var UserOAuthDelegate = (function (_super) {
     * @returns {makePromise} User updated or created
     */
     UserOAuthDelegate.prototype.addOrUpdateToken = function (userOAuth) {
+        var that = this;
+
         // 1. Try updating the token
         // 2. If it fails for uniqueness constraint, create a new user and add token to it
         return this.getDao().search({ oauth_user_id: userOAuth.getOauthUserId(), provider_id: userOAuth.getProviderId() }, { 'fields': ['id', 'user_id'] }).then(function oauthSearchCompleted(existingTokens) {
@@ -34,7 +36,7 @@ var UserOAuthDelegate = (function (_super) {
                 var token = new UserOAuth(existingTokens[0]);
                 var oauthId = token.getId();
                 userOAuth.setUserId(token.getUserId());
-                return this.update(oauthId, userOAuth);
+                return that.update(oauthId, userOAuth);
             } else {
                 var transaction = null;
                 var newUser = null;
@@ -44,7 +46,7 @@ var UserOAuthDelegate = (function (_super) {
                 }).then(function userCreated(user) {
                     newUser = user;
                     userOAuth.setUserId(newUser.getId());
-                    return this.getDao().create(userOAuth, transaction);
+                    return that.getDao().create(userOAuth, transaction);
                 }).then(function oauthCreated(oauth) {
                     return MysqlDelegate.commit(transaction, newUser);
                 }).then(function transactionCommitted() {
@@ -79,4 +81,3 @@ var UserOAuthDelegate = (function (_super) {
 
 module.exports = UserOAuthDelegate;
 
-//# sourceMappingURL=UserOAuthDelegate.js.map
