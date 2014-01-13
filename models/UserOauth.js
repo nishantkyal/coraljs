@@ -69,3 +69,4 @@ var UserOauth = (function (_super) {
 
 module.exports = UserOauth;
 
+//# sourceMappingURL=UserOauth.js.map

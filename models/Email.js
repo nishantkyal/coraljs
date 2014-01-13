@@ -59,3 +59,4 @@ var Email = (function (_super) {
 
 module.exports = Email;
 
+//# sourceMappingURL=Email.js.map

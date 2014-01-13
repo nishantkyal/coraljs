@@ -47,3 +47,4 @@ var BaseModel = (function () {
 
 module.exports = BaseModel;
 
+//# sourceMappingURL=BaseModel.js.map

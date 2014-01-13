@@ -22,3 +22,4 @@ var UserCache = (function () {
 
 module.exports = UserCache;
 
+//# sourceMappingURL=UserCache.js.map

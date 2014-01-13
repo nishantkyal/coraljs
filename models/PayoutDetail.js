@@ -61,3 +61,4 @@ var PayoutDetail = (function (_super) {
 
 module.exports = PayoutDetail;
 
+//# sourceMappingURL=PayoutDetail.js.map

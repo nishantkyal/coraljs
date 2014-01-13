@@ -48,3 +48,4 @@ var IntegrationDelegate = (function (_super) {
 
 module.exports = IntegrationDelegate;
 
+//# sourceMappingURL=IntegrationDelegate.js.map

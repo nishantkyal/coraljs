@@ -19,3 +19,4 @@ var EmailDelegate = (function () {
 
 module.exports = EmailDelegate;
 
+//# sourceMappingURL=EmailDelegate.js.map

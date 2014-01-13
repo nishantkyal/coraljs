@@ -4,3 +4,4 @@ var TransactionType;
 
 module.exports = TransactionType;
 
+//# sourceMappingURL=TransactionType.js.map

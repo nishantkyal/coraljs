@@ -53,3 +53,4 @@ var TransactionLine = (function (_super) {
 
 module.exports = TransactionLine;
 
+//# sourceMappingURL=TransactionLine.js.map

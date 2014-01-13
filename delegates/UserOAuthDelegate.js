@@ -7,7 +7,7 @@ var __extends = this.__extends || function (d, b) {
 
 
 var UserAuthDAO = require('../dao/UserOAuthDao');
-var BaseDaoDelegate = require("./BaseDaoDelegate");
+var BaseDaoDelegate = require('BaseDaoDelegate');
 var UserDelegate = require('../delegates/UserDelegate');
 var MysqlDelegate = require('../delegates/MysqlDelegate');
 var UserOAuth = require('../models/UserOauth');
@@ -81,3 +81,4 @@ var UserOAuthDelegate = (function (_super) {
 
 module.exports = UserOAuthDelegate;
 
+//# sourceMappingURL=UserOAuthDelegate.js.map

@@ -27,3 +27,4 @@ var IntegrationMemberDao = (function (_super) {
 
 module.exports = IntegrationMemberDao;
 
+//# sourceMappingURL=IntegrationMemberDao.js.map

@@ -45,3 +45,4 @@ var AuthenticationDelegate = (function () {
 
 module.exports = AuthenticationDelegate;
 
+//# sourceMappingURL=AuthenticationDelegate.js.map

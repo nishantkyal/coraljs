@@ -46,3 +46,4 @@ var TransactionApi = (function () {
 
 module.exports = TransactionApi;
 
+//# sourceMappingURL=TransactionApi.js.map

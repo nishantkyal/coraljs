@@ -4,3 +4,4 @@ var IntegrationType;
 
 module.exports = IntegrationType;
 
+//# sourceMappingURL=IntegrationType.js.map

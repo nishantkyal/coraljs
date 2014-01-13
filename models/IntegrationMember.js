@@ -82,3 +82,4 @@ var IntegrationMember = (function (_super) {
 
 module.exports = IntegrationMember;
 
+//# sourceMappingURL=IntegrationMember.js.map

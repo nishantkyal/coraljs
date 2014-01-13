@@ -6,7 +6,7 @@ var __extends = this.__extends || function (d, b) {
 };
 
 var _ = require('underscore');
-var BaseDaoDelegate = require("./BaseDaoDelegate");
+var BaseDaoDelegate = require('BaseDaoDelegate');
 var Utils = require('../Utils');
 var MysqlDelegate = require('../delegates/MysqlDelegate');
 var IntegrationDelegate = require('../delegates/IntegrationDelegate');
@@ -75,3 +75,4 @@ else
 
 module.exports = IntegrationMemberDelegate;
 
+//# sourceMappingURL=IntegrationMemberDelegate.js.map

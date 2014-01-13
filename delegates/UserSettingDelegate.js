@@ -99,3 +99,4 @@ var UserSettingDelegate = (function (_super) {
 
 module.exports = UserSettingDelegate;
 
+//# sourceMappingURL=UserSettingDelegate.js.map

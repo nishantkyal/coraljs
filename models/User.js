@@ -69,3 +69,4 @@ var User = (function (_super) {
 
 module.exports = User;
 
+//# sourceMappingURL=User.js.map

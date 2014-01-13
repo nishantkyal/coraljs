@@ -4,3 +4,4 @@ var MoneyUnit;
 
 module.exports = MoneyUnit;
 
+//# sourceMappingURL=MoneyUnit.js.map

@@ -8,3 +8,4 @@ var UserSetting;
 
 module.exports = UserSetting;
 
+//# sourceMappingURL=UserSetting.js.map

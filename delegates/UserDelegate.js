@@ -51,3 +51,4 @@ else
 
 module.exports = UserDelegate;
 
+//# sourceMappingURL=UserDelegate.js.map

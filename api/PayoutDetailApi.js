@@ -32,3 +32,4 @@ var PayoutDetailApi = (function () {
 
 module.exports = PayoutDetailApi;
 
+//# sourceMappingURL=PayoutDetailApi.js.map

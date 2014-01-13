@@ -31,3 +31,4 @@ var PaymentApi = (function () {
 
 module.exports = PaymentApi;
 
+//# sourceMappingURL=PaymentApi.js.map

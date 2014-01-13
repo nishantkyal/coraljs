@@ -66,3 +66,4 @@ var Integration = (function (_super) {
 
 module.exports = Integration;
 
+//# sourceMappingURL=Integration.js.map

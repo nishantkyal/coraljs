@@ -4,3 +4,4 @@ var PaymentStatus;
 
 module.exports = PaymentStatus;
 
+//# sourceMappingURL=PaymentStatus.js.map

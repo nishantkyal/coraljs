@@ -37,3 +37,4 @@ var TransactionDelegate = (function (_super) {
 
 module.exports = TransactionDelegate;
 
+//# sourceMappingURL=TransactionDelegate.js.map

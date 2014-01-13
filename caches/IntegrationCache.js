@@ -13,3 +13,4 @@ var IntegrationCache = (function () {
 
 module.exports = IntegrationCache;
 
+//# sourceMappingURL=IntegrationCache.js.map

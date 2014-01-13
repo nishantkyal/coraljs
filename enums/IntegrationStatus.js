@@ -4,3 +4,4 @@ var IntegrationStatus;
 
 module.exports = IntegrationStatus;
 
+//# sourceMappingURL=IntegrationStatus.js.map

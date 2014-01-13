@@ -149,3 +149,4 @@ else
 
 module.exports = UserApi;
 
+//# sourceMappingURL=UserApi.js.map
