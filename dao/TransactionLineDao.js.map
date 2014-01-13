@@ -1,1 +1,0 @@
-{"version":3,"file":"TransactionLineDao.js","sourceRoot":"","sources":["TransactionLineDao.ts"],"names":["TransactionLineDao","TransactionLineDao.constructor","TransactionLineDao.getTableName"],"mappings":";;;;;;AAAA,cAAqC,yBAAgB;;AAErD;;IAAAA;;;AAGCA,IADGA,kCAAAA;QAA+BE,OAAOA,kBAAkBA,CAACA;IAACA,CAACA;IAC/DF;AAACA,CAAAA,EAHgC,OAAO,EAGvC;;;AAC0B"}
