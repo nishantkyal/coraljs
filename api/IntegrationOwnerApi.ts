@@ -1,4 +1,5 @@
 import express                          = require('express');
+import ApiConstants                     = require('./ApiConstants');
 import AccessControl                    = require('../middleware/AccessControl');
 import ApiUrlDelegate                   = require('../delegates/ApiUrlDelegate');
 import IntegrationMemberDelegate        = require('../delegates/IntegrationMemberDelegate');
@@ -19,7 +20,7 @@ class IntegrationOwnerApi {
          **/
         app.put(ApiUrlDelegate.integrationMember(), AccessControl.allowOwner, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
-            var integrationId = req.params['integrationId'];
+            var integrationId = req.params[ApiConstants.INTEGRATION_ID];
             var userId = req.query['userId'];
             var role = req.query['role'];
 
