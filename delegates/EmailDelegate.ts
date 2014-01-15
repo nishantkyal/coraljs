@@ -8,7 +8,8 @@ import EmailDao     = require('../dao/EmailDao');
  2. Check status of emails
  3. Search emails
  */
-class EmailDelegate {
+class EmailDelegate
+{
     getDao():IDao { return new EmailDao(); }
 }
 export = EmailDelegate

@@ -2,6 +2,9 @@ import BaseModel                = require('./BaseModel');
 
 class Transaction extends BaseModel
 {
+    static TABLE_NAME:string = 'transaction';
+    static PRIMARY_KEY:string = 'transaction_id';
+
     private transaction_id:string;
     private user_id:number;
     private total:number;

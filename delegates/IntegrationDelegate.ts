@@ -8,8 +8,8 @@ import Utils            = require('../Utils');
 /**
  * Delegate class for third party integration data
  */
-class IntegrationDelegate extends BaseDaoDelegate {
-
+class IntegrationDelegate extends BaseDaoDelegate
+{
     get(id:string, fields?:string[]):q.makePromise
     {
         return super.get(id, fields)

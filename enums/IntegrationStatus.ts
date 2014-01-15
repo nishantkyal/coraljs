@@ -1,5 +1,4 @@
 enum IntegrationStatus
 {
-
 }
 export = IntegrationStatus

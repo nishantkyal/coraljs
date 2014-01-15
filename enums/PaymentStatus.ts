@@ -1,5 +1,4 @@
 enum PaymentStatus
 {
-
 }
 export = PaymentStatus

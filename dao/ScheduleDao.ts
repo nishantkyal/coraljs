@@ -1,8 +1,9 @@
 import BaseDAO              = require('./BaseDAO');
+import BaseModel            = require('../models/BaseModel');
+import ExpertSchedule       = require('../models/ExpertSchedule');
 
 class ScheduleDao extends BaseDAO
 {
-    static getTableName():string { return 'expert_schedule'; }
-    static getGeneratedIdName():string { return 'schedule_id'; }
+    getModel():typeof BaseModel { return ExpertSchedule; }
 }
 export = ScheduleDao

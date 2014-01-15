@@ -34,6 +34,11 @@ class ApiUrlDelegate {
     static scheduleById(scheduleId?:string):string { return this.get('/rest/schedule/:scheduleId')}
     static scheduleByExpert(expertId?:string):string { return this.get('/rest/expert/:expertId/schedule')}
 
+    /* URL patterns for expert schedule rules*/
+    static scheduleRule():string { return this.get('/rest/scheduleRule')}
+    static scheduleRuleById(scheduleRuleId?:string):string { return this.get('/rest/scheduleRule/:scheduleRuleId')}
+    static scheduleRuleByExpert(expertId?:string):string { return this.get('/rest/expert/:expertId/scheduleRule')}
+
     /* URL patterns for third party integration */
     static integration():string { return this.get('/rest/integration'); }
     static integrationById(integrationId?:string):string { return this.get('/rest/integration/:integrationId'); }

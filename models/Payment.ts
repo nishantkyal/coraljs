@@ -2,8 +2,8 @@ import BaseModel                = require('./BaseModel');
 
 class Payment extends BaseModel
 {
-    static TABLE_NAME = 'payment';
-    static PRIMARY_KEY = 'id';
+    static TABLE_NAME:string = 'payment';
+    static PRIMARY_KEY:string = 'id';
 
     private payment_id:string;
     private user_id:number;

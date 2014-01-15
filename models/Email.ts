@@ -5,7 +5,7 @@ import BaseModel = require('./BaseModel')
  */
 class Email extends BaseModel {
 
-    static TABLE_NAME = 'email';
+    static TABLE_NAME:string = 'email';
 
     private recipient_email:string;
     private sender_email:string;

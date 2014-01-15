@@ -1,5 +1,4 @@
 enum IntegrationType
 {
-
 }
 export = IntegrationType

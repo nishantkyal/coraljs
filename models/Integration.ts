@@ -5,8 +5,8 @@ import BaseModel = require('./BaseModel')
 **/
 class Integration extends BaseModel {
 
-    static TABLE_NAME = 'integration';
-    static PRIMARY_KEY = 'integration_id';
+    static TABLE_NAME:string = 'integration';
+    static PRIMARY_KEY:string = 'integration_id';
 
     private integration_id:string;
     private title:string;

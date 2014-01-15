@@ -8,11 +8,6 @@ import User             = require('../models/User');
  **/
 class UserDao extends BaseDAO
 {
-
-    static TABLE_NAME:string = 'user'
-    static PRIMARY_KEY:string = 'user_id';
-
     getModel():typeof BaseModel { return User; }
-
 }
 export = UserDao

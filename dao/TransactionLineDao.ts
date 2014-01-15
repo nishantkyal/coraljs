@@ -1,7 +1,12 @@
-import BaseDAO             = require('../dao/BaseDAO');
+import BaseDAO          = require('./BaseDAO');
+import BaseModel        = require('../models/BaseModel');
+import TransactionLine      = require('../models/TransactionLine');
 
+/**
+ DAO for phone calls
+ **/
 class TransactionLineDao extends BaseDAO
 {
-    static getTableName():string { return 'transaction_line'; }
+    getModel():typeof BaseModel { return TransactionLine; }
 }
 export = TransactionLineDao

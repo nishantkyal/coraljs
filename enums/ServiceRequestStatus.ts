@@ -1,5 +1,4 @@
 enum ServiceRequestStatus
 {
-
 }
 export = ServiceRequestStatus

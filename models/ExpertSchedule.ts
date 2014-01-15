@@ -1,7 +1,10 @@
 import BaseModel            = require('../models/BaseModel');
 
-class Schedule extends BaseModel
+class ExpertSchedule extends BaseModel
 {
+    static TABLE_NAME:string = 'expert_schedule';
+    static PRIMARY_KEY:string = 'schedule_id';
+
     private schedule_id:string;
     private integration_member_id:number;
     private active:boolean;
@@ -17,4 +20,4 @@ class Schedule extends BaseModel
     setIsActive(val:boolean):void { this.active = val; }
 
 }
-export = Schedule
+export = ExpertSchedule

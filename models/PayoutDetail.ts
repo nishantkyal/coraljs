@@ -6,7 +6,7 @@ import BaseModel = require('./BaseModel')
  */
 class PayoutDetail extends BaseModel {
 
-    static TABLE_NAME = 'payout_detail';
+    static TABLE_NAME:string = 'payout_detail';
     static PRIMARY_KEY = 'payout_detail_id';
 
     private user_id:number;

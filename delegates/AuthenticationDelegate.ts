@@ -5,7 +5,7 @@ import IntegrationMember                = require('../models/IntegrationMember')
 
 class AuthenticationDelegate {
 
-    static STRATEGY_OAUTH = 'oauth';
+    static STRATEGY_OAUTH:string = 'oauth';
 
     /** Static constructor workaround */
     private static ctor = (() =>

@@ -17,12 +17,18 @@ class BaseModel
 
     constructor(data:Object = {})
     {
-        for (var classProperty in this.__proto__) {
-            if (typeof this.__proto__[classProperty] == 'function' && classProperty.match(/^set/) != null) {
-                var key:string = Utils.camelToUnderscore(classProperty.replace(/^set/, ''));
-                this[key] = data[key];
-            }
-        }
+        var thisProtoConstructor = this.__proto__.constructor || [];
+
+        if (thisProtoConstructor['COLUMNS'].length == 0)
+            for (var classProperty in this.__proto__)
+                if (typeof this.__proto__[classProperty] == 'function' && classProperty.match(/^set/) != null)
+                {
+                    var key:string = Utils.camelToUnderscore(classProperty.replace(/^set/, ''));
+                    thisProtoConstructor['COLUMNS'].push(key);
+                }
+
+        for (var column in thisProtoConstructor['COLUMNS'])
+            this[column] = data[column];
     }
 
     /* Getters */
@@ -36,7 +42,6 @@ class BaseModel
     setCreated(val:number):void { this.created = val; }
     setUpdated(val:number):void { this.updated = val; }
     setDeleted(val:boolean):void { this.deleted = val; }
-
 
 
 }

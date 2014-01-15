@@ -2,6 +2,8 @@ import BaseModel                = require('./BaseModel');
 
 class TransactionLine extends BaseModel
 {
+    static TABLE_NAME:string = 'transaction_line';
+
     private transaction_id:number;
     private product_id:number;
     private product_type:number;

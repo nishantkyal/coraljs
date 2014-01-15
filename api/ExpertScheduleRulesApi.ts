@@ -1,0 +1,56 @@
+import express                      = require('express');
+import ApiConstants                 = require('./ApiConstants');
+import ApiUrlDelegate               = require('../delegates/ApiUrlDelegate');
+import ExpertScheduleRuleDelegate   = require('../delegates/ExpertScheduleRuleDelegate');
+import AccessControl                = require('../middleware/AccessControl');
+import IntegrationMember            = require('../models/IntegrationMember');
+import ExpertScheduleRule           = require('../models/ExpertScheduleRule');
+
+/*
+ Rest Calls for expert schedule rules
+ **/
+class ExpertScheduleRulesApi
+{
+    constructor(app)
+    {
+        var expertScheduleRuleDelegate = new ExpertScheduleRuleDelegate();
+
+        app.put(ApiUrlDelegate.scheduleRuleByExpert(), function (req, res)
+        {
+            var expertId = req.params[ApiConstants.EXPERT_ID];
+            var scheduleRule:ExpertScheduleRule = req['scheduleRule'];
+            scheduleRule.setIntegrationMemberId(expertId);
+
+            expertScheduleRuleDelegate.create(scheduleRule)
+                .then(
+                function expertScheduleRuleCreated(schedule) { res.json(schedule); },
+                function expertScheduleRuleCreateFailed(error) { res.status(500).json(error); }
+            )
+        });
+
+        app.get(ApiUrlDelegate.scheduleRuleByExpert(), function (req, res)
+        {
+            var expertId = req.params[ApiConstants.EXPERT_ID];
+
+            expertScheduleRuleDelegate.getRulesByExpert(expertId)
+                .then(
+                function expertScheduleRuleCreated(schedules) { res.json(schedules); },
+                function expertScheduleRuleCreateFailed(error) { res.status(500).json(error); }
+            )
+        });
+
+        app.post(ApiUrlDelegate.scheduleRuleById(), function (req, res)
+        {
+            var scheduleRuleId:string = req.params['scheduleRuleId'];
+            var scheduleRule:ExpertScheduleRule = req['scheduleRule'];
+
+            expertScheduleRuleDelegate.update({'schedule_id': scheduleRuleId}, scheduleRule)
+                .then(
+                function expertScheduleRuleUpdated(schedule) { res.json(schedule); },
+                function expertScheduleRuleUpdateFailed(error) { res.status(500).json(error); }
+            )
+        });
+    }
+
+}
+export = ExpertScheduleRulesApi

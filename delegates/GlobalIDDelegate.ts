@@ -8,9 +8,8 @@ import Utils            = require('../Utils');
  *
  * We generate a max number of sequence numbers per millisecond, so that length of sequence remains fixed and we can generate a lot of sequence numbers per millisecond
  */
-class GlobalIDDelegate {
-
-
+class GlobalIDDelegate
+{
     static TIMESTAMP_SHIFT:number = 13;
     static OBJECT_TYPE_SHIFT:number = 11;
     static SHARD_SHIFT:number = 9;

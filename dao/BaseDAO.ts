@@ -122,13 +122,20 @@ class BaseDAO implements IDao {
                 }));
             }
             else {
-                if (_.isString(searchQuery[key])) {
+                if (_.isObject(searchQuery[key]))
+                {
+                    whereStatements.push(key + ' ' + searchQuery[key]['operator'] + ' "?"');
+                    values.push(searchQuery[key]['value']);
+                }
+                else if (_.isString(searchQuery[key]))
+                {
                     whereStatements.push(key + ' = "' + searchQuery[key] + '"');
                     values.push(searchQuery[key]);
                 }
-                else {
-                    whereStatements.push(key + ' ' + searchQuery[key]['operator'] + ' "?"');
-                    values.push(searchQuery[key]['value']);
+                else if (_.isNumber(searchQuery[key]))
+                {
+                    whereStatements.push(key + ' = ' + searchQuery[key]);
+                    values.push(searchQuery[key]);
                 }
             }
         }
@@ -138,7 +145,7 @@ class BaseDAO implements IDao {
         }
 
         // Compose select statement based on fields
-        var selectColumns = options.hasOwnProperty('fields') ? options['fields'].join(',') : '*';
+        var selectColumns = options && options.hasOwnProperty('fields') ? options['fields'].join(',') : '*';
 
         var query = 'SELECT ' + selectColumns + ' FROM ' + this.tableName + ' WHERE ' + whereStatements.join(' AND ');
         return MysqlDelegate.executeQuery(query, values);

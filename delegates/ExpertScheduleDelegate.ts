@@ -1,24 +1,49 @@
-import q                        = require('q');
-import BaseDAODelegate          = require('./BaseDaoDelegate');
-import MysqlDelegate            = require('./MysqlDelegate');
-import ExpertScheduleDAO        = require('../dao/ExpertScheduleDao');
-import Schedule                 = require('../models/Schedule');
-import IDao                     = require('../dao/IDao');
+import _                                = require('underscore');
+import q                                = require('q');
+import BaseDAODelegate                  = require('./BaseDaoDelegate');
+import IntegrationMemberDelegate        = require('./IntegrationMemberDelegate');
+import MysqlDelegate                    = require('./MysqlDelegate');
+import ExpertScheduleDAO                = require('../dao/ExpertScheduleDao');
+import Schedule                         = require('../models/ExpertSchedule');
+import ExpertScheduleDetails            = require('../models/ExpertScheduleRule');
+import IntegrationMember                = require('../models/IntegrationMember');
+import IDao                             = require('../dao/IDao');
 
 /**
  * Delegate class for expert schedules
  */
 class ExpertScheduleDelegate extends BaseDAODelegate
 {
-
     getDao():IDao { return new ExpertScheduleDAO(); }
 
-    searchSchedule(keywords:string[], startTime:number, endTime:number):q.makePromise
+    /* Get schedules for expert */
+    getSchedulesForExpert(integrationMemberId:string):q.makePromise
     {
-        var query = 'SELECT im.integration_member_id expert_id, im.first_name ' +
-            'FROM integration_member im, integration_member_schedule s, integration_member_keywords k ' +
-            'WHERE ';
-        return MysqlDelegate.executeQuery(query);
+        var that = this;
+        return new IntegrationMemberDelegate().get(integrationMemberId, ['id'])
+            .then(
+            function integrationMemberIdResolved(integrationMember)
+            {
+                return that.getDao().search({'integration_member_id': integrationMember.id})
+            });
+    }
+
+    /* Create new schedule */
+    create(object:Object, transaction?:any):q.makePromise
+    {
+        var _super = super;
+
+        // Don't create if schedule with same details already exists
+        return super.search(object)
+            .then(
+                function handleScheduleSearched(schedules:Array)
+                {
+                    if (schedules.length != 0)
+                        return _super.create(object, transaction);
+                    else
+                        throw('Schedule already exists with the same details');
+                }
+            )
     }
 
 }

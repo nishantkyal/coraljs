@@ -5,8 +5,8 @@ import BaseModel = require('./BaseModel')
  **/
 class IntegrationMember extends BaseModel {
 
-    static TABLE_NAME = 'integration_member';
-    static PRIMARY_KEY = 'integration_member_id';
+    static TABLE_NAME:string = 'integration_member';
+    static PRIMARY_KEY:string = 'integration_member_id';
 
     private integration_member_id:number;
     private integration_id:number;

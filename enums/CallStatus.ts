@@ -1,4 +1,3 @@
 enum CallStatus {
-
 }
 export = CallStatus

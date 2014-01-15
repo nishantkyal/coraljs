@@ -26,6 +26,5 @@ class LocalizationDelegate {
     static setLocale(locale:string) {
         i18n.setLocale(locale);
     }
-
 }
 export = LocalizationDelegate

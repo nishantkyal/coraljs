@@ -2,8 +2,8 @@ import BaseModel                = require('./BaseModel');
 
 class PhoneNumber extends BaseModel
 {
-    static TABLE_NAME = 'user_phone';
-    static PRIMARY_KEY = 'user_phone_id';
+    static TABLE_NAME:string = 'user_phone';
+    static PRIMARY_KEY:string = 'user_phone_id';
 
     private user_phone_id:string;
     private user_id:number;

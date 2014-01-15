@@ -5,4 +5,4 @@ class PhoneNumberDao extends BaseDao
 {
 
 }
-export = BaseDao
+export = PhoneNumberDao

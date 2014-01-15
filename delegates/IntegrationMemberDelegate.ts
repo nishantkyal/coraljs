@@ -10,8 +10,8 @@ import IntegrationMemberRole        = require('../enums/IntegrationMemberRole');
 import IntegrationMember            = require('../models/IntegrationMember');
 import AccessTokenCache             = require('../caches/AccessTokenCache');
 
-class IntegrationMemberDelegate extends BaseDaoDelegate {
-
+class IntegrationMemberDelegate extends BaseDaoDelegate
+{
     create(object:Object, transaction?:any):q.makePromise
     {
         var integrationMember = new IntegrationMember(object);
@@ -22,7 +22,7 @@ class IntegrationMemberDelegate extends BaseDaoDelegate {
 
     get(id:any, fields?:string[]):q.makePromise
     {
-        fields = fields || ['integration_member_id', 'role', 'integration_id', 'first_name', 'last_name'];
+        fields = fields || ['integration_member_id', 'role', 'integration_id'];
         return super.get(id, fields);
     }
 

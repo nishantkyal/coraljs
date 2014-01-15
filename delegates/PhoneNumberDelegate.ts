@@ -6,7 +6,6 @@ import PhoneNumber                      = require('../models/PhoneNumber');
 
 class PhoneNumberDelegate extends BaseDaoDelegate
 {
-
     create(data:Object, transaction?:any):q.makePromise
     {
         // Check that phone number doesn't already exist
@@ -28,6 +27,5 @@ class PhoneNumberDelegate extends BaseDaoDelegate
     }
 
     getDao():IDao { return new PhoneNumberDao(); }
-
 }
 export = PhoneNumberDelegate

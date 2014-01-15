@@ -1,4 +1,4 @@
-import Schedule             = require('../models/Schedule');
+import Schedule             = require('../models/ExpertSchedule');
 
 /**
  * Cache of expert schedules for the next week

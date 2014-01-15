@@ -5,8 +5,8 @@ import IntegrationMember        = require('./IntegrationMember');
  */
 class Expert extends IntegrationMember {
 
-    static TABLE_NAME = 'integration_member';
-    static PRIMARY_KEY = 'integration_member_id';
+    static TABLE_NAME:string = 'integration_member';
+    static PRIMARY_KEY:string = 'integration_member_id';
 
     private revenue_share:number;
     private revenue_share_unit:number;

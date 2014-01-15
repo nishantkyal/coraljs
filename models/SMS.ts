@@ -2,6 +2,8 @@ import BaseModel                = require('./BaseModel');
 
 class SMS extends BaseModel
 {
+    static TABLE_NAME:string = 'sms';
+
     private country_code:string;
     private area_code:string;
     private phone:number;
