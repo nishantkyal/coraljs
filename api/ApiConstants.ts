@@ -19,6 +19,7 @@ class ApiConstants {
     /* Body constants */
     static USER:string = 'user';
     static INTEGRATION:string = 'integration';
+    static INTEGRATION_MEMBER:string = 'integration_member';
     static EXPERT:string = 'expert';
     static PHONE_NUMBER:string = 'phoneNumber';
     static SCHEDULE:string = 'expertSchedule';

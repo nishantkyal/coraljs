@@ -37,7 +37,7 @@ class IntegrationOwnerApi {
          */
         app.get(ApiUrlDelegate.integrationMember(), AccessControl.allowAdmin, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
-            var integrationId = req.params['integrationId'];
+            var integrationId = req.params[ApiConstants.INTEGRATION_ID];
 
             integrationMemberDelegate.search({'integration_id': integrationId})
                 .then(
@@ -52,7 +52,7 @@ class IntegrationOwnerApi {
          */
         app.delete(ApiUrlDelegate.integrationMemberById(), AccessControl.allowAdmin, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
-            var integrationId = req.params['integrationId'];
+            var integrationId = req.params[ApiConstants.INTEGRATION_ID];
 
             integrationMemberDelegate.delete(integrationId)
                 .then(
@@ -67,8 +67,8 @@ class IntegrationOwnerApi {
          */
         app.post(ApiUrlDelegate.integrationMemberById(), AccessControl.allowAdmin, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
-            var integrationId = req.params['integrationId'];
-            var integrationMember = new IntegrationMember(req.body['integration_member']);
+            var integrationId = req.params[ApiConstants.INTEGRATION_ID];
+            var integrationMember = new IntegrationMember(req.body[ApiConstants.INTEGRATION_MEMBER]);
 
             integrationMemberDelegate.update({'integration_id': integrationId}, integrationMember)
                 .then(
