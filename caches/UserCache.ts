@@ -6,8 +6,8 @@ import Config               = require('../Config');
  User Cache
  1. Password reset tokens
  **/
-class UserCache {
-
+class UserCache
+{
     getResetTokenUser(resetToken:string):q.makePromise
     {
         return null;
@@ -17,6 +17,5 @@ class UserCache {
     {
         return null;
     }
-
 }
 export = UserCache

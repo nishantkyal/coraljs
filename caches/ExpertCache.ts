@@ -1,8 +1,8 @@
 import q                        = require('q');
 import CacheHelper              = require('./CacheHelper');
 
-class ExpertCache {
-
+class ExpertCache
+{
     /*
      * Get information required to render expert widget
      * Ratings, pricing

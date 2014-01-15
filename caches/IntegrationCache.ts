@@ -1,6 +1,5 @@
 class IntegrationCache
 {
-
     /* Get all integrations */
     getIntegrations()
     {

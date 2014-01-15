@@ -7,6 +7,5 @@ class IntegrationMemberCache
     {
 
     }
-
 }
 export = IntegrationMemberCache

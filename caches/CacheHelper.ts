@@ -5,8 +5,8 @@ import Config           = require('../Config');
 /**
  Base class for all caches
  **/
-class CacheHelper {
-
+class CacheHelper
+{
     private static connection;
 
     private static getConnection()

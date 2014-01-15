@@ -1,1 +1,4 @@
 .idea/
+*.js.map
+/*.js
+!index.js
