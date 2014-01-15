@@ -13,12 +13,16 @@ class ApiConstants {
     static PROFILE_TYPE:string = 'profileType';
     static PASSWORD:string = 'pass';
     static PHONE_NUMBER_ID:string = 'phoneNumberId';
+    static SCHEDULE_ID:string = 'scheduleId';
+    static SCHEDULE_RULE_ID:string = 'scheduleRuleId';
 
     /* Body constants */
     static USER:string = 'user';
     static INTEGRATION:string = 'integration';
     static EXPERT:string = 'expert';
     static PHONE_NUMBER:string = 'phoneNumber';
+    static SCHEDULE:string = 'expertSchedule';
+    static SCHEDULE_RULE:string = 'expertScheduleRule';
 
 }
 export = ApiConstants

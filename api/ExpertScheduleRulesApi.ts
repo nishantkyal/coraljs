@@ -18,7 +18,7 @@ class ExpertScheduleRulesApi
         app.put(ApiUrlDelegate.scheduleRuleByExpert(), function (req, res)
         {
             var expertId = req.params[ApiConstants.EXPERT_ID];
-            var scheduleRule:ExpertScheduleRule = req['scheduleRule'];
+            var scheduleRule:ExpertScheduleRule = req[ApiConstants.SCHEDULE_RULE];
             scheduleRule.setIntegrationMemberId(expertId);
 
             expertScheduleRuleDelegate.create(scheduleRule)
@@ -41,8 +41,8 @@ class ExpertScheduleRulesApi
 
         app.post(ApiUrlDelegate.scheduleRuleById(), function (req, res)
         {
-            var scheduleRuleId:string = req.params['scheduleRuleId'];
-            var scheduleRule:ExpertScheduleRule = req['scheduleRule'];
+            var scheduleRuleId:string = req.params[ApiConstants.SCHEDULE_RULE_ID];
+            var scheduleRule:ExpertScheduleRule = req[ApiConstants.SCHEDULE_RULE];
 
             expertScheduleRuleDelegate.update({'schedule_id': scheduleRuleId}, scheduleRule)
                 .then(

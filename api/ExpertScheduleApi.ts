@@ -22,7 +22,7 @@ class ExpertScheduleApi
 
         app.get(ApiUrlDelegate.scheduleById(), function (req, res)
         {
-            var scheduleId:string = req.params['scheduleId'];
+            var scheduleId:string = req.params[ApiConstants.SCHEDULE_ID];
 
             expertScheduleDelegate.get(scheduleId)
                 .then(
@@ -33,7 +33,7 @@ class ExpertScheduleApi
 
         app.put(ApiUrlDelegate.scheduleByExpert(), function (req, res)
         {
-            var schedule:ExpertSchedule = req['expertSchedule'];
+            var schedule:ExpertSchedule = req[ApiConstants.SCHEDULE];
             var expertId = req.params[ApiConstants.EXPERT_ID];
             schedule.setIntegrationMemberId(expertId);
 
