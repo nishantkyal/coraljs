@@ -10,11 +10,12 @@ import Utils                = require('../Utils');
 /**
  Base class for DAO
  **/
-class BaseDAO implements IDao {
+class BaseDAO implements IDao
+{
 
-    logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
     tableName:string;
     primaryKey:string;
+    //logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
 
     constructor()
     {
@@ -42,9 +43,10 @@ class BaseDAO implements IDao {
         data['updated'] = new Date().getTime();
 
         // Remove inserts with undefined values
-        _.each(data, function (value, key) {
-           if (value == undefined)
-            delete[data[key]];
+        _.each(data, function (value, key)
+        {
+            if (value == undefined)
+                delete[data[key]];
         });
 
         var inserts:string[] = _.keys(data);
@@ -70,7 +72,7 @@ class BaseDAO implements IDao {
             },
             function createFailure(error)
             {
-                that.logger.error('Error while creating a new ' + that.tableName);
+                //that.logger.error('Error while creating a new ' + that.tableName);
                 throw(error);
             });
 
@@ -86,10 +88,10 @@ class BaseDAO implements IDao {
             .then(
             function objectFetched(rows:Object[])
             {
-                switch(rows.length)
+                switch (rows.length)
                 {
                     case 0:
-                        that.logger.debug('No object found for' + this.tableName + ', id: ' + id);
+                        //that.logger.debug('No object found for' + this.tableName + ', id: ' + id);
                         throw('No object found for' + this.tableName + ', id: ' + id);
                         break;
                     case 1:
@@ -100,7 +102,7 @@ class BaseDAO implements IDao {
             },
             function objectFetchError(error)
             {
-                that.logger.error('Error while fetching ' + this.tableName + ', id: ' + id);
+                //that.logger.error('Error while fetching ' + this.tableName + ', id: ' + id);
                 throw(error);
             });
     }
@@ -112,56 +114,64 @@ class BaseDAO implements IDao {
         var values = [];
         var whereStatements = [];
 
-        for (var key in searchQuery) {
-            if (_.isArray(searchQuery[key])) {
+        for (var key in searchQuery)
+        {
+            var query = searchQuery[key];
+
+            if (_.isFunction(query))
+                continue;
+            else if (_.isArray(query))
+            {
                 whereStatements.push(key + ' IN (?)');
-                values.push(_.map(_.values(searchQuery[key]), function addQuotesIfString(val)
+                values.push(_.map(_.values(query), function addQuotesIfString(val)
                 {
                     val = val || '';
                     return typeof val === 'string' ? "'" + val + "'" : val;
                 }));
             }
-            else {
-                if (_.isObject(searchQuery[key]))
-                {
-                    whereStatements.push(key + ' ' + searchQuery[key]['operator'] + ' "?"');
-                    values.push(searchQuery[key]['value']);
-                }
-                else if (_.isString(searchQuery[key]))
-                {
-                    whereStatements.push(key + ' = "' + searchQuery[key] + '"');
-                    values.push(searchQuery[key]);
-                }
-                else if (_.isNumber(searchQuery[key]))
-                {
-                    whereStatements.push(key + ' = ' + searchQuery[key]);
-                    values.push(searchQuery[key]);
-                }
+            else if (_.isObject(query))
+            {
+                var operator = query['operator'];
+                var statement = key + ' ' + query['operator'] + ' ?';
+                if (operator.toLowerCase() === 'between')
+                    statement += ' AND ?';
+                whereStatements.push();
+                values.push(query['value'][0]);
+                values.push(query['value'][1]);
+            }
+            else if (_.isString(query))
+            {
+                whereStatements.push(key + ' = "' + query + '"');
+            }
+            else if (_.isNumber(query))
+            {
+                whereStatements.push(key + ' = ' + query);
             }
         }
 
-        if (whereStatements.length == 0) {
+        if (whereStatements.length == 0)
+        {
             throw ('Invalid search criteria');
         }
 
         // Compose select statement based on fields
         var selectColumns = options && options.hasOwnProperty('fields') ? options['fields'].join(',') : '*';
 
-        var query = 'SELECT ' + selectColumns + ' FROM ' + this.tableName + ' WHERE ' + whereStatements.join(' AND ');
-        return MysqlDelegate.executeQuery(query, values);
+        var queryString = 'SELECT ' + selectColumns + ' FROM ' + this.tableName + ' WHERE ' + whereStatements.join(' AND ');
+        return MysqlDelegate.executeQuery(queryString, values);
     }
 
     /* Update */
     update(criteria:Object, newValues:Object, transaction?:any):q.makePromise
     {
         // Remove fields with null values
-        _.each(criteria, function(val, key)
+        _.each(criteria, function (val, key)
         {
             if (val == null)
                 delete criteria[key];
         });
 
-        _.each(newValues, function(val, key)
+        _.each(newValues, function (val, key)
         {
             if (val == null)
                 delete newValues[key];
@@ -172,14 +182,14 @@ class BaseDAO implements IDao {
         delete newValues['id'];
         delete newValues[this.primaryKey];
 
-        var updates = _.map(_.keys(newValues), function(updateColumn)
+        var updates = _.map(_.keys(newValues), function (updateColumn)
         {
             return updateColumn + ' = ?';
         });
         var values = _.values(newValues);
 
         // Compose criteria statements
-        var wheres = _.map(_.keys(criteria), function(whereColumn)
+        var wheres = _.map(_.keys(criteria), function (whereColumn)
         {
             return whereColumn + ' = ?';
         });

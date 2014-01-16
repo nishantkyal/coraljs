@@ -1,15 +1,9 @@
 import BaseDAO                  = require('./BaseDAO');
+import BaseModel                = require('../models/BaseModel');
+import Payment                  = require('../models/Payment');
 
-class PaymentDao extends BaseDAO {
-
-    static getTableName():string
-    {
-        return 'payment';
-    }
-
-    static getGeneratedIdName():string
-    {
-        return 'payment_id';
-    }
+class PaymentDao extends BaseDAO
+{
+    getModel():typeof BaseModel { return Payment; }
 }
 export = PaymentDao

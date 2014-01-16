@@ -12,8 +12,10 @@ class ExpertScheduleApi
         app.get(ApiUrlDelegate.scheduleByExpert(), function (req, res)
         {
             var expertId = req.params[ApiConstants.EXPERT_ID];
+            var startTime = parseInt(req.query[ApiConstants.START_TIME]);
+            var endTime = parseInt(req.query[ApiConstants.END_TIME]);
 
-            expertScheduleDelegate.getSchedulesForExpert(expertId)
+            expertScheduleDelegate.getSchedulesForExpert(expertId, startTime, endTime)
                 .then(
                 function expertScheduleSearched(schedules) { res.json(schedules); },
                 function expertScheduleSearchFailed(error) { res.status(500).json(error); }

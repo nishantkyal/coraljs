@@ -19,6 +19,7 @@
         "passport-http-bearer": "1.0.1",
         "grunt"               : "*",
         "nodeunit"            : "0.8.2",
-        "redis"               : "0.10.0"
+        "redis"               : "0.10.0",
+        "cron-parser"         : "0.2.5"
     }
 }

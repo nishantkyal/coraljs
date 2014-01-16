@@ -141,7 +141,6 @@ class MysqlDelegate {
         var deferred = q.defer();
         transaction.commit(function transactionCommitted()
         {
-            transaction.close();
             deferred.resolve(result);
         });
         return deferred.promise;

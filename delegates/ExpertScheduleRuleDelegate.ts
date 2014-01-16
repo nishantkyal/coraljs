@@ -17,8 +17,13 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
             .then(
             function integrationMemberIdResolved(integrationMember)
             {
-                return that.getDao().search({'integration_member_id': integrationMember.id})
-            })
+                return that.getRulesByIntegrationMemberId(integrationMember.id);
+            });
+    }
+
+    getRulesByIntegrationMemberId(integrationMemberId:number):q.makePromise
+    {
+        return this.getDao().search({'integration_member_id': integrationMemberId})
             .then(
             function handleRulesSearched(rules:Array)
             {

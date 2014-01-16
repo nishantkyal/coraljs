@@ -17,7 +17,9 @@ class BaseModel
 
     constructor(data:Object = {})
     {
-        var thisProtoConstructor = this.__proto__.constructor || [];
+        var thisProtoConstructor = this.__proto__.constructor;
+        thisProtoConstructor['COLUMNS'] = thisProtoConstructor['COLUMNS'] || [];
+        var that = this;
 
         if (thisProtoConstructor['COLUMNS'].length == 0)
             for (var classProperty in this.__proto__)
@@ -27,8 +29,9 @@ class BaseModel
                     thisProtoConstructor['COLUMNS'].push(key);
                 }
 
-        for (var column in thisProtoConstructor['COLUMNS'])
-            this[column] = data[column];
+        _.each (thisProtoConstructor['COLUMNS'], function(column) {
+            that[column] = data[column];;
+        });
     }
 
     /* Getters */
