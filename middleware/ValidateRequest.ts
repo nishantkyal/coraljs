@@ -32,12 +32,6 @@ class ValidateRequest
         next();
     }
 
-    static requireLocalization(req, res, next)
-    {
-        // TODO: Set default locale if not already set
-        next();
-    }
-
     /* Middleware to parse body attributes into models and check if they're valid */
     static parseBody(req, res, next)
     {
