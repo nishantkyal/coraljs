@@ -31,7 +31,6 @@ class UserApi {
         {
             var user:User = req.body[ApiConstants.USER];
 
-            // TODO: Validate username (must have email/mobile)
             if (!Utils.isNullOrEmpty(user.getEmail()) || !Utils.isNullOrEmpty(user.getMobile()))
                 userDelegate.create(user)
                     .then(
@@ -40,21 +39,6 @@ class UserApi {
                 );
             else
                 res.status(500).json('Invalid data');
-        });
-
-        /** Get user profile */
-        app.get(ApiUrlDelegate.userProfile(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
-        {
-            // TODO: Vary fields according to logged in user's role
-            // TODO: Support search
-            var fields = req.query[ApiConstants.FIELDS];
-            var userId = req.params[ApiConstants.USER_ID];
-
-            userDelegate.get(userId, fields)
-                .then(
-                function userFetched(user:User) { res.json(user); },
-                function userFetchError(err) { res.status(500).json(err); }
-            );
         });
 
         /** Authenticate user **/
@@ -77,7 +61,7 @@ class UserApi {
         app.post(ApiUrlDelegate.userById(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var userId:string = req.params[ApiConstants.USER_ID];
-            var user:User = new User(req.body[ApiConstants.USER]);
+            var user:User = req.body[ApiConstants.USER];
 
             if (user.isValid())
                 userDelegate.update(userId, user)
@@ -131,8 +115,8 @@ class UserApi {
          **/
         app.put(ApiUrlDelegate.userOAuthToken(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
-            var userOauth = req.body[ApiConstants.OAUTH];
-            var user = req.body[ApiConstants.USER];
+            var userOauth:UserOauth = req.body[ApiConstants.OAUTH];
+            var user:User = req.body[ApiConstants.USER];
 
             if (userOauth.isValid())
                 userOauthDelegate.addOrUpdateToken(userOauth, user)

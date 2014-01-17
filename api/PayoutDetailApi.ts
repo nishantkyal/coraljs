@@ -5,8 +5,8 @@ import ApiUrlDelegate       = require('../delegates/ApiUrlDelegate');
  * API calls for managing payment details
  * Bank/paypal details for users to which they can withdraw money
  */
-class PayoutDetailApi {
-
+class PayoutDetailApi
+{
     constructor(app)
     {
         /** Search payout-detail */

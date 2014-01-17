@@ -2,6 +2,7 @@ import log4js           = require('log4js');
 import q                = require('q');
 import IDao             = require('../dao/IDao');
 import Utils            = require('../Utils');
+import BaseModel        = require('../models/BaseModel');
 
 class BaseDaoDelegate {
 

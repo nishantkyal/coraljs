@@ -10,7 +10,6 @@ import ValidateRequest      = require('../middleware/ValidateRequest');
  */
 class PhoneCallApi
 {
-
     constructor(app)
     {
         var phoneCallDelegate = new PhoneCallDelegate();

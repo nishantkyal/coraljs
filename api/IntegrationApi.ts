@@ -46,7 +46,7 @@ class IntegrationApi
         app.post(ApiUrlDelegate.integrationById(), AccessControl.allowOwner, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var integrationId = req.params[ApiConstants.INTEGRATION_ID];
-            var integration = req.body[ApiConstants.INTEGRATION];
+            var integration:Integration = req.body[ApiConstants.INTEGRATION];
 
             integrationDelegate.update(integration, {'integration_id': integrationId})
                 .then(

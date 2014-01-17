@@ -21,8 +21,8 @@ class IntegrationOwnerApi {
         app.put(ApiUrlDelegate.integrationMember(), AccessControl.allowOwner, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var integrationId = req.params[ApiConstants.INTEGRATION_ID];
-            var userId = req.query['userId'];
-            var role = req.query['role'];
+            var userId = req.query[ApiConstants.USER_ID];
+            var role = req.query[ApiConstants.ROLE];
 
             integrationMemberDelegate.create({'user_id': userId, 'role': role, 'integration_id': integrationId})
                 .then(
@@ -68,7 +68,7 @@ class IntegrationOwnerApi {
         app.post(ApiUrlDelegate.integrationMemberById(), AccessControl.allowAdmin, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var integrationId = req.params[ApiConstants.INTEGRATION_ID];
-            var integrationMember = new IntegrationMember(req.body[ApiConstants.INTEGRATION_MEMBER]);
+            var integrationMember:IntegrationMember = req.body[ApiConstants.INTEGRATION_MEMBER];
 
             integrationMemberDelegate.update({'integration_id': integrationId}, integrationMember)
                 .then(

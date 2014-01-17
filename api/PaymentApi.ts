@@ -4,8 +4,8 @@ import ApiUrlDelegate       = require('../delegates/ApiUrlDelegate');
 /**
  * API calls for payments
  */
-class PaymentApi {
-
+class PaymentApi
+{
     constructor(app) {
 
         /** Search payment */

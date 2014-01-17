@@ -4,6 +4,9 @@ import LocalizationDelegate = require('../delegates/LocalizationDelegate');
 import BaseModel            = require('../models/BaseModel');
 import User                 = require('../models/User');
 import UserOauth            = require('../models/UserOauth');
+import Integration          = require('../models/Integration');
+import IntegrationMember    = require('../models/IntegrationMember');
+import PhoneNumber          = require('../models/PhoneNumber');
 
 class ValidateRequest
 {
@@ -45,6 +48,15 @@ class ValidateRequest
                     break;
                 case ApiConstants.OAUTH:
                     modelClass = UserOauth;
+                    break;
+                case ApiConstants.INTEGRATION:
+                    modelClass = Integration;
+                    break;
+                case ApiConstants.INTEGRATION_MEMBER:
+                    modelClass = IntegrationMember;
+                    break;
+                case ApiConstants.PHONE_NUMBER:
+                    modelClass = PhoneNumber;
                     break;
             }
 

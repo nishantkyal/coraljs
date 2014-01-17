@@ -5,8 +5,8 @@ import ApiUrlDelegate       = require('../delegates/ApiUrlDelegate');
  * API calls for managing payment transactions
  * Allow only through searchntalk.com
  */
-class TransactionApi {
-
+class TransactionApi
+{
     constructor(app)
     {
         /** Create a new transaction **/

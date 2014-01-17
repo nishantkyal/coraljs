@@ -8,6 +8,7 @@ import IntegrationDelegate              = require('../delegates/IntegrationDeleg
 import IntegrationMemberDelegate        = require('../delegates/IntegrationMemberDelegate');
 import UserDelegate                     = require('../delegates/UserDelegate');
 import IntegrationMember                = require('../models/IntegrationMember');
+import User                             = require('../models/User');
 import IntegrationMemberRole            = require('../enums/IntegrationMemberRole');
 import ApiFlags                         = require('../enums/ApiFlags');
 
@@ -41,7 +42,7 @@ class ExpertApi
             var expertId = req.params[ApiConstants.EXPERT_ID];
             var flags = req.query[ApiConstants.FLAG];
 
-            integrationMemberDelegate.get(expertId)
+            integrationMemberDelegate.get(expertId, ['a'])
                 .then(
                 function handleExpertSearched(integrationMember)
                 {
