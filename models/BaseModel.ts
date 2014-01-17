@@ -29,7 +29,7 @@ class BaseModel
                 }
 
         _.each (thisProtoConstructor['COLUMNS'], function(column) {
-            that[column] = data[column];;
+            that[column] = data[column];
         });
     }
 

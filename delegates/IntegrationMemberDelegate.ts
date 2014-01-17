@@ -22,7 +22,7 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
 
     get(id:any, fields?:string[]):q.makePromise
     {
-        fields = fields || ['integration_member_id', 'role', 'integration_id'];
+        fields = fields || ['id', 'role', 'integration_id', 'user_id'];
         return super.get(id, fields);
     }
 

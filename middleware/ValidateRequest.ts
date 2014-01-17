@@ -1,9 +1,12 @@
 import _                    = require('underscore');
 import ApiConstants         = require('../api/ApiConstants');
 import LocalizationDelegate = require('../delegates/LocalizationDelegate');
+import BaseModel            = require('../models/BaseModel');
+import User                 = require('../models/User');
+import UserOauth            = require('../models/UserOauth');
 
-class ValidateRequest {
-
+class ValidateRequest
+{
     static requireFilters(req, res, next)
     {
         var filters = req.body[ApiConstants.FILTERS];
@@ -36,9 +39,24 @@ class ValidateRequest {
     }
 
     /* Middleware to parse body attributes into models and check if they're valid */
-    static validateBody(req, res, next)
+    static parseBody(req, res, next)
     {
-        // TODO: Implement this
+        _.each(_.keys(req.body), function (key)
+        {
+            var modelClass:typeof BaseModel = null;
+            switch (key)
+            {
+                case ApiConstants.USER:
+                    modelClass = User;
+                    break;
+                case ApiConstants.OAUTH:
+                    modelClass = UserOauth;
+                    break;
+            }
+
+            if (modelClass)
+                req.body[key] = new modelClass(req.body[key]);
+        });
         next();
     }
 

@@ -1,3 +1,4 @@
+import q                                = require('q');
 import express                          = require('express');
 import _                                = require('underscore');
 import ApiConstants                     = require('./ApiConstants');
@@ -5,8 +6,10 @@ import AccessControl                    = require('../middleware/AccessControl')
 import ApiUrlDelegate                   = require('../delegates/ApiUrlDelegate');
 import IntegrationDelegate              = require('../delegates/IntegrationDelegate');
 import IntegrationMemberDelegate        = require('../delegates/IntegrationMemberDelegate');
+import UserDelegate                     = require('../delegates/UserDelegate');
 import IntegrationMember                = require('../models/IntegrationMember');
 import IntegrationMemberRole            = require('../enums/IntegrationMemberRole');
+import ApiFlags                         = require('../enums/ApiFlags');
 
 /**
  * API calls for managing settings to IntegrationMembers who are experts
@@ -18,6 +21,7 @@ class ExpertApi
     constructor(app)
     {
         var integrationMemberDelegate = new IntegrationMemberDelegate();
+        var userDelegate = new UserDelegate();
 
         /** Search expert **/
         app.get(ApiUrlDelegate.expert(), AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
@@ -34,19 +38,29 @@ class ExpertApi
         /** Get expert profile  **/
         app.get(ApiUrlDelegate.expertById(), function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
-            var expertId = req.param[ApiConstants.EXPERT_ID];
-
-            // TODO: Decide fields based on profile type requested
-            var profileType = req.query[ApiConstants.PROFILE_TYPE];
+            var expertId = req.params[ApiConstants.EXPERT_ID];
+            var flags = req.query[ApiConstants.FLAG];
 
             integrationMemberDelegate.get(expertId)
                 .then(
                 function handleExpertSearched(integrationMember)
                 {
-                    new IntegrationDelegate().get(integrationMember.integration_id)
+                    var flagTasks = [];
+                    _.each(flags, function(flag) {
+                        switch(flag) {
+                            case ApiFlags.INCLUDE_USER:
+                                flagTasks.push(userDelegate.get(integrationMember.user_id));
+                                break;
+                        }
+                    });
+                    q.all(flagTasks)
                         .then(
-                        function handleIntegration(integration) { res.json(_.extend(integrationMember, integration)); }
-                    )
+                            function (...args) {
+                                for (var i = 0; i < args.length; i++)
+                                    integrationMember[flags[i].replace('include_', '')] = args[i][0];
+                                res.json(integrationMember);
+                            }
+                        )
                 },
                 function handleExpertSearchError(err) { res.status(500).json(err); }
             );

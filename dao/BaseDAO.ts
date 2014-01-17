@@ -41,7 +41,7 @@ class BaseDAO implements IDao
         _.each(data, function (value, key)
         {
             if (value == undefined)
-                delete[data[key]];
+                delete data[key];
         });
 
         var inserts:string[] = _.keys(data);
@@ -67,7 +67,7 @@ class BaseDAO implements IDao
             },
             function createFailure(error)
             {
-                that.logger.error('Error while creating a new ' + that.tableName);
+                that.logger.error('Error while creating a new ' + that.tableName + ', error: ' + error.message);
                 throw(error);
             });
 
@@ -98,7 +98,7 @@ class BaseDAO implements IDao
             },
             function objectFetchError(error)
             {
-                that.logger.error('Error while fetching ' + this.tableName + ', id: ' + id);
+                that.logger.error('Error while fetching ' + that.tableName + ', id: ' + id);
                 throw(error);
             });
     }

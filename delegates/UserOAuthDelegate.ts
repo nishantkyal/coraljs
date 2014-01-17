@@ -17,7 +17,7 @@ class UserOAuthDelegate extends BaseDaoDelegate
      * @param userOAuth
      * @returns {makePromise} User updated or created
      */
-    addOrUpdateToken(userOAuth:UserOAuth):q.makePromise
+    addOrUpdateToken(userOAuth:UserOAuth, user?:User):q.makePromise
     {
         var that = this;
 
@@ -41,7 +41,7 @@ class UserOAuthDelegate extends BaseDaoDelegate
                         function transactionStarted(t)
                         {
                             transaction = t;
-                            return new UserDelegate().create({}, transaction);
+                            return new UserDelegate().create(user, transaction);
                         })
                         .then(
                         function userCreated(user:User)

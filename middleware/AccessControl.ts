@@ -10,8 +10,8 @@ import Config                           = require('../Config');
  * Middleware to access control Integration REST APIs
  * Note: Website accesses delegates directly and doesn't go through the APIs hence no access control middleware for it
  */
-class AccessControl {
-
+class AccessControl
+{
     private static logger:log4js.Logger = log4js.getLogger(Utils.getClassName('AccessControl'));
 
     static allowOwner(req, res, next:Function)

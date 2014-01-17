@@ -60,7 +60,7 @@ class UserApi {
         /** Authenticate user **/
         app.get(ApiUrlDelegate.userAuthentication(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
-            var userName = req.body[ApiConstants.USER];
+            var userName = req.body[ApiConstants.USERNAME];
             var password = req.body[ApiConstants.PASSWORD];
 
             if (userName && password)
@@ -131,10 +131,11 @@ class UserApi {
          **/
         app.put(ApiUrlDelegate.userOAuthToken(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
-            var userOauth = new UserOauth(req.body);
+            var userOauth = req.body[ApiConstants.OAUTH];
+            var user = req.body[ApiConstants.USER];
 
             if (userOauth.isValid())
-                userOauthDelegate.addOrUpdateToken(userOauth)
+                userOauthDelegate.addOrUpdateToken(userOauth, user)
                     .then(
                     function tokenAdded(updatedUser:User) { res.json(updatedUser); },
                     function tokenAddError(err) { res.status(500).json(err); }
@@ -149,7 +150,7 @@ class UserApi {
             var userId = req.params[ApiConstants.USER_ID];
             var type = req.params['type'];
 
-            userOauthDelegate.deleteByUser(userId, type)
+            userOauthDelegate.deleteByUser(userId)
                 .then(
                 function tokenRemoved(result) { res.json(result); },
                 function tokenRemoveError(err) { res.status(500).json(err); }

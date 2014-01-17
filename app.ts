@@ -3,6 +3,7 @@ import http             = require('http');
 import path             = require('path');
 import Config           = require('./Config')
 import MysqlDelegate    = require('./delegates/MysqlDelegate');
+import ValidateRequest  = require('./middleware/ValidateRequest');
 
 var app:express.ExpressServer = express.createServer();
 
@@ -10,6 +11,7 @@ var app:express.ExpressServer = express.createServer();
 app.set('port', Config.get('Coral.port') || 3000);
 app.use(express.bodyParser());
 app.use(express.methodOverride());
+app.use(ValidateRequest.parseBody);
 app.enable('trust proxy');
 
 // Create relationships in models based on db schema
