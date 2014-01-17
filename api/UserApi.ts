@@ -149,7 +149,7 @@ class UserApi {
             var userId = req.params[ApiConstants.USER_ID];
             var type = req.params['type'];
 
-            userOauthDelegate.deleteForUser(userId, type)
+            userOauthDelegate.deleteByUser(userId, type)
                 .then(
                 function tokenRemoved(result) { res.json(result); },
                 function tokenRemoveError(err) { res.status(500).json(err); }

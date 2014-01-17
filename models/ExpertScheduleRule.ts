@@ -3,7 +3,6 @@ import BaseModel            = require('./BaseModel');
 class ExpertScheduleRule extends BaseModel
 {
     static TABLE_NAME = 'expert_schedule_rules';
-    static PRIMARY_KEY = 'schedule_rule_id';
 
     integration_member_id:number;
     repeat_start:number;

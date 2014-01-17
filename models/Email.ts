@@ -3,8 +3,8 @@ import BaseModel = require('./BaseModel')
 /**
  * Bean class for Email
  */
-class Email extends BaseModel {
-
+class Email extends BaseModel
+{
     static TABLE_NAME:string = 'email';
 
     private recipient_email:string;

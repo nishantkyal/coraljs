@@ -3,8 +3,8 @@ import i18n         = require('i18n');
 /**
  Delegate to manage localization
  **/
-class LocalizationDelegate {
-
+class LocalizationDelegate
+{
     /** Static constructor workaround */
     private static ctor = (() =>
     {

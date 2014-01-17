@@ -12,8 +12,11 @@ class ExpertScheduleApi
         app.get(ApiUrlDelegate.scheduleByExpert(), function (req, res)
         {
             var expertId = req.params[ApiConstants.EXPERT_ID];
-            var startTime = parseInt(req.query[ApiConstants.START_TIME]);
-            var endTime = parseInt(req.query[ApiConstants.END_TIME]);
+            var startTime = parseInt(req.query[ApiConstants.START_TIME] || 0);
+            var endTime = parseInt(req.query[ApiConstants.END_TIME] || 0);
+
+            if (!startTime || !endTime || startTime >= endTime)
+                res.status(400).send("Invalid time interval");
 
             expertScheduleDelegate.getSchedulesForExpert(expertId, startTime, endTime)
                 .then(

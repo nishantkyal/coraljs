@@ -7,7 +7,6 @@ import Utils        = require('../Utils');
 class BaseModel
 {
     static TABLE_NAME:string;
-    static PRIMARY_KEY:string = 'id';
 
     private __proto__;
     private id:number;
@@ -45,7 +44,6 @@ class BaseModel
     setCreated(val:number):void { this.created = val; }
     setUpdated(val:number):void { this.updated = val; }
     setDeleted(val:boolean):void { this.deleted = val; }
-
 
 }
 export = BaseModel

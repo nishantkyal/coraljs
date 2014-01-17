@@ -3,10 +3,9 @@ import IntegrationMember        = require('./IntegrationMember');
 /**
  * Bean class for Expert
  */
-class Expert extends IntegrationMember {
-
+class Expert extends IntegrationMember
+{
     static TABLE_NAME:string = 'integration_member';
-    static PRIMARY_KEY:string = 'integration_member_id';
 
     private revenue_share:number;
     private revenue_share_unit:number;
@@ -20,3 +19,4 @@ class Expert extends IntegrationMember {
     setRevenueShareUnit(val) { this.revenue_share_unit = val; }
 
 }
+export = Expert

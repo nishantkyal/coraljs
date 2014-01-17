@@ -3,9 +3,7 @@ import BaseModel                = require('./BaseModel');
 class PhoneNumber extends BaseModel
 {
     static TABLE_NAME:string = 'user_phone';
-    static PRIMARY_KEY:string = 'user_phone_id';
 
-    private user_phone_id:string;
     private user_id:number;
     private country_code:string;
     private area_code:string;
@@ -15,7 +13,6 @@ class PhoneNumber extends BaseModel
     private verification_code:string;
 
     /* Getters */
-    getUserPhoneId():string { return this.user_phone_id; }
     getUserId():number { return this.user_id; }
     getCountryCode():string { return this.country_code; }
     getAreaCode():string { return this.area_code; }
@@ -30,7 +27,6 @@ class PhoneNumber extends BaseModel
     }
 
     /* Getters */
-    setUserPhoneId(val:string):void { this.user_phone_id = val; }
     setUserId(val:number):void { this.user_id = val; }
     setCountryCode(val:string):void { this.country_code = val; }
     setAreaCode(val:string):void { this.area_code = val; }

@@ -6,8 +6,8 @@ import UserSetting                  = require('../enums/UserSetting');
 import Utils                        = require('../Utils');
 import Config                       = require('../Config');
 
-class UserSettingDelegate extends BaseDaoDelegate {
-
+class UserSettingDelegate extends BaseDaoDelegate
+{
     createPasswordResetToken(userId:string):q.makePromise
     {
         return this.search({

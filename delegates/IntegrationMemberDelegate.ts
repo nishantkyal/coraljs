@@ -77,6 +77,5 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
     }
 
     getDao():IDao { return new IntegrationMemberDAO(); }
-
 }
 export = IntegrationMemberDelegate

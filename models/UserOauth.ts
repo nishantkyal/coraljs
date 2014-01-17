@@ -4,8 +4,8 @@ import BaseModel        = require('./BaseModel');
 /**
  * Bean class for User's oauth settings (FB, LinkedIn tokens)
  */
-class UserOauth extends BaseModel {
-
+class UserOauth extends BaseModel
+{
     static TABLE_NAME:string = 'user_oauth';
 
     private user_id:string;
@@ -15,7 +15,6 @@ class UserOauth extends BaseModel {
     private access_token_expiry:string;
     private refresh_token:string;
     private refresh_token_expiry:string;
-
 
     /* Getters */
     getUserId() { return this.user_id; }

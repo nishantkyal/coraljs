@@ -10,8 +10,8 @@ import User                 = require('../models/User');
 /**
  Delegate class for managing user's oauth integrations (FB/LinkedIn logins)
  **/
-class UserOAuthDelegate extends BaseDaoDelegate {
-
+class UserOAuthDelegate extends BaseDaoDelegate
+{
     /* Add or update an OAuth token
      * Created new user if can't update
      * @param userOAuth
@@ -80,10 +80,10 @@ class UserOAuthDelegate extends BaseDaoDelegate {
             });
     }
 
-    deleteForUser(type:string, userId:string):q.makePromise
+    deleteByUser(userId:string):q.makePromise
     {
         // TODO: Implement delete oauth token
-        return this.getDao().search({});
+        return null;
     }
 
     getDao():IDao { return new UserAuthDAO(); }

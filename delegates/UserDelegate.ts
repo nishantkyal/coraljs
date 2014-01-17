@@ -9,8 +9,8 @@ import User                     = require('../models/User');
 /**
  Delegate class for User operations
  **/
-class UserDelegate extends BaseDaoDelegate {
-
+class UserDelegate extends BaseDaoDelegate
+{
     create(user?:Object, transaction?:any):q.makePromise
     {
         return super.create(user, transaction)

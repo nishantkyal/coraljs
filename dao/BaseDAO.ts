@@ -14,16 +14,12 @@ class BaseDAO implements IDao
 {
 
     tableName:string;
-    primaryKey:string;
-    //logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
+    logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
 
     constructor()
     {
-        if (this.getModel() && this.getModel().TABLE_NAME && this.getModel().PRIMARY_KEY)
-        {
-            this.primaryKey = this.getModel().PRIMARY_KEY;
+        if (this.getModel() && this.getModel().TABLE_NAME)
             this.tableName = this.getModel().TABLE_NAME;
-        }
         else
             throw ('Invalid Model class specified for ' + Utils.getClassName(this));
     }
@@ -37,8 +33,7 @@ class BaseDAO implements IDao
 
         // Compose insert statement based on data
         var generatedId:number = new GlobalIdDelegate().generate(this.tableName);
-        delete data['id'];
-        data[this.primaryKey] = generatedId;
+        data['id'] = generatedId;
         data['created'] = new Date().getTime();
         data['updated'] = new Date().getTime();
 
@@ -68,11 +63,11 @@ class BaseDAO implements IDao
                 if (!transaction)
                     return that.get(generatedId);
                 else
-                    return {id: generatedId};
+                    return {'id': generatedId};
             },
             function createFailure(error)
             {
-                //that.logger.error('Error while creating a new ' + that.tableName);
+                that.logger.error('Error while creating a new ' + that.tableName);
                 throw(error);
             });
 
@@ -83,7 +78,7 @@ class BaseDAO implements IDao
     {
         var that:BaseDAO = this;
         var selectColumns = fields ? fields.join(',') : '*';
-        var query = 'SELECT ' + selectColumns + ' FROM ' + this.tableName + ' WHERE ' + this.primaryKey + ' = ?';
+        var query = 'SELECT ' + selectColumns + ' FROM ' + this.tableName + ' WHERE id = ?';
         return MysqlDelegate.executeQuery(query, [id])
             .then(
             function objectFetched(rows:Object[])
@@ -91,8 +86,9 @@ class BaseDAO implements IDao
                 switch (rows.length)
                 {
                     case 0:
-                        //that.logger.debug('No object found for' + this.tableName + ', id: ' + id);
-                        throw('No object found for' + this.tableName + ', id: ' + id);
+                        var errorMessage:string = 'No ' + that.tableName.replace('_', ' ') + ' found for id: ' + id;
+                        that.logger.debug(errorMessage);
+                        throw(errorMessage);
                         break;
                     case 1:
                         return rows[0];
@@ -102,7 +98,7 @@ class BaseDAO implements IDao
             },
             function objectFetchError(error)
             {
-                //that.logger.error('Error while fetching ' + this.tableName + ', id: ' + id);
+                that.logger.error('Error while fetching ' + this.tableName + ', id: ' + id);
                 throw(error);
             });
     }
@@ -135,7 +131,7 @@ class BaseDAO implements IDao
                 var statement = key + ' ' + query['operator'] + ' ?';
                 if (operator.toLowerCase() === 'between')
                     statement += ' AND ?';
-                whereStatements.push();
+                whereStatements.push(statement);
                 values.push(query['value'][0]);
                 values.push(query['value'][1]);
             }
@@ -180,7 +176,6 @@ class BaseDAO implements IDao
         // Compose update statement based on newValues
         newValues['updated'] = new Date().getTime();
         delete newValues['id'];
-        delete newValues[this.primaryKey];
 
         var updates = _.map(_.keys(newValues), function (updateColumn)
         {

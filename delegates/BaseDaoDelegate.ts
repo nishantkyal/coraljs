@@ -51,6 +51,5 @@ class BaseDaoDelegate {
         throw('getDao method not implemented');
         return null;
     }
-
 }
 export = BaseDaoDelegate

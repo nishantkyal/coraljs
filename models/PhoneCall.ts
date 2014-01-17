@@ -6,9 +6,7 @@ import BaseModel            = require('./BaseModel');
 class PhoneCall extends BaseModel
 {
     static TABLE_NAME:string = 'call';
-    static PRIMARY_KEY:string = 'call_id';
 
-    private call_id:string;
     private caller_id:number;
     private expert_id:number;
     private integration_id:number;
@@ -25,7 +23,6 @@ class PhoneCall extends BaseModel
     private num_reschedules:number;
 
     /* Getters */
-    getCallId():string { return this.call_id; }
     getCallerId():number { return this.caller_id; }
     getExpertId():number { return this.expert_id; }
     getIntegrationId():number { return this.integration_id; }
@@ -42,7 +39,6 @@ class PhoneCall extends BaseModel
     getNumReschedules():number { return this.num_reschedules; }
 
     /* Setters */
-    setCallId(val:string):void { this.call_id = val; }
     setCallerId(val:number):void { this.caller_id = val; }
     setExpertId(val:number):void { this.expert_id = val; }
     setIntegrationId(val:number):void { this.integration_id = val; }

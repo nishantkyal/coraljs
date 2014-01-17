@@ -32,7 +32,7 @@ class ExpertScheduleRulesApi
         {
             var expertId = req.params[ApiConstants.EXPERT_ID];
 
-            expertScheduleRuleDelegate.getRulesByExpert(expertId)
+            expertScheduleRuleDelegate.getRulesByIntegrationMemberId(expertId)
                 .then(
                 function expertScheduleRuleCreated(schedules) { res.json(schedules); },
                 function expertScheduleRuleCreateFailed(error) { res.status(500).json(error); }

@@ -4,10 +4,9 @@ import BaseModel = require('./BaseModel')
  * Bean class for payout details for User
  * e.g. Bank accounts, paypal ids
  */
-class PayoutDetail extends BaseModel {
-
+class PayoutDetail extends BaseModel
+{
     static TABLE_NAME:string = 'payout_detail';
-    static PRIMARY_KEY = 'payout_detail_id';
 
     private user_id:number;
     private mode:number;
@@ -31,6 +30,5 @@ class PayoutDetail extends BaseModel {
     setAccountNum(val:string) { this.account_num = val; }
     setIfscCode(val:string) { this.ifsc_code = val; }
     setBankName(val:string) { this.bank_name = val; }
-
 }
 export = PayoutDetail

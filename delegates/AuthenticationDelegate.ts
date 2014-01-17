@@ -3,15 +3,15 @@ import passportBearer                   = require('passport-http-bearer');
 import IntegrationMemberDelegate        = require('../delegates/IntegrationMemberDelegate');
 import IntegrationMember                = require('../models/IntegrationMember');
 
-class AuthenticationDelegate {
-
+class AuthenticationDelegate
+{
     static STRATEGY_OAUTH:string = 'oauth';
 
     /** Static constructor workaround */
     private static ctor = (() =>
     {
-        /** Username password strategy *
-        passport.use(AuthenticationDelegate.STRATEGY_OAUTH, new passportBearer.HttpBearerStrategy (
+        // Username password strategy
+        passport.use(AuthenticationDelegate.STRATEGY_OAUTH, new passportBearer.Strategy (
             function(token, done)
             {
                 new IntegrationMemberDelegate().findValidAccessToken(token)
@@ -30,15 +30,15 @@ class AuthenticationDelegate {
                     }
                 )
             }
-        ));*/
+        ));
 
-        /** Serialize user **/
+        // Serialize user
         passport.serializeUser(function(user, done)
         {
             done(null, user);
         });
 
-        /** Deserialize user **/
+        // Deserialize user
         passport.deserializeUser(function(obj, done)
         {
             done(null, obj);

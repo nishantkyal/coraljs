@@ -6,9 +6,7 @@ import BaseModel = require('./BaseModel')
 class IntegrationMember extends BaseModel {
 
     static TABLE_NAME:string = 'integration_member';
-    static PRIMARY_KEY:string = 'integration_member_id';
 
-    private integration_member_id:number;
     private integration_id:number;
     private user_id:number;
     private role:number;
@@ -19,7 +17,6 @@ class IntegrationMember extends BaseModel {
     private refresh_token_expiry:string;
 
     /** Getters */
-    getIntegrationMemberId():number { return this.integration_member_id; }
     getIntegrationId():number { return this.integration_id; }
     getUserId():number { return this.user_id; }
     getRole():number { return this.role; }
@@ -30,11 +27,10 @@ class IntegrationMember extends BaseModel {
     getRefreshTokenExpiry():string { return this.refresh_token_expiry; }
 
     isValid():boolean {
-        return !isNaN(this.getIntegrationId()) && !isNaN(this.getIntegrationMemberId()) && !isNaN(this.getRole());
+        return !isNaN(this.getIntegrationId()) && !isNaN(this.getId()) && !isNaN(this.getRole());
     }
 
     /** Setters */
-    setIntegrationMemberId(val:number):void {  this.integration_member_id = val; }
     setIntegrationId(val:number):void {  this.integration_id = val; }
     setUserId(val:number):void {  this.user_id = val; }
     setRole(val:number):void {  this.role = val; }

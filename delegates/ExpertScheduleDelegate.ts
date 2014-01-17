@@ -126,6 +126,10 @@ class ExpertScheduleDelegate extends BaseDAODelegate
         }
         else if (rule.getRepeatInterval())
         {
+            if (rule.getRepeatEnd())
+                endTime = Math.min(endTime, rule.getRepeatEnd());
+            startTime = Math.max(startTime, rule.getRepeatStart());
+
             for (var i = startTime; i <= endTime; i += rule.getRepeatInterval())
             {
                 var eSchedule = new ExpertSchedule();
@@ -135,7 +139,6 @@ class ExpertScheduleDelegate extends BaseDAODelegate
                 eSchedule.setScheduleRuleId(rule.getId());
                 schedules.push(eSchedule);
             }
-
         }
 
         return schedules;

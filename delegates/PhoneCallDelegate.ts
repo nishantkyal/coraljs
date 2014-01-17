@@ -20,6 +20,5 @@ class PhoneCallDelegate extends BaseDAODelegate
     }
 
     getDao():IDao { return new PhoneCallDao(); }
-
 }
 export = PhoneCallDelegate

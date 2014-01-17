@@ -12,5 +12,6 @@ class ForeignKey
         this.model = model;
         this.targetKey = targetKey;
     }
+
 }
 export = ForeignKey

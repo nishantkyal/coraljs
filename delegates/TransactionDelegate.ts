@@ -4,8 +4,8 @@ import BaseDAODelegate              = require('./BaseDaoDelegate');
 import IDao                         = require('../dao/IDao');
 import TransactionDAO               = require('../dao/TransactionDao');
 
-class TransactionDelegate extends BaseDAODelegate{
-
+class TransactionDelegate extends BaseDAODelegate
+{
     search(user_id:string, filters?:Object, fields?:string[]):q.makePromise
     {
         filters['user_id'] = user_id;
