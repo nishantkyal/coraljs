@@ -4,9 +4,11 @@ import BaseDaoDelegate              = require('BaseDaoDelegate');
 import Utils                        = require('../Utils');
 import MysqlDelegate                = require('../delegates/MysqlDelegate');
 import IntegrationDelegate          = require('../delegates/IntegrationDelegate');
+import UserDelegate                 = require('../delegates/UserDelegate');
 import IDao                         = require ('../dao/IDao');
 import IntegrationMemberDAO         = require ('../dao/IntegrationMemberDao');
 import IntegrationMemberRole        = require('../enums/IntegrationMemberRole');
+import ApiFlags                     = require('../enums/ApiFlags');
 import IntegrationMember            = require('../models/IntegrationMember');
 import AccessTokenCache             = require('../caches/AccessTokenCache');
 
@@ -20,10 +22,10 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
         return super.create(integrationMember, transaction);
     }
 
-    get(id:any, fields?:string[]):q.makePromise
+    get(id:any, fields?:string[], flags?:string[]):q.makePromise
     {
         fields = fields || ['id', 'role', 'integration_id', 'user_id'];
-        return super.get(id, fields);
+        return super.get(id, fields, flags);
     }
 
     getIntegrationsForUser(user_id:string, fields?:string[]):q.makePromise
@@ -47,13 +49,12 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
 
         function tokenFetched(result)
         {
-            if (_.isArray(result))
-                result = result[0];
+            if (_.isArray(result)) result = result[0];
 
             if (result && (!integrationMemberId || result['integration_member_id'] === integrationMemberId))
                 return new IntegrationMember(result);
-            else
-                return null;
+
+            return null;
         }
 
         return accessTokenCache.getAccessTokenDetails(accessToken)
@@ -64,9 +65,7 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
                 // Try fetching from database
                 that.logger.debug("Couldn't get token details from cache, hitting db, Error: " + error);
                 return that.search({'access_token': accessToken}, [])
-                    .then(
-                        tokenFetched
-                    )
+                    .then(tokenFetched)
             }
         );
     }
@@ -77,5 +76,17 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
     }
 
     getDao():IDao { return new IntegrationMemberDAO(); }
+
+    getIncludeHandler(include:string, result:any):q.makePromise
+    {
+        switch (include)
+        {
+            case ApiFlags.INCLUDE_INTEGRATION:
+                return new IntegrationDelegate().get(result['id']);
+            case ApiFlags.INCLUDE_USER:
+                return new UserDelegate().get(result['user_id']);
+        }
+        return super.getIncludeHandler(include, result);
+    }
 }
 export = IntegrationMemberDelegate

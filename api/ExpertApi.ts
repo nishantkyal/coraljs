@@ -40,29 +40,11 @@ class ExpertApi
         app.get(ApiUrlDelegate.expertById(), function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var expertId = req.params[ApiConstants.EXPERT_ID];
-            var flags = req.query[ApiConstants.FLAG];
+            var includes:string[] = req.query[ApiConstants.INCLUDE];
 
-            integrationMemberDelegate.get(expertId, ['a'])
+            integrationMemberDelegate.get(expertId, null, includes)
                 .then(
-                function handleExpertSearched(integrationMember)
-                {
-                    var flagTasks = [];
-                    _.each(flags, function(flag) {
-                        switch(flag) {
-                            case ApiFlags.INCLUDE_USER:
-                                flagTasks.push(userDelegate.get(integrationMember.user_id));
-                                break;
-                        }
-                    });
-                    q.all(flagTasks)
-                        .then(
-                            function (...args) {
-                                for (var i = 0; i < args.length; i++)
-                                    integrationMember[flags[i].replace('include_', '')] = args[i][0];
-                                res.json(integrationMember);
-                            }
-                        )
-                },
+                function handleExpertSearched(integrationMember) { res.json(integrationMember); },
                 function handleExpertSearchError(err) { res.status(500).json(err); }
             );
         });

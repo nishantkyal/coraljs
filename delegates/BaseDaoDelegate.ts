@@ -1,3 +1,4 @@
+import _                = require('underscore');
 import log4js           = require('log4js');
 import q                = require('q');
 import IDao             = require('../dao/IDao');
@@ -13,10 +14,39 @@ class BaseDaoDelegate {
         this.logger = log4js.getLogger(Utils.getClassName(this));
     }
 
-    get(id:any, fields?:string[]):q.makePromise
+    get(id:any, fields?:string[], includes?:string[]):q.makePromise
     {
-        return this.getDao().get(id, fields);
+        var that = this;
+        includes = includes || [];
+        var rawResult;
+
+        // 1. Get the queried object
+        // 2. Parse flags and add handlers to a queue
+        // 3. When queue is complete, concat all results to queried object and return
+        return this.getDao().get(id, fields)
+            .then(
+            function processIncludes(result)
+            {
+                rawResult = result;
+                var includeTasks = [];
+                _.each(includes, function (flag) {
+                    var handler;
+                    if (handler = that.getIncludeHandler(flag, result))
+                        includeTasks.push(handler);
+                });
+                return q.all(includeTasks);
+            })
+            .then(
+            function handleIncludesProcessed(...args)
+            {
+                for (var i = 0; i < args.length; i++)
+                    rawResult[includes[i]] = args[i];
+                return rawResult;
+            });
     }
+
+    /* Abstract method that defines how flags are handled in get query */
+    getIncludeHandler(include:string, result:any):q.makePromise { return null; }
 
     /**
      * Perform search based on seacrh query
@@ -52,5 +82,6 @@ class BaseDaoDelegate {
         throw('getDao method not implemented');
         return null;
     }
+
 }
 export = BaseDaoDelegate

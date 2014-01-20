@@ -5,7 +5,7 @@ class ApiConstants {
 
     static FIELDS:string = 'fields';
     static FILTERS:string = 'filters';
-    static FLAG:string = 'flag';
+    static INCLUDE:string = 'include';
     static ROLE:string = 'role';
 
     /* Param constants */
