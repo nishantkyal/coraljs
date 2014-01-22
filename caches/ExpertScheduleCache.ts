@@ -1,4 +1,5 @@
 import Schedule             = require('../models/ExpertSchedule');
+import CacheHelper          = require('./CacheHelper');
 
 /**
  * Cache of expert schedules for the next week
@@ -6,10 +7,7 @@ import Schedule             = require('../models/ExpertSchedule');
  */
 class ExpertScheduleCache
 {
-    /**
-     * Get expert's available time slots for this week
-     * @param expertId
-     */
+    /* Get expert's available time slots for this week */
     getSchedule(expertId:string)
     {
 
@@ -19,13 +17,13 @@ class ExpertScheduleCache
      * Get expert's availability in the duration
      * Throw error if startTime > weekEndTime or endTime < weekStartTime
      */
-    isAvailable(expertId:string, startTime:number, endTime:number)
+    isAvailable(expertId:string)
     {
 
     }
 
     /* Remove schedules for user */
-    removeSchedules(expertIf:string)
+    removeSchedules(expertId:string)
     {
 
     }

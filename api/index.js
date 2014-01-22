@@ -10,4 +10,5 @@ module.exports = function(app) {
     require('./PhoneNumberApi')(app);
     require('./TransactionApi')(app);
     require('./UserApi')(app);
+    require('./SMSApi')(app);
 }

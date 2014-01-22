@@ -16,6 +16,7 @@ class ApiUrlDelegate {
     static userById(userId?:number):string { return this.get('/rest/user/:userId', {userId: userId}); }
     static userPasswordResetToken(userId?:number):string { return this.get('/rest/user/:userId/passwordResetToken', {userId: userId}); }
     static emailVerificationToken(userId?:number):string { return this.get('/rest/user/:userId/emailVerification', {userId: userId}); }
+    static mobileVerificationToken():string { return this.get('/rest/mobile/verification'); }
     static userIntegrationDetails(userId?:number, integrationId?:number):string { return this.get('/rest/user/:userId/integration/:integrationId', {userId: userId, integrationId: integrationId}); }
     static userActivitySummary(userId?:number):string { return this.get('/rest/user/:userId/activity/summary', {userId: userId}); }
     static userTransactionBalance(userId?:number):string { return this.get('/rest/user/:userId/transactions/balance', {userId: userId}); }
@@ -30,45 +31,48 @@ class ApiUrlDelegate {
 
     /* URL patterns for expert schedules */
     static schedule():string { return this.get('/rest/schedule')}
-    static scheduleById(scheduleId?:number):string { return this.get('/rest/schedule/:scheduleId')}
-    static scheduleByExpert(expertId?:number):string { return this.get('/rest/expert/:expertId/schedule')}
+    static scheduleById(scheduleId?:number):string { return this.get('/rest/schedule/:scheduleId', {scheduleId: scheduleId})}
+    static scheduleByExpert(expertId?:number):string { return this.get('/rest/expert/:expertId/schedule', {expertId: expertId})}
 
     /* URL patterns for expert schedule rules*/
     static scheduleRule():string { return this.get('/rest/scheduleRule')}
-    static scheduleRuleById(scheduleRuleId?:number):string { return this.get('/rest/scheduleRule/:scheduleRuleId')}
-    static scheduleRuleByExpert(expertId?:number):string { return this.get('/rest/expert/:expertId/scheduleRule')}
+    static scheduleRuleById(scheduleRuleId?:number):string { return this.get('/rest/scheduleRule/:scheduleRuleId', {scheduleRuleId: scheduleRuleId})}
+    static scheduleRuleByExpert(expertId?:number):string { return this.get('/rest/expert/:expertId/scheduleRule', {expertId: expertId})}
 
     /* URL patterns for third party integration */
     static integration():string { return this.get('/rest/integration'); }
-    static integrationById(integrationId?:number):string { return this.get('/rest/integration/:integrationId'); }
-    static integrationSecretReset(integrationId?:number):string { return this.get('/rest/integration/:integrationId/secret/reset'); }
-    static integrationMember(integrationId?:number):string { return this.get('/rest/integration/:integrationId/member'); }
-    static integrationMemberById(integrationId?:number, memberId?:number):string { return this.get('/rest/integration/:integrationId/member/:memberId'); }
-    static ownerActivitySummary(integrationId?:number):string { return this.get('/rest/integration/:integrationId/activity/summary'); }
+    static integrationById(integrationId?:number):string { return this.get('/rest/integration/:integrationId', {integrationId: integrationId}); }
+    static integrationSecretReset(integrationId?:number):string { return this.get('/rest/integration/:integrationId/secret/reset', {integrationId: integrationId}); }
+    static integrationMember(integrationId?:number):string { return this.get('/rest/integration/:integrationId/member', {integrationId: integrationId}); }
+    static integrationMemberById(integrationId?:number, memberId?:number):string { return this.get('/rest/integration/:integrationId/member/:memberId', {integrationId: integrationId, memberId: memberId}); }
+    static ownerActivitySummary(integrationId?:number):string { return this.get('/rest/integration/:integrationId/activity/summary', {integrationId: integrationId}); }
 
     /** URL patterns for payments **/
     static payment():string { return this.get('/rest/payment'); }
-    static paymentById(paymentId?:number):string { return this.get('/rest/payment/:paymentId'); }
+    static paymentById(paymentId?:number):string { return this.get('/rest/payment/:paymentId', {paymentId: paymentId}); }
 
     /** URL patterns for payout details **/
     static payoutDetail():string { return this.get('/rest/payout-detail'); }
-    static payoutDetailById(payoutDetailId?:number):string { return this.get('/rest/payout-detail/:payoutDetailId'); }
+    static payoutDetailById(payoutDetailId?:number):string { return this.get('/rest/payout-detail/:payoutDetailId', {payoutDetailId: payoutDetailId}); }
 
     /** URL patterns for phone calls **/
     static phoneCall():string { return this.get('/rest/call'); }
-    static phoneCallById(callId?:number):string { return this.get('/rest/call/:callId'); }
-    static phoneCallReschedule(callId?:number):string { return this.get('/rest/call/:callId/reschedule'); }
-    static phoneCallCancel(callId?:number):string { return this.get('/rest/call/:callId/cancel'); }
+    static phoneCallById(callId?:number):string { return this.get('/rest/call/:callId', {callId: callId}); }
+    static phoneCallReschedule(callId?:number):string { return this.get('/rest/call/:callId/reschedule', {callId: callId}); }
+    static phoneCallCancel(callId?:number):string { return this.get('/rest/call/:callId/cancel', {callId: callId}); }
 
     /** URL patterns for phone numbers **/
     static phoneNumber():string { return this.get('/rest/phone-number'); }
-    static phoneNumberById(phoneNumberId?:number):string { return this.get('/rest/phone-number/:phoneNumberId'); }
+    static phoneNumberById(phoneNumberId?:number):string { return this.get('/rest/phone-number/:phoneNumberId', {phoneNumberId: phoneNumberId}); }
 
     /** URL patterns for transaction **/
     static transaction():string { return this.get('/rest/transaction'); }
-    static transactionById(transactionId?:number):string { return this.get('/rest/transaction/:transactionId'); }
-    static transactionItem():string { return this.get('/rest/transaction/:transactionId/item'); }
-    static transactionItemById(transactionId?:number, itemId?:number):string { return this.get('/rest/transaction/:transactionId/item/:itemId'); }
+    static transactionById(transactionId?:number):string { return this.get('/rest/transaction/:transactionId', {transactionId: transactionId}); }
+    static transactionItem(transactionId?:number):string { return this.get('/rest/transaction/:transactionId/item', {transactionId: transactionId}); }
+    static transactionItemById(transactionId?:number, itemId?:number):string { return this.get('/rest/transaction/:transactionId/item/:itemId', {transactionId: transactionId, itemId: itemId}); }
+
+    /* URL patterns for SMS */
+    static sms():string { return this.get('/rest/sms'); }
 
     /**
      * Helper method to generate URLs with values substituted for parameters (if supplied)

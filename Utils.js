@@ -6,7 +6,7 @@ var _ = require('underscore');
 var Utils = (function () {
     function Utils() {
     }
-    Utils.getRandomString = /** Get random string **/
+    Utils.getRandomString = /* Get random string */
     function (length, characters) {
         var buf = [];
         var chars = characters || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -18,7 +18,7 @@ var Utils = (function () {
         return buf.join('');
     };
 
-    Utils.getRandomInt = /** Get random number **/
+    Utils.getRandomInt = /* Get random number */
     function (min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     };

@@ -30,6 +30,7 @@ class ApiConstants {
     static PHONE_NUMBER:string = 'phoneNumber';
     static SCHEDULE:string = 'expertSchedule';
     static SCHEDULE_RULE:string = 'expertScheduleRule';
+    static SMS:string = 'sms';
 
 }
 export = ApiConstants

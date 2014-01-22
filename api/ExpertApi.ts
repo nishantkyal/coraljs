@@ -22,7 +22,6 @@ class ExpertApi
     constructor(app)
     {
         var integrationMemberDelegate = new IntegrationMemberDelegate();
-        var userDelegate = new UserDelegate();
 
         /** Search expert **/
         app.get(ApiUrlDelegate.expert(), AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
@@ -40,7 +39,7 @@ class ExpertApi
         app.get(ApiUrlDelegate.expertById(), function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var expertId = req.params[ApiConstants.EXPERT_ID];
-            var includes:string[] = req.query[ApiConstants.INCLUDE];
+            var includes:string[] = [].concat(req.query[ApiConstants.INCLUDE]);
 
             integrationMemberDelegate.get(expertId, null, includes)
                 .then(

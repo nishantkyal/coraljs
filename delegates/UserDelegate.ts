@@ -1,10 +1,11 @@
 import q                        = require('q');
 import passport                 = require('passport');
-import BaseDaoDelegate          = require('./BaseDaoDelegate');
-import UserSettingDelegate      = require('./UserSettingDelegate');
+import BaseDaoDelegate          = require('../delegates/BaseDaoDelegate');
+import UserSettingDelegate      = require('../delegates/UserSettingDelegate');
 import IDao                     = require('../dao/IDao')
 import UserDAO                  = require('../dao/UserDao')
 import User                     = require('../models/User');
+import VerificationCodeCache    = require('../caches/VerificationCodeCache');
 
 /**
  Delegate class for User operations
@@ -42,6 +43,11 @@ class UserDelegate extends BaseDaoDelegate
         delete user['email'];
 
         return super.update({user_id: id}, user);
+    }
+
+    createMobileVerificationToken():q.makePromise
+    {
+        return new VerificationCodeCache().createMobileVerificationCode();
     }
 
     getDao():IDao { return new UserDAO(); }

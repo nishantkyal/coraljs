@@ -18,10 +18,10 @@ class CacheHelper
         return this.connection;
     }
 
-    static set(key, value):q.makePromise
+    static set(key, value, expiry?:number):q.makePromise
     {
         var deferred = q.defer();
-        this.getConnection().set(key, JSON.stringify(value), function(error, result)
+        this.getConnection().set(key, JSON.stringify(value), 'EX', expiry, function(error, result)
         {
             if (error)
                 deferred.reject(error);
@@ -233,6 +233,19 @@ class CacheHelper
     {
         var deferred = q.defer();
         return this.getConnection().zremrangebyscore(set, key, key, function(error, result)
+        {
+            if (error)
+                deferred.reject(null);
+            else
+                deferred.resolve(JSON.parse(result));
+        });
+        return deferred.promise;
+    }
+
+    static setExpiry(key, expiry):q.makePromise
+    {
+        var deferred = q.defer();
+        return this.getConnection().expire(key, expiry, function(error, result)
         {
             if (error)
                 deferred.reject(null);

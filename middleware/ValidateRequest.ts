@@ -7,6 +7,7 @@ import UserOauth            = require('../models/UserOauth');
 import Integration          = require('../models/Integration');
 import IntegrationMember    = require('../models/IntegrationMember');
 import PhoneNumber          = require('../models/PhoneNumber');
+import SMS                  = require('../models/SMS');
 
 class ValidateRequest
 {
@@ -58,6 +59,8 @@ class ValidateRequest
                 case ApiConstants.PHONE_NUMBER:
                     modelClass = PhoneNumber;
                     break;
+                case ApiConstants.SMS:
+                    modelClass = SMS;
             }
 
             if (modelClass)

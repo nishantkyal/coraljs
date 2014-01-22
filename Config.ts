@@ -4,10 +4,8 @@ import nconf        = require("nconf")
  * Utility class for accessing global app config
  * Read from specified file
  */
-class Config {
-
-    static DASHBOARD_INTEGRATION_ID:string              = 'dashboard_integration_id';
-
+class Config
+{
     /** Static constructor workaround */
     private static ctor = (() =>
     {
@@ -19,12 +17,5 @@ class Config {
     {
         return nconf.get(key);
     }
-
-    /* Setters */
-    static setDashboardIntegrationId(integrationId:string):void
-    {
-        nconf.set(Config.DASHBOARD_INTEGRATION_ID, integrationId);
-    }
-
 }
 export = Config

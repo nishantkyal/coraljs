@@ -39,8 +39,8 @@ class BaseDaoDelegate {
             .then(
             function handleIncludesProcessed(...args)
             {
-                for (var i = 0; i < args.length; i++)
-                    rawResult[includes[i]] = args[i];
+                for (var i = 0; i < args[0].length; i++)
+                    rawResult[includes[i]] = args[0][i];
                 return rawResult;
             });
     }

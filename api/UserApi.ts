@@ -22,7 +22,6 @@ class UserApi {
     constructor(app)
     {
         var userDelegate = new UserDelegate();
-        var transactionDelegate = new TransactionDelegate();
         var userOauthDelegate = new UserOAuthDelegate();
         var userSettingDelegate = new UserSettingDelegate();
 
@@ -85,7 +84,7 @@ class UserApi {
             )
         });
 
-        /** Generate a email verification token for user **/
+        /* Generate a email verification token for user */
         app.get(ApiUrlDelegate.emailVerificationToken(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var userId = req.params[ApiConstants.USER_ID];
@@ -97,22 +96,22 @@ class UserApi {
             )
         });
 
-        /** Get account balance */
+        /* Get account balance */
         app.get(ApiUrlDelegate.userTransactionBalance(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
-            var userId = req.params[ApiConstants.USER_ID];
-
-            transactionDelegate.getAccountBalance(userId)
-                .then(
-                function accountBalanceFetched(total) { res.json(total); },
-                function accountBalanceError(err) { res.status(500).json(err); }
-            );
         });
 
-        /**
-         * Update OAuth token
-         * @return updated user
-         **/
+        /* Generate mobile verification code */
+        app.get(ApiUrlDelegate.mobileVerificationToken(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        {
+            userDelegate.createMobileVerificationToken()
+                .then(
+                    function codeCreated(result) { res.send(result); },
+                    function codeCreationFailed(error) { res.send(500); }
+                )
+        });
+
+        /* Update OAuth token */
         app.put(ApiUrlDelegate.userOAuthToken(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var userOauth:UserOauth = req.body[ApiConstants.OAUTH];

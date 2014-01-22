@@ -5,7 +5,7 @@ import _                = require('underscore');
 
 class Utils
 {
-    /** Get random string **/
+    /* Get random string */
     static getRandomString(length:number, characters?:string)
     {
         var buf = [];
@@ -18,7 +18,7 @@ class Utils
         return buf.join('');
     }
 
-    /** Get random number **/
+    /* Get random number */
     static getRandomInt(min, max)
     {
         return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -37,7 +37,7 @@ class Utils
         return deferred.promise;
     }
 
-    static isNullOrEmpty(str:string):boolean
+    static isNullOrEmpty(str:any):boolean
     {
         return str == null || str == undefined || str.trim().length == 0;
     }

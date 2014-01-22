@@ -28,8 +28,9 @@ class ExpertScheduleApi
         app.get(ApiUrlDelegate.scheduleById(), function (req, res)
         {
             var scheduleId:string = req.params[ApiConstants.SCHEDULE_ID];
+            var includes:string[] = req.query[ApiConstants.INCLUDE];
 
-            expertScheduleDelegate.get(scheduleId)
+            expertScheduleDelegate.get(scheduleId, null, includes)
                 .then(
                 function expertScheduleSearched(schedules) { res.json(schedules); },
                 function expertScheduleSearchFailed(error) { res.status(500).json(error); }

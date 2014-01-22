@@ -1,10 +1,11 @@
-import q                            = require('q');
 import _                            = require('underscore');
-import BaseDaoDelegate              = require('BaseDaoDelegate');
+import q                            = require('q');
 import Utils                        = require('../Utils');
+import BaseDaoDelegate              = require('../delegates/BaseDaoDelegate');
 import MysqlDelegate                = require('../delegates/MysqlDelegate');
 import IntegrationDelegate          = require('../delegates/IntegrationDelegate');
 import UserDelegate                 = require('../delegates/UserDelegate');
+import ExpertScheduleDelegate       = require('../delegates/ExpertScheduleDelegate');
 import IDao                         = require ('../dao/IDao');
 import IntegrationMemberDAO         = require ('../dao/IntegrationMemberDao');
 import IntegrationMemberRole        = require('../enums/IntegrationMemberRole');
@@ -85,6 +86,8 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
                 return new IntegrationDelegate().get(result['id']);
             case ApiFlags.INCLUDE_USER:
                 return new UserDelegate().get(result['user_id']);
+            case ApiFlags.INCLUDE_SCHEDULES:
+                return new ExpertScheduleDelegate().getSchedulesForExpert(result['id']);
         }
         return super.getIncludeHandler(include, result);
     }
