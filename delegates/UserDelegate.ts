@@ -50,6 +50,11 @@ class UserDelegate extends BaseDaoDelegate
         return new VerificationCodeCache().createMobileVerificationCode();
     }
 
+    searchMobileVerificationToken(code:string, ref:string):q.makePromise
+    {
+        return new VerificationCodeCache().searchMobileVerificationCode(code, ref);
+    }
+
     getDao():IDao { return new UserDAO(); }
 
 }

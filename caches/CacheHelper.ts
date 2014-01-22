@@ -26,7 +26,7 @@ class CacheHelper
             if (error)
                 deferred.reject(error);
             else
-                deferred.resolve(JSON.parse(result));
+                deferred.resolve(null);
         });
         return deferred.promise;
 
@@ -35,7 +35,7 @@ class CacheHelper
     static get(key):q.makePromise
     {
         var deferred = q.defer();
-        this.getConnection().set(key, function(error, result)
+        this.getConnection().get(key, function(error, result)
         {
             if (error)
                 deferred.reject(null);

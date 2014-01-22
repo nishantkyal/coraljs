@@ -15,5 +15,15 @@ class VerificationCodeCache
                 function tokenCreated() { return {code: code, ref: codeReference}}
             );
     }
+
+    searchMobileVerificationCode(code:string, ref:string):q.makePromise
+    {
+        return CacheHelper.get('mv-' + ref)
+            .then(
+            function tokenSearched(result) {
+                return {isValid: result == code};
+            }
+        );
+    }
 }
 export = VerificationCodeCache

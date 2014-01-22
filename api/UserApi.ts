@@ -102,13 +102,26 @@ class UserApi {
         });
 
         /* Generate mobile verification code */
-        app.get(ApiUrlDelegate.mobileVerificationToken(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.put(ApiUrlDelegate.mobileVerificationToken(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             userDelegate.createMobileVerificationToken()
                 .then(
                     function codeCreated(result) { res.send(result); },
                     function codeCreationFailed(error) { res.send(500); }
                 )
+        });
+
+        /* Search mobile verification code */
+        app.get(ApiUrlDelegate.mobileVerificationToken(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        {
+            var code:string = req.body['code'];
+            var ref:string = req.body['ref'];
+
+            userDelegate.searchMobileVerificationToken(code, ref)
+                .then(
+                function codeCreated(result) { res.send(result); },
+                function codeCreationFailed(error) { res.send(500); }
+            )
         });
 
         /* Update OAuth token */
