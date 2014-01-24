@@ -36,7 +36,7 @@ var Utils = (function () {
     };
 
     Utils.isNullOrEmpty = function (str) {
-        return str == null || str == undefined || str.trim().length == 0;
+        return str == null || str == undefined || str.toString().trim().length == 0;
     };
 
     Utils.getClassName = function (object) {
@@ -61,6 +61,12 @@ var Utils = (function () {
             return frag.toLowerCase();
         });
         return lowerCasedFrags.join('_');
+    };
+
+    Utils.getEnumString = function (enumObject, key, convertToPlainText) {
+        if (typeof convertToPlainText === "undefined") { convertToPlainText = true; }
+        var val = enumObject[enumObject[key]];
+        return (convertToPlainText ? val.replace(/_/g, ' ').toLowerCase() : val);
     };
     return Utils;
 })();

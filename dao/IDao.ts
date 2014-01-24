@@ -1,4 +1,5 @@
 import q            = require('q');
+import BaseModel    = require('../models/BaseModel');
 
 interface IDao
 {
@@ -7,5 +8,6 @@ interface IDao
     search(searchQuery:Object, options?:Object):q.makePromise;
     update(criteria:Object, newValues:Object, transaction?:any):q.makePromise;
     delete(id:string, softDelete:boolean, transaction?:any):q.makePromise;
+    getModel():typeof BaseModel;
 }
 export = IDao

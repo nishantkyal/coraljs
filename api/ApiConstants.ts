@@ -16,6 +16,7 @@ class ApiConstants {
     static USERNAME:string = 'login';
     static PASSWORD:string = 'pass';
     static PHONE_NUMBER_ID:string = 'phoneNumberId';
+    static PHONE_CALL_ID:string = 'callId';
     static SCHEDULE_ID:string = 'scheduleId';
     static SCHEDULE_RULE_ID:string = 'scheduleRuleId';
     static START_TIME:string = 'startTime';
@@ -28,6 +29,7 @@ class ApiConstants {
     static INTEGRATION_MEMBER:string = 'integration_member';
     static EXPERT:string = 'expert';
     static PHONE_NUMBER:string = 'phoneNumber';
+    static PHONE_CALL:string = 'phoneCall';
     static SCHEDULE:string = 'expertSchedule';
     static SCHEDULE_RULE:string = 'expertScheduleRule';
     static SMS:string = 'sms';

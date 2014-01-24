@@ -18,7 +18,7 @@ class SMSDelegate extends BaseDaoDelegate
         sms.setStatus(SMSStatus.SCHEDULED);
         sms.setNumRetries(0);
 
-        return this.getDao().create(sms);
+        return this.create(sms);
     }
 }
 export = SMSDelegate

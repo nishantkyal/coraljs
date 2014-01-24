@@ -30,12 +30,7 @@ class BaseDAO implements IDao
         var that:BaseDAO = this;
 
         data = data || {};
-
-        // Compose insert statement based on data
-        var generatedId:number = new GlobalIdDelegate().generate(this.tableName);
-        data['id'] = generatedId;
-        data['created'] = new Date().getTime();
-        data['updated'] = new Date().getTime();
+        var id:number = data['id'];
 
         // Remove inserts with undefined values
         _.each(data, function (value, key)
@@ -52,18 +47,18 @@ class BaseDAO implements IDao
             return typeof val === 'string' ? "'" + val + "'" : val;
         });
 
-        var query = 'INSERT INTO ' + this.tableName + '(' + inserts.join(',') + ') VALUES (' + values.join(',') + ')';
+        var query = 'INSERT INTO `' + this.tableName + '` (' + inserts.join(',') + ') VALUES (' + values.join(',') + ')';
 
         return MysqlDelegate.executeQuery(query, null, transaction)
             .then(
-            function created(result)
+            function created()
             {
                 // If happening in a transaction, just return generated id since record doesn't exist yet
                 // Else fetch row
                 if (!transaction)
-                    return that.get(generatedId);
+                    return that.get(id);
                 else
-                    return {'id': generatedId};
+                    return {'id': id};
             },
             function createFailure(error)
             {
@@ -78,7 +73,8 @@ class BaseDAO implements IDao
     {
         var that:BaseDAO = this;
         var selectColumns = fields ? fields.join(',') : '*';
-        var query = 'SELECT ' + selectColumns + ' FROM ' + this.tableName + ' WHERE id = ?';
+        var query = 'SELECT ' + selectColumns + ' FROM `' + this.tableName + '` WHERE id = ?';
+
         return MysqlDelegate.executeQuery(query, [id])
             .then(
             function objectFetched(rows:Object[])
@@ -146,14 +142,13 @@ class BaseDAO implements IDao
         }
 
         if (whereStatements.length == 0)
-        {
             throw ('Invalid search criteria');
-        }
 
         // Compose select statement based on fields
         var selectColumns = options && options.hasOwnProperty('fields') ? options['fields'].join(',') : '*';
 
         var queryString = 'SELECT ' + selectColumns + ' FROM ' + this.tableName + ' WHERE ' + whereStatements.join(' AND ');
+
         return MysqlDelegate.executeQuery(queryString, values);
     }
 
@@ -161,33 +156,16 @@ class BaseDAO implements IDao
     update(criteria:Object, newValues:Object, transaction?:any):q.makePromise
     {
         // Remove fields with null values
-        _.each(criteria, function (val, key)
-        {
-            if (val == null)
-                delete criteria[key];
-        });
+        _.each(criteria, function (val, key) { if (val == null) delete criteria[key]; });
+        _.each(newValues, function (val, key) { if (val == null) delete newValues[key]; });
 
-        _.each(newValues, function (val, key)
-        {
-            if (val == null)
-                delete newValues[key];
-        });
+        var values = [], updates, wheres;
 
-        // Compose update statement based on newValues
-        newValues['updated'] = new Date().getTime();
-        delete newValues['id'];
-
-        var updates = _.map(_.keys(newValues), function (updateColumn)
-        {
-            return updateColumn + ' = ?';
-        });
-        var values = _.values(newValues);
+        updates = _.map(_.keys(newValues), function (updateColumn) { return updateColumn + ' = ?'; });
+        values = values.concat(_.values(newValues));
 
         // Compose criteria statements
-        var wheres = _.map(_.keys(criteria), function (whereColumn)
-        {
-            return whereColumn + ' = ?';
-        });
+        wheres = _.map(_.keys(criteria), function (whereColumn) { return whereColumn + ' = ?'; });
         values = values.concat(_.values(criteria));
 
         var query = 'UPDATE ' + this.tableName + ' SET ' + updates.join(",") + ' WHERE ' + wheres.join(" AND ");

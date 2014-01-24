@@ -143,6 +143,8 @@ class ExpertScheduleDelegate extends BaseDAODelegate
             for (var i = startTime; i <= endTime; i += rule.getRepeatInterval())
             {
                 var eSchedule = new ExpertSchedule();
+                eSchedule.setPricePerMin(rule.getPricePerMin());
+                eSchedule.setPriceUnit(rule.getPriceUnit());
                 eSchedule.setDuration(rule.getDuration());
                 eSchedule.setStartTime(i);
                 eSchedule.setIntegrationMemberId(integrationMemberId);

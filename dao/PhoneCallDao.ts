@@ -1,13 +1,12 @@
 import BaseDAO          = require('./BaseDAO');
+import BaseModel        = require('../models/BaseModel');
+import PhoneCall        = require('../models/PhoneCall');
 
 /**
  DAO for phone calls
  **/
 class PhoneCallDao extends BaseDAO
 {
-
-    static getClassName():string { return 'call'; }
-    static getGeneratedIdName():string { return 'call_id'; }
-
+    getModel():typeof BaseModel { return PhoneCall; }
 }
 export = PhoneCallDao

@@ -4,6 +4,7 @@ import q                = require('q');
 import IDao             = require('../dao/IDao');
 import Utils            = require('../Utils');
 import BaseModel        = require('../models/BaseModel');
+import GlobalIdDelegate = require('../delegates/GlobalIDDelegate');
 
 class BaseDaoDelegate {
 
@@ -64,11 +65,22 @@ class BaseDaoDelegate {
 
     create(object:Object, transaction?:any):q.makePromise
     {
+        // Compose insert statement based on data
+        var generatedId:number = new GlobalIdDelegate().generate(this.getDao().getModel().TABLE_NAME);
+        object['id'] = generatedId;
+        object['created'] = new Date().getTime();
+        object['updated'] = new Date().getTime();
+
         return this.getDao().create(object, transaction);
     }
 
     update(criteria:Object, newValues:Object, transaction?:any):q.makePromise
     {
+        // Compose update statement based on newValues
+        newValues['updated'] = new Date().getTime();
+        delete newValues['created'];
+        delete newValues['id'];
+
         return this.getDao().update(criteria, newValues, transaction);
     }
 

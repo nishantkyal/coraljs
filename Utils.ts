@@ -39,7 +39,7 @@ class Utils
 
     static isNullOrEmpty(str:any):boolean
     {
-        return str == null || str == undefined || str.trim().length == 0;
+        return str == null || str == undefined || str.toString().trim().length == 0;
     }
 
     static getClassName(object:Object):string
@@ -67,6 +67,12 @@ class Utils
             return frag.toLowerCase();
         })
         return lowerCasedFrags.join('_');
+    }
+
+    static getEnumString(enumObject:any, key:any, convertToPlainText:boolean = true):string
+    {
+        var val:string = enumObject[enumObject[key]];
+        return (convertToPlainText ? val.replace(/_/g, ' ').toLowerCase() : val);
     }
 
 }
