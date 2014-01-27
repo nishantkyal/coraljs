@@ -74,7 +74,7 @@ class BaseDAO implements IDao
                         throw(errorMessage);
                         break;
                     case 1:
-                        return new this.modelClass(rows[0]);
+                        return new that.modelClass(rows[0]);
                         break;
                 }
                 return null;
@@ -88,6 +88,7 @@ class BaseDAO implements IDao
 
     search(searchQuery:Object, options?:Object):q.makePromise
     {
+        var that = this;
         var values = [];
         var whereStatements = [];
 
@@ -131,7 +132,7 @@ class BaseDAO implements IDao
             .then(
                 function handleSearchResults(results:Array)
                 {
-                    return _.map(results, function(result) { return this.modelClass(result); });
+                    return _.map(results, function(result) { return new that.modelClass(result); });
                 }
             );
     }
