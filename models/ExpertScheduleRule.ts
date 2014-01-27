@@ -35,7 +35,10 @@ class ExpertScheduleRule extends BaseModel
     setPricePerMin(val:number):void { this.price_per_min = val; }
 
     isValid():boolean {
-        return (this.getRepeatStart() != null) && (this.getRepeatCron() != null || this.getRepeatInterval() != null) && this.getDuration() != null;
+        return this.getRepeatStart() != null
+                   && (this.getRepeatCron() != null || this.getRepeatInterval() != null)
+                        && this.getDuration() != null
+                            && this.getIntegrationMemberId() != null;
     }
 }
 export = ExpertScheduleRule

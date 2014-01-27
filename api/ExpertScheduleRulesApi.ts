@@ -50,6 +50,7 @@ class ExpertScheduleRulesApi
                 function expertScheduleRuleUpdateFailed(error) { res.status(500).json(error); }
             )
         });
+
     }
 
 }

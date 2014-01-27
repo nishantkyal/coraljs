@@ -15,10 +15,6 @@ class PhoneCallApi
     {
         var phoneCallDelegate = new PhoneCallDelegate();
 
-        /**
-         * Create call
-         * Allow via searchntalk.com only
-         **/
         app.put(ApiUrlDelegate.phoneCall(), AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var phoneCall:PhoneCall = req.body[ApiConstants.PHONE_CALL];
@@ -30,9 +26,6 @@ class PhoneCallApi
                 )
         });
 
-        /**
-         * Update call
-         */
         app.post(ApiUrlDelegate.phoneCallById(), AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var phoneCallId:number = req.params[ApiConstants.PHONE_CALL_ID];
@@ -63,7 +56,6 @@ class PhoneCallApi
 
         });
 
-        /* Get call details */
         app.get(ApiUrlDelegate.phoneCallById(), AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var phoneCallId:number = req.params[ApiConstants.PHONE_CALL_ID];

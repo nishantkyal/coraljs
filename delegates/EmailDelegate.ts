@@ -48,6 +48,7 @@ class EmailDelegate
 
                 switch(status)
                 {
+                    // TODO: Implement all call status emails
                     case CallStatus.POSTPONED:
                         return q.all([
                             that.send(),

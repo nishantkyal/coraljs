@@ -81,7 +81,7 @@ class Utils
     }
 
     static surroundWithQuotes(val:any, onlyIfString:boolean = true):string{
-        if (onlyIfString && this.getObjectType(val) != 'String')
+        if (onlyIfString && Utils.getObjectType(val) != 'String')
             return val;
         return "'" + val + "'";
     }

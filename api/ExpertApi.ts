@@ -18,7 +18,6 @@ import ApiFlags                         = require('../enums/ApiFlags');
  */
 class ExpertApi
 {
-
     constructor(app)
     {
         var integrationMemberDelegate = new IntegrationMemberDelegate();

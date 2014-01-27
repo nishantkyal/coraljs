@@ -45,7 +45,7 @@ class BaseDAO implements IDao
             .then(
             function created()
             {
-                return (!transaction) ? that.get(id): new this.modelClass({'id': id});
+                return (!transaction) ? that.get(id): new that.modelClass({'id': id});
             },
             function createFailure(error)
             {

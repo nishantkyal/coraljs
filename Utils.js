@@ -68,6 +68,17 @@ var Utils = (function () {
         var val = enumObject[enumObject[key]];
         return (convertToPlainText ? val.replace(/_/g, ' ').toLowerCase() : val);
     };
+
+    Utils.getObjectType = function (obj) {
+        return Object.prototype.toString.call(obj).replace('[object ', '').replace(']', '');
+    };
+
+    Utils.surroundWithQuotes = function (val, onlyIfString) {
+        if (typeof onlyIfString === "undefined") { onlyIfString = true; }
+        if (onlyIfString && Utils.getObjectType(val) != 'String')
+            return val;
+        return "'" + val + "'";
+    };
     return Utils;
 })();
 
