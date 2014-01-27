@@ -75,5 +75,16 @@ class Utils
         return (convertToPlainText ? val.replace(/_/g, ' ').toLowerCase() : val);
     }
 
+    static getObjectType(obj:any):string
+    {
+        return Object.prototype.toString.call(obj).replace('[object ', '').replace(']', '');
+    }
+
+    static surroundWithQuotes(val:any, onlyIfString:boolean = true):string{
+        if (onlyIfString && this.getObjectType(val) != 'String')
+            return val;
+        return "'" + val + "'";
+    }
+
 }
 export = Utils

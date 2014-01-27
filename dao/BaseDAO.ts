@@ -13,18 +13,20 @@ import Utils                = require('../Utils');
 class BaseDAO implements IDao
 {
 
+    modelClass;
     tableName:string;
     logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
 
     constructor()
     {
+        this.modelClass = this.getModel();
+
         if (this.getModel() && this.getModel().TABLE_NAME)
             this.tableName = this.getModel().TABLE_NAME;
         else
             throw ('Invalid Model class specified for ' + Utils.getClassName(this));
     }
 
-    /* Create */
     create(data:Object, transaction?:any):q.makePromise
     {
         var that:BaseDAO = this;
@@ -33,19 +35,10 @@ class BaseDAO implements IDao
         var id:number = data['id'];
 
         // Remove inserts with undefined values
-        _.each(data, function (value, key)
-        {
-            if (value == undefined)
-                delete data[key];
-        });
+        _.each(data, function (value, key) { if (value == undefined) delete data[key]; });
 
         var inserts:string[] = _.keys(data);
-        var values:any[] = _.map(_.values(data), function addQuotesIfString(val)
-        {
-            if (val == undefined)
-                return 'null';
-            return typeof val === 'string' ? "'" + val + "'" : val;
-        });
+        var values:any[] = _.map(_.values(data), Utils.surroundWithQuotes);
 
         var query = 'INSERT INTO `' + this.tableName + '` (' + inserts.join(',') + ') VALUES (' + values.join(',') + ')';
 
@@ -53,12 +46,7 @@ class BaseDAO implements IDao
             .then(
             function created()
             {
-                // If happening in a transaction, just return generated id since record doesn't exist yet
-                // Else fetch row
-                if (!transaction)
-                    return that.get(id);
-                else
-                    return {'id': id};
+                return (!transaction) ? that.get(id): new this.modelClass({'id': id});
             },
             function createFailure(error)
             {
@@ -68,7 +56,6 @@ class BaseDAO implements IDao
 
     }
 
-    /* Get by id */
     get(id:any, fields?:string[]):q.makePromise
     {
         var that:BaseDAO = this;
@@ -87,8 +74,7 @@ class BaseDAO implements IDao
                         throw(errorMessage);
                         break;
                     case 1:
-                        var modelClass = that.getModel();
-                        return new modelClass(rows[0]);
+                        return new this.modelClass(rows[0]);
                         break;
                 }
                 return null;
@@ -100,11 +86,8 @@ class BaseDAO implements IDao
             });
     }
 
-    /* Search */
     search(searchQuery:Object, options?:Object):q.makePromise
     {
-        // Compose where statement based on searchQuery
-        var that = this;
         var values = [];
         var whereStatements = [];
 
@@ -112,39 +95,32 @@ class BaseDAO implements IDao
         {
             var query = searchQuery[key];
 
-            if (_.isFunction(query))
-                continue;
-            else if (_.isArray(query))
+            switch (Utils.getObjectType(query))
             {
-                whereStatements.push(key + ' IN (?)');
-                values.push(_.map(_.values(query), function addQuotesIfString(val)
-                {
-                    val = val || '';
-                    return typeof val === 'string' ? "'" + val + "'" : val;
-                }));
-            }
-            else if (_.isObject(query))
-            {
-                var operator = query['operator'];
-                var statement = key + ' ' + query['operator'] + ' ?';
-                if (operator.toLowerCase() === 'between')
-                    statement += ' AND ?';
-                whereStatements.push(statement);
-                values.push(query['value'][0]);
-                values.push(query['value'][1]);
-            }
-            else if (_.isString(query))
-            {
-                whereStatements.push(key + ' = "' + query + '"');
-            }
-            else if (_.isNumber(query))
-            {
-                whereStatements.push(key + ' = ' + query);
+                case 'Function':
+                    continue;
+                    break;
+                case 'Object':
+                    var operator = query['operator'];
+                    var statement = key + ' ' + query['operator'] + ' ?';
+                    if (operator.toLowerCase() === 'between')
+                        statement += ' AND ?';
+                    whereStatements.push(statement);
+                    values.push(query['value'][0]);
+                    values.push(query['value'][1]);
+                    break;
+                case 'Array':
+                    whereStatements.push(key + ' IN (?)');
+                    values.push(_.map(_.values(query), Utils.surroundWithQuotes));
+                    break;
+                case 'Number':
+                case 'String':
+                    whereStatements.push(key + ' = ' + Utils.surroundWithQuotes(query));
+                    break;
             }
         }
 
-        if (whereStatements.length == 0)
-            throw ('Invalid search criteria');
+        if (whereStatements.length == 0) throw ('Invalid search criteria');
 
         // Compose select statement based on fields
         var selectColumns = options && options.hasOwnProperty('fields') ? options['fields'].join(',') : '*';
@@ -155,21 +131,15 @@ class BaseDAO implements IDao
             .then(
                 function handleSearchResults(results:Array)
                 {
-                    var modelClass = that.getModel();
-                    return _.map(results, function(result)
-                    {
-                        return new modelClass(result);
-                    });
+                    return _.map(results, function(result) { return this.modelClass(result); });
                 }
             );
     }
 
-    /* Update */
     update(criteria:Object, newValues:Object, transaction?:any):q.makePromise
     {
         // Remove fields with null values
-        _.each(criteria, function (val, key) { if (val == null) delete criteria[key]; });
-        _.each(newValues, function (val, key) { if (val == null) delete newValues[key]; });
+        _.each(_.extend({}, criteria, newValues), function (val, key) { if (val == undefined) delete criteria[key]; });
 
         var values = [], updates, wheres;
 
@@ -184,13 +154,12 @@ class BaseDAO implements IDao
         return MysqlDelegate.executeQuery(query, values, transaction);
     }
 
-    /* Delete */
     delete(id:string, softDelete:boolean = true, transaction?:any):q.makePromise
     {
         if (softDelete)
             return this.update({'id': id}, {'deleted': true}, transaction);
-        else
-            return MysqlDelegate.executeQuery('DELETE FROM ' + this.tableName + ' WHERE id = ?', [id], transaction);
+
+        return MysqlDelegate.executeQuery('DELETE FROM ' + this.tableName + ' WHERE id = ?', [id], transaction);
     }
 
     getModel():typeof BaseModel { throw('Model class not defined for ' + Utils.getClassName(this)); }
