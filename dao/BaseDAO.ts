@@ -12,7 +12,6 @@ import Utils                = require('../Utils');
  **/
 class BaseDAO implements IDao
 {
-
     modelClass;
     tableName:string;
     logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
@@ -29,7 +28,7 @@ class BaseDAO implements IDao
 
     create(data:Object, transaction?:any):q.makePromise
     {
-        var that:BaseDAO = this;
+        var that = this;
 
         data = data || {};
         var id:number = data['id'];
@@ -50,7 +49,7 @@ class BaseDAO implements IDao
             },
             function createFailure(error)
             {
-                that.logger.error('Error while creating a new ' + that.tableName + ', error: ' + error.message);
+                that.logger.error('Error while creating a new %s, error: %s', that.tableName, error.message);
                 throw(error);
             });
 
@@ -58,7 +57,7 @@ class BaseDAO implements IDao
 
     get(id:any, fields?:string[]):q.makePromise
     {
-        var that:BaseDAO = this;
+        var that = this;
         var selectColumns = fields ? fields.join(',') : '*';
         var query = 'SELECT ' + selectColumns + ' FROM `' + this.tableName + '` WHERE id = ?';
 
@@ -70,7 +69,7 @@ class BaseDAO implements IDao
                 {
                     case 0:
                         var errorMessage:string = 'No ' + that.tableName.replace('_', ' ') + ' found for id: ' + id;
-                        that.logger.debug(errorMessage);
+                        that.logger.debug('No %s found for id: %s', that.tableName, id);
                         throw(errorMessage);
                         break;
                     case 1:
@@ -81,16 +80,14 @@ class BaseDAO implements IDao
             },
             function objectFetchError(error)
             {
-                that.logger.error('Error while fetching ' + that.tableName + ', id: ' + id);
+                that.logger.error('Error while fetching %s, id: %s', that.tableName, id);
                 throw(error);
             });
     }
 
     search(searchQuery:Object, options?:Object):q.makePromise
     {
-        var that = this;
-        var values = [];
-        var whereStatements = [];
+        var that = this, values = [], whereStatements = [], selectColumns;
 
         for (var key in searchQuery)
         {
@@ -120,20 +117,16 @@ class BaseDAO implements IDao
                     break;
             }
         }
+        if (whereStatements.length == 0)
+            throw ('Invalid search criteria');
 
-        if (whereStatements.length == 0) throw ('Invalid search criteria');
-
-        // Compose select statement based on fields
-        var selectColumns = options && options.hasOwnProperty('fields') ? options['fields'].join(',') : '*';
+        selectColumns = options && options.hasOwnProperty('fields') ? options['fields'].join(',') : '*';
 
         var queryString = 'SELECT ' + selectColumns + ' FROM ' + this.tableName + ' WHERE ' + whereStatements.join(' AND ');
 
         return MysqlDelegate.executeQuery(queryString, values)
             .then(
-                function handleSearchResults(results:Array)
-                {
-                    return _.map(results, function(result) { return new that.modelClass(result); });
-                }
+                function handleSearchResults(results:Array) { return _.map(results, function(result) { return new that.modelClass(result); }); }
             );
     }
 
