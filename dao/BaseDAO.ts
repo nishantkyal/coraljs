@@ -87,7 +87,8 @@ class BaseDAO implements IDao
                         throw(errorMessage);
                         break;
                     case 1:
-                        return rows[0];
+                        var modelClass = that.getModel();
+                        return new modelClass(rows[0]);
                         break;
                 }
                 return null;
@@ -103,6 +104,7 @@ class BaseDAO implements IDao
     search(searchQuery:Object, options?:Object):q.makePromise
     {
         // Compose where statement based on searchQuery
+        var that = this;
         var values = [];
         var whereStatements = [];
 
@@ -149,7 +151,17 @@ class BaseDAO implements IDao
 
         var queryString = 'SELECT ' + selectColumns + ' FROM ' + this.tableName + ' WHERE ' + whereStatements.join(' AND ');
 
-        return MysqlDelegate.executeQuery(queryString, values);
+        return MysqlDelegate.executeQuery(queryString, values)
+            .then(
+                function handleSearchResults(results:Array)
+                {
+                    var modelClass = that.getModel();
+                    return _.map(results, function(result)
+                    {
+                        return new modelClass(result);
+                    });
+                }
+            );
     }
 
     /* Update */
