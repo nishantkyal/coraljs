@@ -63,12 +63,6 @@ var Utils = (function () {
         return lowerCasedFrags.join('_');
     };
 
-    Utils.getEnumString = function (enumObject, key, convertToPlainText) {
-        if (typeof convertToPlainText === "undefined") { convertToPlainText = true; }
-        var val = enumObject[enumObject[key]];
-        return (convertToPlainText ? val.replace(/_/g, ' ').toLowerCase() : val);
-    };
-
     Utils.getObjectType = function (obj) {
         return Object.prototype.toString.call(obj).replace('[object ', '').replace(']', '');
     };

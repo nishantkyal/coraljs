@@ -1,12 +1,12 @@
 enum CallStatus
 {
-    PENDING_SCHEDULING,
+    PLANNING,
     SCHEDULED,
-    CANCELLED,
-    COMPLETED,
     IN_PROGRESS,
-    FAILED,
-    POSTPONED
+    COMPLETED,
+    CANCELLED,
+    POSTPONED,
+    FAILED
 }
 
 export = CallStatus

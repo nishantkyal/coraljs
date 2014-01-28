@@ -69,12 +69,6 @@ class Utils
         return lowerCasedFrags.join('_');
     }
 
-    static getEnumString(enumObject:any, key:any, convertToPlainText:boolean = true):string
-    {
-        var val:string = enumObject[enumObject[key]];
-        return (convertToPlainText ? val.replace(/_/g, ' ').toLowerCase() : val);
-    }
-
     static getObjectType(obj:any):string
     {
         return Object.prototype.toString.call(obj).replace('[object ', '').replace(']', '');

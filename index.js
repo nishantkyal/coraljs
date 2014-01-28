@@ -6,3 +6,4 @@ exports.User                        = require('./models/User');
 exports.Integration                 = require('./models/Integration');
 exports.PhoneCall					= require('./models/PhoneCall');
 exports.IntegrationMemberRole       = require('./enums/IntegrationMemberRole');
+exports.CallStatus                  = require('./enums/CallStatus');

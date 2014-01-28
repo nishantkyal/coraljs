@@ -1,25 +1,28 @@
-import _                        = require('underscore');
-import q                        = require('q');
-import Utils                    = require('../Utils');
-import IDao                     = require('../dao/IDao');
-import PhoneCallDao             = require('../dao/PhoneCallDao');
-import BaseDAODelegate          = require('./BaseDaoDelegate');
-import EmailDelegate            = require('./EmailDelegate');
-import CallStatus               = require('../enums/CallStatus');
-import PhoneCall                = require('../models/PhoneCall');
+import _                            = require('underscore');
+import q                            = require('q');
+import Utils                        = require('../Utils');
+import IDao                         = require('../dao/IDao');
+import PhoneCallDao                 = require('../dao/PhoneCallDao');
+import BaseDAODelegate              = require('./BaseDaoDelegate');
+import EmailDelegate                = require('./EmailDelegate');
+import CallStatus                   = require('../enums/CallStatus');
+import PhoneCall                    = require('../models/PhoneCall');
+import UnscheduledCallsCache        = require('../caches/UnscheduledCallsCache');
 
 class PhoneCallDelegate extends BaseDAODelegate
 {
     static ALLOWED_NEXT_STATUS:{ [s: number]: any[]; } = {};
 
+    private unscheduledCallsCache:UnscheduledCallsCache = new UnscheduledCallsCache();
+
     private static ctor = (() =>
     {
-        PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.PENDING_SCHEDULING] = [CallStatus.SCHEDULED, CallStatus.CANCELLED];
+        PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.PLANNING] = [CallStatus.SCHEDULED, CallStatus.CANCELLED];
         PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.SCHEDULED] = [CallStatus.CANCELLED, CallStatus.POSTPONED, CallStatus.IN_PROGRESS];
         PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.CANCELLED] = [];
         PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.COMPLETED] = [];
         PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.IN_PROGRESS] = [CallStatus.COMPLETED, CallStatus.FAILED];
-        PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.FAILED] = [CallStatus.PENDING_SCHEDULING];
+        PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.FAILED] = [CallStatus.PLANNING];
         PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.POSTPONED] = [CallStatus.SCHEDULED, CallStatus.CANCELLED];
     })();
 
@@ -33,6 +36,20 @@ class PhoneCallDelegate extends BaseDAODelegate
     {
         filters['expert_id'] = expert_id;
         return (_.keys(filters).length == 1) ? Utils.getRejectedPromise('Invalid filters') : this.getDao().search(filters, {'fields': fields});
+    }
+
+    create(object:any, transaction?:any):q.makePromise
+    {
+        if (object['status'] == CallStatus.PLANNING)
+            return this.unscheduledCallsCache.addUnscheduledCall(object['integration_member_id'], object['schedule_id'], object);
+        return super.create(object, transaction);
+    }
+
+    search(search:Object, options?:Object):q.makePromise
+    {
+        if (search['status'] == CallStatus.PLANNING)
+            return this.unscheduledCallsCache.getUnscheduledCalls(search['integration_member_id'], search['schedule_id']);
+        return super.search(search, options);
     }
 
     update(criteria:Object, newValues:Object, transaction?:any):q.makePromise
@@ -61,8 +78,8 @@ class PhoneCallDelegate extends BaseDAODelegate
                     return that.update({'id': phoneCallId}, {'status': newStatus});
                 else
                 {
-                    var newStatusString = Utils.getEnumString(CallStatus, newStatus);
-                    var oldStatusString = Utils.getEnumString(CallStatus, status);
+                    var newStatusString = CallStatus[newStatus];
+                    var oldStatusString = CallStatus[status];
                     throw new Error("Can't update call status to '" + newStatusString + "' since the call is " + oldStatusString);
                 }
             })

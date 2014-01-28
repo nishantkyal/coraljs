@@ -38,7 +38,6 @@ class PhoneCallApi
                 )
         });
 
-        /* Reschedule call */
         app.post(ApiUrlDelegate.phoneCallReschedule(), AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var phoneCallId:number = req.params[ApiConstants.PHONE_CALL_ID];
@@ -50,7 +49,6 @@ class PhoneCallApi
 
         });
 
-        /* Cancel call */
         app.post(ApiUrlDelegate.phoneCallCancel(), AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
 
@@ -67,7 +65,6 @@ class PhoneCallApi
                 )
         });
 
-        /* Get all calls */
         app.get(ApiUrlDelegate.phoneCall(), ValidateRequest.requireFilters, AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var filters = req.body[ApiConstants.FILTERS];
@@ -78,6 +75,7 @@ class PhoneCallApi
                 function handleCallSearchFailed(error) { res.status(500).json(error); }
             );
         });
+
 
     }
 }
