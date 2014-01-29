@@ -4,3 +4,5 @@
 ///<reference path='../DefinitelyTyped/node_redis/node_redis.d.ts'/>
 ///<reference path='../DefinitelyTyped/q/Q.d.ts'/>
 ///<reference path='../DefinitelyTyped/gruntjs/gruntjs.d.ts'/>
+///<reference path='../DefinitelyTyped/log4js/log4js.d.ts'/>
+///<reference path='../DefinitelyTyped/node-mysql/mysql.d.ts'/>

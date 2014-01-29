@@ -1,9 +1,11 @@
-import BaseDao                  = require('./BaseDAO');
-import BaseModel                = require('../models/BaseModel');
-import ExpertScheduleRule       = require('../models/ExpertScheduleRule');
+///<reference path='./BaseDAO.ts'/>
+///<reference path='../models/BaseModel.ts'/>
+///<reference path='../models/ExpertScheduleRule.ts'/>
 
-class ExpertScheduleRuleDao extends BaseDao
+module dao
 {
-    getModel():typeof BaseModel { return ExpertScheduleRule; }
+    export class ExpertScheduleRuleDao extends BaseDao
+    {
+        getModel():typeof models.BaseModel { return models.ExpertScheduleRule; }
+    }
 }
-export = ExpertScheduleRuleDao

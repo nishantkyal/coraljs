@@ -1,29 +1,31 @@
-import q                    = require('q');
-import Config               = require('../Config');
-import CacheHelper          = require('./CacheHelper');
-import Utils                = require('../Utils');
+///<reference path='../_references.d.ts'/>
+///<reference path='./CacheHelper.ts'/>
+///<reference path='../common/Utils.ts'/>
+///<reference path='../common/Config.ts'/>
 
-class VerificationCodeCache
+module caches
 {
-    createMobileVerificationCode():q.makePromise
+    export class VerificationCodeCache
     {
-        var codeReference:string = Utils.getRandomString(8);
-        var code:number = Utils.getRandomInt(1001, 9999);
-        var secondsInAnHr:number = 60 * 60;
-        return CacheHelper.set('mv-' + codeReference , code, secondsInAnHr)
-            .then(
-                function tokenCreated() { return {code: code, ref: codeReference}}
+        createMobileVerificationCode():Q.Promise<any>
+        {
+            var codeReference:string = common.Utils.getRandomString(8);
+            var code:number = common.Utils.getRandomInt(1001, 9999);
+            var secondsInAnHr:number = 60 * 60;
+            return CacheHelper.set('mv-' + codeReference , code, secondsInAnHr)
+                .then(
+                    function tokenCreated() { return {code: code, ref: codeReference}}
+                );
+        }
+    
+        searchMobileVerificationCode(code:string, ref:string):Q.Promise<any>
+        {
+            return CacheHelper.get('mv-' + ref)
+                .then(
+                function tokenSearched(result) {
+                    return {isValid: result == code};
+                }
             );
-    }
-
-    searchMobileVerificationCode(code:string, ref:string):q.makePromise
-    {
-        return CacheHelper.get('mv-' + ref)
-            .then(
-            function tokenSearched(result) {
-                return {isValid: result == code};
-            }
-        );
+        }
     }
 }
-export = VerificationCodeCache

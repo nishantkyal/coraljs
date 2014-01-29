@@ -1,9 +1,11 @@
-import BaseDAO                  = require('./BaseDAO');
-import BaseModel                = require('../models/BaseModel');
-import Payment                  = require('../models/Payment');
+///<reference path='./BaseDAO.ts'/>
+///<reference path='../models/BaseModel.ts'/>
+///<reference path='../models/Payment.ts'/>
 
-class PaymentDao extends BaseDAO
+module dao
 {
-    getModel():typeof BaseModel { return Payment; }
+    export class PaymentDao extends BaseDAO
+    {
+        getModel():typeof models.BaseModel { return models.Payment; }
+    }
 }
-export = PaymentDao

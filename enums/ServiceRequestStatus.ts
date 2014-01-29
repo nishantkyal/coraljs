@@ -1,4 +1,6 @@
-enum ServiceRequestStatus
+module enums
 {
+    export enum ServiceRequestStatus
+    {
+    }
 }
-export = ServiceRequestStatus

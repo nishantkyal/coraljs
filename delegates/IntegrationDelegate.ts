@@ -1,44 +1,46 @@
-import q                = require('q');
-import BaseDaoDelegate  = require('./BaseDaoDelegate');
-import IDao             = require('../dao/IDao');
-import IntegrationDAO   = require('../dao/IntegrationDao');
-import Integration      = require('../models/Integration');
-import Utils            = require('../Utils');
+///<reference path='../_references.d.ts'/>
+///<reference path='./BaseDaoDelegate.ts'/>
+///<reference path='../dao/IDao.ts'/>
+///<reference path='../dao/IntegrationDao.ts'/>
+///<reference path='../models/Integration.ts'/>
+///<reference path='../common/Utils.ts'/>
 
 /**
  * Delegate class for third party integration data
  */
-class IntegrationDelegate extends BaseDaoDelegate
+module delegates
 {
-    get(id:string, fields?:string[]):q.makePromise
+    export class IntegrationDelegate extends BaseDaoDelegate
     {
-        return super.get(id, fields)
-            .then(function integrationFetched(result:Object)
-            {
-                return new Integration(result);
-            });
+        get(id:string, fields?:string[]):Q.Promise<any>
+        {
+            return super.get(id, fields)
+                .then(function integrationFetched(result:Object)
+                {
+                    return new models.Integration(result);
+                });
+        }
+
+        getAll():Q.Promise<any>
+        {
+            return dao.IntegrationDAO.getAll();
+        }
+
+        getMultiple(ids:string[]):Q.Promise<any>
+        {
+            return this.getDao().search({'integration_id': ids});
+        }
+
+        resetSecret(integrationId:string):Q.Promise<any>
+        {
+            var newSecret = common.Utils.getRandomString(30);
+            return this.getDao().update({'integration_id': integrationId}, {'secret': newSecret})
+                .then(
+                    function handleSecretReset() { return newSecret; }
+                );
+        }
+
+        getDao():dao.IDao { return new dao.IntegrationDAO(); }
+
     }
-
-    getAll():q.makePromise
-    {
-        return IntegrationDAO.getAll();
-    }
-
-    getMultiple(ids:string[]):q.makePromise
-    {
-        return this.getDao().search({'integration_id': ids});
-    }
-
-    resetSecret(integrationId:string):q.makePromise
-    {
-        var newSecret = Utils.getRandomString(30);
-        return this.getDao().update({'integration_id': integrationId}, {'secret': newSecret})
-            .then(
-                function handleSecretReset() { return newSecret; }
-            );
-    }
-
-    getDao():IDao { return new IntegrationDAO(); }
-
 }
-export = IntegrationDelegate

@@ -1,6 +1,5 @@
 ///<reference path='../_references.d.ts'/>
 ///<reference path='../common/Config.ts'/>
-import q = require('q');
 
 /**
  Delegate class to manage mysql connections
@@ -47,6 +46,7 @@ module delegates
                 else
                     deferred.resolve(connection);
             });
+
             return deferred.promise;
         }
 
@@ -99,7 +99,7 @@ module delegates
          * Execute a query
          * Transaction/connection can be specified else query is executed in a new connection
          */
-        static executeQuery(query:string, parameters?:any[], connection?:any):Q.Promise<Array>
+        static executeQuery(query:string, parameters?:any[], connection?:any):Q.Promise<any>
         {
             // If transaction specified, use it
             if (connection)

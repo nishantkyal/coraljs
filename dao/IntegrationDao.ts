@@ -1,20 +1,21 @@
-import q                        = require('q');
-import MysqlDelegate            = require('../delegates/MysqlDelegate');
-import BaseDAO                  = require('./BaseDAO');
-import BaseModel                = require('../models/BaseModel');
-import Integration              = require('../models/Integration');
+///<reference path='../_references.d.ts'/>
+///<reference path='./BaseDAO.ts'/>
+///<reference path='../delegates/MysqlDelegate.ts'/>
+///<reference path='../models/BaseModel.ts'/>
+///<reference path='../models/Integration.ts'/>
 
 /**
  * DAO class for third party integrations
  */
-class IntegrationDao extends BaseDAO {
-
-    static getAll():q.makePromise
+module dao
+{
+    export class IntegrationDao extends BaseDAO
     {
-        return MysqlDelegate.executeQuery('SELECT * FROM integration', null);
+        static getAll():Q.Promise<any>
+        {
+            return delegates.MysqlDelegate.executeQuery('SELECT * FROM integration', null);
+        }
+
+        static getModel():typeof models.BaseModel { return models.Integration; }
     }
-
-    static getModel():typeof BaseModel { return Integration; }
-
 }
-export = IntegrationDao

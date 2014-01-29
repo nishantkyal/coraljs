@@ -1,39 +1,40 @@
-import _                            = require('underscore');
-import q                            = require('q');
-import BaseDaoDelegate              = require('./BaseDaoDelegate');
-import IDao                         = require('../dao/IDao');
-import ExpertScheduleRuleDao        = require('../dao/ExpertScheduleRuleDao');
-import ExpertScheduleRule           = require('../models/ExpertScheduleRule');
-import IntegrationMemberDelegate    = require('../delegates/IntegrationMemberDelegate');
+///<reference path='../_references.d.ts'/>
+///<reference path='./BaseDaoDelegate.ts'/>
+///<reference path='../dao/IDao.ts'/>
+///<reference path='../dao/ExpertScheduleRuleDao.ts'/>
+///<reference path='../models/ExpertScheduleRule.ts'/>
+///<reference path='../delegates/IntegrationMemberDelegate.ts'/>
 
-class ExpertScheduleRuleDelegate extends BaseDaoDelegate
+module delegates
 {
-    getDao():IDao { return new ExpertScheduleRuleDao(); }
-
-    /*create(scheduleRule:any, transaction?:any):q.makePromise
+    export class ExpertScheduleRuleDelegate extends BaseDaoDelegate
     {
-        var s = super;
+        getDao():dao.IDao { return new dao.ExpertScheduleRuleDao(); }
 
-        var expertScheduleRuleDao:any = this.getDao();
+        create(scheduleRule:models.ExpertScheduleRule, transaction?:any):Q.Promise<any>
+        {
+            var s = super;
 
-        return expertScheduleRuleDao.findConflictingScheduleRules(scheduleRule.getRepeatStart(), scheduleRule.getRepeatEnd(), scheduleRule.getIntegrationMemberId())
-            .then(
-            function schedulesSearched(schedules:Array)
-            {
-                if (schedules.length != 0)
-                    return s.create(scheduleRule, transaction);
-                else
-                    throw {
-                        'message': 'Conflicting schedule rules found',
-                        'conflicts': schedules
-                    };
-            });
-    }*/
+            var expertScheduleRuleDao:any = this.getDao();
 
-    getRulesByIntegrationMemberId(integrationMemberId:number):q.makePromise
-    {
-        return this.getDao().search({'integration_member_id': integrationMemberId});
+            return expertScheduleRuleDao.findConflictingScheduleRules(scheduleRule.getRepeatStart(), scheduleRule.getRepeatEnd(), scheduleRule.getIntegrationMemberId())
+                .then(
+                function schedulesSearched(schedules:Array)
+                {
+                    if (schedules.length != 0)
+                        return s.create(scheduleRule, transaction);
+                    else
+                        throw {
+                            'message': 'Conflicting schedule rules found',
+                            'conflicts': schedules
+                        };
+                });
+        }
+
+        getRulesByIntegrationMemberId(integrationMemberId:number):Q.Promise<any>
+        {
+            return this.getDao().search({'integration_member_id': integrationMemberId});
+        }
+
     }
-
 }
-export = ExpertScheduleRuleDelegate

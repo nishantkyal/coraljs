@@ -65,9 +65,8 @@ var common;
             return Object.prototype.toString.call(obj).replace('[object ', '').replace(']', '');
         };
 
-        Utils.surroundWithQuotes = function (val, onlyIfString) {
-            if (typeof onlyIfString === "undefined") { onlyIfString = true; }
-            if (onlyIfString && Utils.getObjectType(val) != 'String')
+        Utils.surroundWithQuotes = function (val) {
+            if (this.getObjectType(val) != 'String')
                 return val;
             return "'" + val + "'";
         };

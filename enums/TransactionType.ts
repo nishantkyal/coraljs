@@ -1,4 +1,6 @@
-enum TransactionType
+module enums
 {
+    export enum TransactionType
+    {
+    }
 }
-export = TransactionType

@@ -1,19 +1,21 @@
-import q                                = require('q');
-import CacheHelper                      = require('./CacheHelper');
-import PhoneCall                        = require('../models/PhoneCall');
+///<reference path='../_references.d.ts'/>
+///<reference path='./CacheHelper.ts'/>
+///<reference path='../models/PhoneCall.ts'/>
 
-class UnscheduledCallsCache
+module caches
 {
-    private KEY:String = 'CallPlanning';
-
-    getUnscheduledCalls(expertId:number, scheduleId:number):q.makePromise
+    export class UnscheduledCallsCache
     {
-        return CacheHelper.getFromOrderedSet(this.KEY, expertId + '-' + scheduleId);
-    }
-
-    addUnscheduledCall(expertId:number, scheduleId:number, call:PhoneCall):q.makePromise
-    {
-        return CacheHelper.addToOrderedSet(this.KEY, expertId + '-' + scheduleId, call);
+        private KEY:String = 'CallPlanning';
+    
+        getUnscheduledCalls(expertId:number, scheduleId:number):Q.Promise<any>
+        {
+            return CacheHelper.getFromOrderedSet(this.KEY, expertId + '-' + scheduleId);
+        }
+    
+        addUnscheduledCall(expertId:number, scheduleId:number, call:models.PhoneCall):Q.Promise<any>
+        {
+            return CacheHelper.addToOrderedSet(this.KEY, expertId + '-' + scheduleId, call);
+        }
     }
 }
-export = UnscheduledCallsCache

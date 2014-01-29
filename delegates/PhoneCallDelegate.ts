@@ -1,96 +1,97 @@
-import _                            = require('underscore');
-import q                            = require('q');
-import Utils                        = require('../Utils');
-import IDao                         = require('../dao/IDao');
-import PhoneCallDao                 = require('../dao/PhoneCallDao');
-import BaseDAODelegate              = require('./BaseDaoDelegate');
-import EmailDelegate                = require('./EmailDelegate');
-import CallStatus                   = require('../enums/CallStatus');
-import PhoneCall                    = require('../models/PhoneCall');
-import UnscheduledCallsCache        = require('../caches/UnscheduledCallsCache');
+///<reference path='../_references.d.ts'/>
+///<reference path='../common/Utils.ts'/>
+///<reference path='../dao/IDao.ts'/>
+///<reference path='../dao/PhoneCallDao.ts'/>
+///<reference path='./BaseDaoDelegate.ts'/>
+///<reference path='./EmailDelegate.ts'/>
+///<reference path='../enums/CallStatus.ts'/>
+///<reference path='../models/PhoneCall.ts'/>
+///<reference path='../caches/UnscheduledCallsCache.ts'/>
 
-class PhoneCallDelegate extends BaseDAODelegate
+module delegates
 {
-    static ALLOWED_NEXT_STATUS:{ [s: number]: any[]; } = {};
-
-    private unscheduledCallsCache:UnscheduledCallsCache = new UnscheduledCallsCache();
-
-    private static ctor = (() =>
+    export class PhoneCallDelegate extends BaseDAODelegate
     {
-        PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.PLANNING] = [CallStatus.SCHEDULED, CallStatus.CANCELLED];
-        PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.SCHEDULED] = [CallStatus.CANCELLED, CallStatus.POSTPONED, CallStatus.IN_PROGRESS];
-        PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.CANCELLED] = [];
-        PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.COMPLETED] = [];
-        PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.IN_PROGRESS] = [CallStatus.COMPLETED, CallStatus.FAILED];
-        PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.FAILED] = [CallStatus.PLANNING];
-        PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.POSTPONED] = [CallStatus.SCHEDULED, CallStatus.CANCELLED];
-    })();
+        static ALLOWED_NEXT_STATUS:{ [s: number]: any[]; } = {};
 
-    callsByUser(user_id:string, filters:Object, fields?:string[]):q.makePromise
-    {
-        filters['user_id'] = user_id;
-        return (_.keys(filters).length == 1) ? Utils.getRejectedPromise('Invalid filters') : this.getDao().search(filters, {'fields': fields});
-    }
+        private unscheduledCallsCache:UnscheduledCallsCache = new UnscheduledCallsCache();
 
-    callsToExpert(expert_id:string, filters:Object, fields?:string[]):q.makePromise
-    {
-        filters['expert_id'] = expert_id;
-        return (_.keys(filters).length == 1) ? Utils.getRejectedPromise('Invalid filters') : this.getDao().search(filters, {'fields': fields});
-    }
+        private static ctor = (() =>
+        {
+            PhoneCallDelegate.ALLOWED_NEXT_STATUS[enums.CallStatus.PLANNING] = [enums.CallStatus.SCHEDULED, enums.CallStatus.CANCELLED];
+            PhoneCallDelegate.ALLOWED_NEXT_STATUS[enums.CallStatus.SCHEDULED] = [enums.CallStatus.CANCELLED, enums.CallStatus.POSTPONED, enums.CallStatus.IN_PROGRESS];
+            PhoneCallDelegate.ALLOWED_NEXT_STATUS[enums.CallStatus.CANCELLED] = [];
+            PhoneCallDelegate.ALLOWED_NEXT_STATUS[enums.CallStatus.COMPLETED] = [];
+            PhoneCallDelegate.ALLOWED_NEXT_STATUS[enums.CallStatus.IN_PROGRESS] = [enums.CallStatus.COMPLETED, enums.CallStatus.FAILED];
+            PhoneCallDelegate.ALLOWED_NEXT_STATUS[enums.CallStatus.FAILED] = [enums.CallStatus.PLANNING];
+            PhoneCallDelegate.ALLOWED_NEXT_STATUS[enums.CallStatus.POSTPONED] = [enums.CallStatus.SCHEDULED, enums.CallStatus.CANCELLED];
+        })();
 
-    create(object:any, transaction?:any):q.makePromise
-    {
-        if (object['status'] == CallStatus.PLANNING)
-            return this.unscheduledCallsCache.addUnscheduledCall(object['integration_member_id'], object['schedule_id'], object);
-        return super.create(object, transaction);
-    }
+        callsByUser(user_id:string, filters:Object, fields?:string[]):Q.Promise
+        {
+            filters['user_id'] = user_id;
+            return (_.keys(filters).length == 1) ? common.Utils.getRejectedPromise('Invalid filters') : this.getDao().search(filters, {'fields': fields});
+        }
 
-    search(search:Object, options?:Object):q.makePromise
-    {
-        if (search['status'] == CallStatus.PLANNING)
-            return this.unscheduledCallsCache.getUnscheduledCalls(search['integration_member_id'], search['schedule_id']);
-        return super.search(search, options);
-    }
+        callsToExpert(expert_id:string, filters:Object, fields?:string[]):Q.Promise
+        {
+            filters['expert_id'] = expert_id;
+            return (_.keys(filters).length == 1) ? common.Utils.getRejectedPromise('Invalid filters') : this.getDao().search(filters, {'fields': fields});
+        }
 
-    update(criteria:Object, newValues:Object, transaction?:any):q.makePromise
-    {
-        if (newValues.hasOwnProperty('status'))
-            throw new Error('Please use the method updateCallStatus to update call status');
+        create(object:any, transaction?:any):Q.Promise
+        {
+            if (object['status'] == enums.CallStatus.PLANNING)
+                return this.unscheduledCallsCache.addUnscheduledCall(object['integration_member_id'], object['schedule_id'], object);
+            return super.create(object, transaction);
+        }
 
-        return super.update(criteria, newValues, transaction);
-    }
+        search(search:Object, options?:Object):Q.Promise
+        {
+            if (search['status'] == enums.CallStatus.PLANNING)
+                return this.unscheduledCallsCache.getUnscheduledCalls(search['integration_member_id'], search['schedule_id']);
+            return super.search(search, options);
+        }
 
-    updateCallStatus(phoneCallId:number, newStatus:CallStatus):q.makePromise
-    {
-        var that = this;
-        var callerUserId:number;
-        var expertUserId:number;
+        update(criteria:Object, newValues:Object, transaction?:any):Q.Promise
+        {
+            if (newValues.hasOwnProperty('status'))
+                throw new Error('Please use the method updateCallStatus to update call status');
 
-        return this.get(phoneCallId, ['status', 'caller_user_id', 'expert_id', 'start_time', 'duration'])
-            .then(
-            function phoneCallFetched(call)
-            {
-                callerUserId = call['caller_user_id'];
-                expertUserId = call['expert_id'];
-                var status = call.status;
+            return super.update(criteria, newValues, transaction);
+        }
 
-                if (PhoneCallDelegate.ALLOWED_NEXT_STATUS[status].indexOf(newStatus) != -1)
-                    return that.update({'id': phoneCallId}, {'status': newStatus});
-                else
+        updateCallStatus(phoneCallId:number, newStatus:enums.CallStatus):Q.Promise
+        {
+            var that = this;
+            var callerUserId:number;
+            var expertUserId:number;
+
+            return this.get(phoneCallId, ['status', 'caller_user_id', 'expert_id', 'start_time', 'duration'])
+                .then(
+                function phoneCallFetched(call)
                 {
-                    var newStatusString = CallStatus[newStatus];
-                    var oldStatusString = CallStatus[status];
-                    throw new Error("Can't update call status to '" + newStatusString + "' since the call is " + oldStatusString);
-                }
-            })
-            .then(
-            function callUpdated()
-            {
-                return new EmailDelegate().sendCallStatusUpdateNotifications(callerUserId, expertUserId, CallStatus.POSTPONED);
-            });
+                    callerUserId = call['caller_user_id'];
+                    expertUserId = call['expert_id'];
+                    var status = call.status;
 
+                    if (PhoneCallDelegate.ALLOWED_NEXT_STATUS[status].indexOf(newStatus) != -1)
+                        return that.update({'id': phoneCallId}, {'status': newStatus});
+                    else
+                    {
+                        var newStatusString = enums.CallStatus[newStatus];
+                        var oldStatusString = enums.CallStatus[status];
+                        throw new Error("Can't update call status to '" + newStatusString + "' since the call is " + oldStatusString);
+                    }
+                })
+                .then(
+                function callUpdated()
+                {
+                    return new EmailDelegate().sendCallStatusUpdateNotifications(callerUserId, expertUserId, enums.CallStatus.POSTPONED);
+                });
+
+        }
+
+        getDao():dao.IDao { return new dao.PhoneCallDao(); }
     }
-
-    getDao():IDao { return new PhoneCallDao(); }
 }
-export = PhoneCallDelegate

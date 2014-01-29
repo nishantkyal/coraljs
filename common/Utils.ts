@@ -80,9 +80,9 @@ module common
             return Object.prototype.toString.call(obj).replace('[object ', '').replace(']', '');
         }
 
-        static surroundWithQuotes(val:any, onlyIfString:boolean = true):string
+        static surroundWithQuotes(val:any):string
         {
-            if (onlyIfString && Utils.getObjectType(val) != 'String')
+            if (this.getObjectType(val) != 'String')
                 return val;
             return "'" + val + "'";
         }
