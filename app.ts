@@ -1,14 +1,15 @@
+///<reference path='./_references.d.ts'/>
+///<reference path='./common/Config.ts'/>
 import express          = require('express');
 import http             = require('http');
 import path             = require('path');
-import Config           = require('./Config')
 import MysqlDelegate    = require('./delegates/MysqlDelegate');
 import ValidateRequest  = require('./middleware/ValidateRequest');
 
-var app:express.ExpressServer = express.createServer();
+var app = express();
 
 // all environments
-app.set('port', Config.get('Coral.port') || 3000);
+app.set('port', common.Config.get('Coral.port') || 3000);
 app.use(express.bodyParser());
 app.use(express.methodOverride());
 app.use(ValidateRequest.parseBody);
@@ -23,7 +24,7 @@ MysqlDelegate.createConnection()
             'FROM information_schema.KEY_COLUMN_USAGE  ' +
             'WHERE referenced_table_name IS NOT NULL ' +
             'AND constraint_name != "PRIMARY" ' +
-            'AND table_schema = ' + Config.get('database.name'));
+            'AND table_schema = ' + common.Config.get('database.name'));
     })
     .then(
     function populateModelsWithForeignKeys(rows:Array)
