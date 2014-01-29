@@ -45,5 +45,16 @@ class BaseModel
     setUpdated(val:number):void { this.updated = val; }
     setDeleted(val:boolean):void { this.deleted = val; }
 
+    getData():Object
+    {
+        var thisProtoConstructor = this.__proto__.constructor;
+        var that = this;
+        var data = {};
+        _.each (thisProtoConstructor['COLUMNS'], function(column) {
+            data[column] = that[column];
+        });
+        return data;
+    }
+
 }
 export = BaseModel

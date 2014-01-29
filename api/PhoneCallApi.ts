@@ -1,3 +1,4 @@
+var json2xml                = require('json2xml');
 import express              = require('express');
 import ApiConstants         = require('./ApiConstants');
 import ApiUrlDelegate       = require('../delegates/ApiUrlDelegate');
@@ -63,6 +64,20 @@ class PhoneCallApi
                     function callFetched(call) { res.json(call); },
                     function callFetchFailed(error) { res.status(400).send('No phone call found for id: ' + phoneCallId); }
                 )
+        });
+
+        app.get(ApiUrlDelegate.phoneCallTwiml(), function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        {
+            var phoneCallId:number = req.params[ApiConstants.PHONE_CALL_ID];
+
+            return phoneCallDelegate.get(phoneCallId)
+                .then(
+                function callFetched(call:PhoneCall)
+                {
+                    res.header('Content-Type', 'application/xml').send(json2xml({'call': call.getData()}, {header: true}));
+                },
+                function callFetchFailed(error) { res.status(400).send('No phone call found for id: ' + phoneCallId); }
+            )
         });
 
         app.get(ApiUrlDelegate.phoneCall(), ValidateRequest.requireFilters, AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)

@@ -1,5 +1,6 @@
 import q                            = require('q');
 import BaseDaoDelegate              = require('../delegates/BaseDaoDelegate');
+import TwilioDelegate               = require('../delegates/TwilioDelegate');
 import IDao                         = require('../dao/IDao');
 import SMSDao                       = require('../dao/SmsDao');
 import SMS                          = require('../models/SMS');
@@ -18,7 +19,17 @@ class SMSDelegate extends BaseDaoDelegate
         sms.setStatus(SMSStatus.SCHEDULED);
         sms.setNumRetries(0);
 
-        return this.create(sms);
+        return this.create(sms)
+            .then(
+            function smsSaved()
+            {
+                return new TwilioDelegate().sendSMS(sms.getCountryCode() + sms.getPhone(), sms.getSender(), sms.getMessage());
+            })
+            .then(
+            function smsSent()
+            {
+                return sms;
+            });
     }
 }
 export = SMSDelegate

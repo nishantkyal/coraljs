@@ -60,6 +60,7 @@ class ApiUrlDelegate {
     static phoneCallById(callId?:number):string { return this.get('/rest/call/:callId', {callId: callId}); }
     static phoneCallReschedule(callId?:number):string { return this.get('/rest/call/:callId/reschedule', {callId: callId}); }
     static phoneCallCancel(callId?:number):string { return this.get('/rest/call/:callId/cancel', {callId: callId}); }
+    static phoneCallTwiml(callId?:number):string { return this.get('/rest/call/:callId/twiml', {callId: callId}); }
 
     /** URL patterns for phone numbers **/
     static phoneNumber():string { return this.get('/rest/phone-number'); }
