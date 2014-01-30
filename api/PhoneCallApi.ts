@@ -66,20 +66,6 @@ class PhoneCallApi
                 )
         });
 
-        app.get(ApiUrlDelegate.phoneCallTwiml(), function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
-        {
-            var phoneCallId:number = req.params[ApiConstants.PHONE_CALL_ID];
-
-            return phoneCallDelegate.get(phoneCallId)
-                .then(
-                function callFetched(call:PhoneCall)
-                {
-                    res.header('Content-Type', 'application/xml').send(json2xml({'call': call.getData()}, {header: true}));
-                },
-                function callFetchFailed(error) { res.status(400).send('No phone call found for id: ' + phoneCallId); }
-            )
-        });
-
         app.get(ApiUrlDelegate.phoneCall(), ValidateRequest.requireFilters, AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var filters = req.body[ApiConstants.FILTERS];

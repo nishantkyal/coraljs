@@ -4,8 +4,10 @@ import Utils                        = require('../Utils');
 import IDao                         = require('../dao/IDao');
 import PhoneCallDao                 = require('../dao/PhoneCallDao');
 import BaseDAODelegate              = require('./BaseDaoDelegate');
+import IntegrationMemberDelegate    = require('./IntegrationMemberDelegate');
 import EmailDelegate                = require('./EmailDelegate');
 import CallStatus                   = require('../enums/CallStatus');
+import ApiFlags                     = require('../enums/ApiFlags');
 import PhoneCall                    = require('../models/PhoneCall');
 import UnscheduledCallsCache        = require('../caches/UnscheduledCallsCache');
 
@@ -89,6 +91,16 @@ class PhoneCallDelegate extends BaseDAODelegate
                 return new EmailDelegate().sendCallStatusUpdateNotifications(callerUserId, expertUserId, CallStatus.POSTPONED);
             });
 
+    }
+
+    getIncludeHandler(include:string, result:PhoneCall):q.makePromise
+    {
+        switch (include)
+        {
+            case ApiFlags.INCLUDE_INTEGRATION_MEMBER_USER:
+                return new IntegrationMemberDelegate().get(result.getExpertId(), null, [ApiFlags.INCLUDE_USER]);
+        }
+        return super.getIncludeHandler(include, result);
     }
 
     getDao():IDao { return new PhoneCallDao(); }

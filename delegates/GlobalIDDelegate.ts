@@ -44,7 +44,7 @@ class GlobalIDDelegate
         }
 
         var timestampComponent = now << GlobalIDDelegate.TIMESTAMP_SHIFT;
-        var objectTypeComponent = (GlobalIDDelegate.types[type] & GlobalIDDelegate.OBJECT_TYPE_MASK) << GlobalIDDelegate.OBJECT_TYPE_SHIFT;
+        var objectTypeComponent = ((GlobalIDDelegate.types[type] || 1) & GlobalIDDelegate.OBJECT_TYPE_MASK) << GlobalIDDelegate.OBJECT_TYPE_SHIFT;
         var shardComponent = (shardId & GlobalIDDelegate.SHARD_MASK) << GlobalIDDelegate.SHARD_SHIFT;
         var sequenceComponent = GlobalIDDelegate.sequence & GlobalIDDelegate.SEQUENCE_MASK;
 

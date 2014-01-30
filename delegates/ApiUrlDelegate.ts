@@ -60,7 +60,6 @@ class ApiUrlDelegate {
     static phoneCallById(callId?:number):string { return this.get('/rest/call/:callId', {callId: callId}); }
     static phoneCallReschedule(callId?:number):string { return this.get('/rest/call/:callId/reschedule', {callId: callId}); }
     static phoneCallCancel(callId?:number):string { return this.get('/rest/call/:callId/cancel', {callId: callId}); }
-    static phoneCallTwiml(callId?:number):string { return this.get('/rest/call/:callId/twiml', {callId: callId}); }
 
     /** URL patterns for phone numbers **/
     static phoneNumber():string { return this.get('/rest/phone-number'); }
@@ -74,6 +73,12 @@ class ApiUrlDelegate {
 
     /* URL patterns for SMS */
     static sms():string { return this.get('/rest/sms'); }
+
+    /* URL patterns for Twilio */
+    static twiml():string { return this.get('/rest/twiml'); }
+    static twimlJoinConference():string { return this.get('/rest/twiml/call'); }
+    static twimlCallExpert(callId?:number):string { return this.get('/rest/twiml/call/:callId/expert', {callId: callId}); }
+    static twimlCall(callId?:number):string { return this.get('/rest/twiml/call/:callId', {callId: callId}); }
 
     /**
      * Helper method to generate URLs with values substituted for parameters (if supplied)

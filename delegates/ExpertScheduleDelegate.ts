@@ -166,10 +166,7 @@ class ExpertScheduleDelegate extends BaseDAODelegate
         switch (include)
         {
             case ApiFlags.INCLUDE_USER:
-                return integrationMemberDelegate.get(integrationMemberId)
-                    .then(
-                    function scheduleExpertFetched(expert) { return userDelegate.get(expert.user_id); }
-                );
+                return integrationMemberDelegate.get(integrationMemberId, null, [ApiFlags.INCLUDE_USER]);
             case ApiFlags.INCLUDE_INTEGRATION_MEMBER:
                 return integrationMemberDelegate.get(integrationMemberId);
         }

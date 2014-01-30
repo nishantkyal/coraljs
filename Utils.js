@@ -73,6 +73,13 @@ var Utils = (function () {
             return val;
         return "'" + val + "'";
     };
+
+    Utils.createSimpleObject = function (key, value) {
+        var obj = {};
+        if (!Utils.isNullOrEmpty(key))
+            obj[key] = value;
+        return obj;
+    };
     return Utils;
 })();
 

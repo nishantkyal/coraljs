@@ -1,6 +1,6 @@
 import q                            = require('q');
 import BaseDaoDelegate              = require('../delegates/BaseDaoDelegate');
-import TwilioDelegate               = require('../delegates/TwilioDelegate');
+import TwilioDelegate               = require('./calling/TwilioDelegate');
 import IDao                         = require('../dao/IDao');
 import SMSDao                       = require('../dao/SmsDao');
 import SMS                          = require('../models/SMS');

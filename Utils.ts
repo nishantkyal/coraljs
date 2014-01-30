@@ -80,5 +80,13 @@ class Utils
         return "'" + val + "'";
     }
 
+    static createSimpleObject(key:string, value:any):Object
+    {
+        var obj:Object = {};
+        if (!Utils.isNullOrEmpty(key))
+            obj[key] = value;
+        return obj;
+    }
+
 }
 export = Utils

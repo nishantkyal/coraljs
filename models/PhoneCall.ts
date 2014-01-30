@@ -6,7 +6,7 @@ import Utils                = require('../Utils');
  **/
 class PhoneCall extends BaseModel
 {
-    static TABLE_NAME:string = 'call';
+    static TABLE_NAME:string = 'phone_call';
 
     private caller_id:number;
     private expert_id:number;
@@ -60,11 +60,12 @@ class PhoneCall extends BaseModel
 
     isValid():boolean
     {
-        return (!Utils.isNullOrEmpty(this.getCallerId())
-                    && !Utils.isNullOrEmpty(this.getExpertId())
-                        && !Utils.isNullOrEmpty(this.getAgenda())
-                            && !Utils.isNullOrEmpty(this.getDuration())
-                                && !Utils.isNullOrEmpty(this.getScheduleId()));
+        // !Utils.isNullOrEmpty(this.getCallerId())
+        // && !Utils.isNullOrEmpty(this.getAgenda())
+
+        return (!Utils.isNullOrEmpty(this.getExpertId())
+                    && !Utils.isNullOrEmpty(this.getDuration())
+                        && !Utils.isNullOrEmpty(this.getScheduleId()));
     }
 }
 export = PhoneCall

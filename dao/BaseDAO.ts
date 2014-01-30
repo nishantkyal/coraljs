@@ -58,7 +58,7 @@ class BaseDAO implements IDao
     get(id:any, fields?:string[]):q.makePromise
     {
         var that = this;
-        var selectColumns = fields ? fields.join(',') : '*';
+        var selectColumns = fields && fields.length != 0 ? fields.join(',') : '*';
         var query = 'SELECT ' + selectColumns + ' FROM `' + this.tableName + '` WHERE id = ?';
 
         return MysqlDelegate.executeQuery(query, [id])
