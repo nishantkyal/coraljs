@@ -4,7 +4,7 @@
 
 module dao
 {
-    export class TransactionLineDao extends BaseDAO
+    export class TransactionLineDao extends BaseDao
     {
         getModel():typeof models.BaseModel { return models.TransactionLine; }
     }

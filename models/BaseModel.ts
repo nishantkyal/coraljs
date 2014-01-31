@@ -16,7 +16,7 @@ module models
         private updated:number;
         private deleted:boolean;
 
-        constructor(data:any = {})
+        constructor(data:{[column:string]: any} = {})
         {
             var thisProtoConstructor = this.__proto__.constructor;
             thisProtoConstructor['COLUMNS'] = thisProtoConstructor['COLUMNS'] || [];
