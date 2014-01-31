@@ -1,8 +1,8 @@
-import ApiConstants                     = require('../api/ApiConstants');
-import ApiUrlDelegate                   = require('../delegates/ApiUrlDelegate');
-import SMSDelegate                      = require('../delegates/SMSDelegate');
-import AccessControl                    = require('../middleware/AccessControl');
-import SMS                              = require('../models/SMS');
+///<reference path='../api/ApiConstants'/>;
+///<reference path='../delegates/ApiUrlDelegate'/>;
+///<reference path='../delegates/SMSDelegate'/>;
+///<reference path='../middleware/AccessControl'/>;
+///<reference path='../models/SMS'/>;
 
 class SMSApi
 {
@@ -10,7 +10,7 @@ class SMSApi
     {
         var smsDelegate = new SMSDelegate();
 
-        app.post(ApiUrlDelegate.sms(), AccessControl.allowDashboard, function(req, res)
+        app.post(delegates.ApiUrlDelegate.sms(), AccessControl.allowDashboard, function(req, res)
         {
             var sms:SMS = req.body[ApiConstants.SMS];
 

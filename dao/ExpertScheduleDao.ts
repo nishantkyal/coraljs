@@ -1,25 +1,27 @@
-import q                        = require('q');
-import BaseDAO                  = require('./BaseDAO');
-import BaseModel                = require('../models/BaseModel');
-import ExpertSchedule           = require('../models/ExpertSchedule');
-import MysqlDelegate            = require('../delegates/MysqlDelegate');
-import Utils                    = require('../Utils');
+///<reference path='../_references.d.ts'/>
+///<reference path='./BaseDao.ts'/>
+///<reference path='../models/BaseModel.ts'/>
+///<reference path='../models/ExpertSchedule.ts'/>
+///<reference path='../delegates/MysqlDelegate.ts'/>
+///<reference path='../common/Utils.ts'/>
 
-class ExpertScheduleDao extends BaseDAO
+module dao
 {
-    getModel():typeof BaseModel { return ExpertSchedule; }
-
-    findConflictingScheduleRules(startTime:number, endTime:number, integrationMemberId?:number):q.makePromise
+    export class ExpertScheduleDao extends BaseDao
     {
-        var query = 'SELECT * ' +
-            'FROM expert_schedule_rule ' +
-            'WHERE start_time BETWEEN ' + startTime + ' AND ' + endTime + ' OR ' +
-            'OR start_time BETWEEN (' + startTime + ' +  duration AND ' + (endTime + ' + duration)');
+        getModel():typeof models.BaseModel { return models.ExpertSchedule; }
 
-        if (!Utils.isNullOrEmpty(integrationMemberId))
-            query += ' AND integration_member_id = ' + integrationMemberId;
+        findConflictingScheduleRules(startTime:number, endTime:number, integrationMemberId?:number):Q.IPromise<any>
+        {
+            var query = 'SELECT * ' +
+                'FROM expert_schedule_rule ' +
+                'WHERE start_time BETWEEN ' + startTime + ' AND ' + endTime + ' OR ' +
+                'OR start_time BETWEEN (' + startTime + ' +  duration AND ' + (endTime + ' + duration)');
 
-        return MysqlDelegate.executeQuery(query);
+            if (!common.Utils.isNullOrEmpty(integrationMemberId))
+                query += ' AND integration_member_id = ' + integrationMemberId;
+
+            return delegates.MysqlDelegate.executeQuery(query);
+        }
     }
 }
-export = ExpertScheduleDao

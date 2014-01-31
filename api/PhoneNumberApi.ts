@@ -1,9 +1,9 @@
 import express              = require('express');
-import ApiConstants         = require('./ApiConstants');
-import AccessControl        = require('../middleware/AccessControl');
-import ApiUrlDelegate       = require('../delegates/ApiUrlDelegate');
-import PhoneNumberDelegate  = require('../delegates/PhoneNumberDelegate');
-import PhoneNumber          = require('../models/PhoneNumber');
+///<reference path='./ApiConstants'/>;
+///<reference path='../middleware/AccessControl'/>;
+///<reference path='../delegates/ApiUrlDelegate'/>;
+///<reference path='../delegates/PhoneNumberDelegate'/>;
+///<reference path='../models/PhoneNumber'/>;
 
 /**
  * API calls for managing settings to IntegrationMembers who are experts
@@ -16,7 +16,7 @@ class PhoneNumberApi
         var phoneNumberDelegate = new PhoneNumberDelegate();
 
         /* Add phone number */
-        app.put(ApiUrlDelegate.phoneNumber(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.put(delegates.ApiUrlDelegate.phoneNumber(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var phoneNumber:PhoneNumber = req.body[ApiConstants.PHONE_NUMBER];
 
@@ -31,7 +31,7 @@ class PhoneNumberApi
         });
 
         /* Search phone number */
-        app.get(ApiUrlDelegate.phoneNumber(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(delegates.ApiUrlDelegate.phoneNumber(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             phoneNumberDelegate.search(req.body[ApiConstants.PHONE_NUMBER])
                 .then(
@@ -41,7 +41,7 @@ class PhoneNumberApi
         });
 
         /* Get phone number by id */
-        app.get(ApiUrlDelegate.phoneNumberById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(delegates.ApiUrlDelegate.phoneNumberById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var phoneNumberId = req.params[ApiConstants.PHONE_NUMBER_ID];
 
@@ -53,7 +53,7 @@ class PhoneNumberApi
         });
 
         /* Update phone number */
-        app.post(ApiUrlDelegate.phoneNumberById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.post(delegates.ApiUrlDelegate.phoneNumberById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var phoneNumberId:string = req.params[ApiConstants.PHONE_NUMBER_ID];
             var phoneNumber:PhoneNumber = req.body[ApiConstants.PHONE_NUMBER];
@@ -66,7 +66,7 @@ class PhoneNumberApi
         });
 
         /* Delete phone number */
-        app.delete(ApiUrlDelegate.phoneNumberById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.delete(delegates.ApiUrlDelegate.phoneNumberById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var phoneNumberId:string = req.params[ApiConstants.PHONE_NUMBER_ID];
 

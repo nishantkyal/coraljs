@@ -1,56 +1,58 @@
-import ExpertScheduleDelegate           = require('../delegates/ExpertScheduleDelegate');
-import ApiUrlDelegate                   = require('../delegates/ApiUrlDelegate');
-import ApiConstants                     = require('../api/ApiConstants');
-import ExpertSchedule                   = require('../models/ExpertSchedule');
+///<reference path='../delegates/ExpertScheduleDelegate'/>;
+///<reference path='../delegates/ApiUrlDelegate'/>;
+///<reference path='../api/ApiConstants'/>;
+///<reference path='../models/ExpertSchedule'/>;
 
-class ExpertScheduleApi
+module api
 {
-    constructor(app)
+    export class ExpertScheduleApi
     {
-        var expertScheduleDelegate = new ExpertScheduleDelegate();
-
-        app.get(ApiUrlDelegate.scheduleByExpert(), function (req, res)
+        constructor(app)
         {
-            var expertId = req.params[ApiConstants.EXPERT_ID];
-            var startTime = parseInt(req.query[ApiConstants.START_TIME] || 0);
-            var endTime = parseInt(req.query[ApiConstants.END_TIME] || 0);
+            var expertScheduleDelegate = new delegates.ExpertScheduleDelegate();
 
-            if (!startTime || !endTime || startTime >= endTime)
-                res.status(400).send("Invalid time interval");
+            app.get(delegates.ApiUrlDelegate.scheduleByExpert(), function (req, res)
+            {
+                var expertId = req.params[ApiConstants.EXPERT_ID];
+                var startTime = parseInt(req.query[ApiConstants.START_TIME] || 0);
+                var endTime = parseInt(req.query[ApiConstants.END_TIME] || 0);
 
-            expertScheduleDelegate.getSchedulesForExpert(expertId, startTime, endTime)
-                .then(
-                function expertScheduleSearched(schedules) { res.json(schedules); },
-                function expertScheduleSearchFailed(error) { res.status(500).json(error); }
-            );
-        });
+                if (!startTime || !endTime || startTime >= endTime)
+                    res.status(400).send("Invalid time interval");
 
-        app.get(ApiUrlDelegate.scheduleById(), function (req, res)
-        {
-            var scheduleId:string = req.params[ApiConstants.SCHEDULE_ID];
-            var includes:string[] = req.query[ApiConstants.INCLUDE];
+                expertScheduleDelegate.getSchedulesForExpert(expertId, startTime, endTime)
+                    .then(
+                    function expertScheduleSearched(schedules) { res.json(schedules); },
+                    function expertScheduleSearchFailed(error) { res.status(500).json(error); }
+                );
+            });
 
-            expertScheduleDelegate.get(scheduleId, null, includes)
-                .then(
-                function expertScheduleSearched(schedules) { res.json(schedules); },
-                function expertScheduleSearchFailed(error) { res.status(500).json(error); }
-            );
-        });
+            app.get(delegates.ApiUrlDelegate.scheduleById(), function (req, res)
+            {
+                var scheduleId:string = req.params[ApiConstants.SCHEDULE_ID];
+                var includes:string[] = req.query[ApiConstants.INCLUDE];
 
-        app.put(ApiUrlDelegate.scheduleByExpert(), function (req, res)
-        {
-            var schedule:ExpertSchedule = req[ApiConstants.SCHEDULE];
-            var expertId = req.params[ApiConstants.EXPERT_ID];
-            schedule.setIntegrationMemberId(expertId);
+                expertScheduleDelegate.get(scheduleId, null, includes)
+                    .then(
+                    function expertScheduleSearched(schedules) { res.json(schedules); },
+                    function expertScheduleSearchFailed(error) { res.status(500).json(error); }
+                );
+            });
 
-            expertScheduleDelegate.create(schedule)
-                .then(
-                function expertScheduleCreated(schedule) { res.json(schedule); },
-                function expertScheduleCreateFailed(error) { res.status(500).json(error); }
-            );
-        });
+            app.put(delegates.ApiUrlDelegate.scheduleByExpert(), function (req, res)
+            {
+                var schedule:models.ExpertSchedule = req[ApiConstants.SCHEDULE];
+                var expertId = req.params[ApiConstants.EXPERT_ID];
+                schedule.setIntegrationMemberId(expertId);
+
+                expertScheduleDelegate.create(schedule)
+                    .then(
+                    function expertScheduleCreated(schedule) { res.json(schedule); },
+                    function expertScheduleCreateFailed(error) { res.status(500).json(error); }
+                );
+            });
+
+        }
 
     }
-
 }
-export = ExpertScheduleApi

@@ -1,11 +1,10 @@
-import _                            = require('underscore');
-import q                            = require('q');
-import Email                        = require('../models/Email')
-import IDao                         = require('../dao/IDao');
-import EmailDao                     = require('../dao/EmailDao');
-import CallStatus                   = require('../enums/CallStatus');
-import UserDelegate                 = require('../delegates/UserDelegate');
-import IntegrationMemberDelegate    = require('../delegates/IntegrationMemberDelegate');
+///<reference path='../_references.d.ts'/>
+///<reference path='../models/Email.ts'/>
+///<reference path='../dao/IDao.ts'/>
+///<reference path='../dao/EmailDao.ts'/>
+///<reference path='../enums/CallStatus.ts'/>
+///<reference path='./UserDelegate.ts'/>
+///<reference path='./IntegrationMemberDelegate.ts'/>
 
 /**
  Delegate class for managing email
@@ -13,53 +12,54 @@ import IntegrationMemberDelegate    = require('../delegates/IntegrationMemberDel
  2. Check status of emails
  3. Search emails
  */
-class EmailDelegate
+module delegates
 {
-    getDao():IDao { return new EmailDao(); }
-
-    send():q.makePromise
+    export class EmailDelegate
     {
-        return null;
-    }
+        getDao():dao.IDao { return new dao.EmailDao(); }
 
-    sendCallStatusUpdateNotifications(callerUserId:number, expertId:number, status:CallStatus):q.makePromise
-    {
-        var that = this;
+        send():Q.IPromise<any>
+        {
+            return null;
+        }
 
-        // 1. Get expert's user id
-        // 2. Get emails for caller and expert
-        // 3. Send emails
-        return new IntegrationMemberDelegate().get(expertId, ['user_id'])
-            .then(
-            function expertUserIdFetched(expert)
-            {
-                return new UserDelegate().search({'id': [expert['user_id'], callerUserId]}, ['email']);
-            })
-            .then(
-            function emailsFetched(users)
-            {
-                var expertEmail, callerEmail;
-                _.each(users, function(user) {
-                    if (user.id == callerUserId)
-                        callerEmail = user['email'];
-                    else
-                        expertEmail = user['email'];
-                });
+        sendCallStatusUpdateNotifications(callerUserId:number, expertId:number, status:enums.CallStatus):Q.IPromise<any>
+        {
+            var that = this;
 
-                switch(status)
+            // 1. Get expert's user id
+            // 2. Get emails for caller and expert
+            // 3. Send emails
+            return new delegates.IntegrationMemberDelegate().get(expertId, ['user_id'])
+                .then(
+                function expertUserIdFetched(expert)
                 {
-                    // TODO: Implement all call status emails
-                    case CallStatus.POSTPONED:
-                        return q.all([
-                            that.send(),
-                            that.send()
-                        ]);
-                        break;
-                }
+                    return new delegates.UserDelegate().search({'id': [expert['user_id'], callerUserId]}, ['email']);
+                })
+                .then(
+                function emailsFetched(users:any)
+                {
+                    var expertEmail, callerEmail;
+                    _.each(users, function(user) {
+                        if (user.id == callerUserId)
+                            callerEmail = user['email'];
+                        else
+                            expertEmail = user['email'];
+                    });
 
-                return null;
-            });
+                    switch(status)
+                    {
+                        // TODO: Implement all call status emails
+                        case enums.CallStatus.POSTPONED:
+                            return q.all([
+                                that.send(),
+                                that.send()
+                            ]);
+                            break;
+                    }
+
+                    return null;
+                });
+        }
     }
-
 }
-export = EmailDelegate

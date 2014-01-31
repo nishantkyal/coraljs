@@ -1,5 +1,5 @@
 import express              = require('express');
-import ApiUrlDelegate       = require('../delegates/ApiUrlDelegate');
+///<reference path='../delegates/ApiUrlDelegate'/>;
 
 /**
  * API calls for managing payment details
@@ -10,31 +10,31 @@ class PayoutDetailApi
     constructor(app)
     {
         /** Search payout-detail */
-        app.get(ApiUrlDelegate.payoutDetail(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(delegates.ApiUrlDelegate.payoutDetail(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
 
         });
 
         /** Get by id */
-        app.get(ApiUrlDelegate.payoutDetailById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(delegates.ApiUrlDelegate.payoutDetailById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
 
         });
 
         /** Create new  */
-        app.put(ApiUrlDelegate.payoutDetail(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.put(delegates.ApiUrlDelegate.payoutDetail(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
 
         });
 
         /** Update */
-        app.post(ApiUrlDelegate.payoutDetailById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.post(delegates.ApiUrlDelegate.payoutDetailById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
 
         });
 
         /** Delete */
-        app.delete(ApiUrlDelegate.payoutDetailById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.delete(delegates.ApiUrlDelegate.payoutDetailById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
 
         });

@@ -1,13 +1,11 @@
-import BaseDAO          = require('../dao/BaseDAO')
-import BaseModel        = require('../models/BaseModel');
-import User             = require('../models/User');
+///<reference path='./BaseDao.ts'/>
+///<reference path='../models/BaseModel.ts'/>
+///<reference path='../models/User.ts'/>
 
-/**
- DAO for User
- No business logic goes here, only data access layer
- **/
-class UserDao extends BaseDAO
+module dao
 {
-    getModel():typeof BaseModel { return User; }
+    export class UserDao extends BaseDao
+    {
+        getModel():typeof models.BaseModel { return models.User; }
+    }
 }
-export = UserDao
