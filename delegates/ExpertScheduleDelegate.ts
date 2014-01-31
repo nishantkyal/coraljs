@@ -16,12 +16,12 @@
  */
 module delegates
 {
-    export class ExpertScheduleDelegate extends BaseDAODelegate
+    export class ExpertScheduleDelegate extends BaseDaoDelegate
     {
-        getDao():dao.IDao { return new dao.ExpertScheduleDAO(); }
+        getDao():dao.IDao { return new dao.ExpertScheduleDao(); }
 
         /* Get schedules for expert */
-        getSchedulesForExpert(expertId:number, startTime?:number, endTime?:number):Q.Promise<any>
+        getSchedulesForExpert(expertId:number, startTime?:number, endTime?:number):Q.IPromise<any>
         {
             var that = this;
             var schedules = [];
@@ -63,7 +63,7 @@ module delegates
         }
 
         /* Create new schedule */
-        create(object:Object, transaction?:any):Q.Promise<any>
+        create(object:Object, transaction?:any):Q.IPromise<any>
         {
             var s = super;
             var that = this;
@@ -81,7 +81,7 @@ module delegates
             )
         }
 
-        createSchedulesForExpert(integrationMemberId:number, startTime:number, endTime:number):Q.Promise<any>
+        createSchedulesForExpert(integrationMemberId:number, startTime:number, endTime:number):Q.IPromise<any>
         {
             var rules = [];
             var transaction;
@@ -157,7 +157,7 @@ module delegates
             return schedules;
         }
 
-        getIncludeHandler(include:string, result:Object):Q.Promise<any>
+        getIncludeHandler(include:string, result:Object):Q.IPromise<any>
         {
             var userDelegate = new UserDelegate();
             var IntegrationMemberDelegate = require('../delegates/IntegrationMemberDelegate');

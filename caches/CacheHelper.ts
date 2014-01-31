@@ -19,7 +19,7 @@ module caches
             return this.connection;
         }
     
-        static set(key, value, expiry?:number):Q.Promise<any>
+        static set(key, value, expiry?:number):Q.IPromise<any>
         {
             var deferred = q.defer();
             this.getConnection().set(key, JSON.stringify(value), 'EX', expiry, function(error, result)
@@ -33,7 +33,7 @@ module caches
     
         }
     
-        static get(key):Q.Promise<any>
+        static get(key):Q.IPromise<any>
         {
             var deferred = q.defer();
             this.getConnection().get(key, function(error, result)
@@ -46,7 +46,7 @@ module caches
             return deferred.promise;
         }
     
-        static del(key):Q.Promise<any>
+        static del(key):Q.IPromise<any>
         {
             var deferred = q.defer();
             this.getConnection().del(key, function(error, result)
@@ -60,7 +60,7 @@ module caches
         }
     
         /* Manipulate hashes */
-        static createHash(set, values, keyFieldName, expiry)
+        static createHash(set, values, keyFieldName, expiry):Q.IPromise<any>
         {
             // Create a clone for addition since we'll be removing from it to keep count
             var deferred = q.defer();
@@ -68,7 +68,7 @@ module caches
             var row = clonedValues.shift();
             this.addToHash(set, row[keyFieldName], row)
                 .then(
-                function(error, result)
+                function(result)
                 {
                     if (clonedValues.length == 0) {
                         if (expiry > 0)
@@ -84,7 +84,7 @@ module caches
             return deferred.promise;
         }
     
-        static addToHash(set, key, value):Q.Promise<any>
+        static addToHash(set, key, value):Q.IPromise<any>
         {
             var deferred = q.defer();
             this.delFromHash(set, key)
@@ -93,7 +93,7 @@ module caches
                     CacheHelper.getConnection().hset(set, key, JSON.stringify(value), function(error, result)
                     {
                         if (error)
-                            deferred.reject(null);
+                            deferred.reject(error);
                         else
                             deferred.resolve(JSON.parse(result));
                     })
@@ -101,7 +101,7 @@ module caches
             return deferred.promise;
         }
     
-        static getHashValues(set):Q.Promise<any>
+        static getHashValues(set):Q.IPromise<any>
         {
             var deferred = q.defer();
             this.getConnection().hvals(set, function(error, result)
@@ -119,7 +119,7 @@ module caches
             return deferred.promise;
         }
     
-        static getHashKeys(set):Q.Promise<any>
+        static getHashKeys(set):Q.IPromise<any>
         {
             var deferred = q.defer();
             this.getConnection().hkeys(set, function(error, result)
@@ -132,7 +132,7 @@ module caches
             return deferred.promise;
         }
     
-        static getFromHash(set, key):Q.Promise<any>
+        static getFromHash(set, key):Q.IPromise<any>
         {
             var deferred = q.defer();
             this.getConnection().hget(set, key, function(error, result)
@@ -145,7 +145,7 @@ module caches
             return deferred.promise;
         }
     
-        static delFromHash(set, key):Q.Promise<any>
+        static delFromHash(set, key):Q.IPromise<any>
         {
             var deferred = q.defer();
             this.getConnection().hdel(set, key, function(error, result)
@@ -159,7 +159,7 @@ module caches
         }
     
         /* MANIPULATE ORDERED SETS */
-        static addToOrderedSet(set, key, value):Q.Promise<any>
+        static addToOrderedSet(set, key, value):Q.IPromise<any>
         {
             var deferred = q.defer();
             this.delFromOrderedSet(set, key)
@@ -178,7 +178,7 @@ module caches
             return deferred.promise;
         }
     
-        static addMultipleToOrderedSet(set, values, keyFieldName):Q.Promise<any>
+        static addMultipleToOrderedSet(set, values, keyFieldName):Q.IPromise<any>
         {
             // Create a clone for addition since we'll be removing from it to keep count
             var deferred = q.defer();
@@ -196,7 +196,7 @@ module caches
             return deferred.promise;
         }
     
-        static getOrderedSet(set):Q.Promise<any>
+        static getOrderedSet(set):Q.IPromise<any>
         {
             var deferred = q.defer();
             this.getConnection().zcard(set, function(err, count)
@@ -217,7 +217,7 @@ module caches
             return deferred.promise;
         }
     
-        static getFromOrderedSet(set, key):Q.Promise<any>
+        static getFromOrderedSet(set, key):Q.IPromise<any>
         {
             var deferred = q.defer();
             this.getConnection().zrevrangebyscore(set, key, key, function(error, result)
@@ -230,7 +230,7 @@ module caches
             return deferred.promise;
         }
     
-        static delFromOrderedSet(set, key):Q.Promise<any>
+        static delFromOrderedSet(set, key):Q.IPromise<any>
         {
             var deferred = q.defer();
             return this.getConnection().zremrangebyscore(set, key, key, function(error, result)
@@ -243,7 +243,7 @@ module caches
             return deferred.promise;
         }
     
-        static setExpiry(key, expiry):Q.Promise<any>
+        static setExpiry(key, expiry):Q.IPromise<any>
         {
             var deferred = q.defer();
             return this.getConnection().expire(key, expiry, function(error, result)

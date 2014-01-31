@@ -8,12 +8,12 @@ module caches
     {
         private KEY:String = 'CallPlanning';
     
-        getUnscheduledCalls(expertId:number, scheduleId:number):Q.Promise<any>
+        getUnscheduledCalls(expertId:number, scheduleId:number):Q.IPromise<any>
         {
             return CacheHelper.getFromOrderedSet(this.KEY, expertId + '-' + scheduleId);
         }
     
-        addUnscheduledCall(expertId:number, scheduleId:number, call:models.PhoneCall):Q.Promise<any>
+        addUnscheduledCall(expertId:number, scheduleId:number, call:models.PhoneCall):Q.IPromise<any>
         {
             return CacheHelper.addToOrderedSet(this.KEY, expertId + '-' + scheduleId, call);
         }

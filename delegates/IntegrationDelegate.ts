@@ -12,7 +12,7 @@ module delegates
 {
     export class IntegrationDelegate extends BaseDaoDelegate
     {
-        get(id:string, fields?:string[]):Q.Promise<any>
+        get(id:string, fields?:string[]):Q.IPromise<any>
         {
             return super.get(id, fields)
                 .then(function integrationFetched(result:Object)
@@ -21,17 +21,17 @@ module delegates
                 });
         }
 
-        getAll():Q.Promise<any>
+        getAll():Q.IPromise<any>
         {
-            return dao.IntegrationDAO.getAll();
+            return dao.IntegrationDao.getAll();
         }
 
-        getMultiple(ids:string[]):Q.Promise<any>
+        getMultiple(ids:string[]):Q.IPromise<any>
         {
             return this.getDao().search({'integration_id': ids});
         }
 
-        resetSecret(integrationId:string):Q.Promise<any>
+        resetSecret(integrationId:string):Q.IPromise<any>
         {
             var newSecret = common.Utils.getRandomString(30);
             return this.getDao().update({'integration_id': integrationId}, {'secret': newSecret})
@@ -40,7 +40,7 @@ module delegates
                 );
         }
 
-        getDao():dao.IDao { return new dao.IntegrationDAO(); }
+        getDao():dao.IDao { return new dao.IntegrationDao(); }
 
     }
 }

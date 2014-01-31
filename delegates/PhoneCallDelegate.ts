@@ -10,11 +10,11 @@
 
 module delegates
 {
-    export class PhoneCallDelegate extends BaseDAODelegate
+    export class PhoneCallDelegate extends BaseDaoDelegate
     {
         static ALLOWED_NEXT_STATUS:{ [s: number]: any[]; } = {};
 
-        private unscheduledCallsCache:UnscheduledCallsCache = new UnscheduledCallsCache();
+        private unscheduledCallsCache:caches.UnscheduledCallsCache = new caches.UnscheduledCallsCache();
 
         private static ctor = (() =>
         {
@@ -27,33 +27,33 @@ module delegates
             PhoneCallDelegate.ALLOWED_NEXT_STATUS[enums.CallStatus.POSTPONED] = [enums.CallStatus.SCHEDULED, enums.CallStatus.CANCELLED];
         })();
 
-        callsByUser(user_id:string, filters:Object, fields?:string[]):Q.Promise
+        callsByUser(user_id:string, filters:Object, fields?:string[]):Q.IPromise<any>
         {
             filters['user_id'] = user_id;
             return (_.keys(filters).length == 1) ? common.Utils.getRejectedPromise('Invalid filters') : this.getDao().search(filters, {'fields': fields});
         }
 
-        callsToExpert(expert_id:string, filters:Object, fields?:string[]):Q.Promise
+        callsToExpert(expert_id:string, filters:Object, fields?:string[]):Q.IPromise<any>
         {
             filters['expert_id'] = expert_id;
             return (_.keys(filters).length == 1) ? common.Utils.getRejectedPromise('Invalid filters') : this.getDao().search(filters, {'fields': fields});
         }
 
-        create(object:any, transaction?:any):Q.Promise
+        create(object:any, transaction?:any):Q.IPromise<any>
         {
             if (object['status'] == enums.CallStatus.PLANNING)
                 return this.unscheduledCallsCache.addUnscheduledCall(object['integration_member_id'], object['schedule_id'], object);
             return super.create(object, transaction);
         }
 
-        search(search:Object, options?:Object):Q.Promise
+        search(search:Object, options?:Object):Q.IPromise<any>
         {
             if (search['status'] == enums.CallStatus.PLANNING)
                 return this.unscheduledCallsCache.getUnscheduledCalls(search['integration_member_id'], search['schedule_id']);
             return super.search(search, options);
         }
 
-        update(criteria:Object, newValues:Object, transaction?:any):Q.Promise
+        update(criteria:Object, newValues:Object, transaction?:any):Q.IPromise<any>
         {
             if (newValues.hasOwnProperty('status'))
                 throw new Error('Please use the method updateCallStatus to update call status');
@@ -61,7 +61,7 @@ module delegates
             return super.update(criteria, newValues, transaction);
         }
 
-        updateCallStatus(phoneCallId:number, newStatus:enums.CallStatus):Q.Promise
+        updateCallStatus(phoneCallId:number, newStatus:enums.CallStatus):Q.IPromise<any>
         {
             var that = this;
             var callerUserId:number;

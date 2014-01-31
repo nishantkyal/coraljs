@@ -1,5 +1,5 @@
 import express              = require('express');
-import ApiUrlDelegate       = require('../delegates/ApiUrlDelegate');
+///<reference path='../delegates/ApiUrlDelegate'/>;
 
 /**
  * API calls for managing payment transactions
@@ -10,19 +10,19 @@ class TransactionApi
     constructor(app)
     {
         /** Create a new transaction **/
-        app.put(ApiUrlDelegate.transaction(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.put(delegates.ApiUrlDelegate.transaction(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             // Validate item to be added
         });
 
         /** Update transaction **/
-        app.post(ApiUrlDelegate.transactionById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.post(delegates.ApiUrlDelegate.transactionById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
 
         });
 
         /** Add item **/
-        app.put(ApiUrlDelegate.transactionItem(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.put(delegates.ApiUrlDelegate.transactionItem(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
 
         });
@@ -31,7 +31,7 @@ class TransactionApi
          * Update item
          * Remove all rows for item and insert again
          **/
-        app.post(ApiUrlDelegate.transactionItemById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.post(delegates.ApiUrlDelegate.transactionItemById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
 
         });
@@ -39,7 +39,7 @@ class TransactionApi
         /**
          * Remove item
          */
-        app.delete(ApiUrlDelegate.transactionItemById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.delete(delegates.ApiUrlDelegate.transactionItemById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
 
         });
@@ -48,7 +48,7 @@ class TransactionApi
          * Get transaction
          * Fields : [summary, items, discounts, invoice]
          **/
-        app.get(ApiUrlDelegate.transactionById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(delegates.ApiUrlDelegate.transactionById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
 
         });

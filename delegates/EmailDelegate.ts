@@ -18,12 +18,12 @@ module delegates
     {
         getDao():dao.IDao { return new dao.EmailDao(); }
 
-        send():Q.Promise<any>
+        send():Q.IPromise<any>
         {
             return null;
         }
 
-        sendCallStatusUpdateNotifications(callerUserId:number, expertId:number, status:enums.CallStatus):Q.Promise<any>
+        sendCallStatusUpdateNotifications(callerUserId:number, expertId:number, status:enums.CallStatus):Q.IPromise<any>
         {
             var that = this;
 

@@ -1,5 +1,5 @@
 ///<reference path='../_references.d.ts'/>
-///<reference path='./BaseDAO.ts'/>
+///<reference path='./BaseDao.ts'/>
 ///<reference path='../delegates/MysqlDelegate.ts'/>
 ///<reference path='../models/BaseModel.ts'/>
 ///<reference path='../models/Integration.ts'/>
@@ -9,9 +9,9 @@
  */
 module dao
 {
-    export class IntegrationDao extends BaseDAO
+    export class IntegrationDao extends BaseDao
     {
-        static getAll():Q.Promise<any>
+        static getAll():Q.IPromise<any>
         {
             return delegates.MysqlDelegate.executeQuery('SELECT * FROM integration', null);
         }

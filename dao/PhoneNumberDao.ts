@@ -1,4 +1,4 @@
-///<reference path='./BaseDAO.ts'/>
+///<reference path='./BaseDao.ts'/>
 ///<reference path='../models/BaseModel.ts'/>
 ///<reference path='../models/PhoneNumber.ts'/>
 

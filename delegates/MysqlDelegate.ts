@@ -27,7 +27,7 @@ module delegates
         /**
          * Helper method to get a connection from pool
          */
-        static createConnection():Q.Promise<any>
+        static createConnection():Q.IPromise<any>
         {
             var deferred = q.defer();
             var connection = mysql.createConnection({
@@ -53,7 +53,7 @@ module delegates
         /**
          * Helper method to get a connection from pool
          */
-        static getConnectionFromPool():Q.Promise<any>
+        static getConnectionFromPool():Q.IPromise<any>
         {
             var deferred = q.defer();
             MysqlDelegate.pool.getConnection(
@@ -73,7 +73,7 @@ module delegates
         /**
          * Begin a transaction and return the transaction
          */
-        static beginTransaction():Q.Promise<any>
+        static beginTransaction():Q.IPromise<any>
         {
             var deferred = q.defer();
             MysqlDelegate.getConnectionFromPool()
@@ -99,7 +99,7 @@ module delegates
          * Execute a query
          * Transaction/connection can be specified else query is executed in a new connection
          */
-        static executeQuery(query:string, parameters?:any[], connection?:any):Q.Promise<any>
+        static executeQuery(query:string, parameters?:any[], connection?:any):Q.IPromise<any>
         {
             // If transaction specified, use it
             if (connection)
@@ -140,7 +140,7 @@ module delegates
         /**
          * Commit transaction
          */
-        static commit(transaction, result?:any):Q.Promise<any>
+        static commit(transaction, result?:any):Q.IPromise<any>
         {
             var deferred = q.defer();
             transaction.commit(function transactionCommitted()

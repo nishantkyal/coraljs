@@ -1,10 +1,10 @@
 import express              = require('express');
-import ApiConstants         = require('./ApiConstants');
-import ApiUrlDelegate       = require('../delegates/ApiUrlDelegate');
-import PhoneCallDelegate    = require('../delegates/PhoneCallDelegate');
-import AccessControl        = require('../middleware/AccessControl');
-import ValidateRequest      = require('../middleware/ValidateRequest');
-import PhoneCall            = require('../models/PhoneCall');
+///<reference path='./ApiConstants'/>;
+///<reference path='../delegates/ApiUrlDelegate'/>;
+///<reference path='../delegates/PhoneCallDelegate'/>;
+///<reference path='../middleware/AccessControl'/>;
+///<reference path='../middleware/ValidateRequest'/>;
+///<reference path='../models/PhoneCall'/>;
 
 /**
  * API calls for managing phone calls
@@ -15,7 +15,7 @@ class PhoneCallApi
     {
         var phoneCallDelegate = new PhoneCallDelegate();
 
-        app.put(ApiUrlDelegate.phoneCall(), AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.put(delegates.ApiUrlDelegate.phoneCall(), AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var phoneCall:PhoneCall = req.body[ApiConstants.PHONE_CALL];
 
@@ -26,7 +26,7 @@ class PhoneCallApi
                 )
         });
 
-        app.post(ApiUrlDelegate.phoneCallById(), AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.post(delegates.ApiUrlDelegate.phoneCallById(), AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var phoneCallId:number = req.params[ApiConstants.PHONE_CALL_ID];
             var phoneCall:PhoneCall = req.body[ApiConstants.PHONE_CALL];
@@ -38,7 +38,7 @@ class PhoneCallApi
                 )
         });
 
-        app.post(ApiUrlDelegate.phoneCallReschedule(), AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.post(delegates.ApiUrlDelegate.phoneCallReschedule(), AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var phoneCallId:number = req.params[ApiConstants.PHONE_CALL_ID];
 
@@ -49,12 +49,12 @@ class PhoneCallApi
 
         });
 
-        app.post(ApiUrlDelegate.phoneCallCancel(), AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.post(delegates.ApiUrlDelegate.phoneCallCancel(), AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
 
         });
 
-        app.get(ApiUrlDelegate.phoneCallById(), AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(delegates.ApiUrlDelegate.phoneCallById(), AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var phoneCallId:number = req.params[ApiConstants.PHONE_CALL_ID];
 
@@ -65,7 +65,7 @@ class PhoneCallApi
                 )
         });
 
-        app.get(ApiUrlDelegate.phoneCall(), ValidateRequest.requireFilters, AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(delegates.ApiUrlDelegate.phoneCall(), ValidateRequest.requireFilters, AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
         {
             var filters = req.body[ApiConstants.FILTERS];
 

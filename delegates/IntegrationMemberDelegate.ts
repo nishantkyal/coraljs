@@ -16,7 +16,7 @@ module delegates
 {
     export class IntegrationMemberDelegate extends BaseDaoDelegate
     {
-        create(object:Object, transaction?:any):Q.Promise<any>
+        create(object:Object, transaction?:any):Q.IPromise<any>
         {
             var integrationMember = new models.IntegrationMember(object);
             integrationMember.setAuthCode(common.Utils.getRandomString(30));
@@ -24,13 +24,13 @@ module delegates
             return super.create(integrationMember, transaction);
         }
 
-        get(id:any, fields?:string[], flags?:string[]):Q.Promise<any>
+        get(id:any, fields?:string[], flags?:string[]):Q.IPromise<any>
         {
             fields = fields || ['id', 'role', 'integration_id', 'user_id'];
             return super.get(id, fields, flags);
         }
 
-        getIntegrationsForUser(user_id:string, fields?:string[]):Q.Promise<any>
+        getIntegrationsForUser(user_id:string, fields?:string[]):Q.IPromise<any>
         {
             var integrationFields:string[] = _.map(fields, function appendTableName(field)
             {
@@ -44,9 +44,9 @@ module delegates
             return MysqlDelegate.executeQuery(query, [integrationFields.join(','), user_id]);
         }
 
-        findValidAccessToken(accessToken:string, integrationMemberId?:string):Q.Promise<any>
+        findValidAccessToken(accessToken:string, integrationMemberId?:string):Q.IPromise<any>
         {
-            var accessTokenCache = new AccessTokenCache();
+            var accessTokenCache = new caches.AccessTokenCache();
             var that = this;
 
             function tokenFetched(result)
@@ -72,14 +72,14 @@ module delegates
             );
         }
 
-        updateById(id:string, integrationMember:models.IntegrationMember):Q.Promise<any>
+        updateById(id:string, integrationMember:models.IntegrationMember):Q.IPromise<any>
         {
             return this.update({'integration_member_id': id}, integrationMember);
         }
 
-        getDao():dao.IDao { return new dao.IntegrationMemberDAO(); }
+        getDao():dao.IDao { return new dao.IntegrationMemberDao(); }
 
-        getIncludeHandler(include:string, result:any):Q.Promise<any>
+        getIncludeHandler(include:string, result:any):Q.IPromise<any>
         {
             switch (include)
             {

@@ -11,7 +11,7 @@ module delegates
     {
         getDao():dao.IDao { return new dao.ExpertScheduleRuleDao(); }
 
-        create(scheduleRule:models.ExpertScheduleRule, transaction?:any):Q.Promise<any>
+        create(scheduleRule:models.ExpertScheduleRule, transaction?:any):Q.IPromise<any>
         {
             var s = super;
 
@@ -31,7 +31,7 @@ module delegates
                 });
         }
 
-        getRulesByIntegrationMemberId(integrationMemberId:number):Q.Promise<any>
+        getRulesByIntegrationMemberId(integrationMemberId:number):Q.IPromise<any>
         {
             return this.getDao().search({'integration_member_id': integrationMemberId});
         }

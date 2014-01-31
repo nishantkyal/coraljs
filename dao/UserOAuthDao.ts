@@ -1,16 +1,16 @@
-///<reference path='./BaseDAO.ts'/>
+///<reference path='./BaseDao.ts'/>
 ///<reference path='../models/BaseModel.ts'/>
 ///<reference path='../models/UserOauth.ts'/>
 
 module dao
 {
-    export class UserAuthDao extends BaseDAO
+    export class UserAuthDao extends BaseDao
     {
 
         static TABLE_NAME:string = 'user_oauth'
 
         /* Update token for given provider and oauth_uid without knowing the user */
-        static updateTokenForProviderAndOAuthUid(providerId:String, oauthUserId:String, userOAuth:models.UserOauth):Q.Promise<any>
+        static updateTokenForProviderAndOAuthUid(providerId:String, oauthUserId:String, userOAuth:models.UserOauth):Q.IPromise<any>
         {
             var values:string[] = [];
             var updateFields:string[] = [];

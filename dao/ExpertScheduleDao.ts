@@ -1,5 +1,5 @@
 ///<reference path='../_references.d.ts'/>
-///<reference path='./BaseDAO.ts'/>
+///<reference path='./BaseDao.ts'/>
 ///<reference path='../models/BaseModel.ts'/>
 ///<reference path='../models/ExpertSchedule.ts'/>
 ///<reference path='../delegates/MysqlDelegate.ts'/>
@@ -7,11 +7,11 @@
 
 module dao
 {
-    export class ExpertScheduleDao extends BaseDAO
+    export class ExpertScheduleDao extends BaseDao
     {
         getModel():typeof models.BaseModel { return models.ExpertSchedule; }
 
-        findConflictingScheduleRules(startTime:number, endTime:number, integrationMemberId?:number):Q.Promise<any>
+        findConflictingScheduleRules(startTime:number, endTime:number, integrationMemberId?:number):Q.IPromise<any>
         {
             var query = 'SELECT * ' +
                 'FROM expert_schedule_rule ' +

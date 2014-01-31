@@ -6,3 +6,4 @@
 ///<reference path='../DefinitelyTyped/gruntjs/gruntjs.d.ts'/>
 ///<reference path='../DefinitelyTyped/log4js/log4js.d.ts'/>
 ///<reference path='../DefinitelyTyped/node-mysql/mysql.d.ts'/>
+///<reference path='../DefinitelyTyped/i18n/i18n.d.ts'/>

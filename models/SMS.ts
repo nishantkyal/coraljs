@@ -2,6 +2,7 @@
 ///<reference path='./BaseModel.ts'/>
 ///<reference path='../enums/Priority.ts'/>
 ///<reference path='../common/Utils.ts'/>
+///<reference path='../delegates/LocalizationDelegate.ts'/>
 
 module models
 {
@@ -31,7 +32,7 @@ module models
                     var smsType:string = 'sms.' + smsData['type'];
                     var locale:string = smsData['locale'];
                     var templateData:Object = smsData['data'];
-                    var template:Function = _.template(LocalizationDelegate.get(smsType, locale));
+                    var template:Function = _.template(delegates.LocalizationDelegate.get(smsType, locale));
 
                     this.setMessage(template(templateData));
                 } catch (e) {}

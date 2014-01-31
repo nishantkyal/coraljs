@@ -10,7 +10,7 @@
  **/
 module dao
 {
-    export class BaseDAO implements IDao
+    export class BaseDao
     {
         modelClass;
         tableName:string;
@@ -26,7 +26,7 @@ module dao
                 throw ('Invalid Model class specified for ' + common.Utils.getClassName(this));
         }
 
-        create(data:Object, transaction?:any):Q.Promise<any>
+        create(data:Object, transaction?:any):Q.IPromise<any>
         {
             var that = this;
 
@@ -41,7 +41,7 @@ module dao
 
             var query = 'INSERT INTO `' + this.tableName + '` (' + inserts.join(',') + ') VALUES (' + values.join(',') + ')';
 
-            return MysqlDelegate.executeQuery(query, null, transaction)
+            return delegates.MysqlDelegate.executeQuery(query, null, transaction)
                 .then(
                 function created()
                 {
@@ -55,13 +55,13 @@ module dao
 
         }
 
-        get(id:any, fields?:string[]):Q.Promise<any>
+        get(id:any, fields?:string[]):Q.IPromise<any>
         {
             var that = this;
             var selectColumns = fields ? fields.join(',') : '*';
             var query = 'SELECT ' + selectColumns + ' FROM `' + this.tableName + '` WHERE id = ?';
 
-            return MysqlDelegate.executeQuery(query, [id])
+            return delegates.MysqlDelegate.executeQuery(query, [id])
                 .then(
                 function objectFetched(rows:Object[])
                 {
@@ -85,7 +85,7 @@ module dao
                 });
         }
 
-        search(searchQuery:Object, options?:Object):Q.Promise<any>
+        search(searchQuery:Object, options?:Object):Q.IPromise<any>
         {
             var that = this, values = [], whereStatements = [], selectColumns;
 
@@ -124,13 +124,13 @@ module dao
 
             var queryString = 'SELECT ' + selectColumns + ' FROM ' + this.tableName + ' WHERE ' + whereStatements.join(' AND ');
 
-            return MysqlDelegate.executeQuery(queryString, values)
+            return delegates.MysqlDelegate.executeQuery(queryString, values)
                 .then(
                     function handleSearchResults(results:Array) { return _.map(results, function(result) { return new that.modelClass(result); }); }
                 );
         }
 
-        update(criteria:Object, newValues:Object, transaction?:any):Q.Promise<any>
+        update(criteria:Object, newValues:Object, transaction?:any):Q.IPromise<any>
         {
             // Remove fields with null values
             _.each(_.extend({}, criteria, newValues), function (val, key) { if (val == undefined) delete criteria[key]; });
@@ -145,15 +145,15 @@ module dao
             values = values.concat(_.values(criteria));
 
             var query = 'UPDATE ' + this.tableName + ' SET ' + updates.join(",") + ' WHERE ' + wheres.join(" AND ");
-            return MysqlDelegate.executeQuery(query, values, transaction);
+            return delegates.MysqlDelegate.executeQuery(query, values, transaction);
         }
 
-        delete(id:string, softDelete:boolean = true, transaction?:any):Q.Promise<any>
+        delete(id:string, softDelete:boolean = true, transaction?:any):Q.IPromise<any>
         {
             if (softDelete)
                 return this.update({'id': id}, {'deleted': true}, transaction);
 
-            return MysqlDelegate.executeQuery('DELETE FROM ' + this.tableName + ' WHERE id = ?', [id], transaction);
+            return delegates.MysqlDelegate.executeQuery('DELETE FROM ' + this.tableName + ' WHERE id = ?', [id], transaction);
         }
 
         getModel():typeof models.BaseModel { throw('Model class not defined for ' + common.Utils.getClassName(this)); }

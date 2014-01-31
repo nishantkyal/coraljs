@@ -1,107 +1,106 @@
-import q                                = require('q');
-import express                          = require('express');
-import _                                = require('underscore');
-import ApiConstants                     = require('./ApiConstants');
-import AccessControl                    = require('../middleware/AccessControl');
-import ApiUrlDelegate                   = require('../delegates/ApiUrlDelegate');
-import IntegrationDelegate              = require('../delegates/IntegrationDelegate');
-import IntegrationMemberDelegate        = require('../delegates/IntegrationMemberDelegate');
-import UserDelegate                     = require('../delegates/UserDelegate');
-import IntegrationMember                = require('../models/IntegrationMember');
-import User                             = require('../models/User');
-import IntegrationMemberRole            = require('../enums/IntegrationMemberRole');
-import ApiFlags                         = require('../enums/ApiFlags');
+///<reference path='./ApiConstants'/>
+///<reference path='../middleware/AccessControl'/>
+///<reference path='../delegates/ApiUrlDelegate'/>
+///<reference path='../delegates/IntegrationDelegate'/>
+///<reference path='../delegates/IntegrationMemberDelegate'/>
+///<reference path='../delegates/UserDelegate'/>
+///<reference path='../models/IntegrationMember'/>
+///<reference path='../models/User'/>
+///<reference path='../enums/IntegrationMemberRole'/>
+///<reference path='../enums/ApiFlags'/>
+import express              = require('express');
 
 /**
  * API calls for managing settings to IntegrationMembers who are experts
  * e.g. Call schedules, viewing reports, manage payment details
  */
-class ExpertApi
+module api
 {
-    constructor(app)
+    export class ExpertApi
     {
-        var integrationMemberDelegate = new IntegrationMemberDelegate();
-
-        /** Search expert **/
-        app.get(ApiUrlDelegate.expert(), AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        constructor(app)
         {
-            var searchCriteria:Object = req.body;
+            var integrationMemberDelegate = new delegates.IntegrationMemberDelegate();
 
-            integrationMemberDelegate.search(searchCriteria)
-                .then(
-                function handleExpertSearched(result) { res.json(result); },
-                function handleExpertSearchError(err) { res.status(500).json(err); }
-            );
-        });
+            /** Search expert **/
+            app.get(delegates.ApiUrlDelegate.expert(), middleware.AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+            {
+                var searchCriteria:Object = req.body;
 
-        /** Get expert profile  **/
-        app.get(ApiUrlDelegate.expertById(), function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
-        {
-            var expertId = req.params[ApiConstants.EXPERT_ID];
-            var includes:string[] = [].concat(req.query[ApiConstants.INCLUDE]);
-
-            integrationMemberDelegate.get(expertId, null, includes)
-                .then(
-                function handleExpertSearched(integrationMember) { res.json(integrationMember); },
-                function handleExpertSearchError(err) { res.status(500).json(err); }
-            );
-        });
-
-        /** Convert user to expert for integrationId **/
-        app.put(ApiUrlDelegate.expert(), AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
-        {
-            var integrationMember:IntegrationMember = new IntegrationMember(req.body);
-            integrationMember.setRole(IntegrationMemberRole.EXPERT);
-
-            if (integrationMember.getUserId() != null)
-                integrationMemberDelegate.create(integrationMember)
+                integrationMemberDelegate.search(searchCriteria)
                     .then(
-                    function expertCreated(integrationMemberExpert:IntegrationMember) { res.json(integrationMemberExpert); },
-                    function expertCreateFailed(error) { res.status(500).json(error); }
-                )
-            else
-                res.status(401).json('User needs to be registered before becoming an expert');
-        });
+                    function handleExpertSearched(result) { res.json(result); },
+                    function handleExpertSearchError(err) { res.status(500).json(err); }
+                );
+            });
 
-        /** Remove expert status of user for integrationId **/
-        app.delete(ApiUrlDelegate.expertById(), AccessControl.allowAdmin, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
-        {
-            var expertId = req.params[ApiConstants.EXPERT_ID];
+            /** Get expert profile  **/
+            app.get(delegates.ApiUrlDelegate.expertById(), function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+            {
+                var expertId = req.params[api.ApiConstants.EXPERT_ID];
+                var includes:string[] = [].concat(req.query[api.ApiConstants.INCLUDE]);
 
-            integrationMemberDelegate.delete(expertId)
-                .then(
-                function expertDeleted(result) { res.json(result); },
-                function expertDeleteFailed(error) { res.status(500).json(error); }
-            );
-        });
+                integrationMemberDelegate.get(expertId, null, includes)
+                    .then(
+                    function handleExpertSearched(integrationMember) { res.json(integrationMember); },
+                    function handleExpertSearchError(err) { res.status(500).json(err); }
+                );
+            });
 
-        /**
-         * Update expert's details (revenue share, enabled/disabled status)
-         * Allow owner or admin
-         **/
-        app.post(ApiUrlDelegate.expertById(), AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
-        {
-            var expertId = req.params[ApiConstants.EXPERT_ID];
-            var integrationMember:IntegrationMember = req.body[ApiConstants.EXPERT];
+            /** Convert user to expert for integrationId **/
+            app.put(delegates.ApiUrlDelegate.expert(), middleware.AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+            {
+                var integrationMember:models.IntegrationMember = new models.IntegrationMember(req.body);
+                integrationMember.setRole(enums.IntegrationMemberRole.EXPERT);
 
-            integrationMemberDelegate.updateById(expertId, integrationMember)
-                .then(
-                function expertUpdated(result) { res.json(result); },
-                function expertUpdateFailed(error) { res.status(500).json(error); }
-            );
+                if (integrationMember.getUserId() != null)
+                    integrationMemberDelegate.create(integrationMember)
+                        .then(
+                        function expertCreated(integrationMemberExpert:models.IntegrationMember) { res.json(integrationMemberExpert); },
+                        function expertCreateFailed(error) { res.status(500).json(error); }
+                    )
+                else
+                    res.status(401).json('User needs to be registered before becoming an expert');
+            });
 
-        });
+            /** Remove expert status of user for integrationId **/
+            app.delete(delegates.ApiUrlDelegate.expertById(), middleware.AccessControl.allowAdmin, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+            {
+                var expertId = req.params[api.ApiConstants.EXPERT_ID];
 
-        /**
-         * Get activity summary for expert
-         * Allow expert
-         */
-        app.get(ApiUrlDelegate.expertActivitySummary(), AccessControl.allowExpert, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
-        {
+                integrationMemberDelegate.delete(expertId)
+                    .then(
+                    function expertDeleted(result) { res.json(result); },
+                    function expertDeleteFailed(error) { res.status(500).json(error); }
+                );
+            });
 
-        });
+            /**
+             * Update expert's details (revenue share, enabled/disabled status)
+             * Allow owner or admin
+             **/
+            app.post(delegates.ApiUrlDelegate.expertById(), middleware.AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+            {
+                var expertId = req.params[api.ApiConstants.EXPERT_ID];
+                var integrationMember:models.IntegrationMember = req.body[api.ApiConstants.EXPERT];
 
-    }
+                integrationMemberDelegate.updateById(expertId, integrationMember)
+                    .then(
+                    function expertUpdated(result) { res.json(result); },
+                    function expertUpdateFailed(error) { res.status(500).json(error); }
+                );
 
-}
-export = ExpertApi
+            });
+
+            /**
+             * Get activity summary for expert
+             * Allow expert
+             */
+            app.get(delegates.ApiUrlDelegate.expertActivitySummary(), middleware.AccessControl.allowExpert, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+            {
+
+            });
+
+        }
+
+    }}

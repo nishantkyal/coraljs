@@ -13,7 +13,7 @@ module delegates
 {
     export class UserDelegate extends BaseDaoDelegate
     {
-        create(user?:Object, transaction?:any):Q.Promise<any>
+        create(user?:Object, transaction?:any):Q.IPromise<any>
         {
             return super.create(user, transaction)
                 .then(
@@ -23,7 +23,7 @@ module delegates
                 });
         }
 
-        authenticate(mobileOrEmail:string, password:string):Q.Promise<any>
+        authenticate(mobileOrEmail:string, password:string):Q.IPromise<any>
         {
             return this.getDao().search({email: mobileOrEmail, password: password}, {'fields': ['id', 'first_name', 'last_name']})
                 .then(
@@ -37,7 +37,7 @@ module delegates
             );
         }
 
-        update(id:string, user:Object):Q.Promise<any>
+        update(id:string, user:Object):Q.IPromise<any>
         {
             delete user['user_id'];
             delete user['id'];
@@ -46,17 +46,17 @@ module delegates
             return super.update({user_id: id}, user);
         }
 
-        createMobileVerificationToken():Q.Promise<any>
+        createMobileVerificationToken():Q.IPromise<any>
         {
             return new caches.VerificationCodeCache().createMobileVerificationCode();
         }
 
-        searchMobileVerificationToken(code:string, ref:string):Q.Promise<any>
+        searchMobileVerificationToken(code:string, ref:string):Q.IPromise<any>
         {
             return new caches.VerificationCodeCache().searchMobileVerificationCode(code, ref);
         }
 
-        getDao():dao.IDao { return new dao.UserDAO(); }
+        getDao():dao.IDao { return new dao.UserDao(); }
 
     }
 }

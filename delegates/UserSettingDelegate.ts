@@ -10,7 +10,7 @@ module delegates
 {
     export class UserSettingDelegate extends BaseDaoDelegate
     {
-        createPasswordResetToken(userId:string):Q.Promise<any>
+        createPasswordResetToken(userId:string):Q.IPromise<any>
         {
             return this.search({
                 'user_id': userId,
@@ -72,7 +72,7 @@ module delegates
             );
         }
 
-        createEmailVerificationToken(userId:string):Q.Promise<any>
+        createEmailVerificationToken(userId:string):Q.IPromise<any>
         {
             return this.search({
                 'user_id': userId,
