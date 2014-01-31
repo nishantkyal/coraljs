@@ -1,10 +1,10 @@
 ///<reference path='./_references.d.ts'/>
 ///<reference path='./common/Config.ts'/>
+///<reference path='./delegates/MysqlDelegate.ts'/>
+///<reference path='./middleware/ValidateRequest.ts'/>
 import express          = require('express');
 import http             = require('http');
 import path             = require('path');
-import MysqlDelegate    = require('./delegates/MysqlDelegate');
-import ValidateRequest  = require('./middleware/ValidateRequest');
 
 var app = express();
 
@@ -12,15 +12,15 @@ var app = express();
 app.set('port', common.Config.get('Coral.port') || 3000);
 app.use(express.bodyParser());
 app.use(express.methodOverride());
-app.use(ValidateRequest.parseBody);
+app.use(middleware.ValidateRequest.parseBody);
 app.enable('trust proxy');
 
 // Create relationships in models based on db schema
-MysqlDelegate.createConnection()
+delegates.MysqlDelegate.createConnection()
     .then(
     function getForeignKeysFromSchemaAfterConnection(connection)
     {
-        return MysqlDelegate.executeQuery('SELECT referenced_table_name, table_name, column_name, referenced_column_name ' +
+        return delegates.MysqlDelegate.executeQuery('SELECT referenced_table_name, table_name, column_name, referenced_column_name ' +
             'FROM information_schema.KEY_COLUMN_USAGE  ' +
             'WHERE referenced_table_name IS NOT NULL ' +
             'AND constraint_name != "PRIMARY" ' +
