@@ -19,7 +19,7 @@ module models
         private num_retries:number;
         private priority:enums.Priority;
 
-        constructor(data:Object = {})
+        constructor(data:{[column:string]: any} = {})
         {
             super(data);
 

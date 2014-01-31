@@ -1,4 +1,4 @@
-///<reference path='../../DefinitelyTyped/nconf/nconf.d.ts'/>
+///<reference path='../_references.d.ts'/>
 
 /**
  * Utility class for accessing global app config
