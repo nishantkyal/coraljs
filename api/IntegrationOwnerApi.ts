@@ -1,4 +1,4 @@
-import express                          = require('express');
+///<reference path='../_references.d.ts'/>
 ///<reference path='./ApiConstants'/>;
 ///<reference path='../middleware/AccessControl'/>;
 ///<reference path='../delegates/ApiUrlDelegate'/>;
@@ -18,7 +18,7 @@ class IntegrationOwnerApi {
         /**
          * Add another member
          **/
-        app.put(delegates.ApiUrlDelegate.integrationMember(), middleware.AccessControl.allowOwner, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.put(delegates.ApiUrlDelegate.integrationMember(), middleware.AccessControl.allowOwner, function(req, res)
         {
             var integrationId = req.params[api.ApiConstants.INTEGRATION_ID];
             var userId = req.query[api.ApiConstants.USER_ID];
@@ -35,7 +35,7 @@ class IntegrationOwnerApi {
          * Get integration members
          * Allow owner and admin
          */
-        app.get(delegates.ApiUrlDelegate.integrationMember(), middleware.AccessControl.allowAdmin, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(delegates.ApiUrlDelegate.integrationMember(), middleware.AccessControl.allowAdmin, function(req, res)
         {
             var integrationId = req.params[api.ApiConstants.INTEGRATION_ID];
 
@@ -50,7 +50,7 @@ class IntegrationOwnerApi {
          * Remove a member
          * Allow owner and admin
          */
-        app.delete(delegates.ApiUrlDelegate.integrationMemberById(), middleware.AccessControl.allowAdmin, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.delete(delegates.ApiUrlDelegate.integrationMemberById(), middleware.AccessControl.allowAdmin, function(req, res)
         {
             var integrationId = req.params[api.ApiConstants.INTEGRATION_ID];
 
@@ -65,7 +65,7 @@ class IntegrationOwnerApi {
          * Update settings for member
          * Allow owner or admin
          */
-        app.post(delegates.ApiUrlDelegate.integrationMemberById(), middleware.AccessControl.allowAdmin, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.post(delegates.ApiUrlDelegate.integrationMemberById(), middleware.AccessControl.allowAdmin, function(req, res)
         {
             var integrationId = req.params[api.ApiConstants.INTEGRATION_ID];
             var integrationMember:models.IntegrationMember = req.body[api.ApiConstants.INTEGRATION_MEMBER];
@@ -81,7 +81,7 @@ class IntegrationOwnerApi {
          * Get activity summary
          * Allow owner and admin
          **/
-        app.get(delegates.ApiUrlDelegate.ownerActivitySummary(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(delegates.ApiUrlDelegate.ownerActivitySummary(), function(req, res)
         {
 
         });

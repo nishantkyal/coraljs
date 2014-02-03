@@ -1,4 +1,4 @@
-import express              = require('express');
+///<reference path='../_references.d.ts'/>
 ///<reference path='../delegates/ApiUrlDelegate.ts'/>
 
 /**
@@ -12,31 +12,31 @@ module api
         {
 
             /** Search payment */
-            app.get(delegates.ApiUrlDelegate.payment(), function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+            app.get(delegates.ApiUrlDelegate.payment(), function (req, res)
             {
 
             });
 
             /** Get by id */
-            app.get(delegates.ApiUrlDelegate.paymentById(), function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+            app.get(delegates.ApiUrlDelegate.paymentById(), function (req, res)
             {
 
             });
 
             /** Create new  */
-            app.put(delegates.ApiUrlDelegate.payment(), function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+            app.put(delegates.ApiUrlDelegate.payment(), function (req, res)
             {
 
             });
 
             /** Update */
-            app.post(delegates.ApiUrlDelegate.paymentById(), function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+            app.post(delegates.ApiUrlDelegate.paymentById(), function (req, res)
             {
 
             });
 
             /** Delete */
-            app.delete(delegates.ApiUrlDelegate.paymentById(), function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+            app.delete(delegates.ApiUrlDelegate.paymentById(), function (req, res)
             {
 
             });

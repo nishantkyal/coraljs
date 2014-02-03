@@ -1,4 +1,4 @@
-import express              = require('express');
+///<reference path='../_references.d.ts'/>
 ///<reference path='../delegates/ApiUrlDelegate'/>;
 
 /**
@@ -10,31 +10,31 @@ class PayoutDetailApi
     constructor(app)
     {
         /** Search payout-detail */
-        app.get(delegates.ApiUrlDelegate.payoutDetail(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(delegates.ApiUrlDelegate.payoutDetail(), function(req, res)
         {
 
         });
 
         /** Get by id */
-        app.get(delegates.ApiUrlDelegate.payoutDetailById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(delegates.ApiUrlDelegate.payoutDetailById(), function(req, res)
         {
 
         });
 
         /** Create new  */
-        app.put(delegates.ApiUrlDelegate.payoutDetail(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.put(delegates.ApiUrlDelegate.payoutDetail(), function(req, res)
         {
 
         });
 
         /** Update */
-        app.post(delegates.ApiUrlDelegate.payoutDetailById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.post(delegates.ApiUrlDelegate.payoutDetailById(), function(req, res)
         {
 
         });
 
         /** Delete */
-        app.delete(delegates.ApiUrlDelegate.payoutDetailById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.delete(delegates.ApiUrlDelegate.payoutDetailById(), function(req, res)
         {
 
         });

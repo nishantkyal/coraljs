@@ -8,7 +8,7 @@ module.exports = function(app) {
     require('./PayoutDetailApi')(app);
     require('./PhoneCallApi')(app);
     require('./PhoneNumberApi')(app);
-    require('./SMSApi')(app);
+    require('./SmsApi')(app);
     require('./TransactionApi')(app);
     require('./TwimlApi')(app);
     require('./UserApi')(app);

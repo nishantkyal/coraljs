@@ -1,14 +1,14 @@
-///<reference path='./ApiConstants'/>
-///<reference path='../middleware/AccessControl'/>
-///<reference path='../delegates/ApiUrlDelegate'/>
-///<reference path='../delegates/IntegrationDelegate'/>
-///<reference path='../delegates/IntegrationMemberDelegate'/>
-///<reference path='../delegates/UserDelegate'/>
-///<reference path='../models/IntegrationMember'/>
-///<reference path='../models/User'/>
-///<reference path='../enums/IntegrationMemberRole'/>
-///<reference path='../enums/ApiFlags'/>
-import express              = require('express');
+///<reference path='../_references.d.ts'/>
+///<reference path='./ApiConstants.ts'/>
+///<reference path='../middleware/AccessControl.ts'/>
+///<reference path='../delegates/ApiUrlDelegate.ts'/>
+///<reference path='../delegates/IntegrationDelegate.ts'/>
+///<reference path='../delegates/IntegrationMemberDelegate.ts'/>
+///<reference path='../delegates/UserDelegate.ts'/>
+///<reference path='../models/IntegrationMember.ts'/>
+///<reference path='../models/User.ts'/>
+///<reference path='../enums/IntegrationMemberRole.ts'/>
+///<reference path='../enums/ApiFlags.ts'/>
 
 /**
  * API calls for managing settings to IntegrationMembers who are experts
@@ -23,7 +23,7 @@ module api
             var integrationMemberDelegate = new delegates.IntegrationMemberDelegate();
 
             /** Search expert **/
-            app.get(delegates.ApiUrlDelegate.expert(), middleware.AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+            app.get(delegates.ApiUrlDelegate.expert(), middleware.AccessControl.allowDashboard, function (req, res)
             {
                 var searchCriteria:Object = req.body;
 
@@ -35,10 +35,10 @@ module api
             });
 
             /** Get expert profile  **/
-            app.get(delegates.ApiUrlDelegate.expertById(), function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+            app.get(delegates.ApiUrlDelegate.expertById(), function (req, res)
             {
-                var expertId = req.params[api.ApiConstants.EXPERT_ID];
-                var includes:string[] = [].concat(req.query[api.ApiConstants.INCLUDE]);
+                var expertId = req.params[ApiConstants.EXPERT_ID];
+                var includes:string[] = [].concat(req.query[ApiConstants.INCLUDE]);
 
                 integrationMemberDelegate.get(expertId, null, includes)
                     .then(
@@ -48,7 +48,7 @@ module api
             });
 
             /** Convert user to expert for integrationId **/
-            app.put(delegates.ApiUrlDelegate.expert(), middleware.AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+            app.put(delegates.ApiUrlDelegate.expert(), middleware.AccessControl.allowDashboard, function (req, res)
             {
                 var integrationMember:models.IntegrationMember = new models.IntegrationMember(req.body);
                 integrationMember.setRole(enums.IntegrationMemberRole.EXPERT);
@@ -64,9 +64,9 @@ module api
             });
 
             /** Remove expert status of user for integrationId **/
-            app.delete(delegates.ApiUrlDelegate.expertById(), middleware.AccessControl.allowAdmin, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+            app.delete(delegates.ApiUrlDelegate.expertById(), middleware.AccessControl.allowAdmin, function (req, res)
             {
-                var expertId = req.params[api.ApiConstants.EXPERT_ID];
+                var expertId = req.params[ApiConstants.EXPERT_ID];
 
                 integrationMemberDelegate.delete(expertId)
                     .then(
@@ -79,10 +79,10 @@ module api
              * Update expert's details (revenue share, enabled/disabled status)
              * Allow owner or admin
              **/
-            app.post(delegates.ApiUrlDelegate.expertById(), middleware.AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+            app.post(delegates.ApiUrlDelegate.expertById(), middleware.AccessControl.allowDashboard, function (req, res)
             {
-                var expertId = req.params[api.ApiConstants.EXPERT_ID];
-                var integrationMember:models.IntegrationMember = req.body[api.ApiConstants.EXPERT];
+                var expertId = req.params[ApiConstants.EXPERT_ID];
+                var integrationMember:models.IntegrationMember = req.body[ApiConstants.EXPERT];
 
                 integrationMemberDelegate.updateById(expertId, integrationMember)
                     .then(
@@ -96,7 +96,7 @@ module api
              * Get activity summary for expert
              * Allow expert
              */
-            app.get(delegates.ApiUrlDelegate.expertActivitySummary(), middleware.AccessControl.allowExpert, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+            app.get(delegates.ApiUrlDelegate.expertActivitySummary(), middleware.AccessControl.allowExpert, function (req, res)
             {
 
             });
