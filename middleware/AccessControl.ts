@@ -9,10 +9,11 @@
  * Note: Website accesses delegates directly and doesn't go through the APIs hence no access control middleware for it
  */
 
-module middleware {
+module middleware
+{
     export class AccessControl
     {
-        private static logger:log4js_module.Logger = log4js.getLogger(common.Utils.getClassName('AccessControl'));
+        static logger:log4js_module.Logger = log4js.getLogger(common.Utils.getClassName('AccessControl'));
 
         static allowOwner(req, res, next:Function)
         {
@@ -98,7 +99,7 @@ module middleware {
         }
 
         /* Helper method to get details of integration corresponding to token and member id */
-        static getIntegration(accessToken:string, integrationMemberId?:string):Q.IPromise<any>
+        static getIntegration(accessToken:string, integrationMemberId?:string):Q.Promise<any>
         {
             var search = {'access_token': accessToken};
             if (integrationMemberId)

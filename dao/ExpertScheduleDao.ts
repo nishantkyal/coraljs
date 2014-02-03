@@ -11,7 +11,7 @@ module dao
     {
         getModel():typeof models.BaseModel { return models.ExpertSchedule; }
 
-        findConflictingScheduleRules(startTime:number, endTime:number, integrationMemberId?:number):Q.IPromise<any>
+        findConflictingScheduleRules(startTime:number, endTime:number, integrationMemberId?:number):Q.Promise<any>
         {
             var query = 'SELECT * ' +
                 'FROM expert_schedule_rule ' +

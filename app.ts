@@ -3,19 +3,17 @@
 ///<reference path='./delegates/MysqlDelegate.ts'/>
 ///<reference path='./middleware/ValidateRequest.ts'/>
 import express          = require('express');
-import http             = require('http');
-import path             = require('path');
-
 var app = express();
 
 // all environments
-app.set('port', common.Config.get('Coral.port') || 3000);
+//app.set('port', common.Config.get('Coral.port') || 3000);
 app.use(express.bodyParser());
 app.use(express.methodOverride());
-app.use(middleware.ValidateRequest.parseBody);
+//app.use(middleware.ValidateRequest.parseBody);
 app.enable('trust proxy');
 
 // Create relationships in models based on db schema
+/*
 delegates.MysqlDelegate.createConnection()
     .then(
     function getForeignKeysFromSchemaAfterConnection(connection)
@@ -27,7 +25,7 @@ delegates.MysqlDelegate.createConnection()
             'AND table_schema = ' + common.Config.get('database.name'));
     })
     .then(
-    function populateModelsWithForeignKeys(rows:Array)
+    function populateModelsWithForeignKeys(rows:Array<any>)
     {
         for (var constraint in rows)
         {
@@ -37,11 +35,12 @@ delegates.MysqlDelegate.createConnection()
             var targetColumn = constraint['referenced_table_name'];
         }
     });
+*/
 
 // development only
-if ('development' == app.get('env')) {
+/*if ('development' == app.get('env')) {
     app.use(express.errorHandler());
-}
+}*/
 
 // REST APIs
 require('./api')(app);

@@ -21,7 +21,7 @@ module delegates
         getDao():dao.IDao { return new dao.ExpertScheduleDao(); }
 
         /* Get schedules for expert */
-        getSchedulesForExpert(expertId:number, startTime?:number, endTime?:number):Q.IPromise<any>
+        getSchedulesForExpert(expertId:number, startTime?:number, endTime?:number):Q.Promise<any>
         {
             var that = this;
             var schedules = [];
@@ -51,46 +51,47 @@ module delegates
                     }
                 })
                 .then(
-                function schedulesSearched(s:Array)
+                function schedulesSearched(s:Array<models.ExpertSchedule>)
                 {
                     schedules = s;
                     if (schedules.length == 0 && startTime && endTime)
                         return that.createSchedulesForExpert(expertId, startTime, endTime);
                     else
                         return schedules;
+
+                    return null;
                 });
 
         }
 
         /* Create new schedule */
-        create(object:Object, transaction?:any):Q.IPromise<any>
+        create(object:Object, transaction?:any):Q.Promise<any>
         {
-            var s = super;
-            var that = this;
+            var self = this;
 
             // Don't create if schedule with same details already exists
             return this.search(object)
                 .then(
-                function handleScheduleSearched(schedules:Array)
+                function handleScheduleSearched(schedules:Array<models.ExpertSchedule>)
                 {
                     if (schedules.length == 0)
-                        return s.create.call(that, object, transaction);
+                        return self.getDao().create(object, transaction);
                     else
                         throw('Schedule already exists with the same details');
                 }
             )
         }
 
-        createSchedulesForExpert(integrationMemberId:number, startTime:number, endTime:number):Q.IPromise<any>
+        createSchedulesForExpert(integrationMemberId:number, startTime:number, endTime:number):Q.Promise<any>
         {
             var rules = [];
             var transaction;
             var schedules = [];
-            var that = this;
+            var self = this;
 
             return new ExpertScheduleRuleDelegate().getRulesByIntegrationMemberId(integrationMemberId)
                 .then(
-                function rulesSearched(rs:Array)
+                function rulesSearched(rs:Array<models.ExpertScheduleRule>)
                 {
                     rules = rs;
                     if (rs.length != 0)
@@ -101,12 +102,12 @@ module delegates
                                 transaction = t;
                                 _.each(rules, function (rule)
                                 {
-                                    schedules = schedules.concat(that.generateSchedules(new models.ExpertScheduleRule(rule), integrationMemberId, startTime, endTime));
+                                    schedules = schedules.concat(self.generateSchedules(new models.ExpertScheduleRule(rule), integrationMemberId, startTime, endTime));
                                 });
 
                                 return q.all(_.map(schedules, function (schedule)
                                 {
-                                    return that.create(schedule, transaction);
+                                    return self.create(schedule, transaction);
                                 }));
                             })
                             .then(
@@ -157,7 +158,7 @@ module delegates
             return schedules;
         }
 
-        getIncludeHandler(include:string, result:Object):Q.IPromise<any>
+        getIncludeHandler(include:string, result:Object):Q.Promise<any>
         {
             var IntegrationMemberDelegate = require('../delegates/IntegrationMemberDelegate');
             var integrationMemberDelegate = new IntegrationMemberDelegate();

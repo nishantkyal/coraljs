@@ -11,7 +11,7 @@ module dao
 {
     export class IntegrationDao extends BaseDao
     {
-        static getAll():Q.IPromise<any>
+        static getAll():Q.Promise<any>
         {
             return delegates.MysqlDelegate.executeQuery('SELECT * FROM integration', null);
         }

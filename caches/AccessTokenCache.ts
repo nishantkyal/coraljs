@@ -11,19 +11,19 @@ module caches
     export class AccessTokenCache
     {
         /* Get details for token (integration, user id) */
-        getAccessTokenDetails(token:string):Q.IPromise<any>
+        getAccessTokenDetails(token:string):Q.Promise<any>
         {
             return caches.CacheHelper.get('at-' + token);
         }
 
         /* Add token to cache */
-        addToken(integrationMember:models.IntegrationMember, expireAfter:number = common.Config.get('access_token.expiry')):Q.IPromise<any>
+        addToken(integrationMember:models.IntegrationMember, expireAfter:number = common.Config.get('access_token.expiry')):Q.Promise<any>
         {
             return null;
         }
 
         /** Remove token from cache **/
-            removeToken(token:string):Q.IPromise<any>
+            removeToken(token:string):Q.Promise<any>
         {
             return null;
         }

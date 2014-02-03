@@ -26,7 +26,7 @@ module dao
                 throw ('Invalid Model class specified for ' + common.Utils.getClassName(this));
         }
 
-        create(data:any, transaction?:any):Q.IPromise<any>
+        create(data:any, transaction?:any):Q.Promise<any>
         {
             var that = this;
 
@@ -54,7 +54,7 @@ module dao
                 });
         }
 
-        get(id:any, fields?:string[]):Q.IPromise<any>
+        get(id:any, fields?:string[]):Q.Promise<any>
         {
             var that = this;
             var selectColumns = fields && fields.length != 0 ? fields.join(',') : '*';
@@ -84,7 +84,7 @@ module dao
                 });
         }
 
-        search(searchQuery:Object, options?:Object):Q.IPromise<any>
+        search(searchQuery:Object, options?:Object):Q.Promise<any>
         {
             var that = this, values = [], whereStatements = [], selectColumns;
 
@@ -129,7 +129,7 @@ module dao
                 );
         }
 
-        update(criteria:Object, newValues:Object, transaction?:any):Q.IPromise<any>
+        update(criteria:Object, newValues:Object, transaction?:any):Q.Promise<any>
         {
             // Remove fields with null values
             _.each(_.extend({}, criteria, newValues), function (val, key) { if (val == undefined) delete criteria[key]; });
@@ -147,7 +147,7 @@ module dao
             return delegates.MysqlDelegate.executeQuery(query, values, transaction);
         }
 
-        delete(id:string, softDelete:boolean = true, transaction?:any):Q.IPromise<any>
+        delete(id:string, softDelete:boolean = true, transaction?:any):Q.Promise<any>
         {
             if (softDelete)
                 return this.update({'id': id}, {'deleted': true}, transaction);

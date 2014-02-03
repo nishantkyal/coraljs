@@ -10,7 +10,7 @@ module delegates
 {
     export class UserSettingDelegate extends BaseDaoDelegate
     {
-        createPasswordResetToken(userId:string):Q.IPromise<any>
+        createPasswordResetToken(userId:string):Q.Promise<any>
         {
             return this.search({
                 'user_id': userId,
@@ -21,7 +21,7 @@ module delegates
                 }
             })
                 .then(
-                function tokenExpirySearched(tokens:Array)
+                function tokenExpirySearched(tokens:Array<any>)
                 {
                     if (tokens.length == 0) {
                         var transaction;
@@ -33,7 +33,7 @@ module delegates
                                 transaction = t;
                                 return this.search({'user_id': userId, 'setting': {'operator': 'IN', value: '(' + [enums.UserSetting.PASSWORD_RESET_TOKEN, enums.UserSetting.PASSWORD_RESET_TOKEN_EXPIRY].join(',') + ')'}}, ['id'])
                                     .then(
-                                    function oldSettingsSearched(settings:Array)
+                                    function oldSettingsSearched(settings:Array<any>)
                                     {
                                         return q.all([
                                             this.delete(settings[0]['id'], transaction),
@@ -66,13 +66,13 @@ module delegates
                     else
                         return this.search({'user_id': userId, 'setting': enums.UserSetting.PASSWORD_RESET_TOKEN}, ['value'])
                             .then(
-                            function tokenFetched(tokens:Array) { return tokens[0]; }
+                            function tokenFetched(tokens:Array<any>) { return tokens[0]; }
                         );
                 }
             );
         }
 
-        createEmailVerificationToken(userId:string):Q.IPromise<any>
+        createEmailVerificationToken(userId:string):Q.Promise<any>
         {
             return this.search({
                 'user_id': userId,
@@ -83,7 +83,7 @@ module delegates
                 }
             })
                 .then(
-                function tokenExpirySearched(tokens:Array)
+                function tokenExpirySearched(tokens:Array<any>)
                 {
                     if (tokens.length == 0) {
                         var transaction;
@@ -95,7 +95,7 @@ module delegates
                                 transaction = t;
                                 return this.search({'user_id': userId, 'setting': {'operator': 'IN', value: '(' + [enums.UserSetting.EMAIL_VERIFICATION_TOKEN, enums.UserSetting.EMAIL_VERIFICATION_TOKEN_EXPIRY].join(',') + ')'}}, ['id'])
                                     .then(
-                                    function oldSettingsSearched(settings:Array)
+                                    function oldSettingsSearched(settings:Array<any>)
                                     {
                                         return q.all([
                                             this.delete(settings[0]['id'], transaction),
@@ -128,7 +128,7 @@ module delegates
                     else
                         return this.search({'user_id': userId, 'setting': enums.UserSetting.EMAIL_VERIFICATION_TOKEN}, ['value'])
                             .then(
-                            function tokenFetched(tokens:Array) { return tokens[0]; }
+                            function tokenFetched(tokens:Array<any>) { return tokens[0]; }
                         );
                 }
             );

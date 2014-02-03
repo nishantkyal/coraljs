@@ -18,12 +18,12 @@ module delegates
     {
         getDao():dao.IDao { return new dao.EmailDao(); }
 
-        send():Q.IPromise<any>
+        send():Q.Promise<any>
         {
             return null;
         }
 
-        sendCallStatusUpdateNotifications(callerUserId:number, expertId:number, status:enums.CallStatus):Q.IPromise<any>
+        sendCallStatusUpdateNotifications(callerUserId:number, expertId:number, status:enums.CallStatus):Q.Promise<any>
         {
             var that = this;
 
@@ -37,11 +37,11 @@ module delegates
                     return new delegates.UserDelegate().search({'id': [expert['user_id'], callerUserId]}, ['email']);
                 })
                 .then(
-                function emailsFetched(users:any)
+                function emailsFetched(users:Array<models.User>)
                 {
                     var expertEmail, callerEmail;
-                    _.each(users, function(user) {
-                        if (user.id == callerUserId)
+                    _.each(users, function(user:models.User) {
+                        if (user.getId() == callerUserId)
                             callerEmail = user['email'];
                         else
                             expertEmail = user['email'];

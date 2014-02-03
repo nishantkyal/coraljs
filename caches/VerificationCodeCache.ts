@@ -7,7 +7,7 @@ module caches
 {
     export class VerificationCodeCache
     {
-        createMobileVerificationCode():Q.IPromise<any>
+        createMobileVerificationCode():Q.Promise<any>
         {
             var codeReference:string = common.Utils.getRandomString(8);
             var code:number = common.Utils.getRandomInt(1001, 9999);
@@ -18,7 +18,7 @@ module caches
                 );
         }
     
-        searchMobileVerificationCode(code:string, ref:string):Q.IPromise<any>
+        searchMobileVerificationCode(code:string, ref:string):Q.Promise<any>
         {
             return CacheHelper.get('mv-' + ref)
                 .then(

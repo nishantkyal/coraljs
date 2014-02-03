@@ -12,26 +12,22 @@ module delegates
 {
     export class IntegrationDelegate extends BaseDaoDelegate
     {
-        get(id:string, fields?:string[]):Q.IPromise<any>
+        get(id:string, fields?:string[]):Q.Promise<any>
         {
-            return super.get(id, fields)
-                .then(function integrationFetched(result:Object)
-                {
-                    return new models.Integration(result);
-                });
+            return super.get(id, fields);
         }
 
-        getAll():Q.IPromise<any>
+        getAll():Q.Promise<any>
         {
             return dao.IntegrationDao.getAll();
         }
 
-        getMultiple(ids:string[]):Q.IPromise<any>
+        getMultiple(ids:string[]):Q.Promise<any>
         {
             return this.getDao().search({'integration_id': ids});
         }
 
-        resetSecret(integrationId:string):Q.IPromise<any>
+        resetSecret(integrationId:string):Q.Promise<any>
         {
             var newSecret = common.Utils.getRandomString(30);
             return this.getDao().update({'integration_id': integrationId}, {'secret': newSecret})

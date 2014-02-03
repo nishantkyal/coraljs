@@ -11,27 +11,26 @@ module delegates
     {
         getDao():dao.IDao { return new dao.ExpertScheduleRuleDao(); }
 
-        create(scheduleRule:models.ExpertScheduleRule, transaction?:any):Q.IPromise<any>
+        create(scheduleRule:models.ExpertScheduleRule, transaction?:any):Q.Promise<any>
         {
-            var s = super;
-
             var expertScheduleRuleDao:any = this.getDao();
+            var self = this;
 
             return expertScheduleRuleDao.findConflictingScheduleRules(scheduleRule.getRepeatStart(), scheduleRule.getRepeatEnd(), scheduleRule.getIntegrationMemberId())
                 .then(
-                function schedulesSearched(schedules:Array)
+                function schedulesSearched(scheduleRules:Array<models.ExpertScheduleRule>)
                 {
-                    if (schedules.length != 0)
-                        return s.create(scheduleRule, transaction);
+                    if (scheduleRules.length != 0)
+                        return self.getDao().create(scheduleRule, transaction);
                     else
                         throw {
                             'message': 'Conflicting schedule rules found',
-                            'conflicts': schedules
+                            'conflicts': scheduleRules
                         };
                 });
         }
 
-        getRulesByIntegrationMemberId(integrationMemberId:number):Q.IPromise<any>
+        getRulesByIntegrationMemberId(integrationMemberId:number):Q.Promise<any>
         {
             return this.getDao().search({'integration_member_id': integrationMemberId});
         }

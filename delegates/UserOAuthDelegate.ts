@@ -19,7 +19,7 @@ module delegates
          * @param userOAuth
          * @returns {makePromise} User updated or created
          */
-        addOrUpdateToken(userOAuth:models.UserOauth, user?:models.User):Q.IPromise<any>
+        addOrUpdateToken(userOAuth:models.UserOauth, user?:models.User):Q.Promise<any>
         {
             var that = this;
 
@@ -68,7 +68,7 @@ module delegates
 
         }
 
-        update(id:number, oauth:models.UserOauth):Q.IPromise<any>
+        update(id:number, oauth:models.UserOauth):Q.Promise<any>
         {
             // Can't update user id for a token
             var userId = oauth.getUserId();
@@ -82,7 +82,7 @@ module delegates
                 });
         }
 
-        deleteByUser(userId:string):Q.IPromise<any>
+        deleteByUser(userId:string):Q.Promise<any>
         {
             // TODO: Implement delete oauth token
             return null;

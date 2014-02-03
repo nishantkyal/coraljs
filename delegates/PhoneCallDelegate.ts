@@ -27,33 +27,33 @@ module delegates
             PhoneCallDelegate.ALLOWED_NEXT_STATUS[enums.CallStatus.POSTPONED] = [enums.CallStatus.SCHEDULED, enums.CallStatus.CANCELLED];
         })();
 
-        callsByUser(user_id:string, filters:Object, fields?:string[]):Q.IPromise<any>
+        callsByUser(user_id:string, filters:Object, fields?:string[]):Q.Promise<any>
         {
             filters['user_id'] = user_id;
             return (_.keys(filters).length == 1) ? common.Utils.getRejectedPromise('Invalid filters') : this.getDao().search(filters, {'fields': fields});
         }
 
-        callsToExpert(expert_id:string, filters:Object, fields?:string[]):Q.IPromise<any>
+        callsToExpert(expert_id:string, filters:Object, fields?:string[]):Q.Promise<any>
         {
             filters['expert_id'] = expert_id;
             return (_.keys(filters).length == 1) ? common.Utils.getRejectedPromise('Invalid filters') : this.getDao().search(filters, {'fields': fields});
         }
 
-        create(object:any, transaction?:any):Q.IPromise<any>
+        create(object:any, transaction?:any):Q.Promise<any>
         {
             if (object['status'] == enums.CallStatus.PLANNING)
                 return this.unscheduledCallsCache.addUnscheduledCall(object['integration_member_id'], object['schedule_id'], object);
             return super.create(object, transaction);
         }
 
-        search(search:Object, options?:Object):Q.IPromise<any>
+        search(search:Object, options?:Object):Q.Promise<any>
         {
             if (search['status'] == enums.CallStatus.PLANNING)
                 return this.unscheduledCallsCache.getUnscheduledCalls(search['integration_member_id'], search['schedule_id']);
             return super.search(search, options);
         }
 
-        update(criteria:Object, newValues:Object, transaction?:any):Q.IPromise<any>
+        update(criteria:Object, newValues:Object, transaction?:any):Q.Promise<any>
         {
             if (newValues.hasOwnProperty('status'))
                 throw new Error('Please use the method updateCallStatus to update call status');
@@ -61,7 +61,7 @@ module delegates
             return super.update(criteria, newValues, transaction);
         }
 
-        updateCallStatus(phoneCallId:number, newStatus:enums.CallStatus):Q.IPromise<any>
+        updateCallStatus(phoneCallId:number, newStatus:enums.CallStatus):Q.Promise<any>
         {
             var that = this;
             var callerUserId:number;
@@ -92,7 +92,7 @@ module delegates
 
         }
 
-        getIncludeHandler(include:string, result:models.PhoneCall):Q.IPromise<any>
+        getIncludeHandler(include:string, result:models.PhoneCall):Q.Promise<any>
         {
             switch (include)
             {

@@ -7,13 +7,13 @@ module delegates
 {
     export class TransactionDelegate extends BaseDaoDelegate
     {
-        search(user_id:string, filters?:Object, fields?:string[]):Q.IPromise<any>
+        search(user_id:string, filters?:Object, fields?:string[]):Q.Promise<any>
         {
             filters['user_id'] = user_id;
             return super.search(filters, {'fields': fields});
         }
 
-        getAccountBalance(user_id:string):Q.IPromise<any>
+        getAccountBalance(user_id:string):Q.Promise<any>
         {
             return super.search({user_id: user_id}, ['total'])
                 .then(

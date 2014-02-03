@@ -15,22 +15,22 @@ module delegates
             this.logger = log4js.getLogger(common.Utils.getClassName(this));
         }
 
-        get(id:any, fields?:string[], includes?:any):Q.IPromise<any>
+        get(id:any, fields?:string[], includes?:any):Q.Promise<any>
         {
             var that = this;
             includes = includes || [];
-            var rawResult;
+            var rawResult:typeof models.BaseModel;
 
             // 1. Get the queried object
             // 2. Parse flags and add handlers to a queue
             // 3. When queue is complete, concat all results to queried object and return
             return this.getDao().get(id, fields)
                 .then(
-                function processIncludes(result)
+                function processIncludes(result:typeof models.BaseModel)
                 {
                     rawResult = result;
                     var includeTasks = [];
-                    _.each(includes, function (flag) {
+                    _.each(includes, function (flag:string) {
                         var handler;
                         if (handler = that.getIncludeHandler(flag, result))
                             includeTasks.push(handler);
@@ -47,7 +47,7 @@ module delegates
         }
 
         /* Abstract method that defines how flags are handled in get query */
-        getIncludeHandler(include:string, result:any):Q.IPromise<any> { return null; }
+        getIncludeHandler(include:string, result:any):Q.Promise<any> { return null; }
 
         /**
          * Perform search based on seacrh query
@@ -56,14 +56,14 @@ module delegates
          * @param fields
          * @param supplimentaryModel
          * @param supplimentaryModelFields
-         * @returns {Q.IPromise<any>}
+         * @returns {Q.Promise<any>}
          */
-            search(search:Object, options?:Object):Q.IPromise<any>
+            search(search:Object, options?:Object):Q.Promise<any>
         {
             return this.getDao().search(search, options);
         }
 
-        create(object:any, transaction?:any):Q.IPromise<any>
+        create(object:any, transaction?:any):Q.Promise<any>
         {
             // Compose insert statement based on data
             var generatedId:number;// = new GlobalIdDelegate().generate(this.getDao().getModel().TABLE_NAME);
@@ -74,7 +74,7 @@ module delegates
             return this.getDao().create(object, transaction);
         }
 
-        update(criteria:Object, newValues:Object, transaction?:any):Q.IPromise<any>
+        update(criteria:Object, newValues:Object, transaction?:any):Q.Promise<any>
         {
             // Compose update statement based on newValues
             newValues['updated'] = new Date().getTime();
@@ -84,7 +84,7 @@ module delegates
             return this.getDao().update(criteria, newValues, transaction);
         }
 
-        delete(id:string, transaction?:any):Q.IPromise<any>
+        delete(id:string, transaction?:any):Q.Promise<any>
         {
             return this.getDao().delete(id, transaction);
         }

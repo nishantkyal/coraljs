@@ -10,7 +10,7 @@ module dao
         static TABLE_NAME:string = 'user_oauth'
 
         /* Update token for given provider and oauth_uid without knowing the user */
-        static updateTokenForProviderAndOAuthUid(providerId:String, oauthUserId:String, userOAuth:models.UserOauth):Q.IPromise<any>
+        static updateTokenForProviderAndOAuthUid(providerId:String, oauthUserId:String, userOAuth:models.UserOauth):Q.Promise<any>
         {
             var values:string[] = [];
             var updateFields:string[] = [];
