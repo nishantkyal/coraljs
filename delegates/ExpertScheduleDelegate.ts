@@ -23,7 +23,7 @@ module delegates
         /* Get schedules for expert */
         getSchedulesForExpert(expertId:number, startTime?:number, endTime?:number):Q.Promise<any>
         {
-            var that = this;
+            var self = this;
             var schedules = [];
 
             var isStartTimeEmpty = common.Utils.isNullOrEmpty(startTime);
@@ -42,7 +42,7 @@ module delegates
 
             // 1. Search schedules
             // 2. If no schedules, try creating them based on defined rules for the period (if defined)
-            return that.getDao().search(
+            return self.getDao().search(
                 {
                     'integration_member_id': expertId,
                     'start_time': {
@@ -51,21 +51,19 @@ module delegates
                     }
                 })
                 .then(
-                function schedulesSearched(s:Array<models.ExpertSchedule>)
+                function schedulesSearched(s:Array<models.ExpertSchedule>):any
                 {
                     schedules = s;
                     if (schedules.length == 0 && startTime && endTime)
-                        return that.createSchedulesForExpert(expertId, startTime, endTime);
+                        return self.createSchedulesForExpert(expertId, startTime, endTime);
                     else
                         return schedules;
-
-                    return null;
                 });
 
         }
 
         /* Create new schedule */
-        create(object:Object, transaction?:any):Q.Promise<any>
+        create(object:any, transaction?:any):Q.Promise<any>
         {
             var self = this;
 
@@ -91,7 +89,7 @@ module delegates
 
             return new ExpertScheduleRuleDelegate().getRulesByIntegrationMemberId(integrationMemberId)
                 .then(
-                function rulesSearched(rs:Array<models.ExpertScheduleRule>)
+                function rulesSearched(rs:Array<models.ExpertScheduleRule>):any
                 {
                     rules = rs;
                     if (rs.length != 0)

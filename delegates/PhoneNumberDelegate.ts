@@ -1,17 +1,18 @@
-import q                                = require('q');
-import BaseDaoDelegate                  = require('./BaseDaoDelegate');
-import IDao                             = require('../dao/IDao');
-import PhoneNumberDao                   = require('../dao/PhoneNumberDao');
-import PhoneNumber                      = require('../models/PhoneNumber');
+///<reference path='../_references.d.ts'/>
+///<reference path='./BaseDaoDelegate.ts'/>
+///<reference path='../models/PhoneNumber.ts'/>
+///<reference path='../dao/PhoneNumberDao.ts'/>
 
-class PhoneNumberDelegate extends BaseDaoDelegate
+module delegates
 {
-    create(data:Object, transaction?:any):q.makePromise
+    export class PhoneNumberDelegate extends BaseDaoDelegate
     {
-        // Check that phone number doesn't already exist
-        return super.search(data)
-            .then(
-                function handlePhoneNumberSearched(rows:Array)
+        create(data:any, transaction?:any):Q.Promise<any>
+        {
+            // Check that phone number doesn't already exist
+            return super.search(data)
+                .then(
+                function handlePhoneNumberSearched(rows:Array<models.PhoneNumber>):any
                 {
                     if (rows.length != 0)
                         return this.create(data, transaction);
@@ -19,13 +20,13 @@ class PhoneNumberDelegate extends BaseDaoDelegate
                         return rows[0];
                 }
             )
-    }
+        }
 
-    update(id:string, phoneNumber:PhoneNumber):q.makePromise
-    {
-        return super.update({'phoneNumberId': id}, phoneNumber);
-    }
+        update(id:string, phoneNumber:models.PhoneNumber):Q.Promise<any>
+        {
+            return super.update({'phoneNumberId': id}, phoneNumber);
+        }
 
-    getDao():IDao { return new PhoneNumberDao(); }
+        getDao():dao.IDao { return new dao.PhoneNumberDao(); }
+    }
 }
-export = PhoneNumberDelegate

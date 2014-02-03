@@ -8,7 +8,7 @@ module middleware
 {
     export class IECrossDomain
     {
-        static fixRequestForIe(req:express.ExpressServerRequest, res:express.ExpressServerResponse, next:Function)
+        static fixRequestForIe(req:express.Request, res:express.Response, next:Function)
         {
             // Append access control header to all responses for cross domain communication
             res.header('Access-Control-Allow-Origin', '*');

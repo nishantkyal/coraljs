@@ -1,35 +1,37 @@
-import q                            = require('q');
-import BaseDaoDelegate              = require('../delegates/BaseDaoDelegate');
-import TwilioDelegate               = require('./calling/TwilioDelegate');
-import IDao                         = require('../dao/IDao');
-import SMSDao                       = require('../dao/SmsDao');
-import SMS                          = require('../models/SMS');
-import Priority                     = require('../enums/Priority');
-import SMSStatus                    = require('../enums/SMSStatus');
+///<reference path='../_references.d.ts'/>
+///<reference path='./BaseDaoDelegate.ts'/>
+///<reference path='./calling/TwilioDelegate.ts'/>
+///<reference path='../dao/IDao.ts'/>
+///<reference path='../dao/SmsDao.ts'/>
+///<reference path='../models/SMS.ts'/>
+///<reference path='../enums/Priority.ts'/>
+///<reference path='../enums/SMSStatus.ts'/>
 
-class SMSDelegate extends BaseDaoDelegate
+module delegates
 {
-    getDao():IDao { return new SMSDao(); }
-
-    send(sms:SMS):q.makePromise
+    export class SMSDelegate extends BaseDaoDelegate
     {
-        if (!sms.getPriority()) sms.setPriority(Priority.LOWEST);
-        if (!sms.getScheduledDate()) sms.setScheduledDate(new Date().getTime());
-        if (!sms.getSender()) sms.setSender('TM-SEARCHNTALK');
-        sms.setStatus(SMSStatus.SCHEDULED);
-        sms.setNumRetries(0);
+        getDao():dao.IDao { return new dao.SmsDao(); }
 
-        return this.create(sms)
-            .then(
-            function smsSaved()
-            {
-                return new TwilioDelegate().sendSMS(sms.getCountryCode() + sms.getPhone(), sms.getSender(), sms.getMessage());
-            })
-            .then(
-            function smsSent()
-            {
-                return sms;
-            });
+        send(sms:models.SMS):Q.Promise<any>
+        {
+            if (!sms.getPriority()) sms.setPriority(enums.Priority.LOWEST);
+            if (!sms.getScheduledDate()) sms.setScheduledDate(new Date().getTime());
+            if (!sms.getSender()) sms.setSender('TM-SEARCHNTALK');
+            sms.setStatus(enums.SMSStatus.SCHEDULED);
+            sms.setNumRetries(0);
+
+            return this.create(sms)
+                .then(
+                function smsSaved()
+                {
+                    return new TwilioDelegate().sendSMS(sms.getCountryCode() + sms.getPhone(), sms.getSender(), sms.getMessage());
+                })
+                .then(
+                function smsSent()
+                {
+                    return sms;
+                });
+        }
     }
 }
-export = SMSDelegate

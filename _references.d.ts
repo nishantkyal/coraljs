@@ -10,3 +10,4 @@
 ///<reference path='../DefinitelyTyped/oauth2orize/oauth2orize.d.ts'/>
 ///<reference path='../DefinitelyTyped/passport/passport.d.ts'/>
 ///<reference path='../DefinitelyTyped/passport/passport-http-bearer.d.ts'/>
+///<reference path='../DefinitelyTyped/nodeunit/nodeunit.d.ts'/>

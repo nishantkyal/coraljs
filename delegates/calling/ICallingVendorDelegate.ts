@@ -1,8 +1,10 @@
-import q                = require('q');
+///<reference path='../../_references.d.ts'/>
 
-interface ICallingVendorDelegate
+module delegates
 {
-    sendSMS(to:string, body:string, from?:string):q.makePromise;
-    makeCall(phone:string, url?:string):q.makePromise;
+    export interface ICallingVendorDelegate
+    {
+        sendSMS(to:string, body:string, from?:string):Q.Promise<any>;
+        makeCall(phone:string, url?:string):Q.Promise<any>;
+    }
 }
-export = ICallingVendorDelegate

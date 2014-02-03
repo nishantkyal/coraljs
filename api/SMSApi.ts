@@ -1,28 +1,31 @@
-///<reference path='../api/ApiConstants'/>;
-///<reference path='../delegates/ApiUrlDelegate'/>;
-///<reference path='../delegates/SMSDelegate'/>;
-///<reference path='../middleware/AccessControl'/>;
-///<reference path='../models/SMS'/>;
+///<reference path='../_references.d.ts'/>
+///<reference path='../api/ApiConstants.ts'/>;
+///<reference path='../delegates/ApiUrlDelegate.ts'/>;
+///<reference path='../delegates/SMSDelegate.ts'/>;
+///<reference path='../middleware/AccessControl.ts'/>;
+///<reference path='../models/SMS.ts'/>;
 
-class SMSApi
+module api
 {
-    constructor(app)
+    export class SmsApi
     {
-        var smsDelegate = new SMSDelegate();
-
-        app.post(delegates.ApiUrlDelegate.sms(), AccessControl.allowDashboard, function(req, res)
+        constructor(app)
         {
-            var sms:SMS = req.body[ApiConstants.SMS];
+            var smsDelegate = new delegates.SMSDelegate();
 
-            if (sms.isValid())
-                smsDelegate.send(sms)
-                    .then(
+            app.post(delegates.ApiUrlDelegate.sms(), middleware.AccessControl.allowDashboard, function (req, res)
+            {
+                var sms:models.SMS = req.body[ApiConstants.SMS];
+
+                if (sms.isValid())
+                    smsDelegate.send(sms)
+                        .then(
                         function smsSent(result) { res.json(result.id); },
                         function smsSendFailed(error) { res.status(500).json(error); }
                     )
-            else
-                res.status(400, 'Invalid data');
-        });
+                else
+                    res.status(400, 'Invalid data');
+            });
+        }
     }
 }
-export = SMSApi
