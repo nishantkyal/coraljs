@@ -1,0 +1,1 @@
+"c:\cygwin\bin\find.exe" . -name "*.ts" | grep -v "d.ts" | sed -e "s/^/\/\/\/<reference path='/g" -e "s/$/'\/>/g" > Coral.d.ts
