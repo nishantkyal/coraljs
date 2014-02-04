@@ -2,13 +2,12 @@
 ///<reference path='../delegates/GlobalIDDelegate.ts'/>
 import nodeunit                 = require('nodeunit');
 
-module tests {
+module tests
+{
     export function testConsecutiveRuns(test:nodeunit.Test)
     {
         var numRuns = 10;
-
         test.expect(numRuns * 2);
-
         var i = 0;
         var lastGid = 0;
         while (i < numRuns) {
@@ -18,7 +17,6 @@ module tests {
             lastGid = newGid;
             i++;
         }
-
         test.done();
     }
 }
