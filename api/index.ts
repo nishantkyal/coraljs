@@ -11,7 +11,9 @@
 ///<reference path='./TransactionApi.ts'/>
 ///<reference path='./TwimlApi.ts'/>
 ///<reference path='./UserApi.ts'/>
-function init(app) {
+
+function init(app)
+{
     new api.ExpertApi(app);
     new api.ExpertScheduleApi(app);
     new api.ExpertScheduleRulesApi(app);
@@ -26,5 +28,4 @@ function init(app) {
     new api.TwimlApi(app);
     new api.UserApi(app);
 }
-module.exports = init;
-//# sourceMappingURL=index.js.map
+export = init
