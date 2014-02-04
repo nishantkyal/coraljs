@@ -1,9 +1,9 @@
 SETUP
 -----
 Dependencies:
-1. Redis server (v2.8.4+)
-2. Mysql (v5.5.32+)
-3. Mysql Workbench
+1.  Redis server (v2.8.4+)
+2.  Mysql (v5.5.32+)
+3.  Mysql Workbench
 
 Setup:
 1. Checkout Typescript definitions from https://github.com/Infollion/DefinitelyTyped such that DefinitelyTyped and Coral are in same directories
