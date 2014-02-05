@@ -37,7 +37,7 @@ module delegates
                     return new delegates.UserDelegate().search({'id': [expert['user_id'], callerUserId]}, ['email']);
                 })
                 .then(
-                function emailsFetched(users:Array<models.User>)
+                function emailsFetched(users:Array<models.User>):any
                 {
                     var expertEmail, callerEmail;
                     _.each(users, function(user:models.User) {

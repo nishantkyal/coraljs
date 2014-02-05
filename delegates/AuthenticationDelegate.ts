@@ -10,7 +10,7 @@ module delegates
         private static ctor = (() =>
         {
             // Username password strategy
-            passport.use(AuthenticationDelegate.STRATEGY_OAUTH, new passporthttpbearer.HttpBearerStrategy (
+            passport.use(AuthenticationDelegate.STRATEGY_OAUTH, new passport_http_bearer.Strategy(
                 function(token, done)
                 {
                     new delegates.IntegrationMemberDelegate().findValidAccessToken(token)

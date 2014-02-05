@@ -11,21 +11,21 @@
 ///<reference path='./TransactionApi.ts'/>
 ///<reference path='./TwimlApi.ts'/>
 ///<reference path='./UserApi.ts'/>
-
-function init(app)
-{
-    new api.ExpertApi(app);
-    new api.ExpertScheduleApi(app);
-    new api.ExpertScheduleRulesApi(app);
-    new api.IntegrationApi(app);
-    new api.IntegrationOwnerApi(app);
-    new api.PaymentApi(app);
-    new api.PayoutDetailApi(app);
-    new api.PhoneCallApi(app);
-    new api.PhoneNumberApi(app);
-    new api.SmsApi(app);
-    new api.TransactionApi(app);
-    new api.TwimlApi(app);
-    new api.UserApi(app);
+module api {
+    export function init(app)
+    {
+        new ExpertApi(app);
+        new ExpertScheduleApi(app);
+        new ExpertScheduleRulesApi(app);
+        new IntegrationApi(app);
+        new IntegrationOwnerApi(app);
+        new PaymentApi(app);
+        new PayoutDetailApi(app);
+        new PhoneCallApi(app);
+        new PhoneNumberApi(app);
+        new SmsApi(app);
+        new TransactionApi(app);
+        new TwimlApi(app);
+        new UserApi(app);
+    }
 }
-export = init

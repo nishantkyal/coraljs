@@ -1,6 +1,6 @@
-import q                    = require('q');
-import User                 = require('../models/User');
-import Config               = require('../Config');
+///<reference path='../_references.d.ts'/>
+///<reference path='../models/User.ts'/>
+///<reference path='../common/Config.ts'/>
 
 /**
  User Cache
@@ -8,12 +8,12 @@ import Config               = require('../Config');
  **/
 class UserCache
 {
-    getResetTokenUser(resetToken:string):q.makePromise
+    getResetTokenUser(resetToken:string):Q.Promise<any>
     {
         return null;
     }
 
-    addResetToken(token:string, user:User, expireAfter:number = Config.get('password_reset.expiry')):q.makePromise
+    addResetToken(token:string, user:models.User, expireAfter:number = common.Config.get('password_reset.expiry')):Q.Promise<any>
     {
         return null;
     }

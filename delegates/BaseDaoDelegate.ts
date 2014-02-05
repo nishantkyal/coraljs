@@ -26,7 +26,7 @@ module delegates
             // 3. When queue is complete, concat all results to queried object and return
             return this.getDao().get(id, fields)
                 .then(
-                function processIncludes(result:typeof models.BaseModel)
+                function processIncludes(result:typeof models.BaseModel):any
                 {
                     rawResult = result;
                     var includeTasks = [];

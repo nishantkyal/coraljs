@@ -1,17 +1,15 @@
-import q                        = require('q');
-import CacheHelper              = require('./CacheHelper');
+///<reference path='../_references.d.ts'/>
+///<reference path='./CacheHelper.ts'/>
 
-class ExpertCache
+module caches
 {
-    /*
-     * Get information required to render expert widget
-     * Ratings, pricing
-     * @param expertId
-     */
-    getWidgetProfile(expertId:string):q.makePromise
+    export class ExpertCache
     {
-        return CacheHelper.get(expertId);
-    }
+        /* Get information required to render expert widget e.g. Ratings, pricing */
+        getWidgetProfile(expertId:string):Q.Promise<any>
+        {
+            return CacheHelper.get(expertId);
+        }
 
+    }
 }
-export = ExpertCache
