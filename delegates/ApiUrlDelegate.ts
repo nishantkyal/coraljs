@@ -3,7 +3,7 @@
  * Used to keep API URLs consistent between SearchNTalk and Coral
  * Note: Not using a generator for fine grained control and prevent unexpected behaviour
  */
-export class ApiUrlDelegate
+class ApiUrlDelegate
 {
     /* URL patterns for expert API */
     static expert():string { return this.get('/rest/expert'); }
