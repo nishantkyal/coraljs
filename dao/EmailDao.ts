@@ -1,14 +1,12 @@
-///<reference path='./BaseDao.ts'/>
-///<reference path='../models/BaseModel.ts'/>
-///<reference path='../models/Email.ts'/>
+import BaseDao                  = require('./BaseDAO');
+import BaseModel                = require('../models/BaseModel');
+import Email                    = require('../models/Email');
 
 /**
  * DAO class for Email queue
  */
-module dao
+class EmailDao extends BaseDao
 {
-    export class EmailDao extends BaseDao
-    {
-        getModel():typeof models.BaseModel { return models.Email; }
-    }
+    getModel():typeof BaseModel { return Email; }
 }
+export = EmailDao

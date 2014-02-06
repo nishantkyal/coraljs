@@ -1,51 +1,52 @@
-///<reference path='./BaseDao.ts'/>
-///<reference path='../models/BaseModel.ts'/>
-///<reference path='../models/UserOauth.ts'/>
+///<reference path='../_references.d.ts'/>
+import q                        = require('q');
+import BaseDao                  = require('./BaseDAO');
+import BaseModel                = require('../models/BaseModel');
+import UserOauth                = require('../models/UserOauth');
+import MysqlDelegate            = require('../delegates/MysqlDelegate');
 
-module dao
+class UserAuthDao extends BaseDao
 {
-    export class UserAuthDao extends BaseDao
+
+    static TABLE_NAME:string = 'user_oauth'
+
+    /* Update token for given provider and oauth_uid without knowing the user */
+    static updateTokenForProviderAndOAuthUid(providerId:String, oauthUserId:String, userOAuth:UserOauth):q.Promise<any>
     {
+        var values:string[] = [];
+        var updateFields:string[] = [];
 
-        static TABLE_NAME:string = 'user_oauth'
-
-        /* Update token for given provider and oauth_uid without knowing the user */
-        static updateTokenForProviderAndOAuthUid(providerId:String, oauthUserId:String, userOAuth:models.UserOauth):Q.Promise<any>
+        if (userOAuth.getAccessToken())
         {
-            var values:string[] = [];
-            var updateFields:string[] = [];
-
-            if (userOAuth.getAccessToken())
-            {
-                updateFields.push('access_token = ?');
-                values.push(userOAuth.getAccessToken());
-            }
-
-            if (userOAuth.getAccessTokenExpiry())
-            {
-                updateFields.push('access_token_expiry = ?');
-                values.push(userOAuth.getAccessTokenExpiry());
-            }
-
-            if (userOAuth.getRefreshToken())
-            {
-                updateFields.push('refresh_token = ?');
-                values.push(userOAuth.getRefreshToken());
-            }
-
-            if (userOAuth.getRefreshTokenExpiry())
-            {
-                updateFields.push('refresh_token_expiry = ?');
-                values.push(userOAuth.getRefreshTokenExpiry());
-            }
-
-            values.push(userOAuth.getProviderId());
-            values.push(userOAuth.getOauthUserId());
-
-            var query = 'UPDATE ' + UserAuthDao.TABLE_NAME + ' SET ' + updateFields.join(',') + ' WHERE provider_id = ? AND oauth_user_id = ?';
-            return delegates.MysqlDelegate.executeQuery(query, values);
+            updateFields.push('access_token = ?');
+            values.push(userOAuth.getAccessToken());
         }
 
-        getModel():typeof models.BaseModel { return models.UserOauth; }
+        if (userOAuth.getAccessTokenExpiry())
+        {
+            updateFields.push('access_token_expiry = ?');
+            values.push(userOAuth.getAccessTokenExpiry());
+        }
+
+        if (userOAuth.getRefreshToken())
+        {
+            updateFields.push('refresh_token = ?');
+            values.push(userOAuth.getRefreshToken());
+        }
+
+        if (userOAuth.getRefreshTokenExpiry())
+        {
+            updateFields.push('refresh_token_expiry = ?');
+            values.push(userOAuth.getRefreshTokenExpiry());
+        }
+
+        values.push(userOAuth.getProviderId());
+        values.push(userOAuth.getOauthUserId());
+
+        var query = 'UPDATE ' + UserAuthDao.TABLE_NAME + ' SET ' + updateFields.join(',') + ' WHERE provider_id = ? AND oauth_user_id = ?';
+        return MysqlDelegate.executeQuery(query, values);
     }
+
+    getModel():typeof BaseModel { return UserOauth; }
 }
+export = UserOauth

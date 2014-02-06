@@ -1,11 +1,9 @@
-///<reference path='./BaseDao.ts'/>
-///<reference path='../models/BaseModel.ts'/>
-///<reference path='../models/TransactionLine.ts'/>
+import BaseDao                  = require('./BaseDAO');
+import BaseModel                = require('../models/BaseModel');
+import TransactionLine          = require('../models/TransactionLine');
 
-module dao
+class TransactionLineDao extends BaseDao
 {
-    export class TransactionLineDao extends BaseDao
-    {
-        getModel():typeof models.BaseModel { return models.TransactionLine; }
-    }
+    getModel():typeof BaseModel { return TransactionLine; }
 }
+export = TransactionLineDao

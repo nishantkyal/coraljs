@@ -81,13 +81,15 @@ class AccessControl
     {
         if (AccessControl.isRequestFromDashboard(req))
             next();
-        else {
+        else
+        {
             AccessControl.logger.error('Auth failed for IP: ' + req.ip);
             res.status(500).json("Couldn't authenticate request");
         }
     }
 
-    private static isRequestFromDashboard(req) {
+    private static isRequestFromDashboard(req)
+    {
         var remoteAddress = req.ip;
         var searchntalkHosts = Config.get('SearchNTalk.hosts');
 

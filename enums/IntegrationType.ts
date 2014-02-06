@@ -1,6 +1,4 @@
-module enums
+enum IntegrationType
 {
-    export enum IntegrationType
-    {
-    }
 }
+export = IntegrationType

@@ -1,3 +1,4 @@
+///<reference path='../_references.d.ts'/>
 import _                        = require('underscore');
 import LocalizationDelegate     = require('../delegates/LocalizationDelegate');
 import BaseModel                = require('./BaseModel');

@@ -1,6 +1,4 @@
-module enums
+enum PaymentStatus
 {
-    export enum PaymentStatus
-    {
-    }
 }
+export = PaymentStatus

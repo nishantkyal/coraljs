@@ -1,9 +1,7 @@
-module enums
+enum MoneyUnit
 {
-    export enum MoneyUnit
-    {
-        RUPEE,
-        DOLLAR,
-        PERCENT
-    }
+    RUPEE,
+    DOLLAR,
+    PERCENT
 }
+export = MoneyUnit

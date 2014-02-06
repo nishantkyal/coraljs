@@ -1,6 +1,4 @@
-module enums
+export enum IntegrationStatus
 {
-    export enum IntegrationStatus
-    {
-    }
 }
+export = IntegrationStatus
