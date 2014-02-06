@@ -1,4 +1,4 @@
-import BaseDao                  = require('./BaseDAO');
+import BaseDao                  = require('./BaseDao');
 import BaseModel                = require('../models/BaseModel');
 import PhoneCall                = require('../models/PhoneCall');
 

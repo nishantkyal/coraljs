@@ -10,7 +10,7 @@ import Utils                = require('../common/Utils');
 /**
  Base class for DAO
  **/
-class BaseDAO implements IDao
+class BaseDao implements IDao
 {
     modelClass;
     tableName:string;
@@ -159,4 +159,4 @@ class BaseDAO implements IDao
     getModel():typeof BaseModel { throw('Model class not defined for ' + Utils.getClassName(this)); }
 
 }
-export = BaseDAO
+export = BaseDao

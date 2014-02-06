@@ -1,6 +1,6 @@
 import q                        = require('q');
 import MysqlDelegate            = require('../delegates/MysqlDelegate');
-import BaseDAO                  = require('./BaseDAO');
+import BaseDAO                  = require('./BaseDao');
 import BaseModel                = require('../models/BaseModel');
 import Integration              = require('../models/Integration');
 

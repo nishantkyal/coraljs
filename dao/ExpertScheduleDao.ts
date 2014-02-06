@@ -1,5 +1,5 @@
 import q                        = require('q');
-import BaseDAO                  = require('./BaseDAO');
+import BaseDAO                  = require('./BaseDao');
 import BaseModel                = require('../models/BaseModel');
 import ExpertSchedule           = require('../models/ExpertSchedule');
 import MysqlDelegate            = require('../delegates/MysqlDelegate');
