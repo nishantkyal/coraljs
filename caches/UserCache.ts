@@ -1,6 +1,6 @@
 import q                    = require('q');
 import User                 = require('../models/User');
-import Config               = require('../Config');
+import Config               = require('../common/Config');
 
 /**
  User Cache
@@ -8,12 +8,12 @@ import Config               = require('../Config');
  **/
 class UserCache
 {
-    getResetTokenUser(resetToken:string):q.makePromise
+    getResetTokenUser(resetToken:string):q.Promise<any>
     {
         return null;
     }
 
-    addResetToken(token:string, user:User, expireAfter:number = Config.get('password_reset.expiry')):q.makePromise
+    addResetToken(token:string, user:User, expireAfter:number = Config.get('password_reset.expiry')):q.Promise<any>
     {
         return null;
     }

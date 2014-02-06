@@ -2,7 +2,7 @@ import _                        = require('underscore');
 import LocalizationDelegate     = require('../delegates/LocalizationDelegate');
 import BaseModel                = require('./BaseModel');
 import Priority                 = require('../enums/Priority');
-import Utils                    = require('../Utils');
+import Utils                    = require('../common/Utils');
 
 class SMS extends BaseModel
 {

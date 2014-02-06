@@ -1,7 +1,7 @@
+///<reference path='../_references.d.ts'/>
 import q                        = require('q');
 import passport                 = require('passport');
 import BaseDaoDelegate          = require('../delegates/BaseDaoDelegate');
-import UserSettingDelegate      = require('../delegates/UserSettingDelegate');
 import IDao                     = require('../dao/IDao')
 import UserDAO                  = require('../dao/UserDao')
 import User                     = require('../models/User');
@@ -12,7 +12,7 @@ import VerificationCodeCache    = require('../caches/VerificationCodeCache');
  **/
 class UserDelegate extends BaseDaoDelegate
 {
-    create(user?:Object, transaction?:any):q.makePromise
+    create(user?:Object, transaction?:any):q.Promise<any>
     {
         return super.create(user, transaction)
             .then(
@@ -22,7 +22,7 @@ class UserDelegate extends BaseDaoDelegate
             });
     }
 
-    authenticate(mobileOrEmail:string, password:string):q.makePromise
+    authenticate(mobileOrEmail:string, password:string):q.Promise<any>
     {
         return this.getDao().search({email: mobileOrEmail, password: password}, {'fields': ['id', 'first_name', 'last_name']})
             .then(
@@ -36,7 +36,7 @@ class UserDelegate extends BaseDaoDelegate
         );
     }
 
-    update(id:string, user:Object):q.makePromise
+    update(id:string, user:Object):q.Promise<any>
     {
         delete user['user_id'];
         delete user['id'];
@@ -45,15 +45,14 @@ class UserDelegate extends BaseDaoDelegate
         return super.update({user_id: id}, user);
     }
 
-    createMobileVerificationToken():q.makePromise
-    {
-        return new VerificationCodeCache().createMobileVerificationCode();
-    }
+    createMobileVerificationToken():q.Promise<any> { return new VerificationCodeCache().createMobileVerificationCode(); }
+    searchMobileVerificationToken(code:string, ref:string):q.Promise<any> { return new VerificationCodeCache().searchMobileVerificationCode(code, ref); }
 
-    searchMobileVerificationToken(code:string, ref:string):q.makePromise
-    {
-        return new VerificationCodeCache().searchMobileVerificationCode(code, ref);
-    }
+    createEmailVerificationToken(userId:number):q.Promise<any> { return new VerificationCodeCache().createEmailVerificationCode(userId); }
+    searchEmailVerificationToken(userId:number, code:string):q.Promise<any> { return new VerificationCodeCache().searchEmailVerificationCode(userId, code); }
+
+    createPasswordResetToken(userId:number):q.Promise<any> { return new VerificationCodeCache().createPasswordResetCode(userId); }
+    searchPasswordResetToken(userId:number, code:string):q.Promise<any> { return new VerificationCodeCache().searchPasswordResetCode(userId, code); }
 
     getDao():IDao { return new UserDAO(); }
 

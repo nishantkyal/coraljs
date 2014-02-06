@@ -1,7 +1,8 @@
+///<reference path='../_references.d.ts'/>
 import mysql                = require('mysql');
 import q                    = require('q');
 import log4js               = require('log4js');
-import Config               = require('../Config');
+import Config               = require('../common/Config');
 
 /**
  Delegate class to manage mysql connections
@@ -26,7 +27,7 @@ class MysqlDelegate {
     /**
      * Helper method to get a connection from pool
      */
-    static createConnection():q.makePromise
+    static createConnection():q.Promise<any>
     {
         var deferred = q.defer();
         var connection = mysql.createConnection({
@@ -51,7 +52,7 @@ class MysqlDelegate {
     /**
      * Helper method to get a connection from pool
      */
-    static getConnectionFromPool():q.makePromise
+    static getConnectionFromPool():q.Promise<any>
     {
         var deferred = q.defer();
         MysqlDelegate.pool.getConnection(
@@ -71,7 +72,7 @@ class MysqlDelegate {
     /**
      * Begin a transaction and return the transaction
      */
-    static beginTransaction():q.makePromise
+    static beginTransaction():q.Promise<any>
     {
         var deferred = q.defer();
         MysqlDelegate.getConnectionFromPool()
@@ -96,7 +97,7 @@ class MysqlDelegate {
      * Execute a query
      * Transaction/connection can be specified else query is executed in a new connection
      */
-    static executeQuery(query:string, parameters?:any[], connection?:any):q.makePromise
+    static executeQuery(query:string, parameters?:any[], connection?:any):q.Promise<any>
     {
         // If transaction specified, use it
         if (connection) {
@@ -136,7 +137,7 @@ class MysqlDelegate {
     /**
      * Commit transaction
      */
-    static commit(transaction, result?:any):q.makePromise
+    static commit(transaction, result?:any):q.Promise<any>
     {
         var deferred = q.defer();
         transaction.commit(function transactionCommitted()

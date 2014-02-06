@@ -6,13 +6,13 @@ import TransactionDAO               = require('../dao/TransactionDao');
 
 class TransactionDelegate extends BaseDAODelegate
 {
-    search(user_id:string, filters?:Object, fields?:string[]):q.makePromise
+    search(user_id:string, filters?:Object, fields?:string[]):q.Promise<any>
     {
         filters['user_id'] = user_id;
         return super.search(filters, {'fields': fields});
     }
 
-    getAccountBalance(user_id:string):q.makePromise
+    getAccountBalance(user_id:string):q.Promise<any>
     {
         return super.search({user_id: user_id}, ['total'])
             .then(

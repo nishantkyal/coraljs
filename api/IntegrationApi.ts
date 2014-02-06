@@ -1,3 +1,4 @@
+///<reference path='../_references.d.ts'/>
 import express                  = require('express');
 import ApiConstants             = require('./ApiConstants');
 import ApiUrlDelegate           = require('../delegates/ApiUrlDelegate');
@@ -18,7 +19,7 @@ class IntegrationApi
          * Create integration
          * Allow only searchntalk.com admin
          **/
-        app.put(ApiUrlDelegate.integration(), AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.put(ApiUrlDelegate.integration(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
             var integration = req.params[ApiConstants.INTEGRATION];
 
@@ -30,7 +31,7 @@ class IntegrationApi
         });
 
         /** Delete integration **/
-        app.delete(ApiUrlDelegate.integrationById(), AccessControl.allowOwner, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.delete(ApiUrlDelegate.integrationById(), AccessControl.allowOwner, function (req:express.Request, res:express.Response)
         {
             var integrationId = req.params[ApiConstants.INTEGRATION_ID];
             integrationDelegate.delete(integrationId)
@@ -43,7 +44,7 @@ class IntegrationApi
         /**
          * Update integration settings
          **/
-        app.post(ApiUrlDelegate.integrationById(), AccessControl.allowOwner, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.post(ApiUrlDelegate.integrationById(), AccessControl.allowOwner, function (req:express.Request, res:express.Response)
         {
             var integrationId = req.params[ApiConstants.INTEGRATION_ID];
             var integration:Integration = req.body[ApiConstants.INTEGRATION];
@@ -59,7 +60,7 @@ class IntegrationApi
          * Reset integration secret
          * Allow admin
          **/
-        app.post(ApiUrlDelegate.integrationSecretReset(), AccessControl.allowOwner, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.post(ApiUrlDelegate.integrationSecretReset(), AccessControl.allowOwner, function (req:express.Request, res:express.Response)
         {
             var integrationId = req.params[ApiConstants.INTEGRATION_ID];
             integrationDelegate.resetSecret(integrationId)
@@ -73,7 +74,7 @@ class IntegrationApi
          * Get integration details
          * Allow only admin and owner
          **/
-        app.get(ApiUrlDelegate.integrationById(), AccessControl.allowOwner, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(ApiUrlDelegate.integrationById(), AccessControl.allowOwner, function (req:express.Request, res:express.Response)
         {
             var integrationId = req.params[ApiConstants.INTEGRATION_ID];
             var fields:string[] = req.query[ApiConstants.FIELDS];
@@ -89,11 +90,11 @@ class IntegrationApi
          * Search integrations
          * Allow only site admin and CSR
          **/
-        app.get(ApiUrlDelegate.integration(), AccessControl.allowDashboard, function (req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(ApiUrlDelegate.integration(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
             integrationDelegate.getAll()
                 .then(
-                function integrationFetched(result:Array) { res.json(result); },
+                function integrationFetched(result:Array<Integration>) { res.json(result); },
                 function integrationFetchError(error) { res.status(500).json(error); }
             );
         });

@@ -3,8 +3,8 @@ import express                          = require('express');
 import log4js                           = require('log4js');
 import IntegrationMemberDelegate        = require('../delegates/IntegrationMemberDelegate');
 import IntegrationMemberRole            = require('../enums/IntegrationMemberRole');
-import Utils                            = require('../Utils');
-import Config                           = require('../Config');
+import Utils                            = require('../common/Utils');
+import Config                           = require('../common/Config');
 
 /**
  * Middleware to access control Integration REST APIs
@@ -98,7 +98,7 @@ class AccessControl
     }
 
     /* Helper method to get details of integration corresponding to token and member id */
-    static getIntegration(accessToken:string, integrationMemberId?:string):q.makePromise
+    static getIntegration(accessToken:string, integrationMemberId?:string):q.Promise<any>
     {
         var search = {'access_token': accessToken};
         if (integrationMemberId)

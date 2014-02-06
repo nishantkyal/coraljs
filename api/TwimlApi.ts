@@ -1,15 +1,17 @@
+///<reference path='../_references.d.ts'/>
+import express                      = require('express');
+import json2xml                     = require('json2xml');
 import ApiConstants                 = require('./ApiConstants');
 import IntegrationMemberDelegate    = require('../delegates/IntegrationMemberDelegate');
 import TwilioDelegate               = require('../delegates/calling/TwilioDelegate');
 import PhoneCallDelegate            = require('../delegates/PhoneCallDelegate');
 import ApiUrlDelegate               = require('../delegates/ApiUrlDelegate');
-import Utils                        = require('../Utils');
-import Config                       = require('../Config');
+import Utils                        = require('../common/Utils');
+import Config                       = require('../common/Config');
 import PhoneCall                    = require('../models/PhoneCall');
 import User                         = require('../models/User');
 import IntegrationMember            = require('../models/IntegrationMember');
 import ApiFlags                     = require('../enums/ApiFlags');
-var json2xml = require('json2xml');
 
 class TwimlApi
 {
@@ -30,7 +32,7 @@ class TwimlApi
 
     constructor(app)
     {
-        app.get(ApiUrlDelegate.twiml(), function (req, res)
+        app.get(ApiUrlDelegate.twiml(), function (req:express.Request, res:express.Response)
         {
             var response = {
                 'Response': [
@@ -50,7 +52,7 @@ class TwimlApi
                 .send(json2xml(response, {header: true, attributes_key: 'attr'}));
         });
 
-        app.get(ApiUrlDelegate.twimlJoinConference(), function (req, res)
+        app.get(ApiUrlDelegate.twimlJoinConference(), function (req:express.Request, res:express.Response)
         {
             var callId = parseInt(req.query[TwimlApi.PARAM_DIGITS]);
             var expert:IntegrationMember, user:User;
@@ -97,7 +99,7 @@ class TwimlApi
                 });
         });
 
-        app.post(ApiUrlDelegate.twimlCall(), function (req, res)
+        app.post(ApiUrlDelegate.twimlCall(), function (req:express.Request, res:express.Response)
         {
             var callId:number = req.params[ApiConstants.PHONE_CALL_ID];
 

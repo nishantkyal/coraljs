@@ -1,7 +1,8 @@
+///<reference path='../_references.d.ts'/>
 import q                    = require('q');
 import IDao                 = require('../dao/IDao');
 import UserAuthDAO          = require('../dao/UserOAuthDao');
-import BaseDaoDelegate      = require('BaseDaoDelegate');
+import BaseDaoDelegate      = require('./BaseDaoDelegate');
 import UserDelegate         = require('../delegates/UserDelegate');
 import MysqlDelegate        = require('../delegates/MysqlDelegate');
 import UserOAuth            = require('../models/UserOauth');
@@ -14,10 +15,8 @@ class UserOAuthDelegate extends BaseDaoDelegate
 {
     /* Add or update an OAuth token
      * Created new user if can't update
-     * @param userOAuth
-     * @returns {makePromise} User updated or created
      */
-    addOrUpdateToken(userOAuth:UserOAuth, user?:User):q.makePromise
+    addOrUpdateToken(userOAuth:UserOAuth, user?:User):q.Promise<any>
     {
         var that = this;
 
@@ -66,7 +65,7 @@ class UserOAuthDelegate extends BaseDaoDelegate
 
     }
 
-    update(id:number, oauth:UserOAuth):q.makePromise
+    update(id:number, oauth:UserOAuth):q.Promise<any>
     {
         // Can't update user id for a token
         var userId = oauth.getUserId();
@@ -80,7 +79,7 @@ class UserOAuthDelegate extends BaseDaoDelegate
             });
     }
 
-    deleteByUser(userId:string):q.makePromise
+    deleteByUser(userId:string):q.Promise<any>
     {
         // TODO: Implement delete oauth token
         return null;

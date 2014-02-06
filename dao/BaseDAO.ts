@@ -5,7 +5,7 @@ import IDao                 = require('./IDao');
 import MysqlDelegate        = require('../delegates/MysqlDelegate')
 import GlobalIdDelegate     = require('../delegates/GlobalIDDelegate');
 import BaseModel            = require('../models/BaseModel');
-import Utils                = require('../Utils');
+import Utils                = require('../common/Utils');
 
 /**
  Base class for DAO
@@ -26,7 +26,7 @@ class BaseDAO implements IDao
             throw ('Invalid Model class specified for ' + Utils.getClassName(this));
     }
 
-    create(data:Object, transaction?:any):q.makePromise
+    create(data:any, transaction?:any):q.Promise<any>
     {
         var that = this;
 
@@ -55,7 +55,7 @@ class BaseDAO implements IDao
 
     }
 
-    get(id:any, fields?:string[]):q.makePromise
+    get(id:any, fields?:string[]):q.Promise<any>
     {
         var that = this;
         var selectColumns = fields && fields.length != 0 ? fields.join(',') : '*';
@@ -85,7 +85,7 @@ class BaseDAO implements IDao
             });
     }
 
-    search(searchQuery:Object, options?:Object):q.makePromise
+    search(searchQuery:Object, options?:Object):q.Promise<any>
     {
         var that = this, values = [], whereStatements = [], selectColumns;
 
@@ -126,11 +126,11 @@ class BaseDAO implements IDao
 
         return MysqlDelegate.executeQuery(queryString, values)
             .then(
-                function handleSearchResults(results:Array) { return _.map(results, function(result) { return new that.modelClass(result); }); }
+                function handleSearchResults(results:Array<any>) { return _.map(results, function(result) { return new that.modelClass(result); }); }
             );
     }
 
-    update(criteria:Object, newValues:Object, transaction?:any):q.makePromise
+    update(criteria:Object, newValues:Object, transaction?:any):q.Promise<any>
     {
         // Remove fields with null values
         _.each(_.extend({}, criteria, newValues), function (val, key) { if (val == undefined) delete criteria[key]; });
@@ -148,7 +148,7 @@ class BaseDAO implements IDao
         return MysqlDelegate.executeQuery(query, values, transaction);
     }
 
-    delete(id:string, softDelete:boolean = true, transaction?:any):q.makePromise
+    delete(id:string, softDelete:boolean = true, transaction?:any):q.Promise<any>
     {
         if (softDelete)
             return this.update({'id': id}, {'deleted': true}, transaction);

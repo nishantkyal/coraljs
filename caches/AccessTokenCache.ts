@@ -1,6 +1,7 @@
+///<reference path='../_references.d.ts'/>
 import q                    = require('q');
 import IntegrationMember    = require('../models/IntegrationMember');
-import Config               = require('../Config');
+import Config               = require('../common/Config');
 import CacheHelper          = require('./CacheHelper');
 
 /**
@@ -10,19 +11,19 @@ import CacheHelper          = require('./CacheHelper');
 class AccessTokenCache
 {
     /* Get details for token (integration, user id) */
-    getAccessTokenDetails(token:string):q.makePromise
+    getAccessTokenDetails(token:string):q.Promise<any>
     {
         return CacheHelper.get('at-' + token);
     }
 
     /* Add token to cache */
-    addToken(integrationMember:IntegrationMember, expireAfter:number = Config.get('access_token.expiry')):q.makePromise
+    addToken(integrationMember:IntegrationMember, expireAfter:number = Config.get('access_token.expiry')):q.Promise<any>
     {
         return null;
     }
 
     /** Remove token from cache **/
-    removeToken(token:string):q.makePromise
+    removeToken(token:string):q.Promise<any>
     {
         return null;
     }

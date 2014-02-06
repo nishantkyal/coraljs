@@ -16,7 +16,7 @@ class PhoneNumberApi
         var phoneNumberDelegate = new PhoneNumberDelegate();
 
         /* Add phone number */
-        app.put(ApiUrlDelegate.phoneNumber(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.put(ApiUrlDelegate.phoneNumber(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
         {
             var phoneNumber:PhoneNumber = req.body[ApiConstants.PHONE_NUMBER];
 
@@ -31,7 +31,7 @@ class PhoneNumberApi
         });
 
         /* Search phone number */
-        app.get(ApiUrlDelegate.phoneNumber(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(ApiUrlDelegate.phoneNumber(), function(req:express.Request, res:express.Response)
         {
             phoneNumberDelegate.search(req.body[ApiConstants.PHONE_NUMBER])
                 .then(
@@ -41,7 +41,7 @@ class PhoneNumberApi
         });
 
         /* Get phone number by id */
-        app.get(ApiUrlDelegate.phoneNumberById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(ApiUrlDelegate.phoneNumberById(), function(req:express.Request, res:express.Response)
         {
             var phoneNumberId = req.params[ApiConstants.PHONE_NUMBER_ID];
 
@@ -53,7 +53,7 @@ class PhoneNumberApi
         });
 
         /* Update phone number */
-        app.post(ApiUrlDelegate.phoneNumberById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.post(ApiUrlDelegate.phoneNumberById(), function(req:express.Request, res:express.Response)
         {
             var phoneNumberId:string = req.params[ApiConstants.PHONE_NUMBER_ID];
             var phoneNumber:PhoneNumber = req.body[ApiConstants.PHONE_NUMBER];
@@ -66,7 +66,7 @@ class PhoneNumberApi
         });
 
         /* Delete phone number */
-        app.delete(ApiUrlDelegate.phoneNumberById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.delete(ApiUrlDelegate.phoneNumberById(), function(req:express.Request, res:express.Response)
         {
             var phoneNumberId:string = req.params[ApiConstants.PHONE_NUMBER_ID];
 

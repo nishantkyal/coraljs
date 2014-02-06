@@ -10,19 +10,19 @@ class TransactionApi
     constructor(app)
     {
         /** Create a new transaction **/
-        app.put(ApiUrlDelegate.transaction(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.put(ApiUrlDelegate.transaction(), function(req:express.Request, res:express.Response)
         {
             // Validate item to be added
         });
 
         /** Update transaction **/
-        app.post(ApiUrlDelegate.transactionById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.post(ApiUrlDelegate.transactionById(), function(req:express.Request, res:express.Response)
         {
 
         });
 
         /** Add item **/
-        app.put(ApiUrlDelegate.transactionItem(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.put(ApiUrlDelegate.transactionItem(), function(req:express.Request, res:express.Response)
         {
 
         });
@@ -31,7 +31,7 @@ class TransactionApi
          * Update item
          * Remove all rows for item and insert again
          **/
-        app.post(ApiUrlDelegate.transactionItemById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.post(ApiUrlDelegate.transactionItemById(), function(req:express.Request, res:express.Response)
         {
 
         });
@@ -39,7 +39,7 @@ class TransactionApi
         /**
          * Remove item
          */
-        app.delete(ApiUrlDelegate.transactionItemById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.delete(ApiUrlDelegate.transactionItemById(), function(req:express.Request, res:express.Response)
         {
 
         });
@@ -48,7 +48,7 @@ class TransactionApi
          * Get transaction
          * Fields : [summary, items, discounts, invoice]
          **/
-        app.get(ApiUrlDelegate.transactionById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(ApiUrlDelegate.transactionById(), function(req:express.Request, res:express.Response)
         {
 
         });

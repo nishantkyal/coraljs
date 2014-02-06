@@ -1,3 +1,4 @@
+///<reference path='../_references.d.ts'/>
 import _                                = require('underscore');
 import q                                = require('q');
 import BaseDAODelegate                  = require('../delegates/BaseDaoDelegate');
@@ -9,7 +10,7 @@ import ExpertSchedule                   = require('../models/ExpertSchedule');
 import ExpertScheduleRule               = require('../models/ExpertScheduleRule');
 import IntegrationMember                = require('../models/IntegrationMember');
 import IDao                             = require('../dao/IDao');
-import Utils                            = require('../Utils');
+import Utils                            = require('../common/Utils');
 import ApiFlags                         = require('../enums/ApiFlags');
 
 /**
@@ -20,7 +21,7 @@ class ExpertScheduleDelegate extends BaseDAODelegate
     getDao():IDao { return new ExpertScheduleDAO(); }
 
     /* Get schedules for expert */
-    getSchedulesForExpert(expertId:number, startTime?:number, endTime?:number):q.makePromise
+    getSchedulesForExpert(expertId:number, startTime?:number, endTime?:number):q.Promise<any>
     {
         var that = this;
         var schedules = [];
@@ -50,7 +51,7 @@ class ExpertScheduleDelegate extends BaseDAODelegate
                 }
             })
             .then(
-            function schedulesSearched(s:Array)
+            function schedulesSearched(s:Array<ExpertSchedule>):any
             {
                 schedules = s;
                 if (schedules.length == 0 && startTime && endTime)
@@ -62,25 +63,24 @@ class ExpertScheduleDelegate extends BaseDAODelegate
     }
 
     /* Create new schedule */
-    create(object:Object, transaction?:any):q.makePromise
+    create(object:any, transaction?:any):q.Promise<any>
     {
-        var s = super;
         var that = this;
 
         // Don't create if schedule with same details already exists
         return super.search(object)
             .then(
-            function handleScheduleSearched(schedules:Array)
+            function handleScheduleSearched(schedules:Array<ExpertSchedule>)
             {
                 if (schedules.length == 0)
-                    return s.create.call(that, object, transaction);
+                    return that.getDao().create(object, transaction);
                 else
                     throw('Schedule already exists with the same details');
             }
         )
     }
 
-    createSchedulesForExpert(integrationMemberId:number, startTime:number, endTime:number):q.makePromise
+    createSchedulesForExpert(integrationMemberId:number, startTime:number, endTime:number):q.Promise<any>
     {
         var rules = [];
         var transaction;
@@ -89,7 +89,7 @@ class ExpertScheduleDelegate extends BaseDAODelegate
 
         return new ExpertScheduleRuleDelegate().getRulesByIntegrationMemberId(integrationMemberId)
             .then(
-            function rulesSearched(rs:Array)
+            function rulesSearched(rs:Array<ExpertScheduleRule>):any
             {
                 rules = rs;
                 if (rs.length != 0)
@@ -98,12 +98,12 @@ class ExpertScheduleDelegate extends BaseDAODelegate
                         function transactionStarted(t)
                         {
                             transaction = t;
-                            _.each(rules, function (rule)
+                            _.each(rules, function (rule:ExpertScheduleRule)
                             {
-                                schedules = schedules.concat(that.generateSchedules(new ExpertScheduleRule(rule), integrationMemberId, startTime, endTime));
+                                schedules = schedules.concat(that.generateSchedules(rule, integrationMemberId, startTime, endTime));
                             });
 
-                            return q.all(_.map(schedules, function (schedule)
+                            return q.all(_.map(schedules, function (schedule:ExpertSchedule)
                             {
                                 return that.create(schedule, transaction);
                             }));
@@ -156,7 +156,7 @@ class ExpertScheduleDelegate extends BaseDAODelegate
         return schedules;
     }
 
-    getIncludeHandler(include:string, result:Object):q.makePromise
+    getIncludeHandler(include:string, result:Object):q.Promise<any>
     {
         var userDelegate = new UserDelegate();
         var IntegrationMemberDelegate = require('../delegates/IntegrationMemberDelegate');

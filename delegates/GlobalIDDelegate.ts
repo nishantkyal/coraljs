@@ -1,5 +1,6 @@
+///<reference path='../_references.d.ts'/>
 import q                = require('q');
-import Utils            = require('../Utils');
+import Utils            = require('../common/Utils');
 
 /**
  * Delegate to generate globally unique ids

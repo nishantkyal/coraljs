@@ -1,3 +1,4 @@
+///<reference path='../_references.d.ts'/>
 import express                      = require('express');
 import ApiConstants                 = require('./ApiConstants');
 import ApiUrlDelegate               = require('../delegates/ApiUrlDelegate');
@@ -15,7 +16,7 @@ class ExpertScheduleRulesApi
     {
         var expertScheduleRuleDelegate = new ExpertScheduleRuleDelegate();
 
-        app.put(ApiUrlDelegate.scheduleRuleByExpert(), function (req, res)
+        app.put(ApiUrlDelegate.scheduleRuleByExpert(), function (req:express.Request, res:express.Response)
         {
             var expertId = req.params[ApiConstants.EXPERT_ID];
             var scheduleRule:ExpertScheduleRule = req[ApiConstants.SCHEDULE_RULE];
@@ -28,7 +29,7 @@ class ExpertScheduleRulesApi
             )
         });
 
-        app.get(ApiUrlDelegate.scheduleRuleByExpert(), function (req, res)
+        app.get(ApiUrlDelegate.scheduleRuleByExpert(), function (req:express.Request, res:express.Response)
         {
             var expertId = req.params[ApiConstants.EXPERT_ID];
 
@@ -39,7 +40,7 @@ class ExpertScheduleRulesApi
             )
         });
 
-        app.post(ApiUrlDelegate.scheduleRuleById(), function (req, res)
+        app.post(ApiUrlDelegate.scheduleRuleById(), function (req:express.Request, res:express.Response)
         {
             var scheduleRuleId:string = req.params[ApiConstants.SCHEDULE_RULE_ID];
             var scheduleRule:ExpertScheduleRule = req[ApiConstants.SCHEDULE_RULE];

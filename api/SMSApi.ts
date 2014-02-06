@@ -1,3 +1,5 @@
+///<reference path='../_references.d.ts'/>
+import express                          = require('express');
 import ApiConstants                     = require('../api/ApiConstants');
 import ApiUrlDelegate                   = require('../delegates/ApiUrlDelegate');
 import SMSDelegate                      = require('../delegates/SMSDelegate');
@@ -10,7 +12,7 @@ class SMSApi
     {
         var smsDelegate = new SMSDelegate();
 
-        app.post(ApiUrlDelegate.sms(), AccessControl.allowDashboard, function(req, res)
+        app.post(ApiUrlDelegate.sms(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
         {
             var sms:SMS = req.body[ApiConstants.SMS];
 
@@ -21,7 +23,7 @@ class SMSApi
                         function smsSendFailed(error) { res.status(500).json(error); }
                     )
             else
-                res.status(400, 'Invalid data');
+                res.send(400, 'Invalid data');
         });
     }
 }

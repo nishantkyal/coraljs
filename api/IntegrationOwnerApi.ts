@@ -1,3 +1,4 @@
+///<reference path='../_references.d.ts'/>
 import express                          = require('express');
 import ApiConstants                     = require('./ApiConstants');
 import AccessControl                    = require('../middleware/AccessControl');
@@ -18,7 +19,7 @@ class IntegrationOwnerApi {
         /**
          * Add another member
          **/
-        app.put(ApiUrlDelegate.integrationMember(), AccessControl.allowOwner, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.put(ApiUrlDelegate.integrationMember(), AccessControl.allowOwner, function(req:express.Request, res:express.Response)
         {
             var integrationId = req.params[ApiConstants.INTEGRATION_ID];
             var userId = req.query[ApiConstants.USER_ID];
@@ -35,7 +36,7 @@ class IntegrationOwnerApi {
          * Get integration members
          * Allow owner and admin
          */
-        app.get(ApiUrlDelegate.integrationMember(), AccessControl.allowAdmin, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(ApiUrlDelegate.integrationMember(), AccessControl.allowAdmin, function(req:express.Request, res:express.Response)
         {
             var integrationId = req.params[ApiConstants.INTEGRATION_ID];
 
@@ -50,7 +51,7 @@ class IntegrationOwnerApi {
          * Remove a member
          * Allow owner and admin
          */
-        app.delete(ApiUrlDelegate.integrationMemberById(), AccessControl.allowAdmin, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.delete(ApiUrlDelegate.integrationMemberById(), AccessControl.allowAdmin, function(req:express.Request, res:express.Response)
         {
             var integrationId = req.params[ApiConstants.INTEGRATION_ID];
 
@@ -65,7 +66,7 @@ class IntegrationOwnerApi {
          * Update settings for member
          * Allow owner or admin
          */
-        app.post(ApiUrlDelegate.integrationMemberById(), AccessControl.allowAdmin, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.post(ApiUrlDelegate.integrationMemberById(), AccessControl.allowAdmin, function(req:express.Request, res:express.Response)
         {
             var integrationId = req.params[ApiConstants.INTEGRATION_ID];
             var integrationMember:IntegrationMember = req.body[ApiConstants.INTEGRATION_MEMBER];
@@ -81,7 +82,7 @@ class IntegrationOwnerApi {
          * Get activity summary
          * Allow owner and admin
          **/
-        app.get(ApiUrlDelegate.ownerActivitySummary(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(ApiUrlDelegate.ownerActivitySummary(), function(req:express.Request, res:express.Response)
         {
 
         });

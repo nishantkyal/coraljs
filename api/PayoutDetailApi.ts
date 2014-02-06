@@ -10,31 +10,31 @@ class PayoutDetailApi
     constructor(app)
     {
         /** Search payout-detail */
-        app.get(ApiUrlDelegate.payoutDetail(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(ApiUrlDelegate.payoutDetail(), function(req:express.Request, res:express.Response)
         {
 
         });
 
         /** Get by id */
-        app.get(ApiUrlDelegate.payoutDetailById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(ApiUrlDelegate.payoutDetailById(), function(req:express.Request, res:express.Response)
         {
 
         });
 
         /** Create new  */
-        app.put(ApiUrlDelegate.payoutDetail(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.put(ApiUrlDelegate.payoutDetail(), function(req:express.Request, res:express.Response)
         {
 
         });
 
         /** Update */
-        app.post(ApiUrlDelegate.payoutDetailById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.post(ApiUrlDelegate.payoutDetailById(), function(req:express.Request, res:express.Response)
         {
 
         });
 
         /** Delete */
-        app.delete(ApiUrlDelegate.payoutDetailById(), function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.delete(ApiUrlDelegate.payoutDetailById(), function(req:express.Request, res:express.Response)
         {
 
         });

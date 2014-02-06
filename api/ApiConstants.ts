@@ -1,8 +1,8 @@
 /**
  * Constants used on query strings, headers of API calls
  */
-class ApiConstants {
-
+class ApiConstants
+{
     static FIELDS:string = 'fields';
     static FILTERS:string = 'filters';
     static INCLUDE:string = 'include';
@@ -33,6 +33,5 @@ class ApiConstants {
     static SCHEDULE:string = 'expertSchedule';
     static SCHEDULE_RULE:string = 'expertScheduleRule';
     static SMS:string = 'sms';
-
 }
 export = ApiConstants

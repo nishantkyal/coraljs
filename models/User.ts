@@ -1,5 +1,5 @@
 import BaseModel        = require('./BaseModel')
-import Utils            = require('../Utils');
+import Utils            = require('../common/Utils');
 
 /**
  Bean class for User

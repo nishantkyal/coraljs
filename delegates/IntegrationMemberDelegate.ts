@@ -1,6 +1,7 @@
+///<reference path='../_references.d.ts'/>
 import _                            = require('underscore');
 import q                            = require('q');
-import Utils                        = require('../Utils');
+import Utils                        = require('../common/Utils');
 import BaseDaoDelegate              = require('../delegates/BaseDaoDelegate');
 import MysqlDelegate                = require('../delegates/MysqlDelegate');
 import IntegrationDelegate          = require('../delegates/IntegrationDelegate');
@@ -15,7 +16,7 @@ import AccessTokenCache             = require('../caches/AccessTokenCache');
 
 class IntegrationMemberDelegate extends BaseDaoDelegate
 {
-    create(object:Object, transaction?:any):q.makePromise
+    create(object:Object, transaction?:any):q.Promise<any>
     {
         var integrationMember = new IntegrationMember(object);
         integrationMember.setAuthCode(Utils.getRandomString(30));
@@ -23,13 +24,13 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
         return super.create(integrationMember, transaction);
     }
 
-    get(id:any, fields?:string[], flags?:string[]):q.makePromise
+    get(id:any, fields?:string[], flags?:string[]):q.Promise<any>
     {
         fields = fields || ['id', 'role', 'integration_id', 'user_id'];
         return super.get(id, fields, flags);
     }
 
-    getIntegrationsForUser(user_id:string, fields?:string[]):q.makePromise
+    getIntegrationsForUser(user_id:string, fields?:string[]):q.Promise<any>
     {
         var integrationFields:string[] = _.map(fields, function appendTableName(field)
         {
@@ -43,7 +44,7 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
         return MysqlDelegate.executeQuery(query, [integrationFields.join(','), user_id]);
     }
 
-    findValidAccessToken(accessToken:string, integrationMemberId?:string):q.makePromise
+    findValidAccessToken(accessToken:string, integrationMemberId?:string):q.Promise<any>
     {
         var accessTokenCache = new AccessTokenCache();
         var that = this;
@@ -71,14 +72,14 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
         );
     }
 
-    updateById(id:string, integrationMember:IntegrationMember):q.makePromise
+    updateById(id:string, integrationMember:IntegrationMember):q.Promise<any>
     {
         return this.update({'integration_member_id': id}, integrationMember);
     }
 
     getDao():IDao { return new IntegrationMemberDAO(); }
 
-    getIncludeHandler(include:string, result:any):q.makePromise
+    getIncludeHandler(include:string, result:any):q.Promise<any>
     {
         switch (include)
         {

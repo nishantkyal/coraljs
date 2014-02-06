@@ -1,3 +1,4 @@
+///<reference path='../_references.d.ts'/>
 import i18n         = require('i18n');
 
 /**

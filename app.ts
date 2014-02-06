@@ -1,11 +1,13 @@
+///<reference path='./_references.d.ts'/>
 import express          = require('express');
 import http             = require('http');
 import path             = require('path');
-import Config           = require('./Config')
+import Config           = require('./common/Config')
 import MysqlDelegate    = require('./delegates/MysqlDelegate');
 import ValidateRequest  = require('./middleware/ValidateRequest');
+import api              = require('./api/index');
 
-var app:express.ExpressServer = express.createServer();
+var app:express.Application = express();
 
 // all environments
 app.set('port', Config.get('Coral.port') || 3000);
@@ -26,7 +28,7 @@ MysqlDelegate.createConnection()
             'AND table_schema = ' + Config.get('database.name'));
     })
     .then(
-    function populateModelsWithForeignKeys(rows:Array)
+    function populateModelsWithForeignKeys(rows:Array<any>)
     {
         for (var constraint in rows)
         {
@@ -38,12 +40,14 @@ MysqlDelegate.createConnection()
     });
 
 // development only
+/*
 if ('development' == app.get('env')) {
     app.use(express.errorHandler());
 }
+*/
 
 // REST APIs
-require('./api')(app);
+api(app);
 
 app.listen(app.get('port'), function()
 {

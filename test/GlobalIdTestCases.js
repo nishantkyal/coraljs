@@ -1,4 +1,3 @@
-
 var GlobalIDDelegate = require('../delegates/GlobalIDDelegate');
 
 function testConsecutiveRuns(test) {
@@ -19,5 +18,4 @@ function testConsecutiveRuns(test) {
     test.done();
 }
 exports.testConsecutiveRuns = testConsecutiveRuns;
-
 //# sourceMappingURL=GlobalIdTestCases.js.map

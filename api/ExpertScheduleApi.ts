@@ -1,3 +1,5 @@
+///<reference path='../_references.d.ts'/>
+import express                          = require('express');
 import ExpertScheduleDelegate           = require('../delegates/ExpertScheduleDelegate');
 import ApiUrlDelegate                   = require('../delegates/ApiUrlDelegate');
 import ApiConstants                     = require('../api/ApiConstants');
@@ -9,7 +11,7 @@ class ExpertScheduleApi
     {
         var expertScheduleDelegate = new ExpertScheduleDelegate();
 
-        app.get(ApiUrlDelegate.scheduleByExpert(), function (req, res)
+        app.get(ApiUrlDelegate.scheduleByExpert(), function (req:express.Request, res:express.Response)
         {
             var expertId = req.params[ApiConstants.EXPERT_ID];
             var startTime = parseInt(req.query[ApiConstants.START_TIME] || 0);
@@ -25,7 +27,7 @@ class ExpertScheduleApi
             );
         });
 
-        app.get(ApiUrlDelegate.scheduleById(), function (req, res)
+        app.get(ApiUrlDelegate.scheduleById(), function (req:express.Request, res:express.Response)
         {
             var scheduleId:string = req.params[ApiConstants.SCHEDULE_ID];
             var includes:string[] = req.query[ApiConstants.INCLUDE];
@@ -37,7 +39,7 @@ class ExpertScheduleApi
             );
         });
 
-        app.put(ApiUrlDelegate.scheduleByExpert(), function (req, res)
+        app.put(ApiUrlDelegate.scheduleByExpert(), function (req:express.Request, res:express.Response)
         {
             var schedule:ExpertSchedule = req[ApiConstants.SCHEDULE];
             var expertId = req.params[ApiConstants.EXPERT_ID];

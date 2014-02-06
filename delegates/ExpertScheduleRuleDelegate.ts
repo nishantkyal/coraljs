@@ -1,3 +1,4 @@
+///<reference path='../_references.d.ts'/>
 import _                            = require('underscore');
 import q                            = require('q');
 import BaseDaoDelegate              = require('./BaseDaoDelegate');
@@ -10,7 +11,7 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
 {
     getDao():IDao { return new ExpertScheduleRuleDao(); }
 
-    /*create(scheduleRule:any, transaction?:any):q.makePromise
+    /*create(scheduleRule:any, transaction?:any):q.Promise<any>
     {
         var s = super;
 
@@ -30,7 +31,7 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
             });
     }*/
 
-    getRulesByIntegrationMemberId(integrationMemberId:number):q.makePromise
+    getRulesByIntegrationMemberId(integrationMemberId:number):q.Promise<any>
     {
         return this.getDao().search({'integration_member_id': integrationMemberId});
     }

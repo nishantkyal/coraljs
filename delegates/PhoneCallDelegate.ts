@@ -1,6 +1,7 @@
+///<reference path='../_references.d.ts'/>
 import _                            = require('underscore');
 import q                            = require('q');
-import Utils                        = require('../Utils');
+import Utils                        = require('../common/Utils');
 import IDao                         = require('../dao/IDao');
 import PhoneCallDao                 = require('../dao/PhoneCallDao');
 import BaseDAODelegate              = require('./BaseDaoDelegate');
@@ -28,33 +29,33 @@ class PhoneCallDelegate extends BaseDAODelegate
         PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.POSTPONED] = [CallStatus.SCHEDULED, CallStatus.CANCELLED];
     })();
 
-    callsByUser(user_id:string, filters:Object, fields?:string[]):q.makePromise
+    callsByUser(user_id:string, filters:Object, fields?:string[]):q.Promise<any>
     {
         filters['user_id'] = user_id;
         return (_.keys(filters).length == 1) ? Utils.getRejectedPromise('Invalid filters') : this.getDao().search(filters, {'fields': fields});
     }
 
-    callsToExpert(expert_id:string, filters:Object, fields?:string[]):q.makePromise
+    callsToExpert(expert_id:string, filters:Object, fields?:string[]):q.Promise<any>
     {
         filters['expert_id'] = expert_id;
         return (_.keys(filters).length == 1) ? Utils.getRejectedPromise('Invalid filters') : this.getDao().search(filters, {'fields': fields});
     }
 
-    create(object:any, transaction?:any):q.makePromise
+    create(object:any, transaction?:any):q.Promise<any>
     {
         if (object['status'] == CallStatus.PLANNING)
             return this.unscheduledCallsCache.addUnscheduledCall(object['integration_member_id'], object['schedule_id'], object);
         return super.create(object, transaction);
     }
 
-    search(search:Object, options?:Object):q.makePromise
+    search(search:Object, options?:Object):q.Promise<any>
     {
         if (search['status'] == CallStatus.PLANNING)
             return this.unscheduledCallsCache.getUnscheduledCalls(search['integration_member_id'], search['schedule_id']);
         return super.search(search, options);
     }
 
-    update(criteria:Object, newValues:Object, transaction?:any):q.makePromise
+    update(criteria:Object, newValues:Object, transaction?:any):q.Promise<any>
     {
         if (newValues.hasOwnProperty('status'))
             throw new Error('Please use the method updateCallStatus to update call status');
@@ -62,7 +63,7 @@ class PhoneCallDelegate extends BaseDAODelegate
         return super.update(criteria, newValues, transaction);
     }
 
-    updateCallStatus(phoneCallId:number, newStatus:CallStatus):q.makePromise
+    updateCallStatus(phoneCallId:number, newStatus:CallStatus):q.Promise<any>
     {
         var that = this;
         var callerUserId:number;
@@ -93,7 +94,7 @@ class PhoneCallDelegate extends BaseDAODelegate
 
     }
 
-    getIncludeHandler(include:string, result:PhoneCall):q.makePromise
+    getIncludeHandler(include:string, result:PhoneCall):q.Promise<any>
     {
         switch (include)
         {

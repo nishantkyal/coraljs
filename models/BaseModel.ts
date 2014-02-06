@@ -1,5 +1,6 @@
+///<reference path='../_references.d.ts'/>
 import _            = require('underscore');
-import Utils        = require('../Utils');
+import Utils        = require('../common/Utils');
 
 /**
  * Base class for Models
@@ -28,7 +29,7 @@ class BaseModel
                     thisProtoConstructor['COLUMNS'].push(key);
                 }
 
-        _.each (thisProtoConstructor['COLUMNS'], function(column) {
+        _.each (thisProtoConstructor['COLUMNS'], function(column:string) {
             that[column] = data[column];
         });
     }
@@ -50,9 +51,9 @@ class BaseModel
         var thisProtoConstructor = this.__proto__.constructor;
         var that = this;
         var data = {};
-        _.each (thisProtoConstructor['COLUMNS'], function(column) {
+        /*_.each (thisProtoConstructor['COLUMNS'], function(column) {
             data[column] = that[column];
-        });
+        });*/
         return data;
     }
 

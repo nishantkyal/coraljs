@@ -8,7 +8,7 @@ class ExpertCache
      * Ratings, pricing
      * @param expertId
      */
-    getWidgetProfile(expertId:string):q.makePromise
+    getWidgetProfile(expertId:string):q.Promise<any>
     {
         return CacheHelper.get(expertId);
     }

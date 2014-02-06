@@ -1,9 +1,13 @@
+///<reference path='../_references.d.ts'/>
 import _                            = require('underscore');
 import q                            = require('q');
 import Email                        = require('../models/Email')
+import User                         = require('../models/User')
+import IntegrationMember            = require('../models/IntegrationMember')
 import IDao                         = require('../dao/IDao');
 import EmailDao                     = require('../dao/EmailDao');
 import CallStatus                   = require('../enums/CallStatus');
+import ApiFlags                     = require('../enums/ApiFlags');
 import UserDelegate                 = require('../delegates/UserDelegate');
 import IntegrationMemberDelegate    = require('../delegates/IntegrationMemberDelegate');
 
@@ -17,12 +21,12 @@ class EmailDelegate
 {
     getDao():IDao { return new EmailDao(); }
 
-    send():q.makePromise
+    send():q.Promise<any>
     {
         return null;
     }
 
-    sendCallStatusUpdateNotifications(callerUserId:number, expertId:number, status:CallStatus):q.makePromise
+    sendCallStatusUpdateNotifications(callerUserId:number, expertId:number, status:CallStatus):q.Promise<any>
     {
         var that = this;
 
@@ -31,19 +35,19 @@ class EmailDelegate
         // 3. Send emails
         return new IntegrationMemberDelegate().get(expertId, ['user_id'])
             .then(
-            function expertUserIdFetched(expert)
+            function expertUserIdFetched(expert:IntegrationMember)
             {
                 return new UserDelegate().search({'id': [expert['user_id'], callerUserId]}, ['email']);
             })
             .then(
-            function emailsFetched(users)
+            function emailsFetched(users:Array<User>)
             {
                 var expertEmail, callerEmail;
-                _.each(users, function(user) {
-                    if (user.id == callerUserId)
-                        callerEmail = user['email'];
+                _.each(users, function(user:User) {
+                    if (user.getId() == callerUserId)
+                        callerEmail = user.getEmail();
                     else
-                        expertEmail = user['email'];
+                        expertEmail = user.getEmail();
                 });
 
                 switch(status)

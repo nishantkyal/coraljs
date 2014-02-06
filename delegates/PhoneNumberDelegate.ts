@@ -1,3 +1,4 @@
+///<reference path='../_references.d.ts'/>
 import q                                = require('q');
 import BaseDaoDelegate                  = require('./BaseDaoDelegate');
 import IDao                             = require('../dao/IDao');
@@ -6,12 +7,12 @@ import PhoneNumber                      = require('../models/PhoneNumber');
 
 class PhoneNumberDelegate extends BaseDaoDelegate
 {
-    create(data:Object, transaction?:any):q.makePromise
+    create(data:any, transaction?:any):q.Promise<any>
     {
         // Check that phone number doesn't already exist
         return super.search(data)
             .then(
-                function handlePhoneNumberSearched(rows:Array)
+                function handlePhoneNumberSearched(rows:Array<PhoneNumber>):any
                 {
                     if (rows.length != 0)
                         return this.create(data, transaction);
@@ -21,7 +22,7 @@ class PhoneNumberDelegate extends BaseDaoDelegate
             )
     }
 
-    update(id:string, phoneNumber:PhoneNumber):q.makePromise
+    update(id:string, phoneNumber:PhoneNumber):q.Promise<any>
     {
         return super.update({'phoneNumberId': id}, phoneNumber);
     }

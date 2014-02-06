@@ -1,3 +1,4 @@
+///<reference path='../_references.d.ts'/>
 import q                            = require('q');
 import BaseDaoDelegate              = require('../delegates/BaseDaoDelegate');
 import TwilioDelegate               = require('./calling/TwilioDelegate');
@@ -11,7 +12,7 @@ class SMSDelegate extends BaseDaoDelegate
 {
     getDao():IDao { return new SMSDao(); }
 
-    send(sms:SMS):q.makePromise
+    send(sms:SMS):q.Promise<any>
     {
         if (!sms.getPriority()) sms.setPriority(Priority.LOWEST);
         if (!sms.getScheduledDate()) sms.setScheduledDate(new Date().getTime());

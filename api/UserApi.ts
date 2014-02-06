@@ -3,7 +3,6 @@ import _                            = require('underscore');
 import ApiConstants                 = require('./ApiConstants');
 import ApiUrlDelegate               = require('../delegates/ApiUrlDelegate');
 import UserDelegate                 = require('../delegates/UserDelegate');
-import UserSettingDelegate          = require('../delegates/UserSettingDelegate');
 import UserOAuthDelegate            = require('../delegates/UserOAuthDelegate');
 import TransactionDelegate          = require('../delegates/TransactionDelegate');
 import AccessControl                = require('../middleware/AccessControl');
@@ -11,7 +10,7 @@ import ValidateRequest              = require('../middleware/ValidateRequest');
 import UserOauth                    = require('../models/UserOauth');
 import User                         = require('../models/User');
 import IntegrationMember            = require('../models/IntegrationMember');
-import Utils                        = require('../Utils');
+import Utils                        = require('../common/Utils');
 
 /**
  Rest Calls for User
@@ -23,10 +22,9 @@ class UserApi {
     {
         var userDelegate = new UserDelegate();
         var userOauthDelegate = new UserOAuthDelegate();
-        var userSettingDelegate = new UserSettingDelegate();
 
         /** Create user **/
-        app.put(ApiUrlDelegate.user(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.put(ApiUrlDelegate.user(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
         {
             var user:User = req.body[ApiConstants.USER];
 
@@ -41,7 +39,7 @@ class UserApi {
         });
 
         /** Authenticate user **/
-        app.get(ApiUrlDelegate.userAuthentication(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(ApiUrlDelegate.userAuthentication(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
         {
             var userName = req.body[ApiConstants.USERNAME];
             var password = req.body[ApiConstants.PASSWORD];
@@ -57,7 +55,7 @@ class UserApi {
         });
 
         /** Update settings */
-        app.post(ApiUrlDelegate.userById(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.post(ApiUrlDelegate.userById(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
         {
             var userId:string = req.params[ApiConstants.USER_ID];
             var user:User = req.body[ApiConstants.USER];
@@ -73,11 +71,11 @@ class UserApi {
         });
 
         /** Generate a password reset token for user **/
-        app.get(ApiUrlDelegate.userPasswordResetToken(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(ApiUrlDelegate.userPasswordResetToken(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
         {
             var userId = req.params[ApiConstants.USER_ID];
 
-            userSettingDelegate.createPasswordResetToken(userId)
+            userDelegate.createPasswordResetToken(userId)
                 .then(
                 function passwordResetTokenGenerated(token) { res.json(token); },
                 function passwordResetTokenGenerateError(err) { res.status(500).json(err); }
@@ -85,24 +83,34 @@ class UserApi {
         });
 
         /* Generate a email verification token for user */
-        app.get(ApiUrlDelegate.emailVerificationToken(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(ApiUrlDelegate.emailVerificationToken(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
         {
             var userId = req.params[ApiConstants.USER_ID];
 
-            userSettingDelegate.createEmailVerificationToken(userId)
+            userDelegate.createEmailVerificationToken(userId)
                 .then(
                 function emailVerificationTokenGenerated(token) { res.json(token); },
                 function emailVerificationTokenGenerateError(err) { res.status(500).json(err); }
             )
         });
 
+        /* Generate a email verification token for user */
+        app.get(ApiUrlDelegate.mobileVerificationToken(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
+        {
+            userDelegate.createMobileVerificationToken()
+                .then(
+                function mobileVerificationTokenGenerated(token) { res.json(token); },
+                function mobileVerificationTokenGenerateError(err) { res.status(500).json(err); }
+            )
+        });
+
         /* Get account balance */
-        app.get(ApiUrlDelegate.userTransactionBalance(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(ApiUrlDelegate.userTransactionBalance(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
         {
         });
 
         /* Generate mobile verification code */
-        app.put(ApiUrlDelegate.mobileVerificationToken(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.put(ApiUrlDelegate.mobileVerificationToken(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
         {
             userDelegate.createMobileVerificationToken()
                 .then(
@@ -112,7 +120,7 @@ class UserApi {
         });
 
         /* Search mobile verification code */
-        app.get(ApiUrlDelegate.mobileVerificationToken(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.get(ApiUrlDelegate.mobileVerificationToken(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
         {
             var code:string = req.body['code'];
             var ref:string = req.body['ref'];
@@ -125,7 +133,7 @@ class UserApi {
         });
 
         /* Update OAuth token */
-        app.put(ApiUrlDelegate.userOAuthToken(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.put(ApiUrlDelegate.userOAuthToken(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
         {
             var userOauth:UserOauth = req.body[ApiConstants.OAUTH];
             var user:User = req.body[ApiConstants.USER];
@@ -141,7 +149,7 @@ class UserApi {
         });
 
         /** Delete OAuth token **/
-        app.delete(ApiUrlDelegate.userOAuthToken(), AccessControl.allowDashboard, function(req:express.ExpressServerRequest, res:express.ExpressServerResponse)
+        app.delete(ApiUrlDelegate.userOAuthToken(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
         {
             var userId = req.params[ApiConstants.USER_ID];
             var type = req.params['type'];

@@ -3,13 +3,13 @@ import BaseDAO                  = require('./BaseDAO');
 import BaseModel                = require('../models/BaseModel');
 import ExpertSchedule           = require('../models/ExpertSchedule');
 import MysqlDelegate            = require('../delegates/MysqlDelegate');
-import Utils                    = require('../Utils');
+import Utils                    = require('../common/Utils');
 
 class ExpertScheduleDao extends BaseDAO
 {
     getModel():typeof BaseModel { return ExpertSchedule; }
 
-    findConflictingScheduleRules(startTime:number, endTime:number, integrationMemberId?:number):q.makePromise
+    findConflictingScheduleRules(startTime:number, endTime:number, integrationMemberId?:number):q.Promise<any>
     {
         var query = 'SELECT * ' +
             'FROM expert_schedule_rule ' +
