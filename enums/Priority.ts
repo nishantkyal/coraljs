@@ -1,9 +1,11 @@
-enum Priority
+module enums
 {
-    HIGHEST,
-    HIGH,
-    NORMAL,
-    LOW,
-    LOWEST
+    export enum Priority
+    {
+        HIGHEST,
+        HIGH,
+        NORMAL,
+        LOW,
+        LOWEST
+    }
 }
-export = Priority

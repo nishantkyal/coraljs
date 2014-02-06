@@ -1,9 +1,11 @@
-import BaseDao                  = require('./BaseDAO');
-import BaseModel                = require('../models/BaseModel');
-import PhoneNumber              = require('../models/PhoneNumber');
+///<reference path='./BaseDao.ts'/>
+///<reference path='../models/BaseModel.ts'/>
+///<reference path='../models/PhoneNumber.ts'/>
 
-class PhoneNumberDao extends BaseDao
+module dao
 {
-    getModel():typeof BaseModel { return PhoneNumber; }
+    export class PhoneNumberDao extends BaseDao
+    {
+        getModel():typeof models.BaseModel { return models.PhoneNumber; }
+    }
 }
-export = PhoneNumberDao

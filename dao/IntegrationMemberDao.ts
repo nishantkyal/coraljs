@@ -1,9 +1,11 @@
-import BaseDAO              = require('./BaseDAO');
-import BaseModel            = require('../models/BaseModel');
-import IntegrationMember    = require('../models/IntegrationMember');
+///<reference path='./BaseDao.ts'/>
+///<reference path='../models/BaseModel.ts'/>
+///<reference path='../models/IntegrationMember.ts'/>
 
-class IntegrationMemberDao extends BaseDAO
+module dao
 {
-    getModel():typeof BaseModel { return IntegrationMember; }
+    export class IntegrationMemberDao extends BaseDao
+    {
+        getModel():typeof models.BaseModel { return models.IntegrationMember; }
+    }
 }
-export = IntegrationMemberDao

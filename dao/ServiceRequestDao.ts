@@ -1,10 +1,10 @@
-import BaseDAO          = require('./BaseDAO');
+///<reference path='./BaseDao.ts'/>
 
-class ServiceRequestDao extends BaseDAO
+module dao
 {
-
-    static getTableName():string { return 'service_request'; }
-    static getGeneratedIdName():string { return 'request_id'; }
-
+    export class ServiceRequestDao extends BaseDao
+    {
+        static getTableName():string { return 'service_request'; }
+        static getGeneratedIdName():string { return 'request_id'; }
+    }
 }
-export = ServiceRequestDao

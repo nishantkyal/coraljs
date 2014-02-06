@@ -1,7 +1,9 @@
-enum SMSStatus
+module enums
 {
-    SCHEDULED,
-    FAILED,
-    RETRIED
+    export enum SMSStatus
+    {
+        SCHEDULED,
+        FAILED,
+        RETRIED
+    }
 }
-export = SMSStatus

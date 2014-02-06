@@ -1,12 +1,11 @@
-import BaseDAO          = require('./BaseDAO');
-import BaseModel        = require('../models/BaseModel');
-import TransactionLine      = require('../models/TransactionLine');
+///<reference path='./BaseDao.ts'/>
+///<reference path='../models/BaseModel.ts'/>
+///<reference path='../models/TransactionLine.ts'/>
 
-/**
- DAO for phone calls
- **/
-class TransactionLineDao extends BaseDAO
+module dao
 {
-    getModel():typeof BaseModel { return TransactionLine; }
+    export class TransactionLineDao extends BaseDao
+    {
+        getModel():typeof models.BaseModel { return models.TransactionLine; }
+    }
 }
-export = TransactionLineDao

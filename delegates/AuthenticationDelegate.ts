@@ -1,50 +1,49 @@
-import passport                         = require('passport');
-import passportBearer                   = require('passport-http-bearer');
-import IntegrationMemberDelegate        = require('../delegates/IntegrationMemberDelegate');
-import IntegrationMember                = require('../models/IntegrationMember');
-
-class AuthenticationDelegate
+///<reference path='../delegates/IntegrationMemberDelegate'/>
+///<reference path='../models/IntegrationMember.ts'/>
+module delegates
 {
-    static STRATEGY_OAUTH:string = 'oauth';
-
-    /** Static constructor workaround */
-    private static ctor = (() =>
+    export class AuthenticationDelegate
     {
-        // Username password strategy
-        passport.use(AuthenticationDelegate.STRATEGY_OAUTH, new passportBearer.Strategy (
-            function(token, done)
+        static STRATEGY_OAUTH:string = 'oauth';
+
+        /** Static constructor workaround */
+        private static ctor = (() =>
+        {
+            // Username password strategy
+            passport.use(AuthenticationDelegate.STRATEGY_OAUTH, new passport_http_bearer.Strategy(
+                function(token, done)
+                {
+                    new delegates.IntegrationMemberDelegate().findValidAccessToken(token)
+                        .then(
+                        function integrationSearched(result)
+                        {
+                            var integrationMember = new models.IntegrationMember(result);
+                            if (integrationMember.isValid())
+                                done(null, integrationMember);
+                            else
+                                done(null);
+                        },
+                        function integrationSearchError(err)
+                        {
+                            done(err);
+                        }
+                    )
+                }
+            ));
+
+            // Serialize user
+            passport.serializeUser(function(user, done)
             {
-                new IntegrationMemberDelegate().findValidAccessToken(token)
-                    .then(
-                    function integrationSearched(result)
-                    {
-                        var integrationMember = new IntegrationMember(result);
-                        if (integrationMember.isValid())
-                            done(null, integrationMember);
-                        else
-                            done(null);
-                    },
-                    function integrationSearchError(err)
-                    {
-                        done(err);
-                    }
-                )
-            }
-        ));
+                done(null, user);
+            });
 
-        // Serialize user
-        passport.serializeUser(function(user, done)
-        {
-            done(null, user);
-        });
+            // Deserialize user
+            passport.deserializeUser(function(obj, done)
+            {
+                done(null, obj);
+            });
 
-        // Deserialize user
-        passport.deserializeUser(function(obj, done)
-        {
-            done(null, obj);
-        });
+        })();
 
-    })();
-
+    }
 }
-export = AuthenticationDelegate

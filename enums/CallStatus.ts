@@ -1,12 +1,13 @@
-enum CallStatus
+module enums
 {
-    PLANNING,
-    SCHEDULED,
-    IN_PROGRESS,
-    COMPLETED,
-    CANCELLED,
-    POSTPONED,
-    FAILED
+    export enum CallStatus
+    {
+        PLANNING,
+        SCHEDULED,
+        IN_PROGRESS,
+        COMPLETED,
+        CANCELLED,
+        POSTPONED,
+        FAILED
+    }
 }
-
-export = CallStatus

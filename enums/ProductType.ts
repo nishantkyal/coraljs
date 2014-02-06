@@ -1,4 +1,6 @@
-enum ProductType
+module enums
 {
+    export enum ProductType
+    {
+    }
 }
-export = ProductType
