@@ -28,7 +28,7 @@ class BaseDao implements IDao
 
     create(data:any, transaction?:any):q.Promise<any>
     {
-        var that = this;
+        var self = this;
 
         data = data || {};
         var id:number = data['id'];
@@ -45,11 +45,11 @@ class BaseDao implements IDao
             .then(
             function created()
             {
-                return (!transaction) ? that.get(id): new that.modelClass({'id': id});
+                return (!transaction) ? self.get(id): new self.modelClass({'id': id});
             },
             function createFailure(error)
             {
-                that.logger.error('Error while creating a new %s, error: %s', that.tableName, error.message);
+                self.logger.error('Error while creating a new %s, error: %s', self.tableName, error.message);
                 throw(error);
             });
 
@@ -57,7 +57,7 @@ class BaseDao implements IDao
 
     get(id:any, fields?:string[]):q.Promise<any>
     {
-        var that = this;
+        var self = this;
         var selectColumns = fields && fields.length != 0 ? fields.join(',') : '*';
         var query = 'SELECT ' + selectColumns + ' FROM `' + this.tableName + '` WHERE id = ?';
 
@@ -68,26 +68,26 @@ class BaseDao implements IDao
                 switch (rows.length)
                 {
                     case 0:
-                        var errorMessage:string = 'No ' + that.tableName.replace('_', ' ') + ' found for id: ' + id;
-                        that.logger.debug('No %s found for id: %s', that.tableName, id);
+                        var errorMessage:string = 'No ' + self.tableName.replace('_', ' ') + ' found for id: ' + id;
+                        self.logger.debug('No %s found for id: %s', self.tableName, id);
                         throw(errorMessage);
                         break;
                     case 1:
-                        return new that.modelClass(rows[0]);
+                        return new self.modelClass(rows[0]);
                         break;
                 }
                 return null;
             },
             function objectFetchError(error)
             {
-                that.logger.error('Error while fetching %s, id: %s', that.tableName, id);
+                self.logger.error('Error while fetching %s, id: %s', self.tableName, id);
                 throw(error);
             });
     }
 
     search(searchQuery:Object, options?:Object):q.Promise<any>
     {
-        var that = this, values = [], whereStatements = [], selectColumns;
+        var self = this, values = [], whereStatements = [], selectColumns;
 
         for (var key in searchQuery)
         {
@@ -126,7 +126,7 @@ class BaseDao implements IDao
 
         return MysqlDelegate.executeQuery(queryString, values)
             .then(
-                function handleSearchResults(results:Array<any>) { return _.map(results, function(result) { return new that.modelClass(result); }); }
+                function handleSearchResults(results:Array<any>) { return _.map(results, function(result) { return new self.modelClass(result); }); }
             );
     }
 

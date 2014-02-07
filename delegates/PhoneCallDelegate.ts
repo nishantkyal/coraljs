@@ -65,7 +65,7 @@ class PhoneCallDelegate extends BaseDAODelegate
 
     updateCallStatus(phoneCallId:number, newStatus:CallStatus):q.Promise<any>
     {
-        var that = this;
+        var self = this;
         var callerUserId:number;
         var expertUserId:number;
 
@@ -78,7 +78,7 @@ class PhoneCallDelegate extends BaseDAODelegate
                 var status = call.status;
 
                 if (PhoneCallDelegate.ALLOWED_NEXT_STATUS[status].indexOf(newStatus) != -1)
-                    return that.update({'id': phoneCallId}, {'status': newStatus});
+                    return self.update({'id': phoneCallId}, {'status': newStatus});
                 else
                 {
                     var newStatusString = CallStatus[newStatus];

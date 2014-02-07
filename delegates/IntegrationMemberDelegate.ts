@@ -47,7 +47,7 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
     findValidAccessToken(accessToken:string, integrationMemberId?:string):q.Promise<any>
     {
         var accessTokenCache = new AccessTokenCache();
-        var that = this;
+        var self = this;
 
         function tokenFetched(result)
         {
@@ -65,8 +65,8 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
             function tokenFromCacheError(error)
             {
                 // Try fetching from database
-                that.logger.debug("Couldn't get token details from cache, hitting db, Error: " + error);
-                return that.search({'access_token': accessToken}, [])
+                self.logger.debug("Couldn't get token details from cache, hitting db, Error: " + error);
+                return self.search({'access_token': accessToken}, [])
                     .then(tokenFetched)
             }
         );

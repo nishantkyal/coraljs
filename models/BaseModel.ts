@@ -19,7 +19,7 @@ class BaseModel
     {
         var thisProtoConstructor = this.__proto__.constructor;
         thisProtoConstructor['COLUMNS'] = thisProtoConstructor['COLUMNS'] || [];
-        var that = this;
+        var self = this;
 
         if (thisProtoConstructor['COLUMNS'].length == 0)
             for (var classProperty in this.__proto__)
@@ -30,7 +30,7 @@ class BaseModel
                 }
 
         _.each (thisProtoConstructor['COLUMNS'], function(column:string) {
-            that[column] = data[column];
+            self[column] = data[column];
         });
     }
 
@@ -49,10 +49,10 @@ class BaseModel
     getData():Object
     {
         var thisProtoConstructor = this.__proto__.constructor;
-        var that = this;
+        var self = this;
         var data = {};
         _.each (thisProtoConstructor['COLUMNS'], function(column:string) {
-            data[column] = that[column];
+            data[column] = self[column];
         });
         return data;
     }

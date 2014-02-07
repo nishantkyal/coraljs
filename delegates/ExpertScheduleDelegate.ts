@@ -23,7 +23,7 @@ class ExpertScheduleDelegate extends BaseDAODelegate
     /* Get schedules for expert */
     getSchedulesForExpert(expertId:number, startTime?:number, endTime?:number):q.Promise<any>
     {
-        var that = this;
+        var self = this;
         var schedules = [];
 
         var isStartTimeEmpty = Utils.isNullOrEmpty(startTime);
@@ -42,7 +42,7 @@ class ExpertScheduleDelegate extends BaseDAODelegate
 
         // 1. Search schedules
         // 2. If no schedules, try creating them based on defined rules for the period (if defined)
-        return that.getDao().search(
+        return self.getDao().search(
             {
                 'integration_member_id': expertId,
                 'start_time': {
@@ -55,7 +55,7 @@ class ExpertScheduleDelegate extends BaseDAODelegate
             {
                 schedules = s;
                 if (schedules.length == 0 && startTime && endTime)
-                    return that.createSchedulesForExpert(expertId, startTime, endTime);
+                    return self.createSchedulesForExpert(expertId, startTime, endTime);
                 else
                     return schedules;
             });
@@ -65,7 +65,7 @@ class ExpertScheduleDelegate extends BaseDAODelegate
     /* Create new schedule */
     create(object:any, transaction?:any):q.Promise<any>
     {
-        var that = this;
+        var self = this;
 
         // Don't create if schedule with same details already exists
         return this.search(object)
@@ -73,7 +73,7 @@ class ExpertScheduleDelegate extends BaseDAODelegate
             function handleScheduleSearched(schedules:Array<ExpertSchedule>)
             {
                 if (schedules.length == 0)
-                    return that.getDao().create(object, transaction);
+                    return self.getDao().create(object, transaction);
                 else
                     throw('Schedule already exists with the same details');
             }
@@ -85,7 +85,7 @@ class ExpertScheduleDelegate extends BaseDAODelegate
         var rules = [];
         var transaction;
         var schedules = [];
-        var that = this;
+        var self = this;
 
         return new ExpertScheduleRuleDelegate().getRulesByIntegrationMemberId(integrationMemberId)
             .then(
@@ -100,12 +100,12 @@ class ExpertScheduleDelegate extends BaseDAODelegate
                             transaction = t;
                             _.each(rules, function (rule:ExpertScheduleRule)
                             {
-                                schedules = schedules.concat(that.generateSchedules(rule, integrationMemberId, startTime, endTime));
+                                schedules = schedules.concat(self.generateSchedules(rule, integrationMemberId, startTime, endTime));
                             });
 
                             return q.all(_.map(schedules, function (schedule:ExpertSchedule)
                             {
-                                return that.create(schedule, transaction);
+                                return self.create(schedule, transaction);
                             }));
                         })
                         .then(

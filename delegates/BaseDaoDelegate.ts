@@ -18,7 +18,7 @@ class BaseDaoDelegate {
 
     get(id:any, fields?:string[], includes?:string[]):q.Promise<any>
     {
-        var that = this;
+        var self = this;
         includes = includes || [];
         var rawResult;
 
@@ -33,7 +33,7 @@ class BaseDaoDelegate {
                 var includeTasks = [];
                 _.each(includes, function (flag) {
                     var handler;
-                    if (handler = that.getIncludeHandler(flag, result))
+                    if (handler = self.getIncludeHandler(flag, result))
                         includeTasks.push(handler);
                 });
                 return q.all(includeTasks);
@@ -47,7 +47,7 @@ class BaseDaoDelegate {
             });
     }
 
-    /* Abstract method that defines how flags are handled in get query */
+    /* Abstract method self defines how flags are handled in get query */
     getIncludeHandler(include:string, result:any):q.Promise<any> { return null; }
 
     /**

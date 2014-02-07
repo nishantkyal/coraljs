@@ -28,7 +28,7 @@ class EmailDelegate
 
     sendCallStatusUpdateNotifications(callerUserId:number, expertId:number, status:CallStatus):q.Promise<any>
     {
-        var that = this;
+        var self = this;
 
         // 1. Get expert's user id
         // 2. Get emails for caller and expert
@@ -55,8 +55,8 @@ class EmailDelegate
                     // TODO: Implement all call status emails
                     case CallStatus.POSTPONED:
                         return q.all([
-                            that.send(),
-                            that.send()
+                            self.send(),
+                            self.send()
                         ]);
                         break;
                 }
