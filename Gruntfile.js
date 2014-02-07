@@ -8,12 +8,18 @@ module.exports = function (grunt) {
                 footer: '}'
             },
             dist: {
-                src: ['ts/enums/*.d.ts', 'ts/models/*.d.ts', 'ts/delegates/ApiUrlDelegate.d.ts', 'ts/common/*.d.ts'],
+                src: ['enums/*.d.ts', 'models/*.d.ts', 'delegates/ApiUrlDelegate.d.ts', 'common/*.d.ts'],
                 dest: 'Coral.d.ts'
             }
         },
+        'generate-index': {
+            target: {
+                src: ['enums/*.js', 'models/*.js', 'delegates/ApiUrlDelegate.js', 'common/*.js'],
+                dest: 'index.js'
+            }
+        },
         replace: {
-            coral: {
+            'coral-ts': {
                 src: ['Coral.d.ts'],
                 overwrite: true,
                 replacements: [
@@ -35,22 +41,22 @@ module.exports = function (grunt) {
                     }
                 ]
             }
-        },
-        ts: {
-            dev: {
-                src: ['**/*.ts', '*.ts'],
-                reference: 'Coral.d.ts',
-                outDir: 'ts',
-                options: {
-                    module: 'commonjs',
-                    declaration: true
-                }
-            }
         }
+    });
+
+    // our example task
+    grunt.registerMultiTask('generate-index', function() {
+        this.files.forEach(function(file) {
+            var output = file.src.map(function(filepath) {
+                var filename = filepath.match(/\/([A-Za-z]*)\.js/);
+                return 'exports.' + filename[1] + ' = require("./' + filepath + '");';
+            }).join('\n');
+            grunt.file.write(file.dest, output);
+        });
     });
 
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-text-replace');
-    grunt.registerTask('default', ['clean', 'concat', 'replace']);
+    grunt.registerTask('default', ['clean', 'concat', 'replace', 'generate-index']);
 };

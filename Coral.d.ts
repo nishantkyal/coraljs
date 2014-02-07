@@ -1,5 +1,25 @@
 declare module 'Coral'
 {
+export class ApiFlags {
+    static INCLUDE_INTEGRATION: string;
+    static INCLUDE_USER: string;
+    static INCLUDE_INTEGRATION_MEMBER: string;
+    static INCLUDE_INTEGRATION_MEMBER_USER: string;
+    static INCLUDE_SCHEDULES: string;
+}
+
+
+export enum CallStatus {
+    PLANNING = 0,
+    SCHEDULED = 1,
+    IN_PROGRESS = 2,
+    COMPLETED = 3,
+    CANCELLED = 4,
+    POSTPONED = 5,
+    FAILED = 6,
+}
+
+
 export enum IntegrationMemberRole {
     OWNER = 1,
     ADMIN = 2,
@@ -136,15 +156,6 @@ export class ExpertScheduleRule extends BaseModel {
 
 
 
-export class ForeignKey {
-    public srcKey: string;
-    public model: typeof BaseModel;
-    public targetKey: string;
-    constructor(srcKey: string, model: typeof BaseModel, targetKey: string);
-}
-
-
-
 export class Integration extends BaseModel {
     static TABLE_NAME: string;
     private title;
@@ -196,51 +207,6 @@ export class IntegrationMember extends BaseModel {
     public setAccessTokenExpiry(val: string): void;
     public setRefreshToken(val: string): void;
     public setRefreshTokenExpiry(val: string): void;
-}
-
-
-
-export class Payment extends BaseModel {
-    static TABLE_NAME: string;
-    private user_id;
-    private amount;
-    private update_date;
-    private transaction_id;
-    private status;
-    public getUserId(): number;
-    public getAmount(): number;
-    public getUpdateDate(): number;
-    public getTransactionId(): string;
-    public getStatus(): number;
-    public setUserId(val: number): void;
-    public setAmount(val: number): void;
-    public setUpdateDate(val: number): void;
-    public setTransactionId(val: string): void;
-    public setStatus(val: number): void;
-}
-
-
-
-export class PayoutDetail extends BaseModel {
-    static TABLE_NAME: string;
-    private user_id;
-    private mode;
-    private account_holder_name;
-    private account_num;
-    private ifsc_code;
-    private bank_name;
-    public getUserId(): number;
-    public getMode(): number;
-    public getAccountHolderName(): string;
-    public getAccountNum(): string;
-    public getIfscCode(): string;
-    public getBankName(): string;
-    public setUserId(val: number): void;
-    public setMode(val: number): void;
-    public setAccountHolderName(val: string): void;
-    public setAccountNum(val: string): void;
-    public setIfscCode(val: string): void;
-    public setBankName(val: string): void;
 }
 
 
@@ -377,30 +343,6 @@ export class Transaction extends BaseModel {
 
 
 
-export class TransactionLine extends BaseModel {
-    static TABLE_NAME: string;
-    private transaction_id;
-    private product_id;
-    private product_type;
-    private transaction_type;
-    private amount;
-    private amount_unit;
-    public getTransactionId(): number;
-    public getProductId(): number;
-    public getProductType(): number;
-    public getTransactionType(): number;
-    public getAmount(): number;
-    public getAmountUnit(): number;
-    public setTransactionId(val: number): void;
-    public setProductId(val: number): void;
-    public setProductType(val: number): void;
-    public setTransactionType(val: number): void;
-    public setAmount(val: number): void;
-    public setAmountUnit(val: number): void;
-}
-
-
-
 export class User extends BaseModel {
     static TABLE_NAME: string;
     private first_name;
@@ -517,11 +459,9 @@ export class Config {
 
 
 
-
 export class Utils {
     static getRandomString(length: number, characters?: string): string;
     static getRandomInt(min: any, max: any): any;
-    static getRejectedPromise(errorMessage: string): q.Promise<any>;
     static isNullOrEmpty(str: any): boolean;
     static getClassName(object: Object): string;
     static copyProperties(source: any, target: any): void;
