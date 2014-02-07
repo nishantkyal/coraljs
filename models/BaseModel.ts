@@ -51,9 +51,9 @@ class BaseModel
         var thisProtoConstructor = this.__proto__.constructor;
         var that = this;
         var data = {};
-        /*_.each (thisProtoConstructor['COLUMNS'], function(column) {
+        _.each (thisProtoConstructor['COLUMNS'], function(column:string) {
             data[column] = that[column];
-        });*/
+        });
         return data;
     }
 

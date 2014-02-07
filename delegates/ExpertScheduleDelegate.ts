@@ -68,7 +68,7 @@ class ExpertScheduleDelegate extends BaseDAODelegate
         var that = this;
 
         // Don't create if schedule with same details already exists
-        return super.search(object)
+        return this.search(object)
             .then(
             function handleScheduleSearched(schedules:Array<ExpertSchedule>)
             {

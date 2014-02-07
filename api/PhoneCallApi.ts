@@ -1,6 +1,6 @@
 var json2xml                = require('json2xml');
 import express              = require('express');
-import ApiConstants         = require('./ApiConstants');
+import ApiConstants         = require('../enums/ApiConstants');
 import ApiUrlDelegate       = require('../delegates/ApiUrlDelegate');
 import PhoneCallDelegate    = require('../delegates/PhoneCallDelegate');
 import AccessControl        = require('../middleware/AccessControl');

@@ -1,3 +1,5 @@
+import url                                      = require('url');
+
 /**
  * Class to hold all API URLs
  * Used to keep API URLs consistent between SearchNTalk and Coral
@@ -5,11 +7,13 @@
  */
 class ApiUrlDelegate
 {
+    static BASE_URL:string = null;
+
     /* URL patterns for expert API */
     static expert():string { return this.get('/rest/expert'); }
     static expertById(expertId?:number):string { return this.get('/rest/expert/:expertId', {expertId: expertId}); }
     static expertActivitySummary(expertId?:number):string { return this.get('/rest/expert/:expertId/activity/summary', {expertId: expertId}); }
-N
+
     /* URL patterns for user API */
     static user():string { return this.get('/rest/user'); }
     static userAuthentication():string { return this.get('/rest/user/authentication'); }
@@ -92,7 +96,7 @@ N
             for (var key in values)
                 if (values[key] != null)
                     urlPattern = urlPattern.replace(new RegExp(':' + key), values[key])
-        return urlPattern
+        return url.resolve(ApiUrlDelegate.BASE_URL, urlPattern);
     }
 }
 export = ApiUrlDelegate

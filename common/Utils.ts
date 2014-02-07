@@ -74,7 +74,7 @@ class Utils
     }
 
     static surroundWithQuotes(val:any):string{
-        if (Utils.getObjectType(val) != 'String')
+        if (Utils.getObjectType(val) == 'String')
             return "'" + val + "'";
         return val;
     }

@@ -1,5 +1,35 @@
 declare module 'Coral'
 {
+export class ApiConstants {
+    static FIELDS: string;
+    static FILTERS: string;
+    static INCLUDE: string;
+    static ROLE: string;
+    static USER_ID: string;
+    static EXPERT_ID: string;
+    static INTEGRATION_ID: string;
+    static PROFILE_TYPE: string;
+    static USERNAME: string;
+    static PASSWORD: string;
+    static PHONE_NUMBER_ID: string;
+    static PHONE_CALL_ID: string;
+    static SCHEDULE_ID: string;
+    static SCHEDULE_RULE_ID: string;
+    static START_TIME: string;
+    static END_TIME: string;
+    static USER: string;
+    static OAUTH: string;
+    static INTEGRATION: string;
+    static INTEGRATION_MEMBER: string;
+    static EXPERT: string;
+    static PHONE_NUMBER: string;
+    static PHONE_CALL: string;
+    static SCHEDULE: string;
+    static SCHEDULE_RULE: string;
+    static SMS: string;
+}
+
+
 export class ApiFlags {
     static INCLUDE_INTEGRATION: string;
     static INCLUDE_USER: string;
@@ -399,10 +429,10 @@ export class UserOauth extends BaseModel {
 
 
 export class ApiUrlDelegate {
+    static BASE_URL: string;
     static expert(): string;
     static expertById(expertId?: number): string;
     static expertActivitySummary(expertId?: number): string;
-    public N: any;
     static user(): string;
     static userAuthentication(): string;
     static userById(userId?: number): string;

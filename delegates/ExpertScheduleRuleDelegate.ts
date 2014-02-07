@@ -11,25 +11,24 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
 {
     getDao():IDao { return new ExpertScheduleRuleDao(); }
 
-    /*create(scheduleRule:any, transaction?:any):q.Promise<any>
+    create(scheduleRule:any, transaction?:any):q.Promise<any>
     {
-        var s = super;
-
+        var self = this;
         var expertScheduleRuleDao:any = this.getDao();
 
         return expertScheduleRuleDao.findConflictingScheduleRules(scheduleRule.getRepeatStart(), scheduleRule.getRepeatEnd(), scheduleRule.getIntegrationMemberId())
             .then(
-            function schedulesSearched(schedules:Array)
+            function schedulesSearched(schedules:Array<ExpertScheduleRule>)
             {
                 if (schedules.length != 0)
-                    return s.create(scheduleRule, transaction);
+                    return self.getDao().create(scheduleRule, transaction);
                 else
                     throw {
                         'message': 'Conflicting schedule rules found',
                         'conflicts': schedules
                     };
             });
-    }*/
+    }
 
     getRulesByIntegrationMemberId(integrationMemberId:number):q.Promise<any>
     {

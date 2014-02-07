@@ -64,7 +64,7 @@ class BaseDaoDelegate {
         return this.getDao().search(search, options);
     }
 
-    create(object:Object, transaction?:any):q.Promise<any>
+    create(object:any, transaction?:any):q.Promise<any>
     {
         // Compose insert statement based on data
         var generatedId:number = new GlobalIdDelegate().generate(this.getDao().getModel().TABLE_NAME);

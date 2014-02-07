@@ -1,6 +1,6 @@
 import express                      = require('express');
 import _                            = require('underscore');
-import ApiConstants                 = require('./ApiConstants');
+import ApiConstants                 = require('../enums/ApiConstants');
 import ApiUrlDelegate               = require('../delegates/ApiUrlDelegate');
 import UserDelegate                 = require('../delegates/UserDelegate');
 import UserOAuthDelegate            = require('../delegates/UserOAuthDelegate');

@@ -1,7 +1,7 @@
 ///<reference path='../_references.d.ts'/>
 import express                      = require('express');
 import json2xml                     = require('json2xml');
-import ApiConstants                 = require('./ApiConstants');
+import ApiConstants                 = require('../enums/ApiConstants');
 import IntegrationMemberDelegate    = require('../delegates/IntegrationMemberDelegate');
 import TwilioDelegate               = require('../delegates/calling/TwilioDelegate');
 import PhoneCallDelegate            = require('../delegates/PhoneCallDelegate');
