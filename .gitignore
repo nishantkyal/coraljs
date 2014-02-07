@@ -1,5 +1,4 @@
-.idea/
 *.js.map
-/*.js
+*.js
 !Gruntfile.js
-ts/
+*.d.ts

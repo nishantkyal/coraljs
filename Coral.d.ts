@@ -1,27 +1,5 @@
-///<reference path='./_references.d.ts'/>
 declare module 'Coral'
-{import q                                       = require('q');
-export class ApiFlags {
-    static INCLUDE_INTEGRATION: string;
-    static INCLUDE_USER: string;
-    static INCLUDE_INTEGRATION_MEMBER: string;
-    static INCLUDE_INTEGRATION_MEMBER_USER: string;
-    static INCLUDE_PROFILE: string;
-    static INCLUDE_SCHEDULES: string;
-}
-
-
-export enum CallStatus {
-    PLANNING = 0,
-    SCHEDULED = 1,
-    IN_PROGRESS = 2,
-    COMPLETED = 3,
-    CANCELLED = 4,
-    POSTPONED = 5,
-    FAILED = 6,
-}
-
-
+{
 export enum IntegrationMemberRole {
     OWNER = 1,
     ADMIN = 2,
@@ -52,16 +30,6 @@ export enum SMSStatus {
 }
 
 
-export enum UserSetting {
-    PASSWORD_RESET_TOKEN = 0,
-    PASSWORD_RESET_TOKEN_EXPIRY = 1,
-    EMAIL_VERIFICATION_TOKEN = 2,
-    EMAIL_VERIFICATION_TOKEN_EXPIRY = 3,
-    MOBILE_VERIFICATION_TOKEN = 4,
-    MOBILE_VERIFICATION_TOKEN_EXPIRY = 5,
-}
-
-
 
 export class BaseModel {
     static TABLE_NAME: string;
@@ -83,7 +51,7 @@ export class BaseModel {
 }
 
 
-import BaseModel = require('./BaseModel');
+
 export class Email extends BaseModel {
     static TABLE_NAME: string;
     private recipient_email;
@@ -107,20 +75,8 @@ export class Email extends BaseModel {
 }
 
 
-import IntegrationMember = require('./IntegrationMember');
-export class Expert extends IntegrationMember {
-    static TABLE_NAME: string;
-    private revenue_share;
-    private revenue_share_unit;
-    public getRevenueShare(): number;
-    public getRevenueShareUnit(): number;
-    public setRevenueShare(val: any): void;
-    public setRevenueShareUnit(val: any): void;
-}
 
 
-import BaseModel = require('./BaseModel');
-import MoneyUnit = require('../enums/MoneyUnit');
 export class ExpertSchedule extends BaseModel {
     static TABLE_NAME: string;
     private schedule_rule_id;
@@ -147,8 +103,8 @@ export class ExpertSchedule extends BaseModel {
 }
 
 
-import BaseModel = require('./BaseModel');
-import MoneyUnit = require('../enums/MoneyUnit');
+
+
 export class ExpertScheduleRule extends BaseModel {
     static TABLE_NAME: string;
     public integration_member_id: number;
@@ -179,7 +135,16 @@ export class ExpertScheduleRule extends BaseModel {
 }
 
 
-import BaseModel = require('./BaseModel');
+
+export class ForeignKey {
+    public srcKey: string;
+    public model: typeof BaseModel;
+    public targetKey: string;
+    constructor(srcKey: string, model: typeof BaseModel, targetKey: string);
+}
+
+
+
 export class Integration extends BaseModel {
     static TABLE_NAME: string;
     private title;
@@ -203,7 +168,7 @@ export class Integration extends BaseModel {
 }
 
 
-import BaseModel = require('./BaseModel');
+
 export class IntegrationMember extends BaseModel {
     static TABLE_NAME: string;
     private integration_id;
@@ -234,7 +199,7 @@ export class IntegrationMember extends BaseModel {
 }
 
 
-import BaseModel = require('./BaseModel');
+
 export class Payment extends BaseModel {
     static TABLE_NAME: string;
     private user_id;
@@ -255,7 +220,7 @@ export class Payment extends BaseModel {
 }
 
 
-import BaseModel = require('./BaseModel');
+
 export class PayoutDetail extends BaseModel {
     static TABLE_NAME: string;
     private user_id;
@@ -279,7 +244,7 @@ export class PayoutDetail extends BaseModel {
 }
 
 
-import BaseModel = require('./BaseModel');
+
 export class PhoneCall extends BaseModel {
     static TABLE_NAME: string;
     private caller_id;
@@ -331,7 +296,7 @@ export class PhoneCall extends BaseModel {
 }
 
 
-import BaseModel = require('./BaseModel');
+
 export class PhoneNumber extends BaseModel {
     static TABLE_NAME: string;
     private user_id;
@@ -360,8 +325,8 @@ export class PhoneNumber extends BaseModel {
 
 
 
-import BaseModel = require('./BaseModel');
-import Priority = require('../enums/Priority');
+
+
 export class SMS extends BaseModel {
     static TABLE_NAME: string;
     private country_code;
@@ -393,7 +358,7 @@ export class SMS extends BaseModel {
 }
 
 
-import BaseModel = require('./BaseModel');
+
 export class Transaction extends BaseModel {
     static TABLE_NAME: string;
     private user_id;
@@ -411,7 +376,7 @@ export class Transaction extends BaseModel {
 }
 
 
-import BaseModel = require('./BaseModel');
+
 export class TransactionLine extends BaseModel {
     static TABLE_NAME: string;
     private transaction_id;
@@ -435,7 +400,7 @@ export class TransactionLine extends BaseModel {
 }
 
 
-import BaseModel = require('./BaseModel');
+
 export class User extends BaseModel {
     static TABLE_NAME: string;
     private first_name;
@@ -463,7 +428,7 @@ export class User extends BaseModel {
 }
 
 
-import BaseModel = require('./BaseModel');
+
 export class UserOauth extends BaseModel {
     static TABLE_NAME: string;
     private user_id;
@@ -495,6 +460,7 @@ export class ApiUrlDelegate {
     static expert(): string;
     static expertById(expertId?: number): string;
     static expertActivitySummary(expertId?: number): string;
+    public N: any;
     static user(): string;
     static userAuthentication(): string;
     static userById(userId?: number): string;
@@ -551,7 +517,7 @@ export class Config {
 
 
 
-import q = require('q');
+
 export class Utils {
     static getRandomString(length: number, characters?: string): string;
     static getRandomInt(min: any, max: any): any;

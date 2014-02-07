@@ -6,4 +6,4 @@ class UserDao extends BaseDao
 {
     getModel():typeof BaseModel { return User; }
 }
-export = User
+export = UserDao

@@ -7,6 +7,8 @@
 ///<reference path='../DefinitelyTyped/json2xml/json2xml.d.ts'/>
 ///<reference path='../DefinitelyTyped/node_redis/node_redis.d.ts'/>
 ///<reference path='../DefinitelyTyped/passportjs/passport.d.ts'/>
+///<reference path='../DefinitelyTyped/passportjs/passport-facebook.d.ts'/>
+///<reference path='../DefinitelyTyped/passportjs/passport-http-bearer.d.ts'/>
 ///<reference path='../DefinitelyTyped/node-mysql/mysql.d.ts'/>
 ///<reference path='../DefinitelyTyped/twilio/twilio.d.ts'/>
 ///<reference path='../DefinitelyTyped/i18n/i18n.d.ts'/>

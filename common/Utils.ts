@@ -1,5 +1,4 @@
 ///<reference path='../_references.d.ts'/>
-import q                = require('q');
 import log4js           = require('log4js');
 import _                = require('underscore');
 
@@ -27,7 +26,6 @@ class Utils
     /**
      * Get a promise that'll get rejected in next tick
      *  Used when we need to cancel an operation for invalid input
-     */
     static getRejectedPromise(errorMessage:string):q.Promise<any>
     {
         var deferred = q.defer();
@@ -36,6 +34,7 @@ class Utils
         });
         return deferred.promise;
     }
+    */
 
     static isNullOrEmpty(str:any):boolean
     {

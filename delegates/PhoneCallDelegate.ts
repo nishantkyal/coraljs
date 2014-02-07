@@ -32,13 +32,13 @@ class PhoneCallDelegate extends BaseDAODelegate
     callsByUser(user_id:string, filters:Object, fields?:string[]):q.Promise<any>
     {
         filters['user_id'] = user_id;
-        return (_.keys(filters).length == 1) ? Utils.getRejectedPromise('Invalid filters') : this.getDao().search(filters, {'fields': fields});
+        return this.getDao().search(filters, {'fields': fields});
     }
 
     callsToExpert(expert_id:string, filters:Object, fields?:string[]):q.Promise<any>
     {
         filters['expert_id'] = expert_id;
-        return (_.keys(filters).length == 1) ? Utils.getRejectedPromise('Invalid filters') : this.getDao().search(filters, {'fields': fields});
+        return this.getDao().search(filters, {'fields': fields});
     }
 
     create(object:any, transaction?:any):q.Promise<any>

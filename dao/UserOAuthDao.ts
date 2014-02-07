@@ -5,7 +5,7 @@ import BaseModel                = require('../models/BaseModel');
 import UserOauth                = require('../models/UserOauth');
 import MysqlDelegate            = require('../delegates/MysqlDelegate');
 
-class UserAuthDao extends BaseDao
+class UserOAuthDao extends BaseDao
 {
 
     static TABLE_NAME:string = 'user_oauth'
@@ -43,10 +43,10 @@ class UserAuthDao extends BaseDao
         values.push(userOAuth.getProviderId());
         values.push(userOAuth.getOauthUserId());
 
-        var query = 'UPDATE ' + UserAuthDao.TABLE_NAME + ' SET ' + updateFields.join(',') + ' WHERE provider_id = ? AND oauth_user_id = ?';
+        var query = 'UPDATE ' + UserOAuthDao.TABLE_NAME + ' SET ' + updateFields.join(',') + ' WHERE provider_id = ? AND oauth_user_id = ?';
         return MysqlDelegate.executeQuery(query, values);
     }
 
     getModel():typeof BaseModel { return UserOauth; }
 }
-export = UserOauth
+export = UserOAuthDao

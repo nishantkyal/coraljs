@@ -64,6 +64,5 @@ class EmailDelegate
                 return null;
             });
     }
-
 }
 export = EmailDelegate

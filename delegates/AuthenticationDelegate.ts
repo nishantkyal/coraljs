@@ -1,5 +1,7 @@
 ///<reference path='../_references.d.ts'/>
 import passport                             = require("passport");
+import passport_http_bearer                 = require("passport-http-bearer");
+import passport_facebook                    = require("passport-facebook");
 import IntegrationMemberDelegate            = require('../delegates/IntegrationMemberDelegate');
 import IntegrationMember                    = require('../models/IntegrationMember');
 

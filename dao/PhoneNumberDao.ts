@@ -6,4 +6,4 @@ class PhoneNumberDao extends BaseDao
 {
     getModel():typeof BaseModel { return PhoneNumber; }
 }
-export = PhoneNumber
+export = PhoneNumberDao

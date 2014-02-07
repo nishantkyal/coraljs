@@ -4,7 +4,7 @@ module.exports = function (grunt) {
         clean: ['Coral.d.ts'],
         concat: {
             options: {
-                banner: "///<reference path='./_references.d.ts'/>\ndeclare module 'Coral'\n{import q                                       = require('q');\n",
+                banner: "declare module 'Coral'\n{\n",
                 footer: '}'
             },
             dist: {
@@ -30,7 +30,7 @@ module.exports = function (grunt) {
                         to: ''
                     },
                     {
-                        from: /^import.*/g,
+                        from: /import.*/g,
                         to: ''
                     }
                 ]
