@@ -1,6 +1,5 @@
 .idea/
 *.js.map
 /*.js
-!index.js
-!Utils.js
+!Gruntfile.js
 ts/

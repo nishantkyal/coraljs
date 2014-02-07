@@ -1,489 +1,6 @@
-declare module "Coral"
-{
-export class ApiUrlDelegate {
-    static expert(): string;
-    static expertById(expertId?: number): string;
-    static expertActivitySummary(expertId?: number): string;
-    static user(): string;
-    static userAuthentication(): string;
-    static userById(userId?: number): string;
-    static userPasswordResetToken(userId?: number): string;
-    static emailVerificationToken(userId?: number): string;
-    static mobileVerificationToken(): string;
-    static userIntegrationDetails(userId?: number, integrationId?: number): string;
-    static userActivitySummary(userId?: number): string;
-    static userTransactionBalance(userId?: number): string;
-    static userOAuth(): string;
-    static userOAuthToken(userId?: number, type?: string): string;
-    static decision(): string;
-    static token(): string;
-    static schedule(): string;
-    static scheduleById(scheduleId?: number): string;
-    static scheduleByExpert(expertId?: number): string;
-    static scheduleRule(): string;
-    static scheduleRuleById(scheduleRuleId?: number): string;
-    static scheduleRuleByExpert(expertId?: number): string;
-    static integration(): string;
-    static integrationById(integrationId?: number): string;
-    static integrationSecretReset(integrationId?: number): string;
-    static integrationMember(integrationId?: number): string;
-    static integrationMemberById(integrationId?: number, memberId?: number): string;
-    static ownerActivitySummary(integrationId?: number): string;
-    static payment(): string;
-    static paymentById(paymentId?: number): string;
-    static payoutDetail(): string;
-    static payoutDetailById(payoutDetailId?: number): string;
-    static phoneCall(): string;
-    static phoneCallById(callId?: number): string;
-    static phoneCallReschedule(callId?: number): string;
-    static phoneCallCancel(callId?: number): string;
-    static phoneNumber(): string;
-    static phoneNumberById(phoneNumberId?: number): string;
-    static transaction(): string;
-    static transactionById(transactionId?: number): string;
-    static transactionItem(transactionId?: number): string;
-    static transactionItemById(transactionId?: number, itemId?: number): string;
-    static sms(): string;
-    static twiml(): string;
-    static twimlJoinConference(): string;
-    static twimlCallExpert(callId?: number): string;
-    static twimlCall(callId?: number): string;
-    private static get(urlPattern, values?);
-}
-
-
-
-export class Config {
-    private static ctor;
-    static get(key: string): any;
-}
-
-
-
-export class Utils {
-    static getRandomString(length: number, characters?: string): string;
-    static getRandomInt(min: any, max: any): any;
-    static getRejectedPromise(errorMessage: string): q.Promise<any>;
-    static isNullOrEmpty(str: any): boolean;
-    static getClassName(object: Object): string;
-    static copyProperties(source: any, target: any): void;
-    static camelToUnderscore(camelCasedString: string): string;
-    static getObjectType(obj: any): string;
-    static surroundWithQuotes(val: any): string;
-    static createSimpleObject(key: string, value: any): Object;
-}
-
-
-export class ApiConstants {
-    static FIELDS: string;
-    static FILTERS: string;
-    static INCLUDE: string;
-    static ROLE: string;
-    static USER_ID: string;
-    static EXPERT_ID: string;
-    static INTEGRATION_ID: string;
-    static PROFILE_TYPE: string;
-    static USERNAME: string;
-    static PASSWORD: string;
-    static PHONE_NUMBER_ID: string;
-    static PHONE_CALL_ID: string;
-    static SCHEDULE_ID: string;
-    static SCHEDULE_RULE_ID: string;
-    static START_TIME: string;
-    static END_TIME: string;
-    static USER: string;
-    static OAUTH: string;
-    static INTEGRATION: string;
-    static INTEGRATION_MEMBER: string;
-    static EXPERT: string;
-    static PHONE_NUMBER: string;
-    static PHONE_CALL: string;
-    static SCHEDULE: string;
-    static SCHEDULE_RULE: string;
-    static SMS: string;
-}
-
-
-
-export class ExpertApi {
-    constructor(app: any);
-}
-
-
-
-export class ExpertScheduleApi {
-    constructor(app: any);
-}
-
-
-
-export class TwimlApi {
-    private static ROOT;
-    private static VERB_SAY;
-    private static VERB_PLAY;
-    private static VERB_DIAL;
-    private static VERB_RECORD;
-    private static VERB_GATHER;
-    private static VERB_SMS;
-    private static VERB_HANGUP;
-    private static VERB_QUEUE;
-    private static VERB_REDIRECT;
-    private static VERB_PAUSE;
-    private static VERB_REJECT;
-    private static PARAM_DIGITS;
-    constructor(app: any);
-}
-
-
-
-
-export class AccessTokenCache {
-    public getAccessTokenDetails(token: string): q.Promise<any>;
-    public addToken(integrationMember: IntegrationMember, expireAfter?: number): q.Promise<any>;
-    public removeToken(token: string): q.Promise<any>;
-}
-
-
-
-export class CacheHelper {
-    private static connection;
-    private static getConnection();
-    static set(key: any, value: any, expiry?: number): q.Promise<any>;
-    static get(key: any): q.Promise<any>;
-    static del(key: any): q.Promise<any>;
-    static createHash(set: any, values: any, keyFieldName: any, expiry: any): q.Promise<any>;
-    static addToHash(set: any, key: any, value: any): q.Promise<any>;
-    static getHashValues(set: any): q.Promise<any>;
-    static getHashKeys(set: any): q.Promise<any>;
-    static getFromHash(set: any, key: any): q.Promise<any>;
-    static delFromHash(set: any, key: any): q.Promise<any>;
-    static addToOrderedSet(set: any, key: any, value: any): q.Promise<any>;
-    static addMultipleToOrderedSet(set: any, values: any, keyFieldName: any): q.Promise<any>;
-    static getOrderedSet(set: any): q.Promise<any>;
-    static getFromOrderedSet(set: any, key: any): q.Promise<any>;
-    static delFromOrderedSet(set: any, key: any): q.Promise<any>;
-    static setExpiry(key: any, expiry: any): q.Promise<any>;
-}
-
-
-
-export class UnscheduledCallsCache {
-    private KEY;
-    public getUnscheduledCalls(expertId: number, scheduleId: number): q.Promise<any>;
-    public addUnscheduledCall(expertId: number, scheduleId: number, call: PhoneCall): q.Promise<any>;
-}
-
-
-export class VerificationCodeCache {
-    public createMobileVerificationCode(): q.Promise<any>;
-    public searchMobileVerificationCode(code: string, ref: string): q.Promise<any>;
-}
-
-
-
-export class Config {
-    private static ctor;
-    static get(key: string): any;
-}
-
-
-
-export class Utils {
-    static getRandomString(length: number, characters?: string): string;
-    static getRandomInt(min: any, max: any): any;
-    static getRejectedPromise(errorMessage: string): q.Promise<any>;
-    static isNullOrEmpty(str: any): boolean;
-    static getClassName(object: Object): string;
-    static copyProperties(source: any, target: any): void;
-    static camelToUnderscore(camelCasedString: string): string;
-    static getObjectType(obj: any): string;
-    static surroundWithQuotes(val: any): string;
-    static createSimpleObject(key: string, value: any): Object;
-}
-
-
-
-
-
-export class BaseDAO implements IDao {
-    public modelClass: any;
-    public tableName: string;
-    public logger: log4js.Logger;
-    constructor();
-    public create(data: any, transaction?: any): q.Promise<any>;
-    public get(id: any, fields?: string[]): q.Promise<any>;
-    public search(searchQuery: Object, options?: Object): q.Promise<any>;
-    public update(criteria: Object, newValues: Object, transaction?: any): q.Promise<any>;
-    public delete(id: string, softDelete?: boolean, transaction?: any): q.Promise<any>;
-    public getModel(): typeof BaseModel;
-}
-
-
-
-
-export class EmailDao extends BaseDao {
-    public getModel(): typeof BaseModel;
-}
-export class ExpertScheduleDao extends BaseDAO {
-    public getModel(): typeof BaseModel;
-    public findConflictingScheduleRules(startTime: number, endTime: number, integrationMemberId?: number): q.Promise<any>;
-}
-export class ExpertScheduleRuleDao extends BaseDao {
-    public getModel(): typeof BaseModel;
-}
-
-
-
-interface IDao {
-    create(data: any, transaction?: any): q.Promise<any>;
-    get(id: String, fields?: string[]): q.Promise<any>;
-    search(searchQuery: Object, options?: Object): q.Promise<any>;
-    update(criteria: Object, newValues: Object, transaction?: any): q.Promise<any>;
-    delete(id: string, softDelete: boolean, transaction?: any): q.Promise<any>;
-    getModel(): typeof BaseModel;
-}
-
-
-
-
-export class IntegrationDao extends BaseDAO {
-    static getAll(): q.Promise<any>;
-    static getModel(): typeof BaseModel;
-}
-
-
-
-
-export class IntegrationMemberDao extends BaseDAO {
-    public getModel(): typeof BaseModel;
-}
-
-
-
-
-export class PhoneCallDao extends BaseDAO {
-    public getModel(): typeof BaseModel;
-}
-
-
-
-
-export class UserDao extends BaseDAO {
-    public getModel(): typeof BaseModel;
-}
-
-
-export class ApiUrlDelegate {
-    static expert(): string;
-    static expertById(expertId?: number): string;
-    static expertActivitySummary(expertId?: number): string;
-    static user(): string;
-    static userAuthentication(): string;
-    static userById(userId?: number): string;
-    static userPasswordResetToken(userId?: number): string;
-    static emailVerificationToken(userId?: number): string;
-    static mobileVerificationToken(): string;
-    static userIntegrationDetails(userId?: number, integrationId?: number): string;
-    static userActivitySummary(userId?: number): string;
-    static userTransactionBalance(userId?: number): string;
-    static userOAuth(): string;
-    static userOAuthToken(userId?: number, type?: string): string;
-    static decision(): string;
-    static token(): string;
-    static schedule(): string;
-    static scheduleById(scheduleId?: number): string;
-    static scheduleByExpert(expertId?: number): string;
-    static scheduleRule(): string;
-    static scheduleRuleById(scheduleRuleId?: number): string;
-    static scheduleRuleByExpert(expertId?: number): string;
-    static integration(): string;
-    static integrationById(integrationId?: number): string;
-    static integrationSecretReset(integrationId?: number): string;
-    static integrationMember(integrationId?: number): string;
-    static integrationMemberById(integrationId?: number, memberId?: number): string;
-    static ownerActivitySummary(integrationId?: number): string;
-    static payment(): string;
-    static paymentById(paymentId?: number): string;
-    static payoutDetail(): string;
-    static payoutDetailById(payoutDetailId?: number): string;
-    static phoneCall(): string;
-    static phoneCallById(callId?: number): string;
-    static phoneCallReschedule(callId?: number): string;
-    static phoneCallCancel(callId?: number): string;
-    static phoneNumber(): string;
-    static phoneNumberById(phoneNumberId?: number): string;
-    static transaction(): string;
-    static transactionById(transactionId?: number): string;
-    static transactionItem(transactionId?: number): string;
-    static transactionItemById(transactionId?: number, itemId?: number): string;
-    static sms(): string;
-    static twiml(): string;
-    static twimlJoinConference(): string;
-    static twimlCallExpert(callId?: number): string;
-    static twimlCall(callId?: number): string;
-    private static get(urlPattern, values?);
-}
-
-
-
-
-
-export class BaseDaoDelegate {
-    public logger: log4js.Logger;
-    constructor();
-    public get(id: any, fields?: string[], includes?: string[]): q.Promise<any>;
-    public getIncludeHandler(include: string, result: any): q.Promise<any>;
-    public search(search: Object, options?: Object): q.Promise<any>;
-    public create(object: Object, transaction?: any): q.Promise<any>;
-    public update(criteria: Object, newValues: Object, transaction?: any): q.Promise<any>;
-    public delete(id: string, transaction?: any): q.Promise<any>;
-    public getDao(): IDao;
-}
-
-
-
-
-
-export class EmailDelegate {
-    public getDao(): IDao;
-    public send(): q.Promise<any>;
-    public sendCallStatusUpdateNotifications(callerUserId: number, expertId: number, status: CallStatus): q.Promise<any>;
-}
-
-
-
-
-
-
-
-export class ExpertScheduleDelegate extends BaseDAODelegate {
-    public getDao(): IDao;
-    public getSchedulesForExpert(expertId: number, startTime?: number, endTime?: number): q.Promise<any>;
-    public create(object: any, transaction?: any): q.Promise<any>;
-    public createSchedulesForExpert(integrationMemberId: number, startTime: number, endTime: number): q.Promise<any>;
-    public generateSchedules(rule: ExpertScheduleRule, integrationMemberId: number, startTime: number, endTime: number): ExpertSchedule[];
-    public getIncludeHandler(include: string, result: Object): q.Promise<any>;
-}
-
-
-
-
-export class ExpertScheduleRuleDelegate extends BaseDaoDelegate {
-    public getDao(): IDao;
-    public getRulesByIntegrationMemberId(integrationMemberId: number): q.Promise<any>;
-}
-
-
-
-export class GlobalIDDelegate {
-    static TIMESTAMP_SHIFT: number;
-    static OBJECT_TYPE_SHIFT: number;
-    static SHARD_SHIFT: number;
-    static OBJECT_TYPE_MASK: number;
-    static SHARD_MASK: number;
-    static SEQUENCE_MASK: number;
-    private static timestamp;
-    private static sequence;
-    private static types;
-    public generate(type: string, shardId?: number): number;
-}
-
-
-
-
-
-export class IntegrationDelegate extends BaseDaoDelegate {
-    public get(id: string, fields?: string[]): q.Promise<any>;
-    public getAll(): q.Promise<any>;
-    public getMultiple(ids: string[]): q.Promise<any>;
-    public resetSecret(integrationId: string): q.Promise<any>;
-    public getDao(): IDao;
-}
-
-
-
-
-
-export class IntegrationMemberDelegate extends BaseDaoDelegate {
-    public create(object: Object, transaction?: any): q.Promise<any>;
-    public get(id: any, fields?: string[], flags?: string[]): q.Promise<any>;
-    public getIntegrationsForUser(user_id: string, fields?: string[]): q.Promise<any>;
-    public findValidAccessToken(accessToken: string, integrationMemberId?: string): q.Promise<any>;
-    public updateById(id: string, integrationMember: IntegrationMember): q.Promise<any>;
-    public getDao(): IDao;
-    public getIncludeHandler(include: string, result: any): q.Promise<any>;
-}
-
-
-
-export class MysqlDelegate {
-    private static pool;
-    private static ctor;
-    static createConnection(): q.Promise<any>;
-    static getConnectionFromPool(): q.Promise<any>;
-    static beginTransaction(): q.Promise<any>;
-    static executeQuery(query: string, parameters?: any[], connection?: any): q.Promise<any>;
-    static commit(transaction: any, result?: any): q.Promise<any>;
-}
-
-
-
-
-
-
-export class PhoneCallDelegate extends BaseDAODelegate {
-    static ALLOWED_NEXT_STATUS: {
-        [s: number]: any[];
-    };
-    private unscheduledCallsCache;
-    private static ctor;
-    public callsByUser(user_id: string, filters: Object, fields?: string[]): q.Promise<any>;
-    public callsToExpert(expert_id: string, filters: Object, fields?: string[]): q.Promise<any>;
-    public create(object: any, transaction?: any): q.Promise<any>;
-    public search(search: Object, options?: Object): q.Promise<any>;
-    public update(criteria: Object, newValues: Object, transaction?: any): q.Promise<any>;
-    public updateCallStatus(phoneCallId: number, newStatus: CallStatus): q.Promise<any>;
-    public getIncludeHandler(include: string, result: PhoneCall): q.Promise<any>;
-    public getDao(): IDao;
-}
-
-
-
-
-
-export class UserDelegate extends BaseDaoDelegate {
-    public create(user?: Object, transaction?: any): q.Promise<any>;
-    public authenticate(mobileOrEmail: string, password: string): q.Promise<any>;
-    public update(id: string, user: Object): q.Promise<any>;
-    public createMobileVerificationToken(): q.Promise<any>;
-    public searchMobileVerificationToken(code: string, ref: string): q.Promise<any>;
-    public getDao(): IDao;
-}
-
-
-
-
-export class UserSettingDelegate extends BaseDaoDelegate {
-    public createPasswordResetToken(userId: string): q.Promise<any>;
-    public createEmailVerificationToken(userId: string): q.Promise<any>;
-    public getDao(): IDao;
-}
-
-
-interface ICallingVendorDelegate {
-    sendSMS(to: string, body: string, from?: string): q.Promise<any>;
-    makeCall(phone: string, url?: string): q.Promise<any>;
-}
-
-
-
-
-export class TwilioDelegate implements ICallingVendorDelegate {
-    public sendSMS(to: string, body: string, from?: string): q.Promise<any>;
-    public makeCall(phone: string, url?: string): q.Promise<any>;
-}
-
-
+///<reference path='./_references.d.ts'/>
+declare module 'Coral'
+{import q                                       = require('q');
 export class ApiFlags {
     static INCLUDE_INTEGRATION: string;
     static INCLUDE_USER: string;
@@ -519,6 +36,22 @@ export enum MoneyUnit {
 }
 
 
+export enum Priority {
+    HIGHEST = 0,
+    HIGH = 1,
+    NORMAL = 2,
+    LOW = 3,
+    LOWEST = 4,
+}
+
+
+export enum SMSStatus {
+    SCHEDULED = 0,
+    FAILED = 1,
+    RETRIED = 2,
+}
+
+
 export enum UserSetting {
     PASSWORD_RESET_TOKEN = 0,
     PASSWORD_RESET_TOKEN_EXPIRY = 1,
@@ -526,18 +59,6 @@ export enum UserSetting {
     EMAIL_VERIFICATION_TOKEN_EXPIRY = 3,
     MOBILE_VERIFICATION_TOKEN = 4,
     MOBILE_VERIFICATION_TOKEN_EXPIRY = 5,
-}
-
-
-
-export class AccessControl {
-    private static logger;
-    static allowOwner(req: any, res: any, next: Function): void;
-    static allowAdmin(req: any, res: any, next: any): void;
-    static allowExpert(req: any, res: any, next: any): void;
-    static allowDashboard(req: any, res: any, next: any): void;
-    private static isRequestFromDashboard(req);
-    static getIntegration(accessToken: string, integrationMemberId?: string): q.Promise<any>;
 }
 
 
@@ -562,7 +83,7 @@ export class BaseModel {
 }
 
 
-
+import BaseModel = require('./BaseModel');
 export class Email extends BaseModel {
     static TABLE_NAME: string;
     private recipient_email;
@@ -586,8 +107,20 @@ export class Email extends BaseModel {
 }
 
 
+import IntegrationMember = require('./IntegrationMember');
+export class Expert extends IntegrationMember {
+    static TABLE_NAME: string;
+    private revenue_share;
+    private revenue_share_unit;
+    public getRevenueShare(): number;
+    public getRevenueShareUnit(): number;
+    public setRevenueShare(val: any): void;
+    public setRevenueShareUnit(val: any): void;
+}
 
 
+import BaseModel = require('./BaseModel');
+import MoneyUnit = require('../enums/MoneyUnit');
 export class ExpertSchedule extends BaseModel {
     static TABLE_NAME: string;
     private schedule_rule_id;
@@ -614,8 +147,8 @@ export class ExpertSchedule extends BaseModel {
 }
 
 
-
-
+import BaseModel = require('./BaseModel');
+import MoneyUnit = require('../enums/MoneyUnit');
 export class ExpertScheduleRule extends BaseModel {
     static TABLE_NAME: string;
     public integration_member_id: number;
@@ -646,7 +179,7 @@ export class ExpertScheduleRule extends BaseModel {
 }
 
 
-
+import BaseModel = require('./BaseModel');
 export class Integration extends BaseModel {
     static TABLE_NAME: string;
     private title;
@@ -670,7 +203,7 @@ export class Integration extends BaseModel {
 }
 
 
-
+import BaseModel = require('./BaseModel');
 export class IntegrationMember extends BaseModel {
     static TABLE_NAME: string;
     private integration_id;
@@ -701,7 +234,52 @@ export class IntegrationMember extends BaseModel {
 }
 
 
+import BaseModel = require('./BaseModel');
+export class Payment extends BaseModel {
+    static TABLE_NAME: string;
+    private user_id;
+    private amount;
+    private update_date;
+    private transaction_id;
+    private status;
+    public getUserId(): number;
+    public getAmount(): number;
+    public getUpdateDate(): number;
+    public getTransactionId(): string;
+    public getStatus(): number;
+    public setUserId(val: number): void;
+    public setAmount(val: number): void;
+    public setUpdateDate(val: number): void;
+    public setTransactionId(val: string): void;
+    public setStatus(val: number): void;
+}
 
+
+import BaseModel = require('./BaseModel');
+export class PayoutDetail extends BaseModel {
+    static TABLE_NAME: string;
+    private user_id;
+    private mode;
+    private account_holder_name;
+    private account_num;
+    private ifsc_code;
+    private bank_name;
+    public getUserId(): number;
+    public getMode(): number;
+    public getAccountHolderName(): string;
+    public getAccountNum(): string;
+    public getIfscCode(): string;
+    public getBankName(): string;
+    public setUserId(val: number): void;
+    public setMode(val: number): void;
+    public setAccountHolderName(val: string): void;
+    public setAccountNum(val: string): void;
+    public setIfscCode(val: string): void;
+    public setBankName(val: string): void;
+}
+
+
+import BaseModel = require('./BaseModel');
 export class PhoneCall extends BaseModel {
     static TABLE_NAME: string;
     private caller_id;
@@ -753,7 +331,111 @@ export class PhoneCall extends BaseModel {
 }
 
 
+import BaseModel = require('./BaseModel');
+export class PhoneNumber extends BaseModel {
+    static TABLE_NAME: string;
+    private user_id;
+    private country_code;
+    private area_code;
+    private phone;
+    private type;
+    private verified;
+    private verification_code;
+    public getUserId(): number;
+    public getCountryCode(): string;
+    public getAreaCode(): string;
+    public getPhone(): number;
+    public getType(): number;
+    public getVerified(): boolean;
+    public getVerificationCode(): string;
+    public isValid(): boolean;
+    public setUserId(val: number): void;
+    public setCountryCode(val: string): void;
+    public setAreaCode(val: string): void;
+    public setPhone(val: number): void;
+    public setType(val: number): void;
+    public setVerified(val: boolean): void;
+    public setVerificationCode(val: string): void;
+}
 
+
+
+import BaseModel = require('./BaseModel');
+import Priority = require('../enums/Priority');
+export class SMS extends BaseModel {
+    static TABLE_NAME: string;
+    private country_code;
+    private phone;
+    private sender;
+    private message;
+    private scheduled_date;
+    private status;
+    private num_retries;
+    private priority;
+    constructor(data?: Object);
+    public getCountryCode(): string;
+    public getPhone(): number;
+    public getSender(): string;
+    public getMessage(): string;
+    public getScheduledDate(): number;
+    public getStatus(): number;
+    public getNumRetries(): number;
+    public getPriority(): Priority;
+    public setCountryCode(val: string): void;
+    public setPhone(val: number): void;
+    public setSender(val: string): void;
+    public setMessage(val: string): void;
+    public setScheduledDate(val: number): void;
+    public setStatus(val: number): void;
+    public setNumRetries(val: number): void;
+    public setPriority(val: Priority): void;
+    public isValid(): boolean;
+}
+
+
+import BaseModel = require('./BaseModel');
+export class Transaction extends BaseModel {
+    static TABLE_NAME: string;
+    private user_id;
+    private total;
+    private total_unit;
+    private status;
+    public getUserId(): number;
+    public getTotal(): number;
+    public getTotalUnit(): number;
+    public getStatus(): number;
+    public setUserId(val: number): void;
+    public setTotal(val: number): void;
+    public setTotalUnit(val: number): void;
+    public setStatus(val: number): void;
+}
+
+
+import BaseModel = require('./BaseModel');
+export class TransactionLine extends BaseModel {
+    static TABLE_NAME: string;
+    private transaction_id;
+    private product_id;
+    private product_type;
+    private transaction_type;
+    private amount;
+    private amount_unit;
+    public getTransactionId(): number;
+    public getProductId(): number;
+    public getProductType(): number;
+    public getTransactionType(): number;
+    public getAmount(): number;
+    public getAmountUnit(): number;
+    public setTransactionId(val: number): void;
+    public setProductId(val: number): void;
+    public setProductType(val: number): void;
+    public setTransactionType(val: number): void;
+    public setAmount(val: number): void;
+    public setAmountUnit(val: number): void;
+}
+
+
+import BaseModel = require('./BaseModel');
 export class User extends BaseModel {
     static TABLE_NAME: string;
     private first_name;
@@ -781,11 +463,106 @@ export class User extends BaseModel {
 }
 
 
+import BaseModel = require('./BaseModel');
+export class UserOauth extends BaseModel {
+    static TABLE_NAME: string;
+    private user_id;
+    private provider_id;
+    private oauth_user_id;
+    private access_token;
+    private access_token_expiry;
+    private refresh_token;
+    private refresh_token_expiry;
+    public getUserId(): string;
+    public getProviderId(): string;
+    public getOauthUserId(): string;
+    public getAccessToken(): string;
+    public getAccessTokenExpiry(): string;
+    public getRefreshToken(): string;
+    public getRefreshTokenExpiry(): string;
+    public isValid(): string;
+    public setUserId(val: any): void;
+    public setProviderId(val: any): void;
+    public setOauthUserId(val: any): void;
+    public setAccessToken(val: any): void;
+    public setAccessTokenExpiry(val: any): void;
+    public setRefreshToken(val: any): void;
+    public setRefreshTokenExpiry(val: any): void;
+}
+
+
+export class ApiUrlDelegate {
+    static expert(): string;
+    static expertById(expertId?: number): string;
+    static expertActivitySummary(expertId?: number): string;
+    static user(): string;
+    static userAuthentication(): string;
+    static userById(userId?: number): string;
+    static userPasswordResetToken(userId?: number): string;
+    static emailVerificationToken(userId?: number): string;
+    static mobileVerificationToken(): string;
+    static userIntegrationDetails(userId?: number, integrationId?: number): string;
+    static userActivitySummary(userId?: number): string;
+    static userTransactionBalance(userId?: number): string;
+    static userOAuth(): string;
+    static userOAuthToken(userId?: number, type?: string): string;
+    static decision(): string;
+    static token(): string;
+    static schedule(): string;
+    static scheduleById(scheduleId?: number): string;
+    static scheduleByExpert(expertId?: number): string;
+    static scheduleRule(): string;
+    static scheduleRuleById(scheduleRuleId?: number): string;
+    static scheduleRuleByExpert(expertId?: number): string;
+    static integration(): string;
+    static integrationById(integrationId?: number): string;
+    static integrationSecretReset(integrationId?: number): string;
+    static integrationMember(integrationId?: number): string;
+    static integrationMemberById(integrationId?: number, memberId?: number): string;
+    static ownerActivitySummary(integrationId?: number): string;
+    static payment(): string;
+    static paymentById(paymentId?: number): string;
+    static payoutDetail(): string;
+    static payoutDetailById(payoutDetailId?: number): string;
+    static phoneCall(): string;
+    static phoneCallById(callId?: number): string;
+    static phoneCallReschedule(callId?: number): string;
+    static phoneCallCancel(callId?: number): string;
+    static phoneNumber(): string;
+    static phoneNumberById(phoneNumberId?: number): string;
+    static transaction(): string;
+    static transactionById(transactionId?: number): string;
+    static transactionItem(transactionId?: number): string;
+    static transactionItemById(transactionId?: number, itemId?: number): string;
+    static sms(): string;
+    static twiml(): string;
+    static twimlJoinConference(): string;
+    static twimlCallExpert(callId?: number): string;
+    static twimlCall(callId?: number): string;
+    private static get(urlPattern, values?);
+}
 
 
 
+export class Config {
+    private static ctor;
+    static get(key: string): any;
+}
 
 
-declare function pluginFn(grunt: IGrunt): void;
+
+import q = require('q');
+export class Utils {
+    static getRandomString(length: number, characters?: string): string;
+    static getRandomInt(min: any, max: any): any;
+    static getRejectedPromise(errorMessage: string): q.Promise<any>;
+    static isNullOrEmpty(str: any): boolean;
+    static getClassName(object: Object): string;
+    static copyProperties(source: any, target: any): void;
+    static camelToUnderscore(camelCasedString: string): string;
+    static getObjectType(obj: any): string;
+    static surroundWithQuotes(val: any): string;
+    static createSimpleObject(key: string, value: any): Object;
+}
 
 }
