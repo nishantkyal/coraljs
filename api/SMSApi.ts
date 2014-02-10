@@ -1,6 +1,6 @@
 ///<reference path='../_references.d.ts'/>
 import express                          = require('express');
-import ApiConstants                     = require('../api/ApiConstants');
+import ApiConstants                     = require('../enums/ApiConstants');
 import ApiUrlDelegate                   = require('../delegates/ApiUrlDelegate');
 import SMSDelegate                      = require('../delegates/SMSDelegate');
 import AccessControl                    = require('../middleware/AccessControl');

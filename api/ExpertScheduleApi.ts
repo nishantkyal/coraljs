@@ -2,7 +2,7 @@
 import express                          = require('express');
 import ExpertScheduleDelegate           = require('../delegates/ExpertScheduleDelegate');
 import ApiUrlDelegate                   = require('../delegates/ApiUrlDelegate');
-import ApiConstants                     = require('../api/ApiConstants');
+import ApiConstants                     = require('../enums/ApiConstants');
 import ExpertSchedule                   = require('../models/ExpertSchedule');
 
 class ExpertScheduleApi

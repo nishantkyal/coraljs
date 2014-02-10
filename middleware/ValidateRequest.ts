@@ -1,6 +1,6 @@
 ///<reference path='../_references.d.ts'/>
 import _                                = require('underscore');
-import ApiConstants                     = require('../api/ApiConstants');
+import ApiConstants                     = require('../enums/ApiConstants');
 import BaseModel                        = require('../models/BaseModel');
 import User                             = require('../models/User');
 import UserOauth                        = require('../models/UserOauth');

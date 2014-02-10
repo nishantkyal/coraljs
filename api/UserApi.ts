@@ -41,11 +41,12 @@ class UserApi {
         /** Authenticate user **/
         app.get(ApiUrlDelegate.userAuthentication(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
         {
-            var userName = req.body[ApiConstants.USERNAME];
-            var password = req.body[ApiConstants.PASSWORD];
+            var user:User = req.body[ApiConstants.USER];
+            var email = user.getEmail();
+            var password = user.getPassword();
 
-            if (userName && password)
-                userDelegate.authenticate(userName, password)
+            if (email && password)
+                userDelegate.authenticate(email, password)
                     .then(
                     function authComplete(user) { res.json(user); },
                     function authError(err) { res.status(401).json(err); }
