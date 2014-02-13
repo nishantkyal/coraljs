@@ -8,7 +8,7 @@ import BaseDAODelegate              = require('./BaseDaoDelegate');
 import IntegrationMemberDelegate    = require('./IntegrationMemberDelegate');
 import EmailDelegate                = require('./EmailDelegate');
 import CallStatus                   = require('../enums/CallStatus');
-import ApiFlags                     = require('../enums/ApiFlags');
+import IncludeFlag                  = require('../enums/IncludeFlag');
 import PhoneCall                    = require('../models/PhoneCall');
 import UnscheduledCallsCache        = require('../caches/UnscheduledCallsCache');
 
@@ -98,8 +98,8 @@ class PhoneCallDelegate extends BaseDAODelegate
     {
         switch (include)
         {
-            case ApiFlags.INCLUDE_INTEGRATION_MEMBER_USER:
-                return new IntegrationMemberDelegate().get(result.getExpertId(), null, [ApiFlags.INCLUDE_USER]);
+            case IncludeFlag.INCLUDE_INTEGRATION_MEMBER_USER:
+                return new IntegrationMemberDelegate().get(result.getExpertId(), null, [IncludeFlag.INCLUDE_USER]);
         }
         return super.getIncludeHandler(include, result);
     }

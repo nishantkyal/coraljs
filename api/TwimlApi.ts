@@ -11,7 +11,7 @@ import Config                       = require('../common/Config');
 import PhoneCall                    = require('../models/PhoneCall');
 import User                         = require('../models/User');
 import IntegrationMember            = require('../models/IntegrationMember');
-import ApiFlags                     = require('../enums/ApiFlags');
+import IncludeFlag                  = require('../enums/IncludeFlag');
 
 class TwimlApi
 {
@@ -58,12 +58,12 @@ class TwimlApi
             var expert:IntegrationMember, user:User;
             ;
 
-            new PhoneCallDelegate().get(callId, null, [ApiFlags.INCLUDE_INTEGRATION_MEMBER_USER])
+            new PhoneCallDelegate().get(callId, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER_USER])
                 .then(
                 function callFetched(call:PhoneCall)
                 {
-                    expert = call[ApiFlags.INCLUDE_INTEGRATION_MEMBER_USER];
-                    user = expert[ApiFlags.INCLUDE_USER];
+                    expert = call[IncludeFlag.INCLUDE_INTEGRATION_MEMBER_USER];
+                    user = expert[IncludeFlag.INCLUDE_USER];
                     return {
                         'Response': [
                             {

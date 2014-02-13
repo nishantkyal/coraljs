@@ -1,6 +1,7 @@
 exports.ApiConstants = require("./enums/ApiConstants.js");
-exports.ApiFlags = require("./enums/ApiFlags.js");
 exports.CallStatus = require("./enums/CallStatus.js");
+exports.ErrorCode = require("./enums/ErrorCode.js");
+exports.IncludeFlag = require("./enums/IncludeFlag.js");
 exports.IntegrationMemberRole = require("./enums/IntegrationMemberRole.js");
 exports.MoneyUnit = require("./enums/MoneyUnit.js");
 exports.Priority = require("./enums/Priority.js");
@@ -15,6 +16,7 @@ exports.PhoneCall = require("./models/PhoneCall.js");
 exports.PhoneNumber = require("./models/PhoneNumber.js");
 exports.SMS = require("./models/SMS.js");
 exports.Transaction = require("./models/Transaction.js");
+exports.TransactionLine = require("./models/TransactionLine.js");
 exports.User = require("./models/User.js");
 exports.UserOauth = require("./models/UserOauth.js");
 exports.ApiUrlDelegate = require("./delegates/ApiUrlDelegate.js");

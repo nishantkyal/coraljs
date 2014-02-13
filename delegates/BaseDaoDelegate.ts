@@ -1,14 +1,15 @@
 ///<reference path='../_references.d.ts'/>
-import _                = require('underscore');
-import log4js           = require('log4js');
-import q                = require('q');
-import IDao             = require('../dao/IDao');
-import Utils            = require('../common/Utils');
-import BaseModel        = require('../models/BaseModel');
-import GlobalIdDelegate = require('../delegates/GlobalIDDelegate');
+import _                                            = require('underscore');
+import log4js                                       = require('log4js');
+import q                                            = require('q');
+import IDao                                         = require('../dao/IDao');
+import Utils                                        = require('../common/Utils');
+import BaseModel                                    = require('../models/BaseModel');
+import GlobalIdDelegate                             = require('../delegates/GlobalIDDelegate');
+import IncludeFlag                                  = require('../enums/IncludeFlag');
 
-class BaseDaoDelegate {
-
+class BaseDaoDelegate
+{
     logger:log4js.Logger;
 
     constructor()
@@ -16,7 +17,7 @@ class BaseDaoDelegate {
         this.logger = log4js.getLogger(Utils.getClassName(this));
     }
 
-    get(id:any, fields?:string[], includes?:string[]):q.Promise<any>
+    get(id:any, fields?:string[], includes?:Array<IncludeFlag>):q.Promise<any>
     {
         var self = this;
         includes = includes || [];
@@ -48,7 +49,7 @@ class BaseDaoDelegate {
     }
 
     /* Abstract method self defines how flags are handled in get query */
-    getIncludeHandler(include:string, result:any):q.Promise<any> { return null; }
+    getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any> { return null; }
 
     /**
      * Perform search based on seacrh query

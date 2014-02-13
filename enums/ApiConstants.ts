@@ -33,5 +33,7 @@ class ApiConstants
     static SCHEDULE:string = 'expertSchedule';
     static SCHEDULE_RULE:string = 'expertScheduleRule';
     static SMS:string = 'sms';
+    static TRANSACTION:string = 'transaction';
+    static TRANSACTION_LINE:string = 'transaction_line';
 }
 export = ApiConstants

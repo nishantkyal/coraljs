@@ -10,7 +10,7 @@ import ExpertScheduleDelegate       = require('../delegates/ExpertScheduleDelega
 import IDao                         = require ('../dao/IDao');
 import IntegrationMemberDAO         = require ('../dao/IntegrationMemberDao');
 import IntegrationMemberRole        = require('../enums/IntegrationMemberRole');
-import ApiFlags                     = require('../enums/ApiFlags');
+import IncludeFlag                  = require('../enums/IncludeFlag');
 import IntegrationMember            = require('../models/IntegrationMember');
 import AccessTokenCache             = require('../caches/AccessTokenCache');
 
@@ -24,7 +24,7 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
         return super.create(integrationMember, transaction);
     }
 
-    get(id:any, fields?:string[], flags?:string[]):q.Promise<any>
+    get(id:any, fields?:string[], flags?:Array<IncludeFlag>):q.Promise<any>
     {
         fields = fields || ['id', 'role', 'integration_id', 'user_id'];
         return super.get(id, fields, flags);
@@ -79,15 +79,15 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
 
     getDao():IDao { return new IntegrationMemberDAO(); }
 
-    getIncludeHandler(include:string, result:any):q.Promise<any>
+    getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
     {
         switch (include)
         {
-            case ApiFlags.INCLUDE_INTEGRATION:
+            case IncludeFlag.INCLUDE_INTEGRATION:
                 return new IntegrationDelegate().get(result['id']);
-            case ApiFlags.INCLUDE_USER:
+            case IncludeFlag.INCLUDE_USER:
                 return new UserDelegate().get(result['user_id']);
-            case ApiFlags.INCLUDE_SCHEDULES:
+            case IncludeFlag.INCLUDE_SCHEDULES:
                 return new ExpertScheduleDelegate().getSchedulesForExpert(result['id']);
         }
         return super.getIncludeHandler(include, result);
