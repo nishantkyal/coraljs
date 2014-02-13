@@ -6,6 +6,7 @@ import ExpertScheduleRuleDelegate   = require('../delegates/ExpertScheduleRuleDe
 import AccessControl                = require('../middleware/AccessControl');
 import IntegrationMember            = require('../models/IntegrationMember');
 import ExpertScheduleRule           = require('../models/ExpertScheduleRule');
+import parser                       = require('cron-parser');
 
 /*
  Rest Calls for expert schedule rules
@@ -14,6 +15,7 @@ class ExpertScheduleRulesApi
 {
     constructor(app)
     {
+
         var expertScheduleRuleDelegate = new ExpertScheduleRuleDelegate();
 
         app.put(ApiUrlDelegate.scheduleRuleByExpert(), function (req:express.Request, res:express.Response)

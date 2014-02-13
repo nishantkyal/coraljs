@@ -1,3 +1,4 @@
+///<reference path='../_references.d.ts'/>
 import url                                      = require('url');
 
 /**
@@ -7,7 +8,7 @@ import url                                      = require('url');
  */
 class ApiUrlDelegate
 {
-    static BASE_URL:string = null;
+    static BASE_URL:string = '';
 
     /* URL patterns for expert API */
     static expert():string { return this.get('/rest/expert'); }
