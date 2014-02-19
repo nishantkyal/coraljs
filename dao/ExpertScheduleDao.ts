@@ -1,15 +1,15 @@
 import q                        = require('q');
 import BaseDAO                  = require('./BaseDao');
 import BaseModel                = require('../models/BaseModel');
-import ExpertSchedule           = require('../models/ExpertSchedule');
+import ExpertScheduleRule       = require('../models/ExpertScheduleRule');
 import MysqlDelegate            = require('../delegates/MysqlDelegate');
 import Utils                    = require('../common/Utils');
 
 class ExpertScheduleDao extends BaseDAO
 {
-    getModel():typeof BaseModel { return ExpertSchedule; }
+    getModel():typeof BaseModel { return ExpertScheduleRule; }
 
-    findConflictingScheduleRules(startTime:number, endTime:number, integrationMemberId?:number):q.Promise<any>
+    findConflictingScheduleRules(startTime:number, endTime:number, integrationMemberId:number = 0):q.Promise<any>
     {
         var query = 'SELECT * ' +
             'FROM expert_schedule_rule ' +
@@ -18,6 +18,16 @@ class ExpertScheduleDao extends BaseDAO
 
         if (!Utils.isNullOrEmpty(integrationMemberId))
             query += ' AND integration_member_id = ' + integrationMemberId;
+
+        return MysqlDelegate.executeQuery(query);
+    }
+    findRuleByExpertId(startTime:number, endTime:number, integrationMemberId:number):q.Promise<any>
+    {
+        var query = 'SELECT * ' +
+            'FROM expert_schedule_rules ' +
+            'WHERE start_time BETWEEN ' + startTime + ' AND ' + endTime + ' OR ' +
+            'OR start_time BETWEEN (' + startTime + ' +  duration AND ' + (endTime + ' + duration)');
+            ' AND integration_member_id = ' + integrationMemberId;
 
         return MysqlDelegate.executeQuery(query);
     }
