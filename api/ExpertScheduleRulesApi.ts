@@ -19,9 +19,14 @@ class ExpertScheduleRulesApi
         app.put(ApiUrlDelegate.scheduleRuleByExpert(), function (req:express.Request, res:express.Response)
         {
             var expertId = req.params[ApiConstants.EXPERT_ID];
-            var scheduleRule:ExpertScheduleRule = req[ApiConstants.SCHEDULE_RULE];
+            var scheduleRule = new ExpertScheduleRule();
+            scheduleRule.setCronRule(req.query[ApiConstants.SCHEDULE_RULE]);
             scheduleRule.setIntegrationMemberId(expertId);
-
+            scheduleRule.setDuration(req.query[ApiConstants.DURATION]);
+            scheduleRule.setRepeatStart(req.query[ApiConstants.START_TIME]);
+            scheduleRule.setRepeatEnd(req.query[ApiConstants.END_TIME]);
+            //TODO How to create scheduleRule Object automatically
+            //TODO generate rule ID and ID
             expertScheduleRuleDelegate.create(scheduleRule)
                 .then(
                 function expertScheduleRuleCreated(schedule) { res.json(schedule); },
@@ -32,11 +37,18 @@ class ExpertScheduleRulesApi
         app.get(ApiUrlDelegate.scheduleRuleByExpert(), function (req:express.Request, res:express.Response)
         {
             var expertId = req.params[ApiConstants.EXPERT_ID];
-
             expertScheduleRuleDelegate.getRulesByIntegrationMemberId(expertId)
                 .then(
-                function expertScheduleRuleCreated(schedules) { res.json(schedules); },
-                function expertScheduleRuleCreateFailed(error) { res.status(500).json(error); }
+                function expertScheduleGenerator(schedules)
+                {
+                    var options = {
+                        startDate: new Date(parseInt(req.query[ApiConstants.START_TIME])),
+                        endDate: new Date(parseInt(req.query[ApiConstants.END_TIME]))
+                    };
+                    var generatedSchedules = expertScheduleRuleDelegate.expertScheduleGenerator(schedules,options);
+                    res.json(generatedSchedules);
+                },
+                function expertScheduleRuleCreateFailed(error) {res.status(500).json(error); }
             )
         });
 
@@ -51,7 +63,10 @@ class ExpertScheduleRulesApi
                 function expertScheduleRuleUpdateFailed(error) { res.status(500).json(error); }
             )
         });
+        app.delete(ApiUrlDelegate.scheduleRuleById(), function (req:express.Request, res:express.Response)
+        {
 
+        });
     }
 
 }

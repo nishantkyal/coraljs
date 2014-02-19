@@ -21,6 +21,7 @@ class ApiConstants
     static SCHEDULE_RULE_ID:string = 'scheduleRuleId';
     static START_TIME:string = 'startTime';
     static END_TIME:string = 'endTime';
+    static DURATION:string = 'duration';
 
     /* Body constants */
     static USER:string = 'user';
