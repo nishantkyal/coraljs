@@ -1,10 +1,13 @@
 ///<reference path='../_references.d.ts'/>
-import express                  = require('express');
-import ApiConstants             = require('../enums/ApiConstants');
-import ApiUrlDelegate           = require('../delegates/ApiUrlDelegate');
-import IntegrationDelegate      = require('../delegates/IntegrationDelegate');
-import Integration              = require('../models/Integration');
-import AccessControl            = require('../middleware/AccessControl');
+import express                                      = require('express');
+import ApiConstants                                 = require('../enums/ApiConstants');
+import ApiUrlDelegate                               = require('../delegates/ApiUrlDelegate');
+import IntegrationDelegate                          = require('../delegates/IntegrationDelegate');
+import IntegrationMemberDelegate                    = require('../delegates/IntegrationMemberDelegate');
+import Integration                                  = require('../models/Integration');
+import AccessControl                                = require('../middleware/AccessControl');
+import Utils                                        = require('../common/Utils');
+import IncludeFlag                                  = require('../enums/IncludeFlag');
 
 /**
  Rest Calls for Third party integrations
@@ -14,6 +17,7 @@ class IntegrationApi
     constructor(app)
     {
         var integrationDelegate = new IntegrationDelegate();
+        var integrationMemberDelegate = new IntegrationMemberDelegate();
 
         /**
          * Create integration
@@ -86,17 +90,23 @@ class IntegrationApi
             );
         });
 
-        /**
-         * Search integrations
-         * Allow only site admin and CSR
-         **/
+        /* Search integrations */
         app.get(ApiUrlDelegate.integration(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
-            integrationDelegate.getAll()
-                .then(
-                function integrationFetched(result:Array<Integration>) { res.json(result); },
-                function integrationFetchError(error) { res.status(500).json(error); }
-            );
+            var userId:number = parseInt(req.query[ApiConstants.USER_ID]);
+
+            if (!Utils.isNullOrEmpty(userId))
+                integrationMemberDelegate.searchByUser(userId, null, [IncludeFlag.INCLUDE_INTEGRATION, IncludeFlag.INCLUDE_USER])
+                    .then(
+                    function integrationFetched(result:Array<Integration>) { res.json(result); },
+                    function integrationFetchError(error) { res.status(500).json(error); }
+                );
+            else
+                integrationDelegate.getAll()
+                    .then(
+                    function integrationFetched(result:Array<Integration>) { res.json(result); },
+                    function integrationFetchError(error) { res.status(500).json(error); }
+                );
         });
 
     }

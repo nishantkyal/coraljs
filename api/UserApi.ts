@@ -38,7 +38,7 @@ class UserApi {
                 res.status(500).json('Invalid data');
         });
 
-        /** Authenticate user **/
+        /* Authenticate user */
         app.get(ApiUrlDelegate.userAuthentication(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
         {
             var user:User = req.body[ApiConstants.USER];
@@ -55,7 +55,7 @@ class UserApi {
                 res.status(422).json('Username or password missing');
         });
 
-        /** Update settings */
+        /* Update settings */
         app.post(ApiUrlDelegate.userById(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
         {
             var userId:string = req.params[ApiConstants.USER_ID];
@@ -66,7 +66,7 @@ class UserApi {
                     .then(
                     function userUpdated(result) { res.json(result); },
                     function updateFailed(err) { res.status(500).json(err); }
-                )
+                );
             else
                 res.status(422).json('Invalid input');
         });
