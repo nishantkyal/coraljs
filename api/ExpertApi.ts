@@ -11,7 +11,7 @@ import UserDelegate                     = require('../delegates/UserDelegate');
 import IntegrationMember                = require('../models/IntegrationMember');
 import User                             = require('../models/User');
 import IntegrationMemberRole            = require('../enums/IntegrationMemberRole');
-import ApiFlags                         = require('../enums/ApiFlags');
+import IncludeFlag                      = require('../enums/IncludeFlag');
 
 /**
  * API calls for managing settings to IntegrationMembers who are experts

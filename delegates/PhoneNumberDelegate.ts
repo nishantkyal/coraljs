@@ -28,5 +28,6 @@ class PhoneNumberDelegate extends BaseDaoDelegate
     }
 
     getDao():IDao { return new PhoneNumberDao(); }
+
 }
 export = PhoneNumberDelegate

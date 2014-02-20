@@ -7,7 +7,7 @@ import IntegrationMember            = require('../models/IntegrationMember')
 import IDao                         = require('../dao/IDao');
 import EmailDao                     = require('../dao/EmailDao');
 import CallStatus                   = require('../enums/CallStatus');
-import ApiFlags                     = require('../enums/ApiFlags');
+import IncludeFlag                     = require('../enums/IncludeFlag');
 import UserDelegate                 = require('../delegates/UserDelegate');
 import IntegrationMemberDelegate    = require('../delegates/IntegrationMemberDelegate');
 

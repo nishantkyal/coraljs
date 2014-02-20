@@ -30,7 +30,7 @@ export class ApiConstants {
 }
 
 
-export class ApiFlags {
+export class IncludeFlag {
     static INCLUDE_INTEGRATION: string;
     static INCLUDE_USER: string;
     static INCLUDE_INTEGRATION_MEMBER: string;
@@ -47,6 +47,23 @@ export enum CallStatus {
     CANCELLED = 4,
     POSTPONED = 5,
     FAILED = 6,
+}
+
+
+export enum ErrorCode {
+    DUPLICATE = 0,
+    DOESNT_EXIST = 1,
+    INVALID_DATA = 2,
+}
+
+
+export class IncludeFlag {
+    static INCLUDE_INTEGRATION: string;
+    static INCLUDE_USER: string;
+    static INCLUDE_INTEGRATION_MEMBER: string;
+    static INCLUDE_INTEGRATION_MEMBER_USER: string;
+    static INCLUDE_SCHEDULES: string;
+    static INCLUDE_TRANSACTION_LINE: string;
 }
 
 
@@ -150,6 +167,31 @@ export class ExpertSchedule extends BaseModel {
     public setPriceUnit(val: MoneyUnit): void;
     public setPricePerMin(val: number): void;
     public setActive(val: boolean): void;
+}
+
+
+
+
+export class ExpertScheduleException extends BaseModel {
+    static TABLE_NAME: string;
+    public integration_member_id: number;
+    public schedule_rule_id: number;
+    public start_time: number;
+    public duration: number;
+    private price_unit;
+    private price_per_min;
+    public getIntegrationMemberId(): number;
+    public getScheduleRuleId(): number;
+    public getStartTime(): number;
+    public getDuration(): number;
+    public getPriceUnit(): MoneyUnit;
+    public getPricePerMin(): number;
+    public setIntegrationMemberId(val: number): void;
+    public setScheduleRuleId(val: number): void;
+    public setStartTime(val: number): void;
+    public setDuration(val: number): void;
+    public setPriceUnit(val: MoneyUnit): void;
+    public setPricePerMin(val: number): void;
 }
 
 
@@ -373,6 +415,30 @@ export class Transaction extends BaseModel {
 
 
 
+export class TransactionLine extends BaseModel {
+    static TABLE_NAME: string;
+    private transaction_id;
+    private product_id;
+    private product_type;
+    private transaction_type;
+    private amount;
+    private amount_unit;
+    public getTransactionId(): number;
+    public getProductId(): number;
+    public getProductType(): number;
+    public getTransactionType(): number;
+    public getAmount(): number;
+    public getAmountUnit(): number;
+    public setTransactionId(val: number): void;
+    public setProductId(val: number): void;
+    public setProductType(val: number): void;
+    public setTransactionType(val: number): void;
+    public setAmount(val: number): void;
+    public setAmountUnit(val: number): void;
+}
+
+
+
 export class User extends BaseModel {
     static TABLE_NAME: string;
     private first_name;
@@ -426,6 +492,7 @@ export class UserOauth extends BaseModel {
     public setRefreshToken(val: any): void;
     public setRefreshTokenExpiry(val: any): void;
 }
+
 
 
 export class ApiUrlDelegate {

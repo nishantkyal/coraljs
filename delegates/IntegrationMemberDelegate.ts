@@ -10,7 +10,8 @@ import ExpertScheduleDelegate       = require('../delegates/ExpertScheduleDelega
 import IDao                         = require ('../dao/IDao');
 import IntegrationMemberDAO         = require ('../dao/IntegrationMemberDao');
 import IntegrationMemberRole        = require('../enums/IntegrationMemberRole');
-import ApiFlags                     = require('../enums/ApiFlags');
+import IncludeFlag                  = require('../enums/IncludeFlag');
+import Integration                  = require('../models/Integration');
 import IntegrationMember            = require('../models/IntegrationMember');
 import AccessTokenCache             = require('../caches/AccessTokenCache');
 
@@ -24,24 +25,19 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
         return super.create(integrationMember, transaction);
     }
 
-    get(id:any, fields?:string[], flags?:string[]):q.Promise<any>
+    get(id:any, fields?:string[], flags:Array<IncludeFlag> = []):q.Promise<any>
     {
         fields = fields || ['id', 'role', 'integration_id', 'user_id'];
         return super.get(id, fields, flags);
     }
 
-    getIntegrationsForUser(user_id:string, fields?:string[]):q.Promise<any>
+    searchByUser(user_id:number, fields?:string[], includes:Array<IncludeFlag> = []):q.Promise<any>
     {
-        var integrationFields:string[] = _.map(fields, function appendTableName(field)
-        {
-            return 'integration.' + field;
-        });
+        var search = {};
+        search[IntegrationMember.USER_ID] = user_id;
 
-        var query:string = 'SELECT ? ' +
-            'FROM integration, integration_member ' +
-            'WHERE integration_member.user_id = ? ' +
-            'AND integration.id = integration_member.integration_id';
-        return MysqlDelegate.executeQuery(query, [integrationFields.join(','), user_id]);
+        fields = fields || ['id', 'role', 'integration_id', 'user_id'];
+        return this.search(search, {'fields': fields}, includes);
     }
 
     findValidAccessToken(accessToken:string, integrationMemberId?:string):q.Promise<any>
@@ -79,16 +75,16 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
 
     getDao():IDao { return new IntegrationMemberDAO(); }
 
-    getIncludeHandler(include:string, result:any):q.Promise<any>
+    getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
     {
         switch (include)
         {
-            case ApiFlags.INCLUDE_INTEGRATION:
-                return new IntegrationDelegate().get(result['id']);
-            case ApiFlags.INCLUDE_USER:
-                return new UserDelegate().get(result['user_id']);
-            case ApiFlags.INCLUDE_SCHEDULES:
-                return new ExpertScheduleDelegate().getSchedulesForExpert(result['id']);
+            case IncludeFlag.INCLUDE_INTEGRATION:
+                return new IntegrationDelegate().get(_.uniq(_.pluck(result, IntegrationMember.INTEGRATION_ID)));
+            case IncludeFlag.INCLUDE_USER:
+                return new UserDelegate().get(_.uniq(_.pluck(result, IntegrationMember.USER_ID)));
+            case IncludeFlag.INCLUDE_SCHEDULES:
+                return new ExpertScheduleDelegate().getSchedulesForExpert(_.uniq(_.pluck(result, IntegrationMember.ID)));
         }
         return super.getIncludeHandler(include, result);
     }

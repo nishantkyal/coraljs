@@ -11,7 +11,7 @@ import ExpertScheduleRule               = require('../models/ExpertScheduleRule'
 import IntegrationMember                = require('../models/IntegrationMember');
 import IDao                             = require('../dao/IDao');
 import Utils                            = require('../common/Utils');
-import ApiFlags                         = require('../enums/ApiFlags');
+import IncludeFlag                      = require('../enums/IncludeFlag');
 
 /**
  * Delegate class for expert schedules
@@ -21,7 +21,7 @@ class ExpertScheduleDelegate extends BaseDAODelegate
     getDao():IDao { return new ExpertScheduleDAO(); }
 
     /* Get schedules for expert */
-    getSchedulesForExpert(expertId:number, startTime?:number, endTime?:number):q.Promise<any>
+    getSchedulesForExpert(expertId:any, startTime?:number, endTime?:number):q.Promise<any>
     {
         var self = this;
         var schedules = [];
@@ -156,7 +156,7 @@ class ExpertScheduleDelegate extends BaseDAODelegate
         return schedules;
     }
 
-    getIncludeHandler(include:string, result:Object):q.Promise<any>
+    getIncludeHandler(include:IncludeFlag, result:Object):q.Promise<any>
     {
         var userDelegate = new UserDelegate();
         var IntegrationMemberDelegate = require('../delegates/IntegrationMemberDelegate');
@@ -165,9 +165,9 @@ class ExpertScheduleDelegate extends BaseDAODelegate
 
         switch (include)
         {
-            case ApiFlags.INCLUDE_USER:
-                return integrationMemberDelegate.get(integrationMemberId, null, [ApiFlags.INCLUDE_USER]);
-            case ApiFlags.INCLUDE_INTEGRATION_MEMBER:
+            case IncludeFlag.INCLUDE_USER:
+                return integrationMemberDelegate.get(integrationMemberId, null, [IncludeFlag.INCLUDE_USER]);
+            case IncludeFlag.INCLUDE_INTEGRATION_MEMBER:
                 return integrationMemberDelegate.get(integrationMemberId);
         }
 
