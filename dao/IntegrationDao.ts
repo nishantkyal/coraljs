@@ -14,7 +14,7 @@ class IntegrationDao extends BaseDAO {
         return MysqlDelegate.executeQuery('SELECT * FROM integration', null);
     }
 
-    static getModel():typeof BaseModel { return Integration; }
+    getModel():typeof BaseModel { return Integration; }
 
 }
 export = IntegrationDao

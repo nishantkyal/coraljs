@@ -9,7 +9,13 @@ class BaseModel
 {
     static TABLE_NAME:string;
 
+    static ID:string = 'id';
+    static CREATED:string = 'created';
+    static UPDATED:string = 'updated';
+    static DELETED:string = 'deleted';
+
     private __proto__;
+
     private id:number;
     private created:number;
     private updated:number;

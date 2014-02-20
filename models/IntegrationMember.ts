@@ -7,6 +7,15 @@ class IntegrationMember extends BaseModel
 {
     static TABLE_NAME:string = 'integration_member';
 
+    static INTEGRATION_ID:string = 'integration_id';
+    static USER_ID:string = 'user_id';
+    static ROLE:string = 'role';
+    static AUTH_CODE:string = 'auth_code';
+    static ACCESS_TOKEN:string = 'access_token';
+    static ACCESS_TOKEN_EXPIRY:string = 'access_token_expiry';
+    static REFRESH_TOKEN:string = 'refresh_token';
+    static REFRESH_TOKEN_EXPIRY:string = 'refresh_token_expiry';
+
     private integration_id:number;
     private user_id:number;
     private role:number;

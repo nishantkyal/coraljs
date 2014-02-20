@@ -45,7 +45,7 @@ class BaseDao implements IDao
             .then(
             function created()
             {
-                return (!transaction) ? self.get(id): new self.modelClass({'id': id});
+                return (!transaction) ? self.get(id) : new self.modelClass({'id': id});
             },
             function createFailure(error)
             {
@@ -120,14 +120,13 @@ class BaseDao implements IDao
         if (whereStatements.length == 0)
             throw ('Invalid search criteria');
 
-        selectColumns = options && options.hasOwnProperty('fields') ? options['fields'].join(',') : '*';
+        selectColumns = options && !Utils.isNullOrEmpty(options['fields']) ? options['fields'].join(',') : '*';
 
         var queryString = 'SELECT ' + selectColumns + ' FROM ' + this.tableName + ' WHERE ' + whereStatements.join(' AND ');
 
         return MysqlDelegate.executeQuery(queryString, values)
             .then(
-                function handleSearchResults(results:Array<any>) { return _.map(results, function(result) { return new self.modelClass(result); }); }
-            );
+            function handleSearchResults(results:Array<any>) { return _.map(results, function (result) { return new self.modelClass(result); }); });
     }
 
     update(criteria:Object, newValues:Object, transaction?:any):q.Promise<any>

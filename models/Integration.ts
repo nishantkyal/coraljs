@@ -7,6 +7,13 @@ class Integration extends BaseModel
 {
     static TABLE_NAME:string = 'integration';
 
+    static TITLE:string = 'title';
+    static WEBSITE_URL:string = 'website_url';
+    static REDIRECT_URL:string = 'redirect_url';
+    static INTEGRATION_TYPE:string = 'integration_type';
+    static SECRET:string = 'secret';
+    static STATUS:string = 'status';
+
     private title:string;
     private website_url:string;
     private redirect_url:string;
