@@ -7,6 +7,13 @@ class Email extends BaseModel
 {
     static TABLE_NAME:string = 'email';
 
+    static RECIPIENT_EMAIL:string = 'recipient_email';
+    static SENDER_EMAIL:string = 'sender_email';
+    static SUBJECT:string = 'subject';
+    static TEMPLATE:string = 'template';
+    static DATA:string = 'data';
+    static SCHEDULED_DATE:string = 'scheduled_date';
+
     private recipient_email:string;
     private sender_email:string;
     private subject:string;

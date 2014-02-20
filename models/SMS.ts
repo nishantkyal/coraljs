@@ -9,6 +9,15 @@ class SMS extends BaseModel
 {
     static TABLE_NAME:string = 'sms';
 
+    static COUNTRY_CODE:string = 'country_code';
+    static PHONE:string = 'phone';
+    static SENDER:string = 'sender';
+    static MESSAGE:string = 'message';
+    static SCHEDULED_DATE:string = 'scheduled_date';
+    static STATUS:string = 'status';
+    static NUM_RETRIES:string = 'num_retries';
+    static PRIORITY:string = 'priority';
+
     private country_code:string;
     private phone:number;
     private sender:string;

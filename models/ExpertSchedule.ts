@@ -5,6 +5,14 @@ class ExpertSchedule extends BaseModel
 {
     static TABLE_NAME:string = 'expert_schedule';
 
+    static SCHEDULE_RULE_ID:string = 'schedule_rule_id';
+    static INTEGRATION_MEMBER_ID:string = 'integration_member_id';
+    static START_TIME:string = 'start_time';
+    static DURATION:string = 'duration';
+    static PRICE_UNIT:string = 'price_unit';
+    static PRICE_PER_MIN:string = 'price_per_min';
+    static ACTIVE:string = 'active';
+
     private schedule_rule_id:number;
     private integration_member_id:number;
     private start_time:number;

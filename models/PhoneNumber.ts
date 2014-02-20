@@ -4,13 +4,19 @@ class PhoneNumber extends BaseModel
 {
     static TABLE_NAME:string = 'user_phone';
 
+    static USER_ID:string = 'user_id';
+    static COUNTRY_CODE:string = 'country_code';
+    static AREA_CODE:string = 'area_code';
+    static PHONE:string = 'phone';
+    static TYPE:string = 'type';
+    static VERIFIED:string = 'verified';
+
     private user_id:number;
     private country_code:string;
     private area_code:string;
     private phone:number;
     private type:number;
     private verified:boolean;
-    private verification_code:string;
 
     /* Getters */
     getUserId():number { return this.user_id; }
@@ -19,7 +25,6 @@ class PhoneNumber extends BaseModel
     getPhone():number { return this.phone; }
     getType():number { return this.type; }
     getVerified():boolean { return this.verified; }
-    getVerificationCode():string { return this.verification_code; }
 
     isValid():boolean
     {
@@ -33,7 +38,6 @@ class PhoneNumber extends BaseModel
     setPhone(val:number):void { this.phone = val; }
     setType(val:number):void { this.type = val; }
     setVerified(val:boolean):void { this.verified = val; }
-    setVerificationCode(val:string):void { this.verification_code = val; }
 
 }
 export = PhoneNumber

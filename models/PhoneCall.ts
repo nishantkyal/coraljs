@@ -8,6 +8,22 @@ class PhoneCall extends BaseModel
 {
     static TABLE_NAME:string = 'phone_call';
 
+    static CALLER_ID:string = 'caller_id';
+    static EXPERT_ID:string = 'expert_id';
+    static INTEGRATION_ID:string = 'integration_id';
+    static SCHEDULE_ID:string = 'schedule_id';
+    static START_TIME:string = 'start_time';
+    static DURATION:string = 'duration';
+    static STATUS:string = 'status';
+    static PRICE:string = 'price';
+    static PRICE_CURRENCY:string = 'price_currency';
+    static COST:string = 'cost';
+    static COST_CURRENCY:string = 'cost_currency';
+    static AGENDA:string = 'agenda';
+    static RECORDED:string = 'recorded';
+    static EXTENSION:string = 'extension';
+    static NUM_RESCHEDULES:string = 'num_reschedules';
+
     private caller_id:number;
     private expert_id:number;
     private integration_id:number;

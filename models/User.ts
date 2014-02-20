@@ -8,6 +8,14 @@ class User extends BaseModel
 {
     static TABLE_NAME:string = 'user';
 
+    static FIRST_NAME:string = 'first_name';
+    static LAST_NAME:string = 'last_name';
+    static MOBILE:string = 'mobile';
+    static EMAIL:string = 'email';
+    static PASSWORD:string = 'password';
+    static VERIFIED:string = 'verified';
+    static ACTIVATED:string = 'activated';
+
     private first_name:string;
     private last_name:string;
     private mobile:string;

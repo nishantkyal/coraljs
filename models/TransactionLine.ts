@@ -4,6 +4,13 @@ class TransactionLine extends BaseModel
 {
     static TABLE_NAME:string = 'transaction_line';
 
+    static TRANSACTION_ID:string = 'transaction_id';
+    static PRODUCT_ID:string = 'product_id';
+    static PRODUCT_TYPE:string = 'product_type';
+    static TRANSACTION_TYPE:string = 'transaction_type';
+    static AMOUNT:string = 'amount';
+    static AMOUNT_UNIT:string = 'amount_unit';
+
     private transaction_id:number;
     private product_id:number;
     private product_type:number;

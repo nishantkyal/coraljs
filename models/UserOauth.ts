@@ -7,6 +7,14 @@ class UserOauth extends BaseModel
 {
     static TABLE_NAME:string = 'user_oauth';
 
+    static USER_ID:string = 'user_id';
+    static PROVIDER_ID:string = 'provider_id';
+    static OAUTH_USER_ID:string = 'oauth_user_id';
+    static ACCESS_TOKEN:string = 'access_token';
+    static ACCESS_TOKEN_EXPIRY:string = 'access_token_expiry';
+    static REFRESH_TOKEN:string = 'refresh_token';
+    static REFRESH_TOKEN_EXPIRY:string = 'refresh_token_expiry';
+
     private user_id:string;
     private provider_id:string;
     private oauth_user_id:string;

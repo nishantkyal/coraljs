@@ -5,12 +5,21 @@ class ExpertScheduleRule extends BaseModel
 {
     static TABLE_NAME = 'expert_schedule_rules';
 
-    integration_member_id:number;
-    repeat_start:number;
-    repeat_interval:number;
-    repeat_cron:number;
-    repeat_end:number;
-    duration:number;
+    static INTEGRATION_MEMBER_ID:string = 'integration_member_id';
+    static REPEAT_START:string = 'repeat_start';
+    static REPEAT_INTERVAL:string = 'repeat_interval';
+    static REPEAT_CRON:string = 'repeat_cron';
+    static REPEAT_END:string = 'repeat_end';
+    static DURATION:string = 'duration';
+    static PRICE_UNIT:string = 'price_unit';
+    static PRICE_PER_MIN:string = 'price_per_min';
+
+    private integration_member_id:number;
+    private repeat_start:number;
+    private repeat_interval:number;
+    private repeat_cron:number;
+    private repeat_end:number;
+    private duration:number;
     private price_unit:MoneyUnit;
     private price_per_min:number;
 

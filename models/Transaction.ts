@@ -4,6 +4,11 @@ class Transaction extends BaseModel
 {
     static TABLE_NAME:string = 'transaction';
 
+    static USER_ID:string = 'user_id';
+    static TOTAL:string = 'total';
+    static TOTAL_UNIT:string = 'total_unit';
+    static STATUS:string = 'status';
+
     private user_id:number;
     private total:number;
     private total_unit:number;
