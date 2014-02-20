@@ -6,8 +6,10 @@ import IDao             = require('../dao/IDao');
 import Utils            = require('../common/Utils');
 import BaseModel        = require('../models/BaseModel');
 import GlobalIdDelegate = require('../delegates/GlobalIDDelegate');
+import IncludeFlag      = require('../enums/IncludeFlag');
 
-class BaseDaoDelegate {
+class BaseDaoDelegate
+{
 
     logger:log4js.Logger;
 
@@ -16,10 +18,15 @@ class BaseDaoDelegate {
         this.logger = log4js.getLogger(Utils.getClassName(this));
     }
 
-    get(id:any, fields?:string[], includes?:string[]):q.Promise<any>
+    get(id:any, fields?:string[], includes:Array<IncludeFlag> = []):q.Promise<any>
     {
+        if (Utils.getObjectType(id) == 'Array' && id.length > 0)
+            return this.search({'id': id}, {'fields': fields}, includes);
+
+        if (Utils.getObjectType(id) == 'Array' && id.length == 1)
+            id = id[0];
+
         var self = this;
-        includes = includes || [];
         var rawResult;
 
         // 1. Get the queried object
@@ -27,11 +34,50 @@ class BaseDaoDelegate {
         // 3. When queue is complete, concat all results to queried object and return
         return this.getDao().get(id, fields)
             .then(
+            function processIncludes(result):any
+            {
+                rawResult = result;
+                var includeTasks = [];
+                _.each(includes, function (flag)
+                {
+                    var handler;
+                    if (handler = self.getIncludeHandler(flag, result))
+                        includeTasks.push(handler);
+                });
+                return q.all(includeTasks);
+            })
+            .then(
+            function handleIncludesProcessed(...args):any
+            {
+                for (var i = 0; i < args[0].length; i++)
+                    rawResult[includes[i]] = args[0][i];
+                return rawResult;
+            });
+    }
+
+    /* Abstract method self defines how flags are handled in get query */
+    getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
+    {
+        return null;
+    }
+
+    /*
+     * Perform search based on seacrh query
+     * Also fetch joint fields
+     */
+    search(search:Object, options?:Object, includes:Array<IncludeFlag> = []):q.Promise<any>
+    {
+        var self = this;
+        var rawResult;
+
+        return this.getDao().search(search, options)
+            .then(
             function processIncludes(result)
             {
                 rawResult = result;
                 var includeTasks = [];
-                _.each(includes, function (flag) {
+                _.each(includes, function (flag)
+                {
                     var handler;
                     if (handler = self.getIncludeHandler(flag, result))
                         includeTasks.push(handler);
@@ -41,27 +87,24 @@ class BaseDaoDelegate {
             .then(
             function handleIncludesProcessed(...args)
             {
-                for (var i = 0; i < args[0].length; i++)
-                    rawResult[includes[i]] = args[0][i];
+                var results = args[0];
+
+                _.each(rawResult, function (result)
+                {
+                    _.each(results, function(resultSet, index)
+                    {
+                        // TODO: Implement foreign keys so mapping can work in search
+                        var foreignKeyColumn = null;
+                        result[includes[index]] = _.map(resultSet, function (res)
+                        {
+                            // return result[foreignKeyColumn] == res['id'] ? res : null;
+                            return res;
+                        });
+
+                    });
+                });
                 return rawResult;
             });
-    }
-
-    /* Abstract method self defines how flags are handled in get query */
-    getIncludeHandler(include:string, result:any):q.Promise<any> { return null; }
-
-    /**
-     * Perform search based on seacrh query
-     * Also fetch joint fields
-     * @param search
-     * @param fields
-     * @param supplimentaryModel
-     * @param supplimentaryModelFields
-     * @returns {q.Promise<any>}
-     */
-    search(search:Object, options?:Object):q.Promise<any>
-    {
-        return this.getDao().search(search, options);
     }
 
     create(object:any, transaction?:any):q.Promise<any>
