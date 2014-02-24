@@ -10,6 +10,7 @@ class ApiConstants
 
     /* Param constants */
     static USER_ID:string = 'userId';
+    static USER_PROFILE_ID:string = 'profileId';
     static EXPERT_ID:string = 'expertId';
     static INTEGRATION_ID:string = 'integrationId';
     static PROFILE_TYPE:string = 'profileType';
@@ -24,6 +25,7 @@ class ApiConstants
 
     /* Body constants */
     static USER:string = 'user';
+    static USER_PROFILE:string = 'profile';
     static OAUTH:string = 'oauth';
     static INTEGRATION:string = 'integration';
     static INTEGRATION_MEMBER:string = 'integration_member';

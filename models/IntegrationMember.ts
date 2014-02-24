@@ -1,5 +1,6 @@
 import BaseModel                    = require('./BaseModel');
-
+import Integration                  = require('./Integration');
+import User                         = require('./User');
 /**
  Bean class for Integration member
  **/
@@ -25,6 +26,9 @@ class IntegrationMember extends BaseModel
     private refresh_token:string;
     private refresh_token_expiry:string;
 
+    private integration:Integration;
+    private user:User;
+
     /* Getters */
     getIntegrationId():number { return this.integration_id; }
     getUserId():number { return this.user_id; }
@@ -34,19 +38,22 @@ class IntegrationMember extends BaseModel
     getAccessTokenExpiry():string { return this.access_token_expiry; }
     getRefreshToken():string { return this.refresh_token; }
     getRefreshTokenExpiry():string { return this.refresh_token_expiry; }
+    getIntegration():Integration { return this.integration; }
+    getUser():User { return this.user; }
 
     isValid():boolean {
         return !isNaN(this.getIntegrationId()) && !isNaN(this.getId()) && !isNaN(this.getRole());
     }
 
     /** Setters */
-    setIntegrationId(val:number):void {  this.integration_id = val; }
-    setUserId(val:number):void {  this.user_id = val; }
-    setRole(val:number):void {  this.role = val; }
-    setAuthCode(val:string):void {  this.auth_code = val; }
-    setAccessToken(val:string):void {  this.access_token = val; }
-    setAccessTokenExpiry(val:string):void {  this.access_token_expiry = val; }
-    setRefreshToken(val:string):void {  this.refresh_token = val; }
-    setRefreshTokenExpiry(val:string):void {  this.refresh_token_expiry = val; }
+    setIntegrationId(val:number):void { this.integration_id = val; }
+    setUserId(val:number):void { this.user_id = val; }
+    setRole(val:number):void { this.role = val; }
+    setAuthCode(val:string):void { this.auth_code = val; }
+    setAccessToken(val:string):void { this.access_token = val; }
+    setAccessTokenExpiry(val:string):void { this.access_token_expiry = val; }
+    setRefreshToken(val:string):void { this.refresh_token = val; }
+    setRefreshTokenExpiry(val:string):void { this.refresh_token_expiry = val; }
+
 }
 export = IntegrationMember

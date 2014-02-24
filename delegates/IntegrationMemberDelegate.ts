@@ -6,14 +6,17 @@ import BaseDaoDelegate              = require('../delegates/BaseDaoDelegate');
 import MysqlDelegate                = require('../delegates/MysqlDelegate');
 import IntegrationDelegate          = require('../delegates/IntegrationDelegate');
 import UserDelegate                 = require('../delegates/UserDelegate');
+import UserProfileDelegate          = require('../delegates/UserProfileDelegate');
 import ExpertScheduleDelegate       = require('../delegates/ExpertScheduleDelegate');
 import IDao                         = require ('../dao/IDao');
 import IntegrationMemberDAO         = require ('../dao/IntegrationMemberDao');
 import IntegrationMemberRole        = require('../enums/IntegrationMemberRole');
 import IncludeFlag                  = require('../enums/IncludeFlag');
 import Integration                  = require('../models/Integration');
+import User                         = require('../models/User');
 import IntegrationMember            = require('../models/IntegrationMember');
 import AccessTokenCache             = require('../caches/AccessTokenCache');
+import VerificationCodeCache        = require('../caches/VerificationCodeCache');
 
 class IntegrationMemberDelegate extends BaseDaoDelegate
 {
@@ -75,14 +78,20 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
 
     getDao():IDao { return new IntegrationMemberDAO(); }
 
+    createInvitationCode(integrationId:number, user:User):q.Promise<any> { return new VerificationCodeCache().createInvitationCode(integrationId, user); }
+    searchInvitationCode(code:string, integrationId:number):q.Promise<any> { return new VerificationCodeCache().searchInvitationCode(code, integrationId); }
+
     getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
     {
+        var integrationMember:IntegrationMember = result;
         switch (include)
         {
             case IncludeFlag.INCLUDE_INTEGRATION:
                 return new IntegrationDelegate().get(_.uniq(_.pluck(result, IntegrationMember.INTEGRATION_ID)));
             case IncludeFlag.INCLUDE_USER:
                 return new UserDelegate().get(_.uniq(_.pluck(result, IntegrationMember.USER_ID)));
+            case IncludeFlag.INCLUDE_USER_PROFILE:
+                return new UserProfileDelegate().search({'user_id': integrationMember.getUserId()});
             case IncludeFlag.INCLUDE_SCHEDULES:
                 return new ExpertScheduleDelegate().getSchedulesForExpert(_.uniq(_.pluck(result, IntegrationMember.ID)));
         }

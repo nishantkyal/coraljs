@@ -1,3 +1,4 @@
+///<reference path='../_references.d.ts'/>
 import url                                      = require('url');
 
 /**
@@ -78,6 +79,12 @@ class ApiUrlDelegate
     /* URL patterns for SMS */
     static sms():string { return this.get('/rest/sms'); }
 
+    /* URL patterns for email */
+    static expertInviteEmail():string { return this.get('/rest/email/expert/invitation'); }
+
+    /* URL patterns for user profile */
+    static userProfile():string { return this.get('/rest/user/profile'); }
+    static userProfileById(profileId?:number):string { return this.get('/rest/user/profile/:profileId', {profileId: profileId}); }
 
     /* URL patterns for Twilio */
     static twiml():string { return this.get('/rest/twiml'); }

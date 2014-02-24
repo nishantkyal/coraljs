@@ -18,7 +18,7 @@ class BaseDaoDelegate
         this.logger = log4js.getLogger(Utils.getClassName(this));
     }
 
-    get(id:any, fields?:string[], includes:Array<IncludeFlag> = []):q.Promise<any>
+    get(id:any, fields?:string[], includes:IncludeFlag[] = []):q.Promise<any>
     {
         if (Utils.getObjectType(id) == 'Array' && id.length > 0)
             return this.search({'id': id}, {'fields': fields}, includes);
@@ -65,7 +65,7 @@ class BaseDaoDelegate
      * Perform search based on seacrh query
      * Also fetch joint fields
      */
-    search(search:Object, options?:Object, includes:Array<IncludeFlag> = []):q.Promise<any>
+    search(search:Object, options?:Object, includes:IncludeFlag[] = []):q.Promise<any>
     {
         var self = this;
         var rawResult;
@@ -91,7 +91,7 @@ class BaseDaoDelegate
 
                 _.each(rawResult, function (result)
                 {
-                    _.each(results, function(resultSet, index)
+                    _.each(results, function(resultSet:any, index)
                     {
                         // TODO: Implement foreign keys so mapping can work in search
                         var foreignKeyColumn = null;
@@ -109,21 +109,20 @@ class BaseDaoDelegate
 
     create(object:any, transaction?:any):q.Promise<any>
     {
-        // Compose insert statement based on data
         var generatedId:number = new GlobalIdDelegate().generate(this.getDao().getModel().TABLE_NAME);
-        object['id'] = generatedId;
-        object['created'] = new Date().getTime();
-        object['updated'] = new Date().getTime();
+        object[BaseModel.ID] = generatedId;
+        object[BaseModel.CREATED] = new Date().getTime();
+        object[BaseModel.UPDATED] = new Date().getTime();
 
         return this.getDao().create(object, transaction);
     }
 
-    update(criteria:Object, newValues:Object, transaction?:any):q.Promise<any>
+    update(criteria:any, newValues:any, transaction?:any):q.Promise<any>
     {
         // Compose update statement based on newValues
-        newValues['updated'] = new Date().getTime();
-        delete newValues['created'];
-        delete newValues['id'];
+        newValues[BaseModel.UPDATED] = new Date().getTime();
+        delete newValues[BaseModel.CREATED];
+        delete newValues[BaseModel.ID];
 
         return this.getDao().update(criteria, newValues, transaction);
     }

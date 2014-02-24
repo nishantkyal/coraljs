@@ -55,7 +55,7 @@ class PhoneCallDelegate extends BaseDAODelegate
         return super.search(search, options);
     }
 
-    update(criteria:Object, newValues:Object, transaction?:any):q.Promise<any>
+    update(criteria:any, newValues:any, transaction?:any):q.Promise<any>
     {
         if (newValues.hasOwnProperty('status'))
             throw new Error('Please use the method updateCallStatus to update call status');

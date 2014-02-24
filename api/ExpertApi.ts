@@ -27,8 +27,9 @@ class ExpertApi
         app.get(ApiUrlDelegate.expert(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
             var searchCriteria:Object = req.body;
+            var includes:IncludeFlag[] = [].concat(req.query[ApiConstants.INCLUDE]);
 
-            integrationMemberDelegate.search(searchCriteria)
+            integrationMemberDelegate.search(searchCriteria, null, includes)
                 .then(
                 function handleExpertSearched(result) { res.json(result); },
                 function handleExpertSearchError(err) { res.status(500).json(err); }
@@ -52,7 +53,7 @@ class ExpertApi
         app.put(ApiUrlDelegate.expert(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
             var integrationMember:IntegrationMember = new IntegrationMember(req.body);
-            integrationMember.setRole(IntegrationMemberRole.EXPERT);
+            integrationMember.setRole(IntegrationMemberRole.Expert);
 
             if (integrationMember.getUserId() != null)
                 integrationMemberDelegate.create(integrationMember)

@@ -29,9 +29,9 @@ class BaseModel
 
         if (thisProtoConstructor['COLUMNS'].length == 0)
             for (var classProperty in this.__proto__)
-                if (typeof this.__proto__[classProperty] == 'function' && classProperty.match(/^set/) != null)
+                if (typeof this.__proto__[classProperty] == 'function' && classProperty.match(/^get/) != null)
                 {
-                    var key:string = Utils.camelToUnderscore(classProperty.replace(/^set/, ''));
+                    var key:string = Utils.camelToUnderscore(classProperty.replace(/^get/, ''));
                     thisProtoConstructor['COLUMNS'].push(key);
                 }
 
@@ -52,7 +52,7 @@ class BaseModel
     setUpdated(val:number):void { this.updated = val; }
     setDeleted(val:boolean):void { this.deleted = val; }
 
-    getData():Object
+    toJson():Object
     {
         var thisProtoConstructor = this.__proto__.constructor;
         var self = this;

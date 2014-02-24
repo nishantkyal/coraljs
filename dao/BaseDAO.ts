@@ -129,10 +129,11 @@ class BaseDao implements IDao
             function handleSearchResults(results:Array<any>) { return _.map(results, function (result) { return new self.modelClass(result); }); });
     }
 
-    update(criteria:Object, newValues:Object, transaction?:any):q.Promise<any>
+    update(criteria:any, newValues:any, transaction?:any):q.Promise<any>
     {
         // Remove fields with null values
-        _.each(_.extend({}, criteria, newValues), function (val, key) { if (val == undefined) delete criteria[key]; });
+        _.each(criteria, function (val, key) { if (val == undefined) delete criteria[key]; });
+        _.each(newValues, function (val, key) { if (val == undefined) delete newValues[key]; });
 
         var values = [], updates, wheres;
 
@@ -150,7 +151,7 @@ class BaseDao implements IDao
     delete(id:string, softDelete:boolean = true, transaction?:any):q.Promise<any>
     {
         if (softDelete)
-            return this.update({'id': id}, {'deleted': true}, transaction);
+            return this.update({'id': id}, {'deleted': new Date().getTime()/1000}, transaction);
 
         return MysqlDelegate.executeQuery('DELETE FROM ' + this.tableName + ' WHERE id = ?', [id], transaction);
     }

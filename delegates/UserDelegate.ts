@@ -2,23 +2,44 @@
 import q                        = require('q');
 import passport                 = require('passport');
 import BaseDaoDelegate          = require('../delegates/BaseDaoDelegate');
+import UserProfileDelegate      = require('./UserProfileDelegate');
+import MysqlDelegate            = require('./MysqlDelegate');
 import IDao                     = require('../dao/IDao')
 import UserDAO                  = require('../dao/UserDao')
 import User                     = require('../models/User');
+import UserProfile              = require('../models/UserProfile');
 import VerificationCodeCache    = require('../caches/VerificationCodeCache');
+import IncludeFlag              = require('../enums/IncludeFlag');
 
 /**
  Delegate class for User operations
  **/
 class UserDelegate extends BaseDaoDelegate
 {
-    create(user?:Object, transaction?:any):q.Promise<any>
+    create(object:any, transaction?:any):q.Promise<any>
     {
-        return super.create(user, transaction)
+        var transaction;
+        var self = this;
+
+        return MysqlDelegate.beginTransaction()
             .then(
-            function userCreated(result)
+            function transactionStarted(t)
             {
-                return new User(result);
+                transaction = t;
+                return self.create(object, transaction);
+            })
+            .then(
+            function userCreated(user:User)
+            {
+                var userProfile = new UserProfile();
+                userProfile.setUserId(user.getId());
+
+                return new UserProfileDelegate().create(userProfile, transaction);
+            })
+            .then(
+            function userProfileCreated(userProfile:UserProfile)
+            {
+                return MysqlDelegate.commit(transaction, userProfile);
             });
     }
 
@@ -36,13 +57,22 @@ class UserDelegate extends BaseDaoDelegate
         );
     }
 
-    update(id:string, user:Object):q.Promise<any>
+    update(criteria:any, newValues:any, transaction?:any):q.Promise<any>
     {
-        delete user['user_id'];
-        delete user['id'];
-        delete user['email'];
+        delete newValues[User.ID];
+        delete newValues[User.EMAIL];
 
-        return super.update({user_id: id}, user);
+        return super.update(criteria, newValues);
+    }
+
+    getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
+    {
+        switch (include)
+        {
+            case IncludeFlag.INCLUDE_USER_PROFILE:
+                return new UserProfileDelegate().search({'user_id': result[User.ID]});
+        }
+        return super.getIncludeHandler(include, result);
     }
 
     createMobileVerificationToken():q.Promise<any> { return new VerificationCodeCache().createMobileVerificationCode(); }

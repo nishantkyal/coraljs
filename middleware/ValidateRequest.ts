@@ -9,6 +9,7 @@ import IntegrationMember                = require('../models/IntegrationMember')
 import PhoneCall                        = require('../models/PhoneCall');
 import PhoneNumber                      = require('../models/PhoneNumber');
 import SMS                              = require('../models/SMS');
+import UserProfile                      = require('../models/UserProfile');
 
 class ValidateRequest
 {
@@ -37,9 +38,10 @@ class ValidateRequest
         next();
     }
 
-    /* Middleware to parse body attributes into models and check if they're valid */
-    static parseBody(req, res, next)
+    /* Middleware to parse body attributes into models and parse includes*/
+    static parseRequest(req, res, next)
     {
+        // Parse models in body
         _.each(_.keys(req.body), function (key)
         {
             var modelClass:typeof BaseModel = null;
@@ -65,6 +67,9 @@ class ValidateRequest
                     break;
                 case ApiConstants.PHONE_CALL:
                     modelClass = PhoneCall;
+                    break;
+                case ApiConstants.USER_PROFILE:
+                    modelClass = UserProfile;
                     break;
             }
 

@@ -1,7 +1,7 @@
 enum IntegrationMemberRole
 {
-    OWNER = 1,
-    ADMIN = 2,
-    EXPERT = 3
+    Owner = 1,
+    Admin = 2,
+    Expert = 3
 }
 export = IntegrationMemberRole

@@ -1,3 +1,4 @@
+import EmailApi                         = require('./EmailApi');
 import ExpertApi                        = require('./ExpertApi');
 import ExpertScheduleApi                = require('./ExpertScheduleApi');
 import ExpertScheduleRulesApi           = require('./ExpertScheduleRulesApi');
@@ -11,9 +12,11 @@ import SMSApi                           = require('./SMSApi');
 import TransactionApi                   = require('./TransactionApi');
 import TwimlApi                         = require('./TwimlApi');
 import UserApi                          = require('./UserApi');
+import UserProfileApi                   = require('./UserProfileApi');
 
 function init(app)
 {
+    new EmailApi(app);
     new ExpertApi(app);
     new ExpertScheduleApi(app);
     new ExpertScheduleRulesApi(app);
@@ -27,6 +30,7 @@ function init(app)
     new TransactionApi(app);
     new TwimlApi(app);
     new UserApi(app);
+    new UserProfileApi(app);
 }
 
 export = init

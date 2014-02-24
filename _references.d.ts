@@ -13,3 +13,4 @@
 ///<reference path='../DefinitelyTyped/twilio/twilio.d.ts'/>
 ///<reference path='../DefinitelyTyped/i18n/i18n.d.ts'/>
 ///<reference path='../DefinitelyTyped/nodeunit/nodeunit.d.ts'/>
+///<reference path='../DefinitelyTyped/nodemailer/nodemailer.d.ts'/>

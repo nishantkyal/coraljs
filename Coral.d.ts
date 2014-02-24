@@ -6,6 +6,7 @@ export class ApiConstants {
     static INCLUDE: string;
     static ROLE: string;
     static USER_ID: string;
+    static USER_PROFILE_ID: string;
     static EXPERT_ID: string;
     static INTEGRATION_ID: string;
     static PROFILE_TYPE: string;
@@ -18,6 +19,7 @@ export class ApiConstants {
     static START_TIME: string;
     static END_TIME: string;
     static USER: string;
+    static USER_PROFILE: string;
     static OAUTH: string;
     static INTEGRATION: string;
     static INTEGRATION_MEMBER: string;
@@ -27,15 +29,6 @@ export class ApiConstants {
     static SCHEDULE: string;
     static SCHEDULE_RULE: string;
     static SMS: string;
-}
-
-
-export class IncludeFlag {
-    static INCLUDE_INTEGRATION: string;
-    static INCLUDE_USER: string;
-    static INCLUDE_INTEGRATION_MEMBER: string;
-    static INCLUDE_INTEGRATION_MEMBER_USER: string;
-    static INCLUDE_SCHEDULES: string;
 }
 
 
@@ -60,17 +53,17 @@ export enum ErrorCode {
 export class IncludeFlag {
     static INCLUDE_INTEGRATION: string;
     static INCLUDE_USER: string;
+    static INCLUDE_USER_PROFILE: string;
     static INCLUDE_INTEGRATION_MEMBER: string;
     static INCLUDE_INTEGRATION_MEMBER_USER: string;
     static INCLUDE_SCHEDULES: string;
-    static INCLUDE_TRANSACTION_LINE: string;
 }
 
 
 export enum IntegrationMemberRole {
-    OWNER = 1,
-    ADMIN = 2,
-    EXPERT = 3,
+    Owner = 1,
+    Admin = 2,
+    Expert = 3,
 }
 
 
@@ -100,6 +93,10 @@ export enum SMSStatus {
 
 export class BaseModel {
     static TABLE_NAME: string;
+    static ID: string;
+    static CREATED: string;
+    static UPDATED: string;
+    static DELETED: string;
     private __proto__;
     private id;
     private created;
@@ -114,13 +111,19 @@ export class BaseModel {
     public setCreated(val: number): void;
     public setUpdated(val: number): void;
     public setDeleted(val: boolean): void;
-    public getData(): Object;
+    public toJson(): Object;
 }
 
 
 
 export class Email extends BaseModel {
     static TABLE_NAME: string;
+    static RECIPIENT_EMAIL: string;
+    static SENDER_EMAIL: string;
+    static SUBJECT: string;
+    static TEMPLATE: string;
+    static DATA: string;
+    static SCHEDULED_DATE: string;
     private recipient_email;
     private sender_email;
     private subject;
@@ -146,6 +149,13 @@ export class Email extends BaseModel {
 
 export class ExpertSchedule extends BaseModel {
     static TABLE_NAME: string;
+    static SCHEDULE_RULE_ID: string;
+    static INTEGRATION_MEMBER_ID: string;
+    static START_TIME: string;
+    static DURATION: string;
+    static PRICE_UNIT: string;
+    static PRICE_PER_MIN: string;
+    static ACTIVE: string;
     private schedule_rule_id;
     private integration_member_id;
     private start_time;
@@ -172,39 +182,22 @@ export class ExpertSchedule extends BaseModel {
 
 
 
-export class ExpertScheduleException extends BaseModel {
-    static TABLE_NAME: string;
-    public integration_member_id: number;
-    public schedule_rule_id: number;
-    public start_time: number;
-    public duration: number;
-    private price_unit;
-    private price_per_min;
-    public getIntegrationMemberId(): number;
-    public getScheduleRuleId(): number;
-    public getStartTime(): number;
-    public getDuration(): number;
-    public getPriceUnit(): MoneyUnit;
-    public getPricePerMin(): number;
-    public setIntegrationMemberId(val: number): void;
-    public setScheduleRuleId(val: number): void;
-    public setStartTime(val: number): void;
-    public setDuration(val: number): void;
-    public setPriceUnit(val: MoneyUnit): void;
-    public setPricePerMin(val: number): void;
-}
-
-
-
-
 export class ExpertScheduleRule extends BaseModel {
     static TABLE_NAME: string;
-    public integration_member_id: number;
-    public repeat_start: number;
-    public repeat_interval: number;
-    public repeat_cron: number;
-    public repeat_end: number;
-    public duration: number;
+    static INTEGRATION_MEMBER_ID: string;
+    static REPEAT_START: string;
+    static REPEAT_INTERVAL: string;
+    static REPEAT_CRON: string;
+    static REPEAT_END: string;
+    static DURATION: string;
+    static PRICE_UNIT: string;
+    static PRICE_PER_MIN: string;
+    private integration_member_id;
+    private repeat_start;
+    private repeat_interval;
+    private repeat_cron;
+    private repeat_end;
+    private duration;
     private price_unit;
     private price_per_min;
     public getIntegrationMemberId(): number;
@@ -230,6 +223,12 @@ export class ExpertScheduleRule extends BaseModel {
 
 export class Integration extends BaseModel {
     static TABLE_NAME: string;
+    static TITLE: string;
+    static WEBSITE_URL: string;
+    static REDIRECT_URL: string;
+    static INTEGRATION_TYPE: string;
+    static SECRET: string;
+    static STATUS: string;
     private title;
     private website_url;
     private redirect_url;
@@ -252,8 +251,18 @@ export class Integration extends BaseModel {
 
 
 
+
+
 export class IntegrationMember extends BaseModel {
     static TABLE_NAME: string;
+    static INTEGRATION_ID: string;
+    static USER_ID: string;
+    static ROLE: string;
+    static AUTH_CODE: string;
+    static ACCESS_TOKEN: string;
+    static ACCESS_TOKEN_EXPIRY: string;
+    static REFRESH_TOKEN: string;
+    static REFRESH_TOKEN_EXPIRY: string;
     private integration_id;
     private user_id;
     private role;
@@ -262,6 +271,8 @@ export class IntegrationMember extends BaseModel {
     private access_token_expiry;
     private refresh_token;
     private refresh_token_expiry;
+    private integration;
+    private user;
     public getIntegrationId(): number;
     public getUserId(): number;
     public getRole(): number;
@@ -270,6 +281,8 @@ export class IntegrationMember extends BaseModel {
     public getAccessTokenExpiry(): string;
     public getRefreshToken(): string;
     public getRefreshTokenExpiry(): string;
+    public getIntegration(): Integration;
+    public getUser(): User;
     public isValid(): boolean;
     public setIntegrationId(val: number): void;
     public setUserId(val: number): void;
@@ -283,8 +296,79 @@ export class IntegrationMember extends BaseModel {
 
 
 
+export class Payment extends BaseModel {
+    static TABLE_NAME: string;
+    static USER_ID: string;
+    static AMOUNT: string;
+    static UPDATE_DATE: string;
+    static TRANSACTION_ID: string;
+    static STATUS: string;
+    private user_id;
+    private amount;
+    private update_date;
+    private transaction_id;
+    private status;
+    public getUserId(): number;
+    public getAmount(): number;
+    public getUpdateDate(): number;
+    public getTransactionId(): string;
+    public getStatus(): number;
+    public setUserId(val: number): void;
+    public setAmount(val: number): void;
+    public setUpdateDate(val: number): void;
+    public setTransactionId(val: string): void;
+    public setStatus(val: number): void;
+}
+
+
+
+export class PayoutDetail extends BaseModel {
+    static TABLE_NAME: string;
+    static USER_ID: string;
+    static MODE: string;
+    static ACCOUNT_HOLDER_NAME: string;
+    static ACCOUNT_NUM: string;
+    static IFSC_CODE: string;
+    static BANK_NAME: string;
+    private user_id;
+    private mode;
+    private account_holder_name;
+    private account_num;
+    private ifsc_code;
+    private bank_name;
+    public getUserId(): number;
+    public getMode(): number;
+    public getAccountHolderName(): string;
+    public getAccountNum(): string;
+    public getIfscCode(): string;
+    public getBankName(): string;
+    public setUserId(val: number): void;
+    public setMode(val: number): void;
+    public setAccountHolderName(val: string): void;
+    public setAccountNum(val: string): void;
+    public setIfscCode(val: string): void;
+    public setBankName(val: string): void;
+}
+
+
+
 export class PhoneCall extends BaseModel {
     static TABLE_NAME: string;
+    static CALLER_ID: string;
+    static EXPERT_ID: string;
+    static INTEGRATION_ID: string;
+    static SCHEDULE_ID: string;
+    static START_TIME: string;
+    static DURATION: string;
+    static STATUS: string;
+    static PRICE: string;
+    static PRICE_CURRENCY: string;
+    static COST: string;
+    static COST_CURRENCY: string;
+    static AGENDA: string;
+    static RECORDED: string;
+    static EXTENSION: string;
+    static NUM_RESCHEDULES: string;
     private caller_id;
     private expert_id;
     private integration_id;
@@ -337,20 +421,24 @@ export class PhoneCall extends BaseModel {
 
 export class PhoneNumber extends BaseModel {
     static TABLE_NAME: string;
+    static USER_ID: string;
+    static COUNTRY_CODE: string;
+    static AREA_CODE: string;
+    static PHONE: string;
+    static TYPE: string;
+    static VERIFIED: string;
     private user_id;
     private country_code;
     private area_code;
     private phone;
     private type;
     private verified;
-    private verification_code;
     public getUserId(): number;
     public getCountryCode(): string;
     public getAreaCode(): string;
     public getPhone(): number;
     public getType(): number;
     public getVerified(): boolean;
-    public getVerificationCode(): string;
     public isValid(): boolean;
     public setUserId(val: number): void;
     public setCountryCode(val: string): void;
@@ -358,7 +446,6 @@ export class PhoneNumber extends BaseModel {
     public setPhone(val: number): void;
     public setType(val: number): void;
     public setVerified(val: boolean): void;
-    public setVerificationCode(val: string): void;
 }
 
 
@@ -367,6 +454,14 @@ export class PhoneNumber extends BaseModel {
 
 export class SMS extends BaseModel {
     static TABLE_NAME: string;
+    static COUNTRY_CODE: string;
+    static PHONE: string;
+    static SENDER: string;
+    static MESSAGE: string;
+    static SCHEDULED_DATE: string;
+    static STATUS: string;
+    static NUM_RETRIES: string;
+    static PRIORITY: string;
     private country_code;
     private phone;
     private sender;
@@ -399,6 +494,10 @@ export class SMS extends BaseModel {
 
 export class Transaction extends BaseModel {
     static TABLE_NAME: string;
+    static USER_ID: string;
+    static TOTAL: string;
+    static TOTAL_UNIT: string;
+    static STATUS: string;
     private user_id;
     private total;
     private total_unit;
@@ -417,6 +516,12 @@ export class Transaction extends BaseModel {
 
 export class TransactionLine extends BaseModel {
     static TABLE_NAME: string;
+    static TRANSACTION_ID: string;
+    static PRODUCT_ID: string;
+    static PRODUCT_TYPE: string;
+    static TRANSACTION_TYPE: string;
+    static AMOUNT: string;
+    static AMOUNT_UNIT: string;
     private transaction_id;
     private product_id;
     private product_type;
@@ -441,6 +546,13 @@ export class TransactionLine extends BaseModel {
 
 export class User extends BaseModel {
     static TABLE_NAME: string;
+    static FIRST_NAME: string;
+    static LAST_NAME: string;
+    static MOBILE: string;
+    static EMAIL: string;
+    static PASSWORD: string;
+    static VERIFIED: string;
+    static ACTIVATED: string;
     private first_name;
     private last_name;
     private mobile;
@@ -469,6 +581,13 @@ export class User extends BaseModel {
 
 export class UserOauth extends BaseModel {
     static TABLE_NAME: string;
+    static USER_ID: string;
+    static PROVIDER_ID: string;
+    static OAUTH_USER_ID: string;
+    static ACCESS_TOKEN: string;
+    static ACCESS_TOKEN_EXPIRY: string;
+    static REFRESH_TOKEN: string;
+    static REFRESH_TOKEN_EXPIRY: string;
     private user_id;
     private provider_id;
     private oauth_user_id;
@@ -491,6 +610,29 @@ export class UserOauth extends BaseModel {
     public setAccessTokenExpiry(val: any): void;
     public setRefreshToken(val: any): void;
     public setRefreshTokenExpiry(val: any): void;
+}
+
+
+
+
+export class UserProfile extends BaseModel {
+    static TABLE_NAME: string;
+    static USER_ID: string;
+    static LOCALE: string;
+    static SHORT_DESC: string;
+    static LONG_DESC: string;
+    private user_id;
+    private locale;
+    private short_desc;
+    private long_desc;
+    public getUserId(): number;
+    public getLocale(): string;
+    public getShortDesc(): string;
+    public getLongDesc(): string;
+    public setUserId(val: number): void;
+    public setLocale(val: string): void;
+    public setShortDesc(val: string): void;
+    public setLongDesc(val: string): void;
 }
 
 
@@ -540,6 +682,9 @@ export class ApiUrlDelegate {
     static transactionItem(transactionId?: number): string;
     static transactionItemById(transactionId?: number, itemId?: number): string;
     static sms(): string;
+    static email(): string;
+    static userProfile(): string;
+    static userProfileById(profileId?: number): string;
     static twiml(): string;
     static twimlJoinConference(): string;
     static twimlCallExpert(callId?: number): string;
@@ -559,7 +704,7 @@ export class Config {
 export class Utils {
     static getRandomString(length: number, characters?: string): string;
     static getRandomInt(min: any, max: any): any;
-    static isNullOrEmpty(str: any): boolean;
+    static isNullOrEmpty(val: any): boolean;
     static getClassName(object: Object): string;
     static copyProperties(source: any, target: any): void;
     static camelToUnderscore(camelCasedString: string): string;

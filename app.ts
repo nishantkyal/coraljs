@@ -13,7 +13,7 @@ var app:express.Application = express();
 app.set('port', Config.get('Coral.port') || 3000);
 app.use(express.bodyParser());
 app.use(express.methodOverride());
-app.use(ValidateRequest.parseBody);
+app.use(ValidateRequest.parseRequest);
 app.enable('trust proxy');
 
 // Create relationships in models based on db schema
@@ -25,7 +25,7 @@ MysqlDelegate.createConnection()
             'FROM information_schema.KEY_COLUMN_USAGE  ' +
             'WHERE referenced_table_name IS NOT NULL ' +
             'AND constraint_name != "PRIMARY" ' +
-            'AND table_schema = ' + Config.get('database.name'));
+            'AND table_schema = "' + Config.get('database.name') + '"');
     })
     .then(
     function populateModelsWithForeignKeys(rows:Array<any>)
@@ -37,6 +37,10 @@ MysqlDelegate.createConnection()
             var targetTable = constraint['referenced_table_name'];
             var targetColumn = constraint['referenced_table_name'];
         }
+    },
+    function foreignKeyError(error)
+    {
+
     });
 
 // development only
