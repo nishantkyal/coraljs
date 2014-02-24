@@ -156,6 +156,14 @@ class BaseDao implements IDao
         return MysqlDelegate.executeQuery('DELETE FROM ' + this.tableName + ' WHERE id = ?', [id], transaction);
     }
 
+    searchAndDelete(id:string, softDelete:boolean = true, transaction?:any):q.Promise<any>
+    {
+        if (softDelete)
+            return this.update({'schedule_rule_id': id}, {'deleted': true}, transaction);
+
+        return MysqlDelegate.executeQuery('DELETE FROM ' + this.tableName + ' WHERE schedule_rule_id = ?', [id], transaction);
+    }
+
     getModel():typeof BaseModel { throw('Model class not defined for ' + Utils.getClassName(this)); }
 
 }

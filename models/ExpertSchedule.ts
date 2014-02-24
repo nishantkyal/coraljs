@@ -1,7 +1,7 @@
 import BaseModel                = require('./BaseModel');
 import MoneyUnit                = require('../enums/MoneyUnit');
 
-class ExpertSchedule extends BaseModel
+class ExpertScheduleRule extends BaseModel
 {
     static TABLE_NAME:string = 'expert_schedule';
 
@@ -31,4 +31,4 @@ class ExpertSchedule extends BaseModel
     setPricePerMin(val:number):void { this.price_per_min = val; }
     setActive(val:boolean):void { this.active = val; }
 }
-export = ExpertSchedule
+export = ExpertScheduleRule

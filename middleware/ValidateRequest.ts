@@ -9,6 +9,9 @@ import IntegrationMember                = require('../models/IntegrationMember')
 import PhoneCall                        = require('../models/PhoneCall');
 import PhoneNumber                      = require('../models/PhoneNumber');
 import SMS                              = require('../models/SMS');
+import ExpertScheduleRule               = require('../models/ExpertScheduleRule');
+import ExpertScheduleException          = require('../models/ExpertScheduleException');
+
 
 class ValidateRequest
 {
@@ -65,6 +68,12 @@ class ValidateRequest
                     break;
                 case ApiConstants.PHONE_CALL:
                     modelClass = PhoneCall;
+                    break;
+                case ApiConstants.SCHEDULE_RULE:
+                    modelClass = ExpertScheduleRule;
+                    break;
+                case ApiConstants.SCHEDULE_EXCEPTION:
+                    modelClass = ExpertScheduleException;
                     break;
             }
 

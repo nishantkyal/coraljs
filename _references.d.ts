@@ -12,4 +12,5 @@
 ///<reference path='../DefinitelyTyped/node-mysql/mysql.d.ts'/>
 ///<reference path='../DefinitelyTyped/twilio/twilio.d.ts'/>
 ///<reference path='../DefinitelyTyped/i18n/i18n.d.ts'/>
+///<reference path='../DefinitelyTyped/cron-parser/cron-parser.d.ts'/>
 ///<reference path='../DefinitelyTyped/nodeunit/nodeunit.d.ts'/>

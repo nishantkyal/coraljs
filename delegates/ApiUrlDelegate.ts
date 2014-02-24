@@ -1,3 +1,4 @@
+///<reference path='../_references.d.ts'/>
 import url                                      = require('url');
 
 /**
@@ -7,7 +8,7 @@ import url                                      = require('url');
  */
 class ApiUrlDelegate
 {
-    static BASE_URL:string = null;
+    static BASE_URL:string = '';
 
     /* URL patterns for expert API */
     static expert():string { return this.get('/rest/expert'); }
@@ -40,8 +41,13 @@ class ApiUrlDelegate
 
     /* URL patterns for expert schedule rules*/
     static scheduleRule():string { return this.get('/rest/scheduleRule')}
-    static scheduleRuleById(scheduleRuleId?:number):string { return this.get('/rest/scheduleRule/:scheduleRuleId', {scheduleRuleId: scheduleRuleId})}
+    static scheduleRuleById(expertId?:number, scheduleRuleId?:number):string { return this.get('/rest/expert/:expertId/scheduleRule/:scheduleRuleId', {expertId: expertId, scheduleRuleId: scheduleRuleId})}
     static scheduleRuleByExpert(expertId?:number):string { return this.get('/rest/expert/:expertId/scheduleRule', {expertId: expertId})}
+
+    /* URL patterns for expert schedule exceptions */
+    static scheduleExceptionByRuleId(scheduleRuleId?:number, expertId?:number):string { return this.get('/rest/expert/:expertId/:scheduleRuleId/exception', {expertId: expertId, scheduleRuleId:scheduleRuleId})}
+    static scheduleExceptionByExpertId(scheduleRuleId?:number, expertId?:number):string { return this.get('/rest/expert/:expertId/exception', {expertId: expertId})}
+    static scheduleExceptionByExceptionId(scheduleRuleId?:number, expertId?:number, exceptionId?:number):string { return this.get('/rest/expert/:expertId/:scheduleRuleId/exception/:exceptionId', {expertId: expertId, scheduleRuleId:scheduleRuleId, exceptionId:exceptionId})}
 
     /* URL patterns for third party integration */
     static integration():string { return this.get('/rest/integration'); }
