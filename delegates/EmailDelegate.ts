@@ -9,7 +9,6 @@ import IDao                         = require('../dao/IDao');
 import EmailDao                     = require('../dao/EmailDao');
 import CallStatus                   = require('../enums/CallStatus');
 import IncludeFlag                  = require('../enums/IncludeFlag');
-import EmailTemplate                = require('../enums/EmailTemplate');
 import UserDelegate                 = require('../delegates/UserDelegate');
 import IntegrationMemberDelegate    = require('../delegates/IntegrationMemberDelegate');
 import Utils                        = require('../common/Utils');
@@ -37,7 +36,7 @@ class EmailDelegate
 
     getDao():IDao { return new EmailDao(); }
 
-    send(template:EmailTemplate, to:string, subject:string, data:Object, from?:string):q.Promise<any>
+    send(to:string, subject:string, data:Object, from?:string):q.Promise<any>
     {
         return null;
     }

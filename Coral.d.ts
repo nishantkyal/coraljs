@@ -682,7 +682,7 @@ export class ApiUrlDelegate {
     static transactionItem(transactionId?: number): string;
     static transactionItemById(transactionId?: number, itemId?: number): string;
     static sms(): string;
-    static email(): string;
+    static expertInviteEmail(): string;
     static userProfile(): string;
     static userProfileById(profileId?: number): string;
     static twiml(): string;
