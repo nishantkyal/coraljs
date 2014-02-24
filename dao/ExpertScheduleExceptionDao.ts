@@ -9,23 +9,28 @@ class ExpertScheduleExceptionDao extends BaseDAO
 {
     getModel():typeof BaseModel { return ExpertScheduleException; }
 
-    findExceptionByRuleId(startTime:number, endTime:number, ruleId:number):q.Promise<any>
+    findExceptionByRuleId(scheduleId:number):q.Promise<any>
     {
-        var query = 'SELECT * ' +
-            'FROM expert_schedule_exceptions ' +
-            'WHERE start_time BETWEEN ' + startTime + ' AND ' + endTime +
-        ' AND schedule_rule_id = ' + ruleId;
+        /*var search = {
+            'start_time' :{
+                'operator': 'between',
+                'value': [startTime, endTime]
+            },
+            'schedule_rule_id': ruleId
+        };*/
+        var search = {
+            'schedule_rule_id': scheduleId
+        }
 
-        return MysqlDelegate.executeQuery(query);
+        return this.search(search);
     }
-    findExceptionByExpertId(startTime:number, endTime:number, expertId:number):q.Promise<any>
+    findExceptionByExpertId(expertId:number):q.Promise<any>
     {
-        var query = 'SELECT * ' +
-            'FROM expert_schedule_exceptions ' +
-            'WHERE start_time BETWEEN ' + startTime + ' AND ' + endTime +
-            ' AND integration_member_id = ' + expertId;
+        var search = {
+            'integration_member_id': expertId
+        };
 
-        return MysqlDelegate.executeQuery(query);
+        return this.search(search);
     }
 }
 export = ExpertScheduleExceptionDao
