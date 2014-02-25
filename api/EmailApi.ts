@@ -12,7 +12,7 @@ class EmailApi
         app.put(ApiUrlDelegate.expertInviteEmail(), function(req:express.Request, res:express.Response)
         {
             var integrationId:number = parseInt(req.body[ApiConstants.INTEGRATION_ID]);
-            var user = new User(req.body);
+            var user:User = req.body[ApiConstants.USER];
 
             new EmailDelegate().sendExpertInvitationEmail(integrationId, user)
                 .then(
