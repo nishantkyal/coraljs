@@ -18,42 +18,29 @@ class GeneratedSchedules
 {
     date:number;
     duration:number;
-    public getDate()
-    {
-        return this.date;
-    }
-    public getDuration()
-    {
-        return this.duration;
-    }
-    public setDate(d:number)
-    {
-        this.date = d;
-    }
-    public setDuration(d:number)
-    {
-        this.duration = d;
-    }
+    public getDate():number { return this.date;}
+    public getDuration():number { return this.duration; }
+    public setDate(d:number) { this.date = d; }
+    public setDuration(d:number) { this.duration = d; }
 }
 class ExpertScheduleRuleDelegate extends BaseDaoDelegate
 {
     getDao():IDao { return new ExpertScheduleRuleDao(); }
-    create(newScheduleRule:ExpertScheduleRule, transaction?:any):q.Promise<any>
+    createRule(newScheduleRule:ExpertScheduleRule, transaction?:any):q.Promise<any>
     {
         var self = this;
-        var expertScheduleRuleDao:any = this.getDao();
         var existingRules = this.getRulesByIntegrationMemberId(newScheduleRule.getIntegrationMemberId());
         return existingRules
-            .then
-        (
+            .then(
             function createRecord(schedules:ExpertScheduleRule[])
             {
                 var options = {
-                    startDate: new Date(newScheduleRule.getRepeatStart()),
-                    endDate: new Date(newScheduleRule.getRepeatEnd())
-                };
+                    startDate: new Date(newScheduleRule.getRepeatStart()*1000),
+                    endDate: new Date(newScheduleRule.getRepeatEnd()*1000)
+                };//TODO handle conversion to ms
+
                 if (!self.hasConflicts(schedules, newScheduleRule, options))
-                    return self.getDao().create(newScheduleRule, transaction);
+                    return self.create(newScheduleRule, transaction);
                 else
                     throw {
                         'message': 'Conflicting schedule rules found',
@@ -63,9 +50,14 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
         );
     }
 
-    getRulesByIntegrationMemberId(integrationMemberId:number):q.Promise<any>
+    getRulesByIntegrationMemberId(integrationMemberId:number, startTime:number,  endTime:number):q.Promise<any>
     {
-        return this.getDao().search({'integration_member_id': integrationMemberId});
+        return this.getDao().getRuleById(integrationMemberId, startTime,  endTime);
+    }
+
+    getRulesById(Id:number):q.Promise<any>
+    {
+        return this.getDao().search({'id': Id});
     }
 
     updateRule(updatedScheduleRule:ExpertScheduleRule, transaction?:any):q.Promise<any>
@@ -92,7 +84,7 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
             })
     }
 
-    deleteRule(scheduleRuleId, transaction?:any):q.Promise<any>
+    deleteRule(scheduleRuleId:number, transaction?:any):q.Promise<any>
     {
         var self = this;
         var transaction = null;
@@ -116,11 +108,13 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
             })
     }
 
-    hasConflicts(schedules:ExpertScheduleRule[], newScheduleRule:ExpertScheduleRule, options):boolean
+    private hasConflicts(schedules:ExpertScheduleRule[], newScheduleRule:ExpertScheduleRule, options):boolean
     {
+        if (schedules.length == 0)
+            return false;
         var self = this;
-        var generatedSchedules = self.expertScheduleGenerator(schedules,null, options);
-        var newGeneratedSchedules = self.expertScheduleGenerator([newScheduleRule],null, options);
+        var generatedSchedules:GeneratedSchedules[] = self.expertScheduleGenerator(schedules,null, options);
+        var newGeneratedSchedules:GeneratedSchedules[] = self.expertScheduleGenerator([newScheduleRule],null, options);
         var conflict = false;
         _.each(generatedSchedules, function(existingSchedule:GeneratedSchedules){
             _.each(newGeneratedSchedules, function(newSchedule:GeneratedSchedules){
@@ -135,28 +129,30 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
         return conflict;
     }
 
-    expertScheduleGenerator(scheduleRules:ExpertScheduleRule[],exceptions:ExpertScheduleException[], options):any
+    validateException(scheduleRules:ExpertScheduleRule[], options, exception:ExpertScheduleException):boolean
     {
-        var schedules = [];
+        var schedules:GeneratedSchedules[] = this.expertScheduleGenerator(scheduleRules,null, options);
+        var schedulesAfterExceptions:GeneratedSchedules[] = this.applyExceptions(schedules, [exception]);
+        return schedules.length != schedulesAfterExceptions.length;
+    }
+
+    private expertScheduleGenerator(scheduleRules:ExpertScheduleRule[],exceptions:ExpertScheduleException[], options):GeneratedSchedules[]
+    {
+        var schedules:GeneratedSchedules[] = [];
         if(scheduleRules.length == 0)
         {
             scheduleRules:[scheduleRules];
         }
-        var expertId = scheduleRules[0].getIntegrationMemberId();
         for (var i = 0; i < scheduleRules.length; i++) {
             parser.parseExpression(scheduleRules[i].getCronRule(), options, function (err, interval:any) {
                 if (err) {
                     console.log('Error: ' + err.message);
                     return;
                 }
-                console.log('RuleID:', scheduleRules[i].getRuleId());
-                console.log('Rule:', scheduleRules[i].getCronRule());
                 var t;
                 while ((t = interval.next())) {
-                    console.log('StartTime: ', t.getTime());
-                    console.log('Endtime', t.getTime()+scheduleRules[i].getDuration());
                     var temp = new GeneratedSchedules();
-                    temp.setDate(t.getTime());
+                    temp.setDate(t.getTime()/1000); //TODO handle convertion to sec
                     temp.setDuration(scheduleRules[i].getDuration());
                     schedules.push(temp);
                 }
@@ -169,14 +165,13 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
         else
             return schedules;
     }
-    applyExceptions(schedules, exceptions:ExpertScheduleException[]):GeneratedSchedules[]
+
+    private applyExceptions(schedules:GeneratedSchedules[], exceptions:ExpertScheduleException[]):GeneratedSchedules[]
     {
         schedules = _.filter(schedules, function (schedule:GeneratedSchedules) {
             for (var i = 0; i < exceptions.length; i++)
             {
-                console.log('Exception:', exceptions[i].start_time);
-                //TODO use getStartTime() not start_time
-                if ((exceptions[i].start_time >= schedule.getDate()) && (exceptions[i].start_time <= schedule.getDate() + schedule.getDuration()))
+                if ((exceptions[i].getStartTime() >= schedule.getDate()) && (exceptions[i].getStartTime() <= schedule.getDate() + schedule.getDuration()))
                 {
                     return false;
                     console.log('exception caught');

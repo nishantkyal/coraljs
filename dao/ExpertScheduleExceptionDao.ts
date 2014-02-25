@@ -8,28 +8,15 @@ import Utils                    = require('../common/Utils');
 class ExpertScheduleExceptionDao extends BaseDAO
 {
     getModel():typeof BaseModel { return ExpertScheduleException; }
-
-    findExceptionByRuleId(scheduleId:number):q.Promise<any>
+    getExceptionByIntegrationMemberId(expertId:number, startTime:number,  endTime:number):q.Promise<any>
     {
-        /*var search = {
+        var search = {
             'start_time' :{
                 'operator': 'between',
                 'value': [startTime, endTime]
             },
-            'schedule_rule_id': ruleId
-        };*/
-        var search = {
-            'schedule_rule_id': scheduleId
-        }
-
-        return this.search(search);
-    }
-    findExceptionByExpertId(expertId:number):q.Promise<any>
-    {
-        var search = {
             'integration_member_id': expertId
         };
-
         return this.search(search);
     }
 }

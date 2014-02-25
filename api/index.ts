@@ -1,7 +1,7 @@
 import ExpertApi                        = require('./ExpertApi');
 import ExpertScheduleApi                = require('./ExpertScheduleApi');
-import ExpertScheduleRulesApi           = require('./ExpertScheduleRulesApi');
-import ExpertScheduleExceptionApi       = require('./ExpertScheduleExceptionsApi')
+import ExpertScheduleRuleApi           = require('./ExpertScheduleRuleApi');
+import ExpertScheduleExceptionApi       = require('./ExpertScheduleExceptionApi')
 import IntegrationApi                   = require('./IntegrationApi');
 import IntegrationOwnerApi              = require('./IntegrationOwnerApi');
 import PaymentApi                       = require('./PaymentApi')
@@ -17,7 +17,7 @@ function init(app)
 {
     new ExpertApi(app);
     new ExpertScheduleApi(app);
-    new ExpertScheduleRulesApi(app);
+    new ExpertScheduleRuleApi(app);
     new ExpertScheduleExceptionApi(app);
     new IntegrationApi(app);
     new IntegrationOwnerApi(app);

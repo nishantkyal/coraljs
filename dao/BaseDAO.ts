@@ -85,7 +85,7 @@ class BaseDao implements IDao
             });
     }
 
-    search(searchQuery:Object, options?:Object):q.Promise<any>
+    search(searchQuery:Object, options?:Object, searchSoftDeleted:boolean = false):q.Promise<any>
     {
         var self = this, values = [], whereStatements = [], selectColumns;
 
@@ -119,6 +119,9 @@ class BaseDao implements IDao
         }
         if (whereStatements.length == 0)
             throw ('Invalid search criteria');
+
+        if (!searchSoftDeleted) // don't get soft deleted entries if searchSoftDeleted == true
+            whereStatements.push('deleted = ' + '0' );
 
         selectColumns = options && options.hasOwnProperty('fields') ? options['fields'].join(',') : '*';
 
@@ -156,12 +159,17 @@ class BaseDao implements IDao
         return MysqlDelegate.executeQuery('DELETE FROM ' + this.tableName + ' WHERE id = ?', [id], transaction);
     }
 
-    searchAndDelete(id:string, softDelete:boolean = true, transaction?:any):q.Promise<any>
+    searchAndDelete(criteria:Object, softDelete:boolean = true, transaction?:any):q.Promise<any>
     {
         if (softDelete)
-            return this.update({'schedule_rule_id': id}, {'deleted': true}, transaction);
+            return this.update(criteria, {'deleted': true}, transaction)
 
-        return MysqlDelegate.executeQuery('DELETE FROM ' + this.tableName + ' WHERE schedule_rule_id = ?', [id], transaction);
+        var wheres, values = [];
+        wheres = _.map(_.keys(criteria), function (whereColumn) { return whereColumn + ' = ?'; });
+        values = values.concat(_.values(criteria));
+
+        var query = 'DELETE FROM ' + this.tableName + ' WHERE ' + wheres.join(" AND ");
+        return MysqlDelegate.executeQuery(query, values, transaction);
     }
 
     getModel():typeof BaseModel { throw('Model class not defined for ' + Utils.getClassName(this)); }

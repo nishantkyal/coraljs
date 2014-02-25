@@ -19,7 +19,7 @@ class ApiConstants
     static PHONE_CALL_ID:string = 'callId';
     static SCHEDULE_ID:string = 'scheduleId';
     static SCHEDULE_RULE_ID:string = 'scheduleRuleId';
-    static SCHEDULE_EXCEPTION_ID:string = 'exceptionId';
+    static SCHEDULE_EXCEPTION_ID:string = 'scheduleExceptionId';
     static START_TIME:string = 'startTime';
     static END_TIME:string = 'endTime';
     static DURATION:string = 'duration';

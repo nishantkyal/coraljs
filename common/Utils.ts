@@ -38,7 +38,7 @@ class Utils
 
     static isNullOrEmpty(str:any):boolean
     {
-        return str == null || str == undefined || str.toString().trim().length == 0;
+        return str == null || str == undefined || str.toString().trim().length == 0 || isNaN(str);
     }
 
     static getClassName(object:Object):string

@@ -8,15 +8,21 @@ import MysqlDelegate            = require('../delegates/MysqlDelegate');
 class ExpertScheduleRuleDao extends BaseDao
 {
     getModel():typeof BaseModel { return ExpertScheduleRule; }
-    findRuleByExpertId(startTime:number, endTime:number, integrationMemberId:number):q.Promise<any>
-    {
-        var query = 'SELECT * ' +
-            'FROM expert_schedule_rules ' +
-            'WHERE start_time BETWEEN ' + startTime + ' AND ' + endTime + ' OR ' +
-            'OR start_time BETWEEN (' + startTime + ' +  duration AND ' + (endTime + ' + duration)');
-        ' AND integration_member_id = ' + integrationMemberId;
 
-        return MysqlDelegate.executeQuery(query);
+    getRuleById(integrationMemberId:number, startTime:number,  endTime:number):q.Promise<any>
+    {
+        var search = {
+                     'repeat_start' :{
+                         'operator': 'between',
+                         'value': [startTime, endTime]
+                     },
+                    'repeat_end' :{
+                        'operator': 'between',
+                        'value': [startTime, endTime]
+                    },
+                    'integration_member_id': integrationMemberId
+            };
+        return this.search(search);
     }
 }
 export = ExpertScheduleRuleDao
