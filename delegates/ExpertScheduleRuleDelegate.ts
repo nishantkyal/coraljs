@@ -29,16 +29,19 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
     createRule(newScheduleRule:ExpertScheduleRule, transaction?:any):q.Promise<any>
     {
         var self = this;
-        var existingRules = this.getRulesByIntegrationMemberId(newScheduleRule.getIntegrationMemberId());
+        var existingRules = this.getRulesByIntegrationMemberId(newScheduleRule.getIntegrationMemberId(), newScheduleRule.getRepeatStart(), newScheduleRule.getRepeatEnd());
         return existingRules
             .then(
-            function createRecord(schedules:ExpertScheduleRule[])
+            function createRecord(rawschedules:ExpertScheduleRule[])
             {
+                var schedules:ExpertScheduleRule[] = [];
+                _.each(rawschedules, function(schedule:any){
+                    schedules.push(ExpertScheduleRule.toExpertScheduleRuleObject(schedule));
+                });
                 var options = {
                     startDate: new Date(newScheduleRule.getRepeatStart()*1000),
                     endDate: new Date(newScheduleRule.getRepeatEnd()*1000)
                 };//TODO handle conversion to ms
-
                 if (!self.hasConflicts(schedules, newScheduleRule, options))
                     return self.create(newScheduleRule, transaction);
                 else
@@ -57,25 +60,26 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
 
     getRulesById(Id:number):q.Promise<any>
     {
-        return this.getDao().search({'id': Id});
+        return this.search({'id': Id});
     }
 
     updateRule(updatedScheduleRule:ExpertScheduleRule, transaction?:any):q.Promise<any>
     {
         var self = this;
         var transaction = null;
+        var RuleId = updatedScheduleRule.getId();
         return MysqlDelegate.beginTransaction()
             .then(
             function transactionStarted(t)
             {
                 transaction = t;
-                return self.getDao().update({'id': updatedScheduleRule.getId()}, updatedScheduleRule, transaction);
+                return self.update({'id': RuleId}, updatedScheduleRule, transaction);
             })
             .then(
             function ruleUpdated()
             {
                 var expertScheduleExceptionDelegate = new ExpertScheduleExceptionDelegate();
-                return expertScheduleExceptionDelegate.deleteByRuleId(updatedScheduleRule.getId(), transaction);
+                return expertScheduleExceptionDelegate.deleteByRuleId(RuleId, transaction);
             })
             .then(
             function exceptionsDeleted()
@@ -93,7 +97,7 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
             function transactionStarted(t)
             {
                 transaction = t;
-                return self.getDao().delete(scheduleRuleId, true, transaction);
+                return self.delete(scheduleRuleId, true, transaction);
             })
             .then(
             function ruleDeleted()
@@ -129,6 +133,56 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
         return conflict;
     }
 
+    //function to check for conflicts using cron expression only without generating schedules.
+    //not complete,
+    /*private checkForConflicts(scheduleRules:ExpertScheduleRule[], newScheduleRule:ExpertScheduleRule, options):boolean
+    {
+        var self = this;
+        var conflict:boolean = false;
+
+        if (scheduleRules.length == 0)
+            return conflict;
+
+        var scheduleRulesFields:any = [];
+        for (var i = 0; i < scheduleRules.length; i++)
+        {
+            var tempffields = parser.parseExpressionSync(scheduleRules[i].getCronRule(),options)['_fields'];
+            tempffields['duration'] = scheduleRules[i].getDuration();
+            scheduleRulesFields.push(tempffields);
+        }
+        var newschedulesFields = parser.parseExpressionSync(newScheduleRule.getCronRule(),options)['_fields'];
+        newschedulesFields['duration'] = newScheduleRule.getDuration();
+
+        conflict = self.checkForConflictsInExpression(scheduleRulesFields, newschedulesFields);
+        //TO BE DONE  check fof fields for conflicts
+        //ISSUE If in one rule day of month is specified and in another week of day then cannot detect conflict
+        //ISSUE If one rule + duration crosses the day (say 11:00pm for 2 hours) then need to break it into two rules
+        //to detect conflict
+        return conflict;
+    }
+
+    private checkForConflictsInExpression(scheduleRulesFields:any[], newschedulesFields:any):boolean
+    {
+        var conflict:boolean = false;
+        var map = ['dayOfMonth', 'month', 'dayOfWeek' ];
+
+        var key:string = 'month';
+        _.each(scheduleRulesFields, function(scheduleRuleFields:any)
+        {
+            _.each(scheduleRuleFields['month'], function(month)
+            {
+                _.each(newschedulesFields['month'], function(newScheduleMonth)
+                {
+                    if(newScheduleMonth == month || newScheduleMonth == '*' || month == '*')
+                    {
+
+                    }
+                })
+            })
+        });
+        return conflict;
+    }*/
+
     validateException(scheduleRules:ExpertScheduleRule[], options, exception:ExpertScheduleException):boolean
     {
         var schedules:GeneratedSchedules[] = this.expertScheduleGenerator(scheduleRules,null, options);
@@ -152,7 +206,7 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
                 var t;
                 while ((t = interval.next())) {
                     var temp = new GeneratedSchedules();
-                    temp.setDate(t.getTime()/1000); //TODO handle convertion to sec
+                    temp.setDate(t.getTimeInSec()); //TODO handle convertion to sec
                     temp.setDuration(scheduleRules[i].getDuration());
                     schedules.push(temp);
                 }

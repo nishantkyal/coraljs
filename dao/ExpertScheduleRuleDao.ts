@@ -11,18 +11,13 @@ class ExpertScheduleRuleDao extends BaseDao
 
     getRuleById(integrationMemberId:number, startTime:number,  endTime:number):q.Promise<any>
     {
-        var search = {
-                     'repeat_start' :{
-                         'operator': 'between',
-                         'value': [startTime, endTime]
-                     },
-                    'repeat_end' :{
-                        'operator': 'between',
-                        'value': [startTime, endTime]
-                    },
-                    'integration_member_id': integrationMemberId
-            };
-        return this.search(search);
+        var query = 'SELECT * FROM ' +  this.getModel().TABLE_NAME
+            + ' WHERE integration_member_id = ' + integrationMemberId
+            + ' AND deleted = 0'
+            + ' AND ( repeat_start between ' + startTime +' AND ' + endTime
+            + ' OR repeat_end between ' + startTime + ' AND ' + endTime + ')';
+
+        return MysqlDelegate.executeQuery(query);
     }
 }
 export = ExpertScheduleRuleDao

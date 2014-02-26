@@ -20,17 +20,25 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
         // TODO: Handle cyclic dependencies in a better way
         var ExpertScheduleRuleDelegate = require('../delegates/ExpertScheduleRuleDelegate');
         var expertScheduleRuleDelegate = new ExpertScheduleRuleDelegate();
-        return expertScheduleRuleDelegate.getRulesByIntegrationMemberId(newScheduleException.getIntegrationMemberId())
+        var currentDate = new Date();
+        var dateAfterOneYear = new Date();
+        dateAfterOneYear.setFullYear(currentDate.getFullYear() + 1);
+        var options = { // to validate exception
+            startDate: currentDate, // current date
+            endDate: dateAfterOneYear // 1 year from current date
+        };
+
+        return expertScheduleRuleDelegate.getRulesByIntegrationMemberId(newScheduleException.getIntegrationMemberId(), options.startDate.getTimeInSec(), options.endDate.getTimeInSec())
             .then(
-            function createRecord(schedules:ExpertScheduleRule[])
+            function createRecord(rawschedules:ExpertScheduleRule[])
             {
-                var currentDate = new Date();
-                var dateAfterOneYear = new Date();
-                dateAfterOneYear.setFullYear(currentDate.getFullYear() + 1);
-                var options = { // to validate exception
-                    startDate: currentDate, // current date
-                    endDate: dateAfterOneYear // 1 year from current date
-                };
+                var schedules:ExpertScheduleRule[] = [];
+                _.each(rawschedules, function(schedule:any){
+                    schedules.push(ExpertScheduleRule.toExpertScheduleRuleObject(schedule));
+                });
+
+                options.startDate = new Date (newScheduleException.getStartTime()*1000);
+                options.endDate = options.startDate;
                 if (self.validateException(schedules, options, newScheduleException))
                     return self.create(newScheduleException, transaction);
                 else
@@ -53,17 +61,17 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
 
     deleteByRuleId(ruleId:number, transaction?:any):q.Promise<any>
     {
-        return this.getDao().searchAndDelete({'schedule_rule_id': ruleId},true,transaction);
+        return this.searchAndDelete({'schedule_rule_id': ruleId},true,transaction);
     }
 
-    deleteByExceptionId(exceptionId, transaction?:any):q.Promise<any>
+    deleteByExceptionId(exceptionId:number, transaction?:any):q.Promise<any>
     {
-        return this.getDao().delete(exceptionId,true,transaction);
+        return this.delete(exceptionId,true,transaction);
     }
 
     getExceptionsbyId(exceptionId:number):q.Promise<any>
     {
-        return this.getDao().search({'id': exceptionId});
+        return this.search({'id': exceptionId});
     }
 
     getExceptionsByIntegrationMemberId(expertId:number, startTime:number, endTime:number):q.Promise<any>
@@ -77,19 +85,25 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
         // TODO: Handle cyclic dependencies in a better way
         var ExpertScheduleRuleDelegate = require('../delegates/ExpertScheduleRuleDelegate');
         var expertScheduleRuleDelegate = new ExpertScheduleRuleDelegate();
-        return expertScheduleRuleDelegate.getRulesByIntegrationMemberId(updatedScheduleRuleException.getIntegrationMemberId())
-            .then(
-            function createRecord(schedules:ExpertScheduleRule[])
+        var currentDate = new Date();
+        var dateAfterOneYear = new Date();
+        dateAfterOneYear.setFullYear(currentDate.getFullYear() + 1);
+        var options = {
+            startDate: currentDate, // current date
+            endDate: dateAfterOneYear // 1 year from current date
+        };
+        return expertScheduleRuleDelegate.getRulesByIntegrationMemberId(updatedScheduleRuleException.getIntegrationMemberId(), options.startDate.getTime()/1000, options.endDate.getTime()/1000)
+            .then(//TODO handle conversion to sec
+            function createRecord(rawschedules:ExpertScheduleRule[])
             {
-                var currentDate = new Date();
-                var dateAfterOneYear = new Date();
-                dateAfterOneYear.setFullYear(currentDate.getFullYear() + 1);
-                var options = {
-                    startDate: currentDate, // current date
-                    endDate: dateAfterOneYear // 1 year from current date
-                };
+                var schedules:ExpertScheduleRule[] = [];
+                _.each(rawschedules, function(schedule:any){
+                    schedules.push(ExpertScheduleRule.toExpertScheduleRuleObject(schedule));
+                });
+                options.startDate = new Date (updatedScheduleRuleException.getStartTime()*1000);
+                options.endDate = options.startDate;
                 if (self.validateException(schedules, options, updatedScheduleRuleException))
-                    return self.getDao().update({'id': updatedScheduleRuleException.getId()}, updatedScheduleRuleException, transaction);
+                    return self.update({'id': updatedScheduleRuleException.getId()}, updatedScheduleRuleException, transaction);
                 else
                     throw {
                         'message': 'Invalid Exception - No rule exists for such exception ',

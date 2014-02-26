@@ -85,9 +85,14 @@ class BaseDaoDelegate {
         return this.getDao().update(criteria, newValues, transaction);
     }
 
-    delete(id:string, transaction?:any):q.Promise<any>
+    delete(id:number, softDelete:boolean, transaction?:any):q.Promise<any>
     {
-        return this.getDao().delete(id, transaction);
+        return this.getDao().delete(id, softDelete, transaction);
+    }
+
+    searchAndDelete(criteria:Object, softDelete:boolean, transaction?:any):q.Promise<any>
+    {
+        return this.getDao().searchAndDelete(criteria, softDelete, transaction);
     }
 
     getDao():IDao

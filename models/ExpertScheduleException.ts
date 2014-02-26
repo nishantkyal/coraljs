@@ -29,9 +29,9 @@ class ExpertScheduleException extends BaseModel
     isValid():boolean
     {
         return !Utils.isNullOrEmpty(this.getStartTime())
-            || !Utils.isNullOrEmpty(this.getScheduleRuleId())
-            || !Utils.isNullOrEmpty(this.getDuration())
-            || !Utils.isNullOrEmpty(this.getIntegrationMemberId());
+            && !Utils.isNullOrEmpty(this.getScheduleRuleId())
+            && !Utils.isNullOrEmpty(this.getDuration())
+            && !Utils.isNullOrEmpty(this.getIntegrationMemberId());
     }
 }
 export = ExpertScheduleException

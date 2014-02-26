@@ -37,11 +37,25 @@ class ExpertScheduleRule extends BaseModel
     isValid():boolean
     {
         return !Utils.isNullOrEmpty(this.getRepeatStart())
-            || !Utils.isNullOrEmpty(this.getCronRule())
-            || !Utils.isNullOrEmpty(this.getDuration())
-            || !Utils.isNullOrEmpty(this.getIntegrationMemberId())
-            || !Utils.isNullOrEmpty(this.getRepeatEnd())
-            || !(this.getRepeatEnd()>this.getRepeatStart());
+            && !Utils.isNullOrEmpty(this.getCronRule())
+            && !Utils.isNullOrEmpty(this.getDuration())
+            && !Utils.isNullOrEmpty(this.getIntegrationMemberId())
+            && !Utils.isNullOrEmpty(this.getRepeatEnd())
+            && (this.getRepeatEnd()>this.getRepeatStart());
+    }
+
+    static toExpertScheduleRuleObject(schedule:any):ExpertScheduleRule
+    {
+        var tempScheduleRule:ExpertScheduleRule = new ExpertScheduleRule();
+        tempScheduleRule.setCronRule(schedule['cron_rule']);
+        tempScheduleRule.setDuration(schedule['duration']);
+        tempScheduleRule.setIntegrationMemberId(schedule['integration_member_id']);
+        tempScheduleRule.setPricePerMin(schedule['price_per_min']);
+        tempScheduleRule.setPriceUnit(schedule['price_unit']);
+        tempScheduleRule.setRepeatEnd(schedule['repeat_end']);
+        tempScheduleRule.setRepeatStart(schedule['repeat_start']);
+        tempScheduleRule.setId(schedule['id']);
+        return tempScheduleRule;
     }
 }
 export = ExpertScheduleRule
