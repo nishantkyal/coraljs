@@ -66,16 +66,16 @@ class VerificationCodeCache
 
     createInvitationCode(integrationId:number, user:User):q.Promise<any>
     {
-        var code = Utils.getRandomString(20);
-        return CacheHelper.addToHash('ic-' + integrationId, code, user);
+        var code = Utils.getRandomString(20, 'ABXDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890');
+        return CacheHelper.addToHash('ic-' + integrationId, code, user)
+            .then(
+            function codeCreated() { return code; }
+        );
     }
 
     searchInvitationCode(code:string, integrationId:number):q.Promise<any>
     {
-        return CacheHelper.getFromHash('ic-' + integrationId, code)
-            .then(
-            function codeCreated() { return code; }
-        );
+        return CacheHelper.getFromHash('ic-' + integrationId, code);
     }
 }
 export = VerificationCodeCache

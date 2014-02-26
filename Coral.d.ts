@@ -182,6 +182,31 @@ export class ExpertSchedule extends BaseModel {
 
 
 
+export class ExpertScheduleException extends BaseModel {
+    static TABLE_NAME: string;
+    public integration_member_id: number;
+    public schedule_rule_id: number;
+    public start_time: number;
+    public duration: number;
+    private price_unit;
+    private price_per_min;
+    public getIntegrationMemberId(): number;
+    public getScheduleRuleId(): number;
+    public getStartTime(): number;
+    public getDuration(): number;
+    public getPriceUnit(): MoneyUnit;
+    public getPricePerMin(): number;
+    public setIntegrationMemberId(val: number): void;
+    public setScheduleRuleId(val: number): void;
+    public setStartTime(val: number): void;
+    public setDuration(val: number): void;
+    public setPriceUnit(val: MoneyUnit): void;
+    public setPricePerMin(val: number): void;
+}
+
+
+
+
 export class ExpertScheduleRule extends BaseModel {
     static TABLE_NAME: string;
     static INTEGRATION_MEMBER_ID: string;
@@ -271,6 +296,8 @@ export class IntegrationMember extends BaseModel {
     private access_token_expiry;
     private refresh_token;
     private refresh_token_expiry;
+    private revenue_share;
+    private revenue_share_unit;
     private integration;
     private user;
     public getIntegrationId(): number;
@@ -283,6 +310,8 @@ export class IntegrationMember extends BaseModel {
     public getRefreshTokenExpiry(): string;
     public getIntegration(): Integration;
     public getUser(): User;
+    public getRevenueShare(): number;
+    public getRevenueShareUnit(): number;
     public isValid(): boolean;
     public setIntegrationId(val: number): void;
     public setUserId(val: number): void;
@@ -292,6 +321,8 @@ export class IntegrationMember extends BaseModel {
     public setAccessTokenExpiry(val: string): void;
     public setRefreshToken(val: string): void;
     public setRefreshTokenExpiry(val: string): void;
+    public setRevenueShare(val: any): void;
+    public setRevenueShareUnit(val: any): void;
 }
 
 

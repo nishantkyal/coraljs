@@ -9,6 +9,7 @@ exports.SMSStatus = require("./enums/SMSStatus.js");
 exports.BaseModel = require("./models/BaseModel.js");
 exports.Email = require("./models/Email.js");
 exports.ExpertSchedule = require("./models/ExpertSchedule.js");
+exports.ExpertScheduleException = require("./models/ExpertScheduleException.js");
 exports.ExpertScheduleRule = require("./models/ExpertScheduleRule.js");
 exports.Integration = require("./models/Integration.js");
 exports.IntegrationMember = require("./models/IntegrationMember.js");

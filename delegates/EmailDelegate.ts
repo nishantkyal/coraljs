@@ -4,19 +4,22 @@ import log4js                       = require('log4js');
 import path                         = require('path');
 import _                            = require('underscore');
 import q                            = require('q');
-import jade                         = require('jade');
 import nodemailer                   = require('nodemailer');
 import watch                        = require('watch');
 import Email                        = require('../models/Email')
 import User                         = require('../models/User')
+import Integration                  = require('../models/Integration')
 import IntegrationMember            = require('../models/IntegrationMember')
 import IDao                         = require('../dao/IDao');
 import EmailDao                     = require('../dao/EmailDao');
 import CallStatus                   = require('../enums/CallStatus');
 import IncludeFlag                  = require('../enums/IncludeFlag');
 import UserDelegate                 = require('../delegates/UserDelegate');
+import IntegrationDelegate          = require('../delegates/IntegrationDelegate');
 import IntegrationMemberDelegate    = require('../delegates/IntegrationMemberDelegate');
 import Utils                        = require('../common/Utils');
+import Config                       = require('../common/Config');
+import VerificationCodeCache        = require('../caches/VerificationCodeCache');
 
 /**
  Delegate class for managing email
@@ -28,7 +31,7 @@ class EmailDelegate
 {
     static EMAIL_EXPERT_INVITE:string = 'EMAIL_EXPERT_INVITE';
 
-    private static templateCache:{[templateNameAndLocale:string]:Function} = {};
+    private static templateCache:{[templateNameAndLocale:string]:{bodyTemplate:Function; subjectTemplate:Function}} = {};
     private static transport:nodemailer.Transport;
 
     constructor()
@@ -48,61 +51,83 @@ class EmailDelegate
     {
         watch.createMonitor('/var/searchntalk/emailTemplates',
             {
-                filter : function(file)
+                filter: function (file)
                 {
                     return file.substring(file.lastIndexOf('.') + 1) === 'html';
                 }
             },
-        function monitorCreated(monitor)
-        {
-            function readFileAndCache(filePath)
+            function monitorCreated(monitor)
             {
-                var fileName = filePath.substring(filePath.lastIndexOf(path.sep) + 1);
-                var extension = fileName.substring(fileName.lastIndexOf('.') + 1);
-                if (extension != 'html') return;
+                function readFileAndCache(filePath)
+                {
+                    var fileName = filePath.substring(filePath.lastIndexOf(path.sep) + 1);
+                    var extension = fileName.substring(fileName.lastIndexOf('.') + 1);
+                    if (extension != 'html') return;
 
-                var fileNameWithoutExtension = fileName.substring(0, fileName.lastIndexOf('.'));
-                fs.readFile(filePath, 'utf8', function(err, data) {
-                    if (data)
+                    var fileNameWithoutExtension = fileName.substring(0, fileName.lastIndexOf('.'));
+                    fs.readFile(filePath, 'utf8', function (err, data)
                     {
-                        EmailDelegate.templateCache[fileNameWithoutExtension.toUpperCase()] = jade.compile(data);
-                        log4js.getDefaultLogger().debug('Email templated updated: ' + fileNameWithoutExtension.toUpperCase());
-                    }
+                        if (data)
+                        {
+                            EmailDelegate.templateCache[fileNameWithoutExtension.toUpperCase()] =
+                            {
+                                'bodyTemplate': _.template(data),
+                                'subjectTemplate': function () { return "Test email: " + Utils.getRandomInt(1000, 9999); }
+                            };
+                            log4js.getDefaultLogger().debug('Email templated updated: ' + fileNameWithoutExtension.toUpperCase());
+                        }
+                    });
+                }
+
+                _.each(monitor.files, function (data, fileName)
+                {
+                    readFileAndCache(fileName);
                 });
-            }
 
-            _.each(monitor.files, function (data, fileName) {
-                readFileAndCache(fileName);
+                monitor.on("created", function (f, stat)
+                {
+                    readFileAndCache(f);
+                });
+                monitor.on("changed", function (f, curr, prev)
+                {
+                    readFileAndCache(f);
+                });
+                monitor.on("removed", function (f, stat)
+                {
+                    // TODO: Remove from template cache
+                });
             });
-
-            monitor.on("created", function (f, stat) {
-                readFileAndCache(f);
-            });
-            monitor.on("changed", function (f, curr, prev) {
-                readFileAndCache(f);
-            });
-            monitor.on("removed", function (f, stat) {
-                // TODO: Remove from template cache
-            });
-        });
     })();
 
     getDao():IDao { return new EmailDao(); }
 
-    private send(template:string, to:string, data:Object, from:string = 'contact@searchntalk.com'):q.Promise<any>
+    private send(template:string, to:string, emailData:Object, from:string = 'contact@searchntalk.com'):q.Promise<any>
     {
-        var templateFunction = this.templateCache[template];
-        var email = 'Test emails';
-        var subject:string = 'Test email ' + Utils.getRandomString(20);
-
+        var self = this;
         var deferred = q.defer<any>();
 
-        this.transport.sendMail(
+        var bodyTemplate:Function = EmailDelegate.templateCache[template].bodyTemplate;
+        var subjectTemplate:Function = EmailDelegate.templateCache[template].subjectTemplate;
+
+        emailData["emailcdnhost"] = Config.get("email.cdn.host");
+
+        try
+        {
+            var body:string = bodyTemplate(emailData);
+            var subject:string = subjectTemplate(emailData);
+        } catch (e)
+        {
+            log4js.getLogger(Utils.getClassName(self)).error('Invalid email template: ' + template);
+            deferred.reject("Invalid email data");
+            return null;
+        }
+
+        EmailDelegate.transport.sendMail(
             {
                 from: from,
                 to: to,
                 subject: subject,
-                html: email
+                html: body
             },
             function emailSent(error:Error, response:any):any
             {
@@ -158,11 +183,19 @@ class EmailDelegate
     {
         var self = this;
 
-        return new IntegrationMemberDelegate().createInvitationCode(integrationId, user)
+        return q.all([
+                new IntegrationDelegate().get(integrationId, [Integration.TITLE]),
+                new VerificationCodeCache().createInvitationCode(integrationId, user)
+            ])
             .then(
-            function codeCreated()
+            function codeCreated(...args)
             {
-                return self.send(EmailDelegate.EMAIL_EXPERT_INVITE, user.getEmail(), user.toJson());
+                var emailData = {
+                    integration: args[0][0],
+                    code: args[0][1],
+                    user: user.toJson()
+                };
+                return self.send(EmailDelegate.EMAIL_EXPERT_INVITE, user.getEmail(), emailData);
             });
     }
 

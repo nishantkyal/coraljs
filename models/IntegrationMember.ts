@@ -25,6 +25,8 @@ class IntegrationMember extends BaseModel
     private access_token_expiry:string;
     private refresh_token:string;
     private refresh_token_expiry:string;
+    private revenue_share:number;
+    private revenue_share_unit:number;
 
     private integration:Integration;
     private user:User;
@@ -40,6 +42,8 @@ class IntegrationMember extends BaseModel
     getRefreshTokenExpiry():string { return this.refresh_token_expiry; }
     getIntegration():Integration { return this.integration; }
     getUser():User { return this.user; }
+    getRevenueShare():number { return this.revenue_share; }
+    getRevenueShareUnit():number { return this.revenue_share_unit; }
 
     isValid():boolean {
         return !isNaN(this.getIntegrationId()) && !isNaN(this.getId()) && !isNaN(this.getRole());
@@ -54,6 +58,8 @@ class IntegrationMember extends BaseModel
     setAccessTokenExpiry(val:string):void { this.access_token_expiry = val; }
     setRefreshToken(val:string):void { this.refresh_token = val; }
     setRefreshTokenExpiry(val:string):void { this.refresh_token_expiry = val; }
+    setRevenueShare(val) { this.revenue_share = val; }
+    setRevenueShareUnit(val) { this.revenue_share_unit = val; }
 
 }
 export = IntegrationMember

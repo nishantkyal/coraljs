@@ -16,7 +16,6 @@ import Integration                  = require('../models/Integration');
 import User                         = require('../models/User');
 import IntegrationMember            = require('../models/IntegrationMember');
 import AccessTokenCache             = require('../caches/AccessTokenCache');
-import VerificationCodeCache        = require('../caches/VerificationCodeCache');
 
 class IntegrationMemberDelegate extends BaseDaoDelegate
 {
@@ -77,9 +76,6 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
     }
 
     getDao():IDao { return new IntegrationMemberDAO(); }
-
-    createInvitationCode(integrationId:number, user:User):q.Promise<any> { return new VerificationCodeCache().createInvitationCode(integrationId, user); }
-    searchInvitationCode(code:string, integrationId:number):q.Promise<any> { return new VerificationCodeCache().searchInvitationCode(code, integrationId); }
 
     getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
     {
