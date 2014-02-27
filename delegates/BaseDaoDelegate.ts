@@ -10,12 +10,7 @@ import IncludeFlag      = require('../enums/IncludeFlag');
 
 class BaseDaoDelegate
 {
-    logger:log4js.Logger;
-
-    constructor()
-    {
-        this.logger = log4js.getLogger(Utils.getClassName(this));
-    }
+    logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
 
     get(id:any, fields?:string[], includes:IncludeFlag[] = []):q.Promise<any>
     {
@@ -123,9 +118,9 @@ class BaseDaoDelegate
     update(criteria:Object, newValues:Object, transaction?:any):q.Promise<any>
     {
         // Compose update statement based on newValues
-        newValues['updated'] = new Date().getTime();
-        delete newValues['created'];
-        delete newValues['id'];
+        newValues[BaseModel.UPDATED] = new Date().getTime();
+        delete newValues[BaseModel.CREATED];
+        delete newValues[BaseModel.ID];
 
         return this.getDao().update(criteria, newValues, transaction);
     }
@@ -140,11 +135,7 @@ class BaseDaoDelegate
         return this.getDao().searchAndDelete(criteria, softDelete, transaction);
     }
 
-    getDao():IDao
-    {
-        throw('getDao method not implemented');
-        return null;
-    }
+    getDao():IDao { throw('getDao method not implemented'); }
 
 }
 export = BaseDaoDelegate

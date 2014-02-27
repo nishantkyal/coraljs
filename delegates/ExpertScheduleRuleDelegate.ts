@@ -18,6 +18,7 @@ import parser                           = require('cron-parser');
 class ExpertScheduleRuleDelegate extends BaseDaoDelegate
 {
     getDao():IDao { return new ExpertScheduleRuleDao(); }
+
     createRule(newScheduleRule:ExpertScheduleRule, transaction?:any):q.Promise<any>
     {
         var self = this;
@@ -146,7 +147,7 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
         return schedules;
     }
 
-    expertScheduleGenerator(scheduleRule:ExpertScheduleRule,exceptions:ExpertScheduleException[], options):ExpertSchedule[]
+    generateSchedules(scheduleRule:ExpertScheduleRule,exceptions:ExpertScheduleException[], options):ExpertSchedule[]
     {
         var self = this;
         var schedules:ExpertSchedule[] = [];

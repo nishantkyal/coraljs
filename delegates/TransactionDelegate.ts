@@ -18,7 +18,7 @@ class TransactionDelegate extends BaseDAODelegate
             .then(
             function transactionsFetched(transactions)
             {
-                var sumTotal = _.reduce(_.pluck(transactions, 'total'), function(memo, num) { return memo + num; }, 0);
+                var sumTotal = _.reduce(_.pluck(transactions, 'total'), function(memo:Number, num:Number) { return memo + num; }, 0);
                 return sumTotal;
             });
     }

@@ -68,7 +68,7 @@ class PhoneNumberApi
         /* Delete phone number */
         app.delete(ApiUrlDelegate.phoneNumberById(), function(req:express.Request, res:express.Response)
         {
-            var phoneNumberId:string = req.params[ApiConstants.PHONE_NUMBER_ID];
+            var phoneNumberId:number = req.params[ApiConstants.PHONE_NUMBER_ID];
 
             phoneNumberDelegate.delete(phoneNumberId)
                 .then(

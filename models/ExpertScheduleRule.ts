@@ -78,26 +78,23 @@ class ExpertScheduleRule extends BaseModel
 
     conflicts(rule:ExpertScheduleRule, options):boolean
     {
-        var newScheduleRule:ExpertScheduleRule = this;
-
-        var self = this;
         // TODO: Handle cyclic dependencies in a better way
         var ExpertScheduleRuleDelegate:any = require('../delegates/ExpertScheduleRuleDelegate');
         var expertScheduleRuleDelegate = new ExpertScheduleRuleDelegate();
 
-        var expertSchedule:ExpertSchedule[] = expertScheduleRuleDelegate.expertScheduleGenerator(rule, null, options);
-        var newExpertSchedule:ExpertSchedule[] = expertScheduleRuleDelegate.expertScheduleGenerator(newScheduleRule, null, options);
+        var existingSchedules:ExpertSchedule[] = expertScheduleRuleDelegate.generateSchedules(rule, null, options);
+        var newSchedules:ExpertSchedule[] = expertScheduleRuleDelegate.generateSchedules(this, null, options);
 
         var conflict = false;
-        _.each(expertSchedule, function (existingSchedule:ExpertSchedule)
+        _.each(existingSchedules, function (es:ExpertSchedule)
         {
-            _.each(newExpertSchedule, function (newSchedule:ExpertSchedule)
+            _.each(newSchedules, function (ns:ExpertSchedule)
             {
-                var newScheduleStartTime = newSchedule.getStartTime();
-                var newScheduleEndTime = newSchedule.getStartTime() + newSchedule.getDuration();
+                var newScheduleStartTime = ns.getStartTime();
+                var newScheduleEndTime = ns.getStartTime() + ns.getDuration();
 
-                var existingScheduleStartTime = existingSchedule.getStartTime();
-                var existingScheduleEndTime = existingSchedule.getStartTime() + existingSchedule.getDuration();
+                var existingScheduleStartTime = es.getStartTime();
+                var existingScheduleEndTime = es.getStartTime() + es.getDuration();
 
                 conflict = !(newScheduleStartTime > existingScheduleEndTime || newScheduleEndTime < existingScheduleStartTime)
             });
