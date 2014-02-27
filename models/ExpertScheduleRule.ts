@@ -62,7 +62,7 @@ class ExpertScheduleRule extends BaseModel
                                 && (this.getRepeatEnd() > this.getRepeatStart() || this.getRepeatEnd() == 0);
     }
 
-    checkForConflicts(schedules:ExpertScheduleRule, options):boolean
+    conflicts(rule:ExpertScheduleRule, options):boolean
     {
         var newScheduleRule:ExpertScheduleRule = this;
 
@@ -71,34 +71,34 @@ class ExpertScheduleRule extends BaseModel
         var ExpertScheduleRuleDelegate:any = require('../delegates/ExpertScheduleRuleDelegate');
         var expertScheduleRuleDelegate = new ExpertScheduleRuleDelegate();
 
-        var expertSchedule:ExpertSchedule[] = [];
-        expertSchedule = expertScheduleRuleDelegate.expertScheduleGenerator(schedules,null, options);
-        var newExpertSchedule:ExpertSchedule[] = expertScheduleRuleDelegate.expertScheduleGenerator(newScheduleRule,null, options);
+        var expertSchedule:ExpertSchedule[] = expertScheduleRuleDelegate.expertScheduleGenerator(rule, null, options);
+        var newExpertSchedule:ExpertSchedule[] = expertScheduleRuleDelegate.expertScheduleGenerator(newScheduleRule, null, options);
 
         var conflict = false;
-        _.each(expertSchedule, function(existingSchedule:ExpertSchedule){
-            _.each(newExpertSchedule, function(newSchedule:ExpertSchedule){
+        _.each(expertSchedule, function(existingSchedule:ExpertSchedule)
+        {
+            _.each(newExpertSchedule, function(newSchedule:ExpertSchedule)
+            {
+                var newScheduleStartTime = newSchedule.getStartTime();
+                var newScheduleEndTime = newSchedule.getStartTime() + newSchedule.getDuration();
 
-                if(newSchedule.getStartTime() >= existingSchedule.getStartTime())
-                {
-                    if(newSchedule.getStartTime() <= (existingSchedule.getStartTime() + existingSchedule.getDuration()))
-                        conflict = true;//TODO find a way to break the loop
-                }
-                else if((newSchedule.getStartTime() + newSchedule.getDuration()) > existingSchedule.getStartTime())
-                    conflict = true;
+                var existingScheduleStartTime = existingSchedule.getStartTime();
+                var existingScheduleEndTime = existingSchedule.getStartTime() + existingSchedule.getDuration();
+                
+                conflict = !(newScheduleStartTime > existingScheduleEndTime || newScheduleEndTime < existingScheduleStartTime)
             });
         });
         return conflict;
     }
 
-    hasConflicts(schedules:ExpertScheduleRule[], options):boolean
+    hasConflicts(rules:ExpertScheduleRule[], options):boolean
     {
         var conflict = false;
-        if (Utils.getObjectType(schedules) == 'Array')
-            if (schedules.length != 0)
-                for(var i = 0; i < schedules.length; i++)
+        if (Utils.getObjectType(rules) == 'Array')
+            if (rules.length != 0)
+                for(var i = 0; i < rules.length; i++)
                 {
-                    conflict = conflict || this.checkForConflicts(schedules[i], options);
+                    conflict = conflict || this.conflicts(rules[i], options);
                     if(conflict)
                         break;
                 }
