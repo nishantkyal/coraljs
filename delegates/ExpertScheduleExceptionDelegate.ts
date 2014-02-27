@@ -8,6 +8,8 @@ import ExpertScheduleRule           = require('../models/ExpertScheduleRule');
 import ExpertScheduleException      = require('../models/ExpertScheduleException');
 import IntegrationMemberDelegate    = require('../delegates/IntegrationMemberDelegate');
 import ExpertScheduleRuleDelegate   = require('../delegates/ExpertScheduleRuleDelegate');
+import ExpertSchedule               = require('../models/ExpertSchedule');
+
 
 class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
 {
@@ -34,7 +36,7 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
             {
                 var schedules:ExpertScheduleRule[] = [];
                 _.each(rawschedules, function(schedule:any){
-                    schedules.push(ExpertScheduleRule.toExpertScheduleRuleObject(schedule));
+                    schedules.push(new ExpertScheduleRule(schedule));
                 });
 
                 options.startDate = new Date (newScheduleException.getStartTime()*1000);
@@ -55,7 +57,9 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
         // TODO: Handle cyclic dependencies in a better way
         var ExpertScheduleRuleDelegate = require('../delegates/ExpertScheduleRuleDelegate');
         var expertScheduleRuleDelegate = new ExpertScheduleRuleDelegate();
-        return expertScheduleRuleDelegate.validateException(scheduleRules, options, exception);
+        var schedules:ExpertSchedule[] = expertScheduleRuleDelegate.expertScheduleGenerator(scheduleRules,null, options);
+        var schedulesAfterExceptions:ExpertSchedule[] = expertScheduleRuleDelegate.applyExceptions(schedules, [exception]);
+        return schedules.length != schedulesAfterExceptions.length;
 
     }
 
@@ -67,11 +71,6 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
     deleteByExceptionId(exceptionId:number, transaction?:any):q.Promise<any>
     {
         return this.delete(exceptionId,true,transaction);
-    }
-
-    getExceptionsbyId(exceptionId:number):q.Promise<any>
-    {
-        return this.search({'id': exceptionId});
     }
 
     getExceptionsByIntegrationMemberId(expertId:number, startTime:number, endTime:number):q.Promise<any>
@@ -98,10 +97,12 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
             {
                 var schedules:ExpertScheduleRule[] = [];
                 _.each(rawschedules, function(schedule:any){
-                    schedules.push(ExpertScheduleRule.toExpertScheduleRuleObject(schedule));
+                    schedules.push(new ExpertScheduleRule(schedule));
                 });
+
                 options.startDate = new Date (updatedScheduleRuleException.getStartTime()*1000);
                 options.endDate = options.startDate;
+
                 if (self.validateException(schedules, options, updatedScheduleRuleException))
                     return self.update({'id': updatedScheduleRuleException.getId()}, updatedScheduleRuleException, transaction);
                 else

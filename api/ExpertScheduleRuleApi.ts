@@ -57,7 +57,7 @@ class ExpertScheduleRuleApi
         {
             var scheduleId:number = parseInt(req.params[ApiConstants.SCHEDULE_RULE_ID]);
 
-            expertScheduleRuleDelegate.getRulesById(scheduleId)
+            expertScheduleRuleDelegate.get(scheduleId)
                 .then(
                 function expertScheduleGenerator(schedules) { res.json(schedules); },
                 function expertScheduleRuleCreateFailed(error) { res.status(500).json(error); }

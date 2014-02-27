@@ -1,6 +1,10 @@
-import BaseModel                = require('./BaseModel');
-import MoneyUnit                = require('../enums/MoneyUnit');
-import Utils                    = require('../common/Utils')
+import _                                = require('underscore');
+import BaseModel                        = require('./BaseModel');
+import MoneyUnit                        = require('../enums/MoneyUnit');
+import Utils                            = require('../common/Utils')
+import ExpertSchedule                   = require('../models/ExpertSchedule');
+import ExpertScheduleException          = require('../models/ExpertScheduleException');
+
 
 class ExpertScheduleRule extends BaseModel
 {
@@ -15,7 +19,6 @@ class ExpertScheduleRule extends BaseModel
     private price_per_min:number;
 
     /* Getters */
-    getRuleId():number                  { return this.getId(); }
     getIntegrationMemberId():number     { return this.integration_member_id; }
     getRepeatStart():number             { return this.repeat_start; }
     getCronRule():string                { return this.cron_rule; }
@@ -41,21 +44,36 @@ class ExpertScheduleRule extends BaseModel
             && !Utils.isNullOrEmpty(this.getDuration())
             && !Utils.isNullOrEmpty(this.getIntegrationMemberId())
             && !Utils.isNullOrEmpty(this.getRepeatEnd())
-            && (this.getRepeatEnd()>this.getRepeatStart());
+            && ((this.getRepeatEnd()>this.getRepeatStart()) || (this.getRepeatEnd() == 0));
     }
 
-    static toExpertScheduleRuleObject(schedule:any):ExpertScheduleRule
+    hasConflicts(schedules:ExpertScheduleRule[], options):boolean
     {
-        var tempScheduleRule:ExpertScheduleRule = new ExpertScheduleRule();
-        tempScheduleRule.setCronRule(schedule['cron_rule']);
-        tempScheduleRule.setDuration(schedule['duration']);
-        tempScheduleRule.setIntegrationMemberId(schedule['integration_member_id']);
-        tempScheduleRule.setPricePerMin(schedule['price_per_min']);
-        tempScheduleRule.setPriceUnit(schedule['price_unit']);
-        tempScheduleRule.setRepeatEnd(schedule['repeat_end']);
-        tempScheduleRule.setRepeatStart(schedule['repeat_start']);
-        tempScheduleRule.setId(schedule['id']);
-        return tempScheduleRule;
+        var newScheduleRule:ExpertScheduleRule = this;
+        if (schedules.length == 0)
+            return false;
+        var self = this;
+        // TODO: Handle cyclic dependencies in a better way
+        var ExpertScheduleRuleDelegate = require('../delegates/ExpertScheduleRuleDelegate');
+        var expertScheduleRuleDelegate = new ExpertScheduleRuleDelegate();
+
+        var expertSchedule:ExpertSchedule[] = expertScheduleRuleDelegate.expertScheduleGenerator(schedules,null, options);
+        var newExpertSchedule:ExpertSchedule[] = expertScheduleRuleDelegate.expertScheduleGenerator([newScheduleRule],null, options);
+        var conflict = false;
+        _.each(expertSchedule, function(existingSchedule:ExpertSchedule){
+            _.each(newExpertSchedule, function(newSchedule:ExpertSchedule){
+
+                if(newSchedule.getStartTime() >= existingSchedule.getStartTime())
+                {
+                    if(newSchedule.getStartTime() <= (existingSchedule.getStartTime() + existingSchedule.getDuration()))
+                        conflict = true;//TODO find a way to break the loop
+                }
+                else if((newSchedule.getStartTime() + newSchedule.getDuration()) > existingSchedule.getStartTime())
+                    conflict = true;
+            });
+        });
+        return conflict;
     }
+
 }
 export = ExpertScheduleRule

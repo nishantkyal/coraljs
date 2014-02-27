@@ -39,7 +39,7 @@ class ExpertScheduleExceptionApi
         {
             var exceptionId:number = parseInt(req.params[ApiConstants.SCHEDULE_EXCEPTION_ID]);
 
-                expertScheduleExceptionDelegate.getExceptionsbyId(exceptionId)
+                expertScheduleExceptionDelegate.get(exceptionId)
                     .then(
                     function getScheduleException(exceptions:ExpertScheduleException[]) { res.json(exceptions); },
                     function getScheduleExceptionError(error) { res.status(500).json(error) }
