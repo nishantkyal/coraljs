@@ -44,7 +44,7 @@ class ExpertApi
 
             integrationMemberDelegate.get(expertId, null, includes)
                 .then(
-                function handleExpertSearched(integrationMember) { res.json(integrationMember); },
+                function handleExpertSearched(integrationMember) { res.json(integrationMember.toJson()); },
                 function handleExpertSearchError(err) { res.status(500).json(err); }
             );
         });
@@ -58,7 +58,7 @@ class ExpertApi
             if (integrationMember.getUserId() != null)
                 integrationMemberDelegate.create(integrationMember)
                     .then(
-                    function expertCreated(integrationMemberExpert:IntegrationMember) { res.json(integrationMemberExpert); },
+                    function expertCreated(integrationMemberExpert:IntegrationMember) { res.json(integrationMemberExpert.toJson()); },
                     function expertCreateFailed(error) { res.status(500).json(error); }
                 )
             else

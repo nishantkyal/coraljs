@@ -320,6 +320,8 @@ export class IntegrationMember extends BaseModel {
     public setAccessToken(val: string): void;
     public setAccessTokenExpiry(val: string): void;
     public setRefreshToken(val: string): void;
+    public setIntegration(val: Integration): void;
+    public setUser(val: User): void;
     public setRefreshTokenExpiry(val: string): void;
     public setRevenueShare(val: any): void;
     public setRevenueShareUnit(val: any): void;

@@ -57,6 +57,8 @@ class IntegrationMember extends BaseModel
     setAccessToken(val:string):void { this.access_token = val; }
     setAccessTokenExpiry(val:string):void { this.access_token_expiry = val; }
     setRefreshToken(val:string):void { this.refresh_token = val; }
+    setIntegration(val:Integration):void { this.integration = val; }
+    setUser(val:User):void { this.user = new User(val); }
     setRefreshTokenExpiry(val:string):void { this.refresh_token_expiry = val; }
     setRevenueShare(val) { this.revenue_share = val; }
     setRevenueShareUnit(val) { this.revenue_share_unit = val; }

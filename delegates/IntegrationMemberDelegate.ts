@@ -83,9 +83,9 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
         switch (include)
         {
             case IncludeFlag.INCLUDE_INTEGRATION:
-                return new IntegrationDelegate().get(_.uniq(_.pluck(result, IntegrationMember.INTEGRATION_ID)));
+                return new IntegrationDelegate().get(integrationMember.getIntegrationId());
             case IncludeFlag.INCLUDE_USER:
-                return new UserDelegate().get(_.uniq(_.pluck(result, IntegrationMember.USER_ID)));
+                return new UserDelegate().get(integrationMember.getUserId());
             case IncludeFlag.INCLUDE_USER_PROFILE:
                 return new UserProfileDelegate().search({'user_id': integrationMember.getUserId()});
             case IncludeFlag.INCLUDE_SCHEDULES:

@@ -61,13 +61,22 @@ class Utils
         }
     }
 
-    static camelToUnderscore(camelCasedString:string)
+    static camelToSnakeCase(camelCasedString:string)
     {
         var frags:Array<string> = camelCasedString.match(/[A-Z][a-z]+/g);
         var lowerCasedFrags:Array<string> = _.map(frags, function(frag:string) {
             return frag.toLowerCase();
         })
         return lowerCasedFrags.join('_');
+    }
+
+    static snakeToCamelCase(snakeCasedString:string)
+    {
+        var frags:Array<string> = snakeCasedString.toLowerCase().split('_');
+        var camelCaseFrags:Array<string> = _.map(frags, function(frag:string) {
+            return frag.replace(/^([a-z])/, function(m, p1) { return p1.toUpperCase(); });
+        })
+        return camelCaseFrags.join('');
     }
 
     static getObjectType(obj:any):string

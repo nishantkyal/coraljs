@@ -50,7 +50,7 @@ class BaseDaoDelegate
             function handleIncludesProcessed(...args):any
             {
                 for (var i = 0; i < args[0].length; i++)
-                    rawResult[includes[i]] = args[0][i];
+                    rawResult.set(includes[i], args[0][i]);
                 return rawResult;
             });
     }
@@ -89,18 +89,17 @@ class BaseDaoDelegate
             {
                 var results = args[0];
 
-                _.each(rawResult, function (result)
+                _.each(rawResult, function (result:any)
                 {
                     _.each(results, function(resultSet:any, index)
                     {
                         // TODO: Implement foreign keys so mapping can work in search
                         var foreignKeyColumn = null;
-                        result[includes[index]] = _.map(resultSet, function (res)
+                        result.set(includes[index], _.map(resultSet, function (res)
                         {
                             // return result[foreignKeyColumn] == res['id'] ? res : null;
                             return res;
-                        });
-
+                        }));
                     });
                 });
                 return rawResult;
@@ -127,9 +126,14 @@ class BaseDaoDelegate
         return this.getDao().update(criteria, newValues, transaction);
     }
 
-    delete(id:string, transaction?:any):q.Promise<any>
+    delete(id:number, softDelete:boolean = true, transaction?:any):q.Promise<any>
     {
-        return this.getDao().delete(id, transaction);
+        return this.getDao().delete(id, softDelete, transaction);
+    }
+
+    searchAndDelete(criteria:Object, softDelete:boolean = true, transaction?:any):q.Promise<any>
+    {
+        return this.getDao().searchAndDelete(criteria, softDelete, transaction);
     }
 
     getDao():IDao

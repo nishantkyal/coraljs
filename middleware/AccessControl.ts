@@ -22,7 +22,7 @@ class AccessControl
             .then(
             function handleRoleFetched(integrationMember)
             {
-                if (AccessControl.isRequestFromDashboard(req) || integrationMember.role === IntegrationMemberRole.OWNER)
+                if (AccessControl.isRequestFromDashboard(req) || integrationMember.role === IntegrationMemberRole.Owner)
                     next();
                 else
                     res.status(401).json('Unauthorized');
@@ -43,7 +43,7 @@ class AccessControl
             .then(
             function handleRoleFetched(integrationMember)
             {
-                if (AccessControl.isRequestFromDashboard(req) || integrationMember.role >= IntegrationMemberRole.ADMIN)
+                if (AccessControl.isRequestFromDashboard(req) || integrationMember.role >= IntegrationMemberRole.Admin)
                     next();
                 else
                     res.status(401).json('Unauthorized');
@@ -64,7 +64,7 @@ class AccessControl
             .then(
             function handleRoleFetched(integrationMember)
             {
-                if (AccessControl.isRequestFromDashboard(req) || integrationMember.role === IntegrationMemberRole.EXPERT)
+                if (AccessControl.isRequestFromDashboard(req) || integrationMember.role === IntegrationMemberRole.Expert)
                     next();
                 else
                     res.status(401).json('Unauthorized');
