@@ -47,18 +47,19 @@ class ExpertScheduleRule extends BaseModel
             && ((this.getRepeatEnd()>this.getRepeatStart()) || (this.getRepeatEnd() == 0));
     }
 
-    hasConflicts(schedules:ExpertScheduleRule[], options):boolean
+    checkForConflicts(schedules:ExpertScheduleRule, options):boolean
     {
         var newScheduleRule:ExpertScheduleRule = this;
-        if (schedules.length == 0)
-            return false;
+
         var self = this;
         // TODO: Handle cyclic dependencies in a better way
         var ExpertScheduleRuleDelegate = require('../delegates/ExpertScheduleRuleDelegate');
         var expertScheduleRuleDelegate = new ExpertScheduleRuleDelegate();
 
-        var expertSchedule:ExpertSchedule[] = expertScheduleRuleDelegate.expertScheduleGenerator(schedules,null, options);
-        var newExpertSchedule:ExpertSchedule[] = expertScheduleRuleDelegate.expertScheduleGenerator([newScheduleRule],null, options);
+        var expertSchedule:ExpertSchedule[] = [];
+        expertSchedule = expertScheduleRuleDelegate.expertScheduleGenerator(schedules,null, options);
+        var newExpertSchedule:ExpertSchedule[] = expertScheduleRuleDelegate.expertScheduleGenerator(newScheduleRule,null, options);
+
         var conflict = false;
         _.each(expertSchedule, function(existingSchedule:ExpertSchedule){
             _.each(newExpertSchedule, function(newSchedule:ExpertSchedule){
@@ -72,6 +73,21 @@ class ExpertScheduleRule extends BaseModel
                     conflict = true;
             });
         });
+        return conflict;
+    }
+
+    hasConflicts(schedules:ExpertScheduleRule[], options):boolean
+    {
+        var conflict = false;
+        if (Utils.getObjectType(schedules) == 'Array')
+            if (schedules.length != 0)
+                for(var i = 0; i < schedules.length; i++)
+                {
+                    conflict = conflict || this.checkForConflicts(schedules[i], options);
+                    if(conflict)
+                        break;
+                }
+        //TODO check for single ExpertScheduleRule, for that need to change typeof method
         return conflict;
     }
 

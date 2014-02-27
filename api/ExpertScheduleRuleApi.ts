@@ -59,7 +59,7 @@ class ExpertScheduleRuleApi
 
             expertScheduleRuleDelegate.get(scheduleId)
                 .then(
-                function expertScheduleGenerator(schedules) { res.json(schedules); },
+                function expertScheduleRuleCreate(schedules) { res.json(schedules); },
                 function expertScheduleRuleCreateFailed(error) { res.status(500).json(error); }
             )
         });

@@ -32,10 +32,10 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
 
         return expertScheduleRuleDelegate.getRulesByIntegrationMemberId(newScheduleException.getIntegrationMemberId(), options.startDate.getTimeInSec(), options.endDate.getTimeInSec())
             .then(
-            function createRecord(rawschedules:ExpertScheduleRule[])
+            function createRecord(rules:ExpertScheduleRule[])
             {
                 var schedules:ExpertScheduleRule[] = [];
-                _.each(rawschedules, function(schedule:any){
+                _.each(rules, function(schedule:any){
                     schedules.push(new ExpertScheduleRule(schedule));
                 });
 
@@ -57,7 +57,12 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
         // TODO: Handle cyclic dependencies in a better way
         var ExpertScheduleRuleDelegate = require('../delegates/ExpertScheduleRuleDelegate');
         var expertScheduleRuleDelegate = new ExpertScheduleRuleDelegate();
-        var schedules:ExpertSchedule[] = expertScheduleRuleDelegate.expertScheduleGenerator(scheduleRules,null, options);
+        var schedules:ExpertSchedule[] = [];
+        for(var i = 0; i<scheduleRules.length; i++)
+        {
+            if(exception.getScheduleRuleId() == scheduleRules[i].getId())
+                schedules = expertScheduleRuleDelegate.expertScheduleGenerator(scheduleRules[i],null, options);
+        }
         var schedulesAfterExceptions:ExpertSchedule[] = expertScheduleRuleDelegate.applyExceptions(schedules, [exception]);
         return schedules.length != schedulesAfterExceptions.length;
 

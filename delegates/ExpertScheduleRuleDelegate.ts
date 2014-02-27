@@ -30,10 +30,10 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
         var existingRules = this.getRulesByIntegrationMemberId(newScheduleRule.getIntegrationMemberId(), options.startDate.getTimeInSec(), options.endDate.getTimeInSec());
         return existingRules
             .then(
-            function createRecord(rawschedules:ExpertScheduleRule[])
+            function createRecord(rules:ExpertScheduleRule[])
             {
-                var schedules:ExpertScheduleRule[] = [];
-                _.each(rawschedules, function(schedule:any){
+                var schedules = [];
+                _.each(rules, function(schedule:any){
                     schedules.push(new ExpertScheduleRule(schedule));
                 });
                 if (!newScheduleRule.hasConflicts(schedules , options))
@@ -146,38 +146,32 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
             }
             return true;
         });
-        console.log('Done');
         return schedules;
     }
 
-    expertScheduleGenerator(scheduleRules:ExpertScheduleRule[],exceptions:ExpertScheduleException[], options):ExpertSchedule[]
+    expertScheduleGenerator(scheduleRule:ExpertScheduleRule,exceptions:ExpertScheduleException[], options):ExpertSchedule[]
     {
         var self = this;
         var schedules:ExpertSchedule[] = [];
-        if(scheduleRules.length == 0)
-            scheduleRules:[scheduleRules];
         //parse all rules and generate schedules for given period
-        for (var i = 0; i < scheduleRules.length; i++)
+        parser.parseExpression(scheduleRule.getCronRule(), options, function (err, interval:any)
         {
-            parser.parseExpression(scheduleRules[i].getCronRule(), options, function (err, interval:any)
+            if (err)
             {
-                if (err)
-                {
-                    self.logger.debug('Error: ' + err.message);
-                    console.log(err.message);
-                    return;
-                }
-                var t;
-                while (t = interval.next())
-                {
-                    var temp = new ExpertSchedule();
-                    temp.setStartTime(t.getTimeInSec());
-                    temp.setDuration(scheduleRules[i].getDuration());
-                    temp.setRuleId(scheduleRules[i].getId());
-                    schedules.push(temp);
-                }
-            });
-        }
+                self.logger.debug('Error: ' + err.message);
+                console.log(err.message);
+                return;
+            }
+            var t;
+            while (t = interval.next())
+            {
+                var temp = new ExpertSchedule();
+                temp.setStartTime(t.getTimeInSec());
+                temp.setDuration(scheduleRule.getDuration());
+                temp.setRuleId(scheduleRule.getId());
+                schedules.push(temp);
+            }
+        });
         //in case exceptions are passed, apply them otherwise return the generated schedules
         //done to reuse code - same function is not being used in checking for conflicts and validateExceptions
         if(exceptions)
