@@ -55,11 +55,11 @@ class ExpertScheduleRule extends BaseModel
         }
 
         return !Utils.isNullOrEmpty(this.getRepeatStart())
-            && isCronExpressValid
-            && !Utils.isNullOrEmpty(this.getDuration())
-            && !Utils.isNullOrEmpty(this.getIntegrationMemberId())
-            && !Utils.isNullOrEmpty(this.getRepeatEnd())
-            && ((this.getRepeatEnd()>this.getRepeatStart()) || (this.getRepeatEnd() == 0));
+                && isCronExpressValid
+                    && !Utils.isNullOrEmpty(this.getDuration())
+                        && !Utils.isNullOrEmpty(this.getIntegrationMemberId())
+                            && !Utils.isNullOrEmpty(this.getRepeatEnd())
+                                && (this.getRepeatEnd() > this.getRepeatStart() || this.getRepeatEnd() == 0);
     }
 
     checkForConflicts(schedules:ExpertScheduleRule, options):boolean
