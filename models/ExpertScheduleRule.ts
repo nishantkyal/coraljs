@@ -18,7 +18,7 @@ class ExpertScheduleRule extends BaseModel
     static DURATION:string = 'duration';
     static PRICE_UNIT:string = 'price_unit';
     static PRICE_PER_MIN:string = 'price_per_min';
-    
+
     private integration_member_id:number;
     private repeat_start:number;
     private cron_rule:string;
@@ -28,38 +28,52 @@ class ExpertScheduleRule extends BaseModel
     private price_per_min:number;
 
     /* Getters */
-    getIntegrationMemberId():number     { return this.integration_member_id; }
-    getRepeatStart():number             { return this.repeat_start; }
-    getCronRule():string                { return this.cron_rule; }
-    getRepeatEnd():number               { return this.repeat_end; }
-    getDuration():number                { return this.duration; }
-    getPriceUnit():MoneyUnit            { return this.price_unit; }
-    getPricePerMin():number             { return this.price_per_min; }
+    getIntegrationMemberId():number { return this.integration_member_id; }
+
+    getRepeatStart():number { return this.repeat_start; }
+
+    getCronRule():string { return this.cron_rule; }
+
+    getRepeatEnd():number { return this.repeat_end; }
+
+    getDuration():number { return this.duration; }
+
+    getPriceUnit():MoneyUnit { return this.price_unit; }
+
+    getPricePerMin():number { return this.price_per_min; }
 
     /* Setters */
-    setIntegrationMemberId(val:number):void     { this.integration_member_id = val; }
-    setRepeatStart(val:number):void             { this.repeat_start = val; }
-    setCronRule(val:string):void                { this.cron_rule = val; }
-    setRepeatEnd(val:number):void               { this.repeat_end = val; }
-    setDuration(val:number):void                { this.duration = val; }
-    setPriceUnit(val:MoneyUnit):void            { this.price_unit = val; }
-    setPricePerMin(val:number):void             { this.price_per_min = val; }
+    setIntegrationMemberId(val:number):void { this.integration_member_id = val; }
+
+    setRepeatStart(val:number):void { this.repeat_start = val; }
+
+    setCronRule(val:string):void { this.cron_rule = val; }
+
+    setRepeatEnd(val:number):void { this.repeat_end = val; }
+
+    setDuration(val:number):void { this.duration = val; }
+
+    setPriceUnit(val:MoneyUnit):void { this.price_unit = val; }
+
+    setPricePerMin(val:number):void { this.price_per_min = val; }
 
     isValid():boolean
     {
         var isCronExpressValid:boolean = this.getCronRule().split(' ').length == 6;
-        try {
+        try
+        {
             new cron.CronJob(this.getCronRule());
-        } catch (e) {
+        } catch (e)
+        {
             isCronExpressValid = false;
         }
 
         return !Utils.isNullOrEmpty(this.getRepeatStart())
-                && isCronExpressValid
-                    && !Utils.isNullOrEmpty(this.getDuration())
-                        && !Utils.isNullOrEmpty(this.getIntegrationMemberId())
-                            && !Utils.isNullOrEmpty(this.getRepeatEnd())
-                                && (this.getRepeatEnd() > this.getRepeatStart() || this.getRepeatEnd() == 0);
+            && isCronExpressValid
+            && !Utils.isNullOrEmpty(this.getDuration())
+            && !Utils.isNullOrEmpty(this.getIntegrationMemberId())
+            && !Utils.isNullOrEmpty(this.getRepeatEnd())
+            && (this.getRepeatEnd() > this.getRepeatStart() || this.getRepeatEnd() == 0);
     }
 
     conflicts(rule:ExpertScheduleRule, options):boolean
@@ -75,16 +89,16 @@ class ExpertScheduleRule extends BaseModel
         var newExpertSchedule:ExpertSchedule[] = expertScheduleRuleDelegate.expertScheduleGenerator(newScheduleRule, null, options);
 
         var conflict = false;
-        _.each(expertSchedule, function(existingSchedule:ExpertSchedule)
+        _.each(expertSchedule, function (existingSchedule:ExpertSchedule)
         {
-            _.each(newExpertSchedule, function(newSchedule:ExpertSchedule)
+            _.each(newExpertSchedule, function (newSchedule:ExpertSchedule)
             {
                 var newScheduleStartTime = newSchedule.getStartTime();
                 var newScheduleEndTime = newSchedule.getStartTime() + newSchedule.getDuration();
 
                 var existingScheduleStartTime = existingSchedule.getStartTime();
                 var existingScheduleEndTime = existingSchedule.getStartTime() + existingSchedule.getDuration();
-                
+
                 conflict = !(newScheduleStartTime > existingScheduleEndTime || newScheduleEndTime < existingScheduleStartTime)
             });
         });
@@ -94,15 +108,11 @@ class ExpertScheduleRule extends BaseModel
     hasConflicts(rules:ExpertScheduleRule[], options):boolean
     {
         var conflict = false;
-        if (Utils.getObjectType(rules) == 'Array')
-            if (rules.length != 0)
-                for(var i = 0; i < rules.length; i++)
-                {
-                    conflict = conflict || this.conflicts(rules[i], options);
-                    if(conflict)
-                        break;
-                }
-        //TODO check for single ExpertScheduleRule, for that need to change typeof method
+        for (var i = 0; i < rules.length; i++)
+        {
+            conflict = conflict || this.conflicts(rules[i], options);
+            if (conflict) break;
+        }
         return conflict;
     }
 
