@@ -1,4 +1,5 @@
 ///<reference path='../_references.d.ts'/>
+import moment                           = require('moment');
 import _                                = require('underscore');
 import q                                = require('q');
 import BaseDaoDelegate                  = require('./BaseDaoDelegate');
@@ -20,14 +21,11 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
     createRule(newScheduleRule:ExpertScheduleRule, transaction?:any):q.Promise<any>
     {
         var self = this;
-        var currentDate = new Date();
-        var dateAfterOneYear = new Date();
-        dateAfterOneYear.setFullYear(currentDate.getFullYear() + 1);
         var options = {
-            startDate: currentDate, // current date
-            endDate: dateAfterOneYear // 1 year from current date
+            startDate: moment().valueOf(),
+            endDate: moment().add({year: 1}).valueOf()
         };
-        var existingRules = this.getRulesByIntegrationMemberId(newScheduleRule.getIntegrationMemberId(), options.startDate.getTimeInSec(), options.endDate.getTimeInSec());
+        var existingRules = this.getRulesByIntegrationMemberId(newScheduleRule.getIntegrationMemberId(), options.startDate, options.endDate);
         return existingRules
             .then(
             function createRecord(rules:ExpertScheduleRule[])
@@ -56,20 +54,19 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
     {
         var self = this;
         var transaction = null;
-        var RuleId = updatedScheduleRule.getId();
-        var currentDate = new Date();
-        var dateAfterOneYear = new Date();
-        dateAfterOneYear.setFullYear(currentDate.getFullYear() + 1);
+        var ruleId = updatedScheduleRule.getId();
+
         var options = {
-            startDate: currentDate, // current date
-            endDate: dateAfterOneYear // 1 year from current date
+            startDate: moment().valueOf(),
+            endDate: moment().add({year: 1}).valueOf()
         };
+
         return MysqlDelegate.beginTransaction()
             .then(
             function transactionStarted(t)
             {
                 transaction = t;
-                return self.getRulesByIntegrationMemberId(updatedScheduleRule.getIntegrationMemberId(), options.startDate.getTimeInSec(), options.endDate.getTimeInSec(), transaction);
+                return self.getRulesByIntegrationMemberId(updatedScheduleRule.getIntegrationMemberId(), options.startDate, options.endDate, transaction);
             })
             .then(
             function updateRecord(rawschedules)
@@ -81,7 +78,7 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
                         schedules.push(temp);
                 });
                 if (!updatedScheduleRule.hasConflicts(schedules , options))
-                    return self.update({'id': RuleId}, updatedScheduleRule, transaction);
+                    return self.update({'id': ruleId}, updatedScheduleRule, transaction);
                 else
                     throw {
                         'message': 'Conflicting schedule rules found',
@@ -92,7 +89,7 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
             function ruleUpdated()
             {
                 var expertScheduleExceptionDelegate = new ExpertScheduleExceptionDelegate();
-                return expertScheduleExceptionDelegate.deleteByRuleId(RuleId, transaction);
+                return expertScheduleExceptionDelegate.deleteByRuleId(ruleId, transaction);
             })
             .then(
             function exceptionsDeleted()

@@ -34,7 +34,11 @@ class BaseDao implements IDao
         var id:number = data['id'];
 
         // Remove inserts with undefined values
-        _.each(data, function (value, key) { if (value == undefined) delete data[key]; });
+        _.each(data, function (value, key)
+        {
+            if (value == undefined || Utils.getObjectType(value) == 'Array' || Utils.getObjectType(value) == 'Object')
+                delete data[key];
+        });
 
         var inserts:string[] = _.keys(data);
         var values:any[] = _.map(_.values(data), Utils.surroundWithQuotes);

@@ -1,4 +1,5 @@
 ///<reference path='../_references.d.ts'/>
+import moment                       = require('moment');
 import _                            = require('underscore');
 import q                            = require('q');
 import BaseDaoDelegate              = require('./BaseDaoDelegate');
@@ -20,15 +21,11 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
         // TODO: Handle cyclic dependencies in a better way
         var ExpertScheduleRuleDelegate = require('../delegates/ExpertScheduleRuleDelegate');
         var expertScheduleRuleDelegate = new ExpertScheduleRuleDelegate();
-        var currentDate = new Date();
-        var dateAfterOneYear = new Date();
-        dateAfterOneYear.setFullYear(currentDate.getFullYear() + 1);
-        var options = { // to validate exception
-            startDate: currentDate, // current date
-            endDate: dateAfterOneYear // 1 year from current date
-        };
 
-        return expertScheduleRuleDelegate.getRulesByIntegrationMemberId(newScheduleException.getIntegrationMemberId(), options.startDate.getTimeInSec(), options.endDate.getTimeInSec())
+        var currentDate = moment().valueOf();
+        var dateAfterOneYear = moment().add({year: 1}).valueOf();
+
+        return expertScheduleRuleDelegate.getRulesByIntegrationMemberId(newScheduleException.getIntegrationMemberId(), currentDate, dateAfterOneYear)
             .then(
             function createRecord(rules:ExpertScheduleRule[])
             {
@@ -37,8 +34,12 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
                     schedules.push(new ExpertScheduleRule(schedule));
                 });
 
-                options.startDate = new Date (newScheduleException.getStartTime()*1000);
-                options.endDate = options.startDate;
+                var options =
+                {
+                    startDate: newScheduleException.getStartTime(),
+                    endDate:newScheduleException.getStartTime()
+                }
+
                 if (self.validateException(schedules, options, newScheduleException))
                     return self.create(newScheduleException, transaction);
                 else
@@ -59,7 +60,7 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
         for(var i = 0; i<scheduleRules.length; i++)
         {
             if(exception.getScheduleRuleId() == scheduleRules[i].getId())
-                schedules = expertScheduleRuleDelegate.expertScheduleGenerator(scheduleRules[i],null, options);
+                schedules = expertScheduleRuleDelegate.expertScheduleGenerator(scheduleRules[i], null, options);
         }
         var schedulesAfterExceptions:ExpertSchedule[] = expertScheduleRuleDelegate.applyExceptions(schedules, [exception]);
         return schedules.length != schedulesAfterExceptions.length;

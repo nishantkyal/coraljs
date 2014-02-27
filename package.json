@@ -25,9 +25,11 @@
         "nodeunit"            : "0.8.2",
         "redis"               : "0.10.0",
         "cron-parser"         : "0.2.5",
+        "cron"                : "1.0.3",
         "twilio"              : "1.5.0",
         "json2xml"            : "0.1.1",
         "nodemailer"          : "0.6.0",
-        "watch"               : "0.9.0"
+        "watch"               : "0.9.0",
+        "moment"              : "2.5.1"
     }
 }

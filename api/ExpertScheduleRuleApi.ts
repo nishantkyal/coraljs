@@ -27,7 +27,7 @@ class ExpertScheduleRuleApi
             {
                 expertScheduleRuleDelegate.createRule(scheduleRule)
                     .then(
-                    function expertScheduleRuleCreated(schedule) { res.json(schedule); },
+                    function expertScheduleRuleCreated(schedule) { res.json(schedule.toJson()); },
                     function expertScheduleRuleCreateFailed(error) { res.status(500).json(error); }
                 )
             }
@@ -91,6 +91,8 @@ class ExpertScheduleRuleApi
             )
         });
     }
+
+
 
 }
 export = ExpertScheduleRuleApi

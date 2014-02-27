@@ -1,4 +1,5 @@
 exports.ApiConstants = require("./enums/ApiConstants.js");
+exports.ApiFlags = require("./enums/ApiFlags.js");
 exports.CallStatus = require("./enums/CallStatus.js");
 exports.ErrorCode = require("./enums/ErrorCode.js");
 exports.IncludeFlag = require("./enums/IncludeFlag.js");
@@ -8,6 +9,7 @@ exports.Priority = require("./enums/Priority.js");
 exports.SMSStatus = require("./enums/SMSStatus.js");
 exports.BaseModel = require("./models/BaseModel.js");
 exports.Email = require("./models/Email.js");
+exports.Expert = require("./models/Expert.js");
 exports.ExpertSchedule = require("./models/ExpertSchedule.js");
 exports.ExpertScheduleException = require("./models/ExpertScheduleException.js");
 exports.ExpertScheduleRule = require("./models/ExpertScheduleRule.js");

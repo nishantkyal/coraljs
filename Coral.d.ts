@@ -16,8 +16,10 @@ export class ApiConstants {
     static PHONE_CALL_ID: string;
     static SCHEDULE_ID: string;
     static SCHEDULE_RULE_ID: string;
+    static SCHEDULE_EXCEPTION_ID: string;
     static START_TIME: string;
     static END_TIME: string;
+    static DURATION: string;
     static USER: string;
     static USER_PROFILE: string;
     static OAUTH: string;
@@ -28,7 +30,17 @@ export class ApiConstants {
     static PHONE_CALL: string;
     static SCHEDULE: string;
     static SCHEDULE_RULE: string;
+    static SCHEDULE_EXCEPTION: string;
     static SMS: string;
+}
+
+
+export class ApiFlags {
+    static INCLUDE_INTEGRATION: string;
+    static INCLUDE_USER: string;
+    static INCLUDE_INTEGRATION_MEMBER: string;
+    static INCLUDE_INTEGRATION_MEMBER_USER: string;
+    static INCLUDE_SCHEDULES: string;
 }
 
 
@@ -91,12 +103,14 @@ export enum SMSStatus {
 
 
 
+
 export class BaseModel {
     static TABLE_NAME: string;
     static ID: string;
     static CREATED: string;
     static UPDATED: string;
     static DELETED: string;
+    public logger: log4js.Logger;
     private __proto__;
     private id;
     private created;
@@ -107,11 +121,14 @@ export class BaseModel {
     public getCreated(): number;
     public getUpdated(): number;
     public getDeleted(): boolean;
+    public get(propertyName: string): any;
     public setId(val: number): void;
     public setCreated(val: number): void;
     public setUpdated(val: number): void;
     public setDeleted(val: boolean): void;
+    public set(propertyName: string, val: any): void;
     public toJson(): Object;
+    public toString(): string;
 }
 
 
@@ -146,62 +163,47 @@ export class Email extends BaseModel {
 
 
 
-
-export class ExpertSchedule extends BaseModel {
+export class Expert extends IntegrationMember {
     static TABLE_NAME: string;
-    static SCHEDULE_RULE_ID: string;
-    static INTEGRATION_MEMBER_ID: string;
-    static START_TIME: string;
-    static DURATION: string;
-    static PRICE_UNIT: string;
-    static PRICE_PER_MIN: string;
-    static ACTIVE: string;
-    private schedule_rule_id;
-    private integration_member_id;
-    private start_time;
-    private duration;
-    private price_unit;
-    private price_per_min;
-    private active;
-    public getScheduleRuleId(): number;
-    public getIntegrationMemberId(): number;
-    public getStartTime(): number;
-    public getDuration(): number;
-    public getPriceUnit(): MoneyUnit;
-    public getPricePerMin(): number;
-    public getActive(): boolean;
-    public setScheduleRuleId(val: number): void;
-    public setIntegrationMemberId(val: number): void;
-    public setStartTime(val: number): void;
-    public setDuration(val: number): void;
-    public setPriceUnit(val: MoneyUnit): void;
-    public setPricePerMin(val: number): void;
-    public setActive(val: boolean): void;
+    private revenue_share;
+    private revenue_share_unit;
+    public getRevenueShare(): number;
+    public getRevenueShareUnit(): number;
+    public setRevenueShare(val: any): void;
+    public setRevenueShareUnit(val: any): void;
 }
 
+
+
+export class ExpertSchedule extends BaseModel {
+    private startTime;
+    private duration;
+    private ruleId;
+    public getRuleId(): number;
+    public getStartTime(): number;
+    public getDuration(): number;
+    public setRuleId(d: number): void;
+    public setStartTime(d: number): void;
+    public setDuration(d: number): void;
+}
 
 
 
 export class ExpertScheduleException extends BaseModel {
     static TABLE_NAME: string;
-    public integration_member_id: number;
-    public schedule_rule_id: number;
-    public start_time: number;
-    public duration: number;
-    private price_unit;
-    private price_per_min;
+    private integration_member_id;
+    private schedule_rule_id;
+    private start_time;
+    private duration;
     public getIntegrationMemberId(): number;
     public getScheduleRuleId(): number;
     public getStartTime(): number;
     public getDuration(): number;
-    public getPriceUnit(): MoneyUnit;
-    public getPricePerMin(): number;
     public setIntegrationMemberId(val: number): void;
     public setScheduleRuleId(val: number): void;
     public setStartTime(val: number): void;
     public setDuration(val: number): void;
-    public setPriceUnit(val: MoneyUnit): void;
-    public setPricePerMin(val: number): void;
+    public isValid(): boolean;
 }
 
 
@@ -211,37 +213,35 @@ export class ExpertScheduleRule extends BaseModel {
     static TABLE_NAME: string;
     static INTEGRATION_MEMBER_ID: string;
     static REPEAT_START: string;
-    static REPEAT_INTERVAL: string;
-    static REPEAT_CRON: string;
+    static CRON_RULE: string;
     static REPEAT_END: string;
     static DURATION: string;
     static PRICE_UNIT: string;
     static PRICE_PER_MIN: string;
     private integration_member_id;
     private repeat_start;
-    private repeat_interval;
-    private repeat_cron;
+    private cron_rule;
     private repeat_end;
     private duration;
     private price_unit;
     private price_per_min;
     public getIntegrationMemberId(): number;
     public getRepeatStart(): number;
-    public getRepeatInterval(): number;
-    public getRepeatCron(): number;
+    public getCronRule(): string;
     public getRepeatEnd(): number;
     public getDuration(): number;
     public getPriceUnit(): MoneyUnit;
     public getPricePerMin(): number;
     public setIntegrationMemberId(val: number): void;
     public setRepeatStart(val: number): void;
-    public setRepeatInterval(val: number): void;
-    public setRepeatCron(val: number): void;
+    public setCronRule(val: string): void;
     public setRepeatEnd(val: number): void;
     public setDuration(val: number): void;
     public setPriceUnit(val: MoneyUnit): void;
     public setPricePerMin(val: number): void;
     public isValid(): boolean;
+    public checkForConflicts(schedules: ExpertScheduleRule, options: any): boolean;
+    public hasConflicts(schedules: ExpertScheduleRule[], options: any): boolean;
 }
 
 
@@ -693,7 +693,8 @@ export class ApiUrlDelegate {
     static scheduleByExpert(expertId?: number): string;
     static scheduleRule(): string;
     static scheduleRuleById(scheduleRuleId?: number): string;
-    static scheduleRuleByExpert(expertId?: number): string;
+    static scheduleException(): string;
+    static scheduleExceptionById(scheduleExceptionId?: number): string;
     static integration(): string;
     static integrationById(integrationId?: number): string;
     static integrationSecretReset(integrationId?: number): string;
@@ -740,7 +741,8 @@ export class Utils {
     static isNullOrEmpty(val: any): boolean;
     static getClassName(object: Object): string;
     static copyProperties(source: any, target: any): void;
-    static camelToUnderscore(camelCasedString: string): string;
+    static camelToSnakeCase(camelCasedString: string): string;
+    static snakeToCamelCase(snakeCasedString: string): string;
     static getObjectType(obj: any): string;
     static surroundWithQuotes(val: any): string;
     static createSimpleObject(key: string, value: any): Object;

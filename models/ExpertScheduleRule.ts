@@ -1,3 +1,5 @@
+///<reference path='../_references.d.ts'/>
+import cron                             = require('cron');
 import _                                = require('underscore');
 import BaseModel                        = require('./BaseModel');
 import MoneyUnit                        = require('../enums/MoneyUnit');
@@ -45,8 +47,15 @@ class ExpertScheduleRule extends BaseModel
 
     isValid():boolean
     {
+        var isCronExpressValid:boolean = this.getCronRule().split(' ').length == 6;
+        try {
+            new cron.CronJob(this.getCronRule());
+        } catch (e) {
+            isCronExpressValid = false;
+        }
+
         return !Utils.isNullOrEmpty(this.getRepeatStart())
-            && !Utils.isNullOrEmpty(this.getCronRule())
+            && isCronExpressValid
             && !Utils.isNullOrEmpty(this.getDuration())
             && !Utils.isNullOrEmpty(this.getIntegrationMemberId())
             && !Utils.isNullOrEmpty(this.getRepeatEnd())
@@ -59,7 +68,7 @@ class ExpertScheduleRule extends BaseModel
 
         var self = this;
         // TODO: Handle cyclic dependencies in a better way
-        var ExpertScheduleRuleDelegate = require('../delegates/ExpertScheduleRuleDelegate');
+        var ExpertScheduleRuleDelegate:any = require('../delegates/ExpertScheduleRuleDelegate');
         var expertScheduleRuleDelegate = new ExpertScheduleRuleDelegate();
 
         var expertSchedule:ExpertSchedule[] = [];
