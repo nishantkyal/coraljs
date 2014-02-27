@@ -20,8 +20,10 @@ class ApiConstants
     static PHONE_CALL_ID:string = 'callId';
     static SCHEDULE_ID:string = 'scheduleId';
     static SCHEDULE_RULE_ID:string = 'scheduleRuleId';
+    static SCHEDULE_EXCEPTION_ID:string = 'scheduleExceptionId';
     static START_TIME:string = 'startTime';
     static END_TIME:string = 'endTime';
+    static DURATION:string = 'duration';
 
     /* Body constants */
     static USER:string = 'user';
@@ -34,6 +36,7 @@ class ApiConstants
     static PHONE_CALL:string = 'phoneCall';
     static SCHEDULE:string = 'expertSchedule';
     static SCHEDULE_RULE:string = 'expertScheduleRule';
+    static SCHEDULE_EXCEPTION:string = 'expertScheduleException';
     static SMS:string = 'sms';
 }
 export = ApiConstants

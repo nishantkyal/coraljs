@@ -8,7 +8,7 @@ import url                                      = require('url');
  */
 class ApiUrlDelegate
 {
-    static BASE_URL:string = null;
+    static BASE_URL:string = '';
 
     /* URL patterns for expert API */
     static expert():string { return this.get('/rest/expert'); }
@@ -42,7 +42,10 @@ class ApiUrlDelegate
     /* URL patterns for expert schedule rules*/
     static scheduleRule():string { return this.get('/rest/scheduleRule')}
     static scheduleRuleById(scheduleRuleId?:number):string { return this.get('/rest/scheduleRule/:scheduleRuleId', {scheduleRuleId: scheduleRuleId})}
-    static scheduleRuleByExpert(expertId?:number):string { return this.get('/rest/expert/:expertId/scheduleRule', {expertId: expertId})}
+
+    /* URL patterns for expert schedule exceptions */
+    static scheduleException():string { return this.get('/rest/scheduleException')}
+    static scheduleExceptionById(scheduleExceptionId?:number):string { return this.get('/rest/scheduleException/:scheduleExceptionId', {scheduleExceptionId:scheduleExceptionId})}
 
     /* URL patterns for third party integration */
     static integration():string { return this.get('/rest/integration'); }

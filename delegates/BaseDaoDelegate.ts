@@ -10,7 +10,6 @@ import IncludeFlag      = require('../enums/IncludeFlag');
 
 class BaseDaoDelegate
 {
-
     logger:log4js.Logger;
 
     constructor()
@@ -64,6 +63,11 @@ class BaseDaoDelegate
     /*
      * Perform search based on seacrh query
      * Also fetch joint fields
+     * @param search
+     * @param fields
+     * @param supplimentaryModel
+     * @param supplimentaryModelFields
+     * @returns {q.Promise<any>}
      */
     search(search:Object, options?:Object, includes:IncludeFlag[] = []):q.Promise<any>
     {
@@ -116,12 +120,12 @@ class BaseDaoDelegate
         return this.getDao().create(object, transaction);
     }
 
-    update(criteria:any, newValues:any, transaction?:any):q.Promise<any>
+    update(criteria:Object, newValues:Object, transaction?:any):q.Promise<any>
     {
         // Compose update statement based on newValues
-        newValues[BaseModel.UPDATED] = new Date().getTime();
-        delete newValues[BaseModel.CREATED];
-        delete newValues[BaseModel.ID];
+        newValues['updated'] = new Date().getTime();
+        delete newValues['created'];
+        delete newValues['id'];
 
         return this.getDao().update(criteria, newValues, transaction);
     }

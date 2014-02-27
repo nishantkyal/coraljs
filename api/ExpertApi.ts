@@ -52,7 +52,7 @@ class ExpertApi
         /** Convert user to expert for integrationId **/
         app.put(ApiUrlDelegate.expert(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
-            var integrationMember:IntegrationMember = new IntegrationMember(req.body);
+            var integrationMember:IntegrationMember = req[ApiConstants.EXPERT];
             integrationMember.setRole(IntegrationMemberRole.Expert);
 
             if (integrationMember.getUserId() != null)
