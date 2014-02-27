@@ -8,6 +8,7 @@ import Utils                    = require('../common/Utils');
 class ExpertScheduleExceptionDao extends BaseDAO
 {
     getModel():typeof BaseModel { return ExpertScheduleException; }
+
     getExceptionByIntegrationMemberId(expertId:number, startTime:number,  endTime:number):q.Promise<any>
     {
         var search = {
@@ -19,5 +20,6 @@ class ExpertScheduleExceptionDao extends BaseDAO
         };
         return this.search(search);
     }
+
 }
 export = ExpertScheduleExceptionDao

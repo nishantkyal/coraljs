@@ -10,10 +10,8 @@ import IntegrationMemberDelegate    = require('../delegates/IntegrationMemberDel
 import ExpertScheduleRuleDelegate   = require('../delegates/ExpertScheduleRuleDelegate');
 import ExpertSchedule               = require('../models/ExpertSchedule');
 
-
 class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
 {
-
     getDao():IDao { return new ExpertScheduleExceptionDao();}
 
     createException(newScheduleException:ExpertScheduleException, transaction?:any):q.Promise<any>

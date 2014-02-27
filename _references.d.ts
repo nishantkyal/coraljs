@@ -18,3 +18,4 @@
 ///<reference path='../DefinitelyTyped/nodemailer/nodemailer.d.ts'/>
 ///<reference path='../DefinitelyTyped/jade/jade.d.ts'/>
 ///<reference path='../DefinitelyTyped/watch/watch.d.ts'/>
+///<reference path='../DefinitelyTyped/moment/moment.d.ts'/>

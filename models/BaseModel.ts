@@ -93,10 +93,7 @@ class BaseModel
         return data;
     }
 
-    toString():string
-    {
-        return '[object ' + Utils.getClassName(this) + ']';
-    }
+    toString():string { return '[object ' + Utils.getClassName(this) + ']'; }
 
 }
 export = BaseModel

@@ -81,7 +81,7 @@ class Utils
 
     static getObjectType(obj:any):string
     {
-        return Object.prototype.toString.call(obj).replace('[object ', '').replace(']', '');
+        return Array.isArray(obj) ? 'Array' : obj.toString().replace('[object ', '').replace(']', '');
     }
 
     static surroundWithQuotes(val:any):string{

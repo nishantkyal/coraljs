@@ -55,7 +55,7 @@ class BaseDao implements IDao
 
     }
 
-    get(id:any, fields?:string[]):q.Promise<any>
+    get(id:number, fields?:string[]):q.Promise<any>
     {
         var self = this;
         var selectColumns = fields && fields.length != 0 ? fields.join(',') : '*';
@@ -89,9 +89,9 @@ class BaseDao implements IDao
     {
         var self = this, values = [], whereStatements = [], selectColumns;
 
-        var whereStatements = this.generateWhereStatements(searchQuery);
-        var wheres = whereStatements['where'];
-        var values = whereStatements['values'];
+        var whereStatements:any[] = this.generateWhereStatements(searchQuery);
+        var wheres:string[] = whereStatements['where'];
+        var values:any[] = whereStatements['values'];
 
         selectColumns = options && !Utils.isNullOrEmpty(options['fields']) ? options['fields'].join(',') : '*';
 
@@ -114,9 +114,9 @@ class BaseDao implements IDao
         values = values.concat(_.values(newValues));
 
         // Compose criteria statements
-        var whereStatements:{where: string[]; values: any[]} = this.generateWhereStatements(criteria);
-        var wheres = whereStatements.where;
-        values = values.concat(whereStatements.values);
+        var whereStatements:any[] = this.generateWhereStatements(criteria);
+        var wheres:any = whereStatements['where'];
+        values = values.concat(whereStatements['values']);
 
         var query = 'UPDATE ' + this.tableName + ' SET ' + updates.join(",") + ' WHERE ' + wheres.join(" AND ");
         return MysqlDelegate.executeQuery(query, values, transaction);
@@ -124,7 +124,7 @@ class BaseDao implements IDao
 
     delete(id:number, transaction?:any):q.Promise<any>
     {
-        return this.searchAndDelete({'id': id}, transaction);
+        return MysqlDelegate.executeQuery('DELETE FROM ' + this.tableName + ' WHERE id = ?', [id], transaction);
     }
 
     searchAndDelete(criteria:Object, transaction?:any):q.Promise<any>
