@@ -1,6 +1,5 @@
 ///<reference path='../_references.d.ts'/>
 import _                                        = require('underscore');
-import log4js                                   = require('log4js');
 import Utils                                    = require('../common/Utils');
 
 /**
@@ -15,7 +14,6 @@ class BaseModel
     static UPDATED:string = 'updated';
     static DELETED:string = 'deleted';
 
-    logger:log4js.Logger;
     private __proto__;
 
     private id:number;
@@ -25,8 +23,6 @@ class BaseModel
 
     constructor(data:Object = {})
     {
-        this.logger = log4js.getLogger(Utils.getClassName(this));
-
         var thisProtoConstructor = this.__proto__.constructor;
         thisProtoConstructor['COLUMNS'] = thisProtoConstructor['COLUMNS'] || [];
         var self = this;
@@ -53,7 +49,7 @@ class BaseModel
     {
         var thisProtoConstructor = this.__proto__.constructor;
         if (thisProtoConstructor['COLUMNS'].indexOf(propertyName) == -1)
-            this.logger.error('Non-existent property: ' + propertyName + ' referenced');
+            throw('Non-existent property: ' + propertyName + ' referenced');
         return this[propertyName];
     }
 
@@ -66,7 +62,7 @@ class BaseModel
     {
         var thisProtoConstructor = this.__proto__.constructor;
         if (thisProtoConstructor['COLUMNS'].indexOf(propertyName) == -1)
-            this.logger.error('Non-existent property: ' + propertyName + ' referenced');
+            throw('Non-existent property: ' + propertyName + ' referenced');
         else
         {
             var setterMethodName:string = 'set' + Utils.snakeToCamelCase(propertyName);
@@ -74,7 +70,7 @@ class BaseModel
             if (setterMethod)
                 setterMethod.call(this, val);
             else
-                this.logger.error('Non-existent property: ' + propertyName + ' attempted setter');
+                throw('Non-existent property: ' + propertyName + ' attempted setter');
         }
     }
 

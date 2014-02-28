@@ -9,7 +9,7 @@ import Integration              = require('../models/Integration');
  */
 class IntegrationDao extends BaseDAO {
 
-    static getAll():q.Promise<any>
+    getAll():q.Promise<any>
     {
         return MysqlDelegate.executeQuery('SELECT * FROM integration', null);
     }

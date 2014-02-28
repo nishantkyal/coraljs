@@ -7,12 +7,23 @@ class ExpertSchedule extends BaseModel
     private duration:number;
     private ruleId:number;
 
-    public getRuleId():number       { return this.ruleId; }
-    public getStartTime():number    { return this.startTime; }
-    public getDuration():number     { return this.duration; }
+    public getRuleId():number           { return this.ruleId; }
+    public getStartTime():number        { return this.startTime; }
+    public getDuration():number         { return this.duration; }
 
-    public setRuleId(d:number)      { this.ruleId = d; }
-    public setStartTime(d:number)   { this.startTime = d; }
-    public setDuration(d:number)    { this.duration = d; }
+    public setRuleId(val:number)        { this.ruleId = val; }
+    public setStartTime(val:number)     { this.startTime = val; }
+    public setDuration(val:number)      { this.duration = val; }
+
+    conflicts(schedule:ExpertSchedule):boolean
+    {
+        var newScheduleStartTime = schedule.getStartTime();
+        var newScheduleEndTime = schedule.getStartTime() + schedule.getDuration();
+
+        var existingScheduleStartTime = this.getStartTime();
+        var existingScheduleEndTime = this.getStartTime() + this.getDuration();
+
+        return !(newScheduleStartTime > existingScheduleEndTime || newScheduleEndTime < existingScheduleStartTime);
+    }
 }
 export = ExpertSchedule

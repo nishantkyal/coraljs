@@ -85,21 +85,13 @@ class ExpertScheduleRule extends BaseModel
         var existingSchedules:ExpertSchedule[] = expertScheduleRuleDelegate.generateSchedules(rule, null, options);
         var newSchedules:ExpertSchedule[] = expertScheduleRuleDelegate.generateSchedules(this, null, options);
 
-        var conflict = false;
-        _.each(existingSchedules, function (es:ExpertSchedule)
-        {
-            _.each(newSchedules, function (ns:ExpertSchedule)
-            {
-                var newScheduleStartTime = ns.getStartTime();
-                var newScheduleEndTime = ns.getStartTime() + ns.getDuration();
-
-                var existingScheduleStartTime = es.getStartTime();
-                var existingScheduleEndTime = es.getStartTime() + es.getDuration();
-
-                conflict = !(newScheduleStartTime > existingScheduleEndTime || newScheduleEndTime < existingScheduleStartTime)
+        _.each(existingSchedules, function (es:ExpertSchedule):any {
+            _.each(newSchedules, function (ns:ExpertSchedule):any {
+                if (es.conflicts(ns))
+                    return true;
             });
         });
-        return conflict;
+        return false;
     }
 
     hasConflicts(rules:ExpertScheduleRule[], options):boolean

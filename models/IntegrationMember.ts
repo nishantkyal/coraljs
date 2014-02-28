@@ -1,6 +1,7 @@
 import BaseModel                    = require('./BaseModel');
 import Integration                  = require('./Integration');
 import User                         = require('./User');
+
 /**
  Bean class for Integration member
  **/
@@ -40,8 +41,6 @@ class IntegrationMember extends BaseModel
     getAccessTokenExpiry():string { return this.access_token_expiry; }
     getRefreshToken():string { return this.refresh_token; }
     getRefreshTokenExpiry():string { return this.refresh_token_expiry; }
-    getIntegration():Integration { return this.integration; }
-    getUser():User { return this.user; }
     getRevenueShare():number { return this.revenue_share; }
     getRevenueShareUnit():number { return this.revenue_share_unit; }
 
@@ -57,8 +56,6 @@ class IntegrationMember extends BaseModel
     setAccessToken(val:string):void { this.access_token = val; }
     setAccessTokenExpiry(val:string):void { this.access_token_expiry = val; }
     setRefreshToken(val:string):void { this.refresh_token = val; }
-    setIntegration(val:Integration):void { this.integration = val; }
-    setUser(val:User):void { this.user = new User(val); }
     setRefreshTokenExpiry(val:string):void { this.refresh_token_expiry = val; }
     setRevenueShare(val) { this.revenue_share = val; }
     setRevenueShareUnit(val) { this.revenue_share_unit = val; }

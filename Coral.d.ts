@@ -103,14 +103,12 @@ export enum SMSStatus {
 
 
 
-
 export class BaseModel {
     static TABLE_NAME: string;
     static ID: string;
     static CREATED: string;
     static UPDATED: string;
     static DELETED: string;
-    public logger: log4js.Logger;
     private __proto__;
     private id;
     private created;
@@ -163,18 +161,6 @@ export class Email extends BaseModel {
 
 
 
-export class Expert extends IntegrationMember {
-    static TABLE_NAME: string;
-    private revenue_share;
-    private revenue_share_unit;
-    public getRevenueShare(): number;
-    public getRevenueShareUnit(): number;
-    public setRevenueShare(val: any): void;
-    public setRevenueShareUnit(val: any): void;
-}
-
-
-
 export class ExpertSchedule extends BaseModel {
     private startTime;
     private duration;
@@ -182,9 +168,10 @@ export class ExpertSchedule extends BaseModel {
     public getRuleId(): number;
     public getStartTime(): number;
     public getDuration(): number;
-    public setRuleId(d: number): void;
-    public setStartTime(d: number): void;
-    public setDuration(d: number): void;
+    public setRuleId(val: number): void;
+    public setStartTime(val: number): void;
+    public setDuration(val: number): void;
+    public conflicts(schedule: ExpertSchedule): boolean;
 }
 
 
@@ -205,6 +192,7 @@ export class ExpertScheduleException extends BaseModel {
     public setDuration(val: number): void;
     public isValid(): boolean;
 }
+
 
 
 
@@ -240,8 +228,8 @@ export class ExpertScheduleRule extends BaseModel {
     public setPriceUnit(val: MoneyUnit): void;
     public setPricePerMin(val: number): void;
     public isValid(): boolean;
-    public checkForConflicts(schedules: ExpertScheduleRule, options: any): boolean;
-    public hasConflicts(schedules: ExpertScheduleRule[], options: any): boolean;
+    public conflicts(rule: ExpertScheduleRule, options: any): boolean;
+    public hasConflicts(rules: ExpertScheduleRule[], options: any): boolean;
 }
 
 

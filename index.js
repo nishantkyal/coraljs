@@ -9,7 +9,6 @@ exports.Priority = require("./enums/Priority.js");
 exports.SMSStatus = require("./enums/SMSStatus.js");
 exports.BaseModel = require("./models/BaseModel.js");
 exports.Email = require("./models/Email.js");
-exports.Expert = require("./models/Expert.js");
 exports.ExpertSchedule = require("./models/ExpertSchedule.js");
 exports.ExpertScheduleException = require("./models/ExpertScheduleException.js");
 exports.ExpertScheduleRule = require("./models/ExpertScheduleRule.js");

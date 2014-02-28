@@ -2,8 +2,8 @@
 import q                        = require('q');
 import passport                 = require('passport');
 import BaseDaoDelegate          = require('../delegates/BaseDaoDelegate');
-import UserProfileDelegate      = require('./UserProfileDelegate');
-import MysqlDelegate            = require('./MysqlDelegate');
+import MysqlDelegate            = require('../delegates/MysqlDelegate');
+import UserProfileDelegate      = require('../delegates/UserProfileDelegate');
 import IDao                     = require('../dao/IDao')
 import UserDAO                  = require('../dao/UserDao')
 import User                     = require('../models/User');
@@ -16,33 +16,6 @@ import IncludeFlag              = require('../enums/IncludeFlag');
  **/
 class UserDelegate extends BaseDaoDelegate
 {
-    create(object:any, transaction?:any):q.Promise<any>
-    {
-        var transaction;
-        var self = this;
-
-        return MysqlDelegate.beginTransaction()
-            .then(
-            function transactionStarted(t)
-            {
-                transaction = t;
-                return self.create(object, transaction);
-            })
-            .then(
-            function userCreated(user:User)
-            {
-                var userProfile = new UserProfile();
-                userProfile.setUserId(user.getId());
-
-                return new UserProfileDelegate().create(userProfile, transaction);
-            })
-            .then(
-            function userProfileCreated(userProfile:UserProfile)
-            {
-                return MysqlDelegate.commit(transaction, userProfile);
-            });
-    }
-
     authenticate(mobileOrEmail:string, password:string):q.Promise<any>
     {
         return this.getDao().search({email: mobileOrEmail, password: password}, {'fields': ['id', 'first_name', 'last_name']})
@@ -74,15 +47,6 @@ class UserDelegate extends BaseDaoDelegate
         }
         return super.getIncludeHandler(include, result);
     }
-
-    createMobileVerificationToken():q.Promise<any> { return new VerificationCodeCache().createMobileVerificationCode(); }
-    searchMobileVerificationToken(code:string, ref:string):q.Promise<any> { return new VerificationCodeCache().searchMobileVerificationCode(code, ref); }
-
-    createEmailVerificationToken(userId:number):q.Promise<any> { return new VerificationCodeCache().createEmailVerificationCode(userId); }
-    searchEmailVerificationToken(userId:number, code:string):q.Promise<any> { return new VerificationCodeCache().searchEmailVerificationCode(userId, code); }
-
-    createPasswordResetToken(userId:number):q.Promise<any> { return new VerificationCodeCache().createPasswordResetCode(userId); }
-    searchPasswordResetToken(userId:number, code:string):q.Promise<any> { return new VerificationCodeCache().searchPasswordResetCode(userId, code); }
 
     getDao():IDao { return new UserDAO(); }
 

@@ -1,20 +1,21 @@
 ///<reference path='../_references.d.ts'/>
-import q                            = require('q');
-import express                      = require('express');
-import _                            = require('underscore');
-import ApiConstants                 = require('../enums/ApiConstants');
-import ApiUrlDelegate               = require('../delegates/ApiUrlDelegate');
-import UserDelegate                 = require('../delegates/UserDelegate');
-import UserProfileDelegate          = require('../delegates/UserProfileDelegate');
-import UserOAuthDelegate            = require('../delegates/UserOAuthDelegate');
-import TransactionDelegate          = require('../delegates/TransactionDelegate');
-import AccessControl                = require('../middleware/AccessControl');
-import ValidateRequest              = require('../middleware/ValidateRequest');
-import UserOauth                    = require('../models/UserOauth');
-import User                         = require('../models/User');
-import UserProfile                  = require('../models/UserProfile');
-import IntegrationMember            = require('../models/IntegrationMember');
-import Utils                        = require('../common/Utils');
+import q                                    = require('q');
+import express                              = require('express');
+import _                                    = require('underscore');
+import ApiConstants                         = require('../enums/ApiConstants');
+import ApiUrlDelegate                       = require('../delegates/ApiUrlDelegate');
+import UserDelegate                         = require('../delegates/UserDelegate');
+import UserProfileDelegate                  = require('../delegates/UserProfileDelegate');
+import UserOAuthDelegate                    = require('../delegates/UserOAuthDelegate');
+import TransactionDelegate                  = require('../delegates/TransactionDelegate');
+import AccessControl                        = require('../middleware/AccessControl');
+import ValidateRequest                      = require('../middleware/ValidateRequest');
+import UserOauth                            = require('../models/UserOauth');
+import User                                 = require('../models/User');
+import UserProfile                          = require('../models/UserProfile');
+import IntegrationMember                    = require('../models/IntegrationMember');
+import Utils                                = require('../common/Utils');
+import VerificationCodeCache                = require('../caches/VerificationCodeCache');
 
 /**
  Rest Calls for User
@@ -28,6 +29,7 @@ class UserApi
         var userDelegate = new UserDelegate();
         var userOauthDelegate = new UserOAuthDelegate();
         var userProfileDelegate = new UserProfileDelegate();
+        var verificationCodeCache = new VerificationCodeCache();
 
         /** Create user **/
         app.put(ApiUrlDelegate.user(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
@@ -91,7 +93,7 @@ class UserApi
         {
             var userId = req.params[ApiConstants.USER_ID];
 
-            userDelegate.createPasswordResetToken(userId)
+            verificationCodeCache.createPasswordResetCode(userId)
                 .then(
                 function passwordResetTokenGenerated(token) { res.json(token); },
                 function passwordResetTokenGenerateError(err) { res.status(500).json(err); }
@@ -103,7 +105,7 @@ class UserApi
         {
             var userId = req.params[ApiConstants.USER_ID];
 
-            userDelegate.createEmailVerificationToken(userId)
+            verificationCodeCache.createEmailVerificationCode(userId)
                 .then(
                 function emailVerificationTokenGenerated(token) { res.json(token); },
                 function emailVerificationTokenGenerateError(err) { res.status(500).json(err); }
@@ -113,7 +115,7 @@ class UserApi
         /* Generate a email verification token for user */
         app.get(ApiUrlDelegate.mobileVerificationToken(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
-            userDelegate.createMobileVerificationToken()
+            verificationCodeCache.createMobileVerificationCode()
                 .then(
                 function mobileVerificationTokenGenerated(token) { res.json(token); },
                 function mobileVerificationTokenGenerateError(err) { res.status(500).json(err); }
@@ -128,7 +130,7 @@ class UserApi
         /* Generate mobile verification code */
         app.put(ApiUrlDelegate.mobileVerificationToken(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
-            userDelegate.createMobileVerificationToken()
+            verificationCodeCache.createMobileVerificationCode()
                 .then(
                 function codeCreated(result) { res.send(result); },
                 function codeCreationFailed(error) { res.send(500); }
@@ -141,7 +143,7 @@ class UserApi
             var code:string = req.body['code'];
             var ref:string = req.body['ref'];
 
-            userDelegate.searchMobileVerificationToken(code, ref)
+            verificationCodeCache.searchMobileVerificationCode(code, ref)
                 .then(
                 function codeCreated(result) { res.send(result); },
                 function codeCreationFailed(error) { res.send(500); }
@@ -164,18 +166,6 @@ class UserApi
                 res.status(500).json('Invalid input');
         });
 
-        /** Delete OAuth token **/
-        app.delete(ApiUrlDelegate.userOAuthToken(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
-        {
-            var userId = req.params[ApiConstants.USER_ID];
-            var type = req.params['type'];
-
-            userOauthDelegate.deleteByUser(userId)
-                .then(
-                function tokenRemoved(result) { res.json(result); },
-                function tokenRemoveError(err) { res.status(500).json(err); }
-            );
-        });
 
     }
 }

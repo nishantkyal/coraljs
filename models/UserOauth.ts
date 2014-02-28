@@ -1,4 +1,4 @@
-import BaseModel                = require('./BaseModel');
+import BaseModel                = require('../models/BaseModel');
 
 /**
  * Bean class for User's oauth settings (FB, LinkedIn tokens)

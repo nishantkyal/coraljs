@@ -52,17 +52,19 @@ class ExpertApi
         /** Convert user to expert for integrationId **/
         app.put(ApiUrlDelegate.expert(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
-            var integrationMember:IntegrationMember = req[ApiConstants.EXPERT];
+            var integrationMember:IntegrationMember = new IntegrationMember();
+            integrationMember.setIntegrationId(req.body[ApiConstants.INTEGRATION_ID]);
+            integrationMember.setUserId(req.body[ApiConstants.USER_ID]);
             integrationMember.setRole(IntegrationMemberRole.Expert);
 
-            if (integrationMember.getUserId() != null)
+            if (integrationMember.isValid())
                 integrationMemberDelegate.create(integrationMember)
                     .then(
                     function expertCreated(integrationMemberExpert:IntegrationMember) { res.json(integrationMemberExpert.toJson()); },
                     function expertCreateFailed(error) { res.status(500).json(error); }
                 )
             else
-                res.status(401).json('User needs to be registered before becoming an expert');
+                res.status(401).json('Invalid input');
         });
 
         /** Remove expert status of user for integrationId **/

@@ -38,9 +38,13 @@ class Utils
 
     static isNullOrEmpty(val:any):boolean
     {
-        return val == null || val == undefined || val == NaN
-                && (this.getObjectType(val) != 'Number')
-                    || ((this.getObjectType(val) == 'Array' || this.getObjectType(val) == 'String') && val.length == 0);
+        var objectType:string = this.getObjectType(val);
+        if (objectType == 'Array' || objectType == 'String')
+            return val.length == 0;
+        if (objectType == 'Number' && isNaN(val))
+            return true;
+        else
+            return val == null || val == undefined;
     }
 
     static getClassName(object:Object):string
