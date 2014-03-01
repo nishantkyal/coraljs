@@ -272,6 +272,8 @@ export class Integration extends BaseModel {
 
 
 
+
+
 export class IntegrationMember extends BaseModel {
     static TABLE_NAME: string;
     static INTEGRATION_ID: string;
@@ -304,6 +306,8 @@ export class IntegrationMember extends BaseModel {
     public getRefreshTokenExpiry(): string;
     public getRevenueShare(): number;
     public getRevenueShareUnit(): number;
+    public getIntegration(): Integration;
+    public getUser(): User;
     public isValid(): boolean;
     public setIntegrationId(val: number): void;
     public setUserId(val: number): void;
@@ -315,6 +319,8 @@ export class IntegrationMember extends BaseModel {
     public setRefreshTokenExpiry(val: string): void;
     public setRevenueShare(val: any): void;
     public setRevenueShareUnit(val: any): void;
+    public setIntegration(val: Integration): void;
+    public setUser(val: User): void;
 }
 
 

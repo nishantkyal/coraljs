@@ -22,20 +22,20 @@ class Email extends BaseModel
     private scheduled_date:number;
 
     /* Getters */
-    getRecipientEmail():string { return this.recipient_email; }
-    getSenderEmail():string { return this.sender_email; }
-    getSubject():string { return this.subject; }
-    getTemplate():string { return this.template; }
-    getEmailData():Object { return this.data; }
-    getScheduledDate():number { return this.scheduled_date; }
-
+    getRecipientEmail():string                  { return this.recipient_email; }
+    getSenderEmail():string                     { return this.sender_email; }
+    getSubject():string                         { return this.subject; }
+    getTemplate():string                        { return this.template; }
+    getEmailData():Object                       { return this.data; }
+    getScheduledDate():number                   { return this.scheduled_date; }
 
     /* Setters */
-    setRecipientEmail(val:string):void { this.recipient_email = val; }
-    setSenderEmail(val:string):void { this.sender_email = val; }
-    setSubject(val:string):void { this.subject = val; }
-    setTemplate(val:string):void { this.template = val; }
-    setEmailData(val:Object):void { this.data = val; }
-    setScheduledDate(val:number):void { this.scheduled_date = val; }
+    setRecipientEmail(val:string):void          { this.recipient_email = val; }
+    setSenderEmail(val:string):void             { this.sender_email = val; }
+    setSubject(val:string):void                 { this.subject = val; }
+    setTemplate(val:string):void                { this.template = val; }
+    setEmailData(val:Object):void               { this.data = val; }
+    setScheduledDate(val:number):void           { this.scheduled_date = val; }
+
 }
 export = Email

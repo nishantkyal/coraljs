@@ -23,20 +23,20 @@ class Integration extends BaseModel
     private status:string;
 
     /** Getters */
-    getTitle():string { return this.title; }
-    getWebsiteUrl():string { return this.website_url; }
-    getRedirectUrl():string { return this.redirect_url; }
-    getIntegrationType():IntegrationType { return this.integration_type; }
-    getSecret():string { return this.secret; }
-    getStatus():string { return this.status; }
+    getTitle():string                                   { return this.title; }
+    getWebsiteUrl():string                              { return this.website_url; }
+    getRedirectUrl():string                             { return this.redirect_url; }
+    getIntegrationType():IntegrationType                { return this.integration_type; }
+    getSecret():string                                  { return this.secret; }
+    getStatus():string                                  { return this.status; }
 
     /** Setters */
-    setTitle(val:string) { this.title = val; }
-    setWebsiteUrl(val:string) { this.website_url = val; }
-    setRedirectUrl(val:string) { this.redirect_url = val; }
-    setIntegrationType(val:IntegrationType) { this.integration_type = val; }
-    setSecret(val:string) { this.secret = val; }
-    setStatus(val:string) { this.status = val; }
+    setTitle(val:string)                                { this.title = val; }
+    setWebsiteUrl(val:string)                           { this.website_url = val; }
+    setRedirectUrl(val:string)                          { this.redirect_url = val; }
+    setIntegrationType(val:IntegrationType)             { this.integration_type = val; }
+    setSecret(val:string)                               { this.secret = val; }
+    setStatus(val:string)                               { this.status = val; }
 
 }
 export = Integration
