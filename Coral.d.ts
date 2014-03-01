@@ -79,6 +79,13 @@ export enum IntegrationMemberRole {
 }
 
 
+export enum IntegrationType {
+    FORUM = 0,
+    WEBSITE = 1,
+    SHOP_IN_SHOP = 2,
+}
+
+
 export enum MoneyUnit {
     RUPEE = 0,
     DOLLAR = 1,
@@ -234,6 +241,7 @@ export class ExpertScheduleRule extends BaseModel {
 
 
 
+
 export class Integration extends BaseModel {
     static TABLE_NAME: string;
     static TITLE: string;
@@ -251,18 +259,16 @@ export class Integration extends BaseModel {
     public getTitle(): string;
     public getWebsiteUrl(): string;
     public getRedirectUrl(): string;
-    public getType(): string;
+    public getIntegrationType(): IntegrationType;
     public getSecret(): string;
     public getStatus(): string;
     public setTitle(val: string): void;
     public setWebsiteUrl(val: string): void;
     public setRedirectUrl(val: string): void;
-    public setType(val: string): void;
+    public setIntegrationType(val: IntegrationType): void;
     public setSecret(val: string): void;
     public setStatus(val: string): void;
 }
-
-
 
 
 
@@ -296,8 +302,6 @@ export class IntegrationMember extends BaseModel {
     public getAccessTokenExpiry(): string;
     public getRefreshToken(): string;
     public getRefreshTokenExpiry(): string;
-    public getIntegration(): Integration;
-    public getUser(): User;
     public getRevenueShare(): number;
     public getRevenueShareUnit(): number;
     public isValid(): boolean;
@@ -308,8 +312,6 @@ export class IntegrationMember extends BaseModel {
     public setAccessToken(val: string): void;
     public setAccessTokenExpiry(val: string): void;
     public setRefreshToken(val: string): void;
-    public setIntegration(val: Integration): void;
-    public setUser(val: User): void;
     public setRefreshTokenExpiry(val: string): void;
     public setRevenueShare(val: any): void;
     public setRevenueShareUnit(val: any): void;
@@ -574,6 +576,8 @@ export class User extends BaseModel {
     static PASSWORD: string;
     static VERIFIED: string;
     static ACTIVATED: string;
+    static SHORT_DESC: string;
+    static LONG_DESC: string;
     private first_name;
     private last_name;
     private mobile;
@@ -581,6 +585,8 @@ export class User extends BaseModel {
     private password;
     private verified;
     private activated;
+    private long_desc;
+    private short_desc;
     public getFirstName(): string;
     public getLastName(): string;
     public getMobile(): string;
@@ -588,6 +594,8 @@ export class User extends BaseModel {
     public getPassword(): string;
     public getVerified(): boolean;
     public getActivated(): boolean;
+    public getShortDesc(): string;
+    public getLongDesc(): string;
     public isValid(): boolean;
     public setFirstName(val: string): void;
     public setLastName(val: string): void;
@@ -596,6 +604,8 @@ export class User extends BaseModel {
     public setPassword(val: string): void;
     public setVerified(val: boolean): void;
     public setActivated(val: boolean): void;
+    public setShortDesc(val: string): void;
+    public setLongDesc(val: string): void;
 }
 
 

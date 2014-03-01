@@ -45,7 +45,7 @@ class IntegrationMember extends BaseModel
     getRevenueShareUnit():number { return this.revenue_share_unit; }
 
     isValid():boolean {
-        return !isNaN(this.getIntegrationId()) && !isNaN(this.getId()) && !isNaN(this.getRole());
+        return !isNaN(this.getIntegrationId()) && !isNaN(this.getRole());
     }
 
     /** Setters */

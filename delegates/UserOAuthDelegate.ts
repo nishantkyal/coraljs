@@ -47,7 +47,7 @@ class UserOAuthDelegate extends BaseDaoDelegate
                         {
                             newUser = user;
                             userOAuth.setUserId(newUser.getId());
-                            return self.getDao().create(userOAuth, transaction);
+                            return self.create(userOAuth, transaction);
                         })
                         .then(
                         function oauthCreated(oauth:UserOAuth)

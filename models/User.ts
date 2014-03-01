@@ -15,6 +15,8 @@ class User extends BaseModel
     static PASSWORD:string = 'password';
     static VERIFIED:string = 'verified';
     static ACTIVATED:string = 'activated';
+    static SHORT_DESC:string = 'short_desc';
+    static LONG_DESC:string = 'long_desc';
 
     private first_name:string;
     private last_name:string;
@@ -23,6 +25,8 @@ class User extends BaseModel
     private password:string;
     private verified:boolean;
     private activated:boolean;
+    private long_desc:string;
+    private short_desc:string;
 
     /** Getters **/
     getFirstName():string { return this.first_name; }
@@ -32,6 +36,8 @@ class User extends BaseModel
     getPassword():string { return this.password; }
     getVerified():boolean { return this.verified; }
     getActivated():boolean { return this.activated; }
+    getShortDesc():string { return this.short_desc; }
+    getLongDesc():string { return this.long_desc; }
     isValid():boolean {
         return this.getId() != null && this.getId() != undefined;
     }
@@ -44,6 +50,8 @@ class User extends BaseModel
     setPassword(val:string) { this.password = val; }
     setVerified(val:boolean) { this.verified = val; }
     setActivated(val:boolean) { this.activated = val; }
+    setShortDesc(val:string) { this.short_desc = val; }
+    setLongDesc(val:string) { this.long_desc = val; }
 
 }
 export = User

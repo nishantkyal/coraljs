@@ -4,6 +4,7 @@ exports.CallStatus = require("./enums/CallStatus.js");
 exports.ErrorCode = require("./enums/ErrorCode.js");
 exports.IncludeFlag = require("./enums/IncludeFlag.js");
 exports.IntegrationMemberRole = require("./enums/IntegrationMemberRole.js");
+exports.IntegrationType = require("./enums/IntegrationType.js");
 exports.MoneyUnit = require("./enums/MoneyUnit.js");
 exports.Priority = require("./enums/Priority.js");
 exports.SMSStatus = require("./enums/SMSStatus.js");
