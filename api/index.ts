@@ -1,6 +1,5 @@
 import EmailApi                         = require('./EmailApi');
 import ExpertApi                        = require('./ExpertApi');
-import ExpertScheduleApi                = require('./ExpertScheduleApi');
 import ExpertScheduleRuleApi            = require('./ExpertScheduleRuleApi');
 import ExpertScheduleExceptionApi       = require('./ExpertScheduleExceptionApi')
 import IntegrationApi                   = require('./IntegrationApi');
@@ -19,7 +18,6 @@ function init(app)
 {
     new EmailApi(app);
     new ExpertApi(app);
-    new ExpertScheduleApi(app);
     new ExpertScheduleRuleApi(app);
     new ExpertScheduleExceptionApi(app);
     new IntegrationApi(app);

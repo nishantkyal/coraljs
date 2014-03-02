@@ -39,7 +39,7 @@ class ExpertApi
         /** Get expert profile  **/
         app.get(ApiUrlDelegate.expertById(), function (req:express.Request, res:express.Response)
         {
-            var expertId = req.params[ApiConstants.EXPERT_ID];
+            var expertId = parseInt(req.params[ApiConstants.EXPERT_ID]);
             var includes:string[] = [].concat(req.query[ApiConstants.INCLUDE]);
 
             integrationMemberDelegate.get(expertId, null, includes)

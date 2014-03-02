@@ -1,7 +1,10 @@
-import express              = require('express');
-import ApiUrlDelegate       = require('../delegates/ApiUrlDelegate');
+import express                                  = require('express');
+import ApiUrlDelegate                           = require('../delegates/ApiUrlDelegate');
+import TransactionDelegate                      = require('../delegates/TransactionDelegate');
+import ApiConstants                             = require('../enums/ApiConstants');
+import Transaction                              = require('../models/Transaction');
 
-/**
+/*
  * API calls for managing payment transactions
  * Allow only through searchntalk.com
  */
@@ -9,45 +12,42 @@ class TransactionApi
 {
     constructor(app)
     {
-        /** Create a new transaction **/
+        var transactionDelegate = new TransactionDelegate();
+
         app.put(ApiUrlDelegate.transaction(), function(req:express.Request, res:express.Response)
         {
-            // Validate item to be added
+            var transaction = req.body[ApiConstants.TRANSACTION];
+
+            if (transaction.isValid())
+            {
+                transactionDelegate.create(transaction)
+                    .then(
+                        function transactionCreated(transaction:Transaction) { res.json(transaction.toJson()); },
+                        function transactionCreateError(error) { res.send(500, error); }
+                    )
+            }
         });
 
-        /** Update transaction **/
         app.post(ApiUrlDelegate.transactionById(), function(req:express.Request, res:express.Response)
         {
 
         });
 
-        /** Add item **/
         app.put(ApiUrlDelegate.transactionItem(), function(req:express.Request, res:express.Response)
         {
 
         });
 
-        /**
-         * Update item
-         * Remove all rows for item and insert again
-         **/
         app.post(ApiUrlDelegate.transactionItemById(), function(req:express.Request, res:express.Response)
         {
 
         });
 
-        /**
-         * Remove item
-         */
         app.delete(ApiUrlDelegate.transactionItemById(), function(req:express.Request, res:express.Response)
         {
 
         });
 
-        /**
-         * Get transaction
-         * Fields : [summary, items, discounts, invoice]
-         **/
         app.get(ApiUrlDelegate.transactionById(), function(req:express.Request, res:express.Response)
         {
 

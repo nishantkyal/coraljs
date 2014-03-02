@@ -9,6 +9,7 @@ exports.MoneyUnit = require("./enums/MoneyUnit.js");
 exports.Priority = require("./enums/Priority.js");
 exports.SMSStatus = require("./enums/SMSStatus.js");
 exports.BaseModel = require("./models/BaseModel.js");
+exports.Coupon = require("./models/Coupon.js");
 exports.Email = require("./models/Email.js");
 exports.ExpertSchedule = require("./models/ExpertSchedule.js");
 exports.ExpertScheduleException = require("./models/ExpertScheduleException.js");

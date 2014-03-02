@@ -1,4 +1,5 @@
 import BaseModel                = require('./BaseModel');
+import Utils                    = require('../common/Utils');
 
 class TransactionLine extends BaseModel
 {
@@ -32,5 +33,10 @@ class TransactionLine extends BaseModel
     setAmount(val:number):void { this.amount = val; }
     setAmountUnit(val:number):void { this.amount_unit = val; }
 
+    isValid():boolean
+    {
+        return !Utils.isNullOrEmpty(this.getTransactionId())
+                    && !Utils.isNullOrEmpty(this.getProductType());
+    }
 }
 export = TransactionLine

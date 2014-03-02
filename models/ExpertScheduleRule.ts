@@ -1,4 +1,5 @@
 ///<reference path='../_references.d.ts'/>
+import q                                = require('q');
 import cron                             = require('cron');
 import _                                = require('underscore');
 import BaseModel                        = require('./BaseModel');
@@ -28,22 +29,34 @@ class ExpertScheduleRule extends BaseModel
     private price_per_min:number;
 
     /* Getters */
-    getIntegrationMemberId():number                         { return this.integration_member_id; }
-    getRepeatStart():number                                 { return this.repeat_start; }
-    getCronRule():string                                    { return this.cron_rule; }
-    getRepeatEnd():number                                   { return this.repeat_end; }
-    getDuration():number                                    { return this.duration; }
-    getPriceUnit():MoneyUnit                                { return this.price_unit; }
-    getPricePerMin():number                                 { return this.price_per_min; }
+    getIntegrationMemberId():number { return this.integration_member_id; }
+
+    getRepeatStart():number { return this.repeat_start; }
+
+    getCronRule():string { return this.cron_rule; }
+
+    getRepeatEnd():number { return this.repeat_end; }
+
+    getDuration():number { return this.duration; }
+
+    getPriceUnit():MoneyUnit { return this.price_unit; }
+
+    getPricePerMin():number { return this.price_per_min; }
 
     /* Setters */
-    setIntegrationMemberId(val:number):void                 { this.integration_member_id = val; }
-    setRepeatStart(val:number):void                         { this.repeat_start = val; }
-    setCronRule(val:string):void                            { this.cron_rule = val; }
-    setRepeatEnd(val:number):void                           { this.repeat_end = val; }
-    setDuration(val:number):void                            { this.duration = val; }
-    setPriceUnit(val:MoneyUnit):void                        { this.price_unit = val; }
-    setPricePerMin(val:number):void                         { this.price_per_min = val; }
+    setIntegrationMemberId(val:number):void { this.integration_member_id = val; }
+
+    setRepeatStart(val:number):void { this.repeat_start = val; }
+
+    setCronRule(val:string):void { this.cron_rule = val; }
+
+    setRepeatEnd(val:number):void { this.repeat_end = val; }
+
+    setDuration(val:number):void { this.duration = val; }
+
+    setPriceUnit(val:MoneyUnit):void { this.price_unit = val; }
+
+    setPricePerMin(val:number):void { this.price_per_min = val; }
 
     isValid():boolean
     {
@@ -64,33 +77,59 @@ class ExpertScheduleRule extends BaseModel
             && (this.getRepeatEnd() > this.getRepeatStart() || this.getRepeatEnd() == 0);
     }
 
-    conflicts(rule:ExpertScheduleRule, options):boolean
+    conflicts(rule:ExpertScheduleRule, options):q.Promise<any>
     {
-        // TODO: Handle cyclic dependencies in a better way
-        var ExpertScheduleRuleDelegate:any = require('../delegates/ExpertScheduleRuleDelegate');
-        var expertScheduleRuleDelegate = new ExpertScheduleRuleDelegate();
-
-        var existingSchedules:ExpertSchedule[] = expertScheduleRuleDelegate.generateSchedules(rule, null, options);
-        var newSchedules:ExpertSchedule[] = expertScheduleRuleDelegate.generateSchedules(this, null, options);
-
-        _.each(existingSchedules, function (es:ExpertSchedule):any {
-            _.each(newSchedules, function (ns:ExpertSchedule):any {
-                if (es.conflicts(ns))
-                    return true;
+        return this.checkForConflicts(rule, options)
+            .fail(
+            function conflictFound()
+            {
+                return true;
             });
-        });
-        return false;
     }
 
-    hasConflicts(rules:ExpertScheduleRule[], options):boolean
+    hasConflicts(rules:ExpertScheduleRule[], options):q.Promise<any>
     {
-        var conflict = false;
-        for (var i = 0; i < rules.length; i++)
-        {
-            conflict = conflict || this.conflicts(rules[i], options);
-            if (conflict) break;
-        }
-        return conflict;
+        var self = this;
+
+        return q.all(_.map(rules, function (rule)
+            {
+                return self.checkForConflicts(rule, options);
+            }))
+            .then(
+            function conflictsChecked(result) {
+                return false;
+            },
+            function conflictFound()
+            {
+                return true;
+            });
+    }
+
+    private checkForConflicts(rule:ExpertScheduleRule, options):q.Promise<any>
+    {
+        // TODO: Handle cyclic dependencies in a better way
+        var ExpertScheduleDelegate = require('../delegates/ExpertScheduleDelegate');
+        var expertScheduleDelegate:any = new ExpertScheduleDelegate();
+
+        return q.all([
+                expertScheduleDelegate.getSchedulesForRule(rule, options.startDate, options.endDate),
+                expertScheduleDelegate.getSchedulesForRule(this, options.startDate, options.endDate)
+            ])
+            .then(
+            function schedulesGenerated(...args)
+            {
+                var existingSchedules:ExpertSchedule[] = args[0][1];
+                var newSchedules:ExpertSchedule[] = args[0][2];
+                _.each(existingSchedules, function (es:ExpertSchedule):any
+                {
+                    _.each(newSchedules, function (ns:ExpertSchedule):any
+                    {
+                        if (es.conflicts(ns))
+                            throw('Conflicting schedule found');
+                    });
+                });
+                return false;
+            });
     }
 
 }

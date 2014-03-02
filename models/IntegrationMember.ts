@@ -1,6 +1,7 @@
 import BaseModel                    = require('./BaseModel');
 import Integration                  = require('./Integration');
 import User                         = require('./User');
+import ExpertSchedule               = require('./ExpertSchedule');
 
 /**
  Bean class for Integration member
@@ -31,6 +32,7 @@ class IntegrationMember extends BaseModel
 
     private integration:Integration;
     private user:User;
+    private schedule:Array<ExpertSchedule>;
 
     /* Getters */
     getIntegrationId():number                           { return this.integration_id; }
@@ -45,7 +47,8 @@ class IntegrationMember extends BaseModel
     getRevenueShareUnit():number                        { return this.revenue_share_unit; }
 
     getIntegration():Integration                        { return this.integration; }
-    getUser():User                          { return this.user; }
+    getUser():User                                      { return this.user; }
+    getSchedule():Array<ExpertSchedule>                     { return this.schedule; }
 
     isValid():boolean {
         return !isNaN(this.getIntegrationId()) && !isNaN(this.getRole());
@@ -65,6 +68,7 @@ class IntegrationMember extends BaseModel
 
     setIntegration(val:Integration):void                { this.integration = val; }
     setUser(val:User):void                              { this.user = val; }
+    setSchedule(val:Array<ExpertSchedule>):void         { this.schedule = val; }
 
 }
 export = IntegrationMember

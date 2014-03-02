@@ -1,4 +1,5 @@
 import BaseModel                = require('../models/BaseModel');
+import Utils                    = require('../common/Utils');
 
 /**
  * Bean class for User's oauth settings (FB, LinkedIn tokens)
@@ -31,8 +32,11 @@ class UserOauth extends BaseModel
     getAccessTokenExpiry() { return this.access_token_expiry; }
     getRefreshToken() { return this.refresh_token; }
     getRefreshTokenExpiry() { return this.refresh_token_expiry; }
-    isValid() {
-        return this.getOauthUserId() && this.getProviderId() && (this.getAccessToken() || this.getRefreshToken())
+
+    isValid():boolean {
+        return !Utils.isNullOrEmpty(this.getOauthUserId())
+                    && !Utils.isNullOrEmpty(this.getProviderId())
+                        && (!Utils.isNullOrEmpty(this.getAccessToken()) || !Utils.isNullOrEmpty(this.getRefreshToken()));
     }
 
     /* Setters */

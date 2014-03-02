@@ -12,6 +12,7 @@ import SMS                              = require('../models/SMS');
 import ExpertScheduleRule               = require('../models/ExpertScheduleRule');
 import ExpertScheduleException          = require('../models/ExpertScheduleException');
 import UserProfile                      = require('../models/UserProfile');
+import Transaction                      = require('../models/Transaction');
 
 class ValidateRequest
 {
@@ -78,6 +79,9 @@ class ValidateRequest
                     break;
                 case ApiConstants.SCHEDULE_EXCEPTION:
                     modelClass = ExpertScheduleException;
+                    break;
+                case ApiConstants.TRANSACTION:
+                    modelClass = Transaction;
                     break;
             }
 

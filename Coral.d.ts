@@ -138,6 +138,30 @@ export class BaseModel {
 
 
 
+
+export class Coupon extends BaseModel {
+    private free_mins;
+    private num_used;
+    private max_coupons;
+    private discount_amount;
+    private discount_unit;
+    private expiry_time;
+    public getFreeMins(): number;
+    public getNumUsed(): number;
+    public getMaxCoupons(): number;
+    public getDiscountAmount(): number;
+    public getDiscountUnit(): number;
+    public getExpiryTime(): number;
+    public setFreeMins(val: number): void;
+    public setNumUsed(val: number): void;
+    public setMaxCoupons(val: number): void;
+    public setDiscountAmount(val: number): void;
+    public setDiscountUnit(val: number): void;
+    public setExpiryTime(val: number): void;
+}
+
+
+
 export class Email extends BaseModel {
     static TABLE_NAME: string;
     static RECIPIENT_EMAIL: string;
@@ -531,6 +555,7 @@ export class Transaction extends BaseModel {
     private total;
     private total_unit;
     private status;
+    private transaction_lines;
     public getUserId(): number;
     public getTotal(): number;
     public getTotalUnit(): number;
@@ -539,6 +564,7 @@ export class Transaction extends BaseModel {
     public setTotal(val: number): void;
     public setTotalUnit(val: number): void;
     public setStatus(val: number): void;
+    public isValid(): boolean;
 }
 
 

@@ -25,7 +25,7 @@ class ExpertScheduleRuleApi
 
             if(scheduleRule.isValid())
             {
-                expertScheduleRuleDelegate.createRule(scheduleRule)
+                expertScheduleRuleDelegate.create(scheduleRule)
                     .then(
                     function expertScheduleRuleCreated(schedule) { res.json(schedule.toJson()); },
                     function expertScheduleRuleCreateFailed(error) { res.status(500).json(error); }
@@ -84,15 +84,13 @@ class ExpertScheduleRuleApi
         {
             var scheduleRuleId:number = parseInt(req.params[ApiConstants.SCHEDULE_RULE_ID]);
 
-            expertScheduleRuleDelegate.deleteRule(scheduleRuleId)
+            expertScheduleRuleDelegate.delete(scheduleRuleId)
                 .then(
                 function updateScheduleRule(rule:ExpertScheduleException) { res.json(rule); },
                 function updateScheduleRuleError(error) { res.status(500).json(error) }
             )
         });
     }
-
-
 
 }
 export = ExpertScheduleRuleApi

@@ -3,16 +3,16 @@ import MoneyUnit                = require('../enums/MoneyUnit');
 
 class ExpertSchedule extends BaseModel
 {
-    private startTime:number;
+    private start_time:number;
     private duration:number;
-    private ruleId:number;
+    private rule_id:number;
 
-    public getRuleId():number           { return this.ruleId; }
-    public getStartTime():number        { return this.startTime; }
+    public getRuleId():number           { return this.rule_id; }
+    public getStartTime():number        { return this.start_time; }
     public getDuration():number         { return this.duration; }
 
-    public setRuleId(val:number)        { this.ruleId = val; }
-    public setStartTime(val:number)     { this.startTime = val; }
+    public setRuleId(val:number)        { this.rule_id = val; }
+    public setStartTime(val:number)     { this.start_time = val; }
     public setDuration(val:number)      { this.duration = val; }
 
     conflicts(schedule:ExpertSchedule):boolean

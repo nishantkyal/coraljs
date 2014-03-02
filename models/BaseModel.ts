@@ -80,14 +80,26 @@ class BaseModel
         var self = this;
         var data = {};
         _.each (thisProtoConstructor['COLUMNS'], function(column:string) {
-            try {
-                data[column] = self[column].toJson();
-            } catch (e) {
-                data[column] = self[column];
+            if (Utils.getObjectType(self[column]) == 'Array')
+            {
+                data[column] = _.map(self[column], function(obj:any)
+                {
+                    return obj.toJson();
+                });
+            }
+            else
+            {
+                try {
+                    data[column] = self[column].toJson();
+                } catch (e) {
+                    data[column] = self[column];
+                }
             }
         });
         return data;
     }
+
+    isValid():boolean { return true; }
 
     toString():string { return '[object ' + Utils.getClassName(this) + ']'; }
 

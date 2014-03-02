@@ -1,25 +1,49 @@
+///<reference path='../_references.d.ts'/>
 import q                            = require('q');
 import _                            = require('underscore');
 import BaseDAODelegate              = require('./BaseDaoDelegate');
+import MysqlDelegate                = require('./MysqlDelegate');
+import TransactionLineDelegate      = require('./TransactionLineDelegate');
 import IDao                         = require('../dao/IDao');
 import TransactionDAO               = require('../dao/TransactionDao');
+import Transaction                  = require('../models/Transaction');
+import TransactionLine              = require('../models/TransactionLine');
 
 class TransactionDelegate extends BaseDAODelegate
 {
-    search(user_id:string, filters?:Object, fields?:string[]):q.Promise<any>
+    create(object:any, transaction?:any):q.Promise<any>
     {
-        filters['user_id'] = user_id;
-        return super.search(filters, {'fields': fields});
-    }
+        var self = this;
 
-    getAccountBalance(user_id:string):q.Promise<any>
-    {
-        return super.search({user_id: user_id}, ['total'])
+        return MysqlDelegate.beginTransaction()
             .then(
-            function transactionsFetched(transactions)
+            function transactionStarted(t)
             {
-                var sumTotal = _.reduce(_.pluck(transactions, 'total'), function(memo:Number, num:Number) { return memo + num; }, 0);
-                return sumTotal;
+                transaction = t;
+                self.create(object, t);
+            })
+            .then(
+            function transactionCreated(t):any
+            {
+                if (object[Transaction.TRANSACTION_LINES])
+                {
+                    var transactionLineDelegate = new TransactionLineDelegate();
+                    return q.all(_.map(object[Transaction.TRANSACTION_LINES], function (tl:TransactionLine)
+                        {
+                            if (tl.isValid())
+                                return transactionLineDelegate.create(tl, transaction);
+                            return null;
+                        }))
+                        .then(
+                        function transactionLinesCreated(...args)
+                        {
+                            t.set(Transaction.TRANSACTION_LINES, args);
+                            return t;
+                        }
+                    );
+                }
+                else
+                    return t;
             });
     }
 

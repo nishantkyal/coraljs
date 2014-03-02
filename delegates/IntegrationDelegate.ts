@@ -13,7 +13,8 @@ class IntegrationDelegate extends BaseDaoDelegate
 {
     getAll():q.Promise<any>
     {
-        return this.getDao().getAll();
+        var integrationDao:any = this.getDao();
+        return integrationDao.getAll();
     }
 
     resetSecret(integrationId:string):q.Promise<any>

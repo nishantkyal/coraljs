@@ -84,7 +84,7 @@ class ExpertScheduleExceptionApi
         {
             var exceptionId:number = parseInt(req.params[ApiConstants.SCHEDULE_EXCEPTION_ID]);
 
-            expertScheduleExceptionDelegate.deleteByExceptionId(exceptionId)
+            expertScheduleExceptionDelegate.delete(exceptionId)
                 .then(
                 function exceptionDeleted(exceptionId) { res.json(exceptionId); },
                 function exceptionDeletedError(error) { res.status(500).json(error) }
