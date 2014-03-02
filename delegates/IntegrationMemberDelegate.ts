@@ -1,21 +1,22 @@
 ///<reference path='../_references.d.ts'/>
-import _                            = require('underscore');
-import q                            = require('q');
-import Utils                        = require('../common/Utils');
-import BaseDaoDelegate              = require('../delegates/BaseDaoDelegate');
-import MysqlDelegate                = require('../delegates/MysqlDelegate');
-import ExpertScheduleDelegate       = require('../delegates/ExpertScheduleDelegate');
-import IntegrationDelegate          = require('../delegates/IntegrationDelegate');
-import UserDelegate                 = require('../delegates/UserDelegate');
-import UserProfileDelegate          = require('../delegates/UserProfileDelegate');
-import IDao                         = require ('../dao/IDao');
-import IntegrationMemberDAO         = require ('../dao/IntegrationMemberDao');
-import IntegrationMemberRole        = require('../enums/IntegrationMemberRole');
-import IncludeFlag                  = require('../enums/IncludeFlag');
-import Integration                  = require('../models/Integration');
-import User                         = require('../models/User');
-import IntegrationMember            = require('../models/IntegrationMember');
-import AccessTokenCache             = require('../caches/AccessTokenCache');
+import _                                    = require('underscore');
+import q                                    = require('q');
+import Utils                                = require('../common/Utils');
+import BaseDaoDelegate                      = require('../delegates/BaseDaoDelegate');
+import MysqlDelegate                        = require('../delegates/MysqlDelegate');
+import ExpertScheduleDelegate               = require('../delegates/ExpertScheduleDelegate');
+import IntegrationDelegate                  = require('../delegates/IntegrationDelegate');
+import UserDelegate                         = require('../delegates/UserDelegate');
+import UserProfileDelegate                  = require('../delegates/UserProfileDelegate');
+import IDao                                 = require ('../dao/IDao');
+import IntegrationMemberDAO                 = require ('../dao/IntegrationMemberDao');
+import IntegrationMemberRole                = require('../enums/IntegrationMemberRole');
+import IncludeFlag                          = require('../enums/IncludeFlag');
+import Integration                          = require('../models/Integration');
+import User                                 = require('../models/User');
+import IntegrationMember                    = require('../models/IntegrationMember');
+import AccessTokenCache                     = require('../caches/AccessTokenCache');
+import ExpertScheduleRuleDelegate           = require('../delegates/ExpertScheduleRuleDelegate');
 
 class IntegrationMemberDelegate extends BaseDaoDelegate
 {
@@ -23,8 +24,34 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
     {
         var integrationMember = new IntegrationMember(object);
         integrationMember.setAuthCode(Utils.getRandomString(30));
+        var superCreate = super.create;
+        var self = this;
+        var createdExpert;
+        var transaction;
 
-        return super.create(integrationMember, transaction);
+        return MysqlDelegate.beginTransaction()
+            .then(
+            function createUserAfterTransactionStarted(t)
+            {
+                transaction = t;
+                return superCreate.call(self, integrationMember, transaction);
+            })
+            .then(
+            function commitTransaction(expert)
+            {
+                createdExpert = expert;
+                return MysqlDelegate.commit(transaction, createdExpert);
+            })
+            .then(
+            function createDefaultScheduleRules()
+            {
+                return new ExpertScheduleRuleDelegate().createDefaultRules(createdExpert.getId(), transaction);
+            })
+            .then(
+            function rulesCreated()
+            {
+                return createdExpert;
+            });
     }
 
     get(id:any, fields?:string[], flags:Array<IncludeFlag> = []):q.Promise<any>

@@ -44,6 +44,32 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
             });
     }
 
+    createDefaultRules(expertId:number, transaction?:any):q.Promise<any>
+    {
+        var weekdaysRule = new ExpertScheduleRule();
+        weekdaysRule.setTitle('Weekdays');
+        weekdaysRule.setRepeatStart(moment().valueOf());
+        weekdaysRule.setCronRule('0 0 9 * * 1-5');
+        weekdaysRule.setDuration(12 * 3600);
+        weekdaysRule.setIntegrationMemberId(expertId);
+
+        var weekendRule = new ExpertScheduleRule();
+        weekendRule.setTitle('Weekend');
+        weekendRule.setRepeatStart(moment().valueOf());
+        weekendRule.setCronRule('0 0 2 * * 0,6');
+        weekendRule.setDuration(3 * 3600);
+        weekendRule.setIntegrationMemberId(expertId);
+
+        var self = this;
+
+        return self.create(weekdaysRule, transaction)
+            .then(
+            function ruleCreated()
+            {
+                self.create(weekendRule, transaction)
+            });
+    }
+
     update(criteria:Object, updatedScheduleRule:ExpertScheduleRule, transaction?:any):q.Promise<any>
     {
         var self = this;
@@ -130,7 +156,8 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
     {
         return _.filter(schedules, function (schedule:ExpertSchedule)
         {
-            _.each(exceptions, function(exception:ExpertScheduleException) {
+            _.each(exceptions, function (exception:ExpertScheduleException)
+            {
                 if (exception.conflicts(schedule))
                     return false;
             });

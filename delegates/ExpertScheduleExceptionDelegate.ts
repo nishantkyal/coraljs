@@ -13,7 +13,6 @@ import ExpertScheduleRuleDelegate   = require('../delegates/ExpertScheduleRuleDe
 
 class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
 {
-
     getDao():IDao { return new ExpertScheduleExceptionDao();}
 
     createException(newScheduleException:ExpertScheduleException, transaction?:any):q.Promise<any>
