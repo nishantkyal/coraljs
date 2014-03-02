@@ -110,6 +110,11 @@ export enum SMSStatus {
 }
 
 
+export enum TransactionStatus {
+    PENDING = 0,
+}
+
+
 
 export class BaseModel {
     static TABLE_NAME: string;
@@ -160,6 +165,29 @@ export class Coupon extends BaseModel {
     public setDiscountAmount(val: number): void;
     public setDiscountUnit(val: number): void;
     public setExpiryTime(val: number): void;
+}
+
+
+export class CronRule {
+    private second;
+    private minute;
+    private hour;
+    private day_of_month;
+    private month;
+    private day_of_week;
+    constructor(pattern: string);
+    public getSecond(): string;
+    public getMinute(): string;
+    public getHour(): string;
+    public getDayOfMonth(): string;
+    public getMonth(): string;
+    public getDayOfWeek(): string;
+    public setSecond(val: string): void;
+    public setMinute(val: string): void;
+    public setHour(val: string): void;
+    public setDayOfMonth(val: string): void;
+    public setMonth(val: string): void;
+    public setDayOfWeek(val: string): void;
 }
 
 
@@ -408,6 +436,7 @@ export class PayoutDetail extends BaseModel {
 
 
 
+
 export class PhoneCall extends BaseModel {
     static TABLE_NAME: string;
     static CALLER_ID: string;
@@ -448,9 +477,9 @@ export class PhoneCall extends BaseModel {
     public getDuration(): number;
     public getStatus(): number;
     public getPrice(): number;
-    public getPriceCurrency(): number;
+    public getPriceCurrency(): MoneyUnit;
     public getCost(): number;
-    public getCostCurrency(): number;
+    public getCostCurrency(): MoneyUnit;
     public getAgenda(): string;
     public getRecorded(): boolean;
     public getExtension(): string;
@@ -463,9 +492,9 @@ export class PhoneCall extends BaseModel {
     public setDuration(val: number): void;
     public setStatus(val: number): void;
     public setPrice(val: number): void;
-    public setPriceCurrency(val: number): void;
+    public setPriceCurrency(val: MoneyUnit): void;
     public setCost(val: number): void;
-    public setCostCurrency(val: number): void;
+    public setCostCurrency(val: MoneyUnit): void;
     public setAgenda(val: string): void;
     public setRecorded(val: boolean): void;
     public setExtension(val: string): void;
@@ -548,6 +577,8 @@ export class SMS extends BaseModel {
 
 
 
+
+
 export class Transaction extends BaseModel {
     static TABLE_NAME: string;
     static USER_ID: string;
@@ -562,14 +593,15 @@ export class Transaction extends BaseModel {
     private transaction_lines;
     public getUserId(): number;
     public getTotal(): number;
-    public getTotalUnit(): number;
-    public getStatus(): number;
+    public getTotalUnit(): MoneyUnit;
+    public getStatus(): TransactionStatus;
     public setUserId(val: number): void;
     public setTotal(val: number): void;
-    public setTotalUnit(val: number): void;
-    public setStatus(val: number): void;
+    public setTotalUnit(val: MoneyUnit): void;
+    public setStatus(val: TransactionStatus): void;
     public isValid(): boolean;
 }
+
 
 
 
@@ -592,13 +624,13 @@ export class TransactionLine extends BaseModel {
     public getProductType(): number;
     public getTransactionType(): number;
     public getAmount(): number;
-    public getAmountUnit(): number;
+    public getAmountUnit(): MoneyUnit;
     public setTransactionId(val: number): void;
     public setProductId(val: number): void;
     public setProductType(val: number): void;
     public setTransactionType(val: number): void;
     public setAmount(val: number): void;
-    public setAmountUnit(val: number): void;
+    public setAmountUnit(val: MoneyUnit): void;
     public isValid(): boolean;
 }
 

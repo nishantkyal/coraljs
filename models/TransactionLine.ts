@@ -1,5 +1,6 @@
 import BaseModel                = require('./BaseModel');
 import Utils                    = require('../common/Utils');
+import MoneyUnit                = require('../enums/MoneyUnit');
 
 class TransactionLine extends BaseModel
 {
@@ -17,21 +18,21 @@ class TransactionLine extends BaseModel
     private product_type:number;
     private transaction_type:number;
     private amount:number;
-    private amount_unit:number;
+    private amount_unit:MoneyUnit;
 
     getTransactionId():number { return this.transaction_id; }
     getProductId():number { return this.product_id; }
     getProductType():number { return this.product_type; }
     getTransactionType():number { return this.transaction_type; }
     getAmount():number { return this.amount; }
-    getAmountUnit():number { return this.amount_unit; }
+    getAmountUnit():MoneyUnit { return this.amount_unit; }
 
     setTransactionId(val:number):void { this.transaction_id = val; }
     setProductId(val:number):void { this.product_id = val; }
     setProductType(val:number):void { this.product_type = val; }
     setTransactionType(val:number):void { this.transaction_type = val; }
     setAmount(val:number):void { this.amount = val; }
-    setAmountUnit(val:number):void { this.amount_unit = val; }
+    setAmountUnit(val:MoneyUnit):void { this.amount_unit = val; }
 
     isValid():boolean
     {

@@ -5,11 +5,17 @@ import Utils                        = require('../common/Utils');
 import IDao                         = require('../dao/IDao');
 import PhoneCallDao                 = require('../dao/PhoneCallDao');
 import BaseDAODelegate              = require('./BaseDaoDelegate');
+import MysqlDelegate                = require('./MysqlDelegate');
 import IntegrationMemberDelegate    = require('./IntegrationMemberDelegate');
+import TransactionDelegate          = require('./TransactionDelegate');
+import TransactionLineDelegate      = require('./TransactionLineDelegate');
 import EmailDelegate                = require('./EmailDelegate');
 import CallStatus                   = require('../enums/CallStatus');
 import IncludeFlag                  = require('../enums/IncludeFlag');
+import TransacitionStatus           = require('../enums/TransactionStatus');
 import PhoneCall                    = require('../models/PhoneCall');
+import Transaction                  = require('../models/Transaction');
+import TransactionLine              = require('../models/TransactionLine');
 import UnscheduledCallsCache        = require('../caches/UnscheduledCallsCache');
 
 class PhoneCallDelegate extends BaseDAODelegate
@@ -45,7 +51,40 @@ class PhoneCallDelegate extends BaseDAODelegate
     {
         if (object['status'] == CallStatus.PLANNING)
             return this.unscheduledCallsCache.addUnscheduledCall(object['integration_member_id'], object['schedule_id'], object);
-        return super.create(object, transaction);
+
+        var createdCall;
+        var superCreate = super.create;
+        var self = this;
+
+        return MysqlDelegate.beginTransaction()
+            .then(
+            function transactionStarted(t)
+            {
+                transaction = t;
+                superCreate.call(self, object, transaction)
+            })
+            .then(
+            function callCreated(call)
+            {
+                createdCall = call;
+
+                var t = new Transaction();
+                t.setStatus(TransacitionStatus.PENDING);
+                t.setTotalUnit(call.getPriceCurrency());
+                t.setUserId(call.getCallerId());
+                return new TransactionDelegate().create(t, transaction);
+            })
+            .then(
+            function transactionCreated(transaction)
+            {
+                var transactionLine = new TransactionLine();
+                transactionLine.setTransactionId(transaction.getId());
+                transactionLine.setAmount(createdCall.getPrice());
+                transactionLine.setAmountUnit(createdCall.getPriceCurrency());
+                transactionLine.setProductType(1);
+
+                return new TransactionLineDelegate().create(transactionLine, transaction);
+            });
     }
 
     search(search:Object, options?:Object):q.Promise<any>

@@ -1,6 +1,8 @@
 import BaseModel                = require('./BaseModel');
 import TransactionLine          = require('./TransactionLine');
 import Utils                    = require('../common/Utils');
+import TransactionStatus        = require('../enums/TransactionStatus');
+import MoneyUnit                = require('../enums/MoneyUnit');
 
 class Transaction extends BaseModel
 {
@@ -14,22 +16,22 @@ class Transaction extends BaseModel
 
     private user_id:number;
     private total:number;
-    private total_unit:number;
-    private status:number;
+    private total_unit:MoneyUnit;
+    private status:TransactionStatus;
 
     private transaction_lines:TransactionLine[];
 
     /* Getters */
     getUserId():number { return this.user_id; }
     getTotal():number { return this.total; }
-    getTotalUnit():number { return this.total_unit; }
-    getStatus():number { return this.status; }
+    getTotalUnit():MoneyUnit { return this.total_unit; }
+    getStatus():TransactionStatus { return this.status; }
 
     /* Setters */
     setUserId(val:number):void { this.user_id = val; }
     setTotal(val:number):void { this.total = val; }
-    setTotalUnit(val:number):void { this.total_unit = val; }
-    setStatus(val:number):void { this.status = val; }
+    setTotalUnit(val:MoneyUnit):void { this.total_unit = val; }
+    setStatus(val:TransactionStatus):void { this.status = val; }
 
     isValid():boolean
     {

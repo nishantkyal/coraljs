@@ -1,5 +1,6 @@
 import BaseModel            = require('./BaseModel');
 import Utils                = require('../common/Utils');
+import MoneyUnit            = require('../enums/MoneyUnit');
 
 /**
  Bean class for Phone call
@@ -32,9 +33,9 @@ class PhoneCall extends BaseModel
     private duration:number;
     private status:number;
     private price:number;
-    private price_currency:number;
+    private price_currency:MoneyUnit;
     private cost:number;
-    private cost_currency:number;
+    private cost_currency:MoneyUnit;
     private agenda:string;
     private recorded:boolean;
     private extension:string;
@@ -49,9 +50,9 @@ class PhoneCall extends BaseModel
     getDuration():number { return this.duration; }
     getStatus():number { return this.status; }
     getPrice():number { return this.price; }
-    getPriceCurrency():number { return this.price_currency; }
+    getPriceCurrency():MoneyUnit { return this.price_currency; }
     getCost():number { return this.cost; }
-    getCostCurrency():number { return this.cost_currency; }
+    getCostCurrency():MoneyUnit { return this.cost_currency; }
     getAgenda():string { return this.agenda; }
     getRecorded():boolean{ return this.recorded; }
     getExtension():string { return this.extension; }
@@ -66,9 +67,9 @@ class PhoneCall extends BaseModel
     setDuration(val:number):void { this.duration = val; }
     setStatus(val:number):void { this.status = val; }
     setPrice(val:number):void { this.price = val; }
-    setPriceCurrency(val:number):void { this.price_currency = val; }
+    setPriceCurrency(val:MoneyUnit):void { this.price_currency = val; }
     setCost(val:number):void { this.cost = val; }
-    setCostCurrency(val:number):void { this.cost_currency = val; }
+    setCostCurrency(val:MoneyUnit):void { this.cost_currency = val; }
     setAgenda(val:string):void { this.agenda = val; }
     setRecorded(val:boolean):void { this.recorded = val; }
     setExtension(val:string):void { this.extension = val; }

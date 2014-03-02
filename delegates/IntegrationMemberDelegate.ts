@@ -45,6 +45,7 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
             .then(
             function createDefaultScheduleRules()
             {
+                // TODO: Execute this in transaction. Figure out why lock times out when creating rule in same transaction
                 return new ExpertScheduleRuleDelegate().createDefaultRules(createdExpert.getId(), transaction);
             })
             .then(
