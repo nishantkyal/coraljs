@@ -37,7 +37,6 @@ class ApiUrlDelegate
     /* URL patterns for expert schedules */
     static schedule():string { return this.get('/rest/schedule')}
     static scheduleById(scheduleId?:number):string { return this.get('/rest/schedule/:scheduleId', {scheduleId: scheduleId})}
-    static scheduleByExpert(expertId?:number):string { return this.get('/rest/expert/:expertId/schedule', {expertId: expertId})}
 
     /* URL patterns for expert schedule rules*/
     static scheduleRule():string { return this.get('/rest/scheduleRule')}

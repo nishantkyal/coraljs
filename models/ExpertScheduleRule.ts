@@ -13,6 +13,7 @@ class ExpertScheduleRule extends BaseModel
     static TABLE_NAME = 'expert_schedule_rule';
 
     static INTEGRATION_MEMBER_ID:string = 'integration_member_id';
+    static TITLE:string = 'title';
     static REPEAT_START:string = 'repeat_start';
     static CRON_RULE:string = 'cron_rule';
     static REPEAT_END:string = 'repeat_end';
@@ -21,6 +22,7 @@ class ExpertScheduleRule extends BaseModel
     static PRICE_PER_MIN:string = 'price_per_min';
 
     private integration_member_id:number;
+    private title:string;
     private repeat_start:number;
     private cron_rule:string;
     private repeat_end:number;
@@ -30,32 +32,22 @@ class ExpertScheduleRule extends BaseModel
 
     /* Getters */
     getIntegrationMemberId():number { return this.integration_member_id; }
-
+    getTitle():string { return this.title; }
     getRepeatStart():number { return this.repeat_start; }
-
     getCronRule():string { return this.cron_rule; }
-
     getRepeatEnd():number { return this.repeat_end; }
-
     getDuration():number { return this.duration; }
-
     getPriceUnit():MoneyUnit { return this.price_unit; }
-
     getPricePerMin():number { return this.price_per_min; }
 
     /* Setters */
     setIntegrationMemberId(val:number):void { this.integration_member_id = val; }
-
+    setTitle(val:string):void { this.title = val; }
     setRepeatStart(val:number):void { this.repeat_start = val; }
-
     setCronRule(val:string):void { this.cron_rule = val; }
-
     setRepeatEnd(val:number):void { this.repeat_end = val; }
-
     setDuration(val:number):void { this.duration = val; }
-
     setPriceUnit(val:MoneyUnit):void { this.price_unit = val; }
-
     setPricePerMin(val:number):void { this.price_per_min = val; }
 
     isValid():boolean

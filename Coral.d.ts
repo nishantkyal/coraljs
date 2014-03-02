@@ -32,6 +32,7 @@ export class ApiConstants {
     static SCHEDULE_RULE: string;
     static SCHEDULE_EXCEPTION: string;
     static SMS: string;
+    static TRANSACTION: string;
 }
 
 
@@ -133,6 +134,7 @@ export class BaseModel {
     public setDeleted(val: boolean): void;
     public set(propertyName: string, val: any): void;
     public toJson(): Object;
+    public isValid(): boolean;
     public toString(): string;
 }
 
@@ -193,9 +195,9 @@ export class Email extends BaseModel {
 
 
 export class ExpertSchedule extends BaseModel {
-    private startTime;
+    private start_time;
     private duration;
-    private ruleId;
+    private rule_id;
     public getRuleId(): number;
     public getStartTime(): number;
     public getDuration(): number;
@@ -207,22 +209,14 @@ export class ExpertSchedule extends BaseModel {
 
 
 
-export class ExpertScheduleException extends BaseModel {
+export class ExpertScheduleException extends ExpertSchedule {
     static TABLE_NAME: string;
     private integration_member_id;
-    private schedule_rule_id;
-    private start_time;
-    private duration;
     public getIntegrationMemberId(): number;
-    public getScheduleRuleId(): number;
-    public getStartTime(): number;
-    public getDuration(): number;
     public setIntegrationMemberId(val: number): void;
-    public setScheduleRuleId(val: number): void;
-    public setStartTime(val: number): void;
-    public setDuration(val: number): void;
     public isValid(): boolean;
 }
+
 
 
 
@@ -231,6 +225,7 @@ export class ExpertScheduleException extends BaseModel {
 export class ExpertScheduleRule extends BaseModel {
     static TABLE_NAME: string;
     static INTEGRATION_MEMBER_ID: string;
+    static TITLE: string;
     static REPEAT_START: string;
     static CRON_RULE: string;
     static REPEAT_END: string;
@@ -238,6 +233,7 @@ export class ExpertScheduleRule extends BaseModel {
     static PRICE_UNIT: string;
     static PRICE_PER_MIN: string;
     private integration_member_id;
+    private title;
     private repeat_start;
     private cron_rule;
     private repeat_end;
@@ -245,6 +241,7 @@ export class ExpertScheduleRule extends BaseModel {
     private price_unit;
     private price_per_min;
     public getIntegrationMemberId(): number;
+    public getTitle(): string;
     public getRepeatStart(): number;
     public getCronRule(): string;
     public getRepeatEnd(): number;
@@ -252,6 +249,7 @@ export class ExpertScheduleRule extends BaseModel {
     public getPriceUnit(): MoneyUnit;
     public getPricePerMin(): number;
     public setIntegrationMemberId(val: number): void;
+    public setTitle(val: string): void;
     public setRepeatStart(val: number): void;
     public setCronRule(val: string): void;
     public setRepeatEnd(val: number): void;
@@ -259,8 +257,9 @@ export class ExpertScheduleRule extends BaseModel {
     public setPriceUnit(val: MoneyUnit): void;
     public setPricePerMin(val: number): void;
     public isValid(): boolean;
-    public conflicts(rule: ExpertScheduleRule, options: any): boolean;
-    public hasConflicts(rules: ExpertScheduleRule[], options: any): boolean;
+    public conflicts(rule: ExpertScheduleRule, options: any): q.Promise<any>;
+    public hasConflicts(rules: ExpertScheduleRule[], options: any): q.Promise<any>;
+    private checkForConflicts(rule, options);
 }
 
 
@@ -298,6 +297,7 @@ export class Integration extends BaseModel {
 
 
 
+
 export class IntegrationMember extends BaseModel {
     static TABLE_NAME: string;
     static INTEGRATION_ID: string;
@@ -320,6 +320,7 @@ export class IntegrationMember extends BaseModel {
     private revenue_share_unit;
     private integration;
     private user;
+    private schedule;
     public getIntegrationId(): number;
     public getUserId(): number;
     public getRole(): number;
@@ -332,6 +333,7 @@ export class IntegrationMember extends BaseModel {
     public getRevenueShareUnit(): number;
     public getIntegration(): Integration;
     public getUser(): User;
+    public getSchedule(): ExpertSchedule[];
     public isValid(): boolean;
     public setIntegrationId(val: number): void;
     public setUserId(val: number): void;
@@ -345,6 +347,7 @@ export class IntegrationMember extends BaseModel {
     public setRevenueShareUnit(val: any): void;
     public setIntegration(val: Integration): void;
     public setUser(val: User): void;
+    public setSchedule(val: ExpertSchedule[]): void;
 }
 
 
@@ -551,6 +554,7 @@ export class Transaction extends BaseModel {
     static TOTAL: string;
     static TOTAL_UNIT: string;
     static STATUS: string;
+    static TRANSACTION_LINES: string;
     private user_id;
     private total;
     private total_unit;
@@ -595,6 +599,7 @@ export class TransactionLine extends BaseModel {
     public setTransactionType(val: number): void;
     public setAmount(val: number): void;
     public setAmountUnit(val: number): void;
+    public isValid(): boolean;
 }
 
 
@@ -665,7 +670,7 @@ export class UserOauth extends BaseModel {
     public getAccessTokenExpiry(): string;
     public getRefreshToken(): string;
     public getRefreshTokenExpiry(): string;
-    public isValid(): string;
+    public isValid(): boolean;
     public setUserId(val: any): void;
     public setProviderId(val: any): void;
     public setOauthUserId(val: any): void;
@@ -720,7 +725,6 @@ export class ApiUrlDelegate {
     static token(): string;
     static schedule(): string;
     static scheduleById(scheduleId?: number): string;
-    static scheduleByExpert(expertId?: number): string;
     static scheduleRule(): string;
     static scheduleRuleById(scheduleRuleId?: number): string;
     static scheduleException(): string;

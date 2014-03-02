@@ -41,7 +41,7 @@ class ExpertScheduleRuleApi
             var startTime:number = parseInt(req.query[ApiConstants.START_TIME]);
             var endTime:number = parseInt(req.query[ApiConstants.END_TIME]);
 
-            if(!Utils.isNullOrEmpty(expertId) && !Utils.isNullOrEmpty(startTime) && !Utils.isNullOrEmpty(endTime))
+            if(!Utils.isNullOrEmpty(expertId))
             {
                 expertScheduleRuleDelegate.getRulesByIntegrationMemberId(expertId, startTime, endTime)
                     .then(
@@ -64,13 +64,14 @@ class ExpertScheduleRuleApi
             )
         });
 
-        app.post(ApiUrlDelegate.scheduleRule(), function (req:express.Request, res:express.Response)
+        app.post(ApiUrlDelegate.scheduleRuleById(), function (req:express.Request, res:express.Response)
         {
             var scheduleRule:ExpertScheduleRule = req.body[ApiConstants.SCHEDULE_RULE];
+            var scheduleRuleId:number = req.params[ApiConstants.SCHEDULE_RULE_ID];
 
             if(scheduleRule.isValid())
             {
-                expertScheduleRuleDelegate.updateRule(scheduleRule)
+                expertScheduleRuleDelegate.update(scheduleRuleId, scheduleRule)
                     .then(
                     function updateScheduleRule(rule:ExpertScheduleException) { res.json(rule); },
                     function updateScheduleRuleError(error) { res.status(500).json(error) }

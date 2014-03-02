@@ -44,11 +44,12 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
             });
     }
 
-    updateRule(updatedScheduleRule:ExpertScheduleRule, transaction?:any):q.Promise<any>
+    update(criteria:Object, updatedScheduleRule:ExpertScheduleRule, transaction?:any):q.Promise<any>
     {
         var self = this;
         var transaction = null;
         var ruleId = updatedScheduleRule.getId();
+        var updateProxy = super.update;
 
         var options = {
             startDate: moment().valueOf(),
@@ -73,7 +74,7 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
                         schedules.push(temp);
                 });
                 if (!updatedScheduleRule.hasConflicts(schedules, options))
-                    return self.update({'id': ruleId}, updatedScheduleRule, transaction);
+                    return updateProxy.call(this, {'id': ruleId}, updatedScheduleRule, transaction);
                 else
                     throw {
                         'message': 'Conflicting schedule rules found',
@@ -93,10 +94,10 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
             })
     }
 
-    getRulesByIntegrationMemberId(integrationMemberId:number, startTime:number, endTime:number, transaction?:any):q.Promise<any>
+    getRulesByIntegrationMemberId(integrationMemberId:number, startTime?:number, endTime?:number, transaction?:any):q.Promise<any>
     {
         var expertScheduleRuleDao:any = this.getDao();
-        return expertScheduleRuleDao.getRuleById(integrationMemberId, startTime, endTime, transaction);
+        return expertScheduleRuleDao.getRulesByIntegrationMemberId(integrationMemberId, startTime, endTime, transaction);
     }
 
     delete(scheduleRuleId:number, transaction?:any):q.Promise<any>
