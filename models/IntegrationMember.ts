@@ -1,6 +1,7 @@
 import BaseModel                    = require('./BaseModel');
 import Integration                  = require('./Integration');
 import User                         = require('./User');
+import UserProfile                  = require('./UserProfile');
 import ExpertSchedule               = require('./ExpertSchedule');
 
 /**
@@ -32,6 +33,7 @@ class IntegrationMember extends BaseModel
 
     private integration:Integration;
     private user:User;
+    private user_profile:UserProfile;
     private schedule:Array<ExpertSchedule>;
 
     /* Getters */
@@ -48,7 +50,8 @@ class IntegrationMember extends BaseModel
 
     getIntegration():Integration                        { return this.integration; }
     getUser():User                                      { return this.user; }
-    getSchedule():Array<ExpertSchedule>                     { return this.schedule; }
+    getUserProfile():UserProfile                        { return this.user_profile; }
+    getSchedule():Array<ExpertSchedule>                 { return this.schedule; }
 
     isValid():boolean {
         return !isNaN(this.getIntegrationId()) && !isNaN(this.getRole());
@@ -68,6 +71,7 @@ class IntegrationMember extends BaseModel
 
     setIntegration(val:Integration):void                { this.integration = val; }
     setUser(val:User):void                              { this.user = val; }
+    setUserProfile(val:UserProfile):void                { this.user_profile = val; }
     setSchedule(val:Array<ExpertSchedule>):void         { this.schedule = val; }
 
 }

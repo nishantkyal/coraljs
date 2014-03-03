@@ -9,6 +9,7 @@ import PayoutDetailApi                  = require('./PayoutDetailApi');
 import PhoneCallApi                     = require('./PhoneCallApi');
 import PhoneNumberApi                   = require('./PhoneNumberApi');
 import SMSApi                           = require('./SMSApi');
+import TokenApi                         = require('./TokenApi');
 import TransactionApi                   = require('./TransactionApi');
 import TwimlApi                         = require('./TwimlApi');
 import UserApi                          = require('./UserApi');
@@ -27,6 +28,7 @@ function init(app)
     new PhoneCallApi(app);
     new PhoneNumberApi(app);
     new SMSApi(app);
+    new TokenApi(app);
     new TransactionApi(app);
     new TwimlApi(app);
     new UserApi(app);

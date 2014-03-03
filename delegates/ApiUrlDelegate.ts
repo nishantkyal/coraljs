@@ -94,6 +94,9 @@ class ApiUrlDelegate
     static twimlCallExpert(callId?:number):string { return this.get('/rest/twiml/call/:callId/expert', {callId: callId}); }
     static twimlCall(callId?:number):string { return this.get('/rest/twiml/call/:callId', {callId: callId}); }
 
+    /* URL patterns for temporary tokens (invite codes, password reset, mobile verification etc.) */
+    static tempToken():string { return this.get('/rest/token'); }
+
     /**
      * Helper method to generate URLs with values substituted for parameters (if supplied)
      * @param urlPattern

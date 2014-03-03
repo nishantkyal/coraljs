@@ -1,6 +1,7 @@
 ///<reference path='../_references.d.ts'/>
 import _                            = require('underscore');
 import q                            = require('q');
+import cron                         = require('cron');
 import Utils                        = require('../common/Utils');
 import IDao                         = require('../dao/IDao');
 import PhoneCallDao                 = require('../dao/PhoneCallDao');
@@ -12,7 +13,7 @@ import TransactionLineDelegate      = require('./TransactionLineDelegate');
 import EmailDelegate                = require('./EmailDelegate');
 import CallStatus                   = require('../enums/CallStatus');
 import IncludeFlag                  = require('../enums/IncludeFlag');
-import TransacitionStatus           = require('../enums/TransactionStatus');
+import TransactionStatus            = require('../enums/TransactionStatus');
 import PhoneCall                    = require('../models/PhoneCall');
 import Transaction                  = require('../models/Transaction');
 import TransactionLine              = require('../models/TransactionLine');
@@ -49,8 +50,8 @@ class PhoneCallDelegate extends BaseDAODelegate
 
     create(object:any, transaction?:any):q.Promise<any>
     {
-        if (object['status'] == CallStatus.PLANNING)
-            return this.unscheduledCallsCache.addUnscheduledCall(object['integration_member_id'], object['schedule_id'], object);
+        if (object[PhoneCall.STATUS] == CallStatus.PLANNING)
+            return this.unscheduledCallsCache.addUnscheduledCall(object[PhoneCall.EXPERT_ID], object[PhoneCall.START_TIME], object);
 
         var createdCall;
         var superCreate = super.create;
@@ -61,36 +62,30 @@ class PhoneCallDelegate extends BaseDAODelegate
             function transactionStarted(t)
             {
                 transaction = t;
-                superCreate.call(self, object, transaction)
+                return superCreate.call(self, object, transaction)
             })
             .then(
-            function callCreated(call)
+            function callCreated(call:PhoneCall)
             {
                 createdCall = call;
 
                 var t = new Transaction();
-                t.setStatus(TransacitionStatus.PENDING);
-                t.setTotalUnit(call.getPriceCurrency());
-                t.setUserId(call.getCallerId());
-                return new TransactionDelegate().create(t, transaction);
+                t.setStatus(TransactionStatus.PENDING);
+                t.setTotalUnit(createdCall.getPriceCurrency());
+                t.setUserId(createdCall.getCallerId());
+                return new TransactionDelegate().createPhoneCallTransaction(t, call, transaction);
             })
             .then(
-            function transactionCreated(transaction)
+            function commit()
             {
-                var transactionLine = new TransactionLine();
-                transactionLine.setTransactionId(transaction.getId());
-                transactionLine.setAmount(createdCall.getPrice());
-                transactionLine.setAmountUnit(createdCall.getPriceCurrency());
-                transactionLine.setProductType(1);
-
-                return new TransactionLineDelegate().create(transactionLine, transaction);
+                return MysqlDelegate.commit(transaction, createdCall);
             });
     }
 
     search(search:Object, options?:Object):q.Promise<any>
     {
-        if (search['status'] == CallStatus.PLANNING)
-            return this.unscheduledCallsCache.getUnscheduledCalls(search['integration_member_id'], search['schedule_id']);
+        if (search[PhoneCall.STATUS] == CallStatus.PLANNING)
+            return this.unscheduledCallsCache.getUnscheduledCalls(search[PhoneCall.EXPERT_ID], search[PhoneCall.START_TIME]);
         return super.search(search, options);
     }
 
@@ -110,27 +105,22 @@ class PhoneCallDelegate extends BaseDAODelegate
 
         return this.get(phoneCallId, ['status', 'caller_user_id', 'expert_id', 'start_time', 'duration'])
             .then(
-            function phoneCallFetched(call)
+            function phoneCallFetched(call:PhoneCall)
             {
-                callerUserId = call['caller_user_id'];
-                expertUserId = call['expert_id'];
-                var status = call.status;
+                var status = call.getStatus();
+                callerUserId = call.getCallerId();
+                expertUserId = call.getExpertId();
 
-                if (PhoneCallDelegate.ALLOWED_NEXT_STATUS[status].indexOf(newStatus) != -1)
+                if (_.contains(PhoneCallDelegate.ALLOWED_NEXT_STATUS[status], newStatus))
                     return self.update({'id': phoneCallId}, {'status': newStatus});
                 else
-                {
-                    var newStatusString = CallStatus[newStatus];
-                    var oldStatusString = CallStatus[status];
-                    throw new Error("Can't update call status to '" + newStatusString + "' since the call is " + oldStatusString);
-                }
+                    throw new Error("Can't update call status to '" + CallStatus[newStatus] + "' since the call is " + CallStatus[status]);
             })
             .then(
             function callUpdated()
             {
                 return new EmailDelegate().sendCallStatusUpdateNotifications(callerUserId, expertUserId, CallStatus.POSTPONED);
             });
-
     }
 
     getIncludeHandler(include:IncludeFlag, result:PhoneCall):q.Promise<any>

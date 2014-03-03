@@ -20,6 +20,9 @@ export class ApiConstants {
     static START_TIME: string;
     static END_TIME: string;
     static DURATION: string;
+    static TYPE: string;
+    static CODE: string;
+    static CODE_VERIFICATION: string;
     static USER: string;
     static USER_PROFILE: string;
     static OAUTH: string;
@@ -87,6 +90,17 @@ export enum IntegrationType {
 }
 
 
+export enum ItemType {
+    NONE = 0,
+    PHONE_CALL = 1,
+    NETWORK_CHARGES = 2,
+    PREPAID_DEPOSIT = 3,
+    DISCOUNT_COUPON = 4,
+    SERVICE_TAX = 5,
+    VAT = 6,
+}
+
+
 export enum MoneyUnit {
     RUPEE = 0,
     DOLLAR = 1,
@@ -110,8 +124,25 @@ export enum SMSStatus {
 }
 
 
+export enum TemporaryTokenType {
+    NONE = 0,
+    MOBILE_VERIFICATION = 1,
+    EXPERT_INVITATION = 2,
+    PASSWORD_RESET = 3,
+}
+
+
 export enum TransactionStatus {
     PENDING = 0,
+}
+
+
+export enum TransactionType {
+    NONE = 0,
+    PRODUCT = 1,
+    NETWORK_CHARGES = 2,
+    TAX = 3,
+    DISCOUNT = 4,
 }
 
 
@@ -326,6 +357,7 @@ export class Integration extends BaseModel {
 
 
 
+
 export class IntegrationMember extends BaseModel {
     static TABLE_NAME: string;
     static INTEGRATION_ID: string;
@@ -348,6 +380,7 @@ export class IntegrationMember extends BaseModel {
     private revenue_share_unit;
     private integration;
     private user;
+    private user_profile;
     private schedule;
     public getIntegrationId(): number;
     public getUserId(): number;
@@ -361,6 +394,7 @@ export class IntegrationMember extends BaseModel {
     public getRevenueShareUnit(): number;
     public getIntegration(): Integration;
     public getUser(): User;
+    public getUserProfile(): UserProfile;
     public getSchedule(): ExpertSchedule[];
     public isValid(): boolean;
     public setIntegrationId(val: number): void;
@@ -375,6 +409,7 @@ export class IntegrationMember extends BaseModel {
     public setRevenueShareUnit(val: any): void;
     public setIntegration(val: Integration): void;
     public setUser(val: User): void;
+    public setUserProfile(val: UserProfile): void;
     public setSchedule(val: ExpertSchedule[]): void;
 }
 
@@ -605,6 +640,7 @@ export class Transaction extends BaseModel {
 
 
 
+
 export class TransactionLine extends BaseModel {
     static TABLE_NAME: string;
     static TRANSACTION_ID: string;
@@ -614,25 +650,26 @@ export class TransactionLine extends BaseModel {
     static AMOUNT: string;
     static AMOUNT_UNIT: string;
     private transaction_id;
-    private product_id;
-    private product_type;
+    private item_id;
+    private item_type;
     private transaction_type;
     private amount;
     private amount_unit;
     public getTransactionId(): number;
-    public getProductId(): number;
-    public getProductType(): number;
-    public getTransactionType(): number;
+    public getItemId(): number;
+    public getItemType(): number;
+    public getTransactionType(): TransactionType;
     public getAmount(): number;
     public getAmountUnit(): MoneyUnit;
     public setTransactionId(val: number): void;
-    public setProductId(val: number): void;
-    public setProductType(val: number): void;
-    public setTransactionType(val: number): void;
+    public setItemId(val: number): void;
+    public setItemType(val: number): void;
+    public setTransactionType(val: TransactionType): void;
     public setAmount(val: number): void;
     public setAmountUnit(val: MoneyUnit): void;
     public isValid(): boolean;
 }
+
 
 
 
@@ -647,6 +684,7 @@ export class User extends BaseModel {
     static ACTIVATED: string;
     static SHORT_DESC: string;
     static LONG_DESC: string;
+    static USER_PROFILE: string;
     private first_name;
     private last_name;
     private mobile;
@@ -656,6 +694,7 @@ export class User extends BaseModel {
     private activated;
     private long_desc;
     private short_desc;
+    private user_profile;
     public getFirstName(): string;
     public getLastName(): string;
     public getMobile(): string;
@@ -665,6 +704,7 @@ export class User extends BaseModel {
     public getActivated(): boolean;
     public getShortDesc(): string;
     public getLongDesc(): string;
+    public getUserProfile(): UserProfile;
     public isValid(): boolean;
     public setFirstName(val: string): void;
     public setLastName(val: string): void;
@@ -675,6 +715,7 @@ export class User extends BaseModel {
     public setActivated(val: boolean): void;
     public setShortDesc(val: string): void;
     public setLongDesc(val: string): void;
+    public setUserProfile(val: UserProfile): void;
 }
 
 
@@ -789,6 +830,7 @@ export class ApiUrlDelegate {
     static twimlJoinConference(): string;
     static twimlCallExpert(callId?: number): string;
     static twimlCall(callId?: number): string;
+    static tempToken(): string;
     private static get(urlPattern, values?);
 }
 
