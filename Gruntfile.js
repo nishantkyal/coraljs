@@ -36,7 +36,7 @@ module.exports = function (grunt) {
                         to: ''
                     },
                     {
-                        from: /import.*/g,
+                        from: /import.*\..*/g,
                         to: ''
                     }
                 ]

@@ -73,6 +73,7 @@ export class IncludeFlag {
     static INCLUDE_INTEGRATION_MEMBER: string;
     static INCLUDE_INTEGRATION_MEMBER_USER: string;
     static INCLUDE_SCHEDULES: string;
+    static INCLUDE_SCHEDULE_RULES: string;
 }
 
 
@@ -84,9 +85,10 @@ export enum IntegrationMemberRole {
 
 
 export enum IntegrationType {
-    FORUM = 0,
-    WEBSITE = 1,
-    SHOP_IN_SHOP = 2,
+    NONE = 0,
+    FORUM = 1,
+    WEBSITE = 2,
+    SHOP_IN_SHOP = 3,
 }
 
 
@@ -278,7 +280,7 @@ export class ExpertScheduleException extends ExpertSchedule {
 
 
 
-
+import q = require('q');
 
 
 export class ExpertScheduleRule extends BaseModel {

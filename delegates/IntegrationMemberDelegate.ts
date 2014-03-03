@@ -51,7 +51,7 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
             .then(
             function rulesCreated()
             {
-                return createdExpert;
+                return self.get(createdExpert.getId(), [IntegrationMember.AUTH_CODE, IntegrationMember.ID, IntegrationMember.INTEGRATION_ID, IntegrationMember.USER_ID]);
             });
     }
 
@@ -119,6 +119,8 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
                 return new UserProfileDelegate().search({'user_id': _.uniq(_.pluck(result, IntegrationMember.USER_ID))});
             case IncludeFlag.INCLUDE_SCHEDULES:
                 return new ExpertScheduleDelegate().getSchedulesForExpert(result[0][IntegrationMember.ID]);
+            case IncludeFlag.INCLUDE_SCHEDULE_RULES:
+                return new ExpertScheduleRuleDelegate().getRulesByIntegrationMemberId(result[0][IntegrationMember.ID]);
         }
         return super.getIncludeHandler(include, result);
     }
