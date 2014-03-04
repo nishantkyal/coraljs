@@ -19,9 +19,6 @@ class ApiUrlDelegate
     static user():string { return this.get('/rest/user'); }
     static userAuthentication():string { return this.get('/rest/user/authentication'); }
     static userById(userId?:number):string { return this.get('/rest/user/:userId', {userId: userId}); }
-    static userPasswordResetToken(userId?:number):string { return this.get('/rest/user/:userId/passwordResetToken', {userId: userId}); }
-    static emailVerificationToken(userId?:number):string { return this.get('/rest/user/:userId/emailVerification', {userId: userId}); }
-    static mobileVerificationToken():string { return this.get('/rest/mobile/verification'); }
     static userIntegrationDetails(userId?:number, integrationId?:number):string { return this.get('/rest/user/:userId/integration/:integrationId', {userId: userId, integrationId: integrationId}); }
     static userActivitySummary(userId?:number):string { return this.get('/rest/user/:userId/activity/summary', {userId: userId}); }
     static userTransactionBalance(userId?:number):string { return this.get('/rest/user/:userId/transactions/balance', {userId: userId}); }

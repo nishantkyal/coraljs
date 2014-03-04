@@ -5,6 +5,7 @@ import TemporaryTokenType                                   = require('../enums/
 import ApiConstants                                         = require('../enums/ApiConstants');
 import VerificationCodeCache                                = require('../caches/VerificationCodeCache');
 import Utils                                                = require('../common/Utils');
+import User                                                 = require('../models/User');
 
 class TokenApi
 {
@@ -64,7 +65,43 @@ class TokenApi
 
         app.put(ApiUrlDelegate.tempToken(), function (req:express.Request, res:express.Response)
         {
+            var tokenType:number = parseInt(TemporaryTokenType[req.body[ApiConstants.TYPE]]);
 
+            switch(tokenType)
+            {
+                case TemporaryTokenType.MOBILE_VERIFICATION:
+                    new VerificationCodeCache().createMobileVerificationCode()
+                        .then(
+                        function codeCreated(result) { res.send(result); },
+                        function codeCreationFailed(error) { res.send(500); }
+                    )
+                    break;
+                case TemporaryTokenType.EXPERT_INVITATION:
+                    var user:User = req.body[ApiConstants.USER];
+                    var integrationId:number = req.body[ApiConstants.INTEGRATION_ID];
+                    new VerificationCodeCache().createInvitationCode(integrationId, user)
+                        .then(
+                        function codeCreated(result) { res.send(result); },
+                        function codeCreationFailed(error) { res.send(500); }
+                    )
+                    break;
+                case TemporaryTokenType.PASSWORD_RESET:
+                    var userId:number = req.body[ApiConstants.USER_ID];
+                    new VerificationCodeCache().createPasswordResetCode(userId)
+                        .then(
+                        function codeCreated(result) { res.send(result); },
+                        function codeCreationFailed(error) { res.send(500); }
+                    )
+                    break;
+                case TemporaryTokenType.EMAIL_VERIFICATION:
+                    var userId:number = req.body[ApiConstants.USER_ID];
+                    new VerificationCodeCache().createPasswordResetCode(userId)
+                        .then(
+                        function passwordResetTokenGenerated(token) { res.json(token); },
+                        function passwordResetTokenGenerateError(err) { res.status(500).json(err); }
+                    );
+                    break;
+            }
         });
     }
 }

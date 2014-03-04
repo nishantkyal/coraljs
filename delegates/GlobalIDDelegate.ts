@@ -53,7 +53,7 @@ class GlobalIDDelegate
 
         GlobalIDDelegate.sequence++;
 
-        return gid;
+        return Math.abs(gid);
     }
 
 }

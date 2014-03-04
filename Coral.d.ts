@@ -59,6 +59,1035 @@ export enum CallStatus {
 }
 
 
+export class CountryCode {
+    static AF: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static AL: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static DZ: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static AD: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static AO: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static AQ: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static AR: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static AM: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static AW: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static AU: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static AT: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static AZ: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static BH: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static BD: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static BY: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static BE: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static BZ: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static BJ: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static BT: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static BO: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static BA: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static BW: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static BR: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static BN: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static BG: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static BF: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static MM: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static BI: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static KH: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static CM: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static CA: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static CV: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static CF: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static TD: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static CL: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static CN: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static CX: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static CC: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static CO: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static KM: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static CG: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static CD: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static CK: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static CR: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static HR: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static CU: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static CY: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static CZ: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static DK: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static DJ: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static TL: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static EC: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static EG: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static SV: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static GQ: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static ER: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static EE: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static ET: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static FK: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static FO: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static FJ: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static FI: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static FR: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static PF: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static GA: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static GM: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static GE: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static DE: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static GH: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static GI: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static GR: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static GL: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static GT: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static GN: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static GW: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static GY: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static HT: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static HN: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static HK: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static HU: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static IN: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static ID: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static IR: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static IQ: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static IE: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static IM: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static IL: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static IT: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static CI: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static JP: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static JO: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static KZ: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static KE: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static KI: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static KW: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static KG: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static LA: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static LV: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static LB: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static LS: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static LR: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static LY: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static LI: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static LT: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static LU: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static MO: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static MK: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static MG: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static MW: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static MY: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static MV: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static ML: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static MT: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static MH: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static MR: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static MU: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static YT: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static MX: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static FM: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static MD: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static MC: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static MN: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static ME: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static MA: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static MZ: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static NA: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static NR: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static NP: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static NL: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static NC: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static NZ: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static NI: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static NE: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static NG: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static NU: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static KP: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static NO: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static OM: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static PK: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static PW: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static PA: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static PG: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static PY: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static PE: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static PH: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static PN: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static PL: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static PT: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static PR: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static QA: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static RO: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static RU: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static RW: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static BL: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static WS: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static SM: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static ST: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static SA: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static SN: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static RS: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static SC: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static SL: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static SG: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static SK: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static SI: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static SB: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static SO: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static ZA: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static KR: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static ES: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static LK: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static SH: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static PM: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static SD: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static SR: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static SZ: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static SE: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static CH: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static SY: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static TW: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static TJ: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static TZ: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static TH: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static TG: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static TK: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static TO: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static TN: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static TR: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static TM: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static TV: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static AE: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static UG: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static GB: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static UA: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static UY: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static US: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static UZ: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static VU: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static VA: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static VE: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static VN: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static WF: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static YE: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static ZM: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+    static ZW: {
+        code: string;
+        phoneCode: string;
+        name: string;
+    };
+}
+
+
 export enum ErrorCode {
     DUPLICATE = 0,
     DOESNT_EXIST = 1,
@@ -131,6 +1160,7 @@ export enum TemporaryTokenType {
     MOBILE_VERIFICATION = 1,
     EXPERT_INVITATION = 2,
     PASSWORD_RESET = 3,
+    EMAIL_VERIFICATION = 4,
 }
 
 
@@ -360,6 +1390,7 @@ export class Integration extends BaseModel {
 
 
 
+
 export class IntegrationMember extends BaseModel {
     static TABLE_NAME: string;
     static INTEGRATION_ID: string;
@@ -384,6 +1415,7 @@ export class IntegrationMember extends BaseModel {
     private user;
     private user_profile;
     private schedule;
+    private schedule_rule;
     public getIntegrationId(): number;
     public getUserId(): number;
     public getRole(): number;
@@ -398,6 +1430,7 @@ export class IntegrationMember extends BaseModel {
     public getUser(): User;
     public getUserProfile(): UserProfile;
     public getSchedule(): ExpertSchedule[];
+    public getScheduleRule(): ExpertScheduleRule[];
     public isValid(): boolean;
     public setIntegrationId(val: number): void;
     public setUserId(val: number): void;
@@ -413,6 +1446,7 @@ export class IntegrationMember extends BaseModel {
     public setUser(val: User): void;
     public setUserProfile(val: UserProfile): void;
     public setSchedule(val: ExpertSchedule[]): void;
+    public setScheduleRule(val: ExpertScheduleRule[]): void;
 }
 
 
@@ -788,9 +1822,6 @@ export class ApiUrlDelegate {
     static user(): string;
     static userAuthentication(): string;
     static userById(userId?: number): string;
-    static userPasswordResetToken(userId?: number): string;
-    static emailVerificationToken(userId?: number): string;
-    static mobileVerificationToken(): string;
     static userIntegrationDetails(userId?: number, integrationId?: number): string;
     static userActivitySummary(userId?: number): string;
     static userTransactionBalance(userId?: number): string;

@@ -1,6 +1,7 @@
 exports.ApiConstants = require("./enums/ApiConstants.js");
 exports.ApiFlags = require("./enums/ApiFlags.js");
 exports.CallStatus = require("./enums/CallStatus.js");
+exports.CountryCode = require("./enums/CountryCode.js");
 exports.ErrorCode = require("./enums/ErrorCode.js");
 exports.IncludeFlag = require("./enums/IncludeFlag.js");
 exports.IntegrationMemberRole = require("./enums/IntegrationMemberRole.js");

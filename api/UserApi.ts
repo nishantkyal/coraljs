@@ -88,66 +88,10 @@ class UserApi
                 res.status(422).json('Invalid input');
         });
 
-        /** Generate a password reset token for user **/
-        app.get(ApiUrlDelegate.userPasswordResetToken(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
-        {
-            var userId = req.params[ApiConstants.USER_ID];
-
-            verificationCodeCache.createPasswordResetCode(userId)
-                .then(
-                function passwordResetTokenGenerated(token) { res.json(token); },
-                function passwordResetTokenGenerateError(err) { res.status(500).json(err); }
-            )
-        });
-
-        /* Generate a email verification token for user */
-        app.get(ApiUrlDelegate.emailVerificationToken(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
-        {
-            var userId = req.params[ApiConstants.USER_ID];
-
-            verificationCodeCache.createEmailVerificationCode(userId)
-                .then(
-                function emailVerificationTokenGenerated(token) { res.json(token); },
-                function emailVerificationTokenGenerateError(err) { res.status(500).json(err); }
-            )
-        });
-
-        /* Generate a email verification token for user */
-        app.get(ApiUrlDelegate.mobileVerificationToken(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
-        {
-            verificationCodeCache.createMobileVerificationCode()
-                .then(
-                function mobileVerificationTokenGenerated(token) { res.json(token); },
-                function mobileVerificationTokenGenerateError(err) { res.status(500).json(err); }
-            )
-        });
 
         /* Get account balance */
         app.get(ApiUrlDelegate.userTransactionBalance(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
-        });
-
-        /* Generate mobile verification code */
-        app.put(ApiUrlDelegate.mobileVerificationToken(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
-        {
-            verificationCodeCache.createMobileVerificationCode()
-                .then(
-                function codeCreated(result) { res.send(result); },
-                function codeCreationFailed(error) { res.send(500); }
-            )
-        });
-
-        /* Search mobile verification code */
-        app.get(ApiUrlDelegate.mobileVerificationToken(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
-        {
-            var code:string = req.body['code'];
-            var ref:string = req.body['ref'];
-
-            verificationCodeCache.searchMobileVerificationCode(code, ref)
-                .then(
-                function codeCreated(result) { res.send(result); },
-                function codeCreationFailed(error) { res.send(500); }
-            )
         });
 
         /* Update OAuth token */
