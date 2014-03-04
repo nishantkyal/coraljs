@@ -6,11 +6,16 @@ import IDao                         = require('../dao/IDao');
 import PhoneCallDao                 = require('../dao/PhoneCallDao');
 import BaseDAODelegate              = require('./BaseDaoDelegate');
 import IntegrationMemberDelegate    = require('./IntegrationMemberDelegate');
+import UserPhoneDelegate            = require('./UserPhoneDelegate');
 import EmailDelegate                = require('./EmailDelegate');
 import CallStatus                   = require('../enums/CallStatus');
 import ApiFlags                     = require('../enums/ApiFlags');
 import PhoneCall                    = require('../models/PhoneCall');
+import User                         = require('../models/User');
+import UserPhone                    = require('../models/UserPhone');
 import UnscheduledCallsCache        = require('../caches/UnscheduledCallsCache');
+import UserDelegate                 = require('../delegates/UserDelegate');
+import Config                       = require('../common/Config');
 
 class PhoneCallDelegate extends BaseDAODelegate
 {
@@ -99,9 +104,43 @@ class PhoneCallDelegate extends BaseDAODelegate
         switch (include)
         {
             case ApiFlags.INCLUDE_INTEGRATION_MEMBER_USER:
-                return new IntegrationMemberDelegate().get(result.getExpertId(), null, [ApiFlags.INCLUDE_USER]);
+                return new IntegrationMemberDelegate().get(result.getIntegrationMemberId(), null, [ApiFlags.INCLUDE_USER]);
+            case ApiFlags.INCLUDE_USER:
+                return new UserDelegate().get(result.getCallerUserId());
         }
         return super.getIncludeHandler(include, result);
+    }
+
+    triggerCall(callId:number, url:string):any
+    {
+        var client = require('twilio')(Config.get('twilio.account_sid'), Config.get('twilio.auth_token'));
+        var user:User;
+        new PhoneCallDelegate().get(callId, null, [ApiFlags.INCLUDE_USER])
+            .then(
+            function callFetched(call:PhoneCall)
+            {
+                user = call[ApiFlags.INCLUDE_USER];
+                new UserPhoneDelegate().getByUserId(user.getId())
+                    .then(
+                    function PhoneRecord(userPhone:UserPhone[])
+                    {
+                        var phoneNumber:string = '+' + userPhone[0].getCountryCode();
+                        if(userPhone[0].getType() == 1) //TODO create model for phone_type
+                            phoneNumber += userPhone[0].getAreaCode();
+                        phoneNumber += userPhone[0].getPhone();
+
+                        client.calls.create({
+                            url: url,
+                            to: phoneNumber,
+                            from: Config.get('twilio.number'),
+                            method: "GET"
+                        }, function(err, call) {
+                            process.stdout.write(call.sid);
+                        });
+                    }
+                )
+            },
+            function callFetchError(error) { return error;});
     }
 
     getDao():IDao { return new PhoneCallDao(); }

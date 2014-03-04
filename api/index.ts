@@ -1,5 +1,4 @@
 import ExpertApi                        = require('./ExpertApi');
-import ExpertScheduleApi                = require('./ExpertScheduleApi');
 import ExpertScheduleRuleApi           = require('./ExpertScheduleRuleApi');
 import ExpertScheduleExceptionApi       = require('./ExpertScheduleExceptionApi')
 import IntegrationApi                   = require('./IntegrationApi');
@@ -7,16 +6,17 @@ import IntegrationOwnerApi              = require('./IntegrationOwnerApi');
 import PaymentApi                       = require('./PaymentApi')
 import PayoutDetailApi                  = require('./PayoutDetailApi');
 import PhoneCallApi                     = require('./PhoneCallApi');
-import PhoneNumberApi                   = require('./PhoneNumberApi');
+import PhoneNumberApi                   = require('./UserPhoneApi');
 import SMSApi                           = require('./SMSApi');
 import TransactionApi                   = require('./TransactionApi');
 import TwimlApi                         = require('./TwimlApi');
+import TwimlOutApi                      = require('./TwimlOutApi');
+import ExotelApi                        = require('./ExotelApi')
 import UserApi                          = require('./UserApi');
 
 function init(app)
 {
     new ExpertApi(app);
-    new ExpertScheduleApi(app);
     new ExpertScheduleRuleApi(app);
     new ExpertScheduleExceptionApi(app);
     new IntegrationApi(app);
@@ -27,7 +27,9 @@ function init(app)
     new PhoneNumberApi(app);
     new SMSApi(app);
     new TransactionApi(app);
+    new TwimlOutApi(app);
     new TwimlApi(app);
+    new ExotelApi(app);
     new UserApi(app);
 }
 

@@ -44,5 +44,10 @@ class TwilioDelegate implements ICallingVendorDelegate
         });
         return deferred.promise;
     }
+
+    trigger()
+    {
+
+    }
 }
 export = TwilioDelegate

@@ -62,7 +62,7 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
         {
             if(exception.getScheduleRuleId() == scheduleRules[i].getId())
                 schedules = expertScheduleRuleDelegate.expertScheduleGenerator(scheduleRules[i],null, options);
-        }
+        }z
         var schedulesAfterExceptions:ExpertSchedule[] = expertScheduleRuleDelegate.applyExceptions(schedules, [exception]);
         return schedules.length != schedulesAfterExceptions.length;
 

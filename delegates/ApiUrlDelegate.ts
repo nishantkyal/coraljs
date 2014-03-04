@@ -70,8 +70,8 @@ class ApiUrlDelegate
     static phoneCallCancel(callId?:number):string { return this.get('/rest/call/:callId/cancel', {callId: callId}); }
 
     /** URL patterns for phone numbers **/
-    static phoneNumber():string { return this.get('/rest/phone-number'); }
-    static phoneNumberById(phoneNumberId?:number):string { return this.get('/rest/phone-number/:phoneNumberId', {phoneNumberId: phoneNumberId}); }
+    static UserPhone():string { return this.get('/rest/phone-number'); }
+    static UserPhoneById(UserPhoneId?:number):string { return this.get('/rest/phone-number/:UserPhoneId', {UserPhoneId: UserPhoneId}); }
 
     /** URL patterns for transaction **/
     static transaction():string { return this.get('/rest/transaction'); }
@@ -88,6 +88,13 @@ class ApiUrlDelegate
     static twimlJoinConference():string { return this.get('/rest/twiml/call'); }
     static twimlCallExpert(callId?:number):string { return this.get('/rest/twiml/call/:callId/expert', {callId: callId}); }
     static twimlCall(callId?:number):string { return this.get('/rest/twiml/call/:callId', {callId: callId}); }
+
+
+    static twimlGenerateCall(callId?:number):string { return this.get('/rest/twiml/calling/:callId', {callId: callId}); }
+    static twimlJoinCall(callId?:number):string { return this.get('/rest/twiml/join/:callId', {callId: callId}); }
+
+    static exotel():string { return this.get('/rest/exotel'); }
+    static exotelAddExpert():string { return this.get('/rest/exotelAddExpert'); }
 
     /**
      * Helper method to generate URLs with values substituted for parameters (if supplied)

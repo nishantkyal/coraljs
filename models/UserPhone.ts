@@ -1,6 +1,6 @@
 import BaseModel                = require('./BaseModel');
 
-class PhoneNumber extends BaseModel
+class UserPhone extends BaseModel
 {
     static TABLE_NAME:string = 'user_phone';
 
@@ -36,4 +36,4 @@ class PhoneNumber extends BaseModel
     setVerificationCode(val:string):void { this.verification_code = val; }
 
 }
-export = PhoneNumber
+export = UserPhone

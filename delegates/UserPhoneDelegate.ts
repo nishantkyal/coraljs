@@ -2,17 +2,17 @@
 import q                                = require('q');
 import BaseDaoDelegate                  = require('./BaseDaoDelegate');
 import IDao                             = require('../dao/IDao');
-import PhoneNumberDao                   = require('../dao/PhoneNumberDao');
-import PhoneNumber                      = require('../models/PhoneNumber');
+import UserPhoneDao                     = require('../dao/UserPhoneDao');
+import UserPhone                        = require('../models/UserPhone');
 
-class PhoneNumberDelegate extends BaseDaoDelegate
+class UserPhoneDelegate extends BaseDaoDelegate
 {
     create(data:any, transaction?:any):q.Promise<any>
     {
         // Check that phone number doesn't already exist
         return super.search(data)
             .then(
-                function handlePhoneNumberSearched(rows:Array<PhoneNumber>):any
+                function handlePhoneNumberSearched(rows:Array<UserPhone>):any
                 {
                     if (rows.length != 0)
                         return this.create(data, transaction);
@@ -22,11 +22,16 @@ class PhoneNumberDelegate extends BaseDaoDelegate
             )
     }
 
-    update(id:string, phoneNumber:PhoneNumber):q.Promise<any>
+    update(id:number, userPhone:UserPhone):q.Promise<any>
     {
-        return super.update({'phoneNumberId': id}, phoneNumber);
+        return super.update({'id': id}, userPhone);
     }
 
-    getDao():IDao { return new PhoneNumberDao(); }
+    getByUserId(userId:number):q.Promise<any>
+    {
+        return this.search({'user_id': userId });
+    }
+
+    getDao():IDao { return new UserPhoneDao(); }
 }
-export = PhoneNumberDelegate
+export = UserPhoneDelegate

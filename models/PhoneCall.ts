@@ -6,12 +6,12 @@ import Utils                = require('../common/Utils');
  **/
 class PhoneCall extends BaseModel
 {
-    static TABLE_NAME:string = 'phone_call';
+    static TABLE_NAME:string = 'call';
 
-    private caller_id:number;
-    private expert_id:number;
-    private integration_id:number;
-    private schedule_id:number;
+    private caller_user_id:number;
+    private integration_member_id:number;
+    private caller_phone_id:number;
+    private expert_phone_id:number;
     private start_time:number;
     private duration:number;
     private status:number;
@@ -25,10 +25,10 @@ class PhoneCall extends BaseModel
     private num_reschedules:number;
 
     /* Getters */
-    getCallerId():number { return this.caller_id; }
-    getExpertId():number { return this.expert_id; }
-    getIntegrationId():number { return this.integration_id; }
-    getScheduleId():number { return this.schedule_id; }
+    getCallerUserId():number { return this.caller_user_id; }
+    getIntegrationMemberId():number { return this.integration_member_id; }
+    getCallerPhoneId():number { return this.caller_phone_id; }
+    getExpertPhoneId():number { return this.expert_phone_id; }
     getStartTime():number { return this.start_time; }
     getDuration():number { return this.duration; }
     getStatus():number { return this.status; }
@@ -42,10 +42,10 @@ class PhoneCall extends BaseModel
     getNumReschedules():number { return this.num_reschedules; }
 
     /* Setters */
-    setCallerId(val:number):void { this.caller_id = val; }
-    setExpertId(val:number):void { this.expert_id = val; }
-    setIntegrationId(val:number):void { this.integration_id = val; }
-    setScheduleId(val:number):void { this.schedule_id = val; }
+    setCallerUserId(val:number):void { this.caller_user_id = val; }
+    setIntegrationMemberId(val:number):void { this.integration_member_id = val; }
+    setCallerPhoneId(val:number):void { this.caller_phone_id = val; }
+    setExpertPhoneId(val:number):void { this.expert_phone_id = val; }
     setStartTime(val:number):void { this.start_time = val; }
     setDuration(val:number):void { this.duration = val; }
     setStatus(val:number):void { this.status = val; }
@@ -63,9 +63,8 @@ class PhoneCall extends BaseModel
         // !Utils.isNullOrEmpty(this.getCallerId())
         // && !Utils.isNullOrEmpty(this.getAgenda())
 
-        return (!Utils.isNullOrEmpty(this.getExpertId())
-                    && !Utils.isNullOrEmpty(this.getDuration())
-                        && !Utils.isNullOrEmpty(this.getScheduleId()));
+        return (!Utils.isNullOrEmpty(this.getIntegrationMemberId())
+                    && !Utils.isNullOrEmpty(this.getDuration()));
     }
 }
 export = PhoneCall
