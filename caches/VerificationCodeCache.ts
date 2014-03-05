@@ -13,19 +13,25 @@ class VerificationCodeCache
         var secondsInAnHr:number = 60 * 60;
         return CacheHelper.set('mv-' + codeReference, code, secondsInAnHr)
             .then(
-            function tokenCreated() { return {code: code, ref: codeReference}}
+            function tokenCreated() { return codeReference; }
         );
     }
 
     searchMobileVerificationCode(code:string, ref:string):q.Promise<any>
     {
+        var actualCode:string;
         return CacheHelper.get('mv-' + ref)
             .then(
-            function tokenSearched(result)
+            function invalidateToken(result)
             {
-                return {isValid: result == code};
-            }
-        );
+                actualCode = result;
+                return CacheHelper.del('mv-' + ref);
+            })
+            .then(
+            function validateCode()
+            {
+                return actualCode == code;
+            });
     }
 
     createEmailVerificationCode(userId:number):q.Promise<any>
@@ -42,8 +48,7 @@ class VerificationCodeCache
             function tokenSearched(result)
             {
                 return {isValid: result == code};
-            }
-        );
+            });
     }
 
     createPasswordResetCode(userId:number):q.Promise<any>
@@ -60,8 +65,7 @@ class VerificationCodeCache
             function tokenSearched(result)
             {
                 return {isValid: result == code};
-            }
-        );
+            });
     }
 
     createInvitationCode(integrationId:number, user:User):q.Promise<any>
