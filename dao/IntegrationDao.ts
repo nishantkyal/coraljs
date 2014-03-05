@@ -4,7 +4,7 @@ import BaseDAO                  = require('./BaseDao');
 import BaseModel                = require('../models/BaseModel');
 import Integration              = require('../models/Integration');
 
-/**
+/*
  * DAO class for third party integrations
  */
 class IntegrationDao extends BaseDAO {

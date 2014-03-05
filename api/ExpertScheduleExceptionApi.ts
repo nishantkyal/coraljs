@@ -12,7 +12,7 @@ import Utils                            = require('../common/Utils');
 
 /*
  Rest Calls for expert schedule exceptions
- **/
+ */
 class ExpertScheduleExceptionApi
 {
     constructor(app)

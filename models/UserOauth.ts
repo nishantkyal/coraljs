@@ -1,7 +1,7 @@
 import BaseModel                = require('../models/BaseModel');
 import Utils                    = require('../common/Utils');
 
-/**
+/*
  * Bean class for User's oauth settings (FB, LinkedIn tokens)
  */
 class UserOauth extends BaseModel

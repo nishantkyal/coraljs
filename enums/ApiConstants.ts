@@ -1,4 +1,4 @@
-/**
+/*
  * Constants used on query strings, headers of API calls
  */
 class ApiConstants

@@ -1,6 +1,6 @@
 import BaseModel                = require('./BaseModel');
 
-/**
+/*
  * Bean class for Email
  */
 class Email extends BaseModel

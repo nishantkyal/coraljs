@@ -1,0 +1,54 @@
+title Search N Talk - Expert Registration - Login
+include scriptsAndStyles
+include header
+.container-fluid
+    .row-fluid
+        .span2
+        .span8
+            label Please login to searchntalk.com or create an account to continue..
+            .span4
+                form.form-horizontal(action='/expert/login', method='POST')
+                    .control-group
+                        .control-label
+                            | Email
+                        .controls
+                            input(name='user', type='text')
+                    .control-group
+                        .control-label
+                            | Password
+                        .controls
+                            input(name='pass', type='password')
+                    .control-group
+                        .controls
+                            input.btn-primary.btn(value='Login', type='submit')
+                form.form-horizontal(action='/expert/login/linkedin')
+                    .control-group
+                        .controls
+                            input.btn-primary.btn(value='Login with LinkedIn', type='submit')
+            .span4
+                form.form-horizontal(action='/expert/register', method='POST')
+                    .control-group
+                        .control-label(for='#email')
+                            | Email
+                        .controls
+                            input#email(name='email', type='text')
+                    .control-group
+                        .control-label
+                            | First Name
+                        .controls
+                            input(name='first_name', type='text')
+                    .control-group
+                        .control-label
+                            | Last Name
+                        .controls
+                            input(name='last_name', type='text')
+                    .control-group
+                        .control-label
+                            | Password
+                        .controls
+                            input(type='password', name='password', type='text')
+                    .control-group
+                        .controls
+                            input.btn-primary.btn(value='Register', type='submit')
+    .span2
+script(src='/javascripts/app/expertRegistation.js')

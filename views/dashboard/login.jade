@@ -1,0 +1,18 @@
+include header
+include scriptsAndStyles
+.dashboard
+    form.form-horizontal(action='/login', method='post')
+        .control-group
+            label.control-label(for='inputEmail') Email
+            .controls
+                input#inputEmail(type='text', placeholder='Email', name='user')
+        .control-group
+            label.control-label(for='inputPassword') Password
+            .controls
+                input#inputPassword(type='password', name='pass', placeholder='Password')
+        .control-group
+            .controls
+                label.checkbox
+                    input(type='checkbox')
+                    | Remember me
+                input.btn(type='submit') Sign in

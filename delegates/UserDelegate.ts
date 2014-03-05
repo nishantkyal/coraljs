@@ -11,9 +11,9 @@ import UserProfile              = require('../models/UserProfile');
 import VerificationCodeCache    = require('../caches/VerificationCodeCache');
 import IncludeFlag              = require('../enums/IncludeFlag');
 
-/**
+/*
  Delegate class for User operations
- **/
+ */
 class UserDelegate extends BaseDaoDelegate
 {
     authenticate(mobileOrEmail:string, password:string):q.Promise<any>

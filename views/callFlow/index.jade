@@ -1,0 +1,38 @@
+title Expert Profile
+include scriptsAndStyles
+include header
+.container-fluid
+    .row-fluid
+        .span2
+        .span8
+            h4 Available Time Slots
+            label
+                | Please pick
+                b &nbsp;at least three slots&nbsp;
+                | that fit your schedule. We'll send these to expert and get his confirmation for the call
+            form.form-horizontal(action='/call/auth', method='get')
+                - for (var i = 1; i <= 3; i++)
+                    .control-group
+                        .control-label
+                            | Option #{i}
+                        .controls
+                            select.span6.scheduleSelect(name='scheduleId')
+                .control-group
+                    .controls
+                        .btn.btn-primary
+                            i.icon-plus.icon-white
+                            | &nbsp;Add Row
+                        input.btn.btn-primary(type='submit', value='DONE >')
+            em
+                small
+                    b Note:&nbsp;
+                    | Picking more slots will mean lesser back-and-forth communication with the expert for scheduling the call.
+        .span2
+script.
+
+    // Display schedules
+    var schedules = JSON.parse( !{JSON.stringify(schedules)} );
+    for (var i = 0; i < schedules.length; i++) {
+        var schedule = schedules[i];
+        $('.scheduleSelect').append('<option value="' + schedule.id + '">' + schedule.start_time_date + ' - ' + schedule.end_time_date + '</option>');
+    }

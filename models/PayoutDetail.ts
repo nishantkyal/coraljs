@@ -1,6 +1,6 @@
 import BaseModel                = require('./BaseModel');
 
-/**
+/*
  * Bean class for payout details for User
  * e.g. Bank accounts, paypal ids
  */
@@ -22,7 +22,7 @@ class PayoutDetail extends BaseModel
     private ifsc_code:string;
     private bank_name:string;
 
-    /** Getters **/
+    /* Getters */
     getUserId():number { return this.user_id; }
     getMode():number { return this.mode; }
     getAccountHolderName():string { return this.account_holder_name; }
@@ -30,7 +30,7 @@ class PayoutDetail extends BaseModel
     getIfscCode():string { return this.ifsc_code; }
     getBankName():string { return this.bank_name; }
 
-    /** Setters **/
+    /* Setters */
     setUserId(val:number) { this.user_id = val; }
     setMode(val:number) { this.mode = val; }
     setAccountHolderName(val:string) { this.account_holder_name = val; }

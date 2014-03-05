@@ -1,0 +1,119 @@
+title User Management - #{integration.title}
+include header
+include scriptsAndStyles
+.container-fluid
+    .row-fluid
+        .span2
+        .span8
+            .row-fluid
+                .span9
+                    h3
+                        | #{integration.title}&nbsp;
+                        small members
+                .span3
+                    .pull-right
+                        .btn-primary.btn.save(data-toggle='modal', href='#inviteUserModal')
+                            i.icon-plus.icon-white
+                            | &nbsp;Invite Member
+            table.table-bordered.table-striped.table#users
+                thead
+                    tr
+                        th First Name
+                        th Last Name
+                        th.span3 Revenue Share
+                        th.span2 Role
+                        th.span1 Actions
+                tbody
+                each member in integrationMembers
+                    each user in member.user
+                        if user.id == member.user_id
+                            tr(data-id=member.id, class=(member.deleted != null ? 'danger' : ''))
+                                td #{user.first_name}
+                                td #{user.last_name}
+                                td #{member.revenue_share}%
+                                td #{member.role}
+                                td
+                                    a.fa.fa-pencil.save(data-id=member.id, data-toggle='modal', href=member.user_id == logged_in_user.id ? '/expert/' + member.id + '/profile' : '#editUserModal')
+                                    | &nbsp;
+                                    a.remove.fa.fa-times-circle(data-id=member.id, data-toggle='modal', href='#delUserModal', style="color: red")
+        .span2
+
+#inviteUserModal.modal.fade(style='display: none;')
+    .modal-dialog
+        .modal-content
+            .modal-header
+                .close(data-dismiss='modal', aria-hidden='true') x
+                h4.modal-title Invite Member
+            .modal-body
+                form.form-horizontal
+                    .control-group
+                        label.control-label(for='email') Email
+                        .controls
+                            input(type='text', placeholder='Email', name='email')
+                    .control-group
+                        label.control-label(for='title') Title
+                        .controls
+                            input(type='text', placeholder='Title', name='title')
+                    .control-group
+                        label.control-label(for='firstName') First Name
+                        .controls
+                            input(type='text', placeholder='First Name', name='first_name')
+                    .control-group
+                        label.control-label(for='lastName') Last Name
+                        .controls
+                            input(type='text', placeholder='Last Name', name='last_name')
+            .modal-footer
+                button.btn.btn-default(data-dismiss='modal') Close
+                button.btn.btn-primary(onclick='handleInviteClicked()') Send Invite
+
+#editUserModal.modal.fade(style='display: none;')
+    .modal-dialog
+        .modal-content
+            .modal-header
+                .close(data-dismiss='modal', aria-hidden='true') x
+                h4.modal-title Edit User
+            .modal-body
+                form.form-horizontal
+                    .control-group
+                        label.control-label(for='firstName') First Name
+                        .controls
+                            input(type='text', placeholder='First Name', name='first_name')
+                    .control-group
+                        label.control-label(for='lastName') Last Name
+                        .controls
+                            input(type='text', placeholder='Last Name', name='last_name')
+                    .control-group
+                        label.control-label(for='revenueShare') Revenue Share
+                        .controls
+                            select(name='revenue_share_unit', style='width: 60px;')
+                                option(value='0') $
+                                option(value='1') Rs.
+                                option(value='2') %
+                            input(type='text', name='revenue_share')
+                    .control-group
+                        label.control-label(for='role') Role
+                        .controls
+                            select(name='role')
+                                option(value='1') Owner
+                                option(value='2') Admin
+                                option(value='3') Expert
+            .modal-footer
+                button.btn.btn-default(data-dismiss='modal') Close
+                button.btn.btn-primary(onclick='handleSaveClicked(event)') Save
+
+#delUserModal.modal.fade(style='display: none;')
+    .modal-dialog
+        .modal-content
+            .modal-header
+                .close(data-dismiss='modal', aria-hidden='true') x
+                h4.modal-title Delete User
+            .modal-body
+                label We'll disable the user's public profile (Hide from public and disable receiving calls)
+                label You can enable the user back later, Continue?
+            .modal-footer
+                button.btn.btn-default(data-dismiss='modal') Close
+                button.btn.btn-primary(onclick='handleDeleteClicked(event)') Yes, Disable
+
+
+include footer
+script(src='/javascripts/app/integrationUsers.js')

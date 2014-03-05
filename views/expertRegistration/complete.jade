@@ -1,0 +1,80 @@
+include scriptsAndStyles
+include header
+
+.container-fluid
+    .row-fluid
+        .span2
+        .span8
+            label Congrats! You're now registered as an expert on #{integration.title}
+            label We've sent you an email with all the information you'll need :)
+            hr
+            label We'll schedule calls for you based on settings below. You may update these settings now or later by visiting <a href='#{SearchNTalkUri}'>#{SearchNTalkUri}</a>
+            table
+                thead
+                    tr
+                        th(style='text-align: left;') Schedule
+                        th(style='text-align: left;') Phone Number
+                tbody
+                    tr
+                        td
+                            form.form-horizontal(method='post', onsubmit='return validateSchedule();')
+                                each rule in schedule_rules
+                                    .control-group
+                                        .control-label
+                                            | #{rule.title}
+                                        .controls
+                                            .input-append.bootstrap-timepicker
+                                                input.input-small.timepicker(type='text') 11:45
+                                                span.add-on
+                                                    i.icon-time
+                                            | &nbsp;to&nbsp;
+                                            .input-append.bootstrap-timepicker
+                                                input.input-small.timepicker(type='text')
+                                                span.add-on
+                                                    i.icon-time
+                                .control-group
+                                    .controls
+                                        input.btn.btn-primary(type='submit', value='Save')
+                        td
+                            .form-horizontal
+                                .control-group
+                                    .control-label
+                                        | Phone Number
+                                    .controls
+                                        input.span1#countryCode(type='text')
+                                        input#mobile(type='text')
+                                .control-group
+                                    .controls
+                                        button.btn-primary.btn(onclick='handleSendVerificationCodeClicked()') Send Verification Code
+        .span2
+
+#mobileVerificationModal(style='display: none;')
+    .modal-dialog
+        .modal-content
+            .modal-header
+
+script.
+    var rules = JSON.parse( '!{JSON.stringify(schedule_rules)}' );
+    var timepickers = $('.timepicker');
+
+    for (var i = 0; i < rules.length; i++)
+    {
+        var cron_rule = rules[i].cron_rule.split(' ');
+        var hour = parseInt(cron_rule[2]) % 12;
+        var minute = parseInt(cron_rule[1]);
+        var meridian = cron_rule[2] > 12 ? 'PM' : 'AM';
+
+        var duration = rules[i].duration;
+        var timestamp = hour + ':' + minute + ' ' + meridian;
+
+        $(timepickers[i * 2])
+            .timepicker({
+                defaultTime: timestamp
+            });
+        $(timepickers[i * 2 + 1])
+            .timepicker({
+                defaultTime: moment(timestamp, 'hh:mm AA').add('seconds', duration).format('hh:mm AA')
+            });
+    }
+
+script(src='/javascripts/app/expertRegistrationComplete.js')

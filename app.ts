@@ -1,57 +1,34 @@
 ///<reference path='./_references.d.ts'/>
-import express          = require('express');
-import http             = require('http');
-import path             = require('path');
-import Config           = require('./common/Config')
-import MysqlDelegate    = require('./delegates/MysqlDelegate');
-import ValidateRequest  = require('./middleware/ValidateRequest');
-import api              = require('./api/index');
+import express                                      = require('express');
+import http                                         = require('http');
+import path                                         = require('path');
+import passport                                     = require('passport');
+import Config                                       = require('./common/Config')
+import MysqlDelegate                                = require('./delegates/MysqlDelegate');
+import RequestHandler                               = require('./middleware/RequestHandler');
+import api                                          = require('./api/index');
+import routes                                       = require('./routes/index');
+import IntegrationCache                             = require('./caches/IntegrationCache');
 
 var app:express.Application = express();
+IntegrationCache.update();
 
 // all environments
 app.set('port', Config.get('Coral.port') || 3000);
+app.set('views', path.join(__dirname, 'views'));
+app.use(express.static(path.join(__dirname, 'public')));
+app.set('view engine', 'jade');
 app.use(express.bodyParser());
 app.use(express.methodOverride());
-app.use(ValidateRequest.parseRequest);
-app.enable('trust proxy');
+app.use(RequestHandler.parseRequest);
+app.use(express.cookieParser());
+app.use(express.session({secret: 'searchntalk.com'}));
+app.use(passport.initialize());
+app.use(passport.session({}));
 
-// Create relationships in models based on db schema
-MysqlDelegate.createConnection()
-    .then(
-    function getForeignKeysFromSchemaAfterConnection(connection)
-    {
-        return MysqlDelegate.executeQuery('SELECT referenced_table_name, table_name, column_name, referenced_column_name ' +
-            'FROM information_schema.KEY_COLUMN_USAGE  ' +
-            'WHERE referenced_table_name IS NOT NULL ' +
-            'AND constraint_name != "PRIMARY" ' +
-            'AND table_schema = "' + Config.get('database.name') + '"');
-    })
-    .then(
-    function populateModelsWithForeignKeys(rows:Array<any>)
-    {
-        for (var constraint in rows)
-        {
-            var srcTable = constraint['table_name'];
-            var srcColumn = constraint['column_name'];
-            var targetTable = constraint['referenced_table_name'];
-            var targetColumn = constraint['referenced_table_name'];
-        }
-    },
-    function foreignKeyError(error)
-    {
-
-    });
-
-// development only
-/*
-if ('development' == app.get('env')) {
-    app.use(express.errorHandler());
-}
-*/
-
-// REST APIs
+// APIs and Route endpoints
 api(app);
+routes(app);
 
 app.listen(app.get('port'), function()
 {

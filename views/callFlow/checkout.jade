@@ -1,0 +1,17 @@
+include scriptsAndStyles
+.checkout
+    h2 Payment succeeded!
+    .clear(style='height:30px;')
+    h3 Your call details
+    div
+        strong Expert's Name:&nbsp;
+        label #{expert_name}
+    div
+        strong Start Time:&nbsp;
+        label #{start_time}
+    div
+        strong Duration :&nbsp;
+        label #{duration} min
+    .clear(style='height:30px;')
+    h3 Instructions
+    label Please dial +17608727043 from your phone and enter #{call_id} to speak to the expert

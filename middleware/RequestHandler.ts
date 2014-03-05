@@ -14,7 +14,7 @@ import ExpertScheduleException          = require('../models/ExpertScheduleExcep
 import UserProfile                      = require('../models/UserProfile');
 import Transaction                      = require('../models/Transaction');
 
-class ValidateRequest
+class RequestHandler
 {
     static requireFilters(req, res, next)
     {
@@ -92,4 +92,4 @@ class ValidateRequest
     }
 
 }
-export = ValidateRequest
+export = RequestHandler

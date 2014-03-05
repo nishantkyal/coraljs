@@ -9,9 +9,9 @@ import AccessControl                                = require('../middleware/Acc
 import Utils                                        = require('../common/Utils');
 import IncludeFlag                                  = require('../enums/IncludeFlag');
 
-/**
+/*
  Rest Calls for Third party integrations
- **/
+ */
 class IntegrationApi
 {
     constructor(app)
@@ -19,10 +19,10 @@ class IntegrationApi
         var integrationDelegate = new IntegrationDelegate();
         var integrationMemberDelegate = new IntegrationMemberDelegate();
 
-        /**
+        /*
          * Create integration
          * Allow only searchntalk.com admin
-         **/
+         */
         app.put(ApiUrlDelegate.integration(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
             var integration = req.params[ApiConstants.INTEGRATION];
@@ -34,7 +34,7 @@ class IntegrationApi
             );
         });
 
-        /** Delete integration **/
+        /* Delete integration */
         app.delete(ApiUrlDelegate.integrationById(), AccessControl.allowOwner, function (req:express.Request, res:express.Response)
         {
             var integrationId = req.params[ApiConstants.INTEGRATION_ID];
@@ -45,9 +45,9 @@ class IntegrationApi
             );
         });
 
-        /**
+        /*
          * Update integration settings
-         **/
+         */
         app.post(ApiUrlDelegate.integrationById(), AccessControl.allowOwner, function (req:express.Request, res:express.Response)
         {
             var integrationId = req.params[ApiConstants.INTEGRATION_ID];
@@ -60,10 +60,10 @@ class IntegrationApi
             );
         });
 
-        /**
+        /*
          * Reset integration secret
          * Allow admin
-         **/
+         */
         app.post(ApiUrlDelegate.integrationSecretReset(), AccessControl.allowOwner, function (req:express.Request, res:express.Response)
         {
             var integrationId = req.params[ApiConstants.INTEGRATION_ID];
@@ -74,10 +74,10 @@ class IntegrationApi
             );
         });
 
-        /**
+        /*
          * Get integration details
          * Allow only admin and owner
-         **/
+         */
         app.get(ApiUrlDelegate.integrationById(), AccessControl.allowOwner, function (req:express.Request, res:express.Response)
         {
             var integrationId = req.params[ApiConstants.INTEGRATION_ID];

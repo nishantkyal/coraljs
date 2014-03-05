@@ -5,7 +5,7 @@ import ApiUrlDelegate       = require('../delegates/ApiUrlDelegate');
 import PhoneNumberDelegate  = require('../delegates/PhoneNumberDelegate');
 import PhoneNumber          = require('../models/PhoneNumber');
 
-/**
+/*
  * API calls for managing settings to IntegrationMembers who are experts
  * e.g. Call schedules, viewing reports, manage payment details
  */

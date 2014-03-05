@@ -1,0 +1,10 @@
+doctype 5
+.container-fluid
+.row-fluid
+    .span2
+    .span8
+        .pull-right
+            if (logged_in_user)
+                | Welcome, #{logged_in_user.first_name} |&nbsp;
+                a(href='/expert/' + logged_in_user.id + '/profile') Edit profile
+    .span2

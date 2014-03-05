@@ -7,9 +7,9 @@ import GlobalIdDelegate     = require('../delegates/GlobalIDDelegate');
 import BaseModel            = require('../models/BaseModel');
 import Utils                = require('../common/Utils');
 
-/**
+/*
  Base class for DAO
- **/
+ */
 class BaseDao implements IDao
 {
     modelClass;

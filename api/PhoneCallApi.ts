@@ -4,10 +4,10 @@ import ApiConstants         = require('../enums/ApiConstants');
 import ApiUrlDelegate       = require('../delegates/ApiUrlDelegate');
 import PhoneCallDelegate    = require('../delegates/PhoneCallDelegate');
 import AccessControl        = require('../middleware/AccessControl');
-import ValidateRequest      = require('../middleware/ValidateRequest');
+import RequestHandler      = require('../middleware/RequestHandler');
 import PhoneCall            = require('../models/PhoneCall');
 
-/**
+/*
  * API calls for managing phone calls
  */
 class PhoneCallApi
@@ -66,7 +66,7 @@ class PhoneCallApi
                 )
         });
 
-        app.get(ApiUrlDelegate.phoneCall(), ValidateRequest.requireFilters, AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        app.get(ApiUrlDelegate.phoneCall(), RequestHandler.requireFilters, AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
             var filters = req.body[ApiConstants.FILTERS];
 

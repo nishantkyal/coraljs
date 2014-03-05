@@ -4,15 +4,15 @@ import q                    = require('q');
 import log4js               = require('log4js');
 import Config               = require('../common/Config');
 
-/**
+/*
  Delegate class to manage mysql connections
- **/
+ */
 class MysqlDelegate {
 
     // Connection pool
     private static pool:any;
 
-    /** Static constructor workaround */
+    /* Static constructor workaround */
     private static ctor = (() =>
     {
         MysqlDelegate.pool = mysql.createPool({
@@ -24,7 +24,7 @@ class MysqlDelegate {
         });
     })();
 
-    /**
+    /*
      * Helper method to get a connection from pool
      */
     static createConnection():q.Promise<any>
@@ -49,7 +49,7 @@ class MysqlDelegate {
         return deferred.promise;
     }
 
-    /**
+    /*
      * Helper method to get a connection from pool
      */
     static getConnectionFromPool():q.Promise<any>
@@ -69,7 +69,7 @@ class MysqlDelegate {
         return deferred.promise;
     }
 
-    /**
+    /*
      * Begin a transaction and return the transaction
      */
     static beginTransaction():q.Promise<any>
@@ -93,7 +93,7 @@ class MysqlDelegate {
         return deferred.promise;
     }
 
-    /**
+    /*
      * Execute a query
      * Transaction/connection can be specified else query is executed in a new connection
      */
@@ -134,7 +134,7 @@ class MysqlDelegate {
             });
     }
 
-    /**
+    /*
      * Commit transaction
      */
     static commit(transaction, result?:any):q.Promise<any>

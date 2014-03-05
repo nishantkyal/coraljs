@@ -1,6 +1,5 @@
 ///<reference path='../_references.d.ts'/>
 import _                        = require('underscore');
-import LocalizationDelegate     = require('../delegates/LocalizationDelegate');
 import BaseModel                = require('./BaseModel');
 import Priority                 = require('../enums/Priority');
 import Utils                    = require('../common/Utils');
@@ -26,27 +25,6 @@ class SMS extends BaseModel
     private status:number;
     private num_retries:number;
     private priority:Priority;
-
-    constructor(data:Object = {})
-    {
-        super(data);
-
-        // Compose message based on SMS type
-        if (Utils.isNullOrEmpty(this.getMessage()))
-        {
-            try
-            {
-                var smsData:Object = data['data'];
-                var smsType:string = 'sms.' + smsData['type'];
-                var locale:string = smsData['locale'];
-                var templateData:Object = smsData['data'];
-                var template:Function = _.template(LocalizationDelegate.get(smsType, locale));
-
-                this.setMessage(template(templateData));
-            } catch (e) {}
-        }
-
-    }
 
     /* Getters */
     getCountryCode():string { return this.country_code; }

@@ -1,9 +1,9 @@
 import BaseModel                = require('./BaseModel');
 import IntegrationType          = require('../enums/IntegrationType');
 
-/**
+/*
  Bean class for Integration
-**/
+*/
 class Integration extends BaseModel
 {
     static TABLE_NAME:string = 'integration';
@@ -22,7 +22,7 @@ class Integration extends BaseModel
     private secret:string;
     private status:string;
 
-    /** Getters */
+    /* Getters */
     getTitle():string                                   { return this.title; }
     getWebsiteUrl():string                              { return this.website_url; }
     getRedirectUrl():string                             { return this.redirect_url; }
@@ -30,7 +30,7 @@ class Integration extends BaseModel
     getSecret():string                                  { return this.secret; }
     getStatus():string                                  { return this.status; }
 
-    /** Setters */
+    /* Setters */
     setTitle(val:string)                                { this.title = val; }
     setWebsiteUrl(val:string)                           { this.website_url = val; }
     setRedirectUrl(val:string)                          { this.redirect_url = val; }

@@ -9,7 +9,7 @@ import UserProfileDelegate                  = require('../delegates/UserProfileD
 import UserOAuthDelegate                    = require('../delegates/UserOAuthDelegate');
 import TransactionDelegate                  = require('../delegates/TransactionDelegate');
 import AccessControl                        = require('../middleware/AccessControl');
-import ValidateRequest                      = require('../middleware/ValidateRequest');
+import RequestHandler                       = require('../middleware/RequestHandler');
 import UserOauth                            = require('../models/UserOauth');
 import User                                 = require('../models/User');
 import UserProfile                          = require('../models/UserProfile');
@@ -17,10 +17,10 @@ import IntegrationMember                    = require('../models/IntegrationMemb
 import Utils                                = require('../common/Utils');
 import VerificationCodeCache                = require('../caches/VerificationCodeCache');
 
-/**
+/*
  Rest Calls for User
  Allow only searchntalk.com
- **/
+ */
 class UserApi
 {
 
@@ -29,9 +29,8 @@ class UserApi
         var userDelegate = new UserDelegate();
         var userOauthDelegate = new UserOAuthDelegate();
         var userProfileDelegate = new UserProfileDelegate();
-        var verificationCodeCache = new VerificationCodeCache();
 
-        /** Create user **/
+        /* Create user */
         app.put(ApiUrlDelegate.user(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
             var user:User = req.body[ApiConstants.USER];
@@ -109,7 +108,6 @@ class UserApi
             else
                 res.status(500).json('Invalid input');
         });
-
 
     }
 }

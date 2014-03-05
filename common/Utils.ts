@@ -23,7 +23,7 @@ class Utils
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    /**
+    /*
      * Get a promise that'll get rejected in next tick
      *  Used when we need to cancel an operation for invalid input
     static getRejectedPromise(errorMessage:string):q.Promise<any>

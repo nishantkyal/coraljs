@@ -1,0 +1,28 @@
+include scriptsAndStyles
+include header
+
+.container-fluid
+    .row-fluid
+        .span2
+        .span8
+            h3 Integrations
+            table.table-bordered.table-striped.table#users
+                thead
+                    tr
+                        th First Name
+                        th Last Name
+                        th.span3 Revenue Share
+                        th.span2 Role
+                        th.span1 Actions
+                tbody
+                each member in integrations
+                    tr(data-id=member.id, class=(member.deleted != null ? 'danger' : ''))
+                        td #{member.user[0].first_name}
+                        td #{member.user[0].last_name}
+                        td #{member.revenue_share}
+                        td #{member.role}
+                        td
+                            a.fa.fa-pencil.save(data-id=member.id, data-toggle='modal', href=member.user_id == logged_in_user.id ? '/expert/' + member.id + '/profile' : '#editUserModal')
+                            | &nbsp;
+                            a.remove.fa.fa-times-circle(data-id=member.id, data-toggle='modal', href='#delUserModal', style="color: red")
+        .span2

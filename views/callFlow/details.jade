@@ -1,0 +1,47 @@
+title Search N Talk - Expert Registration - Login
+include scriptsAndStyles
+include header
+
+.container-fluid
+    .row-fluid
+        .span2
+        .span8
+            h4 Call Details
+            .form-horizontal
+                .control-group
+                    .control-label
+                        | Duration
+                    .controls
+                        input(type='text')
+                .control-group
+                    .control-label
+                        | Your phone number&nbsp;
+                        a.icon-question-sign.tooltips(href='#', data-toggle="tooltip", data-placement="right", title="You'll receive a call on this number for talking to the expert")
+                    .controls
+                        input(type='text')
+                        .btn.btn-primary.btn-mini Verify
+                .control-group
+                    .control-label
+                        | Agenda&nbsp;
+                        a.icon-question-sign.tooltips(href='#', data-toggle="tooltip", data-placement="right", title="Your questions to the expert. Please be as accurate as possible.")
+                    .controls
+                        textarea
+            h4 Payment Summary
+            label
+                b Call with #{user.first_name}&nbsp;#{user.last_name}
+                .row-fluid
+                    .span2
+                        label
+                            | Duration:&nbsp;
+                            span.duration 15
+                            | &nbsp;minutes
+                    .pull-right
+                        label
+                            span.duration 15
+                            | minutes * #{price_unit} #{price_per_min}/min =&nbsp;
+                            b #{price_unit}&nbsp;
+                            span.call_total
+            .pull-right
+                .btn.btn-primary Make Payment
+        .span2
+script(src='callDetails.js')

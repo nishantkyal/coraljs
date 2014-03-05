@@ -3,9 +3,9 @@ import q                = require('q');
 import redis            = require('redis');
 import Config           = require('../common/Config');
 
-/**
+/*
  Base class for all caches
- **/
+ */
 class CacheHelper
 {
     private static connection;

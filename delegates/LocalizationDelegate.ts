@@ -1,12 +1,12 @@
 ///<reference path='../_references.d.ts'/>
 import i18n         = require('i18n');
 
-/**
+/*
  Delegate to manage localization
- **/
+ */
 class LocalizationDelegate
 {
-    /** Static constructor workaround */
+    /* Static constructor workaround */
     private static ctor = (() =>
     {
         i18n.configure({
@@ -16,14 +16,14 @@ class LocalizationDelegate
         });
     })();
 
-    /** Getters **/
+    /* Getters */
     static get(key:string, locale?:string):string {
         if (locale)
             return i18n.__({'phrase': key, 'locale': locale});
         return i18n.__(key);
     }
 
-    /** Setters **/
+    /* Setters */
     static setLocale(locale:string) {
         i18n.setLocale(locale);
     }

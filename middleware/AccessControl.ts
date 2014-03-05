@@ -6,7 +6,7 @@ import IntegrationMemberRole            = require('../enums/IntegrationMemberRol
 import Utils                            = require('../common/Utils');
 import Config                           = require('../common/Config');
 
-/**
+/*
  * Middleware to access control Integration REST APIs
  * Note: Website accesses delegates directly and doesn't go through the APIs hence no access control middleware for it
  */

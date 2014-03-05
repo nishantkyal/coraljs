@@ -1,9 +1,9 @@
 import BaseModel                                = require('./BaseModel')
 import Utils                                    = require('../common/Utils');
 import UserProfile                              = require('../models/UserProfile');
-/**
+/*
  Bean class for User
- **/
+ */
 class User extends BaseModel
 {
     static TABLE_NAME:string = 'user';
@@ -31,7 +31,7 @@ class User extends BaseModel
 
     private user_profile:UserProfile;
 
-    /** Getters **/
+    /* Getters */
     getFirstName():string                                       { return this.first_name; }
     getLastName():string                                        { return this.last_name; }
     getMobile():string                                          { return this.mobile; }
@@ -48,7 +48,7 @@ class User extends BaseModel
         return this.getId() != null && this.getId() != undefined;
     }
 
-    /** Setters **/
+    /* Setters */
     setFirstName(val:string)                                    { this.first_name = val; }
     setLastName(val:string)                                     { this.last_name = val; }
     setMobile(val:string)                                       { this.mobile = val; }

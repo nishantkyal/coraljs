@@ -21,7 +21,7 @@ import Utils                        = require('../common/Utils');
 import Config                       = require('../common/Config');
 import VerificationCodeCache        = require('../caches/VerificationCodeCache');
 
-/**
+/*
  Delegate class for managing email
  1. Queue new email
  2. Check status of emails
@@ -46,7 +46,7 @@ class EmailDelegate
             });
     }
 
-    /** Static constructor workaround */
+    /* Static constructor workaround */
     private static ctor = (() =>
     {
         watch.createMonitor('/var/searchntalk/emailTemplates',

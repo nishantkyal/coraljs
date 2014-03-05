@@ -2,9 +2,9 @@ import BaseModel            = require('./BaseModel');
 import Utils                = require('../common/Utils');
 import MoneyUnit            = require('../enums/MoneyUnit');
 
-/**
+/*
  Bean class for Phone call
- **/
+ */
 class PhoneCall extends BaseModel
 {
     static TABLE_NAME:string = 'phone_call';

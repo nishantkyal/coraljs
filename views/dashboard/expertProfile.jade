@@ -1,0 +1,46 @@
+include header
+include scriptsAndStyles
+.container-fluid
+    .row-fluid
+        .span2
+        .span8
+            form.form-horizontal(method='POST', onsubmit="return handleSaveClicked()")
+                .control-group
+                    label.control-label(for='title') Title
+                    .controls
+                        input(type='text', name='title')
+                .control-group
+                    label.control-label(for='first_name') First Name
+                    .controls
+                        input(type='text', name='first_name', value=user.first_name)
+                .control-group
+                    label.control-label(for='last_name') Last Name
+                    .controls
+                        input(type='text', name='last_name', value=user.last_name)
+                .control-group
+                    label.control-label(for='short_desc') Summary
+                    .controls
+                        input(type='text', name='short_desc', value=user.short_desc, autocomplete='off')
+                .control-group
+                    label.control-label(for='long_desc') Description
+                    .controls
+                        textarea(name='long_desc') #{user.long_desc}
+                .control-group
+                    label.control-label(for='revenue_share') Revenue Share
+                    .controls
+                        .form-control-static
+                            | #{member.revenue_share}%
+                .control-group
+                    label.control-label(for='password') Password
+                    .controls
+                        input(type='password', name='password')
+                .control-group
+                    label.control-label(for='confirm_password') Confirm Password
+                    .controls
+                        input(type='password', name='confirm_password')
+                .control-group
+                    .controls
+                        input.btn.btn-primary(type='submit') Save Changes
+                        button.btn.btn-danger(onclick='handleDisableClicked()') Disable account
+        .span2
+script(src='/javascripts/app/expertProfile.js')

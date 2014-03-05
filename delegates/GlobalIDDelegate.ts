@@ -2,7 +2,7 @@
 import q                = require('q');
 import Utils            = require('../common/Utils');
 
-/**
+/*
  * Delegate to generate globally unique ids
  * Format of id:
  *  [ timestamp (42 bits) | type (2bits) | shard (2 bits) | sequence (9 bits) ]

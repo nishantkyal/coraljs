@@ -1,7 +1,7 @@
 ///<reference path='../_references.d.ts'/>
 import url                                      = require('url');
 
-/**
+/*
  * Class to hold all API URLs
  * Used to keep API URLs consistent between SearchNTalk and Coral
  * Note: Not using a generator for fine grained control and prevent unexpected behaviour
@@ -27,7 +27,7 @@ class ApiUrlDelegate
     static userOAuth():string { return this.get('/rest/user/oauth'); }
     static userOAuthToken(userId?:number, type?:string):string { return this.get('/rest/user/:userId/oauth/:type/token', {userId: userId, type: type}); }
 
-    /** URL patterns for OAuth provider **/
+    /* URL patterns for OAuth provider */
     static decision():string { return this.get('/rest/oauth/decision'); }
     static token():string { return this.get('/rest/oauth/token'); }
 
@@ -51,25 +51,25 @@ class ApiUrlDelegate
     static integrationMemberById(integrationId?:number, memberId?:number):string { return this.get('/rest/integration/:integrationId/member/:memberId', {integrationId: integrationId, memberId: memberId}); }
     static ownerActivitySummary(integrationId?:number):string { return this.get('/rest/integration/:integrationId/activity/summary', {integrationId: integrationId}); }
 
-    /** URL patterns for payments **/
+    /* URL patterns for payments */
     static payment():string { return this.get('/rest/payment'); }
     static paymentById(paymentId?:number):string { return this.get('/rest/payment/:paymentId', {paymentId: paymentId}); }
 
-    /** URL patterns for payout details **/
+    /* URL patterns for payout details */
     static payoutDetail():string { return this.get('/rest/payout-detail'); }
     static payoutDetailById(payoutDetailId?:number):string { return this.get('/rest/payout-detail/:payoutDetailId', {payoutDetailId: payoutDetailId}); }
 
-    /** URL patterns for phone calls **/
+    /* URL patterns for phone calls */
     static phoneCall():string { return this.get('/rest/call'); }
     static phoneCallById(callId?:number):string { return this.get('/rest/call/:callId', {callId: callId}); }
     static phoneCallReschedule(callId?:number):string { return this.get('/rest/call/:callId/reschedule', {callId: callId}); }
     static phoneCallCancel(callId?:number):string { return this.get('/rest/call/:callId/cancel', {callId: callId}); }
 
-    /** URL patterns for phone numbers **/
+    /* URL patterns for phone numbers */
     static phoneNumber():string { return this.get('/rest/phone-number'); }
     static phoneNumberById(phoneNumberId?:number):string { return this.get('/rest/phone-number/:phoneNumberId', {phoneNumberId: phoneNumberId}); }
 
-    /** URL patterns for transaction **/
+    /* URL patterns for transaction */
     static transaction():string { return this.get('/rest/transaction'); }
     static transactionById(transactionId?:number):string { return this.get('/rest/transaction/:transactionId', {transactionId: transactionId}); }
     static transactionItem(transactionId?:number):string { return this.get('/rest/transaction/:transactionId/item', {transactionId: transactionId}); }
@@ -94,7 +94,7 @@ class ApiUrlDelegate
     /* URL patterns for temporary tokens (invite codes, password reset, mobile verification etc.) */
     static tempToken():string { return this.get('/rest/token'); }
 
-    /**
+    /*
      * Helper method to generate URLs with values substituted for parameters (if supplied)
      * @param urlPattern
      * @param values

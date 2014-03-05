@@ -5,9 +5,9 @@ import UserProfile                  = require('./UserProfile');
 import ExpertSchedule               = require('./ExpertSchedule');
 import ExpertScheduleRule           = require('./ExpertScheduleRule');
 
-/**
+/*
  Bean class for Integration member
- **/
+ */
 class IntegrationMember extends BaseModel
 {
     static TABLE_NAME:string = 'integration_member';
@@ -20,6 +20,7 @@ class IntegrationMember extends BaseModel
     static ACCESS_TOKEN_EXPIRY:string = 'access_token_expiry';
     static REFRESH_TOKEN:string = 'refresh_token';
     static REFRESH_TOKEN_EXPIRY:string = 'refresh_token_expiry';
+    static INTEGRATION:string = 'integration';
 
     private integration_id:number;
     private user_id:number;
@@ -60,7 +61,7 @@ class IntegrationMember extends BaseModel
         return !isNaN(this.getIntegrationId()) && !isNaN(this.getRole());
     }
 
-    /** Setters */
+    /* Setters */
     setIntegrationId(val:number):void                   { this.integration_id = val; }
     setUserId(val:number):void                          { this.user_id = val; }
     setRole(val:number):void                            { this.role = val; }

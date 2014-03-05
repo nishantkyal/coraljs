@@ -1,4 +1,4 @@
-/**
+/*
  * Created by Ankit on 14/02/14.
  */
 import BaseModel                = require('./BaseModel');

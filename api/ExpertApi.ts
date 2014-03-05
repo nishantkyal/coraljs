@@ -13,7 +13,7 @@ import User                             = require('../models/User');
 import IntegrationMemberRole            = require('../enums/IntegrationMemberRole');
 import IncludeFlag                      = require('../enums/IncludeFlag');
 
-/**
+/*
  * API calls for managing settings to IntegrationMembers who are experts
  * e.g. Call schedules, viewing reports, manage payment details
  */
@@ -23,7 +23,7 @@ class ExpertApi
     {
         var integrationMemberDelegate = new IntegrationMemberDelegate();
 
-        /** Search expert **/
+        /* Search expert */
         app.get(ApiUrlDelegate.expert(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
             var searchCriteria:Object = req.body;
@@ -36,7 +36,7 @@ class ExpertApi
             );
         });
 
-        /** Get expert profile  **/
+        /* Get expert profile  */
         app.get(ApiUrlDelegate.expertById(), function (req:express.Request, res:express.Response)
         {
             var expertId = parseInt(req.params[ApiConstants.EXPERT_ID]);
@@ -49,7 +49,7 @@ class ExpertApi
             );
         });
 
-        /** Convert user to expert for integrationId **/
+        /* Convert user to expert for integrationId */
         app.put(ApiUrlDelegate.expert(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
             var integrationMember:IntegrationMember = new IntegrationMember();
@@ -67,7 +67,7 @@ class ExpertApi
                 res.status(401).json('Invalid input');
         });
 
-        /** Remove expert status of user for integrationId **/
+        /* Remove expert status of user for integrationId */
         app.delete(ApiUrlDelegate.expertById(), AccessControl.allowAdmin, function (req:express.Request, res:express.Response)
         {
             var expertId = req.params[ApiConstants.EXPERT_ID];
@@ -79,10 +79,10 @@ class ExpertApi
             );
         });
 
-        /**
+        /*
          * Update expert's details (revenue share, enabled/disabled status)
          * Allow owner or admin
-         **/
+         */
         app.post(ApiUrlDelegate.expertById(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
             var expertId = req.params[ApiConstants.EXPERT_ID];
@@ -96,7 +96,7 @@ class ExpertApi
 
         });
 
-        /**
+        /*
          * Get activity summary for expert
          * Allow expert
          */

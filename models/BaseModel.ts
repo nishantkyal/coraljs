@@ -2,7 +2,7 @@
 import _                                        = require('underscore');
 import Utils                                    = require('../common/Utils');
 
-/**
+/*
  * Base class for Models
  */
 class BaseModel
