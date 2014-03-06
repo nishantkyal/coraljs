@@ -1,4 +1,5 @@
 ///<reference path='../DefinitelyTyped/express/express.d.ts'/>
+///<reference path='../DefinitelyTyped/connect-flash/connect-flash.d.ts'/>
 ///<reference path='../DefinitelyTyped/node/node.d.ts'/>
 ///<reference path='../DefinitelyTyped/nconf/nconf.d.ts'/>
 ///<reference path='../DefinitelyTyped/q/Q.d.ts'/>

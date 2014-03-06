@@ -4,6 +4,7 @@ import moment                                               = require('moment');
 import express                                              = require('express');
 import passport                                             = require('passport');
 import log4js                                               = require('log4js');
+import RequestHandler                                       = require('../../middleware/RequestHandler');
 import AuthenticationDelegate                               = require('../../delegates/AuthenticationDelegate');
 import IntegrationDelegate                                  = require('../../delegates/IntegrationDelegate');
 import IntegrationMemberDelegate                            = require('../../delegates/IntegrationMemberDelegate');
@@ -15,33 +16,36 @@ import ExpertSchedule                                       = require('../../mod
 import CallStatus                                           = require('../../enums/CallStatus');
 import ApiConstants                                         = require('../../enums/ApiConstants');
 import IncludeFlag                                          = require('../../enums/IncludeFlag');
+import SessionStoreHelper                                   = require('../../helpers/SessionStorageHelper');
+import PageData                                             = require('./PageData');
+import Urls                                                 = require('./Urls');
+import Middleware                                           = require('./Middleware');
 
 class CallFlowRoute
 {
-    logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
+    private logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
+    private sessionStore:SessionStoreHelper = new SessionStoreHelper('CallFlow');
 
     constructor(app)
     {
         // Actual rendered pages
-        app.get('/expert/:expertId/call', this.index.bind(this));
-        app.get('/call/auth', CallFlowRouteMiddleware.requireScheduleAndExpert.bind(this), this.authentication.bind(this));
-        app.get('/call/details', CallFlowRouteMiddleware.requireScheduleAndExpert.bind(this), this.callDetails.bind(this));
-        app.post('/call/details', CallFlowRouteMiddleware.requireScheduleAndExpert.bind(this), this.callDetailsUpdated.bind(this));
-        app.get('/call/checkout', this.checkout.bind(this));
+        app.get(Urls.callExpert(), RequestHandler.noCache, this.index.bind(this));
+        app.get(Urls.userLogin(), Middleware.requireScheduleAndExpert.bind(this), this.authentication.bind(this));
+        app.get(Urls.callDetails(), Middleware.requireScheduleAndExpert.bind(this), this.callDetails.bind(this));
+        app.post(Urls.callDetails(), Middleware.requireScheduleAndExpert.bind(this), this.callDetailsUpdated.bind(this));
+        app.get(Urls.checkout(), this.checkout.bind(this));
 
         // Auth related routes
-        app.post('/call/login', passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: '/call/auth', successRedirect: '/call/details'}));
-        app.post('/call/register', passport.authenticate(AuthenticationDelegate.STRATEGY_REGISTER, {failureRedirect: '/call/auth', successRedirect: '/call/details'}));
-        app.get('/call/login/fb', passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {scope: ['email']}));
-        app.get('/call/login/fb/callback', passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {failureRedirect: '/call/auth', scope: ['email'], successRedirect: '/call/details'}));
+        app.post(Urls.userLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.userLogin(), successRedirect: Urls.callDetails()}));
+        app.post(Urls.userRegister(), passport.authenticate(AuthenticationDelegate.STRATEGY_REGISTER, {failureRedirect: Urls.userLogin(), successRedirect: Urls.callDetails()}));
+        app.get(Urls.userFBLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {scope: ['email']}));
+        app.get(Urls.userFBLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {failureRedirect: Urls.userLogin(), scope: ['email'], successRedirect: Urls.callDetails()}));
     }
 
     index(req:express.Request, res:express.Response)
     {
-        res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
-
         var self = this;
-        var expertId = req.params['expertId'];
+        var expertId = req.params[ApiConstants.EXPERT_ID];
 
         new IntegrationMemberDelegate().get(expertId, null, [IncludeFlag.INCLUDE_SCHEDULES, IncludeFlag.INCLUDE_USER])
             .then(
@@ -64,8 +68,8 @@ class CallFlowRoute
                     res.send(500);
                 }
 
-                CallFlowRouteMiddleware.setSelectedExpert(req, expert);
-                CallFlowRouteMiddleware.setSelectedSchedule(req, null);
+                Middleware.setSelectedExpert(req, expert);
+                Middleware.setSelectedSchedule(req, null);
 
                 res.render('callFlow/index', pageData);
             },
@@ -75,8 +79,8 @@ class CallFlowRoute
 
     authentication(req:express.Request, res:express.Response)
     {
-        var scheduleIds:string[] = CallFlowRouteMiddleware.getSelectedSchedule(req);
-        var expert = CallFlowRouteMiddleware.getSelectedExpert(req);
+        var scheduleIds:string[] = Middleware.getSelectedSchedule(req);
+        var expert = Middleware.getSelectedExpert(req);
         var schedules = expert['schedule'];
         var user = expert.user[0];
 
@@ -107,14 +111,14 @@ class CallFlowRoute
 
     callDetails(req:express.Request, res:express.Response)
     {
-        var expert = CallFlowRouteMiddleware.getSelectedExpert(req);
-        var schedule = CallFlowRouteMiddleware.getSelectedSchedule(req);
+        var expert = Middleware.getSelectedExpert(req);
+        var schedule = Middleware.getSelectedSchedule(req);
         var call = new PhoneCall();
         var user = expert['user'][0];
 
         call.setExpertId(expert['id']);
         call.setScheduleId(schedule['id']);
-        CallFlowRouteMiddleware.setCallDetails(req, call);
+        Middleware.setCallDetails(req, call);
 
         var pageData = {};
         pageData['fb_app_id'] = Config.get('fb.app_id');
@@ -127,9 +131,9 @@ class CallFlowRoute
 
     callDetailsUpdated(req:express.Request, res:express.Response)
     {
-        var schedule = new ExpertSchedule(CallFlowRouteMiddleware.getSelectedSchedule(req));
+        var schedule = new ExpertSchedule(Middleware.getSelectedSchedule(req));
         var updatedCall:PhoneCall = new PhoneCall(req.body['call']);
-        var originalCall:PhoneCall = CallFlowRouteMiddleware.getCallDetails(req);
+        var originalCall:PhoneCall = Middleware.getCallDetails(req);
         updatedCall.setExpertId(originalCall.getExpertId());
         updatedCall.setScheduleId(originalCall.getScheduleId());
         updatedCall.setStatus(CallStatus.SCHEDULED);
@@ -148,7 +152,7 @@ class CallFlowRoute
 
         if (updatedCall.isValid())
         {
-            CallFlowRouteMiddleware.setCallDetails(req, updatedCall);
+            Middleware.setCallDetails(req, updatedCall);
             res.send('Success');
         }
         else
@@ -157,9 +161,9 @@ class CallFlowRoute
 
     checkout(req:express.Request, res:express.Response)
     {
-        var call:PhoneCall = new PhoneCall(CallFlowRouteMiddleware.getCallDetails(req));
-        var schedule = CallFlowRouteMiddleware.getSelectedSchedule(req);
-        var expert = CallFlowRouteMiddleware.getSelectedExpert(req);
+        var call:PhoneCall = new PhoneCall(Middleware.getCallDetails(req));
+        var schedule = Middleware.getSelectedSchedule(req);
+        var expert = Middleware.getSelectedExpert(req);
         var user = expert['user'];
 
         // 1. Save call
@@ -192,47 +196,4 @@ class CallFlowRoute
 
 }
 
-class CallFlowRouteMiddleware
-{
-    /* Helper methods to manage session variables for call flow */
-    // TODO: Move all session storage to one class
-    private static SESSION_VARS_CALL_DETAILS:string = 'call_details';
-    private static SESSION_VARS_EXPERT:string = 'call_expert';
-    private static SESSION_VARS_SCHEDULE:string = 'call_schedule';
-
-    static setCallDetails(req, call:any):void { req.session[CallFlowRouteMiddleware.SESSION_VARS_CALL_DETAILS] = call; }
-    static getCallDetails(req):any { return req.session[CallFlowRouteMiddleware.SESSION_VARS_CALL_DETAILS]; }
-
-    static setSelectedExpert(req, expert:any):void { req.session[CallFlowRouteMiddleware.SESSION_VARS_EXPERT] = expert; }
-    static getSelectedExpert(req):any{ return req.session[CallFlowRouteMiddleware.SESSION_VARS_EXPERT]; }
-
-    static setSelectedSchedule(req, schedule:any):void { req.session[CallFlowRouteMiddleware.SESSION_VARS_SCHEDULE] = schedule; }
-    static getSelectedSchedule(req):any { return req.session[CallFlowRouteMiddleware.SESSION_VARS_SCHEDULE]; }
-
-    /* Helper middleware to make sure we've everything before rendering a page */
-    static requireScheduleAndExpert(req, res, next)
-    {
-        var expert = CallFlowRouteMiddleware.getSelectedExpert(req);
-        var selectedScheduleIds = CallFlowRouteMiddleware.getSelectedSchedule(req);
-        var scheduleIds:string[] = [].concat(req.query[ApiConstants.SCHEDULE_ID]);
-
-        if (!Utils.isNullOrEmpty(selectedScheduleIds) && !Utils.isNullOrEmpty(expert))
-        {
-            next();
-        }
-        else if (!Utils.isNullOrEmpty(scheduleIds) && !Utils.isNullOrEmpty(expert))
-        {
-            CallFlowRouteMiddleware.setSelectedSchedule(req, scheduleIds);
-            next();
-        }
-        else if (!Utils.isNullOrEmpty(expert))
-        {
-            res.redirect('/expert/' + expert['id'] + '/call');
-        }
-        else
-        {
-            res.send(400, "This is strange, how did you land up here without selecting an expert");
-        }
-    }
-}
 export = CallFlowRoute

@@ -1,6 +1,7 @@
 ///<reference path='../_references.d.ts'/>
 import _                                        = require('underscore');
 import q                                        = require('q');
+import log4js                                   = require('log4js');
 import BaseDaoDelegate                          = require('./BaseDaoDelegate');
 import IDao                                     = require('../dao/IDao');
 import IntegrationDAO                           = require('../dao/IntegrationDao');
@@ -12,15 +13,42 @@ import Utils                                    = require('../common/Utils');
  */
 class IntegrationDelegate extends BaseDaoDelegate
 {
-    getAll():q.Promise<any>
+    private static cachedIntegrations:{[id:number]:Integration} = {};
+
+    /* Static constructor workaround */
+    private static ctor = (() =>
     {
-        var integrationDao:any = this.getDao();
+        IntegrationDelegate.updateCache();
+    })();
+
+    private static updateCache()
+    {
+        var integrationDao:any = new IntegrationDAO();
         return integrationDao.getAll()
             .then(
-            function integrationsFetched(rows)
+            function integrationsFetched(integrations)
             {
-                 return _.map(rows, function(row) { return new Integration(row); });
+                _.each(integrations, function(i) {
+                    var integration = new Integration(i);
+                    IntegrationDelegate.cachedIntegrations[integration.getId()] = integration;
+                });
+                log4js.getDefaultLogger().info(integrations.length + ' integrations fetched and cached');
+            },
+            function integrationsFetchError(err)
+            {
+                log4js.getDefaultLogger().debug('Error fetching list of integrations from services, error: ' + err);
             });
+    }
+
+    getAll():Integration[]
+    {
+        return _.values(IntegrationDelegate.cachedIntegrations);
+    }
+
+    getSync(id:number):Integration
+    {
+        id = parseInt(id.toString());
+        return IntegrationDelegate.cachedIntegrations[id];
     }
 
     resetSecret(integrationId:string):q.Promise<any>

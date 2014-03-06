@@ -54,9 +54,14 @@ class BaseDao implements IDao
             function createFailure(error)
             {
                 self.logger.error('Error while creating a new %s, error: %s', self.tableName, error.message);
-                throw(error);
+                var message = 'Error while creating a new ' + self.tableName + ', error: ' + error.message;
+                switch(error.code)
+                {
+                    case 'ER_DUP_ENTRY':
+                        message = Utils.snakeToCamelCase(self.tableName) + ' already exists with those details';
+                }
+                throw(message);
             });
-
     }
 
     get(id:number, fields?:string[]):q.Promise<any>

@@ -89,13 +89,13 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
         // TODO: Handle cyclic dependencies in a better way
         var ExpertScheduleRuleDelegate = require('../delegates/ExpertScheduleRuleDelegate');
         var expertScheduleRuleDelegate = new ExpertScheduleRuleDelegate();
-        var currentDate = new Date();
-        var dateAfterOneYear = new Date();
-        dateAfterOneYear.setFullYear(currentDate.getFullYear() + 1);
-        var options = {
-            startDate: currentDate, // current date
-            endDate: dateAfterOneYear // 1 year from current date
+
+        var options =
+        {
+            startDate: moment().toDate(),
+            endDate: moment().add('years', 1).toDate()
         };
+
         return expertScheduleRuleDelegate.getRulesByIntegrationMemberId(updatedScheduleRuleException.getIntegrationMemberId(), options.startDate.getTime() / 1000, options.endDate.getTime() / 1000)
             .then(//TODO handle conversion to sec
             function createRecord(rawschedules:ExpertScheduleRule[])

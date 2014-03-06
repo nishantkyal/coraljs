@@ -102,11 +102,7 @@ class IntegrationApi
                     function integrationFetchError(error) { res.status(500).json(error); }
                 );
             else
-                integrationDelegate.getAll()
-                    .then(
-                    function integrationFetched(result:Array<Integration>) { res.json(result); },
-                    function integrationFetchError(error) { res.status(500).json(error); }
-                );
+                res.json(integrationDelegate.getAll());
         });
 
     }

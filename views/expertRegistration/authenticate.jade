@@ -5,6 +5,7 @@ include header
     .row-fluid
         .span2
         .span8
+            include errorMessage
             label Please login to searchntalk.com or create an account to continue..
             .span4
                 form.form-horizontal(action='/expert/login', method='POST')
@@ -12,12 +13,12 @@ include header
                         .control-label
                             | Email
                         .controls
-                            input(name='user', type='text')
+                            input(name='username', type='text')
                     .control-group
                         .control-label
                             | Password
                         .controls
-                            input(name='pass', type='password')
+                            input(name='password', type='password')
                     .control-group
                         .controls
                             input.btn-primary.btn(value='Login', type='submit')

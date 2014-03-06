@@ -11,6 +11,7 @@ class ExpertScheduleExceptionDao extends BaseDAO
 
     getExceptionByIntegrationMemberId(expertId:number, startTime:number,  endTime:number):q.Promise<any>
     {
+        var self = this;
         var searchQuery = {
             'start_time' :{
                 'operator': 'between',
@@ -18,7 +19,7 @@ class ExpertScheduleExceptionDao extends BaseDAO
             },
             'integration_member_id': expertId
         };
-        return this.search(searchQuery);
+        return self.search(searchQuery);
     }
 
 }

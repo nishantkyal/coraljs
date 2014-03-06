@@ -100,7 +100,7 @@ class ApiUrlDelegate
      * @param values
      * @returns {string}
      */
-    private static get(urlPattern:string, values?:Object):string {
+    static get(urlPattern:string, values?:Object):string {
         if (values)
             for (var key in values)
                 if (values[key] != null)

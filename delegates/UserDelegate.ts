@@ -16,20 +16,6 @@ import IncludeFlag              = require('../enums/IncludeFlag');
  */
 class UserDelegate extends BaseDaoDelegate
 {
-    authenticate(mobileOrEmail:string, password:string):q.Promise<any>
-    {
-        return this.getDao().search({email: mobileOrEmail, password: password}, {'fields': ['id', 'first_name', 'last_name']})
-            .then(
-            function authComplete(result)
-            {
-                if (result.length != 0)
-                    return new User(result[0]);
-                else
-                    throw('Authentication failed: Username or password is wrong');
-            }
-        );
-    }
-
     update(criteria:any, newValues:any, transaction?:any):q.Promise<any>
     {
         delete newValues[User.ID];

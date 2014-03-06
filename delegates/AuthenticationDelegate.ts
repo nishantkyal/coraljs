@@ -10,8 +10,9 @@ import UserDelegate                         = require('../delegates/UserDelegate
 import UserOAuthDelegate                    = require('../delegates/UserOAuthDelegate');
 import IntegrationMember                    = require('../models/IntegrationMember');
 import UserOauth                            = require('../models/UserOauth');
-import Config                               = require('../common/Config');
 import User                                 = require('../models/User');
+import Config                               = require('../common/Config');
+import Utils                                = require('../common/Utils');
 import ApiConstants                         = require('../enums/ApiConstants');
 
 class AuthenticationDelegate
@@ -29,6 +30,7 @@ class AuthenticationDelegate
     {
         // Username password strategy
         AuthenticationDelegate.configureOauthStrategy();
+        AuthenticationDelegate.configureLocalStrategy();
 
         /* Facebook login */
         AuthenticationDelegate.configureFacebookStrategy(AuthenticationDelegate.STRATEGY_FACEBOOK, Config.get('SearchNTalk.uri') + '/login/fb/callback');
@@ -39,41 +41,65 @@ class AuthenticationDelegate
         AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, Config.get('SearchNTalk.uri') + '/expert/login/linkedin/callback');
 
         // Serialize-Deserialize user
-        passport.serializeUser(function(user, done) { done(null, user); });
-        passport.deserializeUser(function(obj, done) { done(null, obj); });
+        passport.serializeUser(function (user, done) { done(null, user); });
+        passport.deserializeUser(function (obj, done) { done(null, obj); });
 
     })();
 
-    static register(req, res:express.Response, next:Function)
-    {
-        var user = req.body[ApiConstants.USER];
 
-        new UserDelegate().create(user)
-            .then(
-            function userRegistered(user)
+    static register(options?:any)
+    {
+        options = options || {};
+        options.failureRedirect = options.failureRedirect || '/login';
+
+        return function (req, res:express.Response, next:Function)
+        {
+            var user = new User(req.body);
+            new UserDelegate().create(user)
+                .then(
+                function userRegistered(user) { req.logIn(user, next) },
+                function registrationError(error)
+                {
+                    req.flash('info', error);
+                    res.redirect(options.failureRedirect);
+                }
+            );
+        }
+    }
+
+    private static configureLocalStrategy()
+    {
+        passport.use(AuthenticationDelegate.STRATEGY_LOGIN, new passport_local.Strategy(function (username, password, done)
             {
-                req.logIn(user, next)
-            },
-            function registrationError(error) { res.send(500, 'An error occurred while registering user'); }
-        );
+                new UserDelegate().search({email:username})
+                    .then(
+                    function authComplete(users)
+                    {
+                        if (users.length != 1)
+                            done(null, false, {message: 'Invalid email'});
+                        else if (users[0].getPassword() != password)
+                            done(null, false, {message: 'Invalid password'});
+                        done(null, users[0]);
+                    },
+                    function authFailed(error) { done(error); });
+            }
+        ));
     }
 
     private static configureOauthStrategy()
     {
         passport.use(AuthenticationDelegate.STRATEGY_OAUTH, new passport_http_bearer.Strategy(
-            function(token, done)
+            function (token, done)
             {
                 new IntegrationMemberDelegate().findValidAccessToken(token)
                     .then(
-                    function integrationSearched(integrationMember)
-                    {
-                        return integrationMember.isValid() ? done(null, integrationMember) : done(null);
-                    },
+                    function integrationSearched(integrationMember) { done(null, integrationMember); },
                     function integrationSearchError(err) { done(err); }
                 )
             }
         ));
     }
+
     private static configureFacebookStrategy(strategyId:string, callbackUrl:string, profileFields:string[] = ['id', 'name', 'emails'])
     {
         passport.use(strategyId, new passport_facebook.Strategy({
