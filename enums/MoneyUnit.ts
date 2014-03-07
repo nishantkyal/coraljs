@@ -1,7 +1,7 @@
 enum MoneyUnit
 {
-    RUPEE,
-    DOLLAR,
+    RUPEE = 1,
+    DOLLAR ,
     PERCENT
 }
 export = MoneyUnit

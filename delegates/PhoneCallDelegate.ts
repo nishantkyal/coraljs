@@ -135,7 +135,10 @@ class PhoneCallDelegate extends BaseDAODelegate
                             from: Config.get('twilio.number'),
                             method: "GET"
                         }, function(err, call) {
-                            process.stdout.write(call.sid);
+                            if(err)
+                                console.log('Error');
+                            if(call)
+                                console.log(call.sid);
                         });
                     }
                 )
