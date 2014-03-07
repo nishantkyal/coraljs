@@ -2,8 +2,8 @@ include header
 include scriptsAndStyles
 .container-fluid
     .row-fluid
-        .span2
-        .span8
+        .col-md-2
+        .col-md-8
             form.form-horizontal(method='POST', onsubmit="return handleSaveClicked()")
                 .control-group
                     label.control-label(for='title') Title
@@ -42,5 +42,5 @@ include scriptsAndStyles
                     .controls
                         input.btn.btn-primary(type='submit') Save Changes
                         button.btn.btn-danger(onclick='handleDisableClicked()') Disable account
-        .span2
+        .col-md-2
 script(src='/javascripts/app/expertProfile.js')

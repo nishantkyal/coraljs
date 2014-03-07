@@ -1,18 +1,22 @@
 include header
 include scriptsAndStyles
-.dashboard
-    form.form-horizontal(action='/login', method='post')
-        .control-group
-            label.control-label(for='inputEmail') Email
-            .controls
-                input#inputEmail(type='text', placeholder='Email', name='user')
-        .control-group
-            label.control-label(for='inputPassword') Password
-            .controls
-                input#inputPassword(type='password', name='pass', placeholder='Password')
-        .control-group
-            .controls
-                label.checkbox
-                    input(type='checkbox')
-                    | Remember me
-                input.btn(type='submit') Sign in
+
+.container-fluid
+    .row-fluid
+        .col-md-2
+        .col-md-8
+            .col-md-4
+                form#login-form(role='form', action='/login', method='post')
+                    .form-group
+                        label.control-label(for='username') Email
+                        input.form-control#username(type='text', placeholder='Email', name='username', data-toggle="tooltip", data-placement="bottom")
+                    .form-group
+                        label.control-label(for='password') Password
+                        input.form-control#password(type='password', name='password', placeholder='Password', data-toggle="tooltip", data-placement="bottom")
+                    .form-group
+                        //label.checkbox
+                        //    input(type='checkbox')
+                        //    | Remember me
+                        input.btn.btn-primary(type='submit', value='Login')
+        .col-md-2
+script(src='/js/app/dashboard/login.js')

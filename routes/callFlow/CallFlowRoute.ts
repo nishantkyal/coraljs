@@ -29,7 +29,7 @@ class CallFlowRoute
     constructor(app)
     {
         // Actual rendered pages
-        app.get(Urls.callExpert(), RequestHandler.noCache, this.index.bind(this));
+        app.get(Urls.callExpert(), this.index.bind(this));
         app.get(Urls.userLogin(), Middleware.requireScheduleAndExpert.bind(this), this.authentication.bind(this));
         app.get(Urls.callDetails(), Middleware.requireScheduleAndExpert.bind(this), this.callDetails.bind(this));
         app.post(Urls.callDetails(), Middleware.requireScheduleAndExpert.bind(this), this.callDetailsUpdated.bind(this));
@@ -71,6 +71,7 @@ class CallFlowRoute
                 Middleware.setSelectedExpert(req, expert);
                 Middleware.setSelectedSchedule(req, null);
 
+                res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
                 res.render('callFlow/index', pageData);
             },
             function handleExpertSearchFailed(error) { res.status(401).json('Error getting expert details for id: ' + expertId)}

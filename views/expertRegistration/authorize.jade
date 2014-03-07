@@ -3,12 +3,12 @@ include header
 
 .container-fluid
     .row-fluid
-        .span2
-        .span8
+        .col-md-2
+        .col-md-8
             label #{integration.title} would like you to join them as an expert.
             label Continue?
             form(action="/integration/authorize/decision", method="post")
                 input(name="transaction_id", type="hidden", value="#{transactionID}")
                 input.btn-primary.btn(type="submit", value="Allow", id="allow")
                 input.btn.btn-danger(type="submit", value="Deny", name="cancel", id="cancel")
-        .span2
+        .col-md-2

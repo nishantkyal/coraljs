@@ -79,7 +79,21 @@ class VerificationCodeCache
 
     searchInvitationCode(code:string, integrationId:number):q.Promise<any>
     {
-        return CacheHelper.getFromHash('ic-' + integrationId, code);
+        return CacheHelper.getFromHash('ic-' + integrationId, code)
+            .then(
+            function invitationCodeSearched(invitedUser)
+            {
+                if (Utils.isNullOrEmpty(invitedUser))
+                    throw('Invalid invitation code');
+                else
+                    return invitedUser;
+            }
+        );
+    }
+
+    deleteInvitationCode(code:string, integrationId:number):q.Promise<any>
+    {
+        return CacheHelper.delFromHash('ic-' + integrationId, code);
     }
 }
 export = VerificationCodeCache

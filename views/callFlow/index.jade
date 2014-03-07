@@ -3,8 +3,8 @@ include scriptsAndStyles
 include header
 .container-fluid
     .row-fluid
-        .span2
-        .span8
+        .col-md-2
+        .col-md-8
             h4 Available Time Slots
             label
                 | Please pick
@@ -16,7 +16,7 @@ include header
                         .control-label
                             | Option #{i}
                         .controls
-                            select.span6.scheduleSelect(name='scheduleId')
+                            select.col-md-6.scheduleSelect(name='scheduleId')
                 .control-group
                     .controls
                         .btn.btn-primary
@@ -27,7 +27,7 @@ include header
                 small
                     b Note:&nbsp;
                     | Picking more slots will mean lesser back-and-forth communication with the expert for scheduling the call.
-        .span2
+        .col-md-2
 script.
 
     // Display schedules

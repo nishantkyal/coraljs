@@ -4,8 +4,8 @@ include header
 
 .container-fluid
     .row-fluid
-        .span2
-        .span8
+        .col-md-2
+        .col-md-8
             h4 Call Details
             .form-horizontal
                 .control-group
@@ -30,7 +30,7 @@ include header
             label
                 b Call with #{user.first_name}&nbsp;#{user.last_name}
                 .row-fluid
-                    .span2
+                    .col-md-2
                         label
                             | Duration:&nbsp;
                             span.duration 15
@@ -43,5 +43,5 @@ include header
                             span.call_total
             .pull-right
                 .btn.btn-primary Make Payment
-        .span2
+        .col-md-2
 script(src='callDetails.js')

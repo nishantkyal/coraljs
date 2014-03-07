@@ -1,16 +1,13 @@
 import BaseModel                                = require('./BaseModel')
 import Utils                                    = require('../common/Utils');
 import UserProfile                              = require('../models/UserProfile');
-/*
- Bean class for User
- */
+
 class User extends BaseModel
 {
     static TABLE_NAME:string = 'user';
 
     static FIRST_NAME:string = 'first_name';
     static LAST_NAME:string = 'last_name';
-    static MOBILE:string = 'mobile';
     static EMAIL:string = 'email';
     static PASSWORD:string = 'password';
     static VERIFIED:string = 'verified';
@@ -21,7 +18,6 @@ class User extends BaseModel
 
     private first_name:string;
     private last_name:string;
-    private mobile:string;
     private email:string;
     private password:string;
     private verified:boolean;
@@ -34,7 +30,6 @@ class User extends BaseModel
     /* Getters */
     getFirstName():string                                       { return this.first_name; }
     getLastName():string                                        { return this.last_name; }
-    getMobile():string                                          { return this.mobile; }
     getEmail():string                                           { return this.email; }
     getPassword():string                                        { return this.password; }
     getVerified():boolean                                       { return this.verified; }
@@ -45,13 +40,12 @@ class User extends BaseModel
     getUserProfile():UserProfile                                { return this.user_profile; }
 
     isValid():boolean {
-        return this.getId() != null && this.getId() != undefined;
+        return !Utils.isNullOrEmpty(this.getEmail());
     }
 
     /* Setters */
     setFirstName(val:string)                                    { this.first_name = val; }
     setLastName(val:string)                                     { this.last_name = val; }
-    setMobile(val:string)                                       { this.mobile = val; }
     setEmail(val:string)                                        { this.email = val; }
     setPassword(val:string)                                     { this.password = val; }
     setVerified(val:boolean)                                    { this.verified = val; }

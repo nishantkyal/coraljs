@@ -21,15 +21,15 @@ class ExpertRegistrationRoute
     constructor(app)
     {
         // Pages
-        app.get(Urls.index(), RequestHandler.noCache, this.authenticate);
+        app.get(Urls.index(), this.authenticate);
         app.get(Urls.authorization(), OAuthProviderDelegate.authorization, this.authorize);
         app.get(Urls.complete(), this.expertComplete);
 
         // Auth
         app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.index(), failureFlash: true}), this.authenticationSuccess);
-        app.post(Urls.register(), AuthenticationDelegate.register({failureFlash: true}), this.authenticationSuccess.bind(this));
-        app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {scope: ['r_basicprofile', 'r_emailaddress']}));
-        app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress']}), this.authenticationSuccess);
+        app.post(Urls.register(), AuthenticationDelegate.register({failureRedirect: Urls.index(), failureFlash: true}), this.authenticationSuccess.bind(this));
+        app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: Urls.index(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress']}));
+        app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: Urls.index(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress']}), this.authenticationSuccess);
         app.post(Urls.authorizationDecision(), OAuthProviderDelegate.decision);
     }
 
@@ -48,10 +48,11 @@ class ExpertRegistrationRoute
 
         new VerificationCodeCache().searchInvitationCode(invitationCode, integrationId)
             .then(
-            function verified()
+            function verified(invitedUser)
             {
                 req.session[ApiConstants.INTEGRATION_ID] = integrationId;
-                res.render('expertRegistration/authenticate', {'integration': integration, messages: req.flash()});
+                res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
+                res.render('expertRegistration/authenticate', {'integration': integration, messages: req.flash(), user: invitedUser});
             },
             function verificationFailed() { res.send(401, "This is an invite only section"); }
         );
@@ -70,20 +71,26 @@ class ExpertRegistrationRoute
         // Check if logged in member is already authorized
         var authorizationUrl = Urls.authorization() + '?response_type=code&client_id=' + integrationId + '&redirect_uri=' + redirectUrl;
 
-        new IntegrationMemberDelegate().search({user_id: user.id, integration_id: integrationId})
+        new VerificationCodeCache().deleteInvitationCode(req.session[ApiConstants.CODE], req.session[ApiConstants.INTEGRATION_ID])
             .then(
-            function expertSearched(members)
+            function invitationCodeDeleted()
             {
-                if (members.length == 0)
-                    res.redirect(authorizationUrl);
-                else
-                {
-                    req.session[ApiConstants.EXPERT] = members[0];
-                    res.redirect(Urls.complete());
-                }
+                return new IntegrationMemberDelegate().search({user_id: user.id, integration_id: integrationId})
+                    .then(
+                    function expertSearched(members)
+                    {
+                        if (members.length == 0)
+                            res.redirect(authorizationUrl);
+                        else
+                        {
+                            req.session[ApiConstants.EXPERT] = members[0];
+                            res.redirect(Urls.complete());
+                        }
+                    }
+                )
             },
             function expertSearchError(error) { res.send(500); }
-        )
+        );
     }
 
     /* Render authorization page */

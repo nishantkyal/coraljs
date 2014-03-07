@@ -3,8 +3,8 @@ include header
 
 .container-fluid
     .row-fluid
-        .span2
-        .span8
+        .col-md-2
+        .col-md-8
             label Congrats! You're now registered as an expert on #{integration.title}
             label We've sent you an email with all the information you'll need :)
             hr
@@ -17,21 +17,19 @@ include header
                 tbody
                     tr
                         td
-                            form.form-horizontal(method='post', onsubmit='return validateSchedule();')
+                            form.form(method='post', onsubmit='return validateSchedule();')
                                 each rule in schedule_rules
-                                    .control-group
-                                        .control-label
-                                            | #{rule.title}
-                                        .controls
-                                            .input-append.bootstrap-timepicker
-                                                input.input-small.timepicker(type='text') 11:45
-                                                span.add-on
-                                                    i.icon-time
-                                            | &nbsp;to&nbsp;
-                                            .input-append.bootstrap-timepicker
-                                                input.input-small.timepicker(type='text')
-                                                span.add-on
-                                                    i.icon-time
+                                    .form-group
+                                        label(for='') #{rule.title}
+                                        .input-group.bootstrap-timepicker
+                                            input.input-small.timepicker(type='text')
+                                            span.input-group-addon
+                                                i.icon-time
+                                        | &nbsp;to&nbsp;
+                                        .input-group-addon.bootstrap-timepicker
+                                            input.input-small.timepicker(type='text')
+                                            span.add-on
+                                                i.icon-time
                                 .control-group
                                     .controls
                                         input.btn.btn-primary(type='submit', value='Save')
@@ -41,12 +39,12 @@ include header
                                     .control-label
                                         | Phone Number
                                     .controls
-                                        input.span1#countryCode(type='text')
+                                        input.col-md-1#countryCode(type='text')
                                         input#mobile(type='text')
                                 .control-group
                                     .controls
                                         button.btn-primary.btn(onclick='handleSendVerificationCodeClicked()') Send Verification Code
-        .span2
+        .col-md-2
 
 #mobileVerificationModal(style='display: none;')
     .modal-dialog
@@ -77,4 +75,4 @@ script.
             });
     }
 
-script(src='/javascripts/app/expertRegistrationComplete.js')
+script(src='/js/app/expertRegistration/complete.js')

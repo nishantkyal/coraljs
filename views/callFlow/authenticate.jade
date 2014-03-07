@@ -12,15 +12,15 @@ include header
         }(document, 'script', 'facebook-jssdk'));
 .container-fluid
     .row-fluid
-        .span2
-        .span8
+        .col-md-2
+        .col-md-8
             .row-fluid
-                .span10
+                .col-md-10
                     b Please login to searchntalk.com or create an account to continue..
                 .pull-right
                     .btn(onclick='handleSkipClicked()') Skip >
             .row-fluid
-                .span5
+                .col-md-5
                     form.form-horizontal.left(action='/call/login', method='post')
                         .control-group
                             .control-label
@@ -40,8 +40,8 @@ include header
                         .control-group
                             .controls
                                 input.btn.btn-primary(type='submit', value='Login using FB')
-                .span1
-                .span2
+                .col-md-1
+                .col-md-2
                     form.form-horizontal.left(action='/call/register', method='post')
                         .control-group
                             .control-label
@@ -71,7 +71,7 @@ include header
                         .control-group
                             .controls
                                 input.btn.btn-primary(type='submit', value='Login')
-        .span2
+        .col-md-2
 script.
 
     function loginSuccess()
