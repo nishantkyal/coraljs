@@ -16,6 +16,8 @@ import IncludeFlag              = require('../enums/IncludeFlag');
  */
 class UserDelegate extends BaseDaoDelegate
 {
+    DEFAULT_FIELDS:string[] = [User.ID, User.FIRST_NAME, User.LAST_NAME, User.SHORT_DESC, User.LONG_DESC];
+
     update(criteria:any, newValues:any, transaction?:any):q.Promise<any>
     {
         delete newValues[User.ID];

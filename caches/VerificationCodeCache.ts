@@ -1,8 +1,9 @@
-import q                    = require('q');
-import Config               = require('../common/Config');
-import CacheHelper          = require('./CacheHelper');
-import Utils                = require('../common/Utils');
-import User                 = require('../models/User');
+///<reference path='../_references.d.ts'/>
+import q                                        = require('q');
+import Config                                   = require('../common/Config');
+import CacheHelper                              = require('./CacheHelper');
+import Utils                                    = require('../common/Utils');
+import IntegrationMember                        = require('../models/IntegrationMember');
 
 class VerificationCodeCache
 {
@@ -68,10 +69,10 @@ class VerificationCodeCache
             });
     }
 
-    createInvitationCode(integrationId:number, user:User):q.Promise<any>
+    createInvitationCode(integrationId:number, member:IntegrationMember):q.Promise<any>
     {
         var code = Utils.getRandomString(20, 'ABXDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890');
-        return CacheHelper.addToHash('ic-' + integrationId, code, user)
+        return CacheHelper.addToHash('ic-' + integrationId, code, member)
             .then(
             function codeCreated() { return code; }
         );
@@ -94,6 +95,11 @@ class VerificationCodeCache
     deleteInvitationCode(code:string, integrationId:number):q.Promise<any>
     {
         return CacheHelper.delFromHash('ic-' + integrationId, code);
+    }
+
+    getInvitationCodes(integrationId:number):q.Promise<any>
+    {
+        return CacheHelper.getHashValues('ic-' + integrationId);
     }
 }
 export = VerificationCodeCache

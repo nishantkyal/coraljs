@@ -1,9 +1,11 @@
 ///<reference path='../../_references.d.ts'/>
+import q                                                = require('q');
 import _                                                = require('underscore');
 import passport                                         = require('passport');
 import connect_ensure_login                             = require('connect-ensure-login');
 import express                                          = require('express');
 import log4js                                           = require('log4js');
+import ApiUrlDelegate                                   = require('../../delegates/ApiUrlDelegate');
 import AuthenticationDelegate                           = require('../../delegates/AuthenticationDelegate');
 import UserDelegate                                     = require('../../delegates/UserDelegate');
 import IntegrationMemberDelegate                        = require('../../delegates/IntegrationMemberDelegate');
@@ -22,28 +24,26 @@ import VerificationCodeCache                            = require('../../caches/
 
 class DashboardRoute
 {
-    static PAGE_LOGIN:string                = 'dashboard/login';
-    static PAGE_INTEGRATIONS:string         = 'dashboard/integrations';
-    static PAGE_USERS:string                = 'dashboard/integrationUsers';
-    static PAGE_PROFILE:string              = 'dashboard/expertProfile';
+    static PAGE_LOGIN:string = 'dashboard/login';
+    static PAGE_INTEGRATIONS:string = 'dashboard/integrations';
+    static PAGE_USERS:string = 'dashboard/integrationUsers';
+    static PAGE_PROFILE:string = 'dashboard/expertProfile';
+
+    integrationMemberDelegate = new IntegrationMemberDelegate();
+    userDelegate = new UserDelegate();
+    emailDelegate = new EmailDelegate();
+    verificationCodeCache = new VerificationCodeCache();
 
     constructor(app)
     {
         // Pages
-        app.get('/', connect_ensure_login.ensureLoggedIn(), this.authSuccess);
-        app.get('/login', this.login);
-        app.get('/integration/:integrationId/users', DashboardRouteMiddleware.allowOwnerOrAdmin, this.integrationUsers);
-        app.get('/expert/:expertId/profile', DashboardRouteMiddleware.allowSelf, this.expertProfile);
+        app.get('/', connect_ensure_login.ensureLoggedIn(), this.authSuccess.bind(this));
+        app.get('/login', this.login.bind(this));
+        app.get('/integration/:integrationId/users', DashboardRouteMiddleware.allowOwnerOrAdmin, this.integrationUsers.bind(this));
+        app.get('/expert/:expertId/profile', DashboardRouteMiddleware.allowSelf, this.expertProfile.bind(this));
 
         // Auth
-        app.post('/login', passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: '/login'}), this.authSuccess);
-        app.post('/register/mobile', this.generateMobileVerificationCode);
-        app.get('/register/mobile/verification', this.verifyMobileCode);
-
-        // APIs
-        app.del('/member/:memberId', DashboardRouteMiddleware.allowOwnerOrAdmin, this.deleteMember);
-        app.post('/expert/:expertId/profile', DashboardRouteMiddleware.allowExpert, this.saveMember)
-        app.post('/member/invite', DashboardRouteMiddleware.allowOwnerOrAdmin, this.inviteMember)
+        app.post('/login', passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: '/login'}), this.authSuccess.bind(this));
     }
 
     login(req:express.Request, res:express.Response)
@@ -55,7 +55,7 @@ class DashboardRoute
     {
         var user = req['user'];
 
-        new IntegrationMemberDelegate().searchByUser(user.id, null, [IncludeFlag.INCLUDE_INTEGRATION])
+        this.integrationMemberDelegate.searchByUser(user.id, null, [IncludeFlag.INCLUDE_INTEGRATION])
             .then(
             function integrationsFetched(integrationMembers)
             {
@@ -100,7 +100,7 @@ class DashboardRoute
 
         DashboardRouteMiddleware.setIntegrationId(req, integrationId);
 
-        var member = _.map(integrationMembers, function(member)
+        var member = _.map(integrationMembers, function (member)
         {
             return member['integration_id'] === integrationId ? member : null;
         });
@@ -110,11 +110,17 @@ class DashboardRoute
         var search = {};
         search[IntegrationMember.INTEGRATION_ID] = integrationId;
 
-        new IntegrationMemberDelegate().search(search, null, [IncludeFlag.INCLUDE_USER])
+        q.all([
+                this.integrationMemberDelegate.search(search, null, this.integrationMemberDelegate.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER]),
+                this.verificationCodeCache.getInvitationCodes(integrationId)
+            ])
             .then(
-            function membersFetched(members)
+            function membersFetched(...results)
             {
-                _.each(members, function(member)
+                var members = results[0][0];
+                var invitedMembers = results[0][1];
+
+                _.each(members, function (member)
                 {
                     member['role'] = IntegrationMemberRole[member['role']];
                 });
@@ -134,7 +140,7 @@ class DashboardRoute
     {
         var user = req['user'];
         var integrationMembers = DashboardRouteMiddleware.getIntegrationMembers(req);
-        var member = new IntegrationMember(_.map(integrationMembers, function(member)
+        var member = new IntegrationMember(_.map(integrationMembers, function (member)
         {
             return member['user_id'] === user.id ? member : null;
         })[0]);
@@ -152,12 +158,12 @@ class DashboardRoute
 
     deleteMember(req:express.Request, res:express.Response)
     {
-        var memberId = req.params['memberId'];
-        new IntegrationMemberDelegate().delete(memberId)
+        var memberId = req.params[ApiConstants.EXPERT_ID];
+        this.integrationMemberDelegate.delete(memberId)
             .then(
-                function deleteSuccess() { res.send(200); },
-                function deleteFailed(error) { res.send(500, error); }
-            );
+            function deleteSuccess() { res.send(200); },
+            function deleteFailed(error) { res.send(500, error); }
+        );
     }
 
     saveMember(req:express.Request, res:express.Response)
@@ -167,11 +173,11 @@ class DashboardRoute
         newUser.setId(null);
         var user:User = new User(_.extend(req['user'], newUser.toJson()));
 
-        new UserDelegate().update({id: user.getId()}, user.toJson())
+        this.userDelegate.update({id: user.getId()}, user.toJson())
             .then(
-                function userUpdated() { res.redirect('/expert/' + expertId + '/profile'); },
-                function userUpdateError(error) { res.send(500, error); }
-            )
+            function userUpdated() { res.redirect('/expert/' + expertId + '/profile'); },
+            function userUpdateError(error) { res.send(500, error); }
+        )
     }
 
     inviteMember(req:express.Request, res:express.Response)
@@ -180,11 +186,11 @@ class DashboardRoute
         var role = req.body['role'];
         var integrationId = DashboardRouteMiddleware.getIntegrationId(req);
 
-        new EmailDelegate().sendExpertInvitationEmail(integrationId, user)
+        this.emailDelegate.sendExpertInvitationEmail(integrationId, user)
             .then(
-                function emailSent() { res.send(200); },
-                function emailSendError(error) { res.send(500, error); }
-            );
+            function emailSent() { res.send(200); },
+            function emailSendError(error) { res.send(500, error); }
+        );
     }
 
     generateMobileVerificationCode(req:express.Request, res:express.Response)
@@ -193,7 +199,7 @@ class DashboardRoute
         var countryCode:string = req.body['countryCode'];
         var codeRef:string;
 
-        new VerificationCodeCache().createMobileVerificationCode()
+        this.verificationCodeCache.createMobileVerificationCode()
             .then(
             function codeGenerated(result)
             {
@@ -217,7 +223,7 @@ class DashboardRoute
         var code = req.query[ApiConstants.CODE];
         var ref = req.query[ApiConstants.CODE_VERIFICATION];
 
-        new VerificationCodeCache().searchMobileVerificationCode(code, ref)
+        this.verificationCodeCache.searchMobileVerificationCode(code, ref)
             .then(
             function codeVerified(result) { res.send(result); },
             function codeVerifyError(err) { res.send(500); }
@@ -231,9 +237,11 @@ class DashboardRouteMiddleware
     private static SESSION_INTEGRATION_ID:string = 'integration_id';
 
     static setIntegrationMembers(req, integrationMembers:any):void { req.session[DashboardRouteMiddleware.SESSION_INTEGRATION_MEMBERS] = integrationMembers; }
+
     static getIntegrationMembers(req):any { return req.session[DashboardRouteMiddleware.SESSION_INTEGRATION_MEMBERS]; }
 
     static setIntegrationId(req, integrationId:number):void { req.session[DashboardRouteMiddleware.SESSION_INTEGRATION_ID] = integrationId; }
+
     static getIntegrationId(req):any { return req.session[DashboardRouteMiddleware.SESSION_INTEGRATION_ID]; }
 
     static allowOwnerOrAdmin(req:express.Request, res:express.Response, next:Function)
@@ -247,7 +255,7 @@ class DashboardRouteMiddleware
         if (isAdmin || isOwner)
             next();
         else
-            // TODO: Change to error flash and then redirect
+        // TODO: Change to error flash and then redirect
             res.redirect('/login');
     }
 

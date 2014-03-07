@@ -1,17 +1,19 @@
 ///<reference path='../_references.d.ts'/>
 import express                                              = require('express');
+import AccessControl                                        = require('../middleware/AccessControl');
 import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
 import TemporaryTokenType                                   = require('../enums/TemporaryTokenType');
 import ApiConstants                                         = require('../enums/ApiConstants');
 import VerificationCodeCache                                = require('../caches/VerificationCodeCache');
 import Utils                                                = require('../common/Utils');
 import User                                                 = require('../models/User');
+import IntegrationMember                                    = require('../models/IntegrationMember');
 
 class TokenApi
 {
     constructor(app)
     {
-        app.get(ApiUrlDelegate.tempToken(), function (req:express.Request, res:express.Response)
+        app.get(ApiUrlDelegate.tempToken(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
         {
             var tokenType:number = parseInt(TemporaryTokenType[req.query[ApiConstants.TYPE]]);
 
@@ -63,7 +65,7 @@ class TokenApi
             }
         });
 
-        app.put(ApiUrlDelegate.tempToken(), function (req:express.Request, res:express.Response)
+        app.put(ApiUrlDelegate.tempToken(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
             var tokenType:number = parseInt(TemporaryTokenType[req.body[ApiConstants.TYPE]]);
 
@@ -77,20 +79,25 @@ class TokenApi
                     )
                     break;
                 case TemporaryTokenType.EXPERT_INVITATION:
+
                     var user:User = req.body[ApiConstants.USER];
-                    var integrationId:number = req.body[ApiConstants.INTEGRATION_ID];
-                    new VerificationCodeCache().createInvitationCode(integrationId, user)
+                    var member:IntegrationMember = req.body[ApiConstants.INTEGRATION_MEMBER];
+                    member.setUser(user);
+                    var integrationId:number = member.getIntegrationId();
+
+                    new VerificationCodeCache().createInvitationCode(integrationId, member)
                         .then(
-                        function codeCreated(result) { res.send(result); },
-                        function codeCreationFailed(error) { res.send(500); }
+                        function codeCreated() { res.send(200); },
+                        function codeCreationFailed() { res.send(500); }
                     )
+
                     break;
                 case TemporaryTokenType.PASSWORD_RESET:
                     var userId:number = req.body[ApiConstants.USER_ID];
                     new VerificationCodeCache().createPasswordResetCode(userId)
                         .then(
                         function codeCreated(result) { res.send(result); },
-                        function codeCreationFailed(error) { res.send(500); }
+                        function codeCreationFailed() { res.send(500); }
                     )
                     break;
                 case TemporaryTokenType.EMAIL_VERIFICATION:

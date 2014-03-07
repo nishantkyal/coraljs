@@ -1,3 +1,5 @@
+///<reference path='../_references.d.ts'/>
+import validator                                = require('validator');
 import BaseModel                                = require('./BaseModel')
 import Utils                                    = require('../common/Utils');
 import UserProfile                              = require('../models/UserProfile');
@@ -40,7 +42,7 @@ class User extends BaseModel
     getUserProfile():UserProfile                                { return this.user_profile; }
 
     isValid():boolean {
-        return !Utils.isNullOrEmpty(this.getEmail());
+        return !Utils.isNullOrEmpty(this.getEmail()) && validator.isEmail(this.getEmail());
     }
 
     /* Setters */

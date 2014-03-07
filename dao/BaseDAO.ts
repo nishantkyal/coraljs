@@ -94,7 +94,7 @@ class BaseDao implements IDao
             });
     }
 
-    search(searchQuery:Object, options?:Object):q.Promise<any>
+    search(searchQuery:Object, options?:Object, fields?:string[]):q.Promise<any>
     {
         var self = this, values = [], whereStatements = [], selectColumns;
 
@@ -102,7 +102,7 @@ class BaseDao implements IDao
         var wheres:string[] = whereStatements['where'];
         var values:any[] = whereStatements['values'];
 
-        selectColumns = options && !Utils.isNullOrEmpty(options['fields']) ? options['fields'].join(',') : '*';
+        selectColumns = Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
 
         var queryString = 'SELECT ' + selectColumns + ' FROM ' + this.tableName + ' WHERE ' + wheres.join(' AND ');
 

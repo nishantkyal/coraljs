@@ -22,53 +22,53 @@ include header
             .row-fluid
                 .col-md-5
                     form.form-horizontal.left(action='/call/login', method='post')
-                        .control-group
+                        .form-group
                             .control-label
                                 | Email
                             .controls
                                 input(type='text', name='user')
-                        .control-group
+                        .form-group
                             .control-label
                                 | Password
                             .controls
                                 input(type='password', name='pass')
-                        .control-group
+                        .form-group
                             .controls
                                 input.btn.btn-primary(type='submit', value='Login')
 
                     form.form-horizontal.left(action='/call/login/fb', method='get')
-                        .control-group
+                        .form-group
                             .controls
                                 input.btn.btn-primary(type='submit', value='Login using FB')
                 .col-md-1
                 .col-md-2
                     form.form-horizontal.left(action='/call/register', method='post')
-                        .control-group
+                        .form-group
                             .control-label
                                 | Email
                             .controls
                                 input(type='text', name='email')
-                        .control-group
+                        .form-group
                             .control-label
                                 | First Name
                             .controls
                                 input(type='text', name='first_name')
-                        .control-group
+                        .form-group
                             .control-label
                                 | Last Name
                             .controls
                                 input(type='text', name='last_name')
-                        .control-group
+                        .form-group
                             .control-label
                                 | Password
                             .controls
                                 input(type='password', name='password')
-                        .control-group
+                        .form-group
                             .control-label
                                 | Confirm Password
                             .controls
                                 input(type='password', name='confirm_password')
-                        .control-group
+                        .form-group
                             .controls
                                 input.btn.btn-primary(type='submit', value='Login')
         .col-md-2

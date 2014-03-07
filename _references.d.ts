@@ -25,3 +25,4 @@
 ///<reference path='../DefinitelyTyped/watch/watch.d.ts'/>
 ///<reference path='../DefinitelyTyped/moment/moment.d.ts'/>
 ///<reference path='../DefinitelyTyped/connect-ensure-login/connect-ensure-login.d.ts'/>
+///<reference path='../DefinitelyTyped/validator/validator.d.ts'/>

@@ -12,12 +12,12 @@ include header
                 | that fit your schedule. We'll send these to expert and get his confirmation for the call
             form.form-horizontal(action='/call/auth', method='get')
                 - for (var i = 1; i <= 3; i++)
-                    .control-group
+                    .form-group
                         .control-label
                             | Option #{i}
                         .controls
                             select.col-md-6.scheduleSelect(name='scheduleId')
-                .control-group
+                .form-group
                     .controls
                         .btn.btn-primary
                             i.icon-plus.icon-white

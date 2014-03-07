@@ -20,6 +20,9 @@ import ExpertScheduleRuleDelegate           = require('../delegates/ExpertSchedu
 
 class IntegrationMemberDelegate extends BaseDaoDelegate
 {
+    DEFAULT_FIELDS:string[] = [IntegrationMember.ID, IntegrationMember.INTEGRATION_ID, IntegrationMember.ROLE];
+    DASHBOARD_FIELDS:string[] = [IntegrationMember.ID, IntegrationMember.INTEGRATION_ID, IntegrationMember.ROLE, IntegrationMember.REVENUE_SHARE, IntegrationMember.REVENUE_SHARE_UNIT];
+
     create(object:Object, transaction?:any):q.Promise<any>
     {
         var integrationMember = new IntegrationMember(object);
@@ -67,7 +70,7 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
         search[IntegrationMember.USER_ID] = user_id;
 
         fields = fields || ['id', 'role', 'integration_id', 'user_id'];
-        return this.search(search, {'fields': fields}, includes);
+        return this.search(search, null, fields, includes);
     }
 
     findValidAccessToken(accessToken:string, integrationMemberId?:string):q.Promise<any>

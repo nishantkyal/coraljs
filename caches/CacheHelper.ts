@@ -27,7 +27,7 @@ class CacheHelper
             if (error)
                 deferred.reject(error);
             else
-                deferred.resolve(null);
+                deferred.resolve(JSON.parse(result));
         });
         return deferred.promise;
 
@@ -39,7 +39,7 @@ class CacheHelper
         this.getConnection().get(key, function(error, result)
         {
             if (error)
-                deferred.reject(null);
+                deferred.reject(error);
             else
                 deferred.resolve(JSON.parse(result));
         });
@@ -52,7 +52,7 @@ class CacheHelper
         this.getConnection().del(key, function(error, result)
         {
             if (error)
-                deferred.reject(null);
+                deferred.reject(error);
             else
                 deferred.resolve(JSON.parse(result));
         });
@@ -76,7 +76,7 @@ class CacheHelper
                         {
                             CacheHelper.del(set);
                         }, expiry);
-                    return deferred.resolve(result);
+                    return deferred.resolve(JSON.parse(result));
                 }
                 else
                     return CacheHelper.createHash(set, clonedValues, keyFieldName, expiry);
@@ -93,7 +93,7 @@ class CacheHelper
                 CacheHelper.getConnection().hset(set, key, JSON.stringify(value), function(error, result)
                 {
                     if (error)
-                        deferred.reject(null);
+                        deferred.reject(error);
                     else
                         deferred.resolve(JSON.parse(result));
                 })
@@ -106,13 +106,8 @@ class CacheHelper
         var deferred = q.defer();
         this.getConnection().hvals(set, function(error, result)
         {
-            if (result && result.length != 0) {
-                var values = [];
-                for (var i = 0; i < result.length; i++) {
-                    values.push(JSON.parse(result[i]));
-                }
-                deferred.resolve(values);
-            }
+            if (result)
+                deferred.resolve(JSON.parse(result));
             else
                 deferred.reject(error);
         });
@@ -124,10 +119,10 @@ class CacheHelper
         var deferred = q.defer();
         this.getConnection().hkeys(set, function(error, result)
         {
-            if (result && result.length != 0)
-                deferred.resolve(result);
+            if (result)
+                deferred.resolve(JSON.parse(result));
             else
-                deferred.reject(null);
+                deferred.reject(error);
         });
         return deferred.promise;
     }
@@ -138,7 +133,7 @@ class CacheHelper
         this.getConnection().hget(set, key, function(error, result)
         {
             if (error)
-                deferred.reject(null);
+                deferred.reject(error);
             else
                 deferred.resolve(JSON.parse(result));
         });
@@ -151,7 +146,7 @@ class CacheHelper
         this.getConnection().hdel(set, key, function(error, result)
         {
             if (error)
-                deferred.reject(null);
+                deferred.reject(error);
             else
                 deferred.resolve(JSON.parse(result));
         });
@@ -169,7 +164,7 @@ class CacheHelper
                 CacheHelper.getConnection().hset(set, key, JSON.stringify(value), function(error, result)
                 {
                     if (error)
-                        deferred.reject(null);
+                        deferred.reject(error);
                     else
                         deferred.resolve(JSON.parse(result));
                 });
@@ -203,13 +198,8 @@ class CacheHelper
         {
             CacheHelper.getConnection().zrange(set, 0, count, function(error, result)
             {
-                if (result && result.length != 0) {
-                    var values = [];
-                    for (var i = 0; i < result.length; i++) {
-                        values.push(JSON.parse(result[i]));
-                    }
-                    deferred.resolve(values);
-                }
+                if (result)
+                    deferred.resolve(JSON.parse(result));
                 else
                     deferred.reject(error);
             });
@@ -223,7 +213,7 @@ class CacheHelper
         this.getConnection().zrevrangebyscore(set, key, key, function(error, result)
         {
             if (error)
-                deferred.reject(null);
+                deferred.reject(error);
             else
                 deferred.resolve(JSON.parse(result));
         });
@@ -236,7 +226,7 @@ class CacheHelper
         return this.getConnection().zremrangebyscore(set, key, key, function(error, result)
         {
             if (error)
-                deferred.reject(null);
+                deferred.reject(error);
             else
                 deferred.resolve(JSON.parse(result));
         });
@@ -249,7 +239,7 @@ class CacheHelper
         return this.getConnection().expire(key, expiry, function(error, result)
         {
             if (error)
-                deferred.reject(null);
+                deferred.reject(error);
             else
                 deferred.resolve(JSON.parse(result));
         });

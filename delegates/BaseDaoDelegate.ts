@@ -12,13 +12,19 @@ class BaseDaoDelegate
 {
     logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
 
+    DEFAULT_FIELDS:string[] = [BaseModel.ID];
+    TIMESTAMPS_FIELDS:string[] = [BaseModel.CREATED, BaseModel.DELETED, BaseModel.UPDATED];
+
     get(id:any, fields?:string[], includes:IncludeFlag[] = []):q.Promise<any>
     {
+        fields = fields || this.DEFAULT_FIELDS;
+
         if (Utils.getObjectType(id) == 'Array' && id.length > 0)
-            return this.search({'id': id}, {'fields': fields}, includes);
+            return this.search({'id': id}, null, fields, includes);
 
         if (Utils.getObjectType(id) == 'Array' && id.length == 1)
             id = id[0];
+
 
         var self = this;
         var rawResult;
@@ -64,12 +70,14 @@ class BaseDaoDelegate
      * @param supplimentaryModelFields
      * @returns {q.Promise<any>}
      */
-    search(search:Object, options?:Object, includes:IncludeFlag[] = []):q.Promise<any>
+    search(search:Object, options?:Object, fields?:string[], includes:IncludeFlag[] = []):q.Promise<any>
     {
         var self = this;
         var rawResult;
 
-        return this.getDao().search(search, options)
+        fields = fields || this.DEFAULT_FIELDS;
+
+        return this.getDao().search(search, options, fields)
             .then(
             function processIncludes(result)
             {

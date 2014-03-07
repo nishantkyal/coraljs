@@ -20,6 +20,9 @@ class IntegrationMember extends BaseModel
     static ACCESS_TOKEN_EXPIRY:string = 'access_token_expiry';
     static REFRESH_TOKEN:string = 'refresh_token';
     static REFRESH_TOKEN_EXPIRY:string = 'refresh_token_expiry';
+    static REVENUE_SHARE:string = 'revenue_share';
+    static REVENUE_SHARE_UNIT:string = 'revenue_share_unit';
+
     static INTEGRATION:string = 'integration';
 
     private integration_id:number;
