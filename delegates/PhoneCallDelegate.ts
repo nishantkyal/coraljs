@@ -10,9 +10,11 @@ import UserPhoneDelegate            = require('./UserPhoneDelegate');
 import EmailDelegate                = require('./EmailDelegate');
 import CallStatus                   = require('../enums/CallStatus');
 import ApiFlags                     = require('../enums/ApiFlags');
+import PhoneType                    = require('../enums/PhoneType');
 import PhoneCall                    = require('../models/PhoneCall');
 import User                         = require('../models/User');
 import UserPhone                    = require('../models/UserPhone');
+import IntegrationMember            = require('../models/IntegrationMember');
 import UnscheduledCallsCache        = require('../caches/UnscheduledCallsCache');
 import UserDelegate                 = require('../delegates/UserDelegate');
 import Config                       = require('../common/Config');
@@ -111,32 +113,34 @@ class PhoneCallDelegate extends BaseDAODelegate
         return super.getIncludeHandler(include, result);
     }
 
-    triggerCall(callId:number, url:string):any
+    triggerCall(callId:number, url:string, callbackUrl:string):any
     {
-        var client = require('twilio')(Config.get('twilio.account_sid'), Config.get('twilio.auth_token'));
+        var twilioClient = require('twilio')(Config.get('twilio.account_sid'), Config.get('twilio.auth_token'));
         var user:User;
         new PhoneCallDelegate().get(callId, null, [ApiFlags.INCLUDE_USER])
             .then(
             function callFetched(call:PhoneCall)
             {
                 user = call[ApiFlags.INCLUDE_USER];
+                var options = ['status_callback']
                 new UserPhoneDelegate().getByUserId(user.getId())
                     .then(
                     function PhoneRecord(userPhone:UserPhone[])
                     {
                         var phoneNumber:string = '+' + userPhone[0].getCountryCode();
-                        if(userPhone[0].getType() == 1) //TODO create model for phone_type
+                        if(userPhone[0].getType() == PhoneType.LANDLINE)
                             phoneNumber += userPhone[0].getAreaCode();
                         phoneNumber += userPhone[0].getPhone();
 
-                        client.calls.create({
+                        twilioClient.makeCall({
                             url: url,
                             to: phoneNumber,
                             from: Config.get('twilio.number'),
-                            method: "GET"
+                            method: "GET",
+                            StatusCallback: callbackUrl
                         }, function(err, call) {
                             if(err)
-                                console.log('Error');
+                                console.log('Error'); // TODO change this to rescheduling function
                             if(call)
                                 console.log(call.sid);
                         });

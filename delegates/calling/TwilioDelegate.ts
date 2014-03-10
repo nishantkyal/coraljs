@@ -10,10 +10,11 @@ class TwilioDelegate implements ICallingVendorDelegate
     sendSMS(to:string, body:string, from?:string):q.Promise<any>
     {
         var deferred = q.defer();
-        twilio.sendMessage({
+        var client = require('twilio')(Config.get('twilio.account_sid'), Config.get('twilio.auth_token'));
+        client.sendMessage({
 
             to: to,
-            from: '+17068727043',
+            from: Config.get('twilio.number'),
             body: body
 
         }, function (err, responseData)

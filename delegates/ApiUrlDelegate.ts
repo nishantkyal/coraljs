@@ -89,10 +89,6 @@ class ApiUrlDelegate
     static twimlCallExpert(callId?:number):string { return this.get('/rest/twiml/call/:callId/expert', {callId: callId}); }
     static twimlCall(callId?:number):string { return this.get('/rest/twiml/call/:callId', {callId: callId}); }
 
-
-    static twimlGenerateCall(callId?:number):string { return this.get('/rest/twiml/calling/:callId', {callId: callId}); }
-    static twimlJoinCall(callId?:number):string { return this.get('/rest/twiml/join/:callId', {callId: callId}); }
-
     static exotel():string { return this.get('/rest/exotel'); }
     static exotelAddExpert():string { return this.get('/rest/exotelAddExpert'); }
 

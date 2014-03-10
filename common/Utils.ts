@@ -35,13 +35,21 @@ class Utils
         return deferred.promise;
     }
     */
-
-    static isNullOrEmpty(str:any):boolean
+    static getObjectType(obj:any):string
     {
-        if(typeof str == 'string')
-            return str == null || str == undefined || str.toString().trim().length == 0;
+        var type:string = Object.prototype.toString.call(obj).replace('[object ', '').replace(']', '');
+        return type === 'Object' ? obj.toString().replace('[object ', '').replace(']', '') : type;
+    }
+
+    static isNullOrEmpty(val:any):boolean
+    {
+        var objectType:string = this.getObjectType(val);
+        if (objectType == 'Array' || objectType == 'String')
+            return val.length == 0;
+        if (objectType == 'Number' && isNaN(val))
+            return true;
         else
-            return isNaN(str);
+            return val == null || val == undefined;
     }
 
     static getClassName(object:Object):string
