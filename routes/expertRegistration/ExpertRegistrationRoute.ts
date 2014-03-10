@@ -1,4 +1,5 @@
 ///<reference path='../../_references.d.ts'/>
+import q                                                    = require('q');
 import express                                              = require('express');
 import passport                                             = require('passport');
 import RequestHandler                                       = require('../../middleware/RequestHandler');
@@ -74,25 +75,18 @@ class ExpertRegistrationRoute
         // Check if logged in member is already authorized
         var authorizationUrl = Urls.authorization() + '?response_type=code&client_id=' + integrationId + '&redirect_uri=' + redirectUrl;
 
-        new VerificationCodeCache().deleteInvitationCode(req.session[ApiConstants.CODE], req.session[ApiConstants.INTEGRATION_ID])
+        return new IntegrationMemberDelegate().find({user_id: user.id, integration_id: integrationId})
             .then(
-            function invitationCodeDeleted()
+            function expertSearched(member)
             {
-                return new IntegrationMemberDelegate().search({user_id: user.id, integration_id: integrationId})
-                    .then(
-                    function expertSearched(members)
-                    {
-                        if (members.length == 0)
-                            res.redirect(authorizationUrl);
-                        else
-                        {
-                            req.session[ApiConstants.EXPERT] = members[0];
-                            res.redirect(Urls.complete());
-                        }
-                    }
-                )
+                req.session[ApiConstants.EXPERT] = member;
+
+                if (Utils.isNullOrEmpty(member))
+                    res.redirect(authorizationUrl);
+                else
+                    res.redirect(Urls.complete());
             },
-            function expertSearchError(error) { res.send(500); }
+            function expertSearchError() { res.send(500); }
         );
     }
 
@@ -104,7 +98,7 @@ class ExpertRegistrationRoute
             {
                 'transactionID': req['oauth2']['transactionID'],
                 'user': new User(req.user.data),
-                'integration': new IntegrationDelegate().get(integrationId)
+                'integration': new IntegrationDelegate().getSync(integrationId)
             });
     }
 
@@ -114,7 +108,10 @@ class ExpertRegistrationRoute
         var integration = new IntegrationDelegate().getSync(integrationId);
         var userId = req['user'].id;
 
-        new IntegrationMemberDelegate().search({'user_id': userId, 'integration_id': integrationId}, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
+        q.all([
+                new VerificationCodeCache().deleteInvitationCode(req.session[ApiConstants.CODE], req.session[ApiConstants.INTEGRATION_ID]),
+                new IntegrationMemberDelegate().search({'user_id': userId, 'integration_id': integrationId}, null, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
+            ])
             .then(
             function scheduleRulesFetched(members)
             {

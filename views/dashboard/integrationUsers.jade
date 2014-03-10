@@ -13,27 +13,28 @@ include scriptsAndStyles
                         .btn-primary.btn.save(data-toggle='modal', href='#inviteUserModal')
                             i.icon-plus.icon-white
                             | &nbsp;Invite Member
-            table.table-bordered.table-striped.table#users
+            table.table-bordered.table#users
                 thead
                     tr
                         th First Name
                         th Last Name
                         th.col-md-3 Revenue Share
-                        th.col-md-2 Role
+                        th.col-md-1 Role
+                        th.col-md-1 Status
                         th.col-md-1 Actions
                 tbody
                 each member in integrationMembers
-                    each user in member.user
-                        if user.id == member.user_id
-                            tr(data-id=member.id, class=(member.deleted != null ? 'danger' : ''))
-                                td #{user.first_name}
-                                td #{user.last_name}
-                                td #{member.revenue_share}%
-                                td #{member.role}
-                                td
-                                    a.fa.fa-pencil.save(data-id=member.id, data-toggle='modal', href=member.user_id != logged_in_user.id ? '/expert/' + member.id + '/profile' : '#editUserModal')
-                                    | &nbsp;
-                                    a.remove.fa.fa-times-circle(data-id=member.id, data-toggle='modal', href='#delUserModal', style="color: red")
+                    tr(class=((member.deleted == null || member.deleted == 0) ? (member.id != undefined ? '' : 'active') : 'danger'))
+                        td #{member.user.first_name}
+                        td #{member.user.last_name}
+                        td #{member.revenue_share}
+                        td #{member.role}
+                        td #{member.id != undefined ? 'Active' : 'Invited'}
+                        td(style='text-align: center;')
+                            if (member.id != undefined && (member.deleted == null || member.deleted == 0))
+                                a.fa.fa-pencil.save(data-id=member.id, data-toggle='modal', href=(member.user.id == logged_in_user.id ? '/member/' + member.id + '/profile' : '#editUserModal'))
+                            else if (member.id == undefined)
+                                .btn.btn-default.btn-xs Resend Invite
         .col-md-2
 
 #inviteUserModal.modal.fade(style='display: none;')
@@ -83,12 +84,12 @@ include scriptsAndStyles
                     .form-group
                         label.control-label(for='revenueShare') Revenue Share
                         .input-group
-                            .input-group-btn
-                                select.selectpicker(data-width='auto')
-                                    option $
-                                    option Rs.
-                                    option %
                             input.form-control#revenueShare(type='text', name='revenue_share')
+                            .input-group-btn
+                                select.selectpicker#revenueShareUnit(data-width='auto', name='revenue_share_unit')
+                                    option(value='1') $
+                                    option(value='2') Rs.
+                                    option(value='3') %
                     .form-group
                         label.control-label(for='role') Role
                         select.selectpicker.form-control#role

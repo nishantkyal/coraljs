@@ -8,6 +8,7 @@ class User extends BaseModel
 {
     static TABLE_NAME:string = 'user';
 
+    static title:string = 'title';
     static FIRST_NAME:string = 'first_name';
     static LAST_NAME:string = 'last_name';
     static EMAIL:string = 'email';
@@ -18,6 +19,7 @@ class User extends BaseModel
     static LONG_DESC:string = 'long_desc';
     static USER_PROFILE:string = 'user_profile';
 
+    private title:string;
     private first_name:string;
     private last_name:string;
     private email:string;
@@ -30,6 +32,7 @@ class User extends BaseModel
     private user_profile:UserProfile;
 
     /* Getters */
+    getTitle():string                                           { return this.title; }
     getFirstName():string                                       { return this.first_name; }
     getLastName():string                                        { return this.last_name; }
     getEmail():string                                           { return this.email; }
@@ -46,6 +49,7 @@ class User extends BaseModel
     }
 
     /* Setters */
+    setTitle(val:string)                                        { this.title = val; }
     setFirstName(val:string)                                    { this.first_name = val; }
     setLastName(val:string)                                     { this.last_name = val; }
     setEmail(val:string)                                        { this.email = val; }

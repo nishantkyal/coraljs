@@ -7,6 +7,7 @@ import IntegrationMemberDelegate                                    = require('.
 import Integration                                                  = require('../models/Integration');
 import IntegrationMember                                            = require('../models/IntegrationMember');
 import IntegrationMemberRole                                        = require('../enums/IntegrationMemberRole');
+import IntegrationType                                              = require('../enums/IntegrationType');
 import Utils                                                        = require('../common/Utils');
 
 /*
@@ -15,7 +16,7 @@ import Utils                                                        = require('.
 class OAuthProviderDelegate
 {
     private static server:oauth2orize.Server = oauth2orize.createServer();
-    private static logger:log4js.Logger = log4js.getLogger(Utils.getClassName('OAuthProviderDelegate'));
+    private static logger:log4js.Logger = log4js.getLogger('OAuthProviderDelegate');
 
     static authorization = [
         connect_ensure_login.ensureLoggedIn(),
@@ -24,19 +25,24 @@ class OAuthProviderDelegate
             {
                 var search = {};
                 search[Integration.ID] = integrationId;
-                search[Integration.REDIRECT_URL] = redirectURI;
 
-                new IntegrationDelegate().search(search)
+                var integrationDelegate = new IntegrationDelegate()
+                integrationDelegate.find(search)
                     .then(
-                    function integrationFetched(integrations)
+                    function integrationFetched(integration)
                     {
-                        if (integrations.length != 0)
+                        if (Utils.isNullOrEmpty(integration))
                         {
-                            OAuthProviderDelegate.logger.warn('Oauth code exchange failed because of invalid redirect url for integration id, %s', integrationId);
+                            OAuthProviderDelegate.logger.warn('Oauth code exchange failed because of INVALID INTEGRATION ID, %s', integrationId);
+                            return done('An error occurred');
+                        }
+                        else if (integration.getIntegrationType() != IntegrationType.SHOP_IN_SHOP && integration.getRedirectUrl() != redirectURI)
+                        {
+                            OAuthProviderDelegate.logger.warn('Oauth code exchange failed because of INVALID REDIRECT URL %s for integration id ', redirectURI, integrationId);
                             return done('An error occurred');
                         }
                         else
-                            return done(null, integrations[0], redirectURI);
+                            return done(null, integration, redirectURI);
                     },
                     function integrationFetchError(error) { done(error); }
                 );
@@ -58,7 +64,7 @@ class OAuthProviderDelegate
 
         OAuthProviderDelegate.server.deserializeClient(function (integrationId, done)
         {
-            var integration = new IntegrationDelegate().get(integrationId);
+            var integration = new IntegrationDelegate().getSync(integrationId);
             return !Utils.isNullOrEmpty(integration) ? done(null, integration) : done('No integration found for integrationId: ' + integrationId);
         });
 

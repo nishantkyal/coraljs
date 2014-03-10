@@ -21,7 +21,7 @@ import ExpertScheduleRuleDelegate           = require('../delegates/ExpertSchedu
 class IntegrationMemberDelegate extends BaseDaoDelegate
 {
     DEFAULT_FIELDS:string[] = [IntegrationMember.ID, IntegrationMember.INTEGRATION_ID, IntegrationMember.ROLE];
-    DASHBOARD_FIELDS:string[] = [IntegrationMember.ID, IntegrationMember.INTEGRATION_ID, IntegrationMember.ROLE, IntegrationMember.REVENUE_SHARE, IntegrationMember.REVENUE_SHARE_UNIT];
+    DASHBOARD_FIELDS:string[] = [IntegrationMember.ID, IntegrationMember.INTEGRATION_ID, IntegrationMember.ROLE, IntegrationMember.USER_ID, IntegrationMember.REVENUE_SHARE, IntegrationMember.REVENUE_SHARE_UNIT];
 
     create(object:Object, transaction?:any):q.Promise<any>
     {
@@ -101,9 +101,9 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
         );
     }
 
-    updateById(id:string, integrationMember:IntegrationMember):q.Promise<any>
+    updateById(id:number, integrationMember:IntegrationMember):q.Promise<any>
     {
-        return this.update({'integration_member_id': id}, integrationMember);
+        return this.update({'id': id}, integrationMember);
     }
 
     getDao():IDao { return new IntegrationMemberDAO(); }

@@ -29,7 +29,7 @@ class ExpertApi
             var searchCriteria:Object = req.body;
             var includes:IncludeFlag[] = [].concat(req.query[ApiConstants.INCLUDE]);
 
-            integrationMemberDelegate.search(searchCriteria, null, includes)
+            integrationMemberDelegate.search(searchCriteria, null, null, includes)
                 .then(
                 function handleExpertSearched(result) { res.json(result); },
                 function handleExpertSearchError(err) { res.status(500).json(err); }
@@ -85,7 +85,7 @@ class ExpertApi
          */
         app.post(ApiUrlDelegate.expertById(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
-            var expertId = req.params[ApiConstants.EXPERT_ID];
+            var expertId = parseInt(req.params[ApiConstants.EXPERT_ID]);
             var integrationMember:IntegrationMember = req.body[ApiConstants.EXPERT];
 
             integrationMemberDelegate.updateById(expertId, integrationMember)

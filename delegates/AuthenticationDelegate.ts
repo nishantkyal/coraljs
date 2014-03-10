@@ -62,12 +62,14 @@ class AuthenticationDelegate
                     && !Utils.isNullOrEmpty(user.getPassword())
                         && !Utils.isNullOrEmpty(user.getFirstName()))
             {
-                new UserDelegate().create(user)
+                var userDelegate = new UserDelegate();
+
+                userDelegate.create(user)
                     .then(
                     function userRegistered(user) { req.logIn(user, next) },
                     function registrationError(error)
                     {
-                        req.flash('info', error);
+                        req.flash('info', error.message);
                         res.redirect(options.failureRedirect);
                     }
                 );
@@ -84,16 +86,17 @@ class AuthenticationDelegate
     {
         passport.use(AuthenticationDelegate.STRATEGY_LOGIN, new passport_local.Strategy(function (username, password, done)
             {
-                new UserDelegate().search({email: username})
+                var userDelegate = new UserDelegate();
+                userDelegate.find({email: username}, null, userDelegate.DEFAULT_FIELDS.concat(User.PASSWORD))
                     .then(
-                    function authComplete(users)
+                    function authComplete(user)
                     {
-                        if (users.length != 1)
+                        if (Utils.isNullOrEmpty(user))
                             done(null, false, {message: 'Invalid email'});
-                        else if (users[0].getPassword() != password)
+                        else if (user.getPassword() != password)
                             done(null, false, {message: 'Invalid password'});
                         else
-                            done(null, users[0]);
+                            done(null, user);
                     },
                     function authFailed(error) { done(error); });
             }

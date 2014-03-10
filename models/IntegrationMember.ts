@@ -24,6 +24,7 @@ class IntegrationMember extends BaseModel
     static REVENUE_SHARE_UNIT:string = 'revenue_share_unit';
 
     static INTEGRATION:string = 'integration';
+    static USER:string = 'user';
 
     private integration_id:number;
     private user_id:number;

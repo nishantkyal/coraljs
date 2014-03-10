@@ -31,7 +31,7 @@ class BaseDao implements IDao
         var self = this;
 
         data = data || {};
-        var id:number = data['id'];
+        var id:number = data[BaseModel.ID];
 
         // Remove inserts with undefined values
         _.each(data, function (value, key)
@@ -58,9 +58,9 @@ class BaseDao implements IDao
                 switch(error.code)
                 {
                     case 'ER_DUP_ENTRY':
-                        message = Utils.snakeToCamelCase(self.tableName) + ' already exists with those details';
+                        error.message = Utils.snakeToCamelCase(self.tableName) + ' already exists with those details';
                 }
-                throw(message);
+                throw(error);
             });
     }
 
@@ -102,13 +102,35 @@ class BaseDao implements IDao
         var wheres:string[] = whereStatements['where'];
         var values:any[] = whereStatements['values'];
 
-        selectColumns = Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
+        selectColumns = !Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
 
         var queryString = 'SELECT ' + selectColumns + ' FROM ' + this.tableName + ' WHERE ' + wheres.join(' AND ');
 
         return MysqlDelegate.executeQuery(queryString, values)
             .then(
             function handleSearchResults(results:Array<any>) { return _.map(results, function (result) { return new self.modelClass(result); }); });
+    }
+
+    find(searchQuery:Object, options?:Object, fields?:string[]):q.Promise<any>
+    {
+        var self = this, values = [], whereStatements = [], selectColumns;
+
+        var whereStatements:any[] = this.generateWhereStatements(searchQuery);
+        var wheres:string[] = whereStatements['where'];
+        var values:any[] = whereStatements['values'];
+
+        selectColumns = !Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
+
+        var queryString = 'SELECT ' + selectColumns + ' FROM ' + this.tableName + ' WHERE ' + wheres.join(' AND ') + ' LIMIT 1';
+
+        return MysqlDelegate.executeQuery(queryString, values)
+            .then(
+            function handleSearchResults(result) {
+                if (result.length == 1)
+                    return new self.modelClass(result[0]);
+                else
+                    return null;
+            });
     }
 
     update(criteria:any, newValues:any, transaction?:any):q.Promise<any>

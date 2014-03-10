@@ -14,10 +14,13 @@ import IntegrationDelegate                          = require('./delegates/Integ
 var app:express.Application = express();
 
 // all environments
-app.set('port', Config.get('Coral.port') || 3000);
+app.use(express.compress());
 app.set('views', path.join(__dirname, 'views'));
-app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'jade');
+
+app.use(express.staticCache({}));
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(express.bodyParser());
 app.use(express.methodOverride());
 app.use(RequestHandler.parseRequest);
@@ -31,6 +34,7 @@ app.use(connect_flash());
 api(app);
 routes(app);
 
+app.set('port', Config.get('Coral.port') || 3000);
 app.listen(app.get('port'), function()
 {
     console.log("Demo Express server listening on port %d in %s mode", app.get('port'), app.settings.env);

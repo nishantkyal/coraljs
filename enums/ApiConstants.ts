@@ -12,6 +12,7 @@ class ApiConstants
     static USER_ID:string = 'userId';
     static USER_PROFILE_ID:string = 'profileId';
     static EXPERT_ID:string = 'expertId';
+    static MEMBER_ID:string = 'memberId';
     static INTEGRATION_ID:string = 'integrationId';
     static PROFILE_TYPE:string = 'profileType';
     static USERNAME:string = 'login';

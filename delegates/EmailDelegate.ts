@@ -179,13 +179,13 @@ class EmailDelegate
             });
     }
 
-    sendExpertInvitationEmail(integrationId:number, user:User):q.Promise<any>
+    sendExpertInvitationEmail(integrationId:number, member:IntegrationMember):q.Promise<any>
     {
         var self = this;
 
         return q.all([
                 new IntegrationDelegate().get(integrationId, [Integration.TITLE]),
-                new VerificationCodeCache().createInvitationCode(integrationId, user)
+                new VerificationCodeCache().createInvitationCode(integrationId, member)
             ])
             .then(
             function codeCreated(...args)
@@ -193,9 +193,9 @@ class EmailDelegate
                 var emailData = {
                     integration: args[0][0],
                     code: args[0][1],
-                    user: user.toJson()
+                    user: member.toJson()
                 };
-                return self.send(EmailDelegate.EMAIL_EXPERT_INVITE, user.getEmail(), emailData);
+                return self.send(EmailDelegate.EMAIL_EXPERT_INVITE, member.getUser().getEmail(), emailData);
             });
     }
 

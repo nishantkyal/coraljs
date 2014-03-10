@@ -13,6 +13,8 @@ import Utils                                    = require('../common/Utils');
  */
 class IntegrationDelegate extends BaseDaoDelegate
 {
+    DEFAULT_FIELDS:string[] = [Integration.ID, Integration.TITLE, Integration.INTEGRATION_TYPE];
+
     private static cachedIntegrations:{[id:number]:Integration} = {};
 
     /* Static constructor workaround */

@@ -61,14 +61,52 @@ class BaseDaoDelegate
         return null;
     }
 
+    find(search:Object, options?:Object, fields?:string[], includes:IncludeFlag[] = []):q.Promise<any>
+    {
+        var self = this;
+        var rawResult;
+
+        fields = fields || this.DEFAULT_FIELDS;
+
+        return this.getDao().find(search, options, fields)
+            .then(
+            function processIncludes(result)
+            {
+                rawResult = result;
+                var includeTasks = [];
+                _.each(includes, function (flag)
+                {
+                    var handler;
+                    if (handler = self.getIncludeHandler(flag, result))
+                        includeTasks.push(handler);
+                });
+                return q.all(includeTasks);
+            })
+            .then(
+            function handleIncludesProcessed(...args)
+            {
+                var results = args[0];
+
+                _.each(rawResult, function (result:any)
+                {
+                    _.each(results, function (resultSet:any, index)
+                    {
+                        // TODO: Implement foreign keys so mapping can work in search
+                        var foreignKeyColumn = null;
+                        result.set(includes[index], _.map(resultSet, function (res)
+                        {
+                            // return result[foreignKeyColumn] == res['id'] ? res : null;
+                            return res;
+                        }));
+                    });
+                });
+                return rawResult;
+            });
+    }
+
     /*
      * Perform search based on seacrh query
      * Also fetch joint fields
-     * @param search
-     * @param fields
-     * @param supplimentaryModel
-     * @param supplimentaryModelFields
-     * @returns {q.Promise<any>}
      */
     search(search:Object, options?:Object, fields?:string[], includes:IncludeFlag[] = []):q.Promise<any>
     {
@@ -98,7 +136,7 @@ class BaseDaoDelegate
 
                 _.each(rawResult, function (result:any)
                 {
-                    _.each(results, function(resultSet:any, index)
+                    _.each(results, function (resultSet:any, index)
                     {
                         // TODO: Implement foreign keys so mapping can work in search
                         var foreignKeyColumn = null;
@@ -115,6 +153,8 @@ class BaseDaoDelegate
 
     create(object:any, transaction?:any):q.Promise<any>
     {
+        var self = this;
+
         var generatedId:number = new GlobalIdDelegate().generate(this.getDao().getModel().TABLE_NAME);
         object[BaseModel.ID] = generatedId;
         object[BaseModel.CREATED] = new Date().getTime();
@@ -135,12 +175,18 @@ class BaseDaoDelegate
 
     delete(id:number, softDelete:boolean = true, transaction?:any):q.Promise<any>
     {
-        return this.getDao().delete(id, softDelete, transaction);
+        if (softDelete)
+            return this.getDao().delete(id, transaction);
+        else
+            return this.getDao().update({id: 1}, {'deleted': moment().valueOf()}, transaction)
     }
 
     searchAndDelete(criteria:Object, softDelete:boolean = true, transaction?:any):q.Promise<any>
     {
-        return this.getDao().searchAndDelete(criteria, softDelete, transaction);
+        if (softDelete)
+            this.getDao().searchAndDelete(criteria, transaction);
+        else
+            return this.getDao().update(criteria, {'deleted': moment().valueOf()}, transaction);
     }
 
     getDao():IDao { throw('getDao method not implemented'); }

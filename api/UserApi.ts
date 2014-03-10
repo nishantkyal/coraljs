@@ -35,7 +35,7 @@ class UserApi
         {
             var user:User = req.body[ApiConstants.USER];
 
-            if (!Utils.isNullOrEmpty(user.getEmail()) || !Utils.isNullOrEmpty(user.getMobile()))
+            if (user.isValid())
                 userDelegate.create(user)
                     .then(
                     function userCreated(user:User) { res.json(user); },
@@ -45,23 +45,6 @@ class UserApi
                 res.status(500).json('Invalid data');
         });
 
-        /* Authenticate user */
-        app.get(ApiUrlDelegate.userAuthentication(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
-        {
-            var user:User = req.body[ApiConstants.USER];
-            var email = user.getEmail();
-            var password = user.getPassword();
-
-            if (email && password)
-                userDelegate.authenticate(email, password)
-                    .then(
-                    function authComplete(user) { res.json(user); },
-                    function authError(err) { res.status(401).json(err); }
-                );
-            else
-                res.status(422).json('Username or password missing');
-        });
-
         /* Update settings */
         app.post(ApiUrlDelegate.userById(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
@@ -69,22 +52,19 @@ class UserApi
             var user:User = req.body[ApiConstants.USER];
             var userProfile:UserProfile = req.body[ApiConstants.USER_PROFILE];
 
-            if (user.isValid())
-                userDelegate.update({'id': userId}, user)
-                    .then(
-                    function userUpdated(result):any
-                    {
-                        if (userProfile)
-                            return userProfileDelegate.update({'user_id': userId, 'locale': userProfile.getLocale()}, userProfile)
-                        else
-                            return res.json(result);
-                    })
-                    .then(
-                    function userProfileUpdated(result) { res.send(result); },
-                    function updateFailed(err) { res.status(500).json(err); }
-                );
-            else
-                res.status(422).json('Invalid input');
+            userDelegate.update({'id': userId}, user)
+                .then(
+                function userUpdated(result):any
+                {
+                    if (userProfile)
+                        return userProfileDelegate.update({'user_id': userId, 'locale': userProfile.getLocale()}, userProfile)
+                    else
+                        return res.json(result);
+                })
+                .then(
+                function userProfileUpdated(result) { res.send(result); },
+                function updateFailed(err) { res.status(500).json(err); }
+            );
         });
 
 
