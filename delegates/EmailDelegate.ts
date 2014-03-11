@@ -1,25 +1,29 @@
 ///<reference path='../_references.d.ts'/>
-import fs                           = require('fs');
-import log4js                       = require('log4js');
-import path                         = require('path');
-import _                            = require('underscore');
-import q                            = require('q');
-import nodemailer                   = require('nodemailer');
-import watch                        = require('watch');
-import Email                        = require('../models/Email')
-import User                         = require('../models/User')
-import Integration                  = require('../models/Integration')
-import IntegrationMember            = require('../models/IntegrationMember')
-import IDao                         = require('../dao/IDao');
-import EmailDao                     = require('../dao/EmailDao');
-import CallStatus                   = require('../enums/CallStatus');
-import IncludeFlag                  = require('../enums/IncludeFlag');
-import UserDelegate                 = require('../delegates/UserDelegate');
-import IntegrationDelegate          = require('../delegates/IntegrationDelegate');
-import IntegrationMemberDelegate    = require('../delegates/IntegrationMemberDelegate');
-import Utils                        = require('../common/Utils');
-import Config                       = require('../common/Config');
-import VerificationCodeCache        = require('../caches/VerificationCodeCache');
+import url                                                          = require('url');
+import fs                                                           = require('fs');
+import log4js                                                       = require('log4js');
+import path                                                         = require('path');
+import _                                                            = require('underscore');
+import q                                                            = require('q');
+import nodemailer                                                   = require('nodemailer');
+import watch                                                        = require('watch');
+import Email                                                        = require('../models/Email')
+import User                                                         = require('../models/User')
+import Integration                                                  = require('../models/Integration')
+import IntegrationMember                                            = require('../models/IntegrationMember')
+import IDao                                                         = require('../dao/IDao');
+import EmailDao                                                     = require('../dao/EmailDao');
+import ApiConstants                                                 = require('../enums/ApiConstants');
+import CallStatus                                                   = require('../enums/CallStatus');
+import IncludeFlag                                                  = require('../enums/IncludeFlag');
+import ApiUrlDelegate                                               = require('../delegates/ApiUrlDelegate');
+import UserDelegate                                                 = require('../delegates/UserDelegate');
+import IntegrationDelegate                                          = require('../delegates/IntegrationDelegate');
+import IntegrationMemberDelegate                                    = require('../delegates/IntegrationMemberDelegate');
+import Utils                                                        = require('../common/Utils');
+import Config                                                       = require('../common/Config');
+import VerificationCodeCache                                        = require('../caches/VerificationCodeCache');
+import ExpertRegistrationUrls                                       = require('../routes/expertRegistration/Urls');
 
 /*
  Delegate class for managing email
@@ -29,7 +33,7 @@ import VerificationCodeCache        = require('../caches/VerificationCodeCache')
  */
 class EmailDelegate
 {
-    static EMAIL_EXPERT_INVITE:string = 'EMAIL_EXPERT_INVITE';
+    private static EMAIL_EXPERT_INVITE:string = 'EMAIL_EXPERT_INVITE';
 
     private static templateCache:{[templateNameAndLocale:string]:{bodyTemplate:Function; subjectTemplate:Function}} = {};
     private static transport:nodemailer.Transport;
@@ -101,7 +105,7 @@ class EmailDelegate
 
     getDao():IDao { return new EmailDao(); }
 
-    private send(template:string, to:string, emailData:Object, from:string = 'contact@searchntalk.com'):q.Promise<any>
+    private send(template:string, to:string, emailData:Object, replyTo?:string, from:string = 'contact@searchntalk.com'):q.Promise<any>
     {
         var self = this;
         var deferred = q.defer<any>();
@@ -109,7 +113,8 @@ class EmailDelegate
         var bodyTemplate:Function = EmailDelegate.templateCache[template].bodyTemplate;
         var subjectTemplate:Function = EmailDelegate.templateCache[template].subjectTemplate;
 
-        emailData["emailcdnhost"] = Config.get("email.cdn.host");
+        emailData["email_cdn_base_uri"] = Config.get("email.cdn.base_uri");
+        replyTo = replyTo || from;
 
         try
         {
@@ -126,8 +131,10 @@ class EmailDelegate
             {
                 from: from,
                 to: to,
+                replyTo: replyTo,
                 subject: subject,
-                html: body
+                html: body,
+                forceEmbeddedImages: true
             },
             function emailSent(error:Error, response:any):any
             {
@@ -179,23 +186,27 @@ class EmailDelegate
             });
     }
 
-    sendExpertInvitationEmail(integrationId:number, member:IntegrationMember):q.Promise<any>
+    sendExpertInvitationEmail(integrationId:number, invitationCode:string, recipient:IntegrationMember, sender:User):q.Promise<any>
     {
         var self = this;
+        var invitationUrl = ExpertRegistrationUrls.index();
+        invitationUrl += '?';
+        invitationUrl += ApiConstants.INTEGRATION_ID + '=' + integrationId;
+        invitationUrl += '&';
+        invitationUrl += ApiConstants.CODE + '=' + invitationCode;
+        invitationUrl = url.resolve(Config.get('Coral.uri'), invitationUrl);
 
-        return q.all([
-                new IntegrationDelegate().get(integrationId, [Integration.TITLE]),
-                new VerificationCodeCache().createInvitationCode(integrationId, member)
-            ])
+        return new IntegrationDelegate().get(integrationId)
             .then(
-            function codeCreated(...args)
+            function integrationFetched(integration)
             {
                 var emailData = {
-                    integration: args[0][0],
-                    code: args[0][1],
-                    user: member.toJson()
+                    integration: integration,
+                    invitation_url: invitationUrl,
+                    recipient: recipient.toJson(),
+                    sender: sender.toJson()
                 };
-                return self.send(EmailDelegate.EMAIL_EXPERT_INVITE, member.getUser().getEmail(), emailData);
+                return self.send(EmailDelegate.EMAIL_EXPERT_INVITE, recipient.getUser().getEmail(), emailData, sender.getEmail());
             });
     }
 

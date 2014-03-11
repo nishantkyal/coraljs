@@ -2,6 +2,7 @@
 import express                                              = require('express');
 import AccessControl                                        = require('../middleware/AccessControl');
 import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
+import EmailDelegate                                        = require('../delegates/EmailDelegate');
 import TemporaryTokenType                                   = require('../enums/TemporaryTokenType');
 import ApiConstants                                         = require('../enums/ApiConstants');
 import VerificationCodeCache                                = require('../caches/VerificationCodeCache');
@@ -13,7 +14,10 @@ class TokenApi
 {
     constructor(app)
     {
-        app.get(ApiUrlDelegate.tempToken(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
+        var verificationCodeCache = new VerificationCodeCache();
+        var emailDelegate = new EmailDelegate();
+
+        app.get(ApiUrlDelegate.tempToken(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
             var tokenType:number = parseInt(TemporaryTokenType[req.query[ApiConstants.TYPE]]);
 
@@ -23,7 +27,7 @@ class TokenApi
 
                     var integrationId:number = parseInt(req.query[ApiConstants.INTEGRATION_ID]);
                     var code:string = req.query[ApiConstants.CODE];
-                    new VerificationCodeCache().searchInvitationCode(code, integrationId)
+                    verificationCodeCache.searchInvitationCode(code, integrationId)
                         .then(
                         function tokenFound(user)
                         {
@@ -42,7 +46,7 @@ class TokenApi
                     var code:string = req.query[ApiConstants.CODE];
                     var ref:string = req.query[ApiConstants.CODE_VERIFICATION];
 
-                    new VerificationCodeCache().searchMobileVerificationCode(code, ref)
+                    verificationCodeCache.searchMobileVerificationCode(code, ref)
                         .then(
                         function tokenFound() { res.send(200); },
                         function tokenSearchError() { res.send(500); }
@@ -55,7 +59,7 @@ class TokenApi
                     var userId:number = parseInt(req.query[ApiConstants.USER_ID]);
                     var ref:string = req.query[ApiConstants.CODE_VERIFICATION];
 
-                    new VerificationCodeCache().searchPasswordResetCode(userId, ref)
+                    verificationCodeCache.searchPasswordResetCode(userId, ref)
                         .then(
                         function tokenFound() { res.send(200); },
                         function tokenSearchError() { res.send(500); }
@@ -69,10 +73,10 @@ class TokenApi
         {
             var tokenType:number = parseInt(TemporaryTokenType[req.body[ApiConstants.TYPE]]);
 
-            switch(tokenType)
+            switch (tokenType)
             {
                 case TemporaryTokenType.MOBILE_VERIFICATION:
-                    new VerificationCodeCache().createMobileVerificationCode()
+                    verificationCodeCache.createMobileVerificationCode()
                         .then(
                         function codeCreated(result) { res.send(result); },
                         function codeCreationFailed(error) { res.send(500); }
@@ -80,21 +84,27 @@ class TokenApi
                     break;
                 case TemporaryTokenType.EXPERT_INVITATION:
 
+                    var sender:User = new User(req['user']);
                     var user:User = req.body[ApiConstants.USER];
                     var member:IntegrationMember = req.body[ApiConstants.INTEGRATION_MEMBER];
                     member.setUser(user);
                     var integrationId:number = member.getIntegrationId();
 
-                    new VerificationCodeCache().createInvitationCode(integrationId, member)
+                    verificationCodeCache.createInvitationCode(integrationId, member)
                         .then(
-                        function codeCreated() { res.send(200); },
-                        function codeCreationFailed() { res.send(500); }
-                    )
+                        function codeCreated(code)
+                        {
+                            return emailDelegate.sendExpertInvitationEmail(integrationId, code, member, sender);
+                        })
+                        .then(
+                        function codeCreatedAndSent() { res.json(200); },
+                        function codeCreateAndSendError(error) { res.send(500); }
+                    );
 
                     break;
                 case TemporaryTokenType.PASSWORD_RESET:
                     var userId:number = req.body[ApiConstants.USER_ID];
-                    new VerificationCodeCache().createPasswordResetCode(userId)
+                    verificationCodeCache.createPasswordResetCode(userId)
                         .then(
                         function codeCreated(result) { res.send(result); },
                         function codeCreationFailed() { res.send(500); }
@@ -102,7 +112,7 @@ class TokenApi
                     break;
                 case TemporaryTokenType.EMAIL_VERIFICATION:
                     var userId:number = req.body[ApiConstants.USER_ID];
-                    new VerificationCodeCache().createPasswordResetCode(userId)
+                    verificationCodeCache.createPasswordResetCode(userId)
                         .then(
                         function passwordResetTokenGenerated(token) { res.json(token); },
                         function passwordResetTokenGenerateError(err) { res.status(500).json(err); }

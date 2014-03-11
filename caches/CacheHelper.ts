@@ -33,7 +33,6 @@ class CacheHelper
                 deferred.resolve(result);
         });
         return deferred.promise;
-
     }
 
     static get(key):q.Promise<any>

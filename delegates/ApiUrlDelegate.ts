@@ -8,8 +8,6 @@ import url                                      = require('url');
  */
 class ApiUrlDelegate
 {
-    static BASE_URL:string = '';
-
     /* URL patterns for expert API */
     static expert():string { return this.get('/rest/expert'); }
     static expertById(expertId?:number):string { return this.get('/rest/expert/:expertId', {expertId: expertId}); }
@@ -105,7 +103,7 @@ class ApiUrlDelegate
             for (var key in values)
                 if (values[key] != null)
                     urlPattern = urlPattern.replace(new RegExp(':' + key), values[key])
-        return url.resolve(ApiUrlDelegate.BASE_URL, urlPattern);
+        return urlPattern;
     }
 }
 export = ApiUrlDelegate
