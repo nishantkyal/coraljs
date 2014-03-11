@@ -1,10 +1,11 @@
-import BaseModel                    = require('./BaseModel');
-import Integration                  = require('./Integration');
-import User                         = require('./User');
-import UserProfile                  = require('./UserProfile');
-import ExpertSchedule               = require('./ExpertSchedule');
-import ExpertScheduleRule           = require('./ExpertScheduleRule');
-
+import BaseModel                                        = require('./BaseModel');
+import Integration                                      = require('./Integration');
+import User                                             = require('./User');
+import UserProfile                                      = require('./UserProfile');
+import ExpertSchedule                                   = require('./ExpertSchedule');
+import ExpertScheduleRule                               = require('./ExpertScheduleRule');
+import MoneyUnit                                        = require('../enums/MoneyUnit');
+import IntegrationMemberRole                            = require('../enums/IntegrationMemberRole');
 /*
  Bean class for Integration member
  */
@@ -28,7 +29,7 @@ class IntegrationMember extends BaseModel
 
     private integration_id:number;
     private user_id:number;
-    private role:number;
+    private role:IntegrationMemberRole;
     private auth_code:string;
     private access_token:string;
     private access_token_expiry:string;
@@ -46,7 +47,7 @@ class IntegrationMember extends BaseModel
     /* Getters */
     getIntegrationId():number                           { return this.integration_id; }
     getUserId():number                                  { return this.user_id; }
-    getRole():number                                    { return this.role; }
+    getRole():IntegrationMemberRole                     { return this.role; }
     getAuthCode():string                                { return this.auth_code; }
     getAccessToken():string                             { return this.access_token; }
     getAccessTokenExpiry():string                       { return this.access_token_expiry; }
@@ -68,14 +69,14 @@ class IntegrationMember extends BaseModel
     /* Setters */
     setIntegrationId(val:number):void                   { this.integration_id = val; }
     setUserId(val:number):void                          { this.user_id = val; }
-    setRole(val:number):void                            { this.role = val; }
+    setRole(val:IntegrationMemberRole):void             { this.role = val; }
     setAuthCode(val:string):void                        { this.auth_code = val; }
     setAccessToken(val:string):void                     { this.access_token = val; }
     setAccessTokenExpiry(val:string):void               { this.access_token_expiry = val; }
     setRefreshToken(val:string):void                    { this.refresh_token = val; }
     setRefreshTokenExpiry(val:string):void              { this.refresh_token_expiry = val; }
-    setRevenueShare(val)                                { this.revenue_share = val; }
-    setRevenueShareUnit(val)                            { this.revenue_share_unit = val; }
+    setRevenueShare(val:number):void                    { this.revenue_share = val; }
+    setRevenueShareUnit(val:MoneyUnit):void             { this.revenue_share_unit = val; }
 
     setIntegration(val:Integration):void                { this.integration = val; }
     setUser(val:User):void                              { this.user = val; }

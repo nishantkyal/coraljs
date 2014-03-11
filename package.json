@@ -39,6 +39,7 @@
         "nodemailer"          : "0.6.0",
         "watch"               : "0.9.0",
         "moment"              : "2.5.1",
-        "validator"           : "*"
+        "validator"           : "*",
+        "accounting"          : "*"
     }
 }

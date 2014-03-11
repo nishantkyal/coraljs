@@ -5,12 +5,14 @@ import passport                                         = require('passport');
 import connect_ensure_login                             = require('connect-ensure-login');
 import express                                          = require('express');
 import log4js                                           = require('log4js');
+import accounting                                       = require('accounting');
 import ApiUrlDelegate                                   = require('../../delegates/ApiUrlDelegate');
 import AuthenticationDelegate                           = require('../../delegates/AuthenticationDelegate');
 import UserDelegate                                     = require('../../delegates/UserDelegate');
 import IntegrationMemberDelegate                        = require('../../delegates/IntegrationMemberDelegate');
 import EmailDelegate                                    = require('../../delegates/EmailDelegate');
 import SMSDelegate                                      = require('../../delegates/SMSDelegate');
+import MoneyUnit                                        = require('../../enums/MoneyUnit');
 import IncludeFlag                                      = require('../../enums/IncludeFlag');
 import User                                             = require('../../models/User');
 import IntegrationMember                                = require('../../models/IntegrationMember');
@@ -20,6 +22,7 @@ import IntegrationMemberRole                            = require('../../enums/I
 import ApiConstants                                     = require('../../enums/ApiConstants');
 import SmsTemplate                                      = require('../../enums/SmsTemplate');
 import Utils                                            = require('../../common/Utils');
+import Formatter                                        = require('../../common/Formatter');
 import VerificationCodeCache                            = require('../../caches/VerificationCodeCache');
 import Middleware                                       = require('./Middleware');
 class DashboardRoute
@@ -138,7 +141,6 @@ class DashboardRoute
 
                 members = members.concat(_.map(invitedMembers, function(invited) { return new IntegrationMember(invited); } ));
                 _.each(members, function (member:IntegrationMember) {
-                    member[IntegrationMember.ROLE] = IntegrationMemberRole[member[IntegrationMember.ROLE]];
                     if (Utils.getObjectType(member[IntegrationMember.USER]) == 'Array')
                         // TODO: Implement foreign keys to get rid if this goofiness
                         member[IntegrationMember.USER] = _.findWhere(member[IntegrationMember.USER], {id: member.getUserId()});

@@ -7,6 +7,7 @@ import http                                         = require('http');
 import path                                         = require('path');
 import passport                                     = require('passport');
 import Config                                       = require('./common/Config');
+import Formatter                                    = require('./common/Formatter');
 import ApiUrlDelegate                               = require('./delegates/ApiUrlDelegate');
 import MysqlDelegate                                = require('./delegates/MysqlDelegate');
 import IntegrationDelegate                          = require('./delegates/IntegrationDelegate');
@@ -21,7 +22,14 @@ var app:express.Application = express();
 app.use(express.compress());
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
-
+app.use(
+    function(req, res, next)
+    {
+        res.locals.formatMoney = Formatter.formatMoney;
+        res.locals.formatRole = Formatter.formatRole;
+        next();
+    }
+)
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(express.json());
