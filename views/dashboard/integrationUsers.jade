@@ -43,8 +43,8 @@ include scriptsAndStyles
             .modal-header
                 .close(data-dismiss='modal', aria-hidden='true') x
                 h4.modal-title Invite Member
-            .modal-body
-                form
+            form
+                .modal-body
                     .form-group
                         label.control-label(for='email') Email
                         input.form-control(type='text', placeholder='Email', name='email')
@@ -63,9 +63,9 @@ include scriptsAndStyles
                             option(value='1') Owner
                             option(value='2') Admin
                             option(value='3') Expert
-            .modal-footer
-                button.btn.btn-default(data-dismiss='modal') Close
-                button.btn.btn-primary(onclick='handleInviteClicked()') Send Invite
+                .modal-footer
+                    button.btn.btn-default(data-dismiss='modal') Close
+                    input.btn.btn-primary(type='submit', value='Send Invite')
 
 #editUserModal.modal.fade(style='display: none;')
     .modal-dialog
