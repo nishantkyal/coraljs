@@ -93,12 +93,12 @@ class OAuthProviderDelegate
                 OAuthProviderDelegate.logger.warn('Oauth code exchange failed because of invalid redirect url for integration id, %s', integration.id);
                 return done('An error occurred');
             }
-            new IntegrationMemberDelegate().search(search)
+            new IntegrationMemberDelegate().find(search)
                 .then(
-                function handleExpertFoundForAuthCode(integrationMembers)
+                function handleExpertFoundForAuthCode(integrationMember)
                 {
-                    if (integrationMembers.length == 0)
-                        done('')
+                    if (Utils.isNullOrEmpty(integrationMember.length))
+                        done('');
                 },
                 function expertSearchError(err) { done(err); });
         }));

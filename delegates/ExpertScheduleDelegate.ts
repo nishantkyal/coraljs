@@ -40,9 +40,10 @@ class ExpertScheduleDelegate
     getSchedulesForRule(rule:ExpertScheduleRule, startTime:number, endTime:number):q.Promise<any>
     {
         var deferred = q.defer();
+
         var options = {
             currentDate: moment(Math.max(startTime, rule.getRepeatStart())).toDate(),
-            endDate: moment(Math.min(endTime, rule.getRepeatEnd())).toDate()
+            endDate: moment(rule.getRepeatEnd() != 0 ? Math.min(endTime, rule.getRepeatEnd()) : endTime).toDate()
         };
 
         cron_parser.parseExpression(rule.getCronRule(), options, function schedulesGenerated(err, interval:cron_parser.CronExpression):any

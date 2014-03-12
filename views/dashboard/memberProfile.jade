@@ -6,7 +6,7 @@ include scriptsAndStyles
         .col-md-8
             .col-md-2
             .col-md-4
-                form.form-horizontal(method='POST', onsubmit="return handleSaveClicked()")
+                form
                     .form-group
                         label(for='title') Title
                         input.form-control#title(type='text', name='title')
@@ -24,7 +24,7 @@ include scriptsAndStyles
                         textarea.form-control#long_desc(name='long_desc') #{user.long_desc}
                     .form-group
                         label(for='revenue_share') Revenue Share
-                        .form-control-static#revenue_share #{member.revenue_share}%
+                        .form-control-static#revenue_share= formatMoney(member.revenue_share, member.revenue_share_unit)
                     .form-group
                         label(for='password') Password
                         input.form-control#password(type='password', name='password')
@@ -35,4 +35,6 @@ include scriptsAndStyles
                         input.form-control.btn.btn-primary(type='submit') Save Changes
             .col-md-2
         .col-md-2
-script(src='/javascripts/app/expertProfile.js')
+script.
+    var memberId = !{member.id}
+script(src='/js/app/dashboard/memberProfile.js')

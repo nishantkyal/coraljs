@@ -5,11 +5,11 @@ include header
     .row-fluid
         .col-md-2
         .col-md-8
-            label #{integration.title} would like you to join them as an expert.
-            label Continue?
+            label By registering as an expert for #{integration.title}, you also agree to <a href='#'>SearchNTalk.com Terms and Conditions</a>
+            label You will receive requests for scheduling phone calls from people who are seeking your expert advice.
             form(action="/expert/authorization/decision", method="post")
                 input(name="transaction_id", type="hidden", value="#{transactionID}")
                 .controls
-                    input.btn-primary.btn(type="submit", value="Allow", id="allow")
-                    input.btn.btn-danger(type="submit", value="Deny", name="cancel", id="cancel")
+                    input.btn-primary.btn(type="submit", value="Yes, Continue", id="allow")
+                    input.btn.btn-danger(type="submit", value="I don't want to register", name="cancel", id="cancel")
         .col-md-2

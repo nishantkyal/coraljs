@@ -48,6 +48,7 @@ class DashboardRoute
 
         // Auth
         app.post('/login', passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: '/login'}), this.authSuccess.bind(this));
+        app.post('/member/:memberId/profile', Middleware.allowSelf, this.memberProfileSave.bind(this));
     }
 
     login(req:express.Request, res:express.Response)
@@ -71,6 +72,7 @@ class DashboardRoute
                 {
                     var integrationMember = new IntegrationMember(integrationMembers[0]);
                     var integration:Integration = new Integration(integrationMember.getIntegration()[0]); // TODO: Implement foreign keys correctly in search so [0] goofiness is not required for 1-to-1 relationships
+                    req.session[ApiConstants.INTEGRATION_ID] = integration.getId();
 
                     if (integrationMember.getRole() === IntegrationMemberRole.Admin || integrationMember.getRole() == IntegrationMemberRole.Owner)
                         res.redirect('/integration/' + integration.getId() + '/users');
@@ -86,7 +88,7 @@ class DashboardRoute
     {
         var user = req['user'];
 
-        this.integrationMemberDelegate.searchByUser(user.id, null, [IncludeFlag.INCLUDE_INTEGRATION, IncludeFlag.INCLUDE_USER])
+        this.integrationMemberDelegate.searchByUser(user.id, this.integrationMemberDelegate.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_INTEGRATION, IncludeFlag.INCLUDE_USER])
             .then(
             function integrationsFetched(integrationMembers)
             {
@@ -118,6 +120,8 @@ class DashboardRoute
     integrationUsers(req:express.Request, res:express.Response)
     {
         var integrationId = parseInt(req.params[ApiConstants.INTEGRATION_ID]);
+        req.session[ApiConstants.INTEGRATION_ID] = integrationId;
+
         var integrationMembers = Middleware.getIntegrationMembers(req);
 
         Middleware.setIntegrationId(req, integrationId);
@@ -160,34 +164,40 @@ class DashboardRoute
 
     memberProfile(req:express.Request, res:express.Response)
     {
-        var user = req['user'];
+        var user = req[ApiConstants.USER];
+        var integrationId = parseInt(req.session[ApiConstants.INTEGRATION_ID]);
         var integrationMembers = Middleware.getIntegrationMembers(req);
-        var member = new IntegrationMember(_.map(integrationMembers, function (member)
-        {
-            return member['user_id'] === user.id ? member : null;
-        })[0]);
+        var member = new IntegrationMember(_.findWhere(integrationMembers, {'user_id': user.id, 'integration_id': integrationId}));
 
         Middleware.setIntegrationId(req, member.getIntegrationId());
 
-        var pageData =
-        {
-            'logged_in_user': req['user'],
-            'member': member,
-            'user': member[IncludeFlag.INCLUDE_USER]
-        };
-        res.render(DashboardRoute.PAGE_PROFILE, pageData);
-    }
-
-    deleteMember(req:express.Request, res:express.Response)
-    {
-        var memberId = req.params[ApiConstants.EXPERT_ID];
-        this.integrationMemberDelegate.delete(memberId)
+        this.userDelegate.get(user.id)
             .then(
-            function deleteSuccess() { res.send(200); },
-            function deleteFailed(error) { res.send(500, error); }
-        );
+                function userFetched(user)
+                {
+                    var pageData =
+                    {
+                        'logged_in_user': req['user'],
+                        'member': member,
+                        'user': user
+                    };
+                    res.render(DashboardRoute.PAGE_PROFILE, pageData);
+                },
+                function userFetchError() { res.send(500); }
+            );
     }
 
+    memberProfileSave(req:express.Request, res:express.Response)
+    {
+        var loggedInUser = req['user'];
+        var user = req.body[ApiConstants.USER];
+
+        this.userDelegate.update({id: loggedInUser.id}, user)
+            .then(
+                function userUpdated() { res.send(200); },
+                function userUpdateError() { res.send(500); }
+            );
+    }
 }
 
 export = DashboardRoute

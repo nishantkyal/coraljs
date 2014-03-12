@@ -10,19 +10,16 @@ include header
                 | Please pick
                 b &nbsp;at least three slots&nbsp;
                 | that fit your schedule. We'll send these to expert and get his confirmation for the call
-            form.form-horizontal(action='/call/auth', method='get')
-                - for (var i = 1; i <= 3; i++)
+            form(action='/call/auth', method='get')
+                for (var i = 1; i <= 3; i++)
                     .form-group
-                        .control-label
-                            | Option #{i}
-                        .controls
-                            select.col-md-6.scheduleSelect(name='scheduleId')
-                .form-group
-                    .controls
-                        .btn.btn-primary
-                            i.icon-plus.icon-white
-                            | &nbsp;Add Row
-                        input.btn.btn-primary(type='submit', value='DONE >')
+                        label Option #{i}
+                        select.form-control.col-md-6.scheduleSelect(name='scheduleId')
+                            for schedule in schedules
+                                option= formatSchedule(schedule)
+                .controls
+                    .btn.form-control.btn-primary Add Row
+                    input.form-control.btn.btn-primary(type='submit', value='DONE >')
             em
                 small
                     b Note:&nbsp;
@@ -36,3 +33,4 @@ script.
         var schedule = schedules[i];
         $('.scheduleSelect').append('<option value="' + schedule.id + '">' + schedule.start_time_date + ' - ' + schedule.end_time_date + '</option>');
     }
+script(src='/js/app/callFlow/index.js')

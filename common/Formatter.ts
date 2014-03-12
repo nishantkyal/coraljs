@@ -1,7 +1,9 @@
 ///<reference path='../_references.d.ts'/>
+import moment                                                       = require('moment');
 import accounting                                                   = require('accounting');
 import MoneyUnit                                                    = require('../enums/MoneyUnit');
 import IntegrationMemberRole                                        = require('../enums/IntegrationMemberRole');
+import ExpertSchedule                                               = require('../models/ExpertSchedule');
 
 class Formatter
 {
@@ -39,6 +41,19 @@ class Formatter
     static formatRole(role:IntegrationMemberRole):string
     {
         return IntegrationMemberRole[role];
+    }
+
+    static formatName(firstName:string, lastName?:string, title?:string):string
+    {
+        return [title, firstName, lastName].join(' ');
+    }
+
+    static formatSchedule(schedule:ExpertSchedule):string
+    {
+        var endTime = moment(schedule['start_time']).add('seconds', schedule['duration']).format('h:mm A');
+        var startTime = moment(schedule['start_time']).format('DD-MM-YYYY h:mm A');
+
+        return startTime + ' ' + endTime;
     }
 }
 export = Formatter

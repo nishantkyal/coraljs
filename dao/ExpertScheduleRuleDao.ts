@@ -23,7 +23,7 @@ class ExpertScheduleRuleDao extends BaseDao
                 '   (SELECT id ' +
                 '   FROM ' + this.getModel().TABLE_NAME +
                 '   WHERE integration_member_id = ? ' +
-                '       AND (repeat_end <= ? OR repeat_start >= ?))';
+                '       AND ((repeat_end != 0 AND repeat_end <= ?) OR repeat_start >= ?))';
 
 
             return MysqlDelegate.executeQuery(query, [integrationMemberId, integrationMemberId, startTime, endTime], transaction)

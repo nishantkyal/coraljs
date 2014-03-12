@@ -16,8 +16,7 @@ include scriptsAndStyles
             table.table-bordered.table#users
                 thead
                     tr
-                        th First Name
-                        th Last Name
+                        th Name
                         th.col-md-3 Revenue Share / Call
                         th.col-md-1 Role
                         th.col-md-1 Status
@@ -25,8 +24,10 @@ include scriptsAndStyles
                 tbody
                 each member in integrationMembers
                     tr(class=((member.deleted == null || member.deleted == 0) ? (member.id != undefined ? '' : 'active') : 'danger'))
-                        td #{member.user.first_name}
-                        td #{member.user.last_name}
+                        td
+                            label= formatName(member.user.first_name, member.user.last_name)
+                            br
+                            small #{member.user.email}
                         td= formatMoney(member.revenue_share, member.revenue_share_unit)
                         td= formatRole(member.role)
                         td #{member.id != undefined ? 'Active' : 'Invited'}

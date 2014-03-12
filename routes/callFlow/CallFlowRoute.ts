@@ -58,8 +58,6 @@ class CallFlowRoute
                     pageData['schedules'] = JSON.stringify(_.map(expert['schedule'], function (schedule)
                     {
                         schedule['id'] = Utils.getRandomInt(10000, 99999);
-                        schedule['end_time_date'] = moment(schedule['start_time']).add('seconds', schedule['duration']).format('DD-MM-YYYY h:mm A');
-                        schedule['start_time_date'] = moment(schedule['start_time']).format('DD-MM-YYYY h:mm A');
                         return schedule;
                     }));
                 } catch (e)

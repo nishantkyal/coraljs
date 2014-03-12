@@ -69,7 +69,7 @@ class VerificationCodeCache
             });
     }
 
-    createInvitationCode(integrationId:number, member:IntegrationMember):q.Promise<any>
+    createInvitationCode(integrationId:number, member:IntegrationMember):q.Promise<string>
     {
         var code = Utils.getRandomString(20, 'ABXDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890');
         return CacheHelper.addToHash('ic-' + integrationId, code, member)
@@ -78,7 +78,7 @@ class VerificationCodeCache
         );
     }
 
-    searchInvitationCode(code:string, integrationId:number):q.Promise<any>
+    searchInvitationCode(code:string, integrationId:number):q.Promise<IntegrationMember>
     {
         return CacheHelper.getFromHash('ic-' + integrationId, code)
             .then(
@@ -101,5 +101,7 @@ class VerificationCodeCache
     {
         return CacheHelper.getHashValues('ic-' + integrationId);
     }
+
+
 }
 export = VerificationCodeCache

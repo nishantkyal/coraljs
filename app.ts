@@ -27,6 +27,8 @@ app.use(
     {
         res.locals.formatMoney = Formatter.formatMoney;
         res.locals.formatRole = Formatter.formatRole;
+        res.locals.formatName = Formatter.formatName;
+        res.locals.formatSchedule = Formatter.formatSchedule;
         next();
     }
 )

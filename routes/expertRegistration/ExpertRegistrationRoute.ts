@@ -5,6 +5,7 @@ import passport                                             = require('passport'
 import RequestHandler                                       = require('../../middleware/RequestHandler');
 import OAuthProviderDelegate                                = require('../../delegates/OAuthProviderDelegate');
 import AuthenticationDelegate                               = require('../../delegates/AuthenticationDelegate');
+import UserDelegate                                         = require('../../delegates/UserDelegate');
 import IntegrationMemberDelegate                            = require('../../delegates/IntegrationMemberDelegate');
 import VerificationCodeCache                                = require('../../caches/VerificationCodeCache');
 import IntegrationDelegate                                  = require('../../delegates/IntegrationDelegate');
@@ -20,6 +21,9 @@ import Urls                                                 = require('./Urls');
 
 class ExpertRegistrationRoute
 {
+    userDelegate = new UserDelegate();
+    integrationMemberDelegate = new IntegrationMemberDelegate();
+
     constructor(app)
     {
         // Pages
@@ -33,32 +37,67 @@ class ExpertRegistrationRoute
         app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: Urls.index(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress']}));
         app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: Urls.index(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress']}), this.authenticationSuccess.bind(this));
         app.post(Urls.authorizationDecision(), OAuthProviderDelegate.decision);
+        app.post(Urls.alreadyRegistered(), this.alreadyRegistered.bind(this));
     }
 
     /* Render login/register page */
-    private authenticate(req:express.Request, res:express.Response):any
+    private authenticate(req, res:express.Response):any
     {
-        var integrationId = req.query[ApiConstants.INTEGRATION_ID] || req.session[ApiConstants.INTEGRATION_ID];
+        var self = this;
+        var integrationId = parseInt(req.query[ApiConstants.INTEGRATION_ID] || req.session[ApiConstants.INTEGRATION_ID]);
         var integration = new IntegrationDelegate().getSync(integrationId);
         var invitationCode:string = req.query[ApiConstants.CODE] || req.session[ApiConstants.CODE];
+        var invitedMember;
 
         if (Utils.isNullOrEmpty(integration))
             return res.send(404, 'The integration id was not found');
 
+        // Add invitation code and integration id to session
         req.session[ApiConstants.INTEGRATION_ID] = integrationId;
         req.session[ApiConstants.CODE] = invitationCode;
 
         new VerificationCodeCache().searchInvitationCode(invitationCode, integrationId)
             .then(
-            function verified(invitedMember)
+            function verified(result)
             {
-                var member = new IntegrationMember(invitedMember);
-                req.session[ApiConstants.INTEGRATION_ID] = integrationId;
-
-                res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
-                res.render('expertRegistration/authenticate', {'integration': integration, messages: req.flash(), member: member, user: member.getUser(), code: invitationCode});
+                invitedMember = result;
+                var invitedMemberEmail = invitedMember.user.email;
+                return this.userDelegate.find({email: invitedMemberEmail})
             },
-            function verificationFailed() { res.send(401, "This is an invite only section"); }
+            function verificationFailed() { res.send(401, "The invitation is either invalid or has expired"); }
+        )
+            .then(
+            function userFound(user:User):any
+            {
+                if (!Utils.isNullOrEmpty(user))
+                {
+                    req.logIn(user);
+                    return self.integrationMemberDelegate.find({'user_id': user.getId(), integration_id: integrationId})
+                }
+                else
+                {
+                    var member = new IntegrationMember(invitedMember);
+                    res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
+                    res.render('expertRegistration/authenticate', {'integration': integration, messages: req.flash(), member: member, user: member.getUser(), code: invitationCode});
+                }
+            })
+            .then(
+            function expertFound(expert:IntegrationMember)
+            {
+                if (!Utils.isNullOrEmpty(expert))
+                {
+                    req.session[ApiConstants.EXPERT] = expert;
+                    res.redirect(Urls.alreadyRegistered());
+                }
+                else
+                {
+                    var integration = new IntegrationDelegate().getSync(integrationId);
+                    var redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? Urls.complete() : integration.getRedirectUrl();
+                    res.redirect(Urls.authorization(integrationId, redirectUrl));
+                }
+            })
+            .fail(
+            function handleError(error) { res.send(500); }
         );
     }
 
@@ -69,25 +108,11 @@ class ExpertRegistrationRoute
         var integrationId = req.session[ApiConstants.INTEGRATION_ID];
         var integration = new IntegrationDelegate().getSync(integrationId);
         var redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? Urls.complete() : integration.getRedirectUrl();
-        var user = req['user'];
         req.session[ApiConstants.INTEGRATION_ID] = integrationId;
 
-        // Check if logged in member is already authorized
-        var authorizationUrl = Urls.authorization() + '?response_type=code&client_id=' + integrationId + '&redirect_uri=' + redirectUrl;
+        var authorizationUrl = Urls.authorization(integrationId, redirectUrl);
 
-        return new IntegrationMemberDelegate().find({user_id: user.id, integration_id: integrationId})
-            .then(
-            function expertSearched(member)
-            {
-                req.session[ApiConstants.EXPERT] = member;
-
-                if (Utils.isNullOrEmpty(member))
-                    res.redirect(authorizationUrl);
-                else
-                    res.redirect(Urls.complete());
-            },
-            function expertSearchError() { res.send(500); }
-        );
+        res.redirect(authorizationUrl);
     }
 
     /* Render authorization page */
@@ -124,9 +149,26 @@ class ExpertRegistrationRoute
                 };
                 res.render('expertRegistration/complete', pageData);
             },
-            function scheduleRulesFetchError(error) { res.send(500, error.getBody()); }
-        )
+            function scheduleRulesFetchError(error)
+            {
+                // TODO: Debug why we can't send 500 error here
+                res.send(500);
+            }
+        );
     }
 
+    private alreadyRegistered(req:express.Request, res:express.Response)
+    {
+        var integrationId = parseInt(req.session[ApiConstants.INTEGRATION_ID]);
+        var integration = new IntegrationDelegate().getSync(integrationId);
+
+        var pageData = {
+            user: req['user'],
+            integration: integration,
+            "SearchNTalkUri": Config.get('SearchNTalk.uri')
+        };
+
+        res.render('expertRegistration/alreadyRegistered', pageData)
+    }
 }
 export = ExpertRegistrationRoute

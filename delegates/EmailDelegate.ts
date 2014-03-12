@@ -196,18 +196,14 @@ class EmailDelegate
         invitationUrl += ApiConstants.CODE + '=' + invitationCode;
         invitationUrl = url.resolve(Config.get('Coral.uri'), invitationUrl);
 
-        return new IntegrationDelegate().get(integrationId)
-            .then(
-            function integrationFetched(integration)
-            {
-                var emailData = {
-                    integration: integration,
-                    invitation_url: invitationUrl,
-                    recipient: recipient.toJson(),
-                    sender: sender.toJson()
-                };
-                return self.send(EmailDelegate.EMAIL_EXPERT_INVITE, recipient.getUser().getEmail(), emailData, sender.getEmail());
-            });
+        var integration = new IntegrationDelegate().getSync(integrationId)
+        var emailData = {
+            integration: integration,
+            invitation_url: invitationUrl,
+            recipient: recipient.toJson(),
+            sender: sender.toJson()
+        };
+        return self.send(EmailDelegate.EMAIL_EXPERT_INVITE, recipient.getUser().getEmail(), emailData, sender.getEmail());
     }
 
 }

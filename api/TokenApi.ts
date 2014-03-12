@@ -2,6 +2,7 @@
 import express                                              = require('express');
 import AccessControl                                        = require('../middleware/AccessControl');
 import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
+import VerificationCodeDelegate                             = require('../delegates/VerificationCodeDelegate');
 import EmailDelegate                                        = require('../delegates/EmailDelegate');
 import TemporaryTokenType                                   = require('../enums/TemporaryTokenType');
 import ApiConstants                                         = require('../enums/ApiConstants');
@@ -16,6 +17,7 @@ class TokenApi
     {
         var verificationCodeCache = new VerificationCodeCache();
         var emailDelegate = new EmailDelegate();
+        var verificationCodeDelegate = new VerificationCodeDelegate();
 
         app.get(ApiUrlDelegate.tempToken(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
@@ -85,20 +87,13 @@ class TokenApi
                 case TemporaryTokenType.EXPERT_INVITATION:
 
                     var sender:User = new User(req['user']);
-                    var user:User = req.body[ApiConstants.USER];
                     var member:IntegrationMember = req.body[ApiConstants.INTEGRATION_MEMBER];
-                    member.setUser(user);
-                    var integrationId:number = member.getIntegrationId();
+                    member.setUser(new User(member.getUser()));
 
-                    verificationCodeCache.createInvitationCode(integrationId, member)
-                        .then(
-                        function codeCreated(code)
-                        {
-                            return emailDelegate.sendExpertInvitationEmail(integrationId, code, member, sender);
-                        })
+                    verificationCodeDelegate.createAndSendExpertInvitationCode(member.getIntegrationId(), member, sender)
                         .then(
                         function codeCreatedAndSent() { res.json(200); },
-                        function codeCreateAndSendError(error) { res.send(500); }
+                        function codeCreateAndSendError(error) { res.send(500, error); }
                     );
 
                     break;
