@@ -12,6 +12,7 @@ import UserPhoneDelegate            = require('../delegates/UserPhoneDelegate');
 import TwilioUrlDelegate            = require('../delegates/TwilioUrlDelegate');
 import CallFragmentDelegate         = require('../delegates/CallFragmentDelegate');
 import SMSDelegate                  = require('../delegates/SMSDelegate');
+import TimeJobDelegate              = require('../delegates/TimeJobDelegate');
 import Utils                        = require('../common/Utils');
 import Config                       = require('../common/Config');
 import PhoneCall                    = require('../models/PhoneCall');
@@ -19,6 +20,7 @@ import User                         = require('../models/User');
 import IntegrationMember            = require('../models/IntegrationMember');
 import UserPhone                    = require('../models/UserPhone');
 import CallFragment                 = require('../models/CallFragment');
+import PhoneCallCache               = require('../caches/PhoneCallCache')
 
 class TwimlOutApi
 {
@@ -40,40 +42,38 @@ class TwimlOutApi
     {
         app.get(TwilioUrlDelegate.twimlJoinCall(), function (req:express.Request, res:express.Response)
         {
-            console.log('JOIN CALLED');
             var callId = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
-            var expert:IntegrationMember, user:User;
+            var expert:IntegrationMember, user:User,call:PhoneCall;
             new PhoneCallDelegate().get(callId, null, [ApiFlags.INCLUDE_INTEGRATION_MEMBER_USER])
                 .then(
-                function callFetched(call:PhoneCall)
+                function callFetched(tempCall:PhoneCall)
                 {
+                    call = tempCall;
                     expert = call[ApiFlags.INCLUDE_INTEGRATION_MEMBER_USER];
                     user = expert[ApiFlags.INCLUDE_USER];
-                    new UserPhoneDelegate().getByUserId(user.getId())
-                        .then(
-                        function PhoneRecord(userPhone:UserPhone[])
-                        {
-                            var phoneNumber:string = '+' + userPhone[0].getCountryCode(); // assuming there is only one entry per userId
-                            if(userPhone[0].getType() == PhoneType.LANDLINE)
-                                phoneNumber += userPhone[0].getAreaCode();
-                            phoneNumber += userPhone[0].getPhone();
-
-                            var pageData = {};
-                            pageData['actionURL'] = req.protocol + "://" + req.get('host') + TwilioUrlDelegate.twimlJoinCall(callId);
-                            pageData['timeLimit'] = call.getDuration();
-                            pageData['phoneNumber'] = phoneNumber;
-                            pageData['record'] = (call.getRecorded() == false) ? 'false':'true' ;
-                            pageData['message'] = 'Please wait while we get Mr. ' + user.getFirstName() + ' ' + user.getLastName() + ' on the call';
-                            res.render('../delegates/calling/TwilioXMLJoin.jade',pageData );
-                        }
-                    )
-                },
-                function callFetchError(error)
+                    return new UserPhoneDelegate().get(call.getCallerPhoneId());
+                })
+                .then(
+                function PhoneRecord(userPhone:UserPhone)
                 {
+                    var phoneNumber:string = '+' + userPhone.getCountryCode();
+                    if(userPhone.getType() == PhoneType.LANDLINE)
+                        phoneNumber += userPhone.getAreaCode();
+                    phoneNumber += userPhone.getPhone();
+
+                    var pageData = {};
+                    pageData['actionURL'] = req.protocol + "://" + req.get('host') + TwilioUrlDelegate.twimlJoinCall(callId);
+                    pageData['timeLimit'] = call.getDuration();
+                    pageData['phoneNumber'] = phoneNumber;
+                    pageData['record'] = (call.getRecorded() == false) ? 'false':'true' ;
+                    pageData['message'] = 'Please wait while we get Mr. ' + user.getFirstName() + ' ' + user.getLastName() + ' on the call';
+                    res.render('../delegates/calling/TwilioXMLJoin.jade',pageData );
+                })
+                .fail(function(error){
                     var pageData = {};
                     pageData['message'] = 'Internal Server Error';
                     res.render('../delegates/calling/TwilioXMLSay.jade',pageData );
-                });
+                })
         });
 
         app.post(TwilioUrlDelegate.twimlJoinCall(), function (req:express.Request, res:express.Response)
@@ -82,7 +82,6 @@ class TwimlOutApi
             if(Utils.isNullOrEmpty(attemptCount))
                 attemptCount = 0;
 
-            console.log('JOIN POST CALLED');
             var dialCallStatus = req.body[TwimlOutApi.DIALCALLSTATUS];
             var pageData = {};
 
@@ -127,7 +126,6 @@ class TwimlOutApi
 
         app.post(TwilioUrlDelegate.twimlCallback(), function (req:express.Request, res:express.Response)
         {
-            console.log('STATUS CALLBACK CALLED');
             res.json('OK');
             var callStatus = req.body[TwimlOutApi.CALLSTATUS];
             var attemptCount = parseInt(req.query[TwimlOutApi.ATTEMPTCOUNT]);
@@ -137,55 +135,51 @@ class TwimlOutApi
             if(callStatus != TwimlOutApi.COMPLETED) // if completed then information saved after expert drops the call
             {
                 if(attemptCount == 0)
-                    console.log('Reattempt to be made');// TODO change this to rescheduling function
+                    console.log('Reattempt to be made');// TODO change this to rescheduling function, make change in num_reattempt in call table
+                var duration:number = parseInt(req.body[TwimlOutApi.DURATION]);
+
+                var callFragment:CallFragment = new CallFragment();
+                callFragment.setCallId(parseInt(req.params[ApiConstants.PHONE_CALL_ID]));
+                callFragment.setAgentCallSidUser(req.body[TwimlOutApi.CALLSID]);
+                callFragment.setFromNumber(req.body[TwimlOutApi.USERNUMBER]);
+                callFragment.setDuration(duration);
+                callFragment.setAgentId(AgentType.TWILIO);
+                if(callStatus == TwimlOutApi.FAILED)
+                    callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_SERVER_ERROR);
                 else
-                {
-                    var duration:number = parseInt(req.body[TwimlOutApi.DURATION]);
+                    callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_USER_ERROR);
 
-                    var callFragment:CallFragment = new CallFragment();
-                    callFragment.setCallId(parseInt(req.params[ApiConstants.PHONE_CALL_ID]));
-                    callFragment.setAgentCallSidUser(req.body[TwimlOutApi.CALLSID]);
-                    callFragment.setFromNumber(req.body[TwimlOutApi.USERNUMBER]);
-                    callFragment.setDuration(duration);
-                    callFragment.setAgentId(AgentType.TWILIO);
-                    if(callStatus == TwimlOutApi.FAILED)
-                        callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_SERVER_ERROR);
-                    else
-                        callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_USER_ERROR);
-
-                    var twilioClient = require('twilio')(Config.get('twilio.account_sid'), Config.get('twilio.auth_token'));
-                    twilioClient.calls(callFragment.getAgentCallSidUser()).get(
-                        function(err, callDetails)
+                var twilioClient = require('twilio')(Config.get('twilio.account_sid'), Config.get('twilio.auth_token'));
+                twilioClient.calls(callFragment.getAgentCallSidUser()).get(
+                    function(err, callDetails)
+                    {
+                        if(!Utils.isNullOrEmpty(callDetails))
                         {
-                            if(!Utils.isNullOrEmpty(callDetails))
-                            {
-                                var startTime:Date = new Date(callDetails[TwimlOutApi.START_TIME]);
-                                callFragment.setStartTime(startTime.getTimeInSec());
-                                new CallFragmentDelegate().create(callFragment);
-                            }
-                        });
-                    var expert:IntegrationMember, user:User;
-                    new PhoneCallDelegate().get(callFragment.getCallId(), null, [ApiFlags.INCLUDE_INTEGRATION_MEMBER_USER])
-                        .then(
-                        function callFetched(call:PhoneCall)
+                            var startTime:Date = new Date(callDetails[TwimlOutApi.START_TIME]);
+                            callFragment.setStartTime(startTime.getTimeInSec());
+                            new CallFragmentDelegate().create(callFragment);
+                        }
+                    });
+                new PhoneCallDelegate().get(callFragment.getCallId())
+                    .then(
+                    function callFetched(call:PhoneCall)
+                    {
+                        return new UserPhoneDelegate().getByUserId(call.getExpertPhoneId());
+                    })
+                    .then(
+                    function PhoneRecord(expertPhone:UserPhone)
+                    {
+                        var tempCallFragment:CallFragment = callFragment;
+                        if(expertPhone.getType() == PhoneType.MOBILE)
                         {
-                            expert = call[ApiFlags.INCLUDE_INTEGRATION_MEMBER_USER];
-                            user = expert[ApiFlags.INCLUDE_USER];
-                            new UserPhoneDelegate().getByUserId(user.getId())
-                                .then(
-                                function PhoneRecord(userPhone:UserPhone[])
-                                {
-                                    if(userPhone[0].getType() == PhoneType.MOBILE)
-                                    {
-                                        var phoneNumber:string = '+' + userPhone[0].getCountryCode() + userPhone[0].getPhone(); // assuming there is only one entry per userId
-                                        var tempCallFragment:CallFragment = callFragment;
-                                        tempCallFragment.setToNumber(phoneNumber);
-                                        new SMSDelegate().sendStatusSMS(tempCallFragment, attemptCount);
-                                    }
-                                }
-                            )
-                        });
-                }
+                            var phoneNumber:string = '+' + expertPhone.getCountryCode() + expertPhone.getPhone();
+                            tempCallFragment.setToNumber(phoneNumber);
+                        }
+                        new SMSDelegate().sendStatusSMS(tempCallFragment, attemptCount);
+                    })
+                    .fail(function(error){
+                        //TODO
+                    })
             }
         });
 
@@ -195,10 +189,32 @@ class TwimlOutApi
             var callId = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
             var url:string = req.protocol + "://" + req.get('host') + TwilioUrlDelegate.twimlJoinCall(callId);
             var callbackUrl:string = req.protocol + "://" + req.get('host') + TwilioUrlDelegate.twimlCallback(callId);
-            res.json(new PhoneCallDelegate().triggerCall(callId, url, callbackUrl));
+            new PhoneCallDelegate().get(callId, null, [ApiFlags.INCLUDE_INTEGRATION_MEMBER_USER])
+                .then(
+                function callFetched(call:PhoneCall)
+                {
+                    //return new PhoneCallCache().createPhoneCallCache(call);
+                    new PhoneCallCache().getPhoneCall(callId)
+                        .then(
+                            function(call:PhoneCall)
+                            {
+                                console.log("d");
+                            }
+                        )
+                });
+            /*var ttt = new TimeJobDelegate().scheduleJobs()
+                .then (
+                function jobsFetched(jobs)
+                {
+                    res.json(jobs.length);
+                },
+                function fetchError(error)
+                {
+                    res.json('ERROR');
+                }
+            );*/
         });
     }
-
-
 }
 export = TwimlOutApi
+

@@ -125,7 +125,7 @@ class BaseDao implements IDao
 
         selectColumns = options && options.hasOwnProperty('fields') ? options['fields'].join(',') : '*';
 
-        var queryString = 'SELECT ' + selectColumns + ' FROM ' + this.tableName + ' WHERE ' + whereStatements.join(' AND ');
+        var queryString = 'SELECT ' + selectColumns + ' FROM `' + this.tableName + '` WHERE ' + whereStatements.join(' AND ');
 
         return MysqlDelegate.executeQuery(queryString, values)
             .then(
@@ -147,7 +147,7 @@ class BaseDao implements IDao
         wheres = _.map(_.keys(criteria), function (whereColumn) { return whereColumn + ' = ?'; });
         values = values.concat(_.values(criteria));
 
-        var query = 'UPDATE ' + this.tableName + ' SET ' + updates.join(",") + ' WHERE ' + wheres.join(" AND ");
+        var query = 'UPDATE `' + this.tableName + '` SET ' + updates.join(",") + ' WHERE ' + wheres.join(" AND ");
         return MysqlDelegate.executeQuery(query, values, transaction);
     }
 
@@ -156,7 +156,7 @@ class BaseDao implements IDao
         if (softDelete)
             return this.update({'id': id}, {'deleted': true}, transaction);
 
-        return MysqlDelegate.executeQuery('DELETE FROM ' + this.tableName + ' WHERE id = ?', [id], transaction);
+        return MysqlDelegate.executeQuery('DELETE FROM `' + this.tableName + '` WHERE id = ?', [id], transaction);
     }
 
     searchAndDelete(criteria:Object, softDelete:boolean = true, transaction?:any):q.Promise<any>
@@ -168,7 +168,7 @@ class BaseDao implements IDao
         wheres = _.map(_.keys(criteria), function (whereColumn) { return whereColumn + ' = ?'; });
         values = values.concat(_.values(criteria));
 
-        var query = 'DELETE FROM ' + this.tableName + ' WHERE ' + wheres.join(" AND ");
+        var query = 'DELETE FROM `' + this.tableName + '` WHERE ' + wheres.join(" AND ");
         return MysqlDelegate.executeQuery(query, values, transaction);
     }
 

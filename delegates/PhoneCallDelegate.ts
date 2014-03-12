@@ -2,6 +2,7 @@
 import _                            = require('underscore');
 import q                            = require('q');
 import Utils                        = require('../common/Utils');
+import Config                       = require('../common/Config');
 import IDao                         = require('../dao/IDao');
 import PhoneCallDao                 = require('../dao/PhoneCallDao');
 import BaseDAODelegate              = require('./BaseDaoDelegate');
@@ -17,7 +18,6 @@ import UserPhone                    = require('../models/UserPhone');
 import IntegrationMember            = require('../models/IntegrationMember');
 import UnscheduledCallsCache        = require('../caches/UnscheduledCallsCache');
 import UserDelegate                 = require('../delegates/UserDelegate');
-import Config                       = require('../common/Config');
 
 class PhoneCallDelegate extends BaseDAODelegate
 {
@@ -101,6 +101,11 @@ class PhoneCallDelegate extends BaseDAODelegate
 
     }
 
+    getCallsBetweenInterval(startTime:number, endTime:number):q.Promise<any>
+    {
+        return this.getDao().getCallsBetweenInterval(startTime,endTime);
+    }
+
     getIncludeHandler(include:string, result:PhoneCall):q.Promise<any>
     {
         switch (include)
@@ -115,39 +120,38 @@ class PhoneCallDelegate extends BaseDAODelegate
 
     triggerCall(callId:number, url:string, callbackUrl:string):any
     {
+        var self = this;
         var twilioClient = require('twilio')(Config.get('twilio.account_sid'), Config.get('twilio.auth_token'));
-        var user:User;
         new PhoneCallDelegate().get(callId, null, [ApiFlags.INCLUDE_USER])
             .then(
             function callFetched(call:PhoneCall)
             {
-                user = call[ApiFlags.INCLUDE_USER];
-                var options = ['status_callback']
-                new UserPhoneDelegate().getByUserId(user.getId())
-                    .then(
-                    function PhoneRecord(userPhone:UserPhone[])
-                    {
-                        var phoneNumber:string = '+' + userPhone[0].getCountryCode();
-                        if(userPhone[0].getType() == PhoneType.LANDLINE)
-                            phoneNumber += userPhone[0].getAreaCode();
-                        phoneNumber += userPhone[0].getPhone();
+                return new UserPhoneDelegate().getByUserId(call.getCallerUserId());
+            })
+            .then(
+            function PhoneRecord(userPhone:UserPhone)
+            {
+                var phoneNumber:string = '+' + userPhone.getCountryCode();
+                if(userPhone.getType() == PhoneType.LANDLINE)
+                    phoneNumber += userPhone.getAreaCode();
+                phoneNumber += userPhone.getPhone();
 
-                        twilioClient.makeCall({
-                            url: url,
-                            to: phoneNumber,
-                            from: Config.get('twilio.number'),
-                            method: "GET",
-                            StatusCallback: callbackUrl
-                        }, function(err, call) {
-                            if(err)
-                                console.log('Error'); // TODO change this to rescheduling function
-                            if(call)
-                                console.log(call.sid);
-                        });
-                    }
-                )
-            },
-            function callFetchError(error) { return error;});
+                twilioClient.makeCall({
+                    url: url,
+                    to: phoneNumber,
+                    from: Config.get('twilio.number'),
+                    method: "GET",
+                    StatusCallback: callbackUrl
+                }, function(err, call) {
+                    if(err)
+                        console.log('Error'); // TODO change this to rescheduling function
+                    if(call)
+                        console.log(call.sid);
+                });
+            })
+            .fail(function(error){
+                self.logger.debug("Error in call triggering");
+            })
     }
 
     getDao():IDao { return new PhoneCallDao(); }

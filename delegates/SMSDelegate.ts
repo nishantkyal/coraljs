@@ -1,43 +1,72 @@
 ///<reference path='../_references.d.ts'/>
 import _                            = require('underscore');
 import q                            = require('q');
+import Config                       = require('../common/Config');
+import Utils                        = require('../common/Utils');
 import BaseDaoDelegate              = require('../delegates/BaseDaoDelegate');
 import LocalizationDelegate         = require('../delegates/LocalizationDelegate');
-import TwilioDelegate               = require('./calling/TwilioDelegate');
+import UserPhoneDelegate            = require('../delegates/UserPhoneDelegate');
+import PhoneCallDelegate            = require('./PhoneCallDelegate');
 import IDao                         = require('../dao/IDao');
 import SMSDao                       = require('../dao/SmsDao');
 import SMS                          = require('../models/SMS');
 import CallFragment                 = require('../models/CallFragment');
+import User                         = require('../models/User');
+import IntegrationMember            = require('../models/IntegrationMember');
+import PhoneCall                    = require('../models/PhoneCall');
+import UserPhone                    = require('../models/UserPhone');
 import Priority                     = require('../enums/Priority');
+import PhoneType                    = require('../enums/PhoneType');
 import SMSStatus                    = require('../enums/SMSStatus');
 import CallFragmentStatus           = require('../enums/CallFragmentStatus');
-import Config                       = require('../common/Config');
-import Utils                        = require('../common/Utils');
+import ApiFlags                     = require('../enums/ApiFlags');
+import SmsProviderFactory           = require('../factories/SmsProviderFactory');
 
 
 class SMSDelegate extends BaseDaoDelegate
 {
     getDao():IDao { return new SMSDao(); }
 
-    send(sms:SMS):q.Promise<any>
+    sendReminderSMS(callId:number)
     {
-        if (!sms.getPriority()) sms.setPriority(Priority.LOWEST);
-        if (!sms.getScheduledDate()) sms.setScheduledDate(new Date().getTime());
-        if (!sms.getSender()) sms.setSender('TM-SEARCHNTALK');
-        sms.setStatus(SMSStatus.SCHEDULED);
-        sms.setNumRetries(0);
-
-        return this.create(sms)
+        var self = this;
+        var user_phone_id:number,  expert_phone_id:number;
+        new PhoneCallDelegate().get(callId, null, [ApiFlags.INCLUDE_INTEGRATION_MEMBER_USER])
             .then(
-            function smsSaved()
+            function callFetched(call:PhoneCall)
             {
-                return new TwilioDelegate().sendSMS(sms.getCountryCode() + sms.getPhone(), sms.getSender(), sms.getMessage());
+                user_phone_id = call.getCallerPhoneId();
+                expert_phone_id = call.getExpertPhoneId();
+                return new UserPhoneDelegate().get(expert_phone_id);
             })
             .then(
-            function smsSent()
+            function PhoneRecord(expertPhone:UserPhone)
             {
-                return sms;
-            });
+                new UserPhoneDelegate().get(user_phone_id)
+                .then(
+                function PhoneRecordUser(userPhone:UserPhone)
+                {
+                    var expertNumber:string = '+' + expertPhone.getCountryCode() +  expertPhone.getPhone();
+                    var userNumber:string = '+' + userPhone.getCountryCode() +  userPhone.getPhone();
+                    if(userPhone.getType() == PhoneType.MOBILE)
+                    {
+                        var bodyUser = _.template(LocalizationDelegate.get('sms.reminder'));
+                        self.logger.info("Reminder SMS sent to user number:  " + userNumber );
+                        new SmsProviderFactory().getProvider().sendSMS(userNumber, bodyUser({callId:callId, minutes:Config.get('sms.reminder.time')/60})); //TODO
+                    }
+                    if(expertPhone.getType() == PhoneType.MOBILE)
+                    {
+                        var bodyExpert = _.template(LocalizationDelegate.get('sms.reminder'));
+                        self.logger.info("Reminder SMS sent to expert number: " + expertNumber );
+                        new SmsProviderFactory().getProvider().sendSMS(expertNumber, bodyExpert({callId:callId, minutes:Config.get('sms.reminder.time')/60})); //TODO
+                    }
+                })
+            })
+            .fail(
+            function(error)
+            {
+                self.logger.debug("Error in sending reminder SMS");
+            })
     }
 
     sendStatusSMS(callFragment:CallFragment, attemptCount:number)
@@ -67,35 +96,44 @@ class SMSDelegate extends BaseDaoDelegate
 
     sendSuccessSMS(expertNumber:string ,userNumber:string, callId:number, duration:number)
     {
-        var body = _.template(LocalizationDelegate.get('sms.user.success'));
-        new TwilioDelegate().sendSMS(userNumber, body({callId:callId, duration:duration, phoneNumber:Config.get('kookoo.number')}));
-        body = _.template(LocalizationDelegate.get('sms.expert.success'));
-        new TwilioDelegate().sendSMS(expertNumber, body({callId:callId, duration:duration}));
+        var bodyUser = _.template(LocalizationDelegate.get('sms.user.success'));
+        this.logger.info("Success SMS sent to user number: " + userNumber );
+        new SmsProviderFactory().getProvider().sendSMS(userNumber, bodyUser({callId:callId, duration:duration, phoneNumber:Config.get('kookoo.number')}));
+        var bodyExpert = _.template(LocalizationDelegate.get('sms.expert.success'));
+        this.logger.info("Success SMS sent to expert number: " + expertNumber );
+        new SmsProviderFactory().getProvider().sendSMS(expertNumber, bodyExpert({callId:callId, duration:duration}));
     }
 
     sendRetrySMS(expertNumber:string, userNumber:string,  callId:number)
     {
         var body = _.template(LocalizationDelegate.get('sms.retry'));
-        new TwilioDelegate().sendSMS(userNumber, body({callId:callId, minutes:Config.get('call.retry.gap')}));
+        this.logger.info("Retry SMS sent to user number: " + userNumber );
+        new SmsProviderFactory().getProvider().sendSMS(userNumber, body({callId:callId, minutes:Config.get('call.retry.gap')}));
         if(!Utils.isNullOrEmpty(expertNumber))
-            new TwilioDelegate().sendSMS(expertNumber, body({callId:callId, minutes:Config.get('call.retry.gap')}));
+        {
+            this.logger.info("Retry SMS sent to expert number: " + expertNumber );
+            new SmsProviderFactory().getProvider().sendSMS(expertNumber, body({callId:callId, minutes:Config.get('call.retry.gap')}));
+        }
     }
 
     sendFailureSMS(expertNumber:string, userNumber:string,  callId:number)
     {
-        var body = _.template(LocalizationDelegate.get('sms.user.failure'));
-        new TwilioDelegate().sendSMS(userNumber, body({callId:callId}));
+        var bodyUser = _.template(LocalizationDelegate.get('sms.user.failure'));
+        this.logger.info("Failure SMS sent to user number: " + userNumber );
+        new SmsProviderFactory().getProvider().sendSMS(userNumber, bodyUser({callId:callId}));
         if(!Utils.isNullOrEmpty(expertNumber))
         {
-            body = _.template(LocalizationDelegate.get('sms.expert.failure'));
-            new TwilioDelegate().sendSMS(expertNumber, body({callId:callId}));
+            this.logger.info("Failure SMS sent to expert number: " + expertNumber );
+            var bodyExpert = _.template(LocalizationDelegate.get('sms.expert.failure'));
+            new SmsProviderFactory().getProvider().sendSMS(expertNumber, bodyExpert({callId:callId}));
         }
     }
 
     sendFailureUserSMS(userNumber:string,  callId:number)
     {
         var body = _.template(LocalizationDelegate.get('sms.user.failure.user'));
-        return new TwilioDelegate().sendSMS(userNumber, body({callId:callId, minutes:Config.get('call.retry.gap'), phoneNumber:Config.get('kookoo.number')}));
+        this.logger.info("Failure(User) SMS sent to user number: " + userNumber );
+        return new SmsProviderFactory().getProvider().sendSMS(userNumber, body({callId:callId, minutes:Config.get('call.retry.gap'), phoneNumber:Config.get('kookoo.number')}));
     }
 }
 export = SMSDelegate
