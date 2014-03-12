@@ -2,15 +2,17 @@
 import _                                                        = require('underscore');
 import q                                                        = require('q');
 import log4js                                                   = require('log4js');
-import TemporaryTokenType                                       = require('../enums/TemporaryTokenType');
 import User                                                     = require('../models/User');
 import IntegrationMember                                        = require('../models/IntegrationMember');
+import Sms                                                      = require('../models/Sms');
 import VerificationCodeCache                                    = require('../caches/VerificationCodeCache');
 import IntegrationMemberDelegate                                = require('../delegates/IntegrationMemberDelegate');
 import EmailDelegate                                            = require('../delegates/EmailDelegate');
+import SmsDelegate                                              = require('../delegates/SmsDelegate');
 import UserDelegate                                             = require('../delegates/UserDelegate');
 import Utils                                                    = require('../common/Utils');
 import IncludeFlag                                              = require('../enums/IncludeFlag');
+import SmsTemplate                                              = require('../enums/SmsTemplate');
 
 class VerificationCodeDelegate
 {
@@ -20,6 +22,7 @@ class VerificationCodeDelegate
     private userDelegate = new UserDelegate();
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private emailDelegate = new EmailDelegate();
+    private smsDelegate = new SmsDelegate();
 
     createAndSendExpertInvitationCode(integrationId:number, member:IntegrationMember, sender?:User):q.Promise<any>
     {
@@ -30,7 +33,7 @@ class VerificationCodeDelegate
             function expertFound(expert)
             {
                 if (!expert.isValid())
-                    return this.verificationCodeCache.getInvitationCodes(integrationId);
+                    return self.verificationCodeCache.getInvitationCodes(integrationId);
                 else
                     throw('The expert is already registered');
             })
@@ -59,6 +62,19 @@ class VerificationCodeDelegate
                 self.logger.debug('Error occurred while sending invitation to %s, error: %s', JSON.stringify(member.toJson()), error);
                 throw (error);
             });
+    }
+
+    createAndSendMobileVerificationCode(mobileNumber:string, countryCode:string):q.Promise<any>
+    {
+        var code = Utils.getRandomInt(10001, 99999);
+        var smsMessage = this.smsDelegate.generateSMSText(SmsTemplate.VERIFY_NUMBER, {code: code});
+
+        var sms = new Sms();
+        sms.setCountryCode(countryCode);
+        sms.setPhone(mobileNumber);
+        sms.setMessage(smsMessage);
+
+        return this.smsDelegate.send(sms);
     }
 }
 export = VerificationCodeDelegate

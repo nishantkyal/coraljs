@@ -1,0 +1,24 @@
+include header
+include scriptsAndStyles
+.container-fluid
+    .row-fluid
+        .col-md-2
+        .col-md-8
+            p Please verify your mobile number
+            p We'll be calling this number when connecting users to you for scheduled calls
+            form#sendCode
+                .form-group
+                    label Mobile Number
+                    .controls
+                        select.form-control
+                        input(type='text').form-control
+                .form-group
+                    input(type='submit', value='Send verification code', name='sendCode')
+            form#verifyCode
+                .form-group#verificationCode(style='display: none;')
+                    label Verification code
+                    input(type='text').form-control
+                .form-group
+                    input(type='submit', value='Verify', name='verify', style='display: none;')
+        .col-md-2
+script(src='/js/app/expertRegistration/mobileVerification.js')

@@ -29,6 +29,7 @@ class ExpertRegistrationRoute
         // Pages
         app.get(Urls.index(), this.authenticate.bind(this));
         app.get(Urls.authorization(), OAuthProviderDelegate.authorization, this.authorize.bind(this));
+        app.get(Urls.mobileVerification(), this.mobileVerification.bind(this));
         app.get(Urls.complete(), this.expertComplete.bind(this));
         app.get(Urls.alreadyRegistered(), this.alreadyRegistered.bind(this));
 
@@ -64,7 +65,7 @@ class ExpertRegistrationRoute
                 var invitedMemberEmail = invitedMember.getUser()[User.EMAIL];
                 return self.integrationMemberDelegate.findByEmail(invitedMemberEmail)
             },
-            function verificationFailed() { res.send(401, "The invitation is either invalid or has expired"); }
+            function verificationFailed() { throw("The invitation is either invalid or has expired"); }
         )
             .then(
             function expertFound(expert:IntegrationMember)
@@ -82,7 +83,7 @@ class ExpertRegistrationRoute
                 }
             })
             .fail(
-            function handleError(error) { res.send(500); }
+            function handleError(error) { res.send(500, error); }
         );
     }
 
@@ -92,8 +93,7 @@ class ExpertRegistrationRoute
     {
         var integrationId = req.session[ApiConstants.INTEGRATION_ID];
         var integration = new IntegrationDelegate().getSync(integrationId);
-        var redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? Urls.complete() : integration.getRedirectUrl();
-        req.session[ApiConstants.INTEGRATION_ID] = integrationId;
+        var redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? Urls.mobileVerification() : integration.getRedirectUrl();
 
         var authorizationUrl = Urls.authorization() + '?response_type=code&client_id=' + integrationId + '&redirect_uri=' + redirectUrl;
         res.redirect(authorizationUrl);
@@ -111,6 +111,17 @@ class ExpertRegistrationRoute
             });
     }
 
+    private mobileVerification(req:express.Request, res:express.Response)
+    {
+        var integrationId = parseInt(req.session[ApiConstants.INTEGRATION_ID]);
+        var integration = new IntegrationDelegate().getSync(integrationId);
+
+        var pageData = {
+            integration: integration
+        }
+        res.render('expertRegistration/mobileVerification', pageData);
+    }
+
     private expertComplete(req:express.Request, res:express.Response)
     {
         var integrationId = parseInt(req.session[ApiConstants.INTEGRATION_ID]);
@@ -119,12 +130,12 @@ class ExpertRegistrationRoute
 
         q.all([
                 new VerificationCodeCache().deleteInvitationCode(req.session[ApiConstants.CODE], req.session[ApiConstants.INTEGRATION_ID]),
-                new IntegrationMemberDelegate().search({'user_id': userId, 'integration_id': integrationId}, null, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
+                new IntegrationMemberDelegate().search({'user_id': userId, 'integration_id': integrationId}, null, null, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
             ])
             .then(
-            function scheduleRulesFetched(members)
+            function scheduleRulesFetched(...args)
             {
-                var member = members[0]
+                var member = new IntegrationMember(args[0][1][0]);
                 var pageData = {
                     user: req['user'],
                     integration: integration,

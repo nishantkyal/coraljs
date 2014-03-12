@@ -9,7 +9,6 @@ import IDao                                                             = requir
 import UserDAO                                                          = require('../dao/UserDao')
 import User                                                             = require('../models/User');
 import UserProfile                                                      = require('../models/UserProfile');
-import VerificationCodeCache                                            = require('../caches/VerificationCodeCache');
 import IncludeFlag                                                      = require('../enums/IncludeFlag');
 
 /*
@@ -39,15 +38,6 @@ class UserDelegate extends BaseDaoDelegate
         }
         return super.getIncludeHandler(include, result);
     }
-
-    createMobileVerificationToken():q.Promise<any> { return new VerificationCodeCache().createMobileVerificationCode(); }
-    searchMobileVerificationToken(code:string, ref:string):q.Promise<any> { return new VerificationCodeCache().searchMobileVerificationCode(code, ref); }
-
-    createEmailVerificationToken(userId:number):q.Promise<any> { return new VerificationCodeCache().createEmailVerificationCode(userId); }
-    searchEmailVerificationToken(userId:number, code:string):q.Promise<any> { return new VerificationCodeCache().searchEmailVerificationCode(userId, code); }
-
-    createPasswordResetToken(userId:number):q.Promise<any> { return new VerificationCodeCache().createPasswordResetCode(userId); }
-    searchPasswordResetToken(userId:number, code:string):q.Promise<any> { return new VerificationCodeCache().searchPasswordResetCode(userId, code); }
 
     getDao():IDao { return new UserDAO(); }
 

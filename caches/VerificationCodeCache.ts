@@ -7,34 +7,6 @@ import IntegrationMember                        = require('../models/Integration
 
 class VerificationCodeCache
 {
-    createMobileVerificationCode():q.Promise<any>
-    {
-        var codeReference:string = Utils.getRandomString(8);
-        var code:number = Utils.getRandomInt(1001, 9999);
-        var secondsInAnHr:number = 60 * 60;
-        return CacheHelper.set('mv-' + codeReference, code, secondsInAnHr)
-            .then(
-            function tokenCreated() { return codeReference; }
-        );
-    }
-
-    searchMobileVerificationCode(code:string, ref:string):q.Promise<any>
-    {
-        var actualCode:string;
-        return CacheHelper.get('mv-' + ref)
-            .then(
-            function invalidateToken(result)
-            {
-                actualCode = result;
-                return CacheHelper.del('mv-' + ref);
-            })
-            .then(
-            function validateCode()
-            {
-                return actualCode == code;
-            });
-    }
-
     createEmailVerificationCode(userId:number):q.Promise<any>
     {
         var code:string = Utils.getRandomString(20);

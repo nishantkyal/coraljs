@@ -6,6 +6,7 @@ import cron_parser                                  = require('cron-parser');
 import ExpertScheduleRuleDelegate                   = require('../delegates/ExpertScheduleRuleDelegate');
 import ExpertScheduleRule                           = require('../models/ExpertScheduleRule');
 import ExpertSchedule                               = require('../models/ExpertSchedule');
+import Utils                                        = require('../common/Utils');
 
 class ExpertScheduleDelegate
 {
@@ -43,7 +44,7 @@ class ExpertScheduleDelegate
 
         var options = {
             currentDate: moment(Math.max(startTime, rule.getRepeatStart())).toDate(),
-            endDate: moment(rule.getRepeatEnd() != 0 ? Math.min(endTime, rule.getRepeatEnd()) : endTime).toDate()
+            endDate: moment(!Utils.isNullOrEmpty(rule.getRepeatEnd()) && rule.getRepeatEnd() != 0 ? Math.min(endTime, rule.getRepeatEnd()) : endTime).toDate()
         };
 
         cron_parser.parseExpression(rule.getCronRule(), options, function schedulesGenerated(err, interval:cron_parser.CronExpression):any

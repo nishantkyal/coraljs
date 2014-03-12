@@ -4,117 +4,101 @@ import AccessControl                                        = require('../middle
 import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
 import VerificationCodeDelegate                             = require('../delegates/VerificationCodeDelegate');
 import EmailDelegate                                        = require('../delegates/EmailDelegate');
+import PhoneNumberDelegate                                  = require('../delegates/PhoneNumberDelegate');
 import TemporaryTokenType                                   = require('../enums/TemporaryTokenType');
 import ApiConstants                                         = require('../enums/ApiConstants');
+import PhoneNumberType                                      = require('../enums/PhoneNumberType');
 import VerificationCodeCache                                = require('../caches/VerificationCodeCache');
 import Utils                                                = require('../common/Utils');
 import User                                                 = require('../models/User');
 import IntegrationMember                                    = require('../models/IntegrationMember');
+import PhoneNumber                                          = require('../models/PhoneNumber');
 
 class TokenApi
 {
     constructor(app)
     {
         var verificationCodeCache = new VerificationCodeCache();
-        var emailDelegate = new EmailDelegate();
         var verificationCodeDelegate = new VerificationCodeDelegate();
+        var phoneNumberDelegate = new PhoneNumberDelegate();
 
-        app.get(ApiUrlDelegate.tempToken(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        /* Create mobile verification code */
+        app.put(ApiUrlDelegate.mobileVerificationCode(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
-            var tokenType:number = parseInt(TemporaryTokenType[req.query[ApiConstants.TYPE]]);
+            var phoneNumber:PhoneNumber = req.body[ApiConstants.PHONE_NUMBER];
 
-            switch (tokenType)
-            {
-                case TemporaryTokenType.EXPERT_INVITATION:
-
-                    var integrationId:number = parseInt(req.query[ApiConstants.INTEGRATION_ID]);
-                    var code:string = req.query[ApiConstants.CODE];
-                    verificationCodeCache.searchInvitationCode(code, integrationId)
-                        .then(
-                        function tokenFound(user)
-                        {
-                            if (!Utils.isNullOrEmpty(user))
-                                res.send(200);
-                            else
-                                res.send(401);
-                        },
-                        function tokenSearchError() { res.send(500); }
-                    );
-
-                    break;
-
-                case TemporaryTokenType.MOBILE_VERIFICATION:
-
-                    var code:string = req.query[ApiConstants.CODE];
-                    var ref:string = req.query[ApiConstants.CODE_VERIFICATION];
-
-                    verificationCodeCache.searchMobileVerificationCode(code, ref)
-                        .then(
-                        function tokenFound() { res.send(200); },
-                        function tokenSearchError() { res.send(500); }
-                    );
-
-                    break;
-
-                case TemporaryTokenType.PASSWORD_RESET:
-
-                    var userId:number = parseInt(req.query[ApiConstants.USER_ID]);
-                    var ref:string = req.query[ApiConstants.CODE_VERIFICATION];
-
-                    verificationCodeCache.searchPasswordResetCode(userId, ref)
-                        .then(
-                        function tokenFound() { res.send(200); },
-                        function tokenSearchError() { res.send(500); }
-                    );
-
-                    break;
-            }
+            verificationCodeDelegate.createAndSendMobileVerificationCode(phoneNumber.getPhone(), phoneNumber.getCountryCode())
+                .then(
+                function codeCreated(code:string)
+                {
+                    // TODO: Tie this to flow somehow so that it doesn't get overwritten
+                    // Save the phone number to which sms is sent and the generated code in session
+                    // so we know which number to add to account when code is verified
+                    req.session[ApiConstants.PHONE_NUMBER] = phoneNumber;
+                    req.session[ApiConstants.CODE_VERIFICATION] = code;
+                    res.send(200);
+                },
+                function codeCreationFailed() { res.send(500); }
+            )
         });
 
-        app.put(ApiUrlDelegate.tempToken(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        /* Verify mobile number code */
+        app.get(ApiUrlDelegate.mobileVerificationCode(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
-            var tokenType:number = parseInt(TemporaryTokenType[req.body[ApiConstants.TYPE]]);
+            var code:string = req.query[ApiConstants.CODE];
+            var ref:string = req.session[ApiConstants.CODE_VERIFICATION];
 
-            switch (tokenType)
+            if (code === ref)
             {
-                case TemporaryTokenType.MOBILE_VERIFICATION:
-                    verificationCodeCache.createMobileVerificationCode()
-                        .then(
-                        function codeCreated(result) { res.send(result); },
-                        function codeCreationFailed(error) { res.send(500); }
-                    )
-                    break;
-                case TemporaryTokenType.EXPERT_INVITATION:
+                // Persist the phone number in session as verified and link to logged in user
+                var phoneNumber:PhoneNumber = req.session[ApiConstants.PHONE_NUMBER];
+                phoneNumber.setUserId(req['user'].id);
+                phoneNumber.setVerified(true);
+                phoneNumber.setType(PhoneNumberType.MOBILE);
 
-                    var sender:User = new User(req['user']);
-                    var member:IntegrationMember = req.body[ApiConstants.INTEGRATION_MEMBER];
-                    member.setUser(new User(member.getUser()));
-
-                    verificationCodeDelegate.createAndSendExpertInvitationCode(member.getIntegrationId(), member, sender)
-                        .then(
-                        function codeCreatedAndSent() { res.json(200); },
-                        function codeCreateAndSendError(error) { res.send(500, error); }
-                    );
-
-                    break;
-                case TemporaryTokenType.PASSWORD_RESET:
-                    var userId:number = req.body[ApiConstants.USER_ID];
-                    verificationCodeCache.createPasswordResetCode(userId)
-                        .then(
-                        function codeCreated(result) { res.send(result); },
-                        function codeCreationFailed() { res.send(500); }
-                    )
-                    break;
-                case TemporaryTokenType.EMAIL_VERIFICATION:
-                    var userId:number = req.body[ApiConstants.USER_ID];
-                    verificationCodeCache.createPasswordResetCode(userId)
-                        .then(
-                        function passwordResetTokenGenerated(token) { res.json(token); },
-                        function passwordResetTokenGenerateError(err) { res.status(500).json(err); }
-                    );
-                    break;
+                phoneNumberDelegate.create(phoneNumber)
+                    .then(
+                    function phoneNumberCreated(phoneNumber) { res.json(phoneNumber.toJson()); },
+                    function phoneNumberCreateError(err) { res.send(500); }
+                );
             }
+            else
+                res.send(401);
         });
+
+        /* Create and send expert invitation code */
+        app.put(ApiUrlDelegate.expertInvitationCode(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        {
+            var sender:User = new User(req['user']);
+            var member:IntegrationMember = req.body[ApiConstants.INTEGRATION_MEMBER];
+            member.setUser(new User(member.getUser()));
+
+            verificationCodeDelegate.createAndSendExpertInvitationCode(member.getIntegrationId(), member, sender)
+                .then(
+                function codeCreatedAndSent() { res.json(200); },
+                function codeCreateAndSendError(error) { res.send(500, error); }
+            );
+        });
+
+        /* Verify expert invitation code */
+        app.get(ApiUrlDelegate.expertInvitationCode(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        {
+            var integrationId:number = parseInt(req.query[ApiConstants.INTEGRATION_ID]);
+            var code:string = req.query[ApiConstants.CODE];
+
+            verificationCodeCache.searchInvitationCode(code, integrationId)
+                .then(
+                function tokenFound(user)
+                {
+                    if (!Utils.isNullOrEmpty(user))
+                        res.send(200);
+                    else
+                        res.send(401);
+                },
+                function tokenSearchError() { res.send(500); }
+            );
+        });
+
     }
 }
 export = TokenApi

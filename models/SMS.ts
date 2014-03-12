@@ -1,8 +1,8 @@
 ///<reference path='../_references.d.ts'/>
-import _                        = require('underscore');
-import BaseModel                = require('./BaseModel');
-import Priority                 = require('../enums/Priority');
-import Utils                    = require('../common/Utils');
+import _                                        = require('underscore');
+import BaseModel                                = require('./BaseModel');
+import Priority                                 = require('../enums/Priority');
+import Utils                                    = require('../common/Utils');
 
 class SMS extends BaseModel
 {
@@ -18,7 +18,7 @@ class SMS extends BaseModel
     static PRIORITY:string = 'priority';
 
     private country_code:string;
-    private phone:number;
+    private phone:string;
     private sender:string;
     private message:string;
     private scheduled_date:number;
@@ -28,7 +28,7 @@ class SMS extends BaseModel
 
     /* Getters */
     getCountryCode():string { return this.country_code; }
-    getPhone():number { return this.phone; }
+    getPhone():string { return this.phone; }
     getSender():string { return this.sender; }
     getMessage():string { return this.message; }
     getScheduledDate():number { return this.scheduled_date; }
@@ -38,7 +38,7 @@ class SMS extends BaseModel
 
     /* Setters */
     setCountryCode(val:string):void { this.country_code = val; }
-    setPhone(val:number):void { this.phone = val; }
+    setPhone(val:string):void { this.phone = val; }
     setSender(val:string):void { this.sender = val; }
     setMessage(val:string):void { this.message = val; }
     setScheduledDate(val:number):void { this.scheduled_date = val; }

@@ -1,4 +1,5 @@
-import BaseModel                = require('./BaseModel');
+import BaseModel                                        = require('./BaseModel');
+import PhoneNumberType                                  = require('../enums/PhoneNumberType');
 
 class PhoneNumber extends BaseModel
 {
@@ -14,16 +15,16 @@ class PhoneNumber extends BaseModel
     private user_id:number;
     private country_code:string;
     private area_code:string;
-    private phone:number;
-    private type:number;
+    private phone:string;
+    private type:PhoneNumberType;
     private verified:boolean;
 
     /* Getters */
     getUserId():number { return this.user_id; }
     getCountryCode():string { return this.country_code; }
     getAreaCode():string { return this.area_code; }
-    getPhone():number { return this.phone; }
-    getType():number { return this.type; }
+    getPhone():string { return this.phone; }
+    getType():PhoneNumberType { return this.type; }
     getVerified():boolean { return this.verified; }
 
     isValid():boolean
@@ -35,8 +36,8 @@ class PhoneNumber extends BaseModel
     setUserId(val:number):void { this.user_id = val; }
     setCountryCode(val:string):void { this.country_code = val; }
     setAreaCode(val:string):void { this.area_code = val; }
-    setPhone(val:number):void { this.phone = val; }
-    setType(val:number):void { this.type = val; }
+    setPhone(val:string):void { this.phone = val; }
+    setType(val:PhoneNumberType):void { this.type = val; }
     setVerified(val:boolean):void { this.verified = val; }
 
 }

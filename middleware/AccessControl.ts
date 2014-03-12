@@ -2,6 +2,7 @@
 import q                                                    = require('q');
 import express                                              = require('express');
 import log4js                                               = require('log4js');
+import connect_ensure_login                                 = require('connect-ensure-login');
 import IntegrationMember                                    = require('../models/IntegrationMember');
 import IntegrationMemberDelegate                            = require('../delegates/IntegrationMemberDelegate');
 import IntegrationMemberRole                                = require('../enums/IntegrationMemberRole');
@@ -18,9 +19,6 @@ class AccessControl
 
     static allowOwner(req, res, next:Function):any
     {
-        if (AccessControl.isRequestFromDashboard(req))
-            return next();
-
         var accessToken = req.query['token'];
         var integrationMemberId = req.params['memberId'];
         AccessControl.getMember(accessToken, integrationMemberId)
@@ -42,9 +40,6 @@ class AccessControl
 
     static allowAdmin(req, res, next):any
     {
-        if (AccessControl.isRequestFromDashboard(req))
-            return next();
-
         var accessToken = req.query['token'];
         var integrationMemberId = req.params['memberId'] || req.params[ApiConstants.EXPERT_ID];
         AccessControl.getMember(accessToken, integrationMemberId)
@@ -66,11 +61,8 @@ class AccessControl
 
     static allowExpert(req, res, next):any
     {
-        if (AccessControl.isRequestFromDashboard(req))
-            return next();
-
         var accessToken = req.query['token'];
-        var integrationMemberId = req.params['expertId'];
+        var integrationMemberId = req.params[ApiConstants.EXPERT_ID];
         AccessControl.getMember(accessToken, integrationMemberId)
             .then(
             function handleMemberFetched(integrationMember)
@@ -88,27 +80,9 @@ class AccessControl
         )
     }
 
-    static allowDashboard(req, res, next)
-    {
-        if (true)
-            next();
-        else
-        {
-            AccessControl.logger.error('Auth failed for IP: ' + req.ip);
-            res.status(500).json("Couldn't authenticate request");
-        }
-    }
-
-    private static isRequestFromDashboard(req)
-    {
-        var remoteAddress = req.ip;
-        var searchntalkHosts = Config.get('SearchNTalk.hosts') || [];
-
-        if (Utils.isNullOrEmpty(searchntalkHosts))
-            this.logger.error('NO SEARCHNTALK HOSTS CONFIGURED, DASHBOARD WONT AUTHENTICATE');
-
-        return searchntalkHosts.indexOf(remoteAddress) != -1;
-    }
+    static allowDashboard = [
+        connect_ensure_login.ensureLoggedIn()
+    ];
 
     /* Helper method to get details of integration corresponding to token and member id */
     private static getMember(accessToken:string, integrationMemberId?:string, role?:IntegrationMemberRole):q.Promise<any>
@@ -119,10 +93,7 @@ class AccessControl
         if (role)
             search[IntegrationMember.ROLE] = role;
 
-        return new IntegrationMemberDelegate().search(search)
-            .then(
-                function memberSearched(result) { return Utils.isNullOrEmpty(result) ? null : result; }
-            );
+        return new IntegrationMemberDelegate().find(search);
     }
 
 }

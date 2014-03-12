@@ -26,6 +26,8 @@ class IntegrationMember extends BaseModel
 
     static INTEGRATION:string = 'integration';
     static USER:string = 'user';
+    static SCHEDULE:string = 'schedule';
+    static SCHEDULE_RULE:string = 'schedule_rule';
 
     private integration_id:number;
     private user_id:number;
