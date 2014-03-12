@@ -21,34 +21,26 @@ class VerificationCodeDelegate
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private emailDelegate = new EmailDelegate();
 
-    createAndSendExpertInvitationCode(integrationId:number, member:IntegrationMember, sender?:User):q.Promise<string>
+    createAndSendExpertInvitationCode(integrationId:number, member:IntegrationMember, sender?:User):q.Promise<any>
     {
         var self = this;
 
-        return self.userDelegate.find({email: member.getUser().getEmail()})
+        return self.integrationMemberDelegate.findByEmail(member.getUser().getEmail())
             .then(
-            function userFound(user:User)
+            function expertFound(expert)
             {
-                // Check if an expert already exists for the email
-                if (Utils.isNullOrEmpty(user))
-                    return self.verificationCodeCache.getInvitationCodes(integrationId);
+                if (!expert.isValid())
+                    return this.verificationCodeCache.getInvitationCodes(integrationId);
                 else
-                    return self.integrationMemberDelegate.find({'user_id': user.getId()})
-                        .then(
-                        function expertFound(expert)
-                        {
-                            if (Utils.isNullOrEmpty(expert))
-                                return this.verificationCodeCache.getInvitationCodes(integrationId);
-                            else
-                                throw('The expert is already registered');
-                        })
+                    throw('The expert is already registered');
             })
             .then(
-            function invitationCodesFetched(invitedMembers:IntegrationMember[])
+            function invitationCodesFetched(invitedMembers:any[])
             {
                 // Check if an invitation has already been sent to the email
-                var matchingMember = _.find(invitedMembers, function(m) {
-                    return m.user.email = member.getUser().getEmail();
+                var matchingMember = _.find(invitedMembers, function (m:any):boolean
+                {
+                    return m.user.email == member.getUser().getEmail();
                 });
 
                 if (Utils.isNullOrEmpty(matchingMember))

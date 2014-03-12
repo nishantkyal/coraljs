@@ -30,13 +30,12 @@ class UserDelegate extends BaseDaoDelegate
     getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
     {
         var user:User = result;
-
         switch (include)
         {
             case IncludeFlag.INCLUDE_USER_PROFILE:
-                return new UserProfileDelegate().search({'user_id': user.getId()});
+                return new UserProfileDelegate().search({'user_id': result.getId()});
             case IncludeFlag.INCLUDE_INTEGRATION_MEMBER:
-                return new IntegrationMemberDelegate().searchByUser(user.getId());
+                return new IntegrationMemberDelegate().searchByUser(result.getId());
         }
         return super.getIncludeHandler(include, result);
     }

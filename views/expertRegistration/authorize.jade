@@ -5,8 +5,8 @@ include header
     .row-fluid
         .col-md-2
         .col-md-8
-            label By registering as an expert for #{integration.title}, you also agree to <a href='#'>SearchNTalk.com Terms and Conditions</a>
-            label You will receive requests for scheduling phone calls from people who are seeking your expert advice.
+            p By registering as an expert for #{integration.title}, you also agree to <a href='#'>SearchNTalk.com Terms and Conditions</a>
+            p You will receive requests for scheduling phone calls from people who are seeking your expert advice.
             form(action="/expert/authorization/decision", method="post")
                 input(name="transaction_id", type="hidden", value="#{transactionID}")
                 .controls

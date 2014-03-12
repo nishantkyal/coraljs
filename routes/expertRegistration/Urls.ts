@@ -9,10 +9,7 @@ class Urls
     static register():string { return ApiUrlDelegate.get('/expert/register'); }
     static linkedInLogin():string { return ApiUrlDelegate.get('/expert/login/linkedin'); }
     static linkedInLoginCallback():string { return ApiUrlDelegate.get('/expert/login/linkedin/callback'); }
+    static authorization():string { return ApiUrlDelegate.get('/expert/authorization'); }
     static alreadyRegistered():string { return ApiUrlDelegate.get('/expert/registration/done'); }
-    static authorization(integrationId?:number, redirectUrl?:string):string
-    {
-        return ApiUrlDelegate.get('/expert/authorization?client_id=:integrationId&redirect_uri=:redirectUrl&response_type=code', {integrationId: integrationId, redirectUrl: redirectUrl});
-    }
 }
 export = Urls

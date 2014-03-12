@@ -30,6 +30,7 @@ class ExpertRegistrationRoute
         app.get(Urls.index(), this.authenticate.bind(this));
         app.get(Urls.authorization(), OAuthProviderDelegate.authorization, this.authorize.bind(this));
         app.get(Urls.complete(), this.expertComplete.bind(this));
+        app.get(Urls.alreadyRegistered(), this.alreadyRegistered.bind(this));
 
         // Auth
         app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.index(), failureFlash: true}), this.authenticationSuccess.bind(this));
@@ -37,7 +38,6 @@ class ExpertRegistrationRoute
         app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: Urls.index(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress']}));
         app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: Urls.index(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress']}), this.authenticationSuccess.bind(this));
         app.post(Urls.authorizationDecision(), OAuthProviderDelegate.decision);
-        app.post(Urls.alreadyRegistered(), this.alreadyRegistered.bind(this));
     }
 
     /* Render login/register page */
@@ -58,42 +58,27 @@ class ExpertRegistrationRoute
 
         new VerificationCodeCache().searchInvitationCode(invitationCode, integrationId)
             .then(
-            function verified(result)
+            function verified(result):any
             {
-                invitedMember = result;
-                var invitedMemberEmail = invitedMember.user.email;
-                return this.userDelegate.find({email: invitedMemberEmail})
+                invitedMember = new IntegrationMember(result);
+                var invitedMemberEmail = invitedMember.getUser()[User.EMAIL];
+                return self.integrationMemberDelegate.findByEmail(invitedMemberEmail)
             },
             function verificationFailed() { res.send(401, "The invitation is either invalid or has expired"); }
         )
             .then(
-            function userFound(user:User):any
-            {
-                if (!Utils.isNullOrEmpty(user))
-                {
-                    req.logIn(user);
-                    return self.integrationMemberDelegate.find({'user_id': user.getId(), integration_id: integrationId})
-                }
-                else
-                {
-                    var member = new IntegrationMember(invitedMember);
-                    res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
-                    res.render('expertRegistration/authenticate', {'integration': integration, messages: req.flash(), member: member, user: member.getUser(), code: invitationCode});
-                }
-            })
-            .then(
             function expertFound(expert:IntegrationMember)
             {
-                if (!Utils.isNullOrEmpty(expert))
+                if (expert.isValid())
                 {
                     req.session[ApiConstants.EXPERT] = expert;
                     res.redirect(Urls.alreadyRegistered());
                 }
                 else
                 {
-                    var integration = new IntegrationDelegate().getSync(integrationId);
-                    var redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? Urls.complete() : integration.getRedirectUrl();
-                    res.redirect(Urls.authorization(integrationId, redirectUrl));
+                    var member = new IntegrationMember(invitedMember);
+                    res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
+                    res.render('expertRegistration/authenticate', {'integration': integration, messages: req.flash(), member: member, user: member.getUser(), code: invitationCode});
                 }
             })
             .fail(
@@ -110,8 +95,7 @@ class ExpertRegistrationRoute
         var redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? Urls.complete() : integration.getRedirectUrl();
         req.session[ApiConstants.INTEGRATION_ID] = integrationId;
 
-        var authorizationUrl = Urls.authorization(integrationId, redirectUrl);
-
+        var authorizationUrl = Urls.authorization() + '?response_type=code&client_id=' + integrationId + '&redirect_uri=' + redirectUrl;
         res.redirect(authorizationUrl);
     }
 

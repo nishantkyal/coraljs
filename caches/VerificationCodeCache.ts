@@ -78,7 +78,7 @@ class VerificationCodeCache
         );
     }
 
-    searchInvitationCode(code:string, integrationId:number):q.Promise<IntegrationMember>
+    searchInvitationCode(code:string, integrationId:number):q.Promise<any>
     {
         return CacheHelper.getFromHash('ic-' + integrationId, code)
             .then(
