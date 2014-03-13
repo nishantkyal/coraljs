@@ -16,8 +16,7 @@ class CallFragmentDao extends BaseDao
     {
         var query = 'SELECT SUM(duration) as totalDuration FROM ' +  this.getModel().TABLE_NAME
                     + ' WHERE call_id = ' + callId
-                    + ' AND call_fragment_status = ' + CallFragmentStatus.SUCCESS
-                    + ' GROUP BY duration';
+                    + ' AND call_fragment_status = ' + CallFragmentStatus.SUCCESS;
 
         return MysqlDelegate.executeQuery(query, null, transaction);
     }

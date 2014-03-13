@@ -7,6 +7,7 @@ import SMSDelegate                      = require('../delegates/SMSDelegate');
 import PhoneCall                        = require('../models/PhoneCall');
 import TimeJob                          = require('../models/TimeJob');
 import TimeJobType                      = require('../enums/TimeJobType');
+import PhoneCallCache                   = require('../caches/PhoneCallCache');
 
 class TimeJobDelegate
 {
@@ -33,6 +34,8 @@ class TimeJobDelegate
                         tempTimeJob.setJob(call);
                         tempTimeJob.setStartTime(call.getStartTime());
                         tempTimeJob.setJobType(TimeJobType.CALL);
+                        self.logger.info('Call scheduled. Id:' + call.getId() + ' at' + call.getStartTime());
+                        new PhoneCallCache().createPhoneCallCache(call.getId());
                         TimeJobDelegate.jobs.push(tempTimeJob);
                     }
                     if(call.getStartTime() >= currentTime + Config.get('sms.reminder.time')) //need to schedule reminder SMS as well
@@ -73,6 +76,7 @@ class TimeJobDelegate
 
     rescheduleJob(id:number, duration:number)
     {
+        //TODO send url accordingly
         var self = this;
         _.each(TimeJobDelegate.jobs, function(job:TimeJob)
         {
@@ -102,7 +106,7 @@ class TimeJobDelegate
         {
             case TimeJobType.CALL:
                 var call:PhoneCall = job.getJob();
-                new PhoneCallDelegate().triggerCall(call.getId(),null,null);
+                new PhoneCallDelegate().triggerCall(call.getId());
                 break;
             case TimeJobType.SMS:
                 var call:PhoneCall = job.getJob();

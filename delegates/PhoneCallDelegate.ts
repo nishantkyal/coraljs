@@ -9,6 +9,7 @@ import BaseDAODelegate              = require('./BaseDaoDelegate');
 import IntegrationMemberDelegate    = require('./IntegrationMemberDelegate');
 import UserPhoneDelegate            = require('./UserPhoneDelegate');
 import EmailDelegate                = require('./EmailDelegate');
+import UserDelegate                 = require('../delegates/UserDelegate');
 import CallStatus                   = require('../enums/CallStatus');
 import ApiFlags                     = require('../enums/ApiFlags');
 import PhoneType                    = require('../enums/PhoneType');
@@ -17,7 +18,9 @@ import User                         = require('../models/User');
 import UserPhone                    = require('../models/UserPhone');
 import IntegrationMember            = require('../models/IntegrationMember');
 import UnscheduledCallsCache        = require('../caches/UnscheduledCallsCache');
-import UserDelegate                 = require('../delegates/UserDelegate');
+import PhoneCallCache               = require('../caches/PhoneCallCache');
+import PhoneCallCacheModel          = require('../caches/models/PhoneCallCacheModel');
+import CallProviderFactory          = require('../factories/CallProviderFactory');
 
 class PhoneCallDelegate extends BaseDAODelegate
 {
@@ -118,36 +121,14 @@ class PhoneCallDelegate extends BaseDAODelegate
         return super.getIncludeHandler(include, result);
     }
 
-    triggerCall(callId:number, url:string, callbackUrl:string):any
+    triggerCall(callId:number):q.Promise<any>
     {
         var self = this;
-        var twilioClient = require('twilio')(Config.get('twilio.account_sid'), Config.get('twilio.auth_token'));
-        new PhoneCallDelegate().get(callId, null, [ApiFlags.INCLUDE_USER])
+        return new PhoneCallCache().getPhoneCall(callId)
             .then(
-            function callFetched(call:PhoneCall)
-            {
-                return new UserPhoneDelegate().getByUserId(call.getCallerUserId());
-            })
-            .then(
-            function PhoneRecord(userPhone:UserPhone)
-            {
-                var phoneNumber:string = '+' + userPhone.getCountryCode();
-                if(userPhone.getType() == PhoneType.LANDLINE)
-                    phoneNumber += userPhone.getAreaCode();
-                phoneNumber += userPhone.getPhone();
-
-                twilioClient.makeCall({
-                    url: url,
-                    to: phoneNumber,
-                    from: Config.get('twilio.number'),
-                    method: "GET",
-                    StatusCallback: callbackUrl
-                }, function(err, call) {
-                    if(err)
-                        console.log('Error'); // TODO change this to rescheduling function
-                    if(call)
-                        console.log(call.sid);
-                });
+            function CallFetched(call:any){
+                var phoneCallCacheObj:PhoneCallCacheModel = new PhoneCallCacheModel(call);
+                return new CallProviderFactory().getProvider().makeCall(phoneCallCacheObj.getUserNumber(), callId, phoneCallCacheObj.getNumReattempts());
             })
             .fail(function(error){
                 self.logger.debug("Error in call triggering");

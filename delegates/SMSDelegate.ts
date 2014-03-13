@@ -1,6 +1,7 @@
 ///<reference path='../_references.d.ts'/>
 import _                            = require('underscore');
 import q                            = require('q');
+import log4js                       = require('log4js');
 import Config                       = require('../common/Config');
 import Utils                        = require('../common/Utils');
 import BaseDaoDelegate              = require('../delegates/BaseDaoDelegate');
@@ -21,6 +22,8 @@ import SMSStatus                    = require('../enums/SMSStatus');
 import CallFragmentStatus           = require('../enums/CallFragmentStatus');
 import ApiFlags                     = require('../enums/ApiFlags');
 import SmsProviderFactory           = require('../factories/SmsProviderFactory');
+import PhoneCallCache               = require('../caches/PhoneCallCache');
+import PhoneCallCacheModel          = require('../caches/models/PhoneCallCacheModel');
 
 
 class SMSDelegate extends BaseDaoDelegate
@@ -30,37 +33,22 @@ class SMSDelegate extends BaseDaoDelegate
     sendReminderSMS(callId:number)
     {
         var self = this;
-        var user_phone_id:number,  expert_phone_id:number;
-        new PhoneCallDelegate().get(callId, null, [ApiFlags.INCLUDE_INTEGRATION_MEMBER_USER])
+        new PhoneCallCache().getPhoneCall(callId)
             .then(
-            function callFetched(call:PhoneCall)
-            {
-                user_phone_id = call.getCallerPhoneId();
-                expert_phone_id = call.getExpertPhoneId();
-                return new UserPhoneDelegate().get(expert_phone_id);
-            })
-            .then(
-            function PhoneRecord(expertPhone:UserPhone)
-            {
-                new UserPhoneDelegate().get(user_phone_id)
-                .then(
-                function PhoneRecordUser(userPhone:UserPhone)
+            function CallFetched(call:any){
+                var phoneCallCacheObj:PhoneCallCacheModel = new PhoneCallCacheModel(call);
+                if(phoneCallCacheObj.getUserPhoneType() == PhoneType.MOBILE)
                 {
-                    var expertNumber:string = '+' + expertPhone.getCountryCode() +  expertPhone.getPhone();
-                    var userNumber:string = '+' + userPhone.getCountryCode() +  userPhone.getPhone();
-                    if(userPhone.getType() == PhoneType.MOBILE)
-                    {
-                        var bodyUser = _.template(LocalizationDelegate.get('sms.reminder'));
-                        self.logger.info("Reminder SMS sent to user number:  " + userNumber );
-                        new SmsProviderFactory().getProvider().sendSMS(userNumber, bodyUser({callId:callId, minutes:Config.get('sms.reminder.time')/60})); //TODO
-                    }
-                    if(expertPhone.getType() == PhoneType.MOBILE)
-                    {
-                        var bodyExpert = _.template(LocalizationDelegate.get('sms.reminder'));
-                        self.logger.info("Reminder SMS sent to expert number: " + expertNumber );
-                        new SmsProviderFactory().getProvider().sendSMS(expertNumber, bodyExpert({callId:callId, minutes:Config.get('sms.reminder.time')/60})); //TODO
-                    }
-                })
+                    var bodyUser = _.template(LocalizationDelegate.get('sms.reminder'));
+                    self.logger.info("Reminder SMS sent to user number:  " + phoneCallCacheObj.getUserNumber() );
+                    new SmsProviderFactory().getProvider().sendSMS(phoneCallCacheObj.getUserNumber(), bodyUser({callId:callId, minutes:Config.get('sms.reminder.time')/60})); //TODO
+                }
+                if(phoneCallCacheObj.getExpertPhoneType() == PhoneType.MOBILE)
+                {
+                    var bodyExpert = _.template(LocalizationDelegate.get('sms.reminder'));
+                    self.logger.info("Reminder SMS sent to expert number: " + phoneCallCacheObj.getExpertNumber() );
+                    new SmsProviderFactory().getProvider().sendSMS(phoneCallCacheObj.getExpertNumber(), bodyExpert({callId:callId, minutes:Config.get('sms.reminder.time')/60})); //TODO
+                }
             })
             .fail(
             function(error)

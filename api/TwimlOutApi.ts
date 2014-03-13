@@ -21,10 +21,10 @@ import IntegrationMember            = require('../models/IntegrationMember');
 import UserPhone                    = require('../models/UserPhone');
 import CallFragment                 = require('../models/CallFragment');
 import PhoneCallCache               = require('../caches/PhoneCallCache')
+import PhoneCallCacheModel          = require('../caches/models/PhoneCallCacheModel');
 
 class TwimlOutApi
 {
-    private static ATTEMPTCOUNT:string = 'attemptCount';
     private static DIALCALLSID:string = 'DialCallSid';
     private static CALLSID:string = 'CallSid';
     private static USERNUMBER:string = 'To';
@@ -41,32 +41,18 @@ class TwimlOutApi
     constructor(app)
     {
         app.get(TwilioUrlDelegate.twimlJoinCall(), function (req:express.Request, res:express.Response)
-        {
+        { // called after User picks up the phone...need to sen dback expert phone details
             var callId = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
-            var expert:IntegrationMember, user:User,call:PhoneCall;
-            new PhoneCallDelegate().get(callId, null, [ApiFlags.INCLUDE_INTEGRATION_MEMBER_USER])
+            new PhoneCallCache().getPhoneCall(callId)
                 .then(
-                function callFetched(tempCall:PhoneCall)
-                {
-                    call = tempCall;
-                    expert = call[ApiFlags.INCLUDE_INTEGRATION_MEMBER_USER];
-                    user = expert[ApiFlags.INCLUDE_USER];
-                    return new UserPhoneDelegate().get(call.getCallerPhoneId());
-                })
-                .then(
-                function PhoneRecord(userPhone:UserPhone)
-                {
-                    var phoneNumber:string = '+' + userPhone.getCountryCode();
-                    if(userPhone.getType() == PhoneType.LANDLINE)
-                        phoneNumber += userPhone.getAreaCode();
-                    phoneNumber += userPhone.getPhone();
-
+                function CallFetched(call:any){ //get the info for this call from cache and send it back as xml to TWILIO
+                    var phoneCallCacheObj:PhoneCallCacheModel = new PhoneCallCacheModel(call);
                     var pageData = {};
                     pageData['actionURL'] = req.protocol + "://" + req.get('host') + TwilioUrlDelegate.twimlJoinCall(callId);
-                    pageData['timeLimit'] = call.getDuration();
-                    pageData['phoneNumber'] = phoneNumber;
-                    pageData['record'] = (call.getRecorded() == false) ? 'false':'true' ;
-                    pageData['message'] = 'Please wait while we get Mr. ' + user.getFirstName() + ' ' + user.getLastName() + ' on the call';
+                    pageData['timeLimit'] = phoneCallCacheObj.getDuration();
+                    pageData['phoneNumber'] = phoneCallCacheObj.getExpertNumber();
+                    pageData['record'] = (phoneCallCacheObj.getRecorded() == false) ? 'false':'true' ;
+                    pageData['message'] = 'Please wait while we get Mr. ' + phoneCallCacheObj.getExpertName() + ' on the call';
                     res.render('../delegates/calling/TwilioXMLJoin.jade',pageData );
                 })
                 .fail(function(error){
@@ -77,22 +63,22 @@ class TwimlOutApi
         });
 
         app.post(TwilioUrlDelegate.twimlJoinCall(), function (req:express.Request, res:express.Response)
-        {
-            var attemptCount = parseInt(req.query[TwimlOutApi.ATTEMPTCOUNT]);
+        { // called after expert has hung up. saving details into call fragment here.
+            var attemptCount = parseInt(req.query[TwilioDelegate.ATTEMPTCOUNT]);
             if(Utils.isNullOrEmpty(attemptCount))
                 attemptCount = 0;
 
             var dialCallStatus = req.body[TwimlOutApi.DIALCALLSTATUS];
             var pageData = {};
 
-            var callFragment:CallFragment = new CallFragment();
+            var callFragment:CallFragment = new CallFragment(); //save information received in CaLLFragment
             callFragment.setCallId(parseInt(req.params[ApiConstants.PHONE_CALL_ID]));
             callFragment.setAgentCallSidExpert(req.body[TwimlOutApi.DIALCALLSID]);
             callFragment.setAgentCallSidUser(req.body[TwimlOutApi.CALLSID]);
             callFragment.setFromNumber(req.body[TwimlOutApi.USERNUMBER]);
             callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_EXPERT_ERROR); // if successful then this value will be overwritten
 
-            switch(dialCallStatus)
+            switch(dialCallStatus) //decide the message based on expertCallStatus and attemptCount
             {
                 case TwimlOutApi.COMPLETED:
                     pageData['message'] = 'Call Completed. Thank you for using our services';
@@ -104,13 +90,13 @@ class TwimlOutApi
                     if(attemptCount == 1)
                         pageData['message'] = 'Call could not be completed. We regret the inconvenience caused';
                     else
-                        pageData['message'] = 'Expert did not answer the call. We will retry in ' + Config.get("call.retry.gap.text") +  ' minutes';
+                        pageData['message'] = 'Expert did not answer the call. We will retry in ' + Config.get("call.retry.gap") +  ' minutes';
                     break;
                 default:
                     if(attemptCount == 1)
                         pageData['message'] = 'Call could not be completed. We regret the inconvenience caused';
                     else
-                        pageData['message'] = 'The expert is unreachable. We will retry in ' + Config.get("call.retry.gap.text") + ' minutes';
+                        pageData['message'] = 'The expert is unreachable. We will retry in ' + Config.get("call.retry.gap") + ' minutes';
             }
             res.render('../delegates/calling/TwilioXMLSay.jade',pageData );
 
@@ -125,17 +111,19 @@ class TwimlOutApi
         });
 
         app.post(TwilioUrlDelegate.twimlCallback(), function (req:express.Request, res:express.Response)
-        {
+        {//called after User hangs up the call
+            var callId = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
             res.json('OK');
+
             var callStatus = req.body[TwimlOutApi.CALLSTATUS];
-            var attemptCount = parseInt(req.query[TwimlOutApi.ATTEMPTCOUNT]);
+            var attemptCount = parseInt(req.query[TwilioDelegate.ATTEMPTCOUNT]);
             if(Utils.isNullOrEmpty(attemptCount))
                 attemptCount = 0;
 
             if(callStatus != TwimlOutApi.COMPLETED) // if completed then information saved after expert drops the call
-            {
+            { //save information for failed call
                 if(attemptCount == 0)
-                    console.log('Reattempt to be made');// TODO change this to rescheduling function, make change in num_reattempt in call table
+                    console.log('Reattempt to be made');// TODO change this to rescheduling function, make change in num_reattempt in call table and cache
                 var duration:number = parseInt(req.body[TwimlOutApi.DURATION]);
 
                 var callFragment:CallFragment = new CallFragment();
@@ -144,13 +132,13 @@ class TwimlOutApi
                 callFragment.setFromNumber(req.body[TwimlOutApi.USERNUMBER]);
                 callFragment.setDuration(duration);
                 callFragment.setAgentId(AgentType.TWILIO);
-                if(callStatus == TwimlOutApi.FAILED)
+                if(callStatus == TwimlOutApi.FAILED) //failed means twilio was not able to connect the call
                     callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_SERVER_ERROR);
                 else
                     callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_USER_ERROR);
 
                 var twilioClient = require('twilio')(Config.get('twilio.account_sid'), Config.get('twilio.auth_token'));
-                twilioClient.calls(callFragment.getAgentCallSidUser()).get(
+                twilioClient.calls(callFragment.getAgentCallSidUser()).get( //to get call start time
                     function(err, callDetails)
                     {
                         if(!Utils.isNullOrEmpty(callDetails))
@@ -160,36 +148,39 @@ class TwimlOutApi
                             new CallFragmentDelegate().create(callFragment);
                         }
                     });
-                new PhoneCallDelegate().get(callFragment.getCallId())
+
+                //send sms to user and expert informing them about the status
+                new PhoneCallCache().getPhoneCall(callId)
                     .then(
-                    function callFetched(call:PhoneCall)
-                    {
-                        return new UserPhoneDelegate().getByUserId(call.getExpertPhoneId());
-                    })
-                    .then(
-                    function PhoneRecord(expertPhone:UserPhone)
-                    {
+                    function CallFetched(call:any){
+                        var phoneCallCacheObj:PhoneCallCacheModel = new PhoneCallCacheModel(call);
                         var tempCallFragment:CallFragment = callFragment;
-                        if(expertPhone.getType() == PhoneType.MOBILE)
-                        {
-                            var phoneNumber:string = '+' + expertPhone.getCountryCode() + expertPhone.getPhone();
-                            tempCallFragment.setToNumber(phoneNumber);
-                        }
+                        if(phoneCallCacheObj.getExpertPhoneType() == PhoneType.MOBILE)
+                            tempCallFragment.setToNumber(phoneCallCacheObj.getExpertNumber());
                         new SMSDelegate().sendStatusSMS(tempCallFragment, attemptCount);
-                    })
-                    .fail(function(error){
-                        //TODO
                     })
             }
         });
 
+        //ONLY FOR TESTING
         //TODO remove this after testing
         app.get(TwilioUrlDelegate.twimlGenerateCall(), function (req:express.Request, res:express.Response)
         {
             var callId = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
             var url:string = req.protocol + "://" + req.get('host') + TwilioUrlDelegate.twimlJoinCall(callId);
             var callbackUrl:string = req.protocol + "://" + req.get('host') + TwilioUrlDelegate.twimlCallback(callId);
-            new PhoneCallDelegate().get(callId, null, [ApiFlags.INCLUDE_INTEGRATION_MEMBER_USER])
+            new PhoneCallDelegate().triggerCall(callId,url,callbackUrl);
+
+            new PhoneCallCache().createPhoneCallCache(callId)
+                .then(
+                    function (call:PhoneCallCacheModel)
+                    {
+                        var sds:PhoneCallCacheModel = new PhoneCallCacheModel(call);
+                        res.json('OK');
+                    }
+                );
+
+            /* PhoneCallDelegate().get(callId, null, [ApiFlags.INCLUDE_INTEGRATION_MEMBER_USER])
                 .then(
                 function callFetched(call:PhoneCall)
                 {
@@ -202,7 +193,7 @@ class TwimlOutApi
                             }
                         )
                 });
-            /*var ttt = new TimeJobDelegate().scheduleJobs()
+            var ttt = new TimeJobDelegate().scheduleJobs()
                 .then (
                 function jobsFetched(jobs)
                 {
