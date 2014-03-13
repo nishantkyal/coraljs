@@ -1,5 +1,6 @@
 ///<reference path='../_references.d.ts'/>
 import express                                              = require('express');
+import log4js                                               = require('log4js');
 import AccessControl                                        = require('../middleware/AccessControl');
 import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
 import VerificationCodeDelegate                             = require('../delegates/VerificationCodeDelegate');
@@ -26,58 +27,39 @@ class TokenApi
         app.put(ApiUrlDelegate.mobileVerificationCode(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
             var phoneNumber:PhoneNumber = req.body[ApiConstants.PHONE_NUMBER];
+            phoneNumber.setUserId(req['user'].id);
 
-            verificationCodeDelegate.createAndSendMobileVerificationCode(phoneNumber.getPhone(), phoneNumber.getCountryCode())
-                .then(
-                function codeCreated(code:string)
-                {
-                    // TODO: Tie this to flow somehow so that it doesn't get overwritten
-                    // Save the phone number to which sms is sent and the generated code in session
-                    // so we know which number to add to account when code is verified
-                    req.session[ApiConstants.PHONE_NUMBER] = phoneNumber;
-                    req.session[ApiConstants.CODE_VERIFICATION] = code;
-                    res.send(200);
-                },
-                function codeCreationFailed() { res.send(500); }
-            )
+            if (phoneNumber.isValid())
+                res.send(JSON.stringify({status: 'ok'}));
+            else
+                res.send(400, 'Invalid phone number');
+
+            verificationCodeDelegate.createAndSendMobileVerificationCode(phoneNumber);
         });
 
         /* Verify mobile number code */
         app.get(ApiUrlDelegate.mobileVerificationCode(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
             var code:string = req.query[ApiConstants.CODE];
-            var ref:string = req.session[ApiConstants.CODE_VERIFICATION];
+            var phoneNumber:PhoneNumber = new PhoneNumber(req.query[ApiConstants.PHONE_NUMBER]);
+            phoneNumber.setUserId(req['user'].id);
 
-            if (code === ref)
-            {
-                // Persist the phone number in session as verified and link to logged in user
-                var phoneNumber:PhoneNumber = req.session[ApiConstants.PHONE_NUMBER];
-                phoneNumber.setUserId(req['user'].id);
-                phoneNumber.setVerified(true);
-                phoneNumber.setType(PhoneNumberType.MOBILE);
-
-                phoneNumberDelegate.create(phoneNumber)
-                    .then(
-                    function phoneNumberCreated(phoneNumber) { res.json(phoneNumber.toJson()); },
-                    function phoneNumberCreateError(err) { res.send(500); }
-                );
-            }
-            else
-                res.send(401);
+            verificationCodeDelegate.verifyMobileCode(code, phoneNumber)
+                .then(
+                    function codeVerified(newPhoneNumber) { res.send(newPhoneNumber.toJson()); },
+                    function codeVerificationError(error) { res.send(500, error); }
+                )
         });
 
         /* Create and send expert invitation code */
         app.put(ApiUrlDelegate.expertInvitationCode(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
+            res.send(JSON.stringify({status: 'OK'}));
+
             var sender:User = new User(req['user']);
             var member:IntegrationMember = req.body[ApiConstants.INTEGRATION_MEMBER];
             member.setUser(new User(member.getUser()));
-
-            verificationCodeDelegate.createAndSendExpertInvitationCode(member.getIntegrationId(), member, sender)
-                .then(
-                function codeCreatedAndSent() { res.json(200); },
-                function codeCreateAndSendError(error) { res.send(500, error); }
-            );
+            verificationCodeDelegate.createAndSendExpertInvitationCode(member.getIntegrationId(), member, sender);
         });
 
         /* Verify expert invitation code */

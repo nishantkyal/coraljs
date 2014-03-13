@@ -20,7 +20,7 @@ class SMSDelegate
         sms.setNumRetries(0);
 
         // TODO: Enter into SMS queue if send fails
-        return new TwilioDelegate().sendSMS(sms.getCountryCode() + sms.getPhone(), sms.getSender(), sms.getMessage());
+        return new TwilioDelegate().sendSMS(sms.getPhone().getCompleteNumber(), sms.getSender(), sms.getMessage());
     }
 
     generateSMSText(smsTemplate:SmsTemplate, data:Object, locale:string = 'en'):string

@@ -1,14 +1,15 @@
 doctype 5
 meta(name='viewport', content='width=device-width, initial-scale=1')
-.container
-    .row
+.container-fluid
+    .row-fluid
         .col-md-2
         .col-md-8
-            .row-fluid
+            .row
                 .col-md-6
                     h3 SearchNTalk Dashboard
                 .pull-right
                     if (logged_in_user)
                         | Hey #{logged_in_user.first_name}
+                        a.btn.btn-link(href='/logout') Logout
         .col-md-2
 hr

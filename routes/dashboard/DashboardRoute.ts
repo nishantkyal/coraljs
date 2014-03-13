@@ -45,6 +45,7 @@ class DashboardRoute
         app.get('/integrations', connect_ensure_login.ensureLoggedIn(), this.integrations.bind(this));
         app.get('/integration/:integrationId/users', Middleware.allowOwnerOrAdmin, this.integrationUsers.bind(this));
         app.get('/member/:memberId/profile', Middleware.allowSelf, this.memberProfile.bind(this));
+        app.get('/logout', this.logout.bind(this));
 
         // Auth
         app.post('/login', passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: '/login'}), this.authSuccess.bind(this));
@@ -65,21 +66,7 @@ class DashboardRoute
             function integrationsFetched(integrationMembers)
             {
                 Middleware.setIntegrationMembers(req, integrationMembers);
-
-                if (integrationMembers.length > 1)
-                    res.redirect('/integrations');
-                else
-                {
-                    var integrationMember = new IntegrationMember(integrationMembers[0]);
-                    var integration:Integration = new Integration(integrationMember.getIntegration()[0]); // TODO: Implement foreign keys correctly in search so [0] goofiness is not required for 1-to-1 relationships
-                    req.session[ApiConstants.INTEGRATION_ID] = integration.getId();
-
-                    if (integrationMember.getRole() === IntegrationMemberRole.Admin || integrationMember.getRole() == IntegrationMemberRole.Owner)
-                        res.redirect('/integration/' + integration.getId() + '/users');
-                    else
-                        res.redirect('/expert/' + integrationMember.getId() + '/profile');
-                }
-
+                res.redirect('/integrations');
             },
             function integrationsFetchError(error) { res.send(500); });
     }
@@ -197,6 +184,12 @@ class DashboardRoute
                 function userUpdated() { res.send(200); },
                 function userUpdateError() { res.send(500); }
             );
+    }
+
+    logout(req, res)
+    {
+        req.logout();
+        res.redirect('/');
     }
 }
 

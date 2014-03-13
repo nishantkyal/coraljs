@@ -5,7 +5,7 @@ include header
     .row-fluid
         .col-md-2
         .col-md-8
-            h3 Integrations
+            h4 Your networks
             .list-group
                 each member in members
                     a.list-group-item(href=member.role == 3 ? '/expert/' + member.id + '/profile' : '/integration/' + member.integration_id + '/users') #{member.integration.title}

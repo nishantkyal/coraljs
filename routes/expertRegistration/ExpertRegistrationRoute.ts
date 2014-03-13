@@ -63,7 +63,7 @@ class ExpertRegistrationRoute
             {
                 invitedMember = new IntegrationMember(result);
                 var invitedMemberEmail = invitedMember.getUser()[User.EMAIL];
-                return self.integrationMemberDelegate.findByEmail(invitedMemberEmail)
+                return self.integrationMemberDelegate.findByEmail(invitedMemberEmail, integrationId)
             },
             function verificationFailed() { throw("The invitation is either invalid or has expired"); }
         )

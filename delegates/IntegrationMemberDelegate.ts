@@ -106,19 +106,28 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
         return this.update({'id': id}, integrationMember);
     }
 
-    findByEmail(email:string):q.Promise<IntegrationMember>
+    findByEmail(email:string, integrationId?:number):q.Promise<IntegrationMember>
     {
         var query = 'SELECT im.* ' +
             'FROM integration_member im, user u ' +
             'WHERE im.user_id = u.id ' +
-            'AND u.email = ? ' +
-            'LIMIT 1';
-        return MysqlDelegate.executeQuery(query, [email])
+            'AND u.email = ? ';
+        var values:any[] = [email];
+
+        if (!Utils.isNullOrEmpty(integrationId))
+        {
+            query += ' AND integration_id = ?';
+            values.push(integrationId);
+        }
+
+        query += ' LIMIT 1';
+
+        return MysqlDelegate.executeQuery(query, values)
             .then(
-                function membersFound(members)
-                {
-                    return new IntegrationMember(members[0]);
-                });
+            function membersFound(members)
+            {
+                return new IntegrationMember(members[0]);
+            });
     }
 
     getDao():IDao { return new IntegrationMemberDAO(); }

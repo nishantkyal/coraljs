@@ -5,11 +5,13 @@ import log4js                                                   = require('log4j
 import User                                                     = require('../models/User');
 import IntegrationMember                                        = require('../models/IntegrationMember');
 import SMS                                                      = require('../models/SMS');
+import PhoneNumber                                              = require('../models/PhoneNumber');
 import VerificationCodeCache                                    = require('../caches/VerificationCodeCache');
 import IntegrationMemberDelegate                                = require('../delegates/IntegrationMemberDelegate');
 import EmailDelegate                                            = require('../delegates/EmailDelegate');
 import SmsDelegate                                              = require('../delegates/SmsDelegate');
 import UserDelegate                                             = require('../delegates/UserDelegate');
+import PhoneNumberDelegate                                      = require('../delegates/PhoneNumberDelegate');
 import Utils                                                    = require('../common/Utils');
 import IncludeFlag                                              = require('../enums/IncludeFlag');
 import SmsTemplate                                              = require('../enums/SmsTemplate');
@@ -23,12 +25,13 @@ class VerificationCodeDelegate
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private emailDelegate = new EmailDelegate();
     private smsDelegate = new SmsDelegate();
+    private phoneNumberDelegate = new PhoneNumberDelegate();
 
     createAndSendExpertInvitationCode(integrationId:number, member:IntegrationMember, sender?:User):q.Promise<any>
     {
         var self = this;
 
-        return self.integrationMemberDelegate.findByEmail(member.getUser().getEmail())
+        return self.integrationMemberDelegate.findByEmail(member.getUser().getEmail(), integrationId)
             .then(
             function expertFound(expert)
             {
@@ -59,22 +62,41 @@ class VerificationCodeDelegate
             .fail(
             function codeSendFailed(error)
             {
+                // TODO: Mark as failed
                 self.logger.debug('Error occurred while sending invitation to %s, error: %s', JSON.stringify(member.toJson()), error);
-                throw (error);
-            });
+            }
+        );
     }
 
-    createAndSendMobileVerificationCode(mobileNumber:string, countryCode:string):q.Promise<any>
+    createAndSendMobileVerificationCode(phoneNumber:PhoneNumber):q.Promise<any>
     {
+        var self = this;
         var code = Utils.getRandomInt(10001, 99999);
         var smsMessage = this.smsDelegate.generateSMSText(SmsTemplate.VERIFY_NUMBER, {code: code});
 
         var sms = new SMS();
-        sms.setCountryCode(countryCode);
-        sms.setPhone(mobileNumber);
+        sms.setPhone(phoneNumber);
         sms.setMessage(smsMessage);
 
-        return this.smsDelegate.send(sms);
+        return q.all([
+            self.smsDelegate.send(sms),
+            self.verificationCodeCache.createMobileVerificationCode(phoneNumber.getCompleteNumber())
+        ]);
+    }
+
+    verifyMobileCode(code:string, phoneNumber:PhoneNumber):q.Promise<PhoneNumber>
+    {
+        var self = this;
+
+        return this.verificationCodeCache.searchMobileVerificationCode(code, phoneNumber.getCompleteNumber())
+            .then(
+            function verified(result)
+            {
+                if (result)
+                    return self.phoneNumberDelegate.create(phoneNumber);
+                else
+                    throw ('Invalid code entered');
+            });
     }
 }
 export = VerificationCodeDelegate

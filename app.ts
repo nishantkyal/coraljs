@@ -1,7 +1,7 @@
 ///<reference path='./_references.d.ts'/>
 import express                                      = require('express');
-var connect                                         = require('connect');
-var RedisStore                                      = require('connect-redis')(connect);
+var connect = require('connect');
+var RedisStore = require('connect-redis')(connect);
 import connect_flash                                = require("connect-flash");
 import _                                            = require('underscore');
 import http                                         = require('http');
@@ -24,7 +24,7 @@ app.use(express.compress());
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 app.use(
-    function(req, res, next)
+    function (req, res, next)
     {
         res.locals.formatMoney = Formatter.formatMoney;
         res.locals.formatRole = Formatter.formatRole;
@@ -43,10 +43,11 @@ app.use(RequestHandler.parseRequest);
 app.use(express.cookieParser());
 
 app.use(express.session({
-    secret:'searchntalk.com',
-    store:new RedisStore({
-        host:Config.get("redis.host"),
-        port:Config.get("redis.port")
+    secret: 'searchntalk.com',
+    expires: new Date(Date.now() + (30 * 60 * 1000)), // 30 minutes
+    store: new RedisStore({
+        host: Config.get("redis.host"),
+        port: Config.get("redis.port")
     })
 }));
 
