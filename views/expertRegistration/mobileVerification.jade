@@ -10,15 +10,19 @@ include scriptsAndStyles
                 .form-group
                     label Mobile Number
                     .controls
-                        select.form-control
-                        input(type='text').form-control
+                        .input-group
+                            .input-group-btn
+                                select.form-control.col-md-2#countryCode
+                                    option(value='+91') India (+91)
+                                    option(value='+1') USA (+1)
+                            input(type='text').form-control#phoneNumber
                 .form-group
-                    input(type='submit', value='Send verification code', name='sendCode')
+                    input.btn.btn-primary.form-control(type='submit', value='Send verification code', name='sendCode')
             form#verifyCode
                 .form-group#verificationCode(style='display: none;')
                     label Verification code
                     input(type='text').form-control
                 .form-group
-                    input(type='submit', value='Verify', name='verify', style='display: none;')
+                    input.btn.btn-primary.form-control(type='submit', value='Verify', name='verify', style='display: none;')
         .col-md-2
 script(src='/js/app/expertRegistration/mobileVerification.js')

@@ -4,7 +4,7 @@ import q                                                        = require('q');
 import log4js                                                   = require('log4js');
 import User                                                     = require('../models/User');
 import IntegrationMember                                        = require('../models/IntegrationMember');
-import Sms                                                      = require('../models/Sms');
+import SMS                                                      = require('../models/SMS');
 import VerificationCodeCache                                    = require('../caches/VerificationCodeCache');
 import IntegrationMemberDelegate                                = require('../delegates/IntegrationMemberDelegate');
 import EmailDelegate                                            = require('../delegates/EmailDelegate');
@@ -69,7 +69,7 @@ class VerificationCodeDelegate
         var code = Utils.getRandomInt(10001, 99999);
         var smsMessage = this.smsDelegate.generateSMSText(SmsTemplate.VERIFY_NUMBER, {code: code});
 
-        var sms = new Sms();
+        var sms = new SMS();
         sms.setCountryCode(countryCode);
         sms.setPhone(mobileNumber);
         sms.setMessage(smsMessage);

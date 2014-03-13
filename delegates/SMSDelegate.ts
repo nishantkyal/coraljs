@@ -1,11 +1,12 @@
 ///<reference path='../_references.d.ts'/>
-import q                            = require('q');
-import TwilioDelegate               = require('../delegates/calling/TwilioDelegate');
-import LocalizationDelegate         = require('../delegates/LocalizationDelegate');
-import SMS                          = require('../models/SMS');
-import Priority                     = require('../enums/Priority');
-import SMSStatus                    = require('../enums/SMSStatus');
-import SmsTemplate                  = require('../enums/SmsTemplate');
+import _                                                = require('underscore');
+import q                                                = require('q');
+import TwilioDelegate                                   = require('../delegates/calling/TwilioDelegate');
+import LocalizationDelegate                             = require('../delegates/LocalizationDelegate');
+import SMS                                              = require('../models/SMS');
+import Priority                                         = require('../enums/Priority');
+import SMSStatus                                        = require('../enums/SMSStatus');
+import SmsTemplate                                      = require('../enums/SmsTemplate');
 
 class SMSDelegate
 {

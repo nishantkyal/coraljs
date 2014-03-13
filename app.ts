@@ -3,6 +3,7 @@ import express                                      = require('express');
 var connect                                         = require('connect');
 var RedisStore                                      = require('connect-redis')(connect);
 import connect_flash                                = require("connect-flash");
+import _                                            = require('underscore');
 import http                                         = require('http');
 import path                                         = require('path');
 import passport                                     = require('passport');
@@ -14,7 +15,7 @@ import IntegrationDelegate                          = require('./delegates/Integ
 import RequestHandler                               = require('./middleware/RequestHandler');
 import api                                          = require('./api/index');
 import routes                                       = require('./routes/index');
-
+import CountryCode                                  = require('./enums/CountryCode');
 
 var app:express.Application = express();
 
