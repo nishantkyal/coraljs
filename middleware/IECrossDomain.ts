@@ -1,9 +1,9 @@
 ///<reference path='../_references.d.ts'/>
 import express = require('express');
 
-/**
+/*
  * Middleware to handle IE cross domain goofiness
-**/
+*/
 class IECrossDomain
 {
     static fixRequestForIe(req:express.Request, res:express.Response, next:Function)

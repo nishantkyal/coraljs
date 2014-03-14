@@ -1,4 +1,4 @@
-/**
+/*
  * Constants used on query strings, headers of API calls
  */
 class ApiConstants
@@ -10,7 +10,9 @@ class ApiConstants
 
     /* Param constants */
     static USER_ID:string = 'userId';
+    static USER_PROFILE_ID:string = 'profileId';
     static EXPERT_ID:string = 'expertId';
+    static MEMBER_ID:string = 'memberId';
     static INTEGRATION_ID:string = 'integrationId';
     static PROFILE_TYPE:string = 'profileType';
     static USERNAME:string = 'login';
@@ -19,12 +21,17 @@ class ApiConstants
     static PHONE_CALL_ID:string = 'callId';
     static SCHEDULE_ID:string = 'scheduleId';
     static SCHEDULE_RULE_ID:string = 'scheduleRuleId';
+    static SCHEDULE_EXCEPTION_ID:string = 'scheduleExceptionId';
     static START_TIME:string = 'startTime';
     static END_TIME:string = 'endTime';
     static DURATION:string = 'duration';
+    static TYPE:string = 'type';
+    static CODE:string = 'code';
+    static CODE_VERIFICATION:string = 'code_verification';
 
     /* Body constants */
     static USER:string = 'user';
+    static USER_PROFILE:string = 'profile';
     static OAUTH:string = 'oauth';
     static INTEGRATION:string = 'integration';
     static INTEGRATION_MEMBER:string = 'integration_member';
@@ -33,8 +40,8 @@ class ApiConstants
     static PHONE_CALL:string = 'phoneCall';
     static SCHEDULE:string = 'expertSchedule';
     static SCHEDULE_RULE:string = 'expertScheduleRule';
+    static SCHEDULE_EXCEPTION:string = 'expertScheduleException';
     static SMS:string = 'sms';
     static TRANSACTION:string = 'transaction';
-    static TRANSACTION_LINE:string = 'transaction_line';
 }
 export = ApiConstants

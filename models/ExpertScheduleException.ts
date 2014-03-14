@@ -1,34 +1,27 @@
-/**
+/*
  * Created by Ankit on 14/02/14.
  */
 import BaseModel                = require('./BaseModel');
+import ExpertSchedule           = require('./ExpertSchedule');
 import MoneyUnit                = require('../enums/MoneyUnit');
+import Utils                    = require('../common/Utils');
 
-class ExpertScheduleException extends BaseModel
+class ExpertScheduleException extends ExpertSchedule
 {
-    static TABLE_NAME = 'expert_schedule_exceptions';
+    static TABLE_NAME = 'expert_schedule_exception';
 
-    integration_member_id:number;
-    schedule_rule_id:number;
-    start_time:number;
-    duration:number;
-    private price_unit:MoneyUnit;
-    private price_per_min:number;
+    private integration_member_id:number;
 
     /* Getters */
-    getIntegrationMemberId():number { return this.integration_member_id; }
-    getScheduleRuleId():number { return this.schedule_rule_id; }
-    getStartTime():number { return this.start_time; }
-    getDuration():number { return this.duration; }
-    getPriceUnit():MoneyUnit { return this.price_unit; }
-    getPricePerMin():number { return this.price_per_min; }
+    getIntegrationMemberId():number                 { return this.integration_member_id; }
 
     /* Setters */
-    setIntegrationMemberId(val:number):void { this.integration_member_id = val; }
-    setScheduleRuleId(val:number):void { this.schedule_rule_id = val; }
-    setStartTime(val:number):void { this.start_time = val; }
-    setDuration(val:number):void { this.duration = val; }
-    setPriceUnit(val:MoneyUnit):void { this.price_unit = val; }
-    setPricePerMin(val:number):void { this.price_per_min = val; }
+    setIntegrationMemberId(val:number):void         { this.integration_member_id = val; }
+
+    isValid():boolean
+    {
+        return super.isValid()
+                    && !Utils.isNullOrEmpty(this.getIntegrationMemberId());
+    }
 }
 export = ExpertScheduleException

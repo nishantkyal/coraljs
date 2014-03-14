@@ -7,9 +7,9 @@ import GlobalIdDelegate     = require('../delegates/GlobalIDDelegate');
 import BaseModel            = require('../models/BaseModel');
 import Utils                = require('../common/Utils');
 
-/**
+/*
  Base class for DAO
- **/
+ */
 class BaseDao implements IDao
 {
     modelClass;
@@ -31,10 +31,14 @@ class BaseDao implements IDao
         var self = this;
 
         data = data || {};
-        var id:number = data['id'];
+        var id:number = data[BaseModel.ID];
 
         // Remove inserts with undefined values
-        _.each(data, function (value, key) { if (value == undefined) delete data[key]; });
+        _.each(data, function (value, key)
+        {
+            if (value == undefined || Utils.getObjectType(value) == 'Array' || Utils.getObjectType(value) == 'Object')
+                delete data[key];
+        });
 
         var inserts:string[] = _.keys(data);
         var values:any[] = _.map(_.values(data), Utils.surroundWithQuotes);
@@ -45,17 +49,22 @@ class BaseDao implements IDao
             .then(
             function created()
             {
-                return (!transaction) ? self.get(id): new self.modelClass({'id': id});
+                return (!transaction) ? self.get(id) : new self.modelClass({'id': id});
             },
             function createFailure(error)
             {
                 self.logger.error('Error while creating a new %s, error: %s', self.tableName, error.message);
+                var message = 'Error while creating a new ' + self.tableName + ', error: ' + error.message;
+                switch(error.code)
+                {
+                    case 'ER_DUP_ENTRY':
+                        error.message = Utils.snakeToCamelCase(self.tableName) + ' already exists with those details';
+                }
                 throw(error);
             });
-
     }
 
-    get(id:any, fields?:string[]):q.Promise<any>
+    get(id:number, fields?:string[]):q.Promise<any>
     {
         var self = this;
         var selectColumns = fields && fields.length != 0 ? fields.join(',') : '*';
@@ -85,13 +94,87 @@ class BaseDao implements IDao
             });
     }
 
-    search(searchQuery:Object, options?:Object):q.Promise<any>
+    search(searchQuery:Object, options?:Object, fields?:string[]):q.Promise<any>
     {
         var self = this, values = [], whereStatements = [], selectColumns;
 
-        for (var key in searchQuery)
+        var whereStatements:any[] = this.generateWhereStatements(searchQuery);
+        var wheres:string[] = whereStatements['where'];
+        var values:any[] = whereStatements['values'];
+
+        selectColumns = !Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
+
+        var queryString = 'SELECT ' + selectColumns + ' FROM ' + this.tableName + ' WHERE ' + wheres.join(' AND ');
+
+        return MysqlDelegate.executeQuery(queryString, values)
+            .then(
+            function handleSearchResults(results:Array<any>) { return _.map(results, function (result) { return new self.modelClass(result); }); });
+    }
+
+    find(searchQuery:Object, options?:Object, fields?:string[]):q.Promise<any>
+    {
+        var self = this, values = [], whereStatements = [], selectColumns;
+
+        var whereStatements:any[] = this.generateWhereStatements(searchQuery);
+        var wheres:string[] = whereStatements['where'];
+        var values:any[] = whereStatements['values'];
+
+        selectColumns = !Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
+
+        var queryString = 'SELECT ' + selectColumns + ' FROM ' + this.tableName + ' WHERE ' + wheres.join(' AND ') + ' LIMIT 1';
+
+        return MysqlDelegate.executeQuery(queryString, values)
+            .then(
+            function handleSearchResults(result) {
+                if (result.length == 1)
+                    return new self.modelClass(result[0]);
+                else
+                    return null;
+            });
+    }
+
+    update(criteria:any, newValues:any, transaction?:any):q.Promise<any>
+    {
+        // Remove fields with null values
+        _.each(criteria, function (val, key) { if (val == undefined) delete criteria[key]; });
+        _.each(newValues, function (val, key) { if (val == undefined) delete newValues[key]; });
+
+        var values = [], updates, wheres;
+
+        updates = _.map(_.keys(newValues), function (updateColumn) { return updateColumn + ' = ?'; });
+        values = values.concat(_.values(newValues));
+
+        // Compose criteria statements
+        var whereStatements:any[] = this.generateWhereStatements(criteria);
+        var wheres:any = whereStatements['where'];
+        values = values.concat(whereStatements['values']);
+
+        var query = 'UPDATE ' + this.tableName + ' SET ' + updates.join(",") + ' WHERE ' + wheres.join(" AND ");
+        return MysqlDelegate.executeQuery(query, values, transaction);
+    }
+
+    delete(id:number, transaction?:any):q.Promise<any>
+    {
+        return MysqlDelegate.executeQuery('DELETE FROM ' + this.tableName + ' WHERE id = ?', [id], transaction);
+    }
+
+    searchAndDelete(criteria:Object, transaction?:any):q.Promise<any>
+    {
+        var whereStatements = this.generateWhereStatements(criteria);
+        var wheres = whereStatements['where'];
+        var values = whereStatements['values'];
+
+        return MysqlDelegate.executeQuery('DELETE FROM ' + this.tableName + ' WHERE ' + wheres.join(' AND '), values, transaction);
+    }
+
+    getModel():typeof BaseModel { throw('Model class not defined for ' + Utils.getClassName(this)); }
+
+    private generateWhereStatements(criteria:Object):any
+    {
+        var whereStatements = [], values = [];
+        for (var key in criteria)
         {
-            var query = searchQuery[key];
+            var query = criteria[key];
 
             switch (Utils.getObjectType(query))
             {
@@ -117,46 +200,8 @@ class BaseDao implements IDao
                     break;
             }
         }
-        if (whereStatements.length == 0)
-            throw ('Invalid search criteria');
 
-        selectColumns = options && options.hasOwnProperty('fields') ? options['fields'].join(',') : '*';
-
-        var queryString = 'SELECT ' + selectColumns + ' FROM ' + this.tableName + ' WHERE ' + whereStatements.join(' AND ');
-
-        return MysqlDelegate.executeQuery(queryString, values)
-            .then(
-                function handleSearchResults(results:Array<any>) { return _.map(results, function(result) { return new self.modelClass(result); }); }
-            );
+        return {where: whereStatements, values: values};
     }
-
-    update(criteria:Object, newValues:Object, transaction?:any):q.Promise<any>
-    {
-        // Remove fields with null values
-        _.each(_.extend({}, criteria, newValues), function (val, key) { if (val == undefined) delete criteria[key]; });
-
-        var values = [], updates, wheres;
-
-        updates = _.map(_.keys(newValues), function (updateColumn) { return updateColumn + ' = ?'; });
-        values = values.concat(_.values(newValues));
-
-        // Compose criteria statements
-        wheres = _.map(_.keys(criteria), function (whereColumn) { return whereColumn + ' = ?'; });
-        values = values.concat(_.values(criteria));
-
-        var query = 'UPDATE ' + this.tableName + ' SET ' + updates.join(",") + ' WHERE ' + wheres.join(" AND ");
-        return MysqlDelegate.executeQuery(query, values, transaction);
-    }
-
-    delete(id:string, softDelete:boolean = true, transaction?:any):q.Promise<any>
-    {
-        if (softDelete)
-            return this.update({'id': id}, {'deleted': true}, transaction);
-
-        return MysqlDelegate.executeQuery('DELETE FROM ' + this.tableName + ' WHERE id = ?', [id], transaction);
-    }
-
-    getModel():typeof BaseModel { throw('Model class not defined for ' + Utils.getClassName(this)); }
-
 }
 export = BaseDao

@@ -95,7 +95,7 @@ class TwimlApi
                 .then(
                 function responseSent()
                 {
-                    return new TwilioDelegate().makeCall(user.getMobile(), req.protocol + "://" + req.get('host') + ApiUrlDelegate.twimlCall(callId));
+                    return null;//new TwilioDelegate().makeCall(user.getMobile(), req.protocol + "://" + req.get('host') + ApiUrlDelegate.twimlCall(callId));
                 });
         });
 

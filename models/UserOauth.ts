@@ -1,11 +1,20 @@
-import BaseModel                = require('./BaseModel');
+import BaseModel                = require('../models/BaseModel');
+import Utils                    = require('../common/Utils');
 
-/**
+/*
  * Bean class for User's oauth settings (FB, LinkedIn tokens)
  */
 class UserOauth extends BaseModel
 {
     static TABLE_NAME:string = 'user_oauth';
+
+    static USER_ID:string = 'user_id';
+    static PROVIDER_ID:string = 'provider_id';
+    static OAUTH_USER_ID:string = 'oauth_user_id';
+    static ACCESS_TOKEN:string = 'access_token';
+    static ACCESS_TOKEN_EXPIRY:string = 'access_token_expiry';
+    static REFRESH_TOKEN:string = 'refresh_token';
+    static REFRESH_TOKEN_EXPIRY:string = 'refresh_token_expiry';
 
     private user_id:string;
     private provider_id:string;
@@ -23,8 +32,11 @@ class UserOauth extends BaseModel
     getAccessTokenExpiry() { return this.access_token_expiry; }
     getRefreshToken() { return this.refresh_token; }
     getRefreshTokenExpiry() { return this.refresh_token_expiry; }
-    isValid() {
-        return this.getOauthUserId() && this.getProviderId() && (this.getAccessToken() || this.getRefreshToken())
+
+    isValid():boolean {
+        return !Utils.isNullOrEmpty(this.getOauthUserId())
+                    && !Utils.isNullOrEmpty(this.getProviderId())
+                        && (!Utils.isNullOrEmpty(this.getAccessToken()) || !Utils.isNullOrEmpty(this.getRefreshToken()));
     }
 
     /* Setters */

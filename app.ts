@@ -1,55 +1,66 @@
 ///<reference path='./_references.d.ts'/>
-import express          = require('express');
-import http             = require('http');
-import path             = require('path');
-import Config           = require('./common/Config')
-import MysqlDelegate    = require('./delegates/MysqlDelegate');
-import ValidateRequest  = require('./middleware/ValidateRequest');
-import api              = require('./api/index');
+import express                                      = require('express');
+var connect = require('connect');
+var RedisStore = require('connect-redis')(connect);
+import connect_flash                                = require("connect-flash");
+import _                                            = require('underscore');
+import http                                         = require('http');
+import path                                         = require('path');
+import passport                                     = require('passport');
+import Config                                       = require('./common/Config');
+import Formatter                                    = require('./common/Formatter');
+import ApiUrlDelegate                               = require('./delegates/ApiUrlDelegate');
+import MysqlDelegate                                = require('./delegates/MysqlDelegate');
+import IntegrationDelegate                          = require('./delegates/IntegrationDelegate');
+import RequestHandler                               = require('./middleware/RequestHandler');
+import api                                          = require('./api/index');
+import routes                                       = require('./routes/index');
+import CountryCode                                  = require('./enums/CountryCode');
 
 var app:express.Application = express();
 
 // all environments
-app.set('port', Config.get('Coral.port') || 3000);
-app.use(express.bodyParser());
+app.use(express.compress());
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'jade');
+app.use(
+    function (req, res, next)
+    {
+        res.locals.formatMoney = Formatter.formatMoney;
+        res.locals.formatRole = Formatter.formatRole;
+        res.locals.formatName = Formatter.formatName;
+        res.locals.formatSchedule = Formatter.formatSchedule;
+        next();
+    }
+)
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(express.json());
+app.use(express.urlencoded());
+
 app.use(express.methodOverride());
-app.use(ValidateRequest.parseBody);
-app.enable('trust proxy');
+app.use(RequestHandler.parseRequest);
+app.use(express.cookieParser());
 
-// Create relationships in models based on db schema
-MysqlDelegate.createConnection()
-    .then(
-    function getForeignKeysFromSchemaAfterConnection(connection)
-    {
-        return MysqlDelegate.executeQuery('SELECT referenced_table_name, table_name, column_name, referenced_column_name ' +
-            'FROM information_schema.KEY_COLUMN_USAGE  ' +
-            'WHERE referenced_table_name IS NOT NULL ' +
-            'AND constraint_name != "PRIMARY" ' +
-            'AND table_schema = ' + Config.get('database.name'));
+app.use(express.session({
+    secret: 'searchntalk.com',
+    expires: new Date(Date.now() + (30 * 60 * 1000)), // 30 minutes
+    store: new RedisStore({
+        host: Config.get("redis.host"),
+        port: Config.get("redis.port")
     })
-    .then(
-    function populateModelsWithForeignKeys(rows:Array<any>)
-    {
-        for (var constraint in rows)
-        {
-            var srcTable = constraint['table_name'];
-            var srcColumn = constraint['column_name'];
-            var targetTable = constraint['referenced_table_name'];
-            var targetColumn = constraint['referenced_table_name'];
-        }
-    });
+}));
 
-// development only
-/*
-if ('development' == app.get('env')) {
-    app.use(express.errorHandler());
-}
-*/
+app.use(passport.initialize());
+app.use(passport.session({}));
+app.use(connect_flash());
 
-// REST APIs
+// APIs and Route endpoints
 api(app);
+routes(app);
 
-app.listen(app.get('port'), function()
+app.set('port', Config.get('Coral.port') || 3000);
+app.listen(app.get('port'), function ()
 {
     console.log("Demo Express server listening on port %d in %s mode", app.get('port'), app.settings.env);
 });

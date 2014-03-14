@@ -4,6 +4,12 @@ class Payment extends BaseModel
 {
     static TABLE_NAME:string = 'payment';
 
+    static USER_ID:string = 'user_id';
+    static AMOUNT:string = 'amount';
+    static UPDATE_DATE:string = 'update_date';
+    static TRANSACTION_ID:string = 'transaction_id';
+    static STATUS:string = 'status';
+
     private user_id:number;
     private amount:number;
     private update_date:number;

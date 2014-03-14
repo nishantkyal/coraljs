@@ -3,6 +3,3 @@
 *.d.ts
 .DS_Store
 .idea
-.idea/libraries/Node_js_Dependencies_for_SearchNTalk_Coral.xml
-.gitignore
-.idea/watcherTasks.xml

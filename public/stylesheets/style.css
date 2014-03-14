@@ -1,0 +1,11 @@
+.controls .btn + .btn {
+    margin-left: 10px;
+}
+
+.controls input + .btn {
+    margin-left: 10px;
+}
+
+.controls textarea + .btn {
+    margin-left: 10px;
+}

@@ -8,9 +8,9 @@ import MysqlDelegate        = require('../delegates/MysqlDelegate');
 import UserOAuth            = require('../models/UserOauth');
 import User                 = require('../models/User');
 
-/**
+/*
  Delegate class for managing user's oauth integrations (FB/LinkedIn logins)
- **/
+ */
 class UserOAuthDelegate extends BaseDaoDelegate
 {
     /* Add or update an OAuth token
@@ -47,7 +47,7 @@ class UserOAuthDelegate extends BaseDaoDelegate
                         {
                             newUser = user;
                             userOAuth.setUserId(newUser.getId());
-                            return self.getDao().create(userOAuth, transaction);
+                            return self.create(userOAuth, transaction);
                         })
                         .then(
                         function oauthCreated(oauth:UserOAuth)

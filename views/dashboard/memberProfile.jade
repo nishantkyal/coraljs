@@ -1,0 +1,40 @@
+include header
+include scriptsAndStyles
+.container-fluid
+    .row-fluid
+        .col-md-2
+        .col-md-8
+            .col-md-2
+            .col-md-4
+                form
+                    .form-group
+                        label(for='title') Title
+                        input.form-control#title(type='text', name='title')
+                    .form-group
+                        label(for='first_name') First Name
+                        input.form-control#first_name(type='text', name='first_name', value=user.first_name)
+                    .form-group
+                        label(for='last_name') Last Name
+                        input.form-control#last_name(type='text', name='last_name', value=user.last_name)
+                    .form-group
+                        label(for='short_desc') Summary
+                        input.form-control#short_desc(type='text', name='short_desc', value=user.short_desc, autocomplete='off')
+                    .form-group
+                        label(for='long_desc') Description
+                        textarea.form-control#long_desc(name='long_desc') #{user.long_desc}
+                    .form-group
+                        label(for='revenue_share') Revenue Share
+                        .form-control-static#revenue_share= formatMoney(member.revenue_share, member.revenue_share_unit)
+                    .form-group
+                        label(for='password') Password
+                        input.form-control#password(type='password', name='password')
+                    .form-group
+                        label(for='confirm_password') Confirm Password
+                        input.form-control#confirm_password(type='password', name='confirm_password')
+                    .form-group
+                        input.form-control.btn.btn-primary(type='submit') Save Changes
+            .col-md-2
+        .col-md-2
+script.
+    var memberId = !{member.id}
+script(src='/js/app/dashboard/memberProfile.js')

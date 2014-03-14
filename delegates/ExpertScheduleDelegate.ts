@@ -1,178 +1,74 @@
 ///<reference path='../_references.d.ts'/>
-import _                                = require('underscore');
-import q                                = require('q');
-import BaseDAODelegate                  = require('../delegates/BaseDaoDelegate');
-import UserDelegate                     = require('../delegates/UserDelegate');
-import ExpertScheduleRuleDelegate       = require('ExpertScheduleRuleDelegate1');
-import MysqlDelegate                    = require('../delegates/MysqlDelegate');
-import ExpertScheduleDAO                = require('../dao/ExpertScheduleDao');
-import ExpertSchedule                   = require('../models/ExpertSchedule');
-import ExpertScheduleRule               = require('../models/ExpertScheduleRule');
-import IntegrationMember                = require('../models/IntegrationMember');
-import IDao                             = require('../dao/IDao');
-import Utils                            = require('../common/Utils');
-import IncludeFlag                      = require('../enums/IncludeFlag');
+import q                                            = require('q');
+import moment                                       = require('moment');
+import _                                            = require('underscore');
+import cron_parser                                  = require('cron-parser');
+import ExpertScheduleRuleDelegate                   = require('../delegates/ExpertScheduleRuleDelegate');
+import ExpertScheduleRule                           = require('../models/ExpertScheduleRule');
+import ExpertSchedule                               = require('../models/ExpertSchedule');
+import Utils                                        = require('../common/Utils');
 
-/**
- * Delegate class for expert schedules
- */
-class ExpertScheduleDelegate extends BaseDAODelegate
+class ExpertScheduleDelegate
 {
-    getDao():IDao { return new ExpertScheduleDAO(); }
-
-    /* Get schedules for expert */
     getSchedulesForExpert(expertId:number, startTime?:number, endTime?:number):q.Promise<any>
     {
         var self = this;
-        var schedules = [];
+        startTime = startTime || moment().valueOf();
+        endTime = endTime || moment(startTime).add({'weeks': 1}).valueOf();
 
-        var isStartTimeEmpty = Utils.isNullOrEmpty(startTime);
-        var isEndTimeEmpty = Utils.isNullOrEmpty(endTime);
-        var maxAllowedInterval = 604800000; // millis in a week
-
-        if (isStartTimeEmpty && isEndTimeEmpty)
-        {
-            var today = new Date();
-            startTime = today.getTime();
-            endTime = startTime + maxAllowedInterval;
-        } else if (isStartTimeEmpty)
-            startTime = endTime - maxAllowedInterval;
-        else if (isEndTimeEmpty)
-            endTime = startTime + maxAllowedInterval;
-
-        // 1. Search schedules
-        // 2. If no schedules, try creating them based on defined rules for the period (if defined)
-        return self.getDao().search(
+        return new ExpertScheduleRuleDelegate().getRulesByIntegrationMemberId(expertId, startTime, endTime)
+            .then(
+            function rulesFetched(rules:ExpertScheduleRule[])
             {
-                'integration_member_id': expertId,
-                'start_time': {
-                    'operator': 'BETWEEN',
-                    'value': [startTime, endTime]
-                }
+                return q.all(_.map(rules, function (rule)
+                {
+                    return self.getSchedulesForRule(rule, startTime, endTime);
+                }));
             })
             .then(
-            function schedulesSearched(s:Array<ExpertSchedule>):any
+            function schedulesGenerated(...args)
             {
-                schedules = s;
-                if (schedules.length == 0 && startTime && endTime)
-                    return self.createSchedulesForExpert(expertId, startTime, endTime);
-                else
-                    return schedules;
-            });
-
-    }
-
-    /* Create new schedule */
-    create(object:any, transaction?:any):q.Promise<any>
-    {
-        var self = this;
-
-        // Don't create if schedule with same details already exists
-        return this.search(object)
-            .then(
-            function handleScheduleSearched(schedules:Array<ExpertSchedule>)
-            {
-                if (schedules.length == 0)
-                    return self.getDao().create(object, transaction);
-                else
-                    throw('Schedule already exists with the same details');
-            }
-        )
-    }
-
-    createSchedulesForExpert(integrationMemberId:number, startTime:number, endTime:number):q.Promise<any>
-    {
-        var rules = [];
-        var transaction;
-        var schedules = [];
-        var self = this;
-
-        return new ExpertScheduleRuleDelegate().getRulesByIntegrationMemberId(integrationMemberId)
-            .then(
-            function rulesSearched(rs:Array<ExpertScheduleRule>):any
-            {
-                rules = rs;
-                if (rs.length != 0)
-                    return MysqlDelegate.beginTransaction()
-                        .then(
-                        function transactionStarted(t)
-                        {
-                            transaction = t;
-                            _.each(rules, function (rule:ExpertScheduleRule)
-                            {
-                                schedules = schedules.concat(self.generateSchedules(rule, integrationMemberId, startTime, endTime));
-                            });
-
-                            return q.all(_.map(schedules, function (schedule:ExpertSchedule)
-                            {
-                                return self.create(schedule, transaction);
-                            }));
-                        })
-                        .then(
-                        function schedulesCreated()
-                        {
-                            return MysqlDelegate.commit(transaction, schedules);
-                        });
-                else
-                    return schedules;
+                try {
+                    return _.reduce(args[0], function (a:any, b:any) {
+                        return a.concat(b);
+                    }, []);
+                } catch (e) {
+                    return null;
+                }
             });
     }
 
-    /* Helper method to generate schedules based on a given rule for an interval */
-    generateSchedules(rule:ExpertScheduleRule, integrationMemberId:number, startTime:number, endTime:number):ExpertSchedule[]
+    getSchedulesForRule(rule:ExpertScheduleRule, startTime:number, endTime:number):q.Promise<any>
     {
-        var invalidData:boolean = !startTime || !endTime || !rule || !rule.isValid();
-        var outOfRange:boolean = rule.getRepeatEnd() <= startTime || rule.getRepeatStart() >= endTime;
-        var schedules = [];
+        var deferred = q.defer();
 
-        if (invalidData || outOfRange)
-        {
-            this.logger.error('Invalid data specified for generating schedules');
-            return schedules;
-        }
+        var options = {
+            currentDate: moment(Math.max(startTime, rule.getRepeatStart())).toDate(),
+            endDate: moment(!Utils.isNullOrEmpty(rule.getRepeatEnd()) && rule.getRepeatEnd() != 0 ? Math.min(endTime, rule.getRepeatEnd()) : endTime).toDate()
+        };
 
-        if (rule.getRepeatCron())
+        cron_parser.parseExpression(rule.getCronRule(), options, function schedulesGenerated(err, interval:cron_parser.CronExpression):any
         {
-        }
-        else if (rule.getRepeatInterval())
-        {
-            if (rule.getRepeatEnd())
-                endTime = Math.min(endTime, rule.getRepeatEnd());
-            startTime = Math.max(startTime, rule.getRepeatStart());
-
-            for (var i = startTime; i <= endTime; i += rule.getRepeatInterval())
+            if (err)
+                deferred.reject(err);
+            else
             {
-                var eSchedule = new ExpertSchedule();
-                eSchedule.setPricePerMin(rule.getPricePerMin());
-                eSchedule.setPriceUnit(rule.getPriceUnit());
-                eSchedule.setDuration(rule.getDuration());
-                eSchedule.setStartTime(i);
-                eSchedule.setIntegrationMemberId(integrationMemberId);
-                eSchedule.setScheduleRuleId(rule.getId());
-                schedules.push(eSchedule);
+                var t:Date, schedules:ExpertSchedule[] = [];
+                try {
+                    while (t = interval.next())
+                    {
+                        var temp = new ExpertSchedule();
+                        temp.setStartTime(moment(t).valueOf());
+                        temp.setDuration(rule.getDuration());
+                        temp.setRuleId(rule.getId());
+                        schedules.push(temp);
+                    }
+                } catch (e) {}
+                deferred.resolve(schedules);
             }
-        }
+        });
 
-        return schedules;
+        return deferred.promise;
     }
-
-    getIncludeHandler(include:IncludeFlag, result:Object):q.Promise<any>
-    {
-        var userDelegate = new UserDelegate();
-        var IntegrationMemberDelegate = require('../delegates/IntegrationMemberDelegate');
-        var integrationMemberDelegate = new IntegrationMemberDelegate();
-        var integrationMemberId = result['integration_member_id'];
-
-        switch (include)
-        {
-            case IncludeFlag.INCLUDE_USER:
-                return integrationMemberDelegate.get(integrationMemberId, null, [IncludeFlag.INCLUDE_USER]);
-            case IncludeFlag.INCLUDE_INTEGRATION_MEMBER:
-                return integrationMemberDelegate.get(integrationMemberId);
-        }
-
-        return super.getIncludeHandler(include, result);
-    }
-
 }
 export = ExpertScheduleDelegate

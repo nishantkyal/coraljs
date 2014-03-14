@@ -1,16 +1,24 @@
 ///<reference path='../_references.d.ts'/>
-import _                        = require('underscore');
-import LocalizationDelegate     = require('../delegates/LocalizationDelegate');
-import BaseModel                = require('./BaseModel');
-import Priority                 = require('../enums/Priority');
-import Utils                    = require('../common/Utils');
+import _                                        = require('underscore');
+import BaseModel                                = require('./BaseModel');
+import Priority                                 = require('../enums/Priority');
+import PhoneNumber                              = require('../models/PhoneNumber');
+import Utils                                    = require('../common/Utils');
 
 class SMS extends BaseModel
 {
     static TABLE_NAME:string = 'sms';
 
-    private country_code:string;
-    private phone:number;
+    static COUNTRY_CODE:string = 'country_code';
+    static PHONE:string = 'phone';
+    static SENDER:string = 'sender';
+    static MESSAGE:string = 'message';
+    static SCHEDULED_DATE:string = 'scheduled_date';
+    static STATUS:string = 'status';
+    static NUM_RETRIES:string = 'num_retries';
+    static PRIORITY:string = 'priority';
+
+    private phone:PhoneNumber;
     private sender:string;
     private message:string;
     private scheduled_date:number;
@@ -18,30 +26,8 @@ class SMS extends BaseModel
     private num_retries:number;
     private priority:Priority;
 
-    constructor(data:Object = {})
-    {
-        super(data);
-
-        // Compose message based on SMS type
-        if (Utils.isNullOrEmpty(this.getMessage()))
-        {
-            try
-            {
-                var smsData:Object = data['data'];
-                var smsType:string = 'sms.' + smsData['type'];
-                var locale:string = smsData['locale'];
-                var templateData:Object = smsData['data'];
-                var template:Function = _.template(LocalizationDelegate.get(smsType, locale));
-
-                this.setMessage(template(templateData));
-            } catch (e) {}
-        }
-
-    }
-
     /* Getters */
-    getCountryCode():string { return this.country_code; }
-    getPhone():number { return this.phone; }
+    getPhone():PhoneNumber { return this.phone; }
     getSender():string { return this.sender; }
     getMessage():string { return this.message; }
     getScheduledDate():number { return this.scheduled_date; }
@@ -50,8 +36,7 @@ class SMS extends BaseModel
     getPriority():Priority { return this.priority; }
 
     /* Setters */
-    setCountryCode(val:string):void { this.country_code = val; }
-    setPhone(val:number):void { this.phone = val; }
+    setPhone(val:PhoneNumber):void { this.phone = val; }
     setSender(val:string):void { this.sender = val; }
     setMessage(val:string):void { this.message = val; }
     setScheduledDate(val:number):void { this.scheduled_date = val; }
@@ -60,7 +45,9 @@ class SMS extends BaseModel
     setPriority(val:Priority):void { this.priority = val; }
 
     isValid():boolean {
-        return !Utils.isNullOrEmpty(this.getPhone()) && !Utils.isNullOrEmpty(this.getCountryCode()) && !Utils.isNullOrEmpty(this.getMessage());
+        return !Utils.isNullOrEmpty(this.getPhone())
+                    && this.getPhone().isValid()
+                        && !Utils.isNullOrEmpty(this.getMessage());
     }
 }
 export = SMS

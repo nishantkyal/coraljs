@@ -1,0 +1,28 @@
+include header
+include scriptsAndStyles
+.container-fluid
+    .row-fluid
+        .col-md-2
+        .col-md-8
+            p Please verify your mobile number
+            em This number will be used to connect the users to you for calls that you accept to receive
+            form#sendCode
+                .form-group
+                    label Mobile Number
+                    .controls
+                        .input-group
+                            .input-group-btn
+                                select.form-control.col-md-2#countryCode
+                                    option(value='91') India (+91)
+                                    option(value='1') USA (+1)
+                            input(type='text').form-control#phoneNumber
+                .form-group
+                    input.btn.btn-primary.form-control(type='submit', value='Send verification code', name='sendCode')
+            form#verifyCode(style='display: none;')
+                .form-group
+                    label Verification code
+                    input(type='text').form-control#verificationCode
+                .form-group
+                    input.btn.btn-primary.form-control(type='submit', value='Verify', name='verify')
+        .col-md-2
+script(src='/js/app/expertRegistration/mobileVerification.js')

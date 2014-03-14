@@ -6,7 +6,7 @@ import ApiUrlDelegate                   = require('../delegates/ApiUrlDelegate')
 import IntegrationMemberDelegate        = require('../delegates/IntegrationMemberDelegate');
 import IntegrationMember                = require('../models/IntegrationMember');
 
-/**
+/*
  * API calls for managing settings to IntegrationMembers who are owners
  * e.g. Viewing reports, manage payment details, manage admins
  */
@@ -16,9 +16,9 @@ class IntegrationOwnerApi {
     {
         var integrationMemberDelegate = new IntegrationMemberDelegate();
 
-        /**
+        /*
          * Add another member
-         **/
+         */
         app.put(ApiUrlDelegate.integrationMember(), AccessControl.allowOwner, function(req:express.Request, res:express.Response)
         {
             var integrationId = req.params[ApiConstants.INTEGRATION_ID];
@@ -32,7 +32,7 @@ class IntegrationOwnerApi {
             );
         });
 
-        /**
+        /*
          * Get integration members
          * Allow owner and admin
          */
@@ -47,7 +47,7 @@ class IntegrationOwnerApi {
             );
         });
 
-        /**
+        /*
          * Remove a member
          * Allow owner and admin
          */
@@ -62,7 +62,7 @@ class IntegrationOwnerApi {
             );
         });
 
-        /**
+        /*
          * Update settings for member
          * Allow owner or admin
          */
@@ -78,10 +78,10 @@ class IntegrationOwnerApi {
             );
         });
 
-        /**
+        /*
          * Get activity summary
          * Allow owner and admin
-         **/
+         */
         app.get(ApiUrlDelegate.ownerActivitySummary(), function(req:express.Request, res:express.Response)
         {
 

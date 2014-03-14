@@ -1,4 +1,0 @@
-enum ProductType
-{
-}
-export = ProductType

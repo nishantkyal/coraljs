@@ -1,0 +1,79 @@
+include scriptsAndStyles
+include header
+
+.container-fluid
+    .row-fluid
+        .col-md-2
+        .col-md-8
+            p Congrats! You're now registered as an expert on #{integration.title}
+            p We've sent you an email with all the information you'll need :)
+            hr
+            p We'll schedule calls for you based on settings below. You may update these settings now or later by visiting <a href='#{SearchNTalkUri}'>#{SearchNTalkUri}</a>
+            form
+                each rule in schedule_rules
+                    .form-group
+                        label(for='schedules') #{rule.title}
+                        .controls
+                            .row#schedules
+                                .col-md-3
+                                    .input-group
+                                        .input-group-btn
+                                            select.form-control
+                                                option 1
+                                                option 2
+                                                option 3
+                                                option 4
+                                                option 5
+                                                option 6
+                                                option 7
+                                                option 8
+                                                option 9
+                                                option 10
+                                                option 11
+                                                option 12
+                                        select.form-control.col-md-1
+                                            option 00
+                                            option 15
+                                            option 30
+                                            option 45
+                                        .input-group-btn
+                                            select.form-control
+                                                option AM
+                                                option PM
+                                .col-md-1.text-center
+                                    | to
+                                .col-md-3
+                                    .input-group
+                                        .input-group-btn
+                                            select.form-control
+                                                option 1
+                                                option 2
+                                                option 3
+                                                option 4
+                                                option 5
+                                                option 6
+                                                option 7
+                                                option 8
+                                                option 9
+                                                option 10
+                                                option 11
+                                                option 12
+                                        select.form-control.col-md-1
+                                            option 00
+                                            option 15
+                                            option 30
+                                            option 45
+                                        .input-group-btn
+                                            select.form-control
+                                                option AM
+                                                option PM
+                .form-group
+                    input.form-control.btn.btn-primary(type='submit', value='Save')
+        .col-md-2
+
+#mobileVerificationModal(style='display: none;')
+    .modal-dialog
+        .modal-content
+            .modal-header
+
+script(src='/js/app/expertRegistration/complete.js')

@@ -5,7 +5,7 @@ import ApiUrlDelegate       = require('../delegates/ApiUrlDelegate');
 import PhoneNumberDelegate  = require('../delegates/PhoneNumberDelegate');
 import PhoneNumber          = require('../models/PhoneNumber');
 
-/**
+/*
  * API calls for managing settings to IntegrationMembers who are experts
  * e.g. Call schedules, viewing reports, manage payment details
  */
@@ -68,7 +68,7 @@ class PhoneNumberApi
         /* Delete phone number */
         app.delete(ApiUrlDelegate.phoneNumberById(), function(req:express.Request, res:express.Response)
         {
-            var phoneNumberId:string = req.params[ApiConstants.PHONE_NUMBER_ID];
+            var phoneNumberId:number = req.params[ApiConstants.PHONE_NUMBER_ID];
 
             phoneNumberDelegate.delete(phoneNumberId)
                 .then(

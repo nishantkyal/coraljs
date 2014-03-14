@@ -1,0 +1,87 @@
+title Search N Talk - Expert Registration - Login
+include scriptsAndStyles
+include header
+#fb-root
+    script.
+        (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {return;}
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=#{fb_app_id}";
+        fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+.container-fluid
+    .row-fluid
+        .col-md-2
+        .col-md-8
+            .row-fluid
+                .col-md-10
+                    b Please login to searchntalk.com or create an account to continue..
+                .pull-right
+                    .btn(onclick='handleSkipClicked()') Skip >
+            .row-fluid
+                .col-md-5
+                    form.form-horizontal.left(action='/call/login', method='post')
+                        .form-group
+                            .control-label
+                                | Email
+                            .controls
+                                input(type='text', name='user')
+                        .form-group
+                            .control-label
+                                | Password
+                            .controls
+                                input(type='password', name='pass')
+                        .form-group
+                            .controls
+                                input.btn.btn-primary(type='submit', value='Login')
+
+                    form.form-horizontal.left(action='/call/login/fb', method='get')
+                        .form-group
+                            .controls
+                                input.btn.btn-primary(type='submit', value='Login using FB')
+                .col-md-1
+                .col-md-2
+                    form.form-horizontal.left(action='/call/register', method='post')
+                        .form-group
+                            .control-label
+                                | Email
+                            .controls
+                                input(type='text', name='email')
+                        .form-group
+                            .control-label
+                                | First Name
+                            .controls
+                                input(type='text', name='first_name')
+                        .form-group
+                            .control-label
+                                | Last Name
+                            .controls
+                                input(type='text', name='last_name')
+                        .form-group
+                            .control-label
+                                | Password
+                            .controls
+                                input(type='password', name='password')
+                        .form-group
+                            .control-label
+                                | Confirm Password
+                            .controls
+                                input(type='password', name='confirm_password')
+                        .form-group
+                            .controls
+                                input.btn.btn-primary(type='submit', value='Login')
+        .col-md-2
+script.
+
+    function loginSuccess()
+    {
+        window.location.href = '/call/details';
+    }
+
+    function handleSkipClicked()
+    {
+        var skip = window.confirm('Skipping login/registration will make it impossible for us to issue refunds if the call gets cancelled. Still skip?');
+        if (skip == true)
+            window.location.href = '/call/details';
+    }

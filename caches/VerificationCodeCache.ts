@@ -1,31 +1,12 @@
-import q                    = require('q');
-import Config               = require('../common/Config');
-import CacheHelper          = require('./CacheHelper');
-import Utils                = require('../common/Utils');
+///<reference path='../_references.d.ts'/>
+import q                                        = require('q');
+import Config                                   = require('../common/Config');
+import CacheHelper                              = require('./CacheHelper');
+import Utils                                    = require('../common/Utils');
+import IntegrationMember                        = require('../models/IntegrationMember');
 
 class VerificationCodeCache
 {
-    createMobileVerificationCode():q.Promise<any>
-    {
-        var codeReference:string = Utils.getRandomString(8);
-        var code:number = Utils.getRandomInt(1001, 9999);
-        var secondsInAnHr:number = 60 * 60;
-        return CacheHelper.set('mv-' + codeReference , code, secondsInAnHr)
-            .then(
-                function tokenCreated() { return {code: code, ref: codeReference}}
-            );
-    }
-
-    searchMobileVerificationCode(code:string, ref:string):q.Promise<any>
-    {
-        return CacheHelper.get('mv-' + ref)
-            .then(
-            function tokenSearched(result) {
-                return {isValid: result == code};
-            }
-        );
-    }
-
     createEmailVerificationCode(userId:number):q.Promise<any>
     {
         var code:string = Utils.getRandomString(20);
@@ -37,10 +18,10 @@ class VerificationCodeCache
     {
         return CacheHelper.get('ev-' + userId)
             .then(
-            function tokenSearched(result) {
+            function tokenSearched(result)
+            {
                 return {isValid: result == code};
-            }
-        );
+            });
     }
 
     createPasswordResetCode(userId:number):q.Promise<any>
@@ -54,8 +35,59 @@ class VerificationCodeCache
     {
         return CacheHelper.get('pr-' + userId)
             .then(
-            function tokenSearched(result) {
+            function tokenSearched(result)
+            {
                 return {isValid: result == code};
+            });
+    }
+
+    createInvitationCode(integrationId:number, member:IntegrationMember):q.Promise<string>
+    {
+        var code = Utils.getRandomString(20, 'ABXDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890');
+        return CacheHelper.addToHash('ic-' + integrationId, code, member)
+            .then(
+            function codeCreated() { return code; }
+        );
+    }
+
+    searchInvitationCode(code:string, integrationId:number):q.Promise<any>
+    {
+        return CacheHelper.getFromHash('ic-' + integrationId, code)
+            .then(
+            function invitationCodeSearched(invitedUser)
+            {
+                if (Utils.isNullOrEmpty(invitedUser))
+                    throw('Invalid invitation code');
+                else
+                    return invitedUser;
+            }
+        );
+    }
+
+    deleteInvitationCode(code:string, integrationId:number):q.Promise<any>
+    {
+        return CacheHelper.delFromHash('ic-' + integrationId, code);
+    }
+
+    getInvitationCodes(integrationId:number):q.Promise<any>
+    {
+        return CacheHelper.getHashValues('ic-' + integrationId);
+    }
+
+    createMobileVerificationCode(phoneNumber:string):q.Promise<any>
+    {
+        var codeReference:string = Utils.getRandomString(8);
+        var code:number = Utils.getRandomInt(1001, 9999);
+        var secondsInAnHr:number = 60 * 60;
+        return CacheHelper.set('mv-' + phoneNumber, code, secondsInAnHr);
+    }
+
+    searchMobileVerificationCode(code:string, phoneNumber:string):q.Promise<boolean>
+    {
+        return CacheHelper.get('mv-' + phoneNumber)
+            .then(
+            function tokenSearched(result) {
+                return result == code;
             }
         );
     }
