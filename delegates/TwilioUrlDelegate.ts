@@ -3,7 +3,7 @@ import url                                      = require('url');
 class TwilioUrlDelegate
 {
     static BASE_URL:string = '';
-    static INFOLLION_URL:string = 'www.infollion.com:2021';
+    static INFOLLION_URL:string = 'http://www.infollion.com:2021';
 
     static twimlGenerateCall(callId?:number):string { return this.get('/rest/twiml/calling/:callId', {callId: callId}); }
     static twimlJoinCall(callId?:number):string { return this.get('/rest/twiml/join/:callId', {callId: callId}); }

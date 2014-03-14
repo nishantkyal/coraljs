@@ -9,14 +9,20 @@ import BaseDAODelegate              = require('./BaseDaoDelegate');
 import IntegrationMemberDelegate    = require('./IntegrationMemberDelegate');
 import UserPhoneDelegate            = require('./UserPhoneDelegate');
 import EmailDelegate                = require('./EmailDelegate');
+import TimeJobDelegate              = require('../delegates/TimeJobDelegate');
+import MysqlDelegate                = require('../delegates/MysqlDelegate');
 import UserDelegate                 = require('../delegates/UserDelegate');
+import SMSDelegate                  = require('../delegates/SMSDelegate');
+import CallFragmentDelegate         = require('./CallFragmentDelegate');
 import CallStatus                   = require('../enums/CallStatus');
 import ApiFlags                     = require('../enums/ApiFlags');
 import PhoneType                    = require('../enums/PhoneType');
+import CallFragmentStatus           = require('../enums/CallFragmentStatus');
 import PhoneCall                    = require('../models/PhoneCall');
 import User                         = require('../models/User');
 import UserPhone                    = require('../models/UserPhone');
 import IntegrationMember            = require('../models/IntegrationMember');
+import CallFragment                 = require('../models/CallFragment');
 import UnscheduledCallsCache        = require('../caches/UnscheduledCallsCache');
 import PhoneCallCache               = require('../caches/PhoneCallCache');
 import PhoneCallCacheModel          = require('../caches/models/PhoneCallCacheModel');
@@ -79,7 +85,7 @@ class PhoneCallDelegate extends BaseDAODelegate
         var callerUserId:number;
         var expertUserId:number;
 
-        return this.get(phoneCallId, ['status', 'caller_user_id', 'expert_id', 'start_time', 'duration'])
+        return this.get(phoneCallId, ['status', 'caller_user_id', 'integration_member_id', 'start_time', 'duration'])
             .then(
             function phoneCallFetched(call)
             {
@@ -106,7 +112,8 @@ class PhoneCallDelegate extends BaseDAODelegate
 
     getCallsBetweenInterval(startTime:number, endTime:number):q.Promise<any>
     {
-        return this.getDao().getCallsBetweenInterval(startTime,endTime);
+        var phoneCallDao:any = this.getDao();
+        return phoneCallDao.getCallsBetweenInterval(startTime,endTime);
     }
 
     getIncludeHandler(include:string, result:PhoneCall):q.Promise<any>
@@ -124,14 +131,63 @@ class PhoneCallDelegate extends BaseDAODelegate
     triggerCall(callId:number):q.Promise<any>
     {
         var self = this;
+        var tempPhoneCallCacheObj:PhoneCallCacheModel
         return new PhoneCallCache().getPhoneCall(callId)
             .then(
             function CallFetched(call:any){
                 var phoneCallCacheObj:PhoneCallCacheModel = new PhoneCallCacheModel(call);
+                tempPhoneCallCacheObj = phoneCallCacheObj;
                 return new CallProviderFactory().getProvider().makeCall(phoneCallCacheObj.getUserNumber(), callId, phoneCallCacheObj.getNumReattempts());
             })
             .fail(function(error){
-                self.logger.debug("Error in call triggering");
+                self.logger.debug("Error in call triggering %s", callId);
+                if(tempPhoneCallCacheObj.getNumReattempts() == 0)
+                    self.rescheduleCall(callId, tempPhoneCallCacheObj.getNumReattempts());
+
+                var callFragment:CallFragment = new CallFragment(); //save information received in CallFragment
+                callFragment.setCallId(callId);
+                callFragment.setFromNumber(tempPhoneCallCacheObj.getUserNumber());
+                callFragment.setToNumber(tempPhoneCallCacheObj.getExpertNumber());
+                callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_SERVER_ERROR);
+                new CallFragmentDelegate().create(callFragment);
+
+                //TODO don't send sms to landline (twilio doesn't send it and return error code 21614). However, we should not even make the api call.
+                new SMSDelegate().sendStatusSMS(callFragment, tempPhoneCallCacheObj.getNumReattempts());
+
+                if(tempPhoneCallCacheObj.getNumReattempts() == 1)
+                {
+                    self.logger.debug("Error in call triggering again %s, call cancelled", callId);
+                    self.updateCallStatus(callId, CallStatus.FAILED);
+                }
+            })
+    }
+
+    rescheduleCall(callId:number, attemptCount:number):q.Promise<any>
+    {
+        var self = this;
+        this.logger.info("Call being rescheduled callId:" + callId);
+        var transaction = null;
+        return MysqlDelegate.beginTransaction()
+            .then(
+            function transactionStarted(t)
+            {
+                transaction = t;
+                return  new PhoneCallDelegate().update({id:callId}, {num_reattempts:attemptCount+1, delay:Config.get('call.retry.gap')*60});
+            })
+            .then(
+            function dbUpdated()
+            {
+                return new PhoneCallCache().updatePhoneCallCache(callId, {num_reattempts:attemptCount+1, delay:Config.get('call.retry.gap')*60});
+            })
+            .then(
+            function exceptionsDeleted()
+            {
+                new TimeJobDelegate().rescheduleJob(callId, Config.get('call.retry.gap')*60);
+                return MysqlDelegate.commit(transaction);
+            })
+            .fail(
+            function(error){
+                self.logger.debug("error in rescheduling callId:" + callId);
             })
     }
 

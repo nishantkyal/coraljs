@@ -53,10 +53,11 @@ class TwilioDelegate implements ICallingVendorDelegate
 
     makeCall(phone:string, callId?:number, reAttempts?:number):q.Promise<any>
     {
+        var self = this;
         var url:string = TwilioUrlDelegate.INFOLLION_URL + TwilioUrlDelegate.twimlJoinCall(callId);
         var callbackUrl:string = TwilioUrlDelegate.INFOLLION_URL + TwilioUrlDelegate.twimlCallback(callId);
 
-        if(!Utils.isNullOrEmpty(reAttempts))
+        if(!Utils.isNullOrEmpty(reAttempts) && reAttempts != 0)
         {
             url += '?' + TwilioDelegate.ATTEMPTCOUNT + '=' + reAttempts;
             callbackUrl += '?' + TwilioDelegate.ATTEMPTCOUNT + '=' + reAttempts;
@@ -72,19 +73,23 @@ class TwilioDelegate implements ICallingVendorDelegate
             StatusCallback: callbackUrl
         }, function (err, responseData)
         {
-            if (!err)
+            if (!err){
+                self.logger.info("Call made to number:" + phone + " callId:" + callId);
                 deferred.resolve(responseData);
-            else
+            }
+            else{
+                self.logger.info("Call could not made to number:" + phone + " callId:" + callId);
                 deferred.reject(err);
+            }
         });
         return deferred.promise;
     }
 
-    updateCallFragment(callFragment:CallFragment)
+    updateCallFragment(callFragment:CallFragment):q.Promise<any>
     {
         var self = this;
-        //var twilioClient = require('twilio')(Config.get('twilio.account_sid'), Config.get('twilio.auth_token'));
-        this.twilioClient.calls(callFragment.getAgentCallSidExpert()).get(//
+        var deferred = q.defer();
+        this.twilioClient.calls(callFragment.getAgentCallSidExpert()).get(// get details calls made to expert
             function(err, callDetails)
             {
                 if(!Utils.isNullOrEmpty(callDetails))
@@ -102,13 +107,31 @@ class TwilioDelegate implements ICallingVendorDelegate
                             callFragment.setCallFragmentStatus(CallFragmentStatus.SUCCESS);
                     else
                         callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_EXPERT_ERROR);
-                    var CallFragmentDelegate  = require('../../delegates/CallFragmentDelegate');
-
-                    new CallFragmentDelegate().create(callFragment);
+                    deferred.resolve(callFragment);
                 }
                 else
-                    self.logger.debug('Error in getting call details');
+                    deferred.reject(err);
             });
+        return deferred.promise;
+    }
+
+    updateCallFragmentStartTime(callFragment:CallFragment):q.Promise<any>
+    {
+        var self = this;
+        var deferred = q.defer();
+        this.twilioClient.calls(callFragment.getAgentCallSidUser()).get(//get details of call made to user
+            function(err, callDetails)
+            {
+                if(!Utils.isNullOrEmpty(callDetails))
+                {
+                    var startTime:Date = new Date(callDetails[TwilioDelegate.START_TIME]);
+                    callFragment.setStartTime(startTime.getTimeInSec());
+                    deferred.resolve(callFragment);
+                }
+                else
+                    deferred.reject(err);
+            });
+        return deferred.promise;
     }
 }
 
