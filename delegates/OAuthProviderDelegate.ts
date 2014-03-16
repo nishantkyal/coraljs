@@ -1,4 +1,4 @@
-///<reference path='../../SearchNTalk-Dashboard/_references.d.ts'/>
+///<reference path='../_references.d.ts'/>
 import connect_ensure_login                                         = require('connect-ensure-login');
 import oauth2orize                                                  = require('oauth2orize');
 import log4js                                                       = require('log4js');
