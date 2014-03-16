@@ -4,7 +4,6 @@ import express                                      = require('express');
 var connect                                         = require('connect');
 var RedisStore                                      = require('connect-redis')(connect);
 import connect_flash                                = require("connect-flash");
-import _                                            = require('underscore');
 import http                                         = require('http');
 import path                                         = require('path');
 import passport                                     = require('passport');
