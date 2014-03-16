@@ -1,5 +1,6 @@
 ///<reference path='../_references.d.ts'/>
 import url                                                          = require('url');
+import cheerio                                                      = require('cheerio');
 import fs                                                           = require('fs');
 import log4js                                                       = require('log4js');
 import path                                                         = require('path');
@@ -76,9 +77,9 @@ class EmailDelegate
                             EmailDelegate.templateCache[fileNameWithoutExtension.toUpperCase()] =
                             {
                                 'bodyTemplate': _.template(data),
-                                'subjectTemplate': function () { return "Test email: " + Utils.getRandomInt(1000, 9999); }
+                                'subjectTemplate': _.template(cheerio.load(data)('title').text())
                             };
-                            log4js.getDefaultLogger().debug('Email templated updated: ' + fileNameWithoutExtension.toUpperCase());
+                            log4js.getDefaultLogger().debug('Email template updated: ' + fileNameWithoutExtension.toUpperCase());
                         }
                     });
                 }
@@ -204,6 +205,11 @@ class EmailDelegate
             sender: sender.toJson()
         };
         return self.send(EmailDelegate.EMAIL_EXPERT_INVITE, recipient.getUser().getEmail(), emailData, sender.getEmail());
+    }
+
+    sendWelcomeEmail():q.Promise<any>
+    {
+        return null;
     }
 
 }

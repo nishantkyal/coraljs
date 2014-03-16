@@ -1,3 +1,4 @@
+import CouponApi                        = require('./CouponApi');
 import ExpertApi                        = require('./ExpertApi');
 import ExpertScheduleRuleApi            = require('./ExpertScheduleRuleApi');
 import ExpertScheduleExceptionApi       = require('./ExpertScheduleExceptionApi')
@@ -15,6 +16,7 @@ import UserProfileApi                   = require('./UserProfileApi');
 
 function init(app)
 {
+    new CouponApi(app);
     new ExpertApi(app);
     new ExpertScheduleRuleApi(app);
     new ExpertScheduleExceptionApi(app);

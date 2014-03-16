@@ -9,6 +9,7 @@ class ApiConstants
     static ROLE:string = 'role';
 
     /* Param constants */
+    static COUPON_ID:string = 'couponId';
     static USER_ID:string = 'userId';
     static USER_PROFILE_ID:string = 'profileId';
     static EXPERT_ID:string = 'expertId';
@@ -30,6 +31,7 @@ class ApiConstants
     static CODE_VERIFICATION:string = 'code_verification';
 
     /* Body constants */
+    static COUPON:string = 'coupon';
     static USER:string = 'user';
     static USER_PROFILE:string = 'profile';
     static OAUTH:string = 'oauth';

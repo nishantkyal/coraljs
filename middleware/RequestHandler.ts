@@ -2,6 +2,7 @@
 import _                                = require('underscore');
 import ApiConstants                     = require('../enums/ApiConstants');
 import BaseModel                        = require('../models/BaseModel');
+import Coupon                           = require('../models/Coupon');
 import User                             = require('../models/User');
 import UserOauth                        = require('../models/UserOauth');
 import Integration                      = require('../models/Integration');
@@ -51,6 +52,9 @@ class RequestHandler
 
             switch (key)
             {
+                case ApiConstants.COUPON:
+                    modelClass = Coupon;
+                    break;
                 case ApiConstants.USER:
                     modelClass = User;
                     break;

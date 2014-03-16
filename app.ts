@@ -1,7 +1,8 @@
 ///<reference path='./_references.d.ts'/>
+import _                                            = require('underscore');
 import express                                      = require('express');
-var connect = require('connect');
-var RedisStore = require('connect-redis')(connect);
+var connect                                         = require('connect');
+var RedisStore                                      = require('connect-redis')(connect);
 import connect_flash                                = require("connect-flash");
 import _                                            = require('underscore');
 import http                                         = require('http');
@@ -58,6 +59,8 @@ app.use(connect_flash());
 // APIs and Route endpoints
 api(app);
 routes(app);
+
+_.templateSettings.interpolate = /\{\{(.+?)\}\}/g;
 
 app.set('port', Config.get('Coral.port') || 3000);
 app.listen(app.get('port'), function ()

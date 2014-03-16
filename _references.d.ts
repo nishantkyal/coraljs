@@ -27,3 +27,4 @@
 ///<reference path='../DefinitelyTyped/connect-ensure-login/connect-ensure-login.d.ts'/>
 ///<reference path='../DefinitelyTyped/validator/validator.d.ts'/>
 ///<reference path='../DefinitelyTyped/accounting/accounting.d.ts'/>
+///<reference path='../DefinitelyTyped/cheerio/cheerio.d.ts'/>

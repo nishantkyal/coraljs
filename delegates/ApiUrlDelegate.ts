@@ -73,15 +73,16 @@ class ApiUrlDelegate
     static transactionItem(transactionId?:number):string { return this.get('/rest/transaction/:transactionId/item', {transactionId: transactionId}); }
     static transactionItemById(transactionId?:number, itemId?:number):string { return this.get('/rest/transaction/:transactionId/item/:itemId', {transactionId: transactionId, itemId: itemId}); }
 
-    /* URL patterns for SMS */
-    static sms():string { return this.get('/rest/sms'); }
-
     /* URL patterns for email */
     static expertInviteEmail():string { return this.get('/rest/email/expert/invitation'); }
 
     /* URL patterns for user profile */
     static userProfile():string { return this.get('/rest/user/profile'); }
     static userProfileById(profileId?:number):string { return this.get('/rest/user/profile/:profileId', {profileId: profileId}); }
+
+    /* URL patterns for coupons */
+    static coupon():string { return this.get('/rest/coupon'); }
+    static couponById(couponId?:number):string { return this.get('/rest/coupon/:couponId', {couponId: couponId}); }
 
     /* URL patterns for Twilio */
     static twiml():string { return this.get('/rest/twiml'); }
