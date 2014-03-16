@@ -13,7 +13,6 @@ import User                                                         = require('.
 import Integration                                                  = require('../models/Integration')
 import IntegrationMember                                            = require('../models/IntegrationMember')
 import IDao                                                         = require('../dao/IDao');
-import EmailDao                                                     = require('../dao/EmailDao');
 import ApiConstants                                                 = require('../enums/ApiConstants');
 import CallStatus                                                   = require('../enums/CallStatus');
 import IncludeFlag                                                  = require('../enums/IncludeFlag');
@@ -103,8 +102,6 @@ class EmailDelegate
                 });
             });
     })();
-
-    getDao():IDao { return new EmailDao(); }
 
     private send(template:string, to:string, emailData:Object, replyTo?:string, from:string = 'contact@searchntalk.com'):q.Promise<any>
     {
