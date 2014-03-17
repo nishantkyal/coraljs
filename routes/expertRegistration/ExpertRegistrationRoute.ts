@@ -2,6 +2,7 @@
 import q                                                    = require('q');
 import express                                              = require('express');
 import passport                                             = require('passport');
+import connect_ensure_login                                 = require('connect-ensure-login');
 import RequestHandler                                       = require('../../middleware/RequestHandler');
 import OAuthProviderDelegate                                = require('../../delegates/OAuthProviderDelegate');
 import AuthenticationDelegate                               = require('../../delegates/AuthenticationDelegate');
@@ -29,8 +30,9 @@ class ExpertRegistrationRoute
         // Pages
         app.get(Urls.index(), this.authenticate.bind(this));
         app.get(Urls.authorization(), OAuthProviderDelegate.authorization, this.authorize.bind(this));
-        app.get(Urls.mobileVerification(), this.mobileVerification.bind(this));
-        app.get(Urls.complete(), this.expertComplete.bind(this));
+        app.get(Urls.mobileVerification(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index()}), this.mobileVerification.bind(this));
+        app.get(Urls.profile(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index()}), this.updateProfile.bind(this));
+        app.get(Urls.complete(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index()}), this.expertComplete.bind(this));
         app.get(Urls.alreadyRegistered(), this.alreadyRegistered.bind(this));
 
         // Auth
@@ -39,6 +41,8 @@ class ExpertRegistrationRoute
         app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: Urls.index(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress']}));
         app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: Urls.index(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress']}), this.authenticationSuccess.bind(this));
         app.post(Urls.authorizationDecision(), OAuthProviderDelegate.decision);
+
+        app.post(Urls.profile(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index()}), this.saveProfile.bind(this));
     }
 
     /* Render login/register page */
@@ -93,7 +97,7 @@ class ExpertRegistrationRoute
     {
         var integrationId = req.session[ApiConstants.INTEGRATION_ID];
         var integration = new IntegrationDelegate().getSync(integrationId);
-        var redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? Urls.mobileVerification() : integration.getRedirectUrl();
+        var redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? Urls.profile() : integration.getRedirectUrl();
 
         var authorizationUrl = Urls.authorization() + '?response_type=code&client_id=' + integrationId + '&redirect_uri=' + redirectUrl;
         res.redirect(authorizationUrl);
@@ -120,6 +124,39 @@ class ExpertRegistrationRoute
             integration: integration
         }
         res.render('expertRegistration/mobileVerification', pageData);
+    }
+
+    private updateProfile(req:express.Request, res:express.Response)
+    {
+        var integrationId = parseInt(req.session[ApiConstants.INTEGRATION_ID]);
+        var integration = new IntegrationDelegate().getSync(integrationId);
+
+        this.userDelegate.get(req['user'].id)
+            .then(
+                function userFetched(user)
+                {
+                    var pageData = {
+                        integration: integration,
+                        user: user
+                    }
+
+                    res.render('expertRegistration/updateProfile', pageData);
+                },
+                function userFetchError() { res.send(500); }
+            );
+
+    }
+
+    private saveProfile(req:express.Request, res:express.Response)
+    {
+        var userId = req['user'].id;
+        var user = req.body[ApiConstants.USER];
+
+        this.userDelegate.update({id: userId}, user)
+            .then(
+                function userUpdated() { res.send(200); },
+                function userUpdateError() { res.send(500); }
+            );
     }
 
     private expertComplete(req:express.Request, res:express.Response)

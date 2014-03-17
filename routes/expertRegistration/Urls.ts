@@ -10,6 +10,7 @@ class Urls
     static authorization():string { return ApiUrlDelegate.get('/expert/authorization'); }
     static authorizationDecision():string { return ApiUrlDelegate.get('/expert/authorization/decision'); }
     static mobileVerification():string { return ApiUrlDelegate.get('/expert/registration/mobile/verification'); }
+    static profile():string { return ApiUrlDelegate.get('/expert/registration/profile'); }
     static complete():string { return ApiUrlDelegate.get('/expert/registration/complete'); }
     static alreadyRegistered():string { return ApiUrlDelegate.get('/expert/registration/done'); }
 }
