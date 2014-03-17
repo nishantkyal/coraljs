@@ -61,7 +61,7 @@ class MysqlDelegate {
             function handleConnection(err, connection)
             {
                 if (err) {
-                    console.error('MysqlDelegate: Failed to get new connection, error: %s', err);
+                    console.error('MysqlDelegate: Failed to get new connection, error: %s', JSON.stringify(err));
                     deferred.reject('Failed to get a DB connection');
                 }
                 else
