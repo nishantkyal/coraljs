@@ -12,6 +12,7 @@ class Config
     static DATABASE_NAME:string                        = 'database.name';
     static DATABASE_USER:string                        = 'database.user';
     static DATABASE_PASS:string                        = 'database.pass';
+    static DATABASE_SOCKET:string                      = 'database.socket';
     static REDIS_HOST:string                           = 'redis.host';
     static REDIS_PORT:string                           = 'redis.port';
     static EMAIL_CDN_BASE_URI:string                   = 'email.cdn.base_uri';

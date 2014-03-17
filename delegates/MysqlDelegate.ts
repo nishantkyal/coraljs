@@ -20,6 +20,7 @@ class MysqlDelegate {
             database         : Config.get(Config.DATABASE_NAME),
             user             : Config.get(Config.DATABASE_USER),
             password         : Config.get(Config.DATABASE_PASS),
+            socketPath:     Config.get(Config.DATABASE_SOCKET),
             supportBigNumbers: true
         });
     })();
@@ -33,7 +34,8 @@ class MysqlDelegate {
         var connection = mysql.createConnection({
             host             : Config.get(Config.DATABASE_HOST),
             user             : Config.get(Config.DATABASE_USER),
-            password         : Config.get(Config.DATABASE_PASS)
+            password         : Config.get(Config.DATABASE_PASS),
+            socketPath:     Config.get(Config.DATABASE_SOCKET)
         });
 
         connection.connect(function(err)
