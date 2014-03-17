@@ -46,8 +46,8 @@ app.use(express.session({
     secret: 'searchntalk.com',
     expires: new Date(Date.now() + (30 * 60 * 1000)), // 30 minutes
     store: new RedisStore({
-        host: Config.get("redis.host"),
-        port: Config.get("redis.port")
+        host: Config.get(Config.REDIS_HOST),
+        port: Config.get(Config.REDIS_PORT)
     })
 }));
 
@@ -61,7 +61,7 @@ routes(app);
 
 _.templateSettings.interpolate = /\{\{(.+?)\}\}/g;
 
-app.set('port', Config.get('Coral.port') || 3000);
+app.set('port', Config.get(Config.CORAL_PORT) || 3000);
 app.listen(app.get('port'), function ()
 {
     console.log("Demo Express server listening on port %d in %s mode", app.get('port'), app.settings.env);

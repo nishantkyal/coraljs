@@ -14,7 +14,7 @@ class CacheHelper
 
     private static getConnection()
     {
-        this.connection = this.connection ? this.connection : redis.createClient(Config.get("redis.port"), Config.get("redis.host"), {connect_timeout: 60000});
+        this.connection = this.connection ? this.connection : redis.createClient(Config.get(Config.REDIS_PORT), Config.get("redis.host"), {connect_timeout: 60000});
         this.connection.on('error', function (error)
         {
             console.log(error);

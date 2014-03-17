@@ -111,7 +111,7 @@ class EmailDelegate
         var bodyTemplate:Function = EmailDelegate.templateCache[template].bodyTemplate;
         var subjectTemplate:Function = EmailDelegate.templateCache[template].subjectTemplate;
 
-        emailData["email_cdn_base_uri"] = Config.get("email.cdn.base_uri");
+        emailData["email_cdn_base_uri"] = Config.get(Config.EMAIL_CDN_BASE_URI);
         replyTo = replyTo || from;
 
         try
@@ -192,7 +192,7 @@ class EmailDelegate
         invitationUrl += ApiConstants.INTEGRATION_ID + '=' + integrationId;
         invitationUrl += '&';
         invitationUrl += ApiConstants.CODE + '=' + invitationCode;
-        invitationUrl = url.resolve(Config.get('Coral.uri'), invitationUrl);
+        invitationUrl = url.resolve(Config.get(Config.CORAL_URI), invitationUrl);
 
         var integration = new IntegrationDelegate().getSync(integrationId)
         var emailData = {

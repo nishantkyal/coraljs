@@ -84,7 +84,7 @@ class CallFlowRoute
         var user = expert.user[0];
 
         var pageData = {};
-        pageData['fb_app_id'] = Config.get('fb.app_id');
+        pageData['fb_app_id'] = Config.get(Config.FB_APP_ID);
         pageData['user'] = user;
         pageData['price_per_min'] = scheduleIds['price_per_min'];
         pageData['price_unit'] = '$';
@@ -120,7 +120,7 @@ class CallFlowRoute
         Middleware.setCallDetails(req, call);
 
         var pageData = {};
-        pageData['fb_app_id'] = Config.get('fb.app_id');
+        pageData['fb_app_id'] = Config.get(Config.FB_APP_ID);
         pageData['user'] = user;
         pageData['price_per_min'] = schedule['price_per_min'];
         pageData['price_unit'] = '$';

@@ -36,12 +36,12 @@ class AuthenticationDelegate
         AuthenticationDelegate.configureLocalStrategy();
 
         /* Facebook login */
-        AuthenticationDelegate.configureFacebookStrategy(AuthenticationDelegate.STRATEGY_FACEBOOK, url.resolve(Config.get('Coral.uri'), '/login/fb/callback'));
+        AuthenticationDelegate.configureFacebookStrategy(AuthenticationDelegate.STRATEGY_FACEBOOK, url.resolve(Config.get(Config.CORAL_URI), '/login/fb/callback'));
         AuthenticationDelegate.configureFacebookStrategy(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, url.resolve(Config.get('SearchNTalk.uri'), '/call/login/fb/callback'));
 
         /* Linkedin login */
-        AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN, url.resolve(Config.get('Coral.uri'), '/login/linkedin/callback'));
-        AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, url.resolve(Config.get('Coral.uri'), ExpertRegistrationUrls.linkedInLoginCallback()));
+        AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN, url.resolve(Config.get(Config.CORAL_URI), '/login/linkedin/callback'));
+        AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, url.resolve(Config.get(Config.CORAL_URI), ExpertRegistrationUrls.linkedInLoginCallback()));
 
         // Serialize-Deserialize user
         passport.serializeUser(function (user, done) { done(null, user); });
@@ -120,8 +120,8 @@ class AuthenticationDelegate
     private static configureFacebookStrategy(strategyId:string, callbackUrl:string, profileFields:string[] = ['id', 'name', 'emails'])
     {
         passport.use(strategyId, new passport_facebook.Strategy({
-                clientID: Config.get("fb.app_id"),
-                clientSecret: Config.get("fb.app_secret"),
+                clientID: Config.get(Config.FB_APP_ID),
+                clientSecret: Config.get(Config.FB_APP_SECRET),
                 callbackURL: callbackUrl,
                 profileFields: profileFields
             },
@@ -156,8 +156,8 @@ class AuthenticationDelegate
     private static configureLinkedInStrategy(strategyId:string, callbackUrl:string, profileFields:string[] = ['id', 'first-name', 'last-name', 'email-address', 'headline', 'summary'])
     {
         passport.use(strategyId, new passport_linkedin.Strategy({
-                consumerKey: Config.get("linkedin.api_key"),
-                consumerSecret: Config.get("linkedin.api_secret"),
+                consumerKey: Config.get(Config.LINKEDIN_API_KEY),
+                consumerSecret: Config.get(Config.LINKEDIN_API_SECRET),
                 callbackURL: callbackUrl,
                 profileFields: profileFields
             },

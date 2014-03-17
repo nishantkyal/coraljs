@@ -16,10 +16,10 @@ class MysqlDelegate {
     private static ctor = (() =>
     {
         MysqlDelegate.pool = mysql.createPool({
-            host             : Config.get('database.host'),
-            database         : Config.get('database.name'),
-            user             : Config.get('database.user'),
-            password         : Config.get('database.pass'),
+            host             : Config.get(Config.DATABASE_HOST),
+            database         : Config.get(Config.DATABASE_NAME),
+            user             : Config.get(Config.DATABASE_USER),
+            password         : Config.get(Config.DATABASE_PASS),
             supportBigNumbers: true
         });
     })();
@@ -31,9 +31,9 @@ class MysqlDelegate {
     {
         var deferred = q.defer();
         var connection = mysql.createConnection({
-            host             : Config.get('database.host'),
-            user             : Config.get('database.user'),
-            password         : Config.get('database.pass')
+            host             : Config.get(Config.DATABASE_HOST),
+            user             : Config.get(Config.DATABASE_USER),
+            password         : Config.get(Config.DATABASE_PASS)
         });
 
         connection.connect(function(err)

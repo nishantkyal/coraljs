@@ -17,7 +17,7 @@ class AccessTokenCache
     }
 
     /* Add token to cache */
-    addToken(integrationMember:IntegrationMember, expireAfter:number = Config.get('access_token.expiry')):q.Promise<any>
+    addToken(integrationMember:IntegrationMember, expireAfter:number = Config.get(Config.ACCESS_TOKEN_EXPIRY)):q.Promise<any>
     {
         return null;
     }

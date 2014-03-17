@@ -7,7 +7,7 @@ import Config                           = require('../../common/Config');
 
 class TwilioDelegate implements ICallingVendorDelegate
 {
-    private static client = twilio(Config.get('twilio.account_sid'), Config.get('twilio.auth_token'));
+    private static client = twilio(Config.get(Config.TWILIO_ACCOUNT_SID), Config.get(Config.TWILIO_AUTH_TOKEN));
 
     sendSMS(to:string, body:string, from?:string):q.Promise<any>
     {
@@ -15,7 +15,7 @@ class TwilioDelegate implements ICallingVendorDelegate
         TwilioDelegate.client.sendMessage({
 
             to: to,
-            from: Config.get('twilio.number'),
+            from: Config.get(Config.TWILIO_NUMBER),
             body: body
 
         }, function (err, responseData)
@@ -34,7 +34,7 @@ class TwilioDelegate implements ICallingVendorDelegate
         TwilioDelegate.client.makeCall({
 
             'to' : phone,
-            from : Config.get('twilio.number'),
+            from : Config.get(Config.TWILIO_NUMBER),
             url  : url
 
         }, function (err, responseData)

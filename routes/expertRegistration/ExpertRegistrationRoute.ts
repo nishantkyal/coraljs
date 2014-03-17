@@ -139,7 +139,7 @@ class ExpertRegistrationRoute
                 var pageData = {
                     user: req['user'],
                     integration: integration,
-                    "SearchNTalkUri": Config.get('SearchNTalk.uri'),
+                    "SearchNTalkUri": Config.get(Config.CORAL_URI),
                     "schedule_rules": member[IncludeFlag.INCLUDE_SCHEDULE_RULES]
                 };
                 res.render('expertRegistration/complete', pageData);
@@ -160,7 +160,7 @@ class ExpertRegistrationRoute
         var pageData = {
             user: req['user'],
             integration: integration,
-            "SearchNTalkUri": Config.get('SearchNTalk.uri')
+            "SearchNTalkUri": Config.get(Config.CORAL_URI)
         };
 
         res.render('expertRegistration/alreadyRegistered', pageData)

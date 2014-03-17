@@ -13,7 +13,7 @@ class UserCache
         return null;
     }
 
-    addResetToken(token:string, user:User, expireAfter:number = Config.get('password_reset.expiry')):q.Promise<any>
+    addResetToken(token:string, user:User, expireAfter:number = Config.get(Config.PASSWORD_RESET_EXPIRY)):q.Promise<any>
     {
         return null;
     }
