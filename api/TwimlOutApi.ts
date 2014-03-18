@@ -232,6 +232,10 @@ class TwimlOutApi
         //TODO remove this after testing
         app.get(TwilioUrlDelegate.twimlGenerateCall(), function (req:express.Request, res:express.Response)
         {
+            self.logger.debug("debug check");
+            self.logger.info("info check");
+            self.logger.error("error check");
+            self.logger.trace("trace check");
             var callId = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
             var transaction = null;
             self.TimeJobDelegate.scheduleJobs();

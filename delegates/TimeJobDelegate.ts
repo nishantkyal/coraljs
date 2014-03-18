@@ -121,8 +121,10 @@ class TimeJobDelegate
     getScheduledJobs()
     {
         var self = this;
+        var timeLeft:number;
         _.each(TimeJobDelegate.jobs, function(job:TimeJob){
-             self.logger.info("Job scheduled after %s seconds. Job Type is %s ", job.getTimeOutReference()._idleTimeout/1000, TimeJobType[job.getJobType()]);
+            timeLeft = job.getTimeOutReference()._idleStart + job.getTimeOutReference()._idleTimeout - Date.now()
+            self.logger.info("Job scheduled after %s seconds. Job Type is %s ", timeLeft/1000, TimeJobType[job.getJobType()]);
         })
     }
 }

@@ -6,8 +6,13 @@ import Config           = require('./common/Config')
 import MysqlDelegate    = require('./delegates/MysqlDelegate');
 import ValidateRequest  = require('./middleware/ValidateRequest');
 import api              = require('./api/index');
+import log4js           = require('log4js');
+
 
 var app:express.Application = express();
+
+log4js.configure('/var/searchntalk/config/log4js.json', {});
+log4js.getDefaultLogger().debug("check");
 
 // all environments
 app.set('port', Config.get('Coral.port') || 3000);
@@ -52,6 +57,14 @@ api(app);
 app.listen(app.get('port'), function()
 {
     console.log("Demo Express server listening on port %d in %s mode", app.get('port'), app.settings.env);
+    /*var uid = parseInt(process.env.SUDO_UID);
+    // Set our server's uid to that user
+    if (uid)
+    {
+        process.setuid(uid);
+        console.log('Server\'s UID is now ' + process.getuid());
+    }*/
+
 });
 
 Date.prototype.getTimeInSec = function()

@@ -137,7 +137,7 @@ class PhoneCallDelegate extends BaseDAODelegate
             function CallFetched(call:any){
                 var phoneCallCacheObj:PhoneCallCacheModel = new PhoneCallCacheModel(call);
                 tempPhoneCallCacheObj = phoneCallCacheObj;
-                return new CallProviderFactory().getProvider().makeCall(phoneCallCacheObj.getUserNumber(), callId, phoneCallCacheObj.getNumReattempts());
+                return new CallProviderFactory().getProvider().makeCall(phoneCallCacheObj.getUserNumber(), callId, phoneCallCacheObj.getNumReattempts());//
             })
             .fail(function(error){
                 self.logger.debug("Error in call triggering %s", callId);
@@ -149,6 +149,7 @@ class PhoneCallDelegate extends BaseDAODelegate
                 callFragment.setFromNumber(tempPhoneCallCacheObj.getUserNumber());
                 callFragment.setToNumber(tempPhoneCallCacheObj.getExpertNumber());
                 callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_SERVER_ERROR);
+                callFragment.setResponseCode(error.code);
                 new CallFragmentDelegate().create(callFragment);
 
                 //TODO don't send sms to landline (twilio doesn't send it and return error code 21614). However, we should not even make the api call.

@@ -19,6 +19,7 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
     getDao():IDao { return new ExpertScheduleRuleDao(); }
     createRule(newScheduleRule:ExpertScheduleRule, transaction?:any):q.Promise<any>
     {
+        this.logger.info("create rule called");
         var self = this;
         var currentDate = new Date();
         var dateAfterOneYear = new Date();
@@ -127,6 +128,7 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
 
     applyExceptions(schedules:ExpertSchedule[], exceptions:ExpertScheduleException[]):ExpertSchedule[]
     {
+        var self = this;
         schedules = _.filter(schedules, function (schedule:ExpertSchedule) {
             for (var i = 0; i < exceptions.length; i++)
             {
@@ -135,13 +137,13 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
                     if(exceptions[i].getStartTime() <= schedule.getStartTime() + schedule.getDuration())
                     {
                         return false;
-                        this.logger.debug('exception caught');
+                        self.logger.debug('exception caught');
                     }
                 }
                 else if ((exceptions[i].getStartTime() + exceptions[i].getDuration()) > schedule.getStartTime())
                 {
                     return false;
-                    this.logger.debug('exception caught');
+                    self.logger.debug('exception caught');
                 }
             }
             return true;
