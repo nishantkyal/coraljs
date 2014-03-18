@@ -11,6 +11,7 @@ class MysqlDelegate {
 
     // Connection pool
     private static pool:any;
+    private static logger:log4js.Logger = log4js.getLogger('MysqlDelegate');
 
     /* Static constructor workaround */
     private static ctor = (() =>
@@ -42,7 +43,7 @@ class MysqlDelegate {
         {
             if (err)
             {
-                log4js.getDefaultLogger().error('Error when establishing a mysql connection, error: ' + err);
+                MysqlDelegate.logger.error('Error when establishing a mysql connection, error: ' + err);
                 deferred.reject(err);
             }
             else
@@ -61,7 +62,7 @@ class MysqlDelegate {
             function handleConnection(err, connection)
             {
                 if (err) {
-                    console.error('MysqlDelegate: Failed to get new connection, error: %s', JSON.stringify(err));
+                    MysqlDelegate.logger.error('MysqlDelegate: Failed to get new connection, error: %s', JSON.stringify(err));
                     deferred.reject('Failed to get a DB connection');
                 }
                 else
@@ -85,7 +86,7 @@ class MysqlDelegate {
                     function handleTransactionCallback(error, transaction)
                     {
                         if (error) {
-                            console.error("MysqlDelegate: Failed to start a transaction");
+                            MysqlDelegate.logger.error("MysqlDelegate: Failed to start a transaction");
                             deferred.reject('Failed to start a transaction');
                         }
                         else
