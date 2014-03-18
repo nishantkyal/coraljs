@@ -45,7 +45,7 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
                 createdExpert = expert;
                 return MysqlDelegate.commit(transaction, createdExpert);
             })
-            .then(
+            /*.then(
             function createDefaultScheduleRules()
             {
                 // TODO: Execute this in transaction. Figure out why lock times out when creating rule in same transaction
@@ -55,7 +55,7 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
             function rulesCreated()
             {
                 return self.get(createdExpert.getId(), [IntegrationMember.AUTH_CODE, IntegrationMember.ID, IntegrationMember.INTEGRATION_ID, IntegrationMember.USER_ID]);
-            });
+            });*/
     }
 
     get(id:any, fields?:string[], flags:Array<IncludeFlag> = []):q.Promise<any>
