@@ -85,7 +85,7 @@ class MysqlDelegate {
             .then(
             function handleConnection(connection)
             {
-                MysqlDelegate.logger.debug("Connectin obtained");
+                MysqlDelegate.logger.debug("Connection obtained");
                 connection.transaction(
                     function handleTransactionCallback(error, transaction)
                     {
