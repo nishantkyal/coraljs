@@ -78,19 +78,25 @@ class MysqlDelegate {
     static beginTransaction():q.Promise<any>
     {
         var deferred = q.defer();
+
+        MysqlDelegate.logger.debug("Beginning transaction");
+
         MysqlDelegate.getConnectionFromPool()
             .then(
             function handleConnection(connection)
             {
+                MysqlDelegate.logger.debug("Connectin obtained");
                 connection.transaction(
                     function handleTransactionCallback(error, transaction)
                     {
                         if (error) {
-                            MysqlDelegate.logger.error("MysqlDelegate: Failed to start a transaction");
+                            MysqlDelegate.logger.error("Failed to start a transaction");
                             deferred.reject('Failed to start a transaction');
                         }
-                        else
+                        else{
+                            MysqlDelegate.logger.debug("Transaction started");
                             deferred.resolve(transaction);
+                        }
                     });
             });
         return deferred.promise;
