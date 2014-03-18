@@ -21,7 +21,7 @@ title User Management - #{integration.title}
                         | &nbsp;Create Coupon
             .clearfix
             if coupons.length != 0
-                table.table-bordered.table#users
+                table.table-hover.table.table-bordered#users
                     thead
                         tr
                             th.col-md-1 Code
@@ -29,10 +29,12 @@ title User Management - #{integration.title}
                             th.col-md-2 Expires
                             th.col-md-1 Usage
                             th.col-md-1 Discount
+
+                    tbody
                         each coupon in coupons
                             - expert = coupon['expert'][0]
                             - user = expert['user'][0]
-                            tr
+                            tr(style='cursor: pointer;', data-id=coupon.id, data-toggle='modal', href='#couponDetails')
                                 td= coupon.code
                                 td= coupon.expert_id == expert.id && expert.user_id == user.id ? formatName(user.first_name, user.last_name, user.title) : 'All'
                                 td= coupon.expiry_time != null ? formatDate(coupon.expiry_time) : 'Never'
@@ -56,19 +58,16 @@ title User Management - #{integration.title}
                     .row
                         .form-group.col-md-6
                             label.control-label(for='code') Code
-                            .input-group
-                                input.form-control#code(type='text', name='code', data-toggle="tooltip", data-placement="bottom")
-                                .input-group-btn
-                                    button.btn.btn-primary Generate
-                            p.help-block Coupon codes are case-insensitive
+                            input.form-control#code(type='text', name='code', data-toggle="tooltip", data-placement="bottom", style='text-transform: uppercase;')
                         .form-group.col-md-6
-                            label.control-label(for='code') Expert
+                            label.control-label(for='code')
+                                | Apply to Expert&nbsp;&nbsp;
+                                .fa.fa-question-circle(style='cursor: pointer', data-toggle="tooltip", data-placement="right", title='Select the expert to whom this coupon applies')
                             select#expert_id(type='text', name='expert_id')
-                                option(val=0) All
+                                option(value=0) All
                                 if members
                                     for member in members
-                                        option(id=member.id)= formatName(member.user.first_name, member.user.last_name, member.user.title)
-                            p.help-block Select expert who the coupon applies to. Leave blank for all experts.
+                                        option(value=member.id)= formatName(member.user.first_name, member.user.last_name, member.user.title)
                     hr
                     .row
                         .form-group.col-md-4
@@ -100,8 +99,10 @@ title User Management - #{integration.title}
                                     label(style='font-weight: normal;') &nbsp;Waive network charges
                 .modal-footer
                     button.btn.btn-default(data-dismiss='modal') Close
-                    input.btn.btn-primary(type='submit', value='Save')
+                    input.btn.btn-primary#submit(type='submit', value='Save')
 include footer
 script.
     var integrationId = !{integration.id};
+    var coupons = !{JSON.stringify(coupons)};
+
 script(src='/js/app/dashboard/integrationCoupons.js')

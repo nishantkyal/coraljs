@@ -53,10 +53,10 @@ class CouponApi
             var couponId:number = parseInt(req.params[ApiConstants.COUPON_ID]);
             var coupon = req.body[ApiConstants.COUPON];
 
-            self.couponDelegate.update(couponId, coupon)
+            self.couponDelegate.update({id: couponId}, coupon)
                 .then(
-                function couponUpdated() { res.send(200); },
-                function couponUpdateFailed() { res.send(500); }
+                function couponUpdated(result) { res.send(200, result); },
+                function couponUpdateFailed(error) { res.send(500, error); }
             );
         });
 
