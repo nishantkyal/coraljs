@@ -68,9 +68,6 @@ routes(app);
 
 _.templateSettings.interpolate = /\{\{(.+?)\}\}/g;
 
-
-log4js.configure('/var/searchntalk/config/log4js.json');
-
 app.set('port', Config.get(Config.CORAL_PORT) || 3000);
 app.listen(app.get('port'), function ()
 {
