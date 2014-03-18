@@ -32,6 +32,8 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
         var createdExpert;
         var transaction;
 
+        self.logger.debug('Beginning transaction for creating expert');
+
         return MysqlDelegate.beginTransaction()
             .then(
             function createUserAfterTransactionStarted(t)
@@ -59,6 +61,11 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
             {
                 self.logger.debug('Default schedule rules created');
                 return self.get(createdExpert.getId(), [IntegrationMember.AUTH_CODE, IntegrationMember.ID, IntegrationMember.INTEGRATION_ID, IntegrationMember.USER_ID]);
+            })
+            .fail(
+            function expertCreateFailed(error)
+            {
+                self.logger.error('Error occurred while creating new expert, error: %s', error);
             });
     }
 
