@@ -32,11 +32,13 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
             .then(
             function createRecord(rules:ExpertScheduleRule[])
             {
+                self.logger.debug('Checking new rule for conflicts with old rules. options: %s', JSON.stringify(options));
                 return newScheduleRule.hasConflicts(rules, options);
             })
             .then(
             function conflictsChecked(hasConflicts):any
             {
+                self.logger.debug('Conflicts checked %s', hasConflicts);
                 if (hasConflicts)
                     throw('Conflicts detected');
                 else
