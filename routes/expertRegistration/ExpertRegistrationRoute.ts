@@ -3,6 +3,7 @@ import q                                                    = require('q');
 import express                                              = require('express');
 import passport                                             = require('passport');
 import connect_ensure_login                                 = require('connect-ensure-login');
+import url                                      = require('url');
 import RequestHandler                                       = require('../../middleware/RequestHandler');
 import OAuthProviderDelegate                                = require('../../delegates/OAuthProviderDelegate');
 import AuthenticationDelegate                               = require('../../delegates/AuthenticationDelegate');
@@ -97,7 +98,7 @@ class ExpertRegistrationRoute
     {
         var integrationId = req.session[ApiConstants.INTEGRATION_ID];
         var integration = new IntegrationDelegate().getSync(integrationId);
-        var redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? Urls.profile() : integration.getRedirectUrl();
+        var redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? url.resolve(Config.get(Config.CORAL_URI), Urls.profile()) : integration.getRedirectUrl();
 
         var authorizationUrl = Urls.authorization() + '?response_type=code&client_id=' + integrationId + '&redirect_uri=' + redirectUrl;
         res.redirect(authorizationUrl);
