@@ -5,7 +5,8 @@ include scriptsAndStyles
         .col-md-2
         .col-md-8
             p Please verify your mobile number
-            em This number will be used to connect the users to you for calls that you accept to receive
+            em.small This number will be used to connect the users to you for calls that you accept to receive
+            hr
             form#sendCode
                 .form-group
                     label Mobile Number
@@ -25,4 +26,5 @@ include scriptsAndStyles
                 .form-group
                     input.btn.btn-primary.form-control(type='submit', value='Verify', name='verify')
         .col-md-2
+include footer
 script(src='/js/app/expertRegistration/mobileVerification.js')

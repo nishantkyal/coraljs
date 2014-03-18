@@ -5,14 +5,20 @@ include scriptsAndStyles
     .row
         .col-md-2
         .col-md-8
-            .row
-                .col-md-9
-                    h4 User Management
-                .col-md-3
-                    .pull-right
-                        .btn-primary.btn.save(data-toggle='modal', href='#inviteUserModal')
-                            i.icon-plus.icon-white
-                            | &nbsp;Invite Member
+            .navbar.navbar-default
+                .container-fluid
+                    .collapse.navbar-collapse
+                        ul.nav.navbar-nav
+                            li.active
+                                a(href='/integration/' + integration.id + '/members') Members
+                            li
+                                a(href='/integration/' + integration.id + '/coupons') Coupons
+            .row-fluid
+                .pull-right
+                    .btn-primary.btn.save(data-toggle='modal', href='#inviteUserModal')
+                        i.icon-plus.icon-white
+                        | &nbsp;Invite Member
+            .clearfix
             table.table-bordered.table#users
                 thead
                     tr

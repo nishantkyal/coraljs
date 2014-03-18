@@ -1,0 +1,106 @@
+include header
+include scriptsAndStyles
+title User Management - #{integration.title}
+.container-fluid
+    .row-fluid
+        .col-md-2
+        .col-md-8
+            .navbar.navbar-default
+                .container-fluid
+                    .collapse.navbar-collapse
+                        ul.nav.navbar-nav
+                            li
+                                a(href='/integration/' + integration.id + '/members') Members
+                            li.active
+                                a(href='/integration/' + integration.id + '/coupons') Coupons
+            .row-fluid
+                .pull-right
+                    .btn-primary.btn.save(data-toggle='modal', href='#couponDetails')
+                        i.icon-plus.icon-white
+                        | &nbsp;Create Coupon
+            .clearfix
+            if coupons.length != 0
+                table.table-bordered.table#users
+                    thead
+                        tr
+                            th.col-md-1 Code
+                            th.col-md-2 Expert
+                            th.col-md-2 Expires
+                            th.col-md-1 Usage
+                            th.col-md-1 Discount
+                        each coupon in coupons
+                            - expert = coupon['expert'][0]
+                            - user = expert['user'][0]
+                            tr
+                                td= coupon.code
+                                td= coupon.expert_id == expert.id && expert.user_id == user.id ? formatName(user.first_name, user.last_name, user.title) : 'All'
+                                td= coupon.expiry_time != null ? formatDate(coupon.expiry_time) : 'Never'
+                                td #{coupon.num_used} / #{coupon.max_coupons || '∞'}
+                                td= formatMoney(coupon.discount_amount, coupon.discount_unit)
+                                    br
+                                    small #{coupon.waive_network_charges ? 'Network charges also waived' : ''}
+            else
+                    .text-center
+                        label No coupons created yet
+        .col-md-2
+
+#couponDetails.modal
+    .modal-dialog
+        .modal-content
+            .modal-header
+                .close(data-dismiss='modal', aria-hidden='true') x
+                h4.modal-title Coupon
+            form
+                .modal-body
+                    .row
+                        .form-group.col-md-6
+                            label.control-label(for='code') Code
+                            .input-group
+                                input.form-control#code(type='text', name='code', data-toggle="tooltip", data-placement="bottom")
+                                .input-group-btn
+                                    button.btn.btn-primary Generate
+                            p.help-block Coupon codes are case-insensitive
+                        .form-group.col-md-6
+                            label.control-label(for='code') Expert
+                            select#expert_id(type='text', name='expert_id')
+                                option(val=0) All
+                                if members
+                                    for member in members
+                                        option(id=member.id)= formatName(member.user.first_name, member.user.last_name, member.user.title)
+                            p.help-block Select expert who the coupon applies to. Leave blank for all experts.
+                    hr
+                    .row
+                        .form-group.col-md-4
+                            label.control-label(for='expiry_time') Expires On
+                            input.form-control#expiry(type='text', name='expiry_time', data-toggle="tooltip", data-placement="bottom")
+                        .form-group.col-md-4
+                            label.control-label(for='max_coupons') Total coupons
+                            input.form-control(type='text', name='max_coupons', placeholder='0 = unlimited', data-toggle="tooltip", data-placement="bottom")#max_coupons
+                        .form-group.col-md-4
+                            label.control-label(for='num_used', data-toggle="tooltip", data-placement="bottom") Coupons Used
+                            .form-control-static#num_used -
+                    hr
+                    .row
+                        .form-group.col-md-6
+                            label.control-label Discount
+                            .input-group
+                                input.form-control#discount_amount(type='text', name='expiry', data-toggle="tooltip", data-placement="bottom")
+                                .input-group-btn
+                                    select#discount_unit(data-width='auto')
+                                        option(value='1') Rs.
+                                        option(value='2') $
+                                        option(value='3') %
+                                        option(value='4') Points
+                        .form-group
+                            label Options
+                            .input-group
+                                label.in
+                                    input(type='checkbox')#waive_network_charges
+                                    label(style='font-weight: normal;') &nbsp;Waive network charges
+                .modal-footer
+                    button.btn.btn-default(data-dismiss='modal') Close
+                    input.btn.btn-primary(type='submit', value='Save')
+include footer
+script.
+    var integrationId = !{integration.id};
+script(src='/js/app/dashboard/integrationCoupons.js')

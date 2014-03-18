@@ -1,4 +1,5 @@
 ///<reference path='../_references.d.ts'/>
+import express                          = require('express');
 import _                                = require('underscore');
 import ApiConstants                     = require('../enums/ApiConstants');
 import BaseModel                        = require('../models/BaseModel');
@@ -43,10 +44,11 @@ class RequestHandler
     }
 
     /* Middleware to parse body attributes into models and parse includes*/
-    static parseRequest(req, res, next)
+    static parseRequest(req:express.Request, res, next)
     {
-        // Parse models in body
-        _.each(_.keys(req.body), function (key)
+        // Parse models
+        var modelContainer = req.method == 'GET' ? req.query : req.body;
+        _.each(_.keys(modelContainer), function (key)
         {
             var modelClass:typeof BaseModel = null;
 
@@ -91,7 +93,7 @@ class RequestHandler
             }
 
             if (modelClass)
-                req.body[key] = new modelClass(req.body[key]);
+                req.body[key] = new modelClass(modelContainer[key]);
         });
         next();
     }

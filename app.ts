@@ -7,6 +7,8 @@ import connect_flash                                = require("connect-flash");
 import http                                         = require('http');
 import path                                         = require('path');
 import passport                                     = require('passport');
+import log4js                                       = require('log4js');
+import moment                                       = require('moment');
 import Config                                       = require('./common/Config');
 import Formatter                                    = require('./common/Formatter');
 import ApiUrlDelegate                               = require('./delegates/ApiUrlDelegate');
@@ -30,6 +32,9 @@ app.use(
         res.locals.formatRole = Formatter.formatRole;
         res.locals.formatName = Formatter.formatName;
         res.locals.formatSchedule = Formatter.formatSchedule;
+        res.locals.formatDate = function(m, format:string = 'DD/MM/YYYY hh:mm:ss a') {
+            return moment(m).format(format).toString();
+        };
         next();
     }
 )
@@ -60,6 +65,9 @@ api(app);
 routes(app);
 
 _.templateSettings.interpolate = /\{\{(.+?)\}\}/g;
+
+
+log4js.configure('/var/searchntalk/config/log4js.json');
 
 app.set('port', Config.get(Config.CORAL_PORT) || 3000);
 app.listen(app.get('port'), function ()

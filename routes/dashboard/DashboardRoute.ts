@@ -9,15 +9,18 @@ import accounting                                       = require('accounting');
 import ApiUrlDelegate                                   = require('../../delegates/ApiUrlDelegate');
 import AuthenticationDelegate                           = require('../../delegates/AuthenticationDelegate');
 import UserDelegate                                     = require('../../delegates/UserDelegate');
+import IntegrationDelegate                              = require('../../delegates/IntegrationDelegate');
 import IntegrationMemberDelegate                        = require('../../delegates/IntegrationMemberDelegate');
 import EmailDelegate                                    = require('../../delegates/EmailDelegate');
 import SMSDelegate                                      = require('../../delegates/SMSDelegate');
+import CouponDelegate                                   = require('../../delegates/CouponDelegate');
 import MoneyUnit                                        = require('../../enums/MoneyUnit');
 import IncludeFlag                                      = require('../../enums/IncludeFlag');
 import User                                             = require('../../models/User');
 import IntegrationMember                                = require('../../models/IntegrationMember');
 import Integration                                      = require('../../models/Integration');
 import SMS                                              = require('../../models/SMS');
+import Coupon                                           = require('../../models/Coupon');
 import IntegrationMemberRole                            = require('../../enums/IntegrationMemberRole');
 import ApiConstants                                     = require('../../enums/ApiConstants');
 import SmsTemplate                                      = require('../../enums/SmsTemplate');
@@ -30,12 +33,15 @@ class DashboardRoute
     static PAGE_LOGIN:string = 'dashboard/login';
     static PAGE_INTEGRATIONS:string = 'dashboard/integrations';
     static PAGE_USERS:string = 'dashboard/integrationUsers';
+    static PAGE_COUPONS:string = 'dashboard/integrationCoupons';
     static PAGE_PROFILE:string = 'dashboard/memberProfile';
 
+    integrationDelegate = new IntegrationDelegate();
     integrationMemberDelegate = new IntegrationMemberDelegate();
     userDelegate = new UserDelegate();
     emailDelegate = new EmailDelegate();
     verificationCodeCache = new VerificationCodeCache();
+    couponDelegate = new CouponDelegate();
 
     constructor(app)
     {
@@ -43,7 +49,8 @@ class DashboardRoute
         app.get('/', connect_ensure_login.ensureLoggedIn(), this.authSuccess.bind(this));
         app.get('/login', this.login.bind(this));
         app.get('/integrations', connect_ensure_login.ensureLoggedIn(), this.integrations.bind(this));
-        app.get('/integration/:integrationId/users', Middleware.allowOwnerOrAdmin, this.integrationUsers.bind(this));
+        app.get('/integration/:integrationId/coupons', connect_ensure_login.ensureLoggedIn(), this.coupons.bind(this));
+        app.get('/integration/:integrationId/members', Middleware.allowOwnerOrAdmin, this.integrationUsers.bind(this));
         app.get('/member/:memberId/profile', Middleware.allowSelf, this.memberProfile.bind(this));
         app.get('/logout', this.logout.bind(this));
 
@@ -93,7 +100,8 @@ class DashboardRoute
                 var pageData =
                 {
                     'members': integrationMembers,
-                    'logged_in_user': req['user']
+                    'logged_in_user': req['user'],
+                    selectedTab : 'integrations'
                 };
 
                 res.render(DashboardRoute.PAGE_INTEGRATIONS, pageData);
@@ -104,7 +112,31 @@ class DashboardRoute
             });
     }
 
-    integrationUsers(req:express.Request, res:express.Response)
+    private coupons(req:express.Request, res:express.Response)
+    {
+        var integrationId = parseInt(req.params[ApiConstants.INTEGRATION_ID]);
+        var integration = this.integrationDelegate.getSync(integrationId);
+        var integrationMembers = Middleware.getIntegrationMembers(req);
+
+        this.couponDelegate.search({integration_id: integrationId}, null, this.couponDelegate.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_EXPERT])
+            .then(
+                function couponsFetched(coupons:Coupon[])
+                {
+                    var pageData =
+                    {
+                        'coupons': coupons,
+                        'members': integrationMembers,
+                        'logged_in_user': req['user'],
+                        'integration': integration
+                    };
+
+                    res.render(DashboardRoute.PAGE_COUPONS, pageData);
+                },
+                function couponFetchError(error) { res.send(500); }
+            )
+    }
+
+    private integrationUsers(req:express.Request, res:express.Response)
     {
         var integrationId = parseInt(req.params[ApiConstants.INTEGRATION_ID]);
         req.session[ApiConstants.INTEGRATION_ID] = integrationId;

@@ -142,6 +142,7 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
             case IncludeFlag.INCLUDE_INTEGRATION:
                 return new IntegrationDelegate().get(_.uniq(_.pluck(result, IntegrationMember.INTEGRATION_ID)));
             case IncludeFlag.INCLUDE_USER:
+                var UserDelegate:any = require('./UserDelegate');
                 return new UserDelegate().get(_.uniq(_.pluck(result, IntegrationMember.USER_ID)));
             case IncludeFlag.INCLUDE_USER_PROFILE:
                 return new UserProfileDelegate().search({'user_id': _.uniq(_.pluck(result, IntegrationMember.USER_ID))});

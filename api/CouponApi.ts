@@ -5,6 +5,7 @@ import CouponDelegate                                       = require('../delega
 import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
 import Coupon                                               = require('../models/Coupon');
 import AccessControl                                        = require('../middleware/AccessControl');
+import Utils                                                = require('../common/Utils');
 
 class CouponApi
 {
@@ -12,14 +13,16 @@ class CouponApi
 
     constructor(app)
     {
+        var self = this;
+
         app.get(ApiUrlDelegate.coupon(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
         {
             var coupon = req.body[ApiConstants.COUPON];
 
-            this.couponDelegate.search(coupon)
+            self.couponDelegate.search(coupon)
                 .then(
                 function couponSearched(coupons:Coupon[]) { res.send(JSON.stringify(coupons)); },
-                function couponSearchFailed() { res.send(500); }
+                function couponSearchFailed(error) { res.send(500); }
             );
         });
 
@@ -27,7 +30,7 @@ class CouponApi
         {
             var couponId:number = parseInt(req.params[ApiConstants.COUPON_ID]);
 
-            this.couponDelegate.get(couponId)
+            self.couponDelegate.get(couponId)
                 .then(
                 function couponFetched(coupon:Coupon) { res.send(coupon.toJson()); },
                 function couponFetchFailed() { res.send(500); }
@@ -38,7 +41,7 @@ class CouponApi
         {
             var coupon = req.body[ApiConstants.COUPON];
 
-            this.couponDelegate.create(coupon)
+            self.couponDelegate.create(coupon)
                 .then(
                 function couponCreated(coupon:Coupon) { res.send(coupon.toJson()); },
                 function couponCreateFailed() { res.send(500); }
@@ -50,7 +53,7 @@ class CouponApi
             var couponId:number = parseInt(req.params[ApiConstants.COUPON_ID]);
             var coupon = req.body[ApiConstants.COUPON];
 
-            this.couponDelegate.update(couponId, coupon)
+            self.couponDelegate.update(couponId, coupon)
                 .then(
                 function couponUpdated() { res.send(200); },
                 function couponUpdateFailed() { res.send(500); }
@@ -61,11 +64,31 @@ class CouponApi
         {
             var couponId:number = parseInt(req.params[ApiConstants.COUPON_ID]);
 
-            this.couponDelegate.delete(couponId)
+            self.couponDelegate.delete(couponId)
                 .then(
                     function couponDeleted() { res.send(200); },
                     function couponDeleteFailed() { res.send(500); }
                 );
+        });
+
+        /* Used by front end to check duplicate coupon codes */
+        app.get(ApiUrlDelegate.couponValidation(), AccessControl.allowDashboard, function(req: express.Request, res: express.Response)
+        {
+            var coupon = req.body[ApiConstants.COUPON];
+
+            // Send true if coupon not found or is invalid
+            self.couponDelegate.find(coupon, null, self.couponDelegate.DASHBOARD_FIELDS)
+                .then(
+                    function couponFound(c:Coupon)
+                    {
+                        if (Utils.isNullOrEmpty(c))
+                            res.send(true);
+                        else
+                            res.send('Coupon code exists');
+                    },
+                    function couponFindFailed(error) { res.send(true); }
+                )
+
         });
     }
 }
