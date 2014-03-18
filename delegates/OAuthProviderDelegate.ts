@@ -75,6 +75,8 @@ class OAuthProviderDelegate
             expert.setIntegrationId(integration.id);
             expert.setRole(IntegrationMemberRole.Expert);
 
+            OAuthProviderDelegate.logger.debug('Creating expert for user id: %s, integration id: %s', user.id, integration.id);
+
             new IntegrationMemberDelegate().create(expert)
                 .then(
                 function expertCreated(expert) { done(null, expert.getAuthCode()); },
