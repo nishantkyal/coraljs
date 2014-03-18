@@ -1,12 +1,13 @@
 title User Management - #{integration.title}
 include header
 include scriptsAndStyles
-.container
-    .row
+.container-fluid
+    .row-fluid
         .col-md-2
         .col-md-8
             .navbar.navbar-default
-                .container-fluid
+                .container
+                    a.navbar-brand(href='/integrations') Back
                     .collapse.navbar-collapse
                         ul.nav.navbar-nav
                             li.active
