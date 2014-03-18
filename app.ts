@@ -19,6 +19,8 @@ import api                                          = require('./api/index');
 import routes                                       = require('./routes/index');
 import CountryCode                                  = require('./enums/CountryCode');
 
+log4js.configure('/var/searchntalk/config/log4js.json');
+
 var app:express.Application = express();
 
 // all environments
