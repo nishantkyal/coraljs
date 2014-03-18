@@ -34,39 +34,44 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
 
         self.logger.debug('Beginning transaction for creating expert');
 
-        return MysqlDelegate.beginTransaction()
-            .then(
-            function createUserAfterTransactionStarted(t)
-            {
-                transaction = t;
-                self.logger.debug('Transaction started for creating expert');
-                return superCreate.call(self, integrationMember, transaction);
-            })
-            .then(
-            function commitTransaction(expert)
-            {
-                createdExpert = expert;
-                self.logger.debug('Expert created');
-                return MysqlDelegate.commit(transaction, createdExpert);
-            })
-            .then(
-            function createDefaultScheduleRules()
-            {
-                // TODO: Execute this in transaction. Figure out why lock times out when creating rule in same transaction
-                self.logger.debug('Transaction committed');
-                return new ExpertScheduleRuleDelegate().createDefaultRules(createdExpert.getId(), transaction);
-            })
-            .then(
-            function rulesCreated()
-            {
-                self.logger.debug('Default schedule rules created');
-                return self.get(createdExpert.getId(), [IntegrationMember.AUTH_CODE, IntegrationMember.ID, IntegrationMember.INTEGRATION_ID, IntegrationMember.USER_ID]);
-            })
-            .fail(
-            function expertCreateFailed(error)
-            {
-                self.logger.error('Error occurred while creating new expert, error: %s', error);
-            });
+        try {
+            return MysqlDelegate.beginTransaction()
+                .then(
+                function createUserAfterTransactionStarted(t)
+                {
+                    transaction = t;
+                    self.logger.debug('Transaction started for creating expert');
+                    return superCreate.call(self, integrationMember, transaction);
+                })
+                .then(
+                function commitTransaction(expert)
+                {
+                    createdExpert = expert;
+                    self.logger.debug('Expert created');
+                    return MysqlDelegate.commit(transaction, createdExpert);
+                })
+                .then(
+                function createDefaultScheduleRules()
+                {
+                    // TODO: Execute this in transaction. Figure out why lock times out when creating rule in same transaction
+                    self.logger.debug('Transaction committed');
+                    return new ExpertScheduleRuleDelegate().createDefaultRules(createdExpert.getId(), transaction);
+                })
+                .then(
+                function rulesCreated()
+                {
+                    self.logger.debug('Default schedule rules created');
+                    return self.get(createdExpert.getId(), [IntegrationMember.AUTH_CODE, IntegrationMember.ID, IntegrationMember.INTEGRATION_ID, IntegrationMember.USER_ID]);
+                })
+                .fail(
+                function expertCreateFailed(error)
+                {
+                    self.logger.error('Error occurred while creating new expert, error: %s', error);
+                });
+        } catch (e) {
+            self.logger.error('Error occurred while creating new expert, error: %s', e);
+            return null;
+        }
     }
 
     get(id:any, fields?:string[], flags:Array<IncludeFlag> = []):q.Promise<any>
