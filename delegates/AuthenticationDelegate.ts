@@ -1,9 +1,9 @@
 ///<reference path='../_references.d.ts'/>
 import express                              = require('express');
-import passport                             = require("passport");
+import passport                             = require('passport');
 import url                                  = require('url');
-import passport_http_bearer                 = require("passport-http-bearer");
-import passport_facebook                    = require("passport-facebook");
+import passport_http_bearer                 = require('passport-http-bearer');
+import passport_facebook                    = require('passport-facebook');
 import passport_linkedin                    = require('passport-linkedin');
 import passport_local                       = require('passport-local');
 import IntegrationMemberDelegate            = require('../delegates/IntegrationMemberDelegate');
@@ -136,7 +136,7 @@ class AuthenticationDelegate
 
                 var userOauth = new UserOauth();
                 userOauth.setOauthUserId(profile.id);
-                userOauth.setProviderId("FB");
+                userOauth.setProviderId('FB');
                 userOauth.setAccessToken(accessToken);
                 userOauth.setRefreshToken(refreshToken);
 
@@ -174,7 +174,7 @@ class AuthenticationDelegate
 
                 var userOauth = new UserOauth();
                 userOauth.setOauthUserId(profile.id);
-                userOauth.setProviderId("LinkedIn");
+                userOauth.setProviderId('LinkedIn');
                 userOauth.setAccessToken(accessToken);
                 userOauth.setRefreshToken(refreshToken);
 
