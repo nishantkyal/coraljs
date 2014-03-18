@@ -116,6 +116,42 @@ class ExpertRegistrationRoute
             });
     }
 
+    private updateProfile(req:express.Request, res:express.Response)
+    {
+        var integrationId = parseInt(req.session[ApiConstants.INTEGRATION_ID]);
+        var integration = new IntegrationDelegate().getSync(integrationId);
+
+        q.all([
+                new VerificationCodeCache().deleteInvitationCode(req.session[ApiConstants.CODE], req.session[ApiConstants.INTEGRATION_ID]),
+                this.userDelegate.get(req['user'].id)
+            ])
+            .then(
+            function userFetched(...args)
+            {
+                var user = new User(args[0][1]);
+                var pageData = {
+                    integration: integration,
+                    user: user
+                }
+
+                res.render('expertRegistration/updateProfile', pageData);
+            },
+            function userFetchError() { res.send(500); }
+        );
+    }
+
+    private saveProfile(req:express.Request, res:express.Response)
+    {
+        var userId = req['user'].id;
+        var user = req.body[ApiConstants.USER];
+
+        this.userDelegate.update({id: userId}, user)
+            .then(
+            function userUpdated() { res.send(200); },
+            function userUpdateError() { res.send(500); }
+        );
+    }
+
     private mobileVerification(req:express.Request, res:express.Response)
     {
         var integrationId = parseInt(req.session[ApiConstants.INTEGRATION_ID]);
@@ -127,53 +163,17 @@ class ExpertRegistrationRoute
         res.render('expertRegistration/mobileVerification', pageData);
     }
 
-    private updateProfile(req:express.Request, res:express.Response)
-    {
-        var integrationId = parseInt(req.session[ApiConstants.INTEGRATION_ID]);
-        var integration = new IntegrationDelegate().getSync(integrationId);
-
-        this.userDelegate.get(req['user'].id)
-            .then(
-                function userFetched(user)
-                {
-                    var pageData = {
-                        integration: integration,
-                        user: user
-                    }
-
-                    res.render('expertRegistration/updateProfile', pageData);
-                },
-                function userFetchError() { res.send(500); }
-            );
-
-    }
-
-    private saveProfile(req:express.Request, res:express.Response)
-    {
-        var userId = req['user'].id;
-        var user = req.body[ApiConstants.USER];
-
-        this.userDelegate.update({id: userId}, user)
-            .then(
-                function userUpdated() { res.send(200); },
-                function userUpdateError() { res.send(500); }
-            );
-    }
-
     private expertComplete(req:express.Request, res:express.Response)
     {
         var integrationId = parseInt(req.session[ApiConstants.INTEGRATION_ID]);
         var integration = new IntegrationDelegate().getSync(integrationId);
         var userId = req['user'].id;
 
-        q.all([
-                new VerificationCodeCache().deleteInvitationCode(req.session[ApiConstants.CODE], req.session[ApiConstants.INTEGRATION_ID]),
-                new IntegrationMemberDelegate().search({'user_id': userId, 'integration_id': integrationId}, null, null, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
-            ])
+        new IntegrationMemberDelegate().search({'user_id': userId, 'integration_id': integrationId}, null, null, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
             .then(
-            function scheduleRulesFetched(...args)
+            function scheduleRulesFetched(members:IntegrationMember[])
             {
-                var member = new IntegrationMember(args[0][1][0]);
+                var member = new IntegrationMember(members[0]);
                 var pageData = {
                     user: req['user'],
                     integration: integration,
