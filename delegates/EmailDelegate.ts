@@ -34,6 +34,7 @@ import ExpertRegistrationUrls                                       = require('.
 class EmailDelegate
 {
     private static EMAIL_EXPERT_INVITE:string = 'EMAIL_EXPERT_INVITE';
+    private static EMAIL_EXPERT_WELCOME:string = 'EMAIL_EXPERT_WELCOME';
 
     private static templateCache:{[templateNameAndLocale:string]:{bodyTemplate:Function; subjectTemplate:Function}} = {};
     private static transport:nodemailer.Transport;
@@ -204,9 +205,14 @@ class EmailDelegate
         return self.send(EmailDelegate.EMAIL_EXPERT_INVITE, recipient.getUser().getEmail(), emailData, sender.getEmail());
     }
 
-    sendWelcomeEmail():q.Promise<any>
+    sendWelcomeEmail(integrationId:number, recipient:IntegrationMember):q.Promise<any>
     {
-        return null;
+        var integration = new IntegrationDelegate().getSync(integrationId)
+        var emailData = {
+            integration: integration,
+            recipient: recipient.toJson()
+        };
+        return this.send(EmailDelegate.EMAIL_EXPERT_WELCOME, recipient.getUser().getEmail(), emailData);
     }
 
 }

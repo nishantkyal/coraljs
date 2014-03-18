@@ -3,7 +3,7 @@ import q                                                    = require('q');
 import express                                              = require('express');
 import passport                                             = require('passport');
 import connect_ensure_login                                 = require('connect-ensure-login');
-import url                                      = require('url');
+import url                                                  = require('url');
 import RequestHandler                                       = require('../../middleware/RequestHandler');
 import OAuthProviderDelegate                                = require('../../delegates/OAuthProviderDelegate');
 import AuthenticationDelegate                               = require('../../delegates/AuthenticationDelegate');
@@ -11,6 +11,7 @@ import UserDelegate                                         = require('../../del
 import IntegrationMemberDelegate                            = require('../../delegates/IntegrationMemberDelegate');
 import VerificationCodeCache                                = require('../../caches/VerificationCodeCache');
 import IntegrationDelegate                                  = require('../../delegates/IntegrationDelegate');
+import EmailDelegate                                        = require('../../delegates/EmailDelegate');
 import Integration                                          = require('../../models/Integration');
 import User                                                 = require('../../models/User');
 import IntegrationMember                                    = require('../../models/IntegrationMember');
@@ -25,6 +26,8 @@ class ExpertRegistrationRoute
 {
     userDelegate = new UserDelegate();
     integrationMemberDelegate = new IntegrationMemberDelegate();
+    verificationCodeCache = new VerificationCodeCache();
+    emailDelegate = new EmailDelegate();
 
     constructor(app)
     {
@@ -62,7 +65,7 @@ class ExpertRegistrationRoute
         req.session[ApiConstants.INTEGRATION_ID] = integrationId;
         req.session[ApiConstants.CODE] = invitationCode;
 
-        new VerificationCodeCache().searchInvitationCode(invitationCode, integrationId)
+        this.verificationCodeCache.searchInvitationCode(invitationCode, integrationId)
             .then(
             function verified(result):any
             {
@@ -120,9 +123,10 @@ class ExpertRegistrationRoute
     {
         var integrationId = parseInt(req.session[ApiConstants.INTEGRATION_ID]);
         var integration = new IntegrationDelegate().getSync(integrationId);
+        var self = this;
 
         q.all([
-                new VerificationCodeCache().deleteInvitationCode(req.session[ApiConstants.CODE], req.session[ApiConstants.INTEGRATION_ID]),
+                self.verificationCodeCache.deleteInvitationCode(req.session[ApiConstants.CODE], req.session[ApiConstants.INTEGRATION_ID]),
                 this.userDelegate.get(req['user'].id)
             ])
             .then(
@@ -168,12 +172,13 @@ class ExpertRegistrationRoute
         var integrationId = parseInt(req.session[ApiConstants.INTEGRATION_ID]);
         var integration = new IntegrationDelegate().getSync(integrationId);
         var userId = req['user'].id;
+        var self = this;
 
-        new IntegrationMemberDelegate().search({'user_id': userId, 'integration_id': integrationId}, null, null, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
+        self.integrationMemberDelegate.search({'user_id': userId, 'integration_id': integrationId}, null, null, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
             .then(
-            function scheduleRulesFetched(members:IntegrationMember[])
+            function scheduleRulesFetched(...args)
             {
-                var member = new IntegrationMember(members[0]);
+                var member = new IntegrationMember(args[0][1][0]);
                 var pageData = {
                     user: req['user'],
                     integration: integration,
@@ -181,13 +186,14 @@ class ExpertRegistrationRoute
                     "schedule_rules": member[IncludeFlag.INCLUDE_SCHEDULE_RULES]
                 };
                 res.render('expertRegistration/complete', pageData);
+
+                return self.emailDelegate.sendWelcomeEmail(integrationId, member);
             },
             function scheduleRulesFetchError(error)
             {
                 // TODO: Debug why we can't send 500 error here
                 res.send(500);
-            }
-        );
+            });
     }
 
     private alreadyRegistered(req:express.Request, res:express.Response)
