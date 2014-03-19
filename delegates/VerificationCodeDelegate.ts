@@ -5,7 +5,7 @@ import log4js                                                   = require('log4j
 import User                                                     = require('../models/User');
 import IntegrationMember                                        = require('../models/IntegrationMember');
 import SMS                                                      = require('../models/SMS');
-import PhoneNumber                                              = require('../models/PhoneNumber');
+import UserPhone                                              = require('../models/UserPhone');
 import VerificationCodeCache                                    = require('../caches/VerificationCodeCache');
 import IntegrationMemberDelegate                                = require('../delegates/IntegrationMemberDelegate');
 import EmailDelegate                                            = require('../delegates/EmailDelegate');
@@ -68,7 +68,7 @@ class VerificationCodeDelegate
         );
     }
 
-    createAndSendMobileVerificationCode(phoneNumber:PhoneNumber):q.Promise<any>
+    createAndSendMobileVerificationCode(phoneNumber:UserPhone):q.Promise<any>
     {
         var self = this;
         var code = Utils.getRandomInt(10001, 99999);
@@ -84,7 +84,7 @@ class VerificationCodeDelegate
         ]);
     }
 
-    verifyMobileCode(code:string, phoneNumber:PhoneNumber):q.Promise<PhoneNumber>
+    verifyMobileCode(code:string, phoneNumber:UserPhone):q.Promise<UserPhone>
     {
         var self = this;
 

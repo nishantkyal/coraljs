@@ -12,7 +12,7 @@ import ScheduledTaskType                                        = require('../en
 import PhoneCallCache                                           = require('../caches/PhoneCallCache');
 import CacheHelper                                              = require('../caches/CacheHelper');
 
-class ScheduledTaskDelegate implements EventEmitter
+class ScheduledTaskDelegate
 {
     logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
     private static tasks:{(id:number): ScheduledTask};
@@ -145,45 +145,5 @@ class ScheduledTaskDelegate implements EventEmitter
             });
     }
 
-    /* Event emitter implementation */
-    addListener(event: string, listener: Function)
-    {
-
-    }
-
-    on(event: string, listener: Function)
-    {
-
-    }
-
-    once(event: string, listener: Function): void
-    {
-
-    }
-
-    removeListener(event: string, listener: Function): void
-    {
-
-    }
-
-    removeAllListener(event: string): void
-    {
-
-    }
-
-    setMaxListeners(n: number): void
-    {
-
-    }
-
-    listeners(event: string): { Function; }[]
-    {
-        return [];
-    }
-
-    emit(event: string, arg1?: any, arg2?: any): void
-    {
-
-    }
 }
 export = ScheduledTaskDelegate

@@ -12,7 +12,7 @@ class UserPhoneDelegate extends BaseDaoDelegate
         // Check that phone number doesn't already exist
         return super.search(data)
             .then(
-                function handlePhoneNumberSearched(rows:Array<UserPhone>):any
+                function handleUserPhoneSearched(rows:Array<UserPhone>):any
                 {
                     if (rows.length != 0)
                         return this.create(data, transaction);

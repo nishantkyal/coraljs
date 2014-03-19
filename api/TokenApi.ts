@@ -13,7 +13,7 @@ import VerificationCodeCache                                = require('../caches
 import Utils                                                = require('../common/Utils');
 import User                                                 = require('../models/User');
 import IntegrationMember                                    = require('../models/IntegrationMember');
-import PhoneNumber                                          = require('../models/PhoneNumber');
+import UserPhone                                            = require('../models/UserPhone');
 
 class TokenApi
 {
@@ -26,7 +26,7 @@ class TokenApi
         /* Create mobile verification code */
         app.put(ApiUrlDelegate.mobileVerificationCode(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
-            var phoneNumber:PhoneNumber = req.body[ApiConstants.PHONE_NUMBER];
+            var phoneNumber:UserPhone = req.body[ApiConstants.PHONE_NUMBER];
             phoneNumber.setUserId(req['user'].id);
 
             if (phoneNumber.isValid())
@@ -41,12 +41,12 @@ class TokenApi
         app.get(ApiUrlDelegate.mobileVerificationCode(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
             var code:string = req.query[ApiConstants.CODE];
-            var phoneNumber:PhoneNumber = new PhoneNumber(req.query[ApiConstants.PHONE_NUMBER]);
+            var phoneNumber:UserPhone = new UserPhone(req.query[ApiConstants.PHONE_NUMBER]);
             phoneNumber.setUserId(req['user'].id);
 
             verificationCodeDelegate.verifyMobileCode(code, phoneNumber)
                 .then(
-                    function codeVerified(newPhoneNumber) { res.send(newPhoneNumber.toJson()); },
+                    function codeVerified(newUserPhone) { res.send(newUserPhone.toJson()); },
                     function codeVerificationError(error) { res.send(500, error); }
                 )
         });
