@@ -37,7 +37,6 @@ class ExpertRegistrationRoute
         app.get(Urls.mobileVerification(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index()}), this.mobileVerification.bind(this));
         app.get(Urls.profile(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index()}), this.updateProfile.bind(this));
         app.get(Urls.complete(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index()}), this.expertComplete.bind(this));
-        app.get(Urls.alreadyRegistered(), this.alreadyRegistered.bind(this));
 
         // Auth
         app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.index(), failureFlash: true}), this.authenticationSuccess.bind(this));
@@ -81,7 +80,7 @@ class ExpertRegistrationRoute
                 if (expert.isValid())
                 {
                     req.session[ApiConstants.EXPERT] = expert;
-                    res.redirect(Urls.alreadyRegistered());
+                    res.redirect(Urls.profile());
                 }
                 else
                 {
@@ -123,16 +122,11 @@ class ExpertRegistrationRoute
     {
         var integrationId = parseInt(req.session[ApiConstants.INTEGRATION_ID]);
         var integration = new IntegrationDelegate().getSync(integrationId);
-        var self = this;
 
-        q.all([
-                self.verificationCodeCache.deleteInvitationCode(req.session[ApiConstants.CODE], req.session[ApiConstants.INTEGRATION_ID]),
-                this.userDelegate.get(req['user'].id)
-            ])
+        this.userDelegate.get(req['user'].id)
             .then(
-            function userFetched(...args)
+            function userFetched(user)
             {
-                var user = new User(args[0][1]);
                 var pageData = {
                     integration: integration,
                     user: user
@@ -174,7 +168,10 @@ class ExpertRegistrationRoute
         var userId = req['user'].id;
         var self = this;
 
-        self.integrationMemberDelegate.search({'user_id': userId, 'integration_id': integrationId}, null, null, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
+        q.all([
+                self.verificationCodeCache.deleteInvitationCode(req.session[ApiConstants.CODE], req.session[ApiConstants.INTEGRATION_ID]),
+                self.integrationMemberDelegate.search({'user_id': userId, 'integration_id': integrationId}, null, null, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
+            ])
             .then(
             function scheduleRulesFetched(...args)
             {
@@ -194,20 +191,6 @@ class ExpertRegistrationRoute
                 // TODO: Debug why we can't send 500 error here
                 res.send(500);
             });
-    }
-
-    private alreadyRegistered(req:express.Request, res:express.Response)
-    {
-        var integrationId = parseInt(req.session[ApiConstants.INTEGRATION_ID]);
-        var integration = new IntegrationDelegate().getSync(integrationId);
-
-        var pageData = {
-            user: req['user'],
-            integration: integration,
-            "SearchNTalkUri": Config.get(Config.CORAL_URI)
-        };
-
-        res.render('expertRegistration/alreadyRegistered', pageData)
     }
 }
 export = ExpertRegistrationRoute

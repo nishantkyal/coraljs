@@ -12,6 +12,5 @@ class Urls
     static mobileVerification():string { return ApiUrlDelegate.get('/expert/registration/mobile/verification'); }
     static profile():string { return ApiUrlDelegate.get('/expert/registration/profile'); }
     static complete():string { return ApiUrlDelegate.get('/expert/registration/complete'); }
-    static alreadyRegistered():string { return ApiUrlDelegate.get('/expert/registration/done'); }
 }
 export = Urls
