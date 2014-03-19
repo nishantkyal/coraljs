@@ -9,12 +9,15 @@ import OAuthProviderDelegate                                = require('../../del
 import AuthenticationDelegate                               = require('../../delegates/AuthenticationDelegate');
 import UserDelegate                                         = require('../../delegates/UserDelegate');
 import IntegrationMemberDelegate                            = require('../../delegates/IntegrationMemberDelegate');
+import ScheduledTaskDelegate                                = require('../../delegates/ScheduledTaskDelegate');
 import VerificationCodeCache                                = require('../../caches/VerificationCodeCache');
+import EmailScheduledTask                                   = require('../../models/tasks/EmailScheduledTask');
 import IntegrationDelegate                                  = require('../../delegates/IntegrationDelegate');
 import EmailDelegate                                        = require('../../delegates/EmailDelegate');
 import Integration                                          = require('../../models/Integration');
 import User                                                 = require('../../models/User');
 import IntegrationMember                                    = require('../../models/IntegrationMember');
+import ScheduledTaskType                                    = require('../../enums/ScheduledTaskType');
 import ApiConstants                                         = require('../../enums/ApiConstants');
 import IntegrationType                                      = require('../../enums/IntegrationType');
 import IncludeFlag                                          = require('../../enums/IncludeFlag');
@@ -123,25 +126,31 @@ class ExpertRegistrationRoute
     {
         var integrationId = parseInt(req.session[ApiConstants.INTEGRATION_ID]);
         var integration = new IntegrationDelegate().getSync(integrationId);
-        var self = this;
+        var invitationCode:string = req.query[ApiConstants.CODE] || req.session[ApiConstants.CODE];
 
-        q.all([
-                self.verificationCodeCache.deleteInvitationCode(req.session[ApiConstants.CODE], req.session[ApiConstants.INTEGRATION_ID]),
-                this.userDelegate.get(req['user'].id)
-            ])
+        this.userDelegate.get(req['user'].id)
             .then(
-            function userFetched(...args)
+            function userFetched(user)
             {
-                var user = new User(args[0][1]);
                 var pageData = {
                     integration: integration,
                     user: user
                 }
 
                 res.render('expertRegistration/updateProfile', pageData);
+
+                // Schedule mobile verification email if not already verified
+                //return this.integrationMemberDelegate.find({'user_id': req['user'].id, 'integration_id': integrationId}, null, null, [IncludeFlag.INCLUDE_USER])
             },
-            function userFetchError() { res.send(500); }
-        );
+            function userFetchError() { res.send(500); })
+            .then(
+            function memberFound(member)
+            {
+                var emailTask = new EmailScheduledTask();
+                emailTask.setTaskType(ScheduledTaskType.EMAIL_MOBILE_VERIFICATION_REMINDER);
+                emailTask.setArgs([integrationId, invitationCode, member]);
+                new ScheduledTaskDelegate().scheduleAfter(emailTask, 30 * 60 * 1000);
+            });
     }
 
     private saveProfile(req:express.Request, res:express.Response)
@@ -174,7 +183,10 @@ class ExpertRegistrationRoute
         var userId = req['user'].id;
         var self = this;
 
-        self.integrationMemberDelegate.search({'user_id': userId, 'integration_id': integrationId}, null, null, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
+        q.all([
+                self.verificationCodeCache.deleteInvitationCode(req.session[ApiConstants.CODE], req.session[ApiConstants.INTEGRATION_ID]),
+                self.integrationMemberDelegate.search({'user_id': userId, 'integration_id': integrationId}, null, null, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
+            ])
             .then(
             function scheduleRulesFetched(...args)
             {
@@ -187,7 +199,8 @@ class ExpertRegistrationRoute
                 };
                 res.render('expertRegistration/complete', pageData);
 
-                return self.emailDelegate.sendWelcomeEmail(integrationId, member);
+                // Send welcome email
+                self.emailDelegate.sendWelcomeEmail(integrationId, member);
             },
             function scheduleRulesFetchError(error)
             {

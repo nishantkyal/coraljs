@@ -1,25 +1,23 @@
-import _                                = require('underscore');
-import log4js                           = require('log4js');
-import Utils                            = require('../common/Utils');
-import Config                           = require('../common/Config');
-import PhoneCallDelegate                = require('./PhoneCallDelegate');
-import SMSDelegate                      = require('../delegates/SMSDelegate');
-import PhoneCall                        = require('../models/PhoneCall');
-import ScheduledTask                    = require('../models/ScheduledTask');
-import ScheduledTaskType                = require('../enums/ScheduledTaskType');
-import PhoneCallCache                   = require('../caches/PhoneCallCache');
+import q                                                        = require('q');
+import _                                                        = require('underscore');
+import log4js                                                   = require('log4js');
+import moment                                                   = require('moment');
+import Utils                                                    = require('../common/Utils');
+import Config                                                   = require('../common/Config');
+import PhoneCallDelegate                                        = require('../delegates/PhoneCallDelegate');
+import SMSDelegate                                              = require('../delegates/SMSDelegate');
+import PhoneCall                                                = require('../models/PhoneCall');
+import ScheduledTask                                            = require('../models/tasks/ScheduledTask');
+import ScheduledTaskType                                        = require('../enums/ScheduledTaskType');
+import PhoneCallCache                                           = require('../caches/PhoneCallCache');
+import CacheHelper                                              = require('../caches/CacheHelper');
 
-class ScheduledTaskDelegate
+class ScheduledTaskDelegate implements EventEmitter
 {
-    logger:log4js.Logger;
-    static jobs:ScheduledTask[] = [];
+    logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
+    private static tasks:{(id:number): ScheduledTask};
 
-    constructor()
-    {
-        this.logger = log4js.getLogger(Utils.getClassName(this));
-    }
-
-    getTasks()
+    /*getTasks()
     {
         var self = this;
         var currentTime = moment().valueOf();
@@ -28,8 +26,9 @@ class ScheduledTaskDelegate
             .then(
             function scheduledCalls(calls:PhoneCall[])
             {
-                _.each(calls,  function (call:PhoneCall){
-                    if(call.getStartTime() < currentTime + Config.get('call.schedule.interval')) // to schedule call for next interval
+                _.each(calls, function (call:PhoneCall)
+                {
+                    if (call.getStartTime() < currentTime + Config.get('call.schedule.interval')) // to schedule call for next interval
                     {
                         var tempScheduledTask:ScheduledTask = new ScheduledTask();
                         tempScheduledTask.setTask(call);
@@ -37,72 +36,29 @@ class ScheduledTaskDelegate
                         tempScheduledTask.setTaskType(ScheduledTaskType.CALL);
                         self.logger.info('Call scheduled. Id:' + call.getId() + ' at' + call.getStartTime());
                         new PhoneCallCache().createPhoneCallCache(call.getId());
-                        ScheduledTaskDelegate.jobs.push(tempScheduledTask);
+                        ScheduledTaskDelegate.tasks.push(tempScheduledTask);
                     }
-                    if(call.getStartTime() >= currentTime + Config.get('sms.reminder.time')) //need to schedule reminder SMS as well
+                    if (call.getStartTime() >= currentTime + Config.get('sms.reminder.time')) //need to schedule reminder SMS as well
                     {
                         var tempSmsScheduledTask:ScheduledTask = new ScheduledTask();
                         tempSmsScheduledTask.setTask(call);
                         tempSmsScheduledTask.setStartTime(call.getStartTime() - Config.get('sms.reminder.time'));
                         tempSmsScheduledTask.setTaskType(ScheduledTaskType.SMS);
-                        ScheduledTaskDelegate.jobs.push(tempSmsScheduledTask);
+                        ScheduledTaskDelegate.tasks.push(tempSmsScheduledTask);
                     }
                 })
-                return ScheduledTaskDelegate.jobs;
+                return ScheduledTaskDelegate.tasks;
             },
             function fetchError(error)
             {
                 self.logger.debug('Error in getting call info for scheduling');
             }
         )
-    }
+    }*/
 
-    scheduleTasks()
+    /*executeTask(job:ScheduledTask)
     {
-        var self = this;
-        return this.getTasks()
-            .then (
-            function jobsFetched(jobs)
-            {
-                var currentTime = moment().valueOf();
-                _.each(ScheduledTaskDelegate.jobs, function(job:ScheduledTask)
-                {
-                    var foo = setTimeout(function(){ self.executeTask(job) },(job.getStartTime()-currentTime)*1000);
-                    job.setTimeOutReference(foo);
-                })
-                return ScheduledTaskDelegate.jobs;
-            }
-        );
-    }
-
-    rescheduleTask(id:number, duration:number)
-    {
-        //TODO send url accordingly
-        var self = this;
-        _.each(ScheduledTaskDelegate.jobs, function(job:ScheduledTask)
-        {
-            if(job.getTask().getId() == id)
-            {
-                var foo = setTimeout(function(){ self.executeTask(job) },(job.getStartTime() + duration)*1000);
-                job.setTimeOutReference(foo);
-            }
-        })
-    }
-
-    cancelTask(id:number)
-    {
-        _.each(ScheduledTaskDelegate.jobs, function(job:ScheduledTask)
-        {
-            if(job.getTask().getId() == id)
-            {
-                clearTimeout(job.getTimeOutReference());
-            }
-        })
-    }
-
-    executeTask(job:ScheduledTask)
-    {
-        switch(job.getTaskType())
+        switch (job.getTaskType())
         {
             case ScheduledTaskType.CALL:
                 var call:PhoneCall = job.getTask();
@@ -113,13 +69,121 @@ class ScheduledTaskDelegate
                 new SMSDelegate().sendReminderSMS(call.getId());
                 break;
         }
+    }*/
+
+    /* Schedule task at specified time */
+    scheduleAt(task:ScheduledTask, timestamp:number):number
+    {
+        var self = this;
+        var currentTime = moment().valueOf();
+        return self.scheduleAfter(task, (timestamp - currentTime) * 1000);
     }
 
-    static getScheduledTasks()
+    /* Schedule task after an interval */
+    scheduleAfter(task:ScheduledTask, interval:number):number
     {
-        _.each(ScheduledTaskDelegate.jobs, function(job:ScheduledTask){
+        var self = this;
+        var taskId:number = setTimeout(task.execute, interval, task);
 
-        })
+        task.setStartTime(moment().add({ms: interval}).valueOf());
+
+        // Add task to index and persist
+        ScheduledTaskDelegate.tasks[taskId] = task;
+        self.syncToRedis();
+
+        return taskId;
+    }
+
+    get(taskId:number):ScheduledTask
+    {
+        return ScheduledTaskDelegate.tasks[taskId];
+    }
+
+    /* Return id of task matching search */
+    find(criteria:Object):number
+    {
+        return null;
+    }
+
+    /* Return id of all tasks matching search */
+    search(criteria:Object):number[]
+    {
+        return null;
+    }
+
+    cancel(taskId:number):void
+    {
+        clearTimeout(taskId);
+        delete ScheduledTaskDelegate.tasks[taskId];
+    }
+
+    private syncToRedis():q.Promise<any>
+    {
+        return CacheHelper.set('ScheduledTasks', ScheduledTaskDelegate.tasks)
+            .then(
+            function tasksSynced(result)
+            {
+
+            },
+            function tasksSyncError(error)
+            {
+
+            });
+    }
+
+    private syncFromRedis():q.Promise<any>
+    {
+        return CacheHelper.get('ScheduledTasks')
+            .then(
+            function tasksFetched(result)
+            {
+
+            },
+            function tasksFetchError(error)
+            {
+
+            });
+    }
+
+    /* Event emitter implementation */
+    addListener(event: string, listener: Function)
+    {
+
+    }
+
+    on(event: string, listener: Function)
+    {
+
+    }
+
+    once(event: string, listener: Function): void
+    {
+
+    }
+
+    removeListener(event: string, listener: Function): void
+    {
+
+    }
+
+    removeAllListener(event: string): void
+    {
+
+    }
+
+    setMaxListeners(n: number): void
+    {
+
+    }
+
+    listeners(event: string): { Function; }[]
+    {
+        return [];
+    }
+
+    emit(event: string, arg1?: any, arg2?: any): void
+    {
+
     }
 }
 export = ScheduledTaskDelegate

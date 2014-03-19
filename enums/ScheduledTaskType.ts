@@ -1,6 +1,7 @@
 enum ScheduledTaskType
 {
     CALL = 1,
-    SMS
+    SMS,
+    EMAIL_MOBILE_VERIFICATION_REMINDER
 }
 export = ScheduledTaskType

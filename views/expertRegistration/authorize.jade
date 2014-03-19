@@ -10,6 +10,6 @@ include header
             form(action="/expert/authorization/decision", method="post")
                 input(name="transaction_id", type="hidden", value="#{transactionID}")
                 .controls
-                    input.btn-primary.btn(type="submit", value="Yes, Continue", id="allow")
-                    input.btn.btn-danger(type="submit", value="Cancel", name="cancel", id="cancel")
+                    input.btn-primary.btn(type="submit" value="Yes, Continue" id="allow")
+                    input.btn.btn-danger(type="submit", value="Deny", name="cancel", id="deny")
         .col-md-2
