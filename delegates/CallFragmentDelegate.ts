@@ -12,8 +12,6 @@ import CallProviderFactory          = require('../factories/CallProviderFactory'
 
 class CallFragmentDelegate extends BaseDaoDelegate
 {
-
-
     getDao():IDao { return new CallFragmentDao();}
 
     getTotalDuration(callId:number, transaction?:any):q.Promise<any>

@@ -9,20 +9,11 @@ import Config                           = require('../../common/Config');
 import CallFragment                     = require('../../models/CallFragment');
 import CallFragmentStatus               = require('../../enums/CallFragmentStatus');
 import AgentType                        = require('../../enums/AgentType');
-
+import TwilioConstants                  = require('../../enums/TwilioConstants');
 
 
 class TwilioDelegate implements ICallingVendorDelegate
 {
-    private static DURATION:string = 'duration';
-    private static START_TIME:string = 'start_time';
-    private static EXPERT_NUMBER:string = 'to';
-    private static COMPLETED:string = 'completed';
-    private static BUSY:string = 'busy';
-    private static NO_ANSWER:string = 'no-answer';
-    private static STATUS:string = 'status';
-    private static ATTEMPTCOUNT:string = 'attemptCount'
-
     logger:log4js.Logger;
     twilioClient:any;
 
@@ -59,8 +50,8 @@ class TwilioDelegate implements ICallingVendorDelegate
 
         if(!Utils.isNullOrEmpty(reAttempts) && reAttempts != 0)
         {
-            url += '?' + TwilioDelegate.ATTEMPTCOUNT + '=' + reAttempts;
-            callbackUrl += '?' + TwilioDelegate.ATTEMPTCOUNT + '=' + reAttempts;
+            url += '?' + TwilioConstants.ATTEMPT_COUNT + '=' + reAttempts;
+            callbackUrl += '?' + TwilioConstants.ATTEMPT_COUNT + '=' + reAttempts;
         }
 
         var deferred = q.defer();
@@ -94,13 +85,13 @@ class TwilioDelegate implements ICallingVendorDelegate
             {
                 if(!Utils.isNullOrEmpty(callDetails))
                 {
-                    var duration:number = parseInt(callDetails[TwilioDelegate.DURATION]);
-                    var startTime:Date = new Date(callDetails[TwilioDelegate.START_TIME]);
+                    var duration:number = parseInt(callDetails[TwilioConstants.DURATION_CALLBACK]);
+                    var startTime:Date = new Date(callDetails[TwilioConstants.START_TIME]);
                     callFragment.setDuration(duration);
                     callFragment.setStartTime(startTime.getTimeInSec());
-                    callFragment.setToNumber(callDetails[TwilioDelegate.EXPERT_NUMBER]);
+                    callFragment.setToNumber(callDetails[TwilioConstants.EXPERT_NUMBER]);
                     callFragment.setAgentId(AgentType.TWILIO);
-                    if (callDetails[TwilioDelegate.STATUS] == TwilioDelegate.COMPLETED)
+                    if (callDetails[TwilioConstants.STATUS] == TwilioConstants.COMPLETED)
                         if(duration < Config.get('minimum.duration.for.success'))
                             callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_MINIMUM_DURATION);
                         else
@@ -124,7 +115,7 @@ class TwilioDelegate implements ICallingVendorDelegate
             {
                 if(!Utils.isNullOrEmpty(callDetails))
                 {
-                    var startTime:Date = new Date(callDetails[TwilioDelegate.START_TIME]);
+                    var startTime:Date = new Date(callDetails[TwilioConstants.START_TIME]);
                     callFragment.setStartTime(startTime.getTimeInSec());
                     deferred.resolve(callFragment);
                 }

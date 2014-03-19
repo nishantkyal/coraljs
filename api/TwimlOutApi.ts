@@ -1,11 +1,15 @@
 import express                      = require('express');
 import json2xml                     = require('json2xml');
+import Utils                        = require('../common/Utils');
+import log4js                       = require('log4js');
+import Config                       = require('../common/Config');
 import ApiConstants                 = require('../enums/ApiConstants');
 import ApiFlags                     = require('../enums/ApiFlags');
 import PhoneType                    = require('../enums/PhoneType');
 import CallFragmentStatus           = require('../enums/CallFragmentStatus');
 import AgentType                    = require('../enums/AgentType');
 import CallStatus                   = require('../enums/CallStatus');
+import TwilioConstants              = require('../enums/TwilioConstants');
 import IntegrationMemberDelegate    = require('../delegates/IntegrationMemberDelegate');
 import TwilioDelegate               = require('../delegates/calling/TwilioDelegate');
 import PhoneCallDelegate            = require('../delegates/PhoneCallDelegate');
@@ -15,9 +19,6 @@ import CallFragmentDelegate         = require('../delegates/CallFragmentDelegate
 import SMSDelegate                  = require('../delegates/SMSDelegate');
 import TimeJobDelegate              = require('../delegates/TimeJobDelegate');
 import MysqlDelegate                = require('../delegates/MysqlDelegate');
-import Utils                        = require('../common/Utils');
-import log4js                       = require('log4js');
-import Config                       = require('../common/Config');
 import PhoneCall                    = require('../models/PhoneCall');
 import User                         = require('../models/User');
 import IntegrationMember            = require('../models/IntegrationMember');
@@ -28,18 +29,6 @@ import PhoneCallCacheModel          = require('../caches/models/PhoneCallCacheMo
 
 class TwimlOutApi
 {
-    private static DIALCALLSID:string = 'DialCallSid';
-    private static CALLSID:string = 'CallSid';
-    private static USERNUMBER:string = 'To';
-    private static COMPLETED:string = 'completed'; //TODO same definition being repeated in CallFragmentDelegate
-    private static BUSY:string = 'busy';
-    private static FAILED:string = 'failed';
-    private static NOANSWER:string = 'no-answer';
-    private static DIALCALLSTATUS:string = 'DialCallStatus';
-    private static CALLSTATUS:string = 'CallStatus';
-    private static DURATION:string = 'Duration';
-    private static START_TIME:string = 'start_time';
-
     private PhoneCallCache;
     private CallFragmentDelegate;
     private SMSDelegate;
@@ -97,29 +86,29 @@ class TwimlOutApi
         app.post(TwilioUrlDelegate.twimlJoinCall(), function (req:express.Request, res:express.Response)
         { // called after expert has hung up. saving details into call fragment here.
             var callId = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
-            var attemptCount = parseInt(req.query[TwilioDelegate.ATTEMPTCOUNT]);
+            var attemptCount = parseInt(req.query[TwilioConstants.ATTEMPT_COUNT]);
             if(Utils.isNullOrEmpty(attemptCount))
                 attemptCount = 0;
 
-            var dialCallStatus = req.body[TwimlOutApi.DIALCALLSTATUS];
+            var dialCallStatus = req.body[TwilioConstants.DIAL_CALL_STATUS];
             var pageData = {};
 
             var callFragment:CallFragment = new CallFragment(); //save information received in CallFragment
             callFragment.setCallId(parseInt(req.params[ApiConstants.PHONE_CALL_ID]));
-            callFragment.setAgentCallSidExpert(req.body[TwimlOutApi.DIALCALLSID]);
-            callFragment.setAgentCallSidUser(req.body[TwimlOutApi.CALLSID]);
-            callFragment.setFromNumber(req.body[TwimlOutApi.USERNUMBER]);
+            callFragment.setAgentCallSidExpert(req.body[TwilioConstants.DIAL_CALL_SID]);
+            callFragment.setAgentCallSidUser(req.body[TwilioConstants.CALL_SID]);
+            callFragment.setFromNumber(req.body[TwilioConstants.USER_NUMBER]);
             callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_EXPERT_ERROR); // if successful then this value will be overwritten
 
             switch(dialCallStatus) //decide the message based on expertCallStatus and attemptCount
             {
-                case TwimlOutApi.COMPLETED:
+                case TwilioConstants.COMPLETED:
                     pageData['message'] = 'Call Completed. Thank you for using our services';
                     break;
-                case TwimlOutApi.BUSY:
+                case TwilioConstants.BUSY:
                     pageData['message'] = 'Call could not be completed. We regret the inconvenience caused.';
                     break;
-                case TwimlOutApi.NOANSWER:
+                case TwilioConstants.NO_ANSWER:
                     if(attemptCount == 1)
                         pageData['message'] = 'Call could not be completed. We regret the inconvenience caused';
                     else
@@ -133,7 +122,7 @@ class TwimlOutApi
             }
             res.render('../delegates/calling/TwilioXMLSay.jade',pageData );
 
-            if(attemptCount == 0 && dialCallStatus != TwimlOutApi.COMPLETED && dialCallStatus != TwimlOutApi.BUSY)
+            if(attemptCount == 0 && dialCallStatus != TwilioConstants.COMPLETED && dialCallStatus != TwilioConstants.BUSY)
                 self.PhoneCallDelegate.rescheduleCall(callId, attemptCount);
 
             self.CallFragmentDelegate.updateCallFragment(callFragment)
@@ -169,25 +158,25 @@ class TwimlOutApi
             var callId = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
             res.json('OK');
 
-            var callStatus = req.body[TwimlOutApi.CALLSTATUS];
-            var attemptCount = parseInt(req.query[TwilioDelegate.ATTEMPTCOUNT]);
+            var callStatus = req.body[TwilioConstants.CALL_STATUS];
+            var attemptCount = parseInt(req.query[TwilioConstants.ATTEMPT_COUNT]);
             if(Utils.isNullOrEmpty(attemptCount))
                 attemptCount = 0;
 
-            if(callStatus != TwimlOutApi.COMPLETED) // if completed then information saved after expert drops the call
+            if(callStatus != TwilioConstants.COMPLETED) // if completed then information saved after expert drops the call
             { //save information for failed call
                 if(attemptCount == 0)
                     self.PhoneCallDelegate.rescheduleCall(callId, attemptCount);
 
-                var duration:number = parseInt(req.body[TwimlOutApi.DURATION]);
+                var duration:number = parseInt(req.body[TwilioConstants.DURATION]);
 
                 var callFragment:CallFragment = new CallFragment();
                 callFragment.setCallId(parseInt(req.params[ApiConstants.PHONE_CALL_ID]));
-                callFragment.setAgentCallSidUser(req.body[TwimlOutApi.CALLSID]);
-                callFragment.setFromNumber(req.body[TwimlOutApi.USERNUMBER]);
+                callFragment.setAgentCallSidUser(req.body[TwilioConstants.CALL_SID]);
+                callFragment.setFromNumber(req.body[TwilioConstants.USER_NUMBER]);
                 callFragment.setDuration(duration);
                 callFragment.setAgentId(AgentType.TWILIO);
-                if(callStatus == TwimlOutApi.FAILED) //failed means twilio was not able to connect the call
+                if(callStatus == TwilioConstants.FAILED) //failed means twilio was not able to connect the call
                     callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_SERVER_ERROR);
                 else
                     callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_USER_ERROR);
