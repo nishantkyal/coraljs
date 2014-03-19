@@ -13,28 +13,31 @@ import Utils                = require('../common/Utils');
 class BaseDao implements IDao
 {
     modelClass;
-    tableName:string;
-    logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
 
-    constructor()
+    private tableName:string;
+    private logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
+
+    constructor(modelClass:typeof BaseModel)
     {
-        this.modelClass = this.getModel();
+        this.modelClass = modelClass;
 
-        if (this.getModel() && this.getModel().TABLE_NAME)
-            this.tableName = this.getModel().TABLE_NAME;
+        if (this.modelClass && this.modelClass.TABLE_NAME)
+            this.tableName = this.modelClass.TABLE_NAME;
         else
             throw ('Invalid Model class specified for ' + Utils.getClassName(this));
     }
 
-    create(data:any, transaction?:any):q.Promise<any>
+    create(data:BaseModel, transaction?:any):q.Promise<any>
     {
         var self = this;
 
-        data = data || {};
-        var id:number = data[BaseModel.ID];
+        if (Utils.isNullOrEmpty(data))
+            throw("Can't create %s with null data", self.tableName);
+
+        var id:number = data.getId();
 
         // Remove inserts with undefined values
-        _.each(data, function (value, key)
+        _.each(data.toJson(), function (value, key)
         {
             if (value == undefined || Utils.getObjectType(value) == 'Array' || Utils.getObjectType(value) == 'Object')
                 delete data[key];
@@ -126,15 +129,20 @@ class BaseDao implements IDao
         return MysqlDelegate.executeQuery(queryString, values)
             .then(
             function handleSearchResults(result) {
-                if (result.length == 1)
+                if (result.length != 0)
                     return new self.modelClass(result[0]);
                 else
                     return null;
             });
     }
 
+    update(criteria:number, newValues:BaseModel, transaction?:any):q.Promise<any>
+    update(criteria:Object, newValues:BaseModel, transaction?:any):q.Promise<any>
     update(criteria:any, newValues:any, transaction?:any):q.Promise<any>
     {
+        if (Utils.getObjectType(criteria) == 'Number')
+            criteria = {id: criteria};
+
         // Remove fields with null values
         _.each(criteria, function (val, key) { if (val == undefined) delete criteria[key]; });
         _.each(newValues, function (val, key) { if (val == undefined) delete newValues[key]; });
@@ -153,21 +161,19 @@ class BaseDao implements IDao
         return MysqlDelegate.executeQuery(query, values, transaction);
     }
 
-    delete(id:number, transaction?:any):q.Promise<any>
+    delete(criteria:number, transaction?:any):q.Promise<any>;
+    delete(criteria:Object, transaction?:any):q.Promise<any>;
+    delete(criteria:any, transaction?:any):q.Promise<any>
     {
-        return MysqlDelegate.executeQuery('DELETE FROM ' + this.tableName + ' WHERE id = ?', [id], transaction);
-    }
+        if (Utils.getObjectType(criteria) == 'Number')
+            criteria = {id: criteria};
 
-    searchAndDelete(criteria:Object, transaction?:any):q.Promise<any>
-    {
         var whereStatements = this.generateWhereStatements(criteria);
         var wheres = whereStatements['where'];
         var values = whereStatements['values'];
 
         return MysqlDelegate.executeQuery('DELETE FROM ' + this.tableName + ' WHERE ' + wheres.join(' AND '), values, transaction);
     }
-
-    getModel():typeof BaseModel { throw('Model class not defined for ' + Utils.getClassName(this)); }
 
     private generateWhereStatements(criteria:Object):any
     {

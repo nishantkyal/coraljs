@@ -47,6 +47,6 @@ class UserOAuthDao extends BaseDao
         return MysqlDelegate.executeQuery(query, values);
     }
 
-    getModel():typeof BaseModel { return UserOauth; }
+    constructor() { super(UserOauth); }
 }
 export = UserOAuthDao

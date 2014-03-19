@@ -5,6 +5,6 @@ import Coupon                                       = require('../models/Coupon'
 
 class CouponDao extends BaseDao
 {
-    getModel():typeof BaseModel { return Coupon; }
+    constructor() { super(Coupon); }
 }
 export = CouponDao

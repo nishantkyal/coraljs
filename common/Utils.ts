@@ -35,6 +35,11 @@ class Utils
         return deferred.promise;
     }
     */
+    static getObjectType(obj:any):string
+    {
+        var type:string = Object.prototype.toString.call(obj).replace('[object ', '').replace(']', '');
+        return type === 'Object' ? obj.toString().replace('[object ', '').replace(']', '') : type;
+    }
 
     static isNullOrEmpty(val:any):boolean
     {
@@ -81,12 +86,6 @@ class Utils
             return frag.replace(/^([a-z])/, function(m, p1) { return p1.toUpperCase(); });
         })
         return camelCaseFrags.join('');
-    }
-
-    static getObjectType(obj:any):string
-    {
-        var type:string = Object.prototype.toString.call(obj).replace('[object ', '').replace(']', '');
-        return type === 'Object' ? obj.toString().replace('[object ', '').replace(']', '') : type;
     }
 
     static surroundWithQuotes(val:any):string{

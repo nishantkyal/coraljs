@@ -19,7 +19,7 @@ class CouponDelegate extends BaseDaoDelegate
     userDelegate = new UserDelegate();
     integrationMemberDelegate = new IntegrationMemberDelegate();
 
-    getDao():IDao { return new CouponDao(); }
+    constructor() { super(new CouponDao()); }
 
     getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
     {

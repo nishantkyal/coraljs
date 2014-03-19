@@ -4,6 +4,6 @@ import PhoneNumber              = require('../models/PhoneNumber');
 
 class PhoneNumberDao extends BaseDao
 {
-    getModel():typeof BaseModel { return PhoneNumber; }
+    constructor() { super(PhoneNumber); }
 }
 export = PhoneNumberDao

@@ -115,8 +115,7 @@ class CallFlowRoute
         var call = new PhoneCall();
         var user = expert['user'][0];
 
-        call.setExpertId(expert['id']);
-        call.setScheduleId(schedule['id']);
+        call.setExpertPhoneId(expert['id']);
         Middleware.setCallDetails(req, call);
 
         var pageData = {};
@@ -133,8 +132,7 @@ class CallFlowRoute
         var schedule = new ExpertSchedule(Middleware.getSelectedSchedule(req));
         var updatedCall:PhoneCall = new PhoneCall(req.body['call']);
         var originalCall:PhoneCall = Middleware.getCallDetails(req);
-        updatedCall.setExpertId(originalCall.getExpertId());
-        updatedCall.setScheduleId(originalCall.getScheduleId());
+        updatedCall.setExpertPhoneId(originalCall.getExpertPhoneId());
         updatedCall.setStatus(CallStatus.SCHEDULED);
 
         // Check that call has not been scheduled outside selected schedule

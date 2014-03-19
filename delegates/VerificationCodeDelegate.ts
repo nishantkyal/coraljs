@@ -11,7 +11,7 @@ import IntegrationMemberDelegate                                = require('../de
 import EmailDelegate                                            = require('../delegates/EmailDelegate');
 import SmsDelegate                                              = require('../delegates/SMSDelegate');
 import UserDelegate                                             = require('../delegates/UserDelegate');
-import PhoneNumberDelegate                                      = require('../delegates/PhoneNumberDelegate');
+import UserPhoneDelegate                                      = require('../delegates/UserPhoneDelegate');
 import Utils                                                    = require('../common/Utils');
 import IncludeFlag                                              = require('../enums/IncludeFlag');
 import SmsTemplate                                              = require('../enums/SmsTemplate');
@@ -25,7 +25,7 @@ class VerificationCodeDelegate
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private emailDelegate = new EmailDelegate();
     private smsDelegate = new SmsDelegate();
-    private phoneNumberDelegate = new PhoneNumberDelegate();
+    private phoneNumberDelegate = new UserPhoneDelegate();
 
     createAndSendExpertInvitationCode(integrationId:number, member:IntegrationMember, sender?:User):q.Promise<any>
     {

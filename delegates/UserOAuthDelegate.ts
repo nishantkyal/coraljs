@@ -22,7 +22,7 @@ class UserOAuthDelegate extends BaseDaoDelegate
 
         // 1. Try updating the token
         // 2. If it fails for uniqueness constraint, create a new user and add token to it
-        return this.getDao().search({oauth_user_id: userOAuth.getOauthUserId(), provider_id: userOAuth.getProviderId()}, {'fields': ['id', 'user_id']})
+        return this.dao.search({oauth_user_id: userOAuth.getOauthUserId(), provider_id: userOAuth.getProviderId()}, {'fields': ['id', 'user_id']})
             .then(
             function oauthSearchCompleted(existingTokens)
             {
@@ -85,7 +85,7 @@ class UserOAuthDelegate extends BaseDaoDelegate
         return null;
     }
 
-    getDao():IDao { return new UserAuthDAO(); }
+    constructor() { super(new UserAuthDAO()); }
 
 }
 export = UserOAuthDelegate

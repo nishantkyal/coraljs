@@ -56,13 +56,13 @@ class IntegrationDelegate extends BaseDaoDelegate
     resetSecret(integrationId:string):q.Promise<any>
     {
         var newSecret = Utils.getRandomString(30);
-        return this.getDao().update({'integration_id': integrationId}, {'secret': newSecret})
+        return this.dao.update({'integration_id': integrationId}, {'secret': newSecret})
             .then(
             function handleSecretReset() { return newSecret; }
         );
     }
 
-    getDao():IDao { return new IntegrationDAO(); }
+    constructor() { super(new IntegrationDAO()); }
 
 }
 export = IntegrationDelegate

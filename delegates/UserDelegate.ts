@@ -39,7 +39,7 @@ class UserDelegate extends BaseDaoDelegate
         return super.getIncludeHandler(include, result);
     }
 
-    getDao():IDao { return new UserDAO(); }
+    constructor() { super(new UserDAO()); }
 
 }
 export = UserDelegate

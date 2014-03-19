@@ -5,10 +5,10 @@ import AccessControl                                        = require('../middle
 import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
 import VerificationCodeDelegate                             = require('../delegates/VerificationCodeDelegate');
 import EmailDelegate                                        = require('../delegates/EmailDelegate');
-import PhoneNumberDelegate                                  = require('../delegates/PhoneNumberDelegate');
+import UserPhoneDelegate                                    = require('../delegates/UserPhoneDelegate');
 import TemporaryTokenType                                   = require('../enums/TemporaryTokenType');
 import ApiConstants                                         = require('../enums/ApiConstants');
-import PhoneNumberType                                      = require('../enums/PhoneNumberType');
+import PhoneType                                            = require('../enums/PhoneType');
 import VerificationCodeCache                                = require('../caches/VerificationCodeCache');
 import Utils                                                = require('../common/Utils');
 import User                                                 = require('../models/User');
@@ -21,7 +21,7 @@ class TokenApi
     {
         var verificationCodeCache = new VerificationCodeCache();
         var verificationCodeDelegate = new VerificationCodeDelegate();
-        var phoneNumberDelegate = new PhoneNumberDelegate();
+        var phoneNumberDelegate = new UserPhoneDelegate();
 
         /* Create mobile verification code */
         app.put(ApiUrlDelegate.mobileVerificationCode(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)

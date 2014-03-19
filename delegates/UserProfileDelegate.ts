@@ -5,6 +5,6 @@ import UserProfileDao                                       = require('../dao/Us
 
 class UserProfileDelegate extends BaseDaoDelegate
 {
-    getDao():IDao { return new UserProfileDao(); }
+    constructor() { super(new UserProfileDao()); }
 }
 export = UserProfileDelegate
