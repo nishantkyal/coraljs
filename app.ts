@@ -40,7 +40,9 @@ app.use(
         next();
     }
 )
-app.use(express.static(path.join(__dirname, 'public')));
+
+var oneDay = 86400000;
+app.use(express.static(path.join(__dirname, 'public'), {maxAge: oneDay}));
 
 app.use(express.json());
 app.use(express.urlencoded());
