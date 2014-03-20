@@ -29,6 +29,7 @@
         "grunt-contrib-concat": "*",
         "grunt-contrib-clean" : "*",
         "grunt-contrib-uglify": "*",
+        "grunt-contrib-cssmin": "*",
         "grunt-text-replace"  : "*",
         "grunt-ts"            : "*",
         "nodeunit"            : "0.8.2",

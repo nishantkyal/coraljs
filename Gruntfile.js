@@ -3,13 +3,23 @@ module.exports = function (grunt) {
         pkg: grunt.file.readJSON('package.json'),
         clean: ['Coral.d.ts'],
         concat: {
-            options: {
-                banner: "declare module 'Coral'\n{\n",
-                footer: '}'
-            },
             dist: {
                 src: ['enums/*.d.ts', 'models/*.d.ts', 'delegates/ApiUrlDelegate.d.ts', 'common/*.d.ts'],
-                dest: 'Coral.d.ts'
+                dest: 'Coral.d.ts',
+                options: {
+                    banner: "declare module 'Coral'\n{\n",
+                    footer: '}'
+                }
+            },
+            css: {
+                src: [
+                    'public/css/!(combined).css*'
+                ],
+                dest: 'public/css/combined.css'
+            },
+            js : {
+                src : ['public/js/lib/jquery.js', 'public/js/lib/jquery.validate.js', 'public/js/lib/jquery.js', 'public/js/lib/!(combined).js'],
+                dest : 'public/js/lib/combined.js'
             }
         },
         'generate-index': {
@@ -42,19 +52,22 @@ module.exports = function (grunt) {
                 ]
             }
         },
-        'uglify': {
-            options: {
-                mangle: false
-            },
-            my_target: {
+        uglify: {
+            js: {
                 files: {
-                    'dest/output.min.js': ['public/js/lib/*.js']
+                    'public/js/lib/combined.min.js': ['public/js/lib/combined.js']
                 }
+            }
+        },
+        cssmin : {
+            css:{
+                src: 'public/css/combined.css',
+                dest: 'public/css/combined.min.css'
             }
         }
     });
 
-    // our example task
+    /* Generate indx.js by combining all generated .js files */
     grunt.registerMultiTask('generate-index', function() {
         this.files.forEach(function(file) {
             var output = file.src.map(function(filepath) {
@@ -67,7 +80,10 @@ module.exports = function (grunt) {
 
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-text-replace');
-    grunt.registerTask('default', ['clean', 'concat', 'replace', 'generate-index']);
-    grunt.registerTask('uglify', ['uglify:my_target']);
+
+    grunt.registerTask('coral', ['clean', 'concat', 'replace', 'generate-index']);
+    grunt.registerTask('default', ['concat:js', 'uglify:js', 'concat:css', 'cssmin:css']);
 };
