@@ -74,19 +74,22 @@ class VerificationCodeCache
         return CacheHelper.getHashValues('ic-' + integrationId);
     }
 
-    createMobileVerificationCode(phoneNumber:string):q.Promise<any>
+    createMobileVerificationCode(phoneNumber:string, code?:string):q.Promise<any>
     {
-        var codeReference:string = Utils.getRandomString(8);
-        var code:number = Utils.getRandomInt(1001, 9999);
+        var code:string = code || Utils.getRandomInt(1001, 9999);
         var secondsInAnHr:number = 60 * 60;
-        return CacheHelper.set('mv-' + phoneNumber, code, secondsInAnHr);
+        return CacheHelper.set('mv-' + phoneNumber, code, secondsInAnHr, true)
+            .then(
+            function codeSaved() { return code; }
+        );
     }
 
     searchMobileVerificationCode(code:string, phoneNumber:string):q.Promise<boolean>
     {
         return CacheHelper.get('mv-' + phoneNumber)
             .then(
-            function tokenSearched(result) {
+            function tokenSearched(result)
+            {
                 return result == code;
             }
         );

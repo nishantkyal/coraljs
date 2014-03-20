@@ -22,15 +22,23 @@ class CacheHelper
         return this.connection;
     }
 
-    static set(key, value, expiry?:number):q.Promise<any>
+    static set(key, value, expiry?:number, overwrite:boolean = false):q.Promise<any>
     {
         var deferred = q.defer();
-        this.getConnection().set(key, JSON.stringify(value), 'EX', expiry, function (error, result)
+
+        var args = [key, JSON.stringify(value)];
+
+        if (expiry)
+            args.concat(['EX', expiry]);
+        if (overwrite)
+            args.push('NX');
+
+        this.getConnection().set(args, function (error, result)
         {
-            if (error)
-                deferred.reject(error);
-            else
+            if (result)
                 deferred.resolve(result);
+            else
+                deferred.reject(error);
         });
         return deferred.promise;
     }

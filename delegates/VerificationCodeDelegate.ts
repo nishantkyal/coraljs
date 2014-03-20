@@ -71,7 +71,7 @@ class VerificationCodeDelegate
     createAndSendMobileVerificationCode(phoneNumber:PhoneNumber):q.Promise<any>
     {
         var self = this;
-        var code = Utils.getRandomInt(10001, 99999);
+        var code:string = Utils.getRandomInt(10001, 99999);
         var smsMessage = this.smsDelegate.generateSMSText(SmsTemplate.VERIFY_NUMBER, {code: code});
 
         var sms = new SMS();
@@ -80,7 +80,7 @@ class VerificationCodeDelegate
 
         return q.all([
             self.smsDelegate.send(sms),
-            self.verificationCodeCache.createMobileVerificationCode(phoneNumber.getCompleteNumber())
+            self.verificationCodeCache.createMobileVerificationCode(phoneNumber.getCompleteNumber(), code)
         ]);
     }
 

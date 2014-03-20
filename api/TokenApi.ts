@@ -28,12 +28,11 @@ class TokenApi
             var phoneNumber:PhoneNumber = req.body[ApiConstants.PHONE_NUMBER];
             phoneNumber.setUserId(req['user'].id);
 
-            if (phoneNumber.isValid())
-                res.send(JSON.stringify({status: 'ok'}));
-            else
-                res.send(400, 'Invalid phone number');
-
-            verificationCodeDelegate.createAndSendMobileVerificationCode(phoneNumber);
+            verificationCodeDelegate.createAndSendMobileVerificationCode(phoneNumber)
+                .then(
+                    function codeCreated() { res.json(200, {status: 'OK'}); },
+                    function codeCreateError() { res.send(500); }
+                );
         });
 
         /* Verify mobile number code */
