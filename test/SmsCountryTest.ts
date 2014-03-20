@@ -1,9 +1,15 @@
 import SmsCountryDelegate                               = require('../delegates/calling/SmsCountryDelegate');
-
+import VerificationCodeDelegate                         = require('../delegates/VerificationCodeDelegate');
+import PhoneNumber                                      = require('../models/PhoneNumber');
+import CountryCode                                      = require('../enums/CountryCode');
 export function sendSms()
 {
-    var smsCountryDelegate = new SmsCountryDelegate();
-    smsCountryDelegate.sendSMS('+919810723200', 'Your verification code for expert registration is 9876')
+    var verificationCodeDelegate = new VerificationCodeDelegate();
+    var phoneNumber = new PhoneNumber();
+    phoneNumber.setCountryCode(CountryCode.IN);
+    phoneNumber.setPhone('9810723200')
+
+    verificationCodeDelegate.createAndSendMobileVerificationCode(phoneNumber)
         .then(
             function smsSent(response) {
 

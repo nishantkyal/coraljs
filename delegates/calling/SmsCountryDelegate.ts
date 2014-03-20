@@ -16,7 +16,7 @@ class SmsCountryDelegate implements ICallingVendorDelegate
         var data:any = {
             User: Config.get(Config.SMS_COUNTRY_USER),
             passwd: Config.get(Config.SMS_COUNTRY_PASSWORD),
-            Sid: 'sntalk',
+            Sid: 'SNTALK',
             MobileNumber: to,
             Message: body,
             Mtype: 'N'

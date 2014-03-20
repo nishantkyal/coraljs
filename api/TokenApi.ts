@@ -21,7 +21,6 @@ class TokenApi
     {
         var verificationCodeCache = new VerificationCodeCache();
         var verificationCodeDelegate = new VerificationCodeDelegate();
-        var phoneNumberDelegate = new PhoneNumberDelegate();
 
         /* Create mobile verification code */
         app.put(ApiUrlDelegate.mobileVerificationCode(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
