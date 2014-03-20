@@ -41,6 +41,16 @@ module.exports = function (grunt) {
                     }
                 ]
             }
+        },
+        'uglify': {
+            options: {
+                mangle: false
+            },
+            my_target: {
+                files: {
+                    'dest/output.min.js': ['public/js/lib/*.js']
+                }
+            }
         }
     });
 
@@ -59,4 +69,5 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-text-replace');
     grunt.registerTask('default', ['clean', 'concat', 'replace', 'generate-index']);
+    grunt.registerTask('uglify', ['uglify:my_target']);
 };

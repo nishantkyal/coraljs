@@ -29,3 +29,4 @@
 ///<reference path='../DefinitelyTyped/accounting/accounting.d.ts'/>
 ///<reference path='../DefinitelyTyped/cheerio/cheerio.d.ts'/>
 ///<reference path='../DefinitelyTyped/oauth2orize/oauth2orize.d.ts'/>
+///<reference path='../DefinitelyTyped/request/request.d.ts'/>

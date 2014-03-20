@@ -29,6 +29,8 @@ class Config
     static TWILIO_NUMBER:string                        = 'twilio.number';
     static EXOTEL_SID:string                           = 'exotel.sid';
     static EXOTEL_TOKEN:string                         = 'exotel.token';
+    static SMS_COUNTRY_USER:string                     = 'sms_country.user';
+    static SMS_COUNTRY_PASSWORD:string                 = 'sms_country.password';
 
     /* Static constructor workaround */
     private static ctor = (() =>
