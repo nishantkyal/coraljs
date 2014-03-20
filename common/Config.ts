@@ -8,6 +8,7 @@ import nconf        = require("nconf");
 class Config
 {
     static ENV:string                                  = 'env';
+    static SESSION_EXPIRY:string                       = 'session.expiry';
     static DATABASE_HOST:string                        = 'DATABASE_HOST';
     static DATABASE_NAME:string                        = 'database.name';
     static DATABASE_USER:string                        = 'database.user';

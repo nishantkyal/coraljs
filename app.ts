@@ -51,7 +51,7 @@ app.use(express.cookieParser());
 
 app.use(express.session({
     secret: 'searchntalk.com',
-    expires: new Date(Date.now() + (30 * 60 * 1000)), // 30 minutes
+    cookie: {maxAge: Config.get(Config.SESSION_EXPIRY)},
     store: new RedisStore({
         host: Config.get(Config.REDIS_HOST),
         port: Config.get(Config.REDIS_PORT)
