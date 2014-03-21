@@ -17,13 +17,7 @@ class ApiUrlDelegate
     static user():string { return this.get('/rest/user'); }
     static userAuthentication():string { return this.get('/rest/user/authentication'); }
     static userById(userId?:number):string { return this.get('/rest/user/:userId(\\d+)', {userId: userId}); }
-    static userIntegrationDetails(userId?:number, integrationId?:number):string { return this.get('/rest/user/:userId(\\d+)/integration/:integrationId(\\d+)', {userId: userId, integrationId: integrationId}); }
-    static userActivitySummary(userId?:number):string { return this.get('/rest/user/:userId/activity/summary', {userId: userId}); }
-    static userTransactionBalance(userId?:number):string { return this.get('/rest/user/:userId/transactions/balance', {userId: userId}); }
-
-    /* URL patterns for user oauth (FB, LinkedIn ..) */
-    static userOAuth():string { return this.get('/rest/user/oauth'); }
-    static userOAuthToken(userId?:number, type?:string):string { return this.get('/rest/user/:userId/oauth/:type/token', {userId: userId, type: type}); }
+    static userProfilePicture(userId?:number):string { return this.get('/rest/user/:userId(\\d+)/picture', {userId: userId}); }
 
     /* URL patterns for OAuth provider */
     static decision():string { return this.get('/rest/oauth/decision'); }
@@ -45,9 +39,10 @@ class ApiUrlDelegate
     static integration():string { return this.get('/rest/integration'); }
     static integrationById(integrationId?:number):string { return this.get('/rest/integration/:integrationId(\\d+)', {integrationId: integrationId}); }
     static integrationSecretReset(integrationId?:number):string { return this.get('/rest/integration/:integrationId(\\d+)/secret/reset', {integrationId: integrationId}); }
+
+    /* URL patterns for members */
     static integrationMember(integrationId?:number):string { return this.get('/rest/integration/:integrationId(\\d+)/member', {integrationId: integrationId}); }
     static integrationMemberById(integrationId?:number, memberId?:number):string { return this.get('/rest/integration/:integrationId(\\d+)/member/:memberId(\\d+)', {integrationId: integrationId, memberId: memberId}); }
-    static ownerActivitySummary(integrationId?:number):string { return this.get('/rest/integration/:integrationId(\\d+)/activity/summary', {integrationId: integrationId}); }
 
     /* URL patterns for payments */
     static payment():string { return this.get('/rest/payment'); }
@@ -71,7 +66,7 @@ class ApiUrlDelegate
     static transaction():string { return this.get('/rest/transaction'); }
     static transactionById(transactionId?:number):string { return this.get('/rest/transaction/:transactionId(\\d+)', {transactionId: transactionId}); }
     static transactionItem(transactionId?:number):string { return this.get('/rest/transaction/:transactionId(\\d+)/item', {transactionId: transactionId}); }
-    static transactionItemById(transactionId?:number, itemId?:number):string { return this.get('/rest/transaction/:transactionId(\\d+)/item/:itemId(\\d+)', {transactionId: transactionId, itemId: itemId}); }
+    static transactionItemById(itemId?:number):string { return this.get('/rest/item/:itemId(\\d+)', {itemId: itemId}); }
 
     /* URL patterns for email */
     static expertInviteEmail():string { return this.get('/rest/email/expert/invitation'); }

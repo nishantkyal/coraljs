@@ -23,7 +23,6 @@ import VerificationCodeCache                = require('../caches/VerificationCod
  */
 class UserApi
 {
-
     constructor(app)
     {
         var userDelegate = new UserDelegate();
@@ -67,26 +66,22 @@ class UserApi
             );
         });
 
-
-        /* Get account balance */
-        app.get(ApiUrlDelegate.userTransactionBalance(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        /* Profile image */
+        app.post(ApiUrlDelegate.userProfilePicture(), express.bodyParser(), function(req:express.Request, res:express.Response)
         {
+            var uploadedFile = req.files['image'];
+            var user = req['user'];
+
+            userDelegate.processProfileImage(user.id, uploadedFile.path)
+                .then(
+                    function uploadComplete() { res.send(200); },
+                    function uploadError() { res.send(500); }
+                );
         });
 
-        /* Update OAuth token */
-        app.put(ApiUrlDelegate.userOAuthToken(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        app.get(ApiUrlDelegate.userProfilePicture(), function(req:express.Request, res:express.Response)
         {
-            var userOauth:UserOauth = req.body[ApiConstants.OAUTH];
-            var user:User = req.body[ApiConstants.USER];
 
-            if (userOauth.isValid())
-                userOauthDelegate.addOrUpdateToken(userOauth, user)
-                    .then(
-                    function tokenAdded(updatedUser:User) { res.json(updatedUser); },
-                    function tokenAddError(err) { res.status(500).json(err); }
-                );
-            else
-                res.status(500).json('Invalid input');
         });
 
     }

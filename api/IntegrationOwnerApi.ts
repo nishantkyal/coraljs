@@ -48,21 +48,6 @@ class IntegrationOwnerApi {
         });
 
         /*
-         * Remove a member
-         * Allow owner and admin
-         */
-        app.delete(ApiUrlDelegate.integrationMemberById(), AccessControl.allowAdmin, function(req:express.Request, res:express.Response)
-        {
-            var integrationId = req.params[ApiConstants.INTEGRATION_ID];
-
-            integrationMemberDelegate.delete(integrationId)
-                .then(
-                function handleMemberSearched(result) { res.json(result); },
-                function handleMemberSearchError(err) { res.status(500).json(err); }
-            );
-        });
-
-        /*
          * Update settings for member
          * Allow owner or admin
          */
@@ -78,14 +63,6 @@ class IntegrationOwnerApi {
             );
         });
 
-        /*
-         * Get activity summary
-         * Allow owner and admin
-         */
-        app.get(ApiUrlDelegate.ownerActivitySummary(), function(req:express.Request, res:express.Response)
-        {
-
-        });
     }
 
 }

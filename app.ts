@@ -73,5 +73,5 @@ _.templateSettings.interpolate = /\{\{(.+?)\}\}/g;
 app.set('port', Config.get(Config.CORAL_PORT) || 3000);
 app.listen(app.get('port'), function ()
 {
-    console.log("Demo Express server listening on port %d in %s mode", app.get('port'), app.settings.env);
+    console.log("SearchNTalk started on port %d in %s mode", app.get('port'), app.settings.env);
 });
