@@ -71,15 +71,9 @@ $('#selectFile').change(function uploadFiles(event)
         success: function(data, textStatus, jqXHR)
         {
             if(typeof data.error === 'undefined')
-            {
-                // Success so call function to process the form
-                submitForm(event, data);
-            }
+                $('#profileImage').attr('src', data.url + '?' + Math.random());
             else
-            {
-                // Handle errors here
                 console.log('ERRORS: ' + data.error);
-            }
         },
         error: function(jqXHR, textStatus, errorThrown)
         {
@@ -93,10 +87,10 @@ $('#selectFile').change(function uploadFiles(event)
 function submitForm(event, data)
 {
     // Create a jQuery object from the form
-    $form = $(event.target);
+    var form = $('#fileUploadForm');
 
     // Serialize the form data
-    var formData = $form.serialize();
+    var formData = form.serialize();
 
     // You should sterilise the file names
     $.each(data.files, function(key, value)
@@ -113,19 +107,12 @@ function submitForm(event, data)
         success: function(data, textStatus, jqXHR)
         {
             if(typeof data.error === 'undefined')
-            {
-                // Success so call function to process the form
-                console.log('SUCCESS: ' + data.success);
-            }
+                $('#profileImage').attr('src', data.url);
             else
-            {
-                // Handle errors here
                 console.log('ERRORS: ' + data.error);
-            }
         },
         error: function(jqXHR, textStatus, errorThrown)
         {
-            // Handle errors here
             console.log('ERRORS: ' + textStatus);
         },
         complete: function()

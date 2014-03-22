@@ -1,31 +1,51 @@
 ///<reference path='../_references.d.ts'/>
 import q                                            = require('q');
 import fs                                           = require('fs');
-var gm = require('gm');
+var gm                                              = require('gm');
 import ImageSize                                    = require('../enums/ImageSize');
+
 class ImageDelegate
 {
+    imageMagick = gm.subClass({ imageMagick: true });
+
     resize(srcImagePath:string, outputPath:string, outputSize:ImageSize):q.Promise<any>
     {
         var deferred = q.defer();
-
-        var readStream = fs.createReadStream(srcImagePath);
-        gm(readStream, srcImagePath)
-            .size({bufferStream: true}, function doResize(err, size)
-            {
-                if (err)
-                    return deferred.reject(err);
-
-                var longerDim = Math.max(size.width, size.height);
-                this.resize(size.width * longerDim / outputSize, size.height * longerDim / outputSize)
-                this.write(outputPath, function (err)
+        try {
+            this.imageMagick(srcImagePath)
+                .size(function doResize(err, size)
                 {
                     if (err)
-                        deferred.reject(err);
-                    else
-                        deferred.resolve(outputPath);
+                        return deferred.reject(err);
+
+                    var longerDim = Math.max(size.width, size.height);
+                    var scale = outputSize/longerDim;
+                    //this.resize(outputSize);
+                    this.write(outputPath, function (err)
+                    {
+                        if (err)
+                            deferred.reject(err);
+                        else
+                            deferred.resolve(outputPath);
+                    });
                 });
-            });
+        } catch (error) {
+            deferred.reject(error);
+        }
+
+        return deferred.promise;
+    }
+
+    move(oldPath:string, newPath:string):q.Promise<any>
+    {
+        var deferred = q.defer();
+
+        fs.rename(oldPath, newPath, function(err) {
+            if (err)
+                deferred.reject(err);
+            else
+                deferred.resolve('Moved ' + oldPath + ' to ' + newPath);
+        });
 
         return deferred.promise;
     }

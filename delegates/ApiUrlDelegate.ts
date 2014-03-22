@@ -97,11 +97,18 @@ class ApiUrlDelegate
      * @param values
      * @returns {string}
      */
-    static get(urlPattern:string, values?:Object):string {
+    static get(urlPattern:string, values?:Object):string
+    {
         if (values)
             for (var key in values)
                 if (values[key] != null)
-                    urlPattern = urlPattern.replace(new RegExp(':' + key), values[key])
+                {
+                    var urlParamRegex:RegExp = new RegExp(':' + key);
+                    var urlParamTypeRegex:RegExp = new RegExp('\\(([^\\(]*)\\)', 'i');
+                    urlPattern = urlPattern
+                        .replace(urlParamRegex, values[key])
+                        .replace(urlParamTypeRegex, '');
+                }
         return urlPattern;
     }
 }

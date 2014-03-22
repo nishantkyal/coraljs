@@ -9,7 +9,10 @@ class Config
 {
     static ENV:string                                   = 'env';
     static SESSION_EXPIRY:string                        = 'session.expiry';
+
     static PROFILE_IMAGE_PATH:string                    = 'profile_image_path';
+    static PROFILE_IMAGE_BASE_URL:string                = 'profile_image_base_url';
+
     static DATABASE_HOST:string                         = 'database.host';
     static DATABASE_NAME:string                         = 'database.name';
     static DATABASE_USER:string                         = 'database.user';

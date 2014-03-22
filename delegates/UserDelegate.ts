@@ -3,7 +3,6 @@ import q                                                                = requir
 import _                                                                = require('underscore');
 import fs                                                               = require('fs');
 import passport                                                         = require('passport');
-var gm                                                                  = require('gm');
 import BaseDaoDelegate                                                  = require('../delegates/BaseDaoDelegate');
 import MysqlDelegate                                                    = require('../delegates/MysqlDelegate');
 import UserProfileDelegate                                              = require('../delegates/UserProfileDelegate');
@@ -47,15 +46,31 @@ class UserDelegate extends BaseDaoDelegate
         return super.getIncludeHandler(include, result);
     }
 
-    processProfileImage(userId:number, imagePath:string):q.Promise<any>
+    processProfileImage(userId:number, tempImagePath:string):q.Promise<any>
     {
         var self = this;
         var imageBasePath:string = Config.get(Config.PROFILE_IMAGE_PATH) + userId;
-        var sizes = [ImageSize.SMALL, ImageSize.MEDIUM, ImageSize.LARGE];
+        var newImagePath:string = imageBasePath;
 
-        return q.all(_.map(sizes, function(size:ImageSize) {
-            return self.imageDelegate.resize(imagePath, imageBasePath + '_' + ImageSize[size].toLowerCase(), size);
-        }));
+        return self.imageDelegate.move(tempImagePath, newImagePath)
+            .fail(
+                function imageMoveFailed(err)
+                {
+                    self.logger.error('Failed renaming file %s to %s. Error: %s', tempImagePath, newImagePath, err);
+                    throw('An error occurred while uploading your image');
+                });
+
+        /*
+        var sizes = [ImageSize.SMALL];
+        return q.all(_.map(sizes, function (size:ImageSize):q.Promise<any>
+            {
+                return self.imageDelegate.resize(tempImagePath, imageBasePath + '_' + ImageSize[size].toLowerCase(), size);
+            }))
+            .fail(
+            function imageResizeFiled(error)
+            {
+                self.logger.debug('Image resize failed because %s', error);
+            });*/
     }
 
     getDao():IDao { return new UserDAO(); }

@@ -5,8 +5,9 @@ include ../scriptsAndStyles
         .col-md-2
         .col-md-8
             .col-md-3
-                img.img-polaroid.col-md-12(src='http://www.777icons.com/libs/love/no_photo-icon.gif')
+                img.img.img-polaroid.img-responsive.col-md-12#profileImage(src='/rest/user/' + logged_in_user.id + '/picture')
                 form#fileUploadForm(action='/rest/user/' + logged_in_user.id + '/picture', method="post", enctype="multipart/form-data")
+                    input(type='hidden', name='huha', value='juja')
                     input#selectFile(type='file', name='profile', style='display: none')
                     input#selectFileSubmit(type='submit', style='display: none')
                     .text-center
@@ -44,6 +45,7 @@ include ../scriptsAndStyles
                     .form-group
                         label.control-label(for='revenue_share') Revenue Share
                         .form-control-static#revenue_share= formatMoney(member.revenue_share, member.revenue_share_unit)
+                            | &nbsp;/ call
                     .form-group
                         label.control-label(for='password') Password
                         input.form-control#password(type='password', name='password', data-toggle="tooltip", data-placement="bottom")
