@@ -7,20 +7,20 @@ title User Management - #{integration.title}
         .col-md-8
             .navbar.navbar-default
                 .container
-                    a.navbar-brand(href='/integrations') Back
+                    a.navbar-brand(href=DashboardUrls.integrations()) Back
                     .collapse.navbar-collapse
                         ul.nav.navbar-nav
                             li
-                                a(href='/integration/' + integration.id + '/members') Members
+                                a(href=DashboardUrls.integrationMembers(integration.id)) Members
                             li.active
-                                a(href='/integration/' + integration.id + '/coupons') Coupons
+                                a(href=DashboardUrls.integrationCoupons(integration.id)) Coupons
             .row-fluid
                 .pull-right
                     .btn-primary.btn.save(data-toggle='modal', href='#couponDetails')
                         i.icon-plus.icon-white
                         | &nbsp;Create Coupon
             .clearfix
-            if coupons.length != 0
+            if coupons && coupons.length != 0
                 table.table-hover.table.table-bordered#users
                     thead
                         tr
@@ -32,11 +32,11 @@ title User Management - #{integration.title}
 
                     tbody
                         each coupon in coupons
-                            - expert = coupon['expert'][0]
-                            - user = expert['user'][0]
+                            - expert = coupon['expert'] ? coupon['expert'][0] : null
+                            - user = expert && expert['user'] ? expert['user'][0] : null
                             tr(style='cursor: pointer;', data-id=coupon.id, data-toggle='modal', href='#couponDetails')
-                                td= coupon.code
-                                td= coupon.expert_id == expert.id && expert.user_id == user.id ? formatName(user.first_name, user.last_name, user.title) : 'All'
+                                td(style='text-transform: uppercase;')= coupon.code
+                                td= expert && coupon.expert_id == expert.id && expert.user_id == user.id ? formatName(user.first_name, user.last_name, user.title) : 'All'
                                 td= coupon.expiry_time != null ? formatDate(coupon.expiry_time) : 'Never'
                                 td #{coupon.num_used} / #{coupon.max_coupons || '∞'}
                                 td= formatMoney(coupon.discount_amount, coupon.discount_unit)

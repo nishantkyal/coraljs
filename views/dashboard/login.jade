@@ -7,7 +7,7 @@ include ../scriptsAndStyles
         .col-md-8
             include ../errorMessage
             .col-md-4
-                form#login-form(role='form', action='/login', method='post')
+                form#login-form(role='form', method='post')
                     .form-group
                         label.control-label(for='username') Email
                         input.form-control#username(type='text', placeholder='Email', name='username', data-toggle="tooltip", data-placement="bottom")

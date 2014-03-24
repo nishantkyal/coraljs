@@ -7,13 +7,13 @@ include ../scriptsAndStyles
         .col-md-8
             .navbar.navbar-default
                 .container
-                    a.navbar-brand(href='/integrations') Back
+                    a.navbar-brand(href=DashboardUrls.integrations()) Back
                     .collapse.navbar-collapse
                         ul.nav.navbar-nav
                             li.active
-                                a(href='/integration/' + integration.id + '/members') Members
+                                a(href=DashboardUrls.integrationMembers(integration.id)) Members
                             li
-                                a(href='/integration/' + integration.id + '/coupons') Coupons
+                                a(href=DashboardUrls.integrationCoupons(integration.id)) Coupons
             .row-fluid
                 .pull-right
                     .btn-primary.btn.save(data-toggle='modal', href='#inviteUserModal')
@@ -40,7 +40,7 @@ include ../scriptsAndStyles
                         td #{member.id != undefined ? 'Active' : 'Invited'}
                         td(style='text-align: center;')
                             if (member.id != undefined && (member.deleted == null || member.deleted == 0))
-                                a.fa.fa-pencil.save(data-id=member.id, data-toggle='modal', href=(member.user.id == logged_in_user.id ? '/member/' + member.id + '/profile' : '#editUserModal'))
+                                a.fa.fa-pencil.save(data-id=member.id, data-toggle='modal', href=(member.user.id == logged_in_user.id ? DashboardUrls.memberProfile(member.id) : '#editUserModal'))
         .col-md-2
 
 #inviteUserModal.modal.fade(style='display: none;')
