@@ -1,7 +1,9 @@
 $('form').validate({
-   rules: {
+    rules: {
+        scheduleId: {
 
-   }
+        }
+    }
 });
 
-//$('select').selectpicker();
+$('select').selectpicker();

@@ -39,7 +39,6 @@ class DashboardRoute
     integrationDelegate = new IntegrationDelegate();
     integrationMemberDelegate = new IntegrationMemberDelegate();
     userDelegate = new UserDelegate();
-    emailDelegate = new EmailDelegate();
     verificationCodeCache = new VerificationCodeCache();
     couponDelegate = new CouponDelegate();
 
@@ -55,13 +54,13 @@ class DashboardRoute
         app.get('/logout', this.logout.bind(this));
 
         // Auth
-        app.post('/login', passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: '/login'}), this.authSuccess.bind(this));
+        app.post('/login', passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: '/login', failureFlash: true}), this.authSuccess.bind(this));
         app.post('/member/:memberId/profile', Middleware.allowSelf, this.memberProfileSave.bind(this));
     }
 
     login(req:express.Request, res:express.Response)
     {
-        res.render(DashboardRoute.PAGE_LOGIN, {logged_in_user: req['user']});
+        res.render(DashboardRoute.PAGE_LOGIN, {logged_in_user: req['user'], messages: req.flash()});
     }
 
     authSuccess(req:express.Request, res:express.Response)

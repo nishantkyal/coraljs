@@ -53,7 +53,7 @@ class Formatter
         var endTime = moment(schedule['start_time']).add('seconds', schedule['duration']).format('h:mm A');
         var startTime = moment(schedule['start_time']).format('DD-MM-YYYY h:mm A');
 
-        return startTime + ' ' + endTime;
+        return startTime + ' - ' + endTime;
     }
 }
 export = Formatter

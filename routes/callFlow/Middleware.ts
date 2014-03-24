@@ -19,15 +19,15 @@ class Middleware
     
     static requireScheduleAndExpert(req, res, next)
     {
-        var expert = this.getSelectedExpert(req);
-        var selectedScheduleIds = this.getSelectedSchedule(req);
+        var expert = Middleware.getSelectedExpert(req);
+        var selectedScheduleIds = Middleware.getSelectedSchedule(req);
         var scheduleIds:string[] = [].concat(req.query[ApiConstants.SCHEDULE_ID]);
 
         if (!Utils.isNullOrEmpty(selectedScheduleIds) && !Utils.isNullOrEmpty(expert))
             next();
         else if (!Utils.isNullOrEmpty(scheduleIds) && !Utils.isNullOrEmpty(expert))
         {
-            this.setSelectedSchedule(req, scheduleIds);
+            Middleware.setSelectedSchedule(req, scheduleIds);
             next();
         }
         else if (!Utils.isNullOrEmpty(expert))

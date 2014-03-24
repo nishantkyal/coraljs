@@ -1,5 +1,6 @@
 ///<reference path='../_references.d.ts'/>
 import express                          = require('express');
+import q                                = require('q');
 import _                                = require('underscore');
 import ApiConstants                     = require('../enums/ApiConstants');
 import BaseModel                        = require('../models/BaseModel');
@@ -96,6 +97,25 @@ class RequestHandler
                 req.body[key] = new modelClass(modelContainer[key]);
         });
         next();
+    }
+
+    static returnPromise(middleware:(...arguments)=>q.Promise<any>):Function
+    {
+        return function (req:express.Request, res:express.Response, next:Function)
+        {
+            // Process arguments and parse them
+            var arguments = middleware.arguments;
+
+            middleware.apply(this, middleware.arguments)
+                .then(
+                function operationSuccess(result)
+                {
+                    res.json(result);
+                    next();
+                },
+                function operationFailed(error) { res.send(500, error); }
+            );
+        }
     }
 
 }

@@ -55,11 +55,11 @@ class CallFlowRoute
                 try
                 {
                     pageData['user'] = expert.user[0];
-                    pageData['schedules'] = JSON.stringify(_.map(expert['schedule'], function (schedule)
+                    pageData['schedules'] = _.map(expert['schedule'], function (schedule)
                     {
                         schedule['id'] = Utils.getRandomInt(10000, 99999);
                         return schedule;
-                    }));
+                    });
                 } catch (e)
                 {
                     self.logger.debug('Error occurred while rendering index page, %s', e);

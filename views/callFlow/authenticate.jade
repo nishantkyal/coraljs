@@ -14,63 +14,56 @@ include header
     .row-fluid
         .col-md-2
         .col-md-8
-            .row-fluid
+            .row
                 .col-md-10
                     b Please login to searchntalk.com or create an account to continue..
                 .pull-right
-                    .btn(onclick='handleSkipClicked()') Skip >
-            .row-fluid
+                    .btn.btn-default(onclick='handleSkipClicked()') Skip >
+            .row
                 .col-md-5
-                    form.form-horizontal.left(action='/call/login', method='post')
+                    form.form-horizontal.left(method='post')
                         .form-group
-                            .control-label
-                                | Email
+                            label.control-label Email
                             .controls
-                                input(type='text', name='user')
+                                input.form-control(type='text', name='user')
                         .form-group
-                            .control-label
-                                | Password
+                            label.control-label Password
                             .controls
-                                input(type='password', name='pass')
+                                input.form-control(type='password', name='pass')
                         .form-group
                             .controls
                                 input.btn.btn-primary(type='submit', value='Login')
 
-                    form.form-horizontal.left(action='/call/login/fb', method='get')
+                    form.form-horizontal.left(action=CallFlowUrls.userFBLogin(), method='get')
                         .form-group
                             .controls
                                 input.btn.btn-primary(type='submit', value='Login using FB')
                 .col-md-1
-                .col-md-2
-                    form.form-horizontal.left(action='/call/register', method='post')
+                .col-md-5
+                    form.form-horizontal.left(action=CallFlowUrls.userRegister(), method='post')
                         .form-group
-                            .control-label
-                                | Email
+                            label.control-label Email
                             .controls
-                                input(type='text', name='email')
+                                input.form-control(type='text', name='email')
                         .form-group
-                            .control-label
-                                | First Name
+                            label.control-label First Name
                             .controls
-                                input(type='text', name='first_name')
+                                input.form-control(type='text', name='first_name')
                         .form-group
-                            .control-label
-                                | Last Name
+                            label.control-label Last Name
                             .controls
-                                input(type='text', name='last_name')
+                                input.form-control(type='text', name='last_name')
                         .form-group
-                            .control-label
-                                | Password
+                            label.control-label Password
                             .controls
-                                input(type='password', name='password')
+                                input.form-control(type='password', name='password')
                         .form-group
-                            .control-label
-                                | Confirm Password
+                            label.control-label Confirm Password
                             .controls
-                                input(type='password', name='confirm_password')
+                                input.form-control(type='password', name='confirm_password')
                         .form-group
                             .controls
-                                input.btn.btn-primary(type='submit', value='Login')
+                                input.btn.btn-primary(type='submit', value='Register')
         .col-md-2
 script.
 
