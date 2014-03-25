@@ -79,11 +79,6 @@ class Utils
         return lowerCasedFrags.join('_');
     }
 
-    static getObjectType(obj:any):string
-    {
-        return Object.prototype.toString.call(obj).replace('[object ', '').replace(']', '');
-    }
-
     static surroundWithQuotes(val:any):string{
         if (Utils.getObjectType(val) == 'String')
             return "'" + val + "'";

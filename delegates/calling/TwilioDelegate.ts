@@ -1,27 +1,26 @@
 ///<reference path='../../_references.d.ts'/>
-import q                                = require('q');
-import log4js                           = require('log4js');
-import Utils                            = require('../../common/Utils');
-import ICallingVendorDelegate           = require('./ICallingVendorDelegate');
-import ApiUrlDelegate                   = require('../ApiUrlDelegate');
-import TwilioUrlDelegate                = require('../../delegates/TwilioUrlDelegate');
-import Config                           = require('../../common/Config');
-import CallFragment                     = require('../../models/CallFragment');
-import CallFragmentStatus               = require('../../enums/CallFragmentStatus');
-import AgentType                        = require('../../enums/AgentType');
-
-
+import q                                                        = require('q');
+import log4js                                                   = require('log4js');
+import moment                                                   = require('moment');
+import Utils                                                    = require('../../common/Utils');
+import ICallingVendorDelegate                                   = require('./ICallingVendorDelegate');
+import ApiUrlDelegate                                           = require('../ApiUrlDelegate');
+import TwilioUrlDelegate                                        = require('../../delegates/TwilioUrlDelegate');
+import Config                                                   = require('../../common/Config');
+import CallFragment                                             = require('../../models/CallFragment');
+import CallFragmentStatus                                       = require('../../enums/CallFragmentStatus');
+import AgentType                                                = require('../../enums/AgentType');
 
 class TwilioDelegate implements ICallingVendorDelegate
 {
-    private static DURATION:string = 'duration';
-    private static START_TIME:string = 'start_time';
-    private static EXPERT_NUMBER:string = 'to';
-    private static COMPLETED:string = 'completed';
-    private static BUSY:string = 'busy';
-    private static NO_ANSWER:string = 'no-answer';
-    private static STATUS:string = 'status';
-    private static ATTEMPTCOUNT:string = 'attemptCount'
+    static DURATION:string = 'duration';
+    static START_TIME:string = 'start_time';
+    static EXPERT_NUMBER:string = 'to';
+    static COMPLETED:string = 'completed';
+    static BUSY:string = 'busy';
+    static NO_ANSWER:string = 'no-answer';
+    static STATUS:string = 'status';
+    static ATTEMPT_COUNT:string = 'attemptCount'
 
     logger:log4js.Logger;
     twilioClient:any;
@@ -58,8 +57,8 @@ class TwilioDelegate implements ICallingVendorDelegate
 
         if(!Utils.isNullOrEmpty(reAttempts))
         {
-            url += '?' + TwilioDelegate.ATTEMPTCOUNT + '=' + reAttempts;
-            callbackUrl += '?' + TwilioDelegate.ATTEMPTCOUNT + '=' + reAttempts;
+            url += '?' + TwilioDelegate.ATTEMPT_COUNT + '=' + reAttempts;
+            callbackUrl += '?' + TwilioDelegate.ATTEMPT_COUNT + '=' + reAttempts;
         }
 
         var deferred = q.defer();
@@ -92,7 +91,7 @@ class TwilioDelegate implements ICallingVendorDelegate
                     var duration:number = parseInt(callDetails[TwilioDelegate.DURATION]);
                     var startTime:Date = new Date(callDetails[TwilioDelegate.START_TIME]);
                     callFragment.setDuration(duration);
-                    callFragment.setStartTime(startTime.getTimeInSec());
+                    callFragment.setStartTime(moment().valueOf());
                     callFragment.setToNumber(callDetails[TwilioDelegate.EXPERT_NUMBER]);
                     callFragment.setAgentId(AgentType.TWILIO);
                     if (callDetails[TwilioDelegate.STATUS] == TwilioDelegate.COMPLETED)

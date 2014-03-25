@@ -1,13 +1,15 @@
-import _                                = require('underscore');
-import log4js                           = require('log4js');
-import Utils                            = require('../common/Utils');
-import Config                           = require('../common/Config');
-import PhoneCallDelegate                = require('./PhoneCallDelegate');
-import SMSDelegate                      = require('../delegates/SMSDelegate');
-import PhoneCall                        = require('../models/PhoneCall');
-import TimeJob                          = require('../models/TimeJob');
-import TimeJobType                      = require('../enums/TimeJobType');
-import PhoneCallCache                   = require('../caches/PhoneCallCache');
+///<reference path='../_references.d.ts'/>
+import _                                                        = require('underscore');
+import log4js                                                   = require('log4js');
+import moment                                                   = require('moment');
+import Utils                                                    = require('../common/Utils');
+import Config                                                   = require('../common/Config');
+import PhoneCallDelegate                                        = require('./PhoneCallDelegate');
+import SMSDelegate                                              = require('../delegates/SMSDelegate');
+import PhoneCall                                                = require('../models/PhoneCall');
+import TimeJob                                                  = require('../models/TimeJob');
+import TimeJobType                                              = require('../enums/TimeJobType');
+import PhoneCallCache                                           = require('../caches/PhoneCallCache');
 
 class TimeJobDelegate
 {
@@ -22,7 +24,8 @@ class TimeJobDelegate
     getJobs()
     {
         var self = this;
-        var currentTime = new Date().getTimeInSec();
+        var currentTime = moment().valueOf();
+
         return new PhoneCallDelegate().getCallsBetweenInterval(currentTime, currentTime + Config.get('call.schedule.interval') + Config.get('sms.reminder.time'))
             .then(
             function scheduledCalls(calls:PhoneCall[])

@@ -106,7 +106,8 @@ class PhoneCallDelegate extends BaseDAODelegate
 
     getCallsBetweenInterval(startTime:number, endTime:number):q.Promise<any>
     {
-        return this.getDao().getCallsBetweenInterval(startTime,endTime);
+        var phoneCallDao:any = this.getDao();
+        return phoneCallDao.getCallsBetweenInterval(startTime,endTime);
     }
 
     getIncludeHandler(include:string, result:PhoneCall):q.Promise<any>

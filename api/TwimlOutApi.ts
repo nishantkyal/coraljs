@@ -1,38 +1,39 @@
-import express                      = require('express');
-import json2xml                     = require('json2xml');
-import ApiConstants                 = require('../enums/ApiConstants');
-import ApiFlags                     = require('../enums/ApiFlags');
-import PhoneType                    = require('../enums/PhoneType');
-import CallFragmentStatus           = require('../enums/CallFragmentStatus');
-import AgentType                    = require('../enums/AgentType');
-import IntegrationMemberDelegate    = require('../delegates/IntegrationMemberDelegate');
-import TwilioDelegate               = require('../delegates/calling/TwilioDelegate');
-import PhoneCallDelegate            = require('../delegates/PhoneCallDelegate');
-import UserPhoneDelegate            = require('../delegates/UserPhoneDelegate');
-import TwilioUrlDelegate            = require('../delegates/TwilioUrlDelegate');
-import CallFragmentDelegate         = require('../delegates/CallFragmentDelegate');
-import SMSDelegate                  = require('../delegates/SMSDelegate');
-import TimeJobDelegate              = require('../delegates/TimeJobDelegate');
-import Utils                        = require('../common/Utils');
-import Config                       = require('../common/Config');
-import PhoneCall                    = require('../models/PhoneCall');
-import User                         = require('../models/User');
-import IntegrationMember            = require('../models/IntegrationMember');
-import UserPhone                    = require('../models/UserPhone');
-import CallFragment                 = require('../models/CallFragment');
-import PhoneCallCache               = require('../caches/PhoneCallCache')
-import PhoneCallCacheModel          = require('../caches/models/PhoneCallCacheModel');
+import express                                                  = require('express');
+import json2xml                                                 = require('json2xml');
+import moment                                                   = require('moment');
+import ApiConstants                                             = require('../enums/ApiConstants');
+import ApiFlags                                                 = require('../enums/ApiFlags');
+import PhoneType                                                = require('../enums/PhoneType');
+import CallFragmentStatus                                       = require('../enums/CallFragmentStatus');
+import AgentType                                                = require('../enums/AgentType');
+import IntegrationMemberDelegate                                = require('../delegates/IntegrationMemberDelegate');
+import TwilioDelegate                                           = require('../delegates/calling/TwilioDelegate');
+import PhoneCallDelegate                                        = require('../delegates/PhoneCallDelegate');
+import UserPhoneDelegate                                        = require('../delegates/UserPhoneDelegate');
+import TwilioUrlDelegate                                        = require('../delegates/TwilioUrlDelegate');
+import CallFragmentDelegate                                     = require('../delegates/CallFragmentDelegate');
+import SMSDelegate                                              = require('../delegates/SMSDelegate');
+import TimeJobDelegate                                          = require('../delegates/TimeJobDelegate');
+import Utils                                                    = require('../common/Utils');
+import Config                                                   = require('../common/Config');
+import PhoneCall                                                = require('../models/PhoneCall');
+import User                                                     = require('../models/User');
+import IntegrationMember                                        = require('../models/IntegrationMember');
+import UserPhone                                                = require('../models/UserPhone');
+import CallFragment                                             = require('../models/CallFragment');
+import PhoneCallCache                                           = require('../caches/PhoneCallCache')
+import PhoneCallCacheModel                                      = require('../caches/models/PhoneCallCacheModel');
 
 class TwimlOutApi
 {
-    private static DIALCALLSID:string = 'DialCallSid';
-    private static CALLSID:string = 'CallSid';
-    private static USERNUMBER:string = 'To';
+    private static DIAL_CALL_SID:string = 'DialCallSid';
+    private static CALL_SID:string = 'CallSid';
+    private static USER_NUMBER:string = 'To';
     private static COMPLETED:string = 'completed'; //TODO same definition being repeated in CallFragmentDelegate
     private static BUSY:string = 'busy';
     private static FAILED:string = 'failed';
-    private static NOANSWER:string = 'no-answer';
-    private static DIALCALLSTATUS:string = 'DialCallStatus';
+    private static NO_ANSWER:       string = 'no-answer';
+    private static DIAL_CALL_STATUS:string = 'DialCallStatus';
     private static CALLSTATUS:string = 'CallStatus';
     private static DURATION:string = 'Duration';
     private static START_TIME:string = 'start_time';
@@ -64,18 +65,18 @@ class TwimlOutApi
 
         app.post(TwilioUrlDelegate.twimlJoinCall(), function (req:express.Request, res:express.Response)
         { // called after expert has hung up. saving details into call fragment here.
-            var attemptCount = parseInt(req.query[TwilioDelegate.ATTEMPTCOUNT]);
+            var attemptCount = parseInt(req.query[TwilioDelegate.ATTEMPT_COUNT]);
             if(Utils.isNullOrEmpty(attemptCount))
                 attemptCount = 0;
 
-            var dialCallStatus = req.body[TwimlOutApi.DIALCALLSTATUS];
+            var dialCallStatus = req.body[TwimlOutApi.DIAL_CALL_STATUS];
             var pageData = {};
 
             var callFragment:CallFragment = new CallFragment(); //save information received in CaLLFragment
             callFragment.setCallId(parseInt(req.params[ApiConstants.PHONE_CALL_ID]));
-            callFragment.setAgentCallSidExpert(req.body[TwimlOutApi.DIALCALLSID]);
-            callFragment.setAgentCallSidUser(req.body[TwimlOutApi.CALLSID]);
-            callFragment.setFromNumber(req.body[TwimlOutApi.USERNUMBER]);
+            callFragment.setAgentCallSidExpert(req.body[TwimlOutApi.DIAL_CALL_SID]);
+            callFragment.setAgentCallSidUser(req.body[TwimlOutApi.CALL_SID]);
+            callFragment.setFromNumber(req.body[TwimlOutApi.USER_NUMBER]);
             callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_EXPERT_ERROR); // if successful then this value will be overwritten
 
             switch(dialCallStatus) //decide the message based on expertCallStatus and attemptCount
@@ -86,7 +87,7 @@ class TwimlOutApi
                 case TwimlOutApi.BUSY:
                     pageData['message'] = 'Call could not be completed. We regret the inconvenience caused.';
                     break;
-                case TwimlOutApi.NOANSWER:
+                case TwimlOutApi.NO_ANSWER:
                     if(attemptCount == 1)
                         pageData['message'] = 'Call could not be completed. We regret the inconvenience caused';
                     else
@@ -116,7 +117,7 @@ class TwimlOutApi
             res.json('OK');
 
             var callStatus = req.body[TwimlOutApi.CALLSTATUS];
-            var attemptCount = parseInt(req.query[TwilioDelegate.ATTEMPTCOUNT]);
+            var attemptCount = parseInt(req.query[TwilioDelegate.ATTEMPT_COUNT]);
             if(Utils.isNullOrEmpty(attemptCount))
                 attemptCount = 0;
 
@@ -128,8 +129,8 @@ class TwimlOutApi
 
                 var callFragment:CallFragment = new CallFragment();
                 callFragment.setCallId(parseInt(req.params[ApiConstants.PHONE_CALL_ID]));
-                callFragment.setAgentCallSidUser(req.body[TwimlOutApi.CALLSID]);
-                callFragment.setFromNumber(req.body[TwimlOutApi.USERNUMBER]);
+                callFragment.setAgentCallSidUser(req.body[TwimlOutApi.CALL_SID]);
+                callFragment.setFromNumber(req.body[TwimlOutApi.USER_NUMBER]);
                 callFragment.setDuration(duration);
                 callFragment.setAgentId(AgentType.TWILIO);
                 if(callStatus == TwimlOutApi.FAILED) //failed means twilio was not able to connect the call
@@ -143,8 +144,7 @@ class TwimlOutApi
                     {
                         if(!Utils.isNullOrEmpty(callDetails))
                         {
-                            var startTime:Date = new Date(callDetails[TwimlOutApi.START_TIME]);
-                            callFragment.setStartTime(startTime.getTimeInSec());
+                            callFragment.setStartTime(moment(callDetails[TwimlOutApi.START_TIME]).valueOf());
                             new CallFragmentDelegate().create(callFragment);
                         }
                     });
@@ -169,7 +169,7 @@ class TwimlOutApi
             var callId = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
             var url:string = req.protocol + "://" + req.get('host') + TwilioUrlDelegate.twimlJoinCall(callId);
             var callbackUrl:string = req.protocol + "://" + req.get('host') + TwilioUrlDelegate.twimlCallback(callId);
-            new PhoneCallDelegate().triggerCall(callId,url,callbackUrl);
+            new PhoneCallDelegate().triggerCall(callId, url, callbackUrl);
 
             new PhoneCallCache().createPhoneCallCache(callId)
                 .then(

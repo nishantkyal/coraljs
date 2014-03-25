@@ -151,7 +151,7 @@ class BaseDao implements IDao
         return MysqlDelegate.executeQuery(query, values, transaction);
     }
 
-    delete(id:string, softDelete:boolean = true, transaction?:any):q.Promise<any>
+    delete(id:number, softDelete:boolean = true, transaction?:any):q.Promise<any>
     {
         if (softDelete)
             return this.update({'id': id}, {'deleted': true}, transaction);

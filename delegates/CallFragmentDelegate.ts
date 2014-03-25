@@ -18,7 +18,8 @@ class CallFragmentDelegate extends BaseDaoDelegate
 
     getTotalDuration(callId:number, transaction?:any):q.Promise<any>
     {
-        return this.getDao().getTotalDuration(callId, transaction);
+        var callFragmentDao:any = this.getDao();
+        return callFragmentDao.getTotalDuration(callId, transaction);
     }
 
     saveCallFragment(callFragment:CallFragment)
