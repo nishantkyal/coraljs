@@ -22,15 +22,14 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
         // TODO: Handle cyclic dependencies in a better way
         var ExpertScheduleRuleDelegate = require('../delegates/ExpertScheduleRuleDelegate');
         var expertScheduleRuleDelegate = new ExpertScheduleRuleDelegate();
-        var currentDate = new Date();
-        var dateAfterOneYear = new Date();
-        dateAfterOneYear.setFullYear(currentDate.getFullYear() + 1);
-        var options = { // to validate exception
-            startDate: currentDate, // current date
-            endDate: dateAfterOneYear // 1 year from current date
+
+        var options =
+        {
+            startDate: moment().valueOf(),
+            endDate: moment().add({years: 1}).valueOf()
         };
 
-        return expertScheduleRuleDelegate.getRulesByIntegrationMemberId(newScheduleException.getIntegrationMemberId(), options.startDate.getTimeInSec(), options.endDate.getTimeInSec())
+        return expertScheduleRuleDelegate.getRulesByIntegrationMemberId(newScheduleException.getIntegrationMemberId(), options.startDate, options.endDate)
             .then(
             function createRecord(rules:ExpertScheduleRule[])
             {
@@ -39,8 +38,9 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
                     schedules.push(new ExpertScheduleRule(schedule));
                 });
 
-                options.startDate = new Date (newScheduleException.getStartTime()*1000);
+                options.startDate = moment(newScheduleException.getStartTime()).valueOf();
                 options.endDate = options.startDate;
+
                 if (self.validateException(schedules, options, newScheduleException))
                     return self.create(newScheduleException, transaction);
                 else
@@ -62,7 +62,7 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
         {
             if(exception.getScheduleRuleId() == scheduleRules[i].getId())
                 schedules = expertScheduleRuleDelegate.expertScheduleGenerator(scheduleRules[i],null, options);
-        }z
+        }
         var schedulesAfterExceptions:ExpertSchedule[] = expertScheduleRuleDelegate.applyExceptions(schedules, [exception]);
         return schedules.length != schedulesAfterExceptions.length;
 

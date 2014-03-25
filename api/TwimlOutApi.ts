@@ -29,21 +29,21 @@ import PhoneCallCacheModel          = require('../caches/models/PhoneCallCacheMo
 
 class TwimlOutApi
 {
-    private PhoneCallCache;
-    private CallFragmentDelegate;
-    private SMSDelegate;
-    private PhoneCallDelegate;
-    private TimeJobDelegate;
+    private phoneCallCache;
+    private callFragmentDelegate;
+    private smsDelegate;
+    private phoneCallDelegate;
+    private timeJobDelegate;
     private logger:log4js.Logger;
 
     constructor(app)
     {
         var self = this;
-        self.PhoneCallCache = new PhoneCallCache();
-        self.CallFragmentDelegate = new CallFragmentDelegate();
-        self.SMSDelegate = new SMSDelegate();
-        self.PhoneCallDelegate = new PhoneCallDelegate();
-        self.TimeJobDelegate = new TimeJobDelegate();
+        self.phoneCallCache = new PhoneCallCache();
+        self.callFragmentDelegate = new CallFragmentDelegate();
+        self.smsDelegate = new SMSDelegate();
+        self.phoneCallDelegate = new PhoneCallDelegate();
+        self.timeJobDelegate = new TimeJobDelegate();
         self.logger = log4js.getLogger(Utils.getClassName(this));
 
         /*
@@ -55,7 +55,7 @@ class TwimlOutApi
         app.get(TwilioUrlDelegate.twimlJoinCall(), function (req:express.Request, res:express.Response)
         { // called after User picks up the phone...need to sen dback expert phone details
             var callId = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
-            self.PhoneCallCache.getPhoneCall(callId)
+            self.phoneCallCache.getPhoneCall(callId)
                 .then(
                 function CallFetched(call:any){ //get the info for this call from cache and send it back as xml to TWILIO
                     var phoneCallCacheObj:PhoneCallCacheModel = new PhoneCallCacheModel(call);
@@ -123,21 +123,21 @@ class TwimlOutApi
             res.render('../delegates/calling/TwilioXMLSay.jade',pageData );
 
             if(attemptCount == 0 && dialCallStatus != TwilioConstants.COMPLETED && dialCallStatus != TwilioConstants.BUSY)
-                self.PhoneCallDelegate.rescheduleCall(callId, attemptCount);
+                self.phoneCallDelegate.rescheduleCall(callId, attemptCount);
 
-            self.CallFragmentDelegate.updateCallFragment(callFragment)
+            self.callFragmentDelegate.updateCallFragment(callFragment)
                 .then(
                 function getCallFragment(updatedCallFragment:CallFragment)
                 {
-                    self.CallFragmentDelegate.create(updatedCallFragment);
+                    self.callFragmentDelegate.create(updatedCallFragment);
                     //TODO don't send sms to landline (twilio doesn't send it and return error code 21614). However, we should not even make the api call.
-                    self.SMSDelegate.sendStatusSMS(updatedCallFragment, attemptCount);
+                    self.smsDelegate.sendStatusSMS(updatedCallFragment, attemptCount);
                     if(attemptCount == 1)
                     {
                         if(updatedCallFragment.getCallFragmentStatus() == CallFragmentStatus.SUCCESS)
-                            self.PhoneCallDelegate.updateCallStatus(callId, CallStatus.COMPLETED);
+                            self.phoneCallDelegate.updateCallStatus(callId, CallStatus.COMPLETED);
                         else
-                            self.PhoneCallDelegate.updateCallStatus(callId, CallStatus.FAILED);
+                            self.phoneCallDelegate.updateCallStatus(callId, CallStatus.FAILED);
                     }
                 })
                 .fail(function(error){
@@ -166,7 +166,7 @@ class TwimlOutApi
             if(callStatus != TwilioConstants.COMPLETED) // if completed then information saved after expert drops the call
             { //save information for failed call
                 if(attemptCount == 0)
-                    self.PhoneCallDelegate.rescheduleCall(callId, attemptCount);
+                    self.phoneCallDelegate.rescheduleCall(callId, attemptCount);
 
                 var duration:number = parseInt(req.body[TwilioConstants.DURATION]);
 
@@ -181,17 +181,17 @@ class TwimlOutApi
                 else
                     callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_USER_ERROR);
 
-                self.CallFragmentDelegate.updateCallFragmentStartTime(callFragment)
+                self.callFragmentDelegate.updateCallFragmentStartTime(callFragment)
                     .then(
                     function getCallFragment(updatedCallFragment:CallFragment)
                     {
-                        self.CallFragmentDelegate.create(updatedCallFragment);
+                        self.callFragmentDelegate.create(updatedCallFragment);
                         if(attemptCount == 1)
                         {
                             if(updatedCallFragment.getCallFragmentStatus() == CallFragmentStatus.SUCCESS)
-                                self.PhoneCallDelegate.updateCallStatus(callId, CallStatus.COMPLETED);
+                                self.phoneCallDelegate.updateCallStatus(callId, CallStatus.COMPLETED);
                             else
-                                self.PhoneCallDelegate.updateCallStatus(callId, CallStatus.FAILED)
+                                self.phoneCallDelegate.updateCallStatus(callId, CallStatus.FAILED)
                                     .fail(function(error){
                                         self.logger.debug("Call status not updated");
                                     })
@@ -202,14 +202,14 @@ class TwimlOutApi
                     })
 
                 //send sms to user and expert informing them about the status
-                self.PhoneCallCache.getPhoneCall(callId)
+                self.phoneCallCache.getPhoneCall(callId)
                     .then(
                     function CallFetched(call:any){
                         var phoneCallCacheObj:PhoneCallCacheModel = new PhoneCallCacheModel(call);
                         var tempCallFragment:CallFragment = callFragment;
                         if(phoneCallCacheObj.getExpertPhoneType() == PhoneType.MOBILE)
                             tempCallFragment.setToNumber(phoneCallCacheObj.getExpertNumber());
-                        self.SMSDelegate.sendStatusSMS(tempCallFragment, attemptCount);
+                        self.smsDelegate.sendStatusSMS(tempCallFragment, attemptCount);
                     })
                     .fail(function(error){
                         self.logger.debug('Failed to send failure SMS to callId:' + callId);
@@ -227,7 +227,7 @@ class TwimlOutApi
             self.logger.trace("trace check");
             var callId = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
             var transaction = null;
-            self.TimeJobDelegate.scheduleJobs();
+            self.timeJobDelegate.scheduleJobs();
             //self.PhoneCallDelegate.rescheduleCall(callId, 222);
             //new PhoneCallDelegate().triggerCall(callId);
             /*new PhoneCallCache().createPhoneCallCache(callId)
@@ -269,7 +269,7 @@ class TwimlOutApi
         //TODO remove this after testing
         app.post(TwilioUrlDelegate.twimlGenerateCall(), function (req:express.Request, res:express.Response)
         {
-            self.TimeJobDelegate.getScheduledJobs();
+            self.timeJobDelegate.getScheduledJobs();
             res.json("OK");
         });
     }

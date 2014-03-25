@@ -67,7 +67,7 @@ class ExpertApi
         /** Remove expert status of user for integrationId **/
         app.delete(ApiUrlDelegate.expertById(), AccessControl.allowAdmin, function (req:express.Request, res:express.Response)
         {
-            var expertId = req.params[ApiConstants.EXPERT_ID];
+            var expertId:number = parseInt(req.params[ApiConstants.EXPERT_ID]);
 
             integrationMemberDelegate.delete(expertId)
                 .then(

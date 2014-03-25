@@ -88,7 +88,7 @@ class TwilioDelegate implements ICallingVendorDelegate
                     var duration:number = parseInt(callDetails[TwilioConstants.DURATION_CALLBACK]);
                     var startTime:Date = new Date(callDetails[TwilioConstants.START_TIME]);
                     callFragment.setDuration(duration);
-                    callFragment.setStartTime(startTime.getTimeInSec());
+                    callFragment.setStartTime(moment(startTime).valueOf());
                     callFragment.setToNumber(callDetails[TwilioConstants.EXPERT_NUMBER]);
                     callFragment.setAgentId(AgentType.TWILIO);
                     if (callDetails[TwilioConstants.STATUS] == TwilioConstants.COMPLETED)
@@ -116,7 +116,7 @@ class TwilioDelegate implements ICallingVendorDelegate
                 if(!Utils.isNullOrEmpty(callDetails))
                 {
                     var startTime:Date = new Date(callDetails[TwilioConstants.START_TIME]);
-                    callFragment.setStartTime(startTime.getTimeInSec());
+                    callFragment.setStartTime(moment(startTime).valueOf());
                     deferred.resolve(callFragment);
                 }
                 else

@@ -21,14 +21,14 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
     {
         this.logger.info("create rule called");
         var self = this;
-        var currentDate = new Date();
-        var dateAfterOneYear = new Date();
-        dateAfterOneYear.setFullYear(currentDate.getFullYear() + 1);
-        var options = {
-            startDate: currentDate, // current date
-            endDate: dateAfterOneYear // 1 year from current date
+
+        var options =
+        {
+            startDate: moment().valueOf(),
+            endDate: moment().add({years: 1}).valueOf()
         };
-        var existingRules = this.getRulesByIntegrationMemberId(newScheduleRule.getIntegrationMemberId(), options.startDate.getTimeInSec(), options.endDate.getTimeInSec());
+
+        var existingRules = this.getRulesByIntegrationMemberId(newScheduleRule.getIntegrationMemberId(), options.startDate, options.endDate);
         return existingRules
             .then(
             function createRecord(rules:ExpertScheduleRule[])

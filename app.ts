@@ -64,8 +64,3 @@ app.listen(app.get('port'), function()
     }*/
 
 });
-
-Date.prototype.getTimeInSec = function()
-{
-    return Math.floor(this.getTime()/1000);
-};
