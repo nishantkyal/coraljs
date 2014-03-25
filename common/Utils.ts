@@ -78,8 +78,8 @@ class Utils
     {
         var frags:Array<string> = snakeCasedString.toLowerCase().split('_');
         var camelCaseFrags:Array<string> = _.map(frags, function(frag:string) {
-            return frag.replace(/^([a-z])/, function(m, p1) { return p1.toUpperCase(); });
-        })
+            return frag.replace(/^([a-z])/, function(m:string, p1):string { return p1.toUpperCase(); });
+        });
         return camelCaseFrags.join('');
     }
 

@@ -1,4 +1,5 @@
 ///<reference path='../_references.d.ts'/>
+import _                                    = require('underscore');
 import express                              = require('express');
 import passport                             = require('passport');
 import url                                  = require('url');
@@ -9,12 +10,19 @@ import passport_local                       = require('passport-local');
 import IntegrationMemberDelegate            = require('../delegates/IntegrationMemberDelegate');
 import UserDelegate                         = require('../delegates/UserDelegate');
 import UserOAuthDelegate                    = require('../delegates/UserOAuthDelegate');
+import UserEmploymentDelegate               = require('../delegates/UserEmploymentDelegate');
+import UserEducationDelegate                = require('../delegates/UserEducationDelegate');
+import UserSkillDelegate                    = require('../delegates/UserSkillDelegate');
 import IntegrationMember                    = require('../models/IntegrationMember');
 import UserOauth                            = require('../models/UserOauth');
 import User                                 = require('../models/User');
+import UserSkill                            = require('../models/UserSkill');
+import UserEmployment                       = require('../models/UserEmployment');
+import UserEducation                        = require('../models/UserEducation');
 import Config                               = require('../common/Config');
 import Utils                                = require('../common/Utils');
 import ApiConstants                         = require('../enums/ApiConstants');
+import IndustryCodes                        = require('../enums/IndustryCodes');
 
 import ExpertRegistrationUrls               = require('../routes/expertRegistration/Urls')
 
@@ -153,7 +161,8 @@ class AuthenticationDelegate
         ));
     }
 
-    private static configureLinkedInStrategy(strategyId:string, callbackUrl:string, profileFields:string[] = ['id', 'first-name', 'last-name', 'email-address', 'headline', 'summary'])
+    private static configureLinkedInStrategy(strategyId:string, callbackUrl:string, profileFields:string[] = ['id', 'first-name', 'last-name', 'email-address', 'headline',
+        'industry', 'summary', 'positions', 'picture-url',  'skills', 'educations', 'date-of-birth'])
     {
         passport.use(strategyId, new passport_linkedin.Strategy({
                 consumerKey: Config.get(Config.LINKEDIN_API_KEY),
@@ -161,16 +170,27 @@ class AuthenticationDelegate
                 callbackURL: callbackUrl,
                 profileFields: profileFields
             },
-            function (accessToken, refreshToken, profile, done)
+            function (accessToken, refreshToken, profile:any, done)
             {
                 profile = profile['_json'];
 
-                var user:User = new User()
+                var user:User = new User();
                 user.setEmail(profile.emailAddress);
                 user.setFirstName(profile.firstName);
                 user.setLastName(profile.lastName);
                 user.setShortDesc(profile.headline);
                 user.setLongDesc(profile.summary);
+                if(!Utils.isNullOrEmpty(profile.dateOfBirth))
+                {
+                    var dob:string = profile.dateOfBirth.day + '-' + profile.dateOfBirth.month + '-' + profile.dateOfBirth.year;
+                    user.setDateOfBirth(dob);
+                }
+
+                if(!Utils.isNullOrEmpty(profile.industry))
+                {
+                    var industry:string = profile.industry.toString().replace(/-|\/|\s/g, '_').toUpperCase();
+                    user.setIndustry(IndustryCodes[industry]);
+                }
 
                 var userOauth = new UserOauth();
                 userOauth.setOauthUserId(profile.id);
@@ -185,8 +205,91 @@ class AuthenticationDelegate
                         var user = new User(result);
                         return user.isValid() ? done(null, user) : done('Login failed');
                     },
-                    function tokenUpdateError(error) { done(error); }
-                );
+                    function tokenUpdateError(error)
+                    {
+                        done(error);
+                    })
+                    .then(
+                    function(user:User){
+                        var userId:number = user.getId();
+                        if(!Utils.isNullOrEmpty(profile.skills))
+                        {
+                            var userSkill:UserSkill[] = [];
+                            if(profile.skills._total > 0)
+                            {
+                                _.each(profile.skills.values, function(skill){
+                                    var tempSkill:UserSkill = new UserSkill();
+                                    tempSkill.setSkill(1);//TODO define skillcodes
+                                    tempSkill.setUserId(userId);
+                                    userSkill.push(tempSkill);
+                                })
+                                new UserSkillDelegate().create(userSkill)
+                            }
+                        }
+
+                        if(!Utils.isNullOrEmpty(profile.positions))
+                        {
+                            var userEmployment:UserEmployment[] = [];
+                            if(profile.positions._total > 0)
+                            {
+                                _.each(profile.positions.values, function(position:any){
+                                    var tempUserEmployment:UserEmployment = new UserEmployment();
+                                    tempUserEmployment.setIsCurrent(position.isCurrent || false);
+                                    tempUserEmployment.setTitle(position.title || null);
+                                    tempUserEmployment.setSummary(position.summary || null);
+                                    tempUserEmployment.setUserId(userId);
+
+                                    if(!Utils.isNullOrEmpty(position.company))
+                                        tempUserEmployment.setCompany(position.company.name || null);
+                                    else
+                                        tempUserEmployment.setCompany(null);
+
+                                    if(!Utils.isNullOrEmpty(position.startDate))
+                                        tempUserEmployment.setStartDate((position.startDate.month  || null) + '-' + (position.startDate.year || null));
+                                    else
+                                        tempUserEmployment.setStartDate(null);
+
+                                    if(!position.isCurrent && !Utils.isNullOrEmpty(position.endDate))
+                                        tempUserEmployment.setEndDate((position.endDate.month  || null) + '-' + (position.endDate.year || null));
+                                    else
+                                        tempUserEmployment.setEndDate(null);
+
+                                    userEmployment.push(tempUserEmployment);
+                                })
+                                new UserEmploymentDelegate().create(userEmployment);
+                            }
+                        }
+
+                        if(!Utils.isNullOrEmpty(profile.educations))
+                        {
+                            var userEducation:UserEducation[] = [];
+                            if(profile.educations._total > 0)
+                            {
+                                _.each(profile.educations.values, function(education:any){
+                                    var tempUserEducation:UserEducation = new UserEducation();
+                                    tempUserEducation.setSchoolName(education.schoolName || null);
+                                    tempUserEducation.setFieldOfStudy(education.fieldOfStudy || null);
+                                    tempUserEducation.setDegree(education.degree || null);
+                                    tempUserEducation.setActivities(education.activities || null);
+                                    tempUserEducation.setNotes(education.notes || null);
+                                    tempUserEducation.setUserId(userId);
+
+                                    if(!Utils.isNullOrEmpty(education.startDate))
+                                        tempUserEducation.setStartYear(education.startDate.year || null);
+                                    else
+                                        tempUserEducation.setStartYear(null);
+
+                                    if(!Utils.isNullOrEmpty(education.endDate))
+                                        tempUserEducation.setEndYear(education.endDate.year || null);
+                                    else
+                                        tempUserEducation.setEndYear(null);
+
+                                    userEducation.push(tempUserEducation);
+                                })
+                                new UserEducationDelegate().create(userEducation);
+                            }
+                        }
+                    });
             }
         ));
     }

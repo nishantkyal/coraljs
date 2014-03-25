@@ -25,30 +25,56 @@ class BaseDao implements IDao
         else
             throw ('Invalid Model class specified for ' + Utils.getClassName(this));
     }
-
-    create(data:any, transaction?:any):q.Promise<any>
+    create(dataArray:any, transaction?:any):q.Promise<any>;
+    create(dataArray:any[], transaction?:any):q.Promise<any>;
+    create(dataArray:any, transaction?:any):q.Promise<any>
     {
+        var isObject = false;
         var self = this;
+        var inserts:string[] = [];
+        var values:any[] = [];
+        dataArray = dataArray || {};
+        var id:number;
 
-        data = data || {};
-        var id:number = data[BaseModel.ID];
-
-        // Remove inserts with undefined values
-        _.each(data, function (value, key)
+        if(Utils.getObjectType(dataArray) == 'Object')
         {
-            if (value == undefined || Utils.getObjectType(value) == 'Array' || Utils.getObjectType(value) == 'Object')
-                delete data[key];
-        });
+            dataArray = [dataArray];
+            isObject = true;
+        }
 
-        var inserts:string[] = _.keys(data);
-        var values:any[] = _.map(_.values(data), Utils.surroundWithQuotes);
+        _.each(dataArray,  function(data:any){
 
-        var query = 'INSERT INTO `' + this.tableName + '` (' + inserts.join(',') + ') VALUES (' + values.join(',') + ')';
+            id = data[BaseModel.ID];
+            _.each(data, function (value, key) // Remove inserts with undefined values
+            {
+                if (value === undefined || Utils.getObjectType(value) == 'Array' || Utils.getObjectType(value) == 'Object')
+                {
+                    if(isObject)
+                        delete data[key];
+                    else
+                        throw new Error('Array of Object ' + self.tableName + ' contains undefined value');
+                }
+            });
 
-        return MysqlDelegate.executeQuery(query, null, transaction)
+            inserts = _.keys(data);
+            var tempvalues:any[] = _.map(_.values(data), Utils.surroundWithQuotes);
+            values.push(tempvalues);
+        })
+        var valueString = ((Array(inserts.length+1).join('?')).split('')).join(','); // create ?,?,? string
+        var allValues:any[] = [];
+
+        var query = 'INSERT INTO `' + this.tableName + '` (' + inserts.join(',') + ') VALUES ';
+        _.each(values, function(value){
+            query = query + '('+ valueString + '),';
+            allValues = allValues.concat(value);
+        })
+        query = query.substring(0,query.lastIndexOf(',')); //remove the last ','
+
+        return MysqlDelegate.executeQuery(query, allValues, transaction)
             .then(
             function created()
             {
+
                 return (!transaction) ? self.get(id) : new self.modelClass({'id': id});
             },
             function createFailure(error)

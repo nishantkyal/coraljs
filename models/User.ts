@@ -18,6 +18,8 @@ class User extends BaseModel
     static SHORT_DESC:string = 'short_desc';
     static LONG_DESC:string = 'long_desc';
     static USER_PROFILE:string = 'user_profile';
+    static DATE_OF_BIRTH:string = 'date_of_birth';
+    static INDUSTRY:string = 'industry';
 
     private title:string;
     private first_name:string;
@@ -28,6 +30,8 @@ class User extends BaseModel
     private activated:boolean;
     private long_desc:string;
     private short_desc:string;
+    private date_of_birth:string;
+    private industry:number;
 
     private user_profile:UserProfile;
 
@@ -41,6 +45,8 @@ class User extends BaseModel
     getActivated():boolean                                      { return this.activated; }
     getShortDesc():string                                       { return this.short_desc; }
     getLongDesc():string                                        { return this.long_desc; }
+    getDateOfBirth():string                                     { return this.date_of_birth; }
+    getIndustry():number                                        { return this.industry; }
 
     getUserProfile():UserProfile                                { return this.user_profile; }
 
@@ -58,6 +64,8 @@ class User extends BaseModel
     setActivated(val:boolean)                                   { this.activated = val; }
     setShortDesc(val:string)                                    { this.short_desc = val; }
     setLongDesc(val:string)                                     { this.long_desc = val; }
+    setDateOfBirth(val:string)                                  { this.date_of_birth = val;}
+    setIndustry(val:number)                                     { this.industry = val; }
 
     setUserProfile(val:UserProfile):void                        { this.user_profile = val; }
 

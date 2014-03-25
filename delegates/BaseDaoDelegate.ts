@@ -150,17 +150,26 @@ class BaseDaoDelegate
                 return rawResult;
             });
     }
-
-    create(object:any, transaction?:any):q.Promise<any>
+    create(object:any, transaction?:any):q.Promise<any>;
+    create(object:any[], transaction?:any):q.Promise<any>;
+    create(object:any[], transaction?:any):q.Promise<any>
     {
         var self = this;
+        if(Utils.getObjectType(object) == 'Object')
+            object = [object];
 
-        var generatedId:number = new GlobalIdDelegate().generate(this.getDao().getModel().TABLE_NAME);
-        object[BaseModel.ID] = generatedId;
-        object[BaseModel.CREATED] = new Date().getTime();
-        object[BaseModel.UPDATED] = new Date().getTime();
+        var newObject:any[] = [];
+        _.each(object, function(data){
+            var tempObject = data;
+            var generatedId:number = new GlobalIdDelegate().generate(self.getDao().getModel().TABLE_NAME);
+            tempObject[BaseModel.ID] = generatedId;
+            tempObject[BaseModel.CREATED] = new Date().getTime();
+            tempObject[BaseModel.UPDATED] = new Date().getTime();
+            tempObject[BaseModel.DELETED] = false;
+            newObject.push(tempObject);
+        })
 
-        return this.getDao().create(object, transaction);
+        return this.getDao().create(newObject, transaction);
     }
 
     update(criteria:Object, newValues:Object, transaction?:any):q.Promise<any>

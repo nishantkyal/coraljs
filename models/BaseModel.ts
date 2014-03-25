@@ -45,13 +45,13 @@ class BaseModel
     getCreated():number { return this.created; }
     getUpdated():number { return this.updated; }
     getDeleted():boolean { return this.deleted; }
-    get(propertyName:string):any
+    /*get(propertyName:string):any
     {
         var thisProtoConstructor = this.__proto__.constructor;
         if (thisProtoConstructor['COLUMNS'].indexOf(propertyName) == -1)
             throw('Non-existent property: ' + propertyName + ' referenced');
         return this[propertyName];
-    }
+    }*/
 
     /* Setters */
     setId(val:number):void { this.id = val; }
