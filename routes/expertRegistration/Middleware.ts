@@ -1,0 +1,5 @@
+class Middleware
+{
+
+}
+export = Middleware

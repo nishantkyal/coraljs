@@ -36,9 +36,7 @@ app.use(
         res.locals.formatRole = Formatter.formatRole;
         res.locals.formatName = Formatter.formatName;
         res.locals.formatSchedule = Formatter.formatSchedule;
-        res.locals.formatDate = function(m, format:string = 'DD/MM/YYYY hh:mm:ss a') {
-            return moment(m).format(format).toString();
-        };
+        res.locals.formatDate = Formatter.formatDate;
 
         // Api urls
         res.locals.ApiUrlDelegate = ApiUrlDelegate;

@@ -11,7 +11,7 @@ class Formatter
     static formatMoney(val:number[], moneyUnit:MoneyUnit):string;
     static formatMoney(val:any, moneyUnit:MoneyUnit):string
     {
-        switch(moneyUnit)
+        switch (moneyUnit)
         {
             case MoneyUnit.PERCENT:
                 return accounting.formatMoney(val, {
@@ -54,6 +54,13 @@ class Formatter
         var startTime = moment(schedule['start_time']).format('DD-MM-YYYY h:mm A');
 
         return startTime + ' - ' + endTime;
+    }
+
+    static formatDate(m:Date):string;
+    static formatDate(m:number):string;
+    static formatDate(m:any, format:string = 'DD/MM/YYYY hh:mm:ss a'):string
+    {
+        return moment(m).format(format).toString();
     }
 }
 export = Formatter
