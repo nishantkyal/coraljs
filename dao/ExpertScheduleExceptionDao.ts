@@ -7,7 +7,7 @@ import Utils                    = require('../common/Utils');
 
 class ExpertScheduleExceptionDao extends BaseDAO
 {
-    getModel():typeof BaseModel { return ExpertScheduleException; }
+    constructor() { super(ExpertScheduleException); }
 
     getExceptionByIntegrationMemberId(expertId:number, startTime:number,  endTime:number):q.Promise<any>
     {

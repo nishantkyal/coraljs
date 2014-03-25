@@ -1,6 +1,6 @@
 enum SMSStatus
 {
-    SCHEDULED,
+    SCHEDULED = 1,
     FAILED,
     RETRIED
 }

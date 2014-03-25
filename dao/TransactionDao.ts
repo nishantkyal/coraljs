@@ -4,6 +4,6 @@ import Transaction              = require('../models/Transaction');
 
 class TransactionDao extends BaseDao
 {
-    getModel():typeof BaseModel { return Transaction; }
+    constructor() { super(Transaction); }
 }
 export = TransactionDao

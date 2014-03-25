@@ -12,7 +12,7 @@ import PhoneCall                    = require('../models/PhoneCall');
 
 class TransactionDelegate extends BaseDAODelegate
 {
-    getDao():IDao { return new TransactionDAO(); }
+    constructor() { super(new TransactionDAO()); }
 
     createPhoneCallTransaction(object:any, phonecall:PhoneCall, transaction?:any):q.Promise<any>
     {

@@ -10,7 +10,7 @@ import UserOauth                        = require('../models/UserOauth');
 import Integration                      = require('../models/Integration');
 import IntegrationMember                = require('../models/IntegrationMember');
 import PhoneCall                        = require('../models/PhoneCall');
-import PhoneNumber                      = require('../models/PhoneNumber');
+import UserPhone                      = require('../models/UserPhone');
 import SMS                              = require('../models/SMS');
 import ExpertScheduleRule               = require('../models/ExpertScheduleRule');
 import ExpertScheduleException          = require('../models/ExpertScheduleException');
@@ -71,7 +71,7 @@ class RequestHandler
                     modelClass = IntegrationMember;
                     break;
                 case ApiConstants.PHONE_NUMBER:
-                    modelClass = PhoneNumber;
+                    modelClass = UserPhone;
                     break;
                 case ApiConstants.SMS:
                     modelClass = SMS;

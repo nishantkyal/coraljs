@@ -35,6 +35,7 @@ class EmailDelegate
 {
     private static EMAIL_EXPERT_INVITE:string = 'EMAIL_EXPERT_INVITE';
     private static EMAIL_EXPERT_WELCOME:string = 'EMAIL_EXPERT_WELCOME';
+    private static EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION:string = 'EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION';
 
     private static templateCache:{[templateNameAndLocale:string]:{bodyTemplate:Function; subjectTemplate:Function}} = {};
     private static transport:nodemailer.Transport;
@@ -213,6 +214,25 @@ class EmailDelegate
             recipient: recipient.toJson()
         };
         return this.send(EmailDelegate.EMAIL_EXPERT_WELCOME, recipient.getUser().getEmail(), emailData);
+    }
+
+    sendMobileVerificationReminderEmail(integrationId:number, invitationCode:string, recipient:IntegrationMember):q.Promise<any>
+    {
+        var invitationUrl = ExpertRegistrationUrls.index();
+        invitationUrl += '?';
+        invitationUrl += ApiConstants.INTEGRATION_ID + '=' + integrationId;
+        invitationUrl += '&';
+        invitationUrl += ApiConstants.CODE + '=' + invitationCode;
+        invitationUrl = url.resolve(Config.get(Config.CORAL_URI), invitationUrl);
+
+        var integration = new IntegrationDelegate().getSync(integrationId)
+
+        var emailData = {
+            integration: integration,
+            invitation_url: invitationUrl,
+            recipient: recipient.toJson()
+        };
+        return this.send(EmailDelegate.EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION, recipient.getUser().getEmail(), emailData);
     }
 
 }

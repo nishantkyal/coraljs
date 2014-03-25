@@ -12,7 +12,7 @@ import TransactionType                          = require('../enums/TransactionT
 
 class TransactionLineDelegate extends BaseDaoDelegate
 {
-    getDao():IDao { return new TransactionLineDao(); }
+    constructor() { super(new TransactionLineDao()); }
 
     createPhoneCallTransactionLines(transactionId:number, call:PhoneCall, transaction?:any):q.Promise<any>
     {

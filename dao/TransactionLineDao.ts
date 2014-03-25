@@ -4,6 +4,6 @@ import TransactionLine          = require('../models/TransactionLine');
 
 class TransactionLineDao extends BaseDao
 {
-    getModel():typeof BaseModel { return TransactionLine; }
+    constructor() { super(TransactionLine); }
 }
 export = TransactionLineDao

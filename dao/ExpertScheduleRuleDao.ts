@@ -9,7 +9,7 @@ import Utils                    = require('../common/Utils');
 
 class ExpertScheduleRuleDao extends BaseDao
 {
-    getModel():typeof BaseModel { return ExpertScheduleRule; }
+    constructor() { super(ExpertScheduleRule); }
 
     getRulesByIntegrationMemberId(integrationMemberId:number, startTime?:number, endTime?:number, transaction?:any):q.Promise<any>
     {
@@ -18,10 +18,10 @@ class ExpertScheduleRuleDao extends BaseDao
         else
         {
             var query = 'SELECT * ' +
-                'FROM ' + this.getModel().TABLE_NAME +
+                'FROM ' + this.modelClass.TABLE_NAME +
                 ' WHERE integration_member_id = ? AND id NOT IN ' +
                 '   (SELECT id ' +
-                '   FROM ' + this.getModel().TABLE_NAME +
+                '   FROM ' + this.modelClass.TABLE_NAME +
                 '   WHERE integration_member_id = ? ' +
                 '       AND ((repeat_end != 0 AND repeat_end <= ?) OR repeat_start >= ?))';
 

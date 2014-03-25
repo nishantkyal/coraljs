@@ -1,9 +1,9 @@
 import BaseDao                  = require('../dao/BaseDao');
 import BaseModel                = require('../models/BaseModel');
-import PhoneNumber              = require('../models/PhoneNumber');
+import UserPhone              = require('../models/UserPhone');
 
-class PhoneNumberDao extends BaseDao
+class UserPhoneDao extends BaseDao
 {
-    getModel():typeof BaseModel { return PhoneNumber; }
+    constructor() { super(UserPhone); }
 }
-export = PhoneNumberDao
+export = UserPhoneDao

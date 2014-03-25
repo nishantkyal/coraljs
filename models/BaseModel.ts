@@ -74,7 +74,7 @@ class BaseModel
         }
     }
 
-    toJson():Object
+    toJson():any
     {
         var thisProtoConstructor = this.__proto__.constructor;
         var self = this;
@@ -100,7 +100,6 @@ class BaseModel
     }
 
     isValid():boolean { return true; }
-
     toString():string { return '[object ' + Utils.getClassName(this) + ']'; }
 
 }

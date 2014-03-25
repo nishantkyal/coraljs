@@ -4,6 +4,6 @@ import Payment                  = require('../models/Payment');
 
 class PaymentDao extends BaseDao
 {
-    getModel():typeof BaseModel { return Payment; }
+    constructor() { super(Payment); }
 }
 export = PaymentDao
