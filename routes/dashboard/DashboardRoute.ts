@@ -27,7 +27,10 @@ import SmsTemplate                                      = require('../../enums/S
 import Utils                                            = require('../../common/Utils');
 import Formatter                                        = require('../../common/Formatter');
 import VerificationCodeCache                            = require('../../caches/VerificationCodeCache');
+
 import Middleware                                       = require('./Middleware');
+import Urls                                             = require('./Urls');
+
 class DashboardRoute
 {
     static PAGE_LOGIN:string = 'dashboard/login';
@@ -39,29 +42,28 @@ class DashboardRoute
     integrationDelegate = new IntegrationDelegate();
     integrationMemberDelegate = new IntegrationMemberDelegate();
     userDelegate = new UserDelegate();
-    emailDelegate = new EmailDelegate();
     verificationCodeCache = new VerificationCodeCache();
     couponDelegate = new CouponDelegate();
 
     constructor(app)
     {
         // Pages
-        app.get('/', connect_ensure_login.ensureLoggedIn(), this.authSuccess.bind(this));
-        app.get('/login', this.login.bind(this));
-        app.get('/integrations', connect_ensure_login.ensureLoggedIn(), this.integrations.bind(this));
-        app.get('/integration/:integrationId/coupons', connect_ensure_login.ensureLoggedIn(), this.coupons.bind(this));
-        app.get('/integration/:integrationId/members', Middleware.allowOwnerOrAdmin, this.integrationUsers.bind(this));
-        app.get('/member/:memberId/profile', Middleware.allowSelf, this.memberProfile.bind(this));
-        app.get('/logout', this.logout.bind(this));
+        app.get(Urls.index(), connect_ensure_login.ensureLoggedIn(), this.authSuccess.bind(this));
+        app.get(Urls.login(), this.login.bind(this));
+        app.get(Urls.integrations(), connect_ensure_login.ensureLoggedIn(), this.integrations.bind(this));
+        app.get(Urls.integrationCoupons(), connect_ensure_login.ensureLoggedIn(), this.coupons.bind(this));
+        app.get(Urls.integrationMembers(), Middleware.allowOwnerOrAdmin, this.integrationUsers.bind(this));
+        app.get(Urls.memberProfile(), Middleware.allowSelf, this.memberProfile.bind(this));
+        app.get(Urls.logout(), this.logout.bind(this));
 
         // Auth
-        app.post('/login', passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: '/login'}), this.authSuccess.bind(this));
-        app.post('/member/:memberId/profile', Middleware.allowSelf, this.memberProfileSave.bind(this));
+        app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
+        app.post(Urls.memberProfile(), Middleware.allowSelf, this.memberProfileSave.bind(this));
     }
 
     login(req:express.Request, res:express.Response)
     {
-        res.render(DashboardRoute.PAGE_LOGIN, {logged_in_user: req['user']});
+        res.render(DashboardRoute.PAGE_LOGIN, {logged_in_user: req['user'], messages: req.flash()});
     }
 
     authSuccess(req:express.Request, res:express.Response)
@@ -73,7 +75,7 @@ class DashboardRoute
             function integrationsFetched(integrationMembers)
             {
                 Middleware.setIntegrationMembers(req, integrationMembers);
-                res.redirect('/integrations');
+                res.redirect(Urls.integrations());
             },
             function integrationsFetchError(error) { res.send(500); });
     }
@@ -221,7 +223,7 @@ class DashboardRoute
     logout(req, res)
     {
         req.logout();
-        res.redirect('/');
+        res.redirect(Urls.index());
     }
 }
 

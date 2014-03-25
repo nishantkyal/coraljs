@@ -1,5 +1,6 @@
 ///<reference path='../_references.d.ts'/>
 import express                          = require('express');
+import q                                = require('q');
 import _                                = require('underscore');
 import ApiConstants                     = require('../enums/ApiConstants');
 import BaseModel                        = require('../models/BaseModel');
@@ -96,6 +97,119 @@ class RequestHandler
                 req.body[key] = new modelClass(modelContainer[key]);
         });
         next();
+    }
+
+    static returnPromise(middleware:(...arguments)=>q.Promise<any>):Function
+    {
+        return function (req:express.Request, res:express.Response, next:Function)
+        {
+            // Process arguments and parse them
+            var arguments = middleware.arguments;
+
+            middleware.apply(this, middleware.arguments)
+                .then(
+                function operationSuccess(result)
+                {
+                    res.json(result);
+                    next();
+                },
+                function operationFailed(error) { res.send(500, error); }
+            );
+        };
+    }
+
+    static parseParams(handler:(...arguments)=>void):Function
+    {
+        // Process arguments and parse them
+        var self = this;
+        var argsRegex:RegExp = new RegExp('\(([^\(]*)\)');
+        var parsers = handler.toString().match(argsRegex).splice(1, 99);
+
+        return function (req:express.Request, res:express.Response)
+        {
+            var modelContainer = req.method == 'GET' ? req.query : req.body;
+
+            self.arguments = _.map(arguments, function (argName)
+            {
+                var modelClass;
+
+                // Check to see if it's an object
+                switch (argName)
+                {
+                    case ApiConstants.COUPON:
+                        modelClass = Coupon;
+                        break;
+                    case ApiConstants.USER:
+                        modelClass = User;
+                        break;
+                    case ApiConstants.OAUTH:
+                        modelClass = UserOauth;
+                        break;
+                    case ApiConstants.INTEGRATION:
+                        modelClass = Integration;
+                        break;
+                    case ApiConstants.INTEGRATION_MEMBER:
+                        modelClass = IntegrationMember;
+                        break;
+                    case ApiConstants.PHONE_NUMBER:
+                        modelClass = PhoneNumber;
+                        break;
+                    case ApiConstants.SMS:
+                        modelClass = SMS;
+                        break;
+                    case ApiConstants.PHONE_CALL:
+                        modelClass = PhoneCall;
+                        break;
+                    case ApiConstants.USER_PROFILE:
+                        modelClass = UserProfile;
+                        break;
+                    case ApiConstants.SCHEDULE_RULE:
+                        modelClass = ExpertScheduleRule;
+                        break;
+                    case ApiConstants.SCHEDULE_EXCEPTION:
+                        modelClass = ExpertScheduleException;
+                        break;
+                    case ApiConstants.TRANSACTION:
+                        modelClass = Transaction;
+                        break;
+                }
+
+                if (modelClass)
+                {
+                    return new modelClass(modelContainer[argName]);
+                    // Check to see if it's a parameter
+                    switch (argName)
+                    {
+                        case ApiConstants.COUPON_ID:
+                        case ApiConstants.USER_ID:
+                        case ApiConstants.USER_PROFILE_ID:
+                        case ApiConstants.EXPERT_ID:
+                        case ApiConstants.MEMBER_ID:
+                        case ApiConstants.INTEGRATION_ID:
+                        case ApiConstants.PHONE_CALL_ID:
+                        case ApiConstants.SCHEDULE_ID:
+                        case ApiConstants.SCHEDULE_RULE_ID:
+                        case ApiConstants.SCHEDULE_EXCEPTION_ID:
+                        case ApiConstants.PHONE_NUMBER_ID:
+                        case ApiConstants.END_TIME:
+                        case ApiConstants.START_TIME:
+                        case ApiConstants.DURATION:
+                        case ApiConstants.PROFILE_TYPE:
+                        case ApiConstants.TYPE:
+                            return parseInt(req.params[argName] || modelContainer[argName]);
+
+                        case ApiConstants.USERNAME:
+                        case ApiConstants.PASSWORD:
+                        case ApiConstants.CODE:
+                        case ApiConstants.CODE_VERIFICATION:
+                            return (req.params[argName] || modelContainer[argName]).toString();
+                    }
+                }
+
+                return null;
+            });
+            handler(arguments);
+        };
     }
 
 }

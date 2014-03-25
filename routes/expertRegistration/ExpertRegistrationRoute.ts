@@ -20,7 +20,9 @@ import IntegrationType                                      = require('../../enu
 import IncludeFlag                                          = require('../../enums/IncludeFlag');
 import Config                                               = require('../../common/Config');
 import Utils                                                = require('../../common/Utils');
+
 import Urls                                                 = require('./Urls');
+import Middleware                                           = require('./Middleware');
 
 class ExpertRegistrationRoute
 {
@@ -49,7 +51,7 @@ class ExpertRegistrationRoute
     }
 
     /* Render login/register page */
-    private authenticate(req, res:express.Response):any
+    private authenticate(req:express.Request, res:express.Response):void
     {
         var self = this;
         var integrationId = parseInt(req.query[ApiConstants.INTEGRATION_ID] || req.session[ApiConstants.INTEGRATION_ID]);
@@ -58,7 +60,10 @@ class ExpertRegistrationRoute
         var invitedMember;
 
         if (Utils.isNullOrEmpty(integration))
-            return res.send(404, 'The integration id was not found');
+        {
+            res.send(404, 'The integration id was not found');
+            return;
+        }
 
         // Add invitation code and integration id to session
         req.session[ApiConstants.INTEGRATION_ID] = integrationId;

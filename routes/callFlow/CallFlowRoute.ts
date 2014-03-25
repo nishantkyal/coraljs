@@ -55,11 +55,11 @@ class CallFlowRoute
                 try
                 {
                     pageData['user'] = expert.user[0];
-                    pageData['schedules'] = JSON.stringify(_.map(expert['schedule'], function (schedule)
+                    pageData['schedules'] = _.map(expert['schedule'], function (schedule)
                     {
                         schedule['id'] = Utils.getRandomInt(10000, 99999);
                         return schedule;
-                    }));
+                    });
                 } catch (e)
                 {
                     self.logger.debug('Error occurred while rendering index page, %s', e);
@@ -90,9 +90,10 @@ class CallFlowRoute
         pageData['price_unit'] = '$';
         pageData['schedules'] = [];
 
-        _.each(scheduleIds, function(scheduleId)
+        _.each(scheduleIds, function (scheduleId)
         {
-            var schedule = _.find(schedules, function(s) {
+            var schedule = _.find(schedules, function (s)
+            {
                 return s['id'] == parseInt(scheduleId);
             });
 
@@ -135,7 +136,7 @@ class CallFlowRoute
         var originalCall:PhoneCall = Middleware.getCallDetails(req);
         updatedCall.setExpertId(originalCall.getExpertId());
         updatedCall.setScheduleId(originalCall.getScheduleId());
-        updatedCall.setStatus(CallStatus.SCHEDULED);
+        updatedCall.setStatus(CallStatus.SCHEDULING);
 
         // Check that call has not been scheduled outside selected schedule
         var callStartTime = updatedCall.getStartTime();
@@ -170,16 +171,13 @@ class CallFlowRoute
         if (call.isValid())
             new PhoneCallDelegate().create(call)
                 .then(
-                function callPlanned(response)
+                function callPlanned(newCall:PhoneCall)
                 {
-                    var result = response.getBody();
-                    var pageData = {};
-                    pageData['call_id'] = result['id'];
-                    pageData['expert_name'] = user['first_name'] + ' ' + user['last_name'];
-                    pageData['start_time'] = moment.utc(call['start_time'] / 1000).format('DD-MM-YYYY h:mm A');
-                    pageData['duration'] = call['duration'];
-
-                    // Render checkout page
+                    var pageData =
+                    {
+                        call: newCall,
+                        user: user
+                    };
                     res.render('callFlow/checkout', pageData);
                 },
                 function callPlanningFailed()
