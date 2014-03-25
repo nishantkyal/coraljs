@@ -1,15 +1,13 @@
-///<reference path='../_references.d.ts'/>
-import _                                                        = require('underscore');
-import log4js                                                   = require('log4js');
-import moment                                                   = require('moment');
-import Utils                                                    = require('../common/Utils');
-import Config                                                   = require('../common/Config');
-import PhoneCallDelegate                                        = require('./PhoneCallDelegate');
-import SMSDelegate                                              = require('../delegates/SMSDelegate');
-import PhoneCall                                                = require('../models/PhoneCall');
-import TimeJob                                                  = require('../models/TimeJob');
-import TimeJobType                                              = require('../enums/TimeJobType');
-import PhoneCallCache                                           = require('../caches/PhoneCallCache');
+import _                                = require('underscore');
+import q                                = require('q');
+import log4js                           = require('log4js');
+import Utils                            = require('../common/Utils');
+import Config                           = require('../common/Config');
+import SMSDelegate                      = require('../delegates/SMSDelegate');
+import PhoneCall                        = require('../models/PhoneCall');
+import TimeJob                          = require('../models/TimeJob');
+import TimeJobType                      = require('../enums/TimeJobType');
+import PhoneCallCache                   = require('../caches/PhoneCallCache');
 
 class TimeJobDelegate
 {
@@ -21,11 +19,11 @@ class TimeJobDelegate
         this.logger = log4js.getLogger(Utils.getClassName(this));
     }
 
-    getJobs()
+    getJobs():q.Promise<any>
     {
         var self = this;
-        var currentTime = moment().valueOf();
-
+        var currentTime = new Date().getTimeInSec();
+        var PhoneCallDelegate = require('./PhoneCallDelegate');
         return new PhoneCallDelegate().getCallsBetweenInterval(currentTime, currentTime + Config.get('call.schedule.interval') + Config.get('sms.reminder.time'))
             .then(
             function scheduledCalls(calls:PhoneCall[])
@@ -37,11 +35,11 @@ class TimeJobDelegate
                         tempTimeJob.setJob(call);
                         tempTimeJob.setStartTime(call.getStartTime());
                         tempTimeJob.setJobType(TimeJobType.CALL);
-                        self.logger.info('Call scheduled. Id:' + call.getId() + ' at' + call.getStartTime());
+                        self.logger.info('Call scheduled. Id:' + call.getId() + ' at ' + call.getStartTime());
                         new PhoneCallCache().createPhoneCallCache(call.getId());
                         TimeJobDelegate.jobs.push(tempTimeJob);
                     }
-                    if(call.getStartTime() >= currentTime + Config.get('sms.reminder.time')) //need to schedule reminder SMS as well
+                    if(call.getStartTime() >= currentTime + Config.get('sms.reminder.time')) // to schedule reminder SMS as well
                     {
                         var tempSmsTimeJob:TimeJob = new TimeJob();
                         tempSmsTimeJob.setJob(call);
@@ -79,13 +77,12 @@ class TimeJobDelegate
 
     rescheduleJob(id:number, duration:number)
     {
-        //TODO send url accordingly
         var self = this;
         _.each(TimeJobDelegate.jobs, function(job:TimeJob)
         {
             if(job.getJob().getId() == id)
             {
-                var foo = setTimeout(function(){ self.executeJob(job) },(job.getStartTime() + duration)*1000);
+                var foo = setTimeout(function(){ self.executeJob(job) }, duration*1000);
                 job.setTimeOutReference(foo);
             }
         })
@@ -109,19 +106,25 @@ class TimeJobDelegate
         {
             case TimeJobType.CALL:
                 var call:PhoneCall = job.getJob();
+                var PhoneCallDelegate = require('./PhoneCallDelegate');
                 new PhoneCallDelegate().triggerCall(call.getId());
+                clearTimeout(job.getTimeOutReference());
                 break;
             case TimeJobType.SMS:
                 var call:PhoneCall = job.getJob();
                 new SMSDelegate().sendReminderSMS(call.getId());
+                clearTimeout(job.getTimeOutReference());
                 break;
         }
     }
 
-    static getScheduledJobs()
+    getScheduledJobs()
     {
+        var self = this;
+        var timeLeft:number;
         _.each(TimeJobDelegate.jobs, function(job:TimeJob){
-
+            timeLeft = job.getTimeOutReference()._idleStart + job.getTimeOutReference()._idleTimeout - Date.now()
+            self.logger.info("Job scheduled after %s seconds. Job Type is %s ", timeLeft/1000, TimeJobType[job.getJobType()]);
         })
     }
 }

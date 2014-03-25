@@ -12,6 +12,7 @@ import TransactionApi                   = require('./TransactionApi');
 import TwimlApi                         = require('./TwimlApi');
 import TwimlOutApi                      = require('./TwimlOutApi');
 import ExotelApi                        = require('./ExotelApi')
+import KookooApi                        = require('./KookooApi');
 import UserApi                          = require('./UserApi');
 
 function init(app)
@@ -29,6 +30,7 @@ function init(app)
     new TransactionApi(app);
     new TwimlOutApi(app);
     new TwimlApi(app);
+    new KookooApi(app);
     new ExotelApi(app);
     new UserApi(app);
 }

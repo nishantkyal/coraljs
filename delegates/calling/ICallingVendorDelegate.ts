@@ -6,6 +6,6 @@ interface ICallingVendorDelegate
 {
     sendSMS(to:string, body:string, from?:string):q.Promise<any>;
     makeCall(phone:string, callId?:number, reAttempts?:number):q.Promise<any>;
-    updateCallFragment(callFragment:CallFragment);
+    updateCallFragment(callFragment:CallFragment):q.Promise<any>;
 }
 export = ICallingVendorDelegate

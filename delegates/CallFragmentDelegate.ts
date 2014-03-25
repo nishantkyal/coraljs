@@ -12,8 +12,6 @@ import CallProviderFactory          = require('../factories/CallProviderFactory'
 
 class CallFragmentDelegate extends BaseDaoDelegate
 {
-
-
     getDao():IDao { return new CallFragmentDao();}
 
     getTotalDuration(callId:number, transaction?:any):q.Promise<any>
@@ -22,10 +20,14 @@ class CallFragmentDelegate extends BaseDaoDelegate
         return callFragmentDao.getTotalDuration(callId, transaction);
     }
 
-    saveCallFragment(callFragment:CallFragment)
+    updateCallFragment(callFragment:CallFragment):q.Promise<any>
     {
-        var self = this;
-        new CallProviderFactory().getProvider().updateCallFragment(callFragment);
+        return new CallProviderFactory().getProvider().updateCallFragment(callFragment);
+    }
+
+    updateCallFragmentStartTime(callFragment:CallFragment):q.Promise<any>
+    {
+        return new CallProviderFactory().getProvider().updateCallFragmentStartTime(callFragment);
     }
 }
 export = CallFragmentDelegate

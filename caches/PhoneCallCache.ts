@@ -1,3 +1,4 @@
+import _                            = require('underscore');
 import q                            = require('q');
 import log4js                       = require('log4js');
 import Config                       = require('../common/Config');
@@ -16,6 +17,7 @@ import PhoneType                    = require('../enums/PhoneType');
 
 class PhoneCallCache
 {
+    static EXPIRY:number = 60*60*5;
     logger:log4js.Logger;
 
     constructor()
@@ -28,7 +30,7 @@ class PhoneCallCache
         var self = this;
         var phoneCallCache:PhoneCallCacheModel = new PhoneCallCacheModel();
         var key:string = 'callId-' + callId;
-        var secondsInAnHr:number = 60 * 60; //for expiry
+        var secondsInAnHr:number = PhoneCallCache.EXPIRY;
         var expert:IntegrationMember, user:User,call:PhoneCall;
         var user_phone_id:number,  expert_phone_id:number;
         var PhoneCallDelegate = require('../delegates/PhoneCallDelegate');
@@ -95,6 +97,29 @@ class PhoneCallCache
     getPhoneCall(callId:number):q.Promise<any>
     {
         return CacheHelper.get('callId-' + callId);
+    }
+
+    updatePhoneCallCache(callId:number, newValues:Object):q.Promise<any>
+    {
+        var key:string = 'callId-' + callId;
+        var secondsInAnHr:number = PhoneCallCache.EXPIRY;
+        return this.getPhoneCall(callId)
+            .then(
+            function CallFetched(call:any){
+                var phoneCallCacheObj:PhoneCallCacheModel = new PhoneCallCacheModel(call);
+                var keys = _.keys(newValues);
+                _.each(keys, function(key){
+                    switch(key){
+                        case 'num_reattempts':
+                            phoneCallCacheObj.setNumReattempts(newValues[key]);
+                            break;
+                        case 'delay':
+                            phoneCallCacheObj.setDelay(newValues[key]);
+                            break;
+                    }
+                })
+                return CacheHelper.set(key , phoneCallCacheObj, secondsInAnHr);
+            });
     }
 
 }

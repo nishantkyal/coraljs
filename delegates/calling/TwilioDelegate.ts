@@ -1,27 +1,19 @@
 ///<reference path='../../_references.d.ts'/>
-import q                                                        = require('q');
-import log4js                                                   = require('log4js');
-import moment                                                   = require('moment');
-import Utils                                                    = require('../../common/Utils');
-import ICallingVendorDelegate                                   = require('./ICallingVendorDelegate');
-import ApiUrlDelegate                                           = require('../ApiUrlDelegate');
-import TwilioUrlDelegate                                        = require('../../delegates/TwilioUrlDelegate');
-import Config                                                   = require('../../common/Config');
-import CallFragment                                             = require('../../models/CallFragment');
-import CallFragmentStatus                                       = require('../../enums/CallFragmentStatus');
-import AgentType                                                = require('../../enums/AgentType');
+import q                                = require('q');
+import log4js                           = require('log4js');
+import Utils                            = require('../../common/Utils');
+import ICallingVendorDelegate           = require('./ICallingVendorDelegate');
+import ApiUrlDelegate                   = require('../ApiUrlDelegate');
+import TwilioUrlDelegate                = require('../../delegates/TwilioUrlDelegate');
+import Config                           = require('../../common/Config');
+import CallFragment                     = require('../../models/CallFragment');
+import CallFragmentStatus               = require('../../enums/CallFragmentStatus');
+import AgentType                        = require('../../enums/AgentType');
+import TwilioConstants                  = require('../../enums/TwilioConstants');
+
 
 class TwilioDelegate implements ICallingVendorDelegate
 {
-    static DURATION:string = 'duration';
-    static START_TIME:string = 'start_time';
-    static EXPERT_NUMBER:string = 'to';
-    static COMPLETED:string = 'completed';
-    static BUSY:string = 'busy';
-    static NO_ANSWER:string = 'no-answer';
-    static STATUS:string = 'status';
-    static ATTEMPT_COUNT:string = 'attemptCount'
-
     logger:log4js.Logger;
     twilioClient:any;
 
@@ -52,13 +44,14 @@ class TwilioDelegate implements ICallingVendorDelegate
 
     makeCall(phone:string, callId?:number, reAttempts?:number):q.Promise<any>
     {
+        var self = this;
         var url:string = TwilioUrlDelegate.INFOLLION_URL + TwilioUrlDelegate.twimlJoinCall(callId);
         var callbackUrl:string = TwilioUrlDelegate.INFOLLION_URL + TwilioUrlDelegate.twimlCallback(callId);
 
-        if(!Utils.isNullOrEmpty(reAttempts))
+        if(!Utils.isNullOrEmpty(reAttempts) && reAttempts != 0)
         {
-            url += '?' + TwilioDelegate.ATTEMPT_COUNT + '=' + reAttempts;
-            callbackUrl += '?' + TwilioDelegate.ATTEMPT_COUNT + '=' + reAttempts;
+            url += '?' + TwilioConstants.ATTEMPT_COUNT + '=' + reAttempts;
+            callbackUrl += '?' + TwilioConstants.ATTEMPT_COUNT + '=' + reAttempts;
         }
 
         var deferred = q.defer();
@@ -71,43 +64,65 @@ class TwilioDelegate implements ICallingVendorDelegate
             StatusCallback: callbackUrl
         }, function (err, responseData)
         {
-            if (!err)
+            if (!err){
+                self.logger.info("Call made to number:" + phone + " callId:" + callId);
                 deferred.resolve(responseData);
-            else
+            }
+            else{
+                self.logger.info("Call could not made to number:" + phone + " callId:" + callId);
                 deferred.reject(err);
+            }
         });
         return deferred.promise;
     }
 
-    updateCallFragment(callFragment:CallFragment)
+    updateCallFragment(callFragment:CallFragment):q.Promise<any>
     {
         var self = this;
-        //var twilioClient = require('twilio')(Config.get('twilio.account_sid'), Config.get('twilio.auth_token'));
-        this.twilioClient.calls(callFragment.getAgentCallSidExpert()).get(//
+        var deferred = q.defer();
+        this.twilioClient.calls(callFragment.getAgentCallSidExpert()).get(// get details calls made to expert
             function(err, callDetails)
             {
                 if(!Utils.isNullOrEmpty(callDetails))
                 {
-                    var duration:number = parseInt(callDetails[TwilioDelegate.DURATION]);
-                    var startTime:Date = new Date(callDetails[TwilioDelegate.START_TIME]);
+                    var duration:number = parseInt(callDetails[TwilioConstants.DURATION_CALLBACK]);
+                    var startTime:Date = new Date(callDetails[TwilioConstants.START_TIME]);
                     callFragment.setDuration(duration);
-                    callFragment.setStartTime(moment().valueOf());
-                    callFragment.setToNumber(callDetails[TwilioDelegate.EXPERT_NUMBER]);
+                    callFragment.setStartTime(startTime.getTimeInSec());
+                    callFragment.setToNumber(callDetails[TwilioConstants.EXPERT_NUMBER]);
                     callFragment.setAgentId(AgentType.TWILIO);
-                    if (callDetails[TwilioDelegate.STATUS] == TwilioDelegate.COMPLETED)
+                    if (callDetails[TwilioConstants.STATUS] == TwilioConstants.COMPLETED)
                         if(duration < Config.get('minimum.duration.for.success'))
                             callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_MINIMUM_DURATION);
                         else
                             callFragment.setCallFragmentStatus(CallFragmentStatus.SUCCESS);
                     else
                         callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_EXPERT_ERROR);
-                    var CallFragmentDelegate  = require('../../delegates/CallFragmentDelegate');
-
-                    new CallFragmentDelegate().create(callFragment);
+                    deferred.resolve(callFragment);
                 }
                 else
-                    self.logger.debug('Error in getting call details');
+                    deferred.reject(err);
             });
+        return deferred.promise;
+    }
+
+    updateCallFragmentStartTime(callFragment:CallFragment):q.Promise<any>
+    {
+        var self = this;
+        var deferred = q.defer();
+        this.twilioClient.calls(callFragment.getAgentCallSidUser()).get(//get details of call made to user
+            function(err, callDetails)
+            {
+                if(!Utils.isNullOrEmpty(callDetails))
+                {
+                    var startTime:Date = new Date(callDetails[TwilioConstants.START_TIME]);
+                    callFragment.setStartTime(startTime.getTimeInSec());
+                    deferred.resolve(callFragment);
+                }
+                else
+                    deferred.reject(err);
+            });
+        return deferred.promise;
     }
 }
 
