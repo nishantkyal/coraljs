@@ -83,7 +83,7 @@ class UserApi
                 );
         });
 
-        app.get(ApiUrlDelegate.userProfilePicture(), function(req:express.Request, res:express.Response)
+        app.get(ApiUrlDelegate.userProfilePicture(), function(req:express.Request, res)
         {
             var userId = parseInt(req.params[ApiConstants.USER_ID]);
             if (fs.existsSync(Config.get(Config.PROFILE_IMAGE_PATH) + userId))

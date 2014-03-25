@@ -1,14 +1,15 @@
 ///<reference path='../../_references.d.ts'/>
-import q                                = require('q');
-import log4js                           = require('log4js');
-import Utils                            = require('../../common/Utils');
-import ICallingVendorDelegate           = require('./ICallingVendorDelegate');
-import ApiUrlDelegate                   = require('../ApiUrlDelegate');
-import TwilioUrlDelegate                = require('../../delegates/TwilioUrlDelegate');
-import Config                           = require('../../common/Config');
-import CallFragment                     = require('../../models/CallFragment');
-import CallFragmentStatus               = require('../../enums/CallFragmentStatus');
-import AgentType                        = require('../../enums/AgentType');
+import q                                                = require('q');
+import log4js                                           = require('log4js');
+import Utils                                            = require('../../common/Utils');
+import ICallingVendorDelegate                           = require('./ICallingVendorDelegate');
+import ApiUrlDelegate                                   = require('../ApiUrlDelegate');
+import TwilioUrlDelegate                                = require('../../delegates/TwilioUrlDelegate');
+import Config                                           = require('../../common/Config');
+import CallFragment                                     = require('../../models/CallFragment');
+import UserPhone                                        = require('../../models/UserPhone');
+import CallFragmentStatus                               = require('../../enums/CallFragmentStatus');
+import AgentType                                        = require('../../enums/AgentType');
 
 class TwilioDelegate implements ICallingVendorDelegate
 {

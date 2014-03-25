@@ -26,7 +26,7 @@ class BaseDaoDelegate
         fields = fields || this.DEFAULT_FIELDS;
 
         if (Utils.getObjectType(id) == 'Array' && id.length > 0)
-            return this.search({'id': id}, null, fields, includes);
+            return this.search({'id': id}, fields, includes);
 
         if (Utils.getObjectType(id) == 'Array' && id.length == 1)
             id = id[0];
@@ -67,14 +67,14 @@ class BaseDaoDelegate
         return null;
     }
 
-    find(search:Object, options?:Object, fields?:string[], includes:IncludeFlag[] = []):q.Promise<any>
+    find(search:Object, fields?:string[], includes:IncludeFlag[] = []):q.Promise<any>
     {
         var self = this;
         var rawResult;
 
         fields = fields || this.DEFAULT_FIELDS;
 
-        return this.dao.find(search, options, fields)
+        return this.dao.find(search, fields)
             .then(
             function processIncludes(result)
             {
@@ -114,14 +114,14 @@ class BaseDaoDelegate
      * Perform search based on seacrh query
      * Also fetch joint fields
      */
-    search(search:Object, options?:Object, fields?:string[], includes:IncludeFlag[] = []):q.Promise<any>
+    search(search:Object, fields?:string[], includes:IncludeFlag[] = []):q.Promise<any>
     {
         var self = this;
         var rawResult;
 
         fields = fields || this.DEFAULT_FIELDS;
 
-        return this.dao.search(search, options, fields)
+        return this.dao.search(search, fields)
             .then(
             function processIncludes(result)
             {

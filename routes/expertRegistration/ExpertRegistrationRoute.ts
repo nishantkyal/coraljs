@@ -175,7 +175,7 @@ class ExpertRegistrationRoute
 
         q.all([
                 self.verificationCodeCache.deleteInvitationCode(req.session[ApiConstants.CODE], req.session[ApiConstants.INTEGRATION_ID]),
-                self.integrationMemberDelegate.search({'user_id': userId, 'integration_id': integrationId}, null, null, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
+                self.integrationMemberDelegate.search({'user_id': userId, 'integration_id': integrationId}, null, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
             ])
             .then(
             function scheduleRulesFetched(...args)

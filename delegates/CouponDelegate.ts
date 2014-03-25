@@ -35,7 +35,7 @@ class CouponDelegate extends BaseDaoDelegate
                 }), Coupon.EXPERT_ID);
 
                 if (expertIds.length != 0)
-                    return self.integrationMemberDelegate.search({id: expertIds}, null, self.integrationMemberDelegate.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER]);
+                    return self.integrationMemberDelegate.search({id: expertIds}, self.integrationMemberDelegate.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER]);
                 else
                     return null;
         }

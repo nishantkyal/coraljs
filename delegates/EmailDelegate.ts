@@ -159,7 +159,7 @@ class EmailDelegate
             .then(
             function expertUserIdFetched(expert:IntegrationMember)
             {
-                return new UserDelegate().search({'id': [expert['user_id'], callerUserId]}, ['email']);
+                return new UserDelegate().search({'id': [expert['user_id'], callerUserId]}, null, ['email']);
             })
             .then(
             function emailsFetched(users:Array<User>)

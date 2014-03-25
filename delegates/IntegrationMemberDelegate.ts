@@ -86,7 +86,7 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
         search[IntegrationMember.USER_ID] = user_id;
 
         fields = fields || ['id', 'role', 'integration_id', 'user_id'];
-        return this.search(search, null, fields, includes);
+        return this.search(search, fields, includes);
     }
 
     findValidAccessToken(accessToken:string, integrationMemberId?:string):q.Promise<any>

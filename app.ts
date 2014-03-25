@@ -76,6 +76,7 @@ app.use(connect_flash());
 api(app);
 routes(app);
 
+// Underscore template pattern
 _.templateSettings.interpolate = /\{\{(.+?)\}\}/g;
 
 app.set('port', Config.get(Config.CORAL_PORT) || 3000);

@@ -25,19 +25,20 @@ import PhoneCallCacheModel				                = require('../caches/models/PhoneC
 
 class TwimlOutApi
 {
-    static DIALCALLSID:string                       = 'DialCallSid';
-    static CALLSID:string                           = 'CallSid';
-    static USERNUMBER:string                        = 'To';
-    static COMPLETED:string                         = 'completed'; //TODO same definition being repeated in CallFragmentDelegate
-    static BUSY:string                              = 'busy';
-    static FAILED:string                            = 'failed';
-    static NOANSWER:string                          = 'no-answer';
-    static DIALCALLSTATUS:string                    = 'DialCallStatus';
-    static CALLSTATUS:string                        = 'CallStatus';
-    static DURATION:string                          = 'Duration';
-    static START_TIME:string                        = 'start_time';
+    static DIAL_CALL_SID:string                         = 'DialCallSid';
+    static CALL_SID:string                              = 'CallSid';
+    static USER_NUMBER:string                           = 'To';
+    static COMPLETED:string                             = 'completed'; //TODO same definition being repeated in CallFragmentDelegate
+    static BUSY:string                                  = 'busy';
+    static FAILED:string                                = 'failed';
+    static NO_ANSWER:string                             = 'no-answer';
+    static DIAL_CALL_STATUS:string                      = 'DialCallStatus';
+    static CALL_STATUS:string                           = 'CallStatus';
+    static DURATION:string                              = 'Duration';
+    static START_TIME:string                            = 'start_time';
 
     phoneCallDelegate = new PhoneCallDelegate();
+    smsDelegate = new SMSDelegate();
 
     constructor(app)
     {
@@ -69,14 +70,14 @@ class TwimlOutApi
             if(Utils.isNullOrEmpty(attemptCount))
                 attemptCount = 0;
 
-            var dialCallStatus = req.body[TwimlOutApi.DIALCALLSTATUS];
+            var dialCallStatus = req.body[TwimlOutApi.DIAL_CALL_STATUS];
             var pageData = {};
 
             var callFragment:CallFragment = new CallFragment(); //save information received in CaLLFragment
             callFragment.setCallId(parseInt(req.params[ApiConstants.PHONE_CALL_ID]));
-            callFragment.setAgentCallSidExpert(req.body[TwimlOutApi.DIALCALLSID]);
-            callFragment.setAgentCallSidUser(req.body[TwimlOutApi.CALLSID]);
-            callFragment.setFromNumber(req.body[TwimlOutApi.USERNUMBER]);
+            callFragment.setAgentCallSidExpert(req.body[TwimlOutApi.DIAL_CALL_SID]);
+            callFragment.setAgentCallSidUser(req.body[TwimlOutApi.CALL_SID]);
+            callFragment.setFromNumber(req.body[TwimlOutApi.USER_NUMBER]);
             callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_EXPERT_ERROR); // if successful then this value will be overwritten
 
             switch(dialCallStatus) //decide the message based on expertCallStatus and attemptCount
@@ -87,7 +88,7 @@ class TwimlOutApi
                 case TwimlOutApi.BUSY:
                     pageData['message'] = 'Call could not be completed. We regret the inconvenience caused.';
                     break;
-                case TwimlOutApi.NOANSWER:
+                case TwimlOutApi.NO_ANSWER:
                     if(attemptCount == 1)
                         pageData['message'] = 'Call could not be completed. We regret the inconvenience caused';
                     else
@@ -107,16 +108,18 @@ class TwimlOutApi
             new CallFragmentDelegate().saveCallFragment(callFragment);
 
             //TODO don't send sms to landline (twilio doesn't send it and return error code 21614). However, we should not even make the api call.
-            new SMSDelegate().sendStatusSMS(callFragment, attemptCount);
+            this.smsDelegate.sendStatusSMS(callFragment, attemptCount);
 
         });
 
+        //called after User hangs up the call
         app.post(TwilioUrlDelegate.twimlCallback(), function (req:express.Request, res:express.Response)
-        {//called after User hangs up the call
+        {
+            var self = this;
             var callId = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
             res.json('OK');
 
-            var callStatus = req.body[TwimlOutApi.CALLSTATUS];
+            var callStatus = req.body[TwimlOutApi.CALL_STATUS];
             var attemptCount = parseInt(req.query[TwilioDelegate.ATTEMPTCOUNT]);
             if(Utils.isNullOrEmpty(attemptCount))
                 attemptCount = 0;
@@ -129,8 +132,8 @@ class TwimlOutApi
 
                 var callFragment:CallFragment = new CallFragment();
                 callFragment.setCallId(parseInt(req.params[ApiConstants.PHONE_CALL_ID]));
-                callFragment.setAgentCallSidUser(req.body[TwimlOutApi.CALLSID]);
-                callFragment.setFromNumber(req.body[TwimlOutApi.USERNUMBER]);
+                callFragment.setAgentCallSidUser(req.body[TwimlOutApi.CALL_SID]);
+                callFragment.setFromNumber(req.body[TwimlOutApi.USER_NUMBER]);
                 callFragment.setDuration(duration);
                 callFragment.setAgentId(AgentType.TWILIO);
                 if(callStatus == TwimlOutApi.FAILED) //failed means twilio was not able to connect the call
@@ -158,7 +161,7 @@ class TwimlOutApi
                         var tempCallFragment:CallFragment = callFragment;
                         if(phoneCallCacheObj.getExpertPhoneType() == PhoneType.MOBILE)
                             tempCallFragment.setToNumber(phoneCallCacheObj.getExpertNumber());
-                        new SMSDelegate().sendStatusSMS(tempCallFragment, attemptCount);
+                        self.smsDelegate.sendStatusSMS(tempCallFragment, attemptCount);
                     })
             }
         });

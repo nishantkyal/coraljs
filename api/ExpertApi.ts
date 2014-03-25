@@ -29,7 +29,7 @@ class ExpertApi
             var searchCriteria:Object = req.body;
             var includes:IncludeFlag[] = [].concat(req.query[ApiConstants.INCLUDE]);
 
-            integrationMemberDelegate.search(searchCriteria, null, null, includes)
+            integrationMemberDelegate.search(searchCriteria, null, includes)
                 .then(
                 function handleExpertSearched(result) { res.json(result); },
                 function handleExpertSearchError(err) { res.status(500).json(err); }

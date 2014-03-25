@@ -5,13 +5,13 @@ import log4js                                                   = require('log4j
 import User                                                     = require('../models/User');
 import IntegrationMember                                        = require('../models/IntegrationMember');
 import SMS                                                      = require('../models/SMS');
-import UserPhone                                              = require('../models/UserPhone');
+import UserPhone                                                = require('../models/UserPhone');
 import VerificationCodeCache                                    = require('../caches/VerificationCodeCache');
 import IntegrationMemberDelegate                                = require('../delegates/IntegrationMemberDelegate');
 import EmailDelegate                                            = require('../delegates/EmailDelegate');
 import SmsDelegate                                              = require('../delegates/SMSDelegate');
 import UserDelegate                                             = require('../delegates/UserDelegate');
-import UserPhoneDelegate                                      = require('../delegates/UserPhoneDelegate');
+import UserPhoneDelegate                                        = require('../delegates/UserPhoneDelegate');
 import Utils                                                    = require('../common/Utils');
 import IncludeFlag                                              = require('../enums/IncludeFlag');
 import SmsTemplate                                              = require('../enums/SmsTemplate');
@@ -72,14 +72,9 @@ class VerificationCodeDelegate
     {
         var self = this;
         var code:string = Utils.getRandomInt(10001, 99999);
-        var smsMessage = this.smsDelegate.generateSMSText(SmsTemplate.VERIFY_NUMBER, {code: code});
-
-        var sms = new SMS();
-        sms.setPhone(phoneNumber);
-        sms.setMessage(smsMessage);
 
         return q.all([
-            self.smsDelegate.send(sms),
+            self.smsDelegate.sendVerificationSMS(phoneNumber.getCompleteNumber(), code),
             self.verificationCodeCache.createMobileVerificationCode(phoneNumber.getCompleteNumber(), code)
         ]);
     }

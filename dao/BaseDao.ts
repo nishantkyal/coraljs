@@ -97,7 +97,7 @@ class BaseDao implements IDao
             });
     }
 
-    search(searchQuery:Object, options?:Object, fields?:string[]):q.Promise<any>
+    search(searchQuery:Object, fields?:string[]):q.Promise<any>
     {
         var self = this, values = [], whereStatements = [], selectColumns;
 
@@ -114,7 +114,7 @@ class BaseDao implements IDao
             function handleSearchResults(results:Array<any>) { return _.map(results, function (result) { return new self.modelClass(result); }); });
     }
 
-    find(searchQuery:Object, options?:Object, fields?:string[]):q.Promise<any>
+    find(searchQuery:Object, fields?:string[]):q.Promise<any>
     {
         var self = this, values = [], whereStatements = [], selectColumns;
 
@@ -209,5 +209,10 @@ class BaseDao implements IDao
 
         return {where: whereStatements, values: values};
     }
+}
+
+interface QueryOptions
+{
+
 }
 export = BaseDao

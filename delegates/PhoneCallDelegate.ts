@@ -58,14 +58,16 @@ class PhoneCallDelegate extends BaseDAODelegate
         return super.create(object, transaction);
     }
 
-    search(search:Object, options?:Object):q.Promise<any>
+    search(search:Object):q.Promise<any>
     {
         if (search['status'] == CallStatus.PLANNING)
             return this.unscheduledCallsCache.getUnscheduledCalls(search['integration_member_id'], search['schedule_id']);
-        return super.search(search, options);
+        return super.search(search);
     }
 
     update(criteria:Object, newValues:Object, transaction?:any):q.Promise<any>
+    update(criteria:number, newValues:Object, transaction?:any):q.Promise<any>
+    update(criteria:any, newValues:Object, transaction?:any):q.Promise<any>
     {
         if (newValues.hasOwnProperty('status'))
             throw new Error('Please use the method updateCallStatus to update call status');
@@ -73,22 +75,24 @@ class PhoneCallDelegate extends BaseDAODelegate
         return super.update(criteria, newValues, transaction);
     }
 
-    updateCallStatus(phoneCallId:number, newStatus:CallStatus):q.Promise<any>
+    updateCallStatus(criteria:number, newStatus:CallStatus):q.Promise<any>
+    updateCallStatus(criteria:Object, newStatus:CallStatus):q.Promise<any>
+    updateCallStatus(criteria:any, newStatus:CallStatus):q.Promise<any>
     {
         var self = this;
         var callerUserId:number;
         var expertUserId:number;
 
-        return this.get(phoneCallId, ['status', 'caller_user_id', 'expert_id', 'start_time', 'duration'])
+        return this.find(criteria, null, ['status', 'caller_user_id', 'expert_id', 'start_time', 'duration'])
             .then(
-            function phoneCallFetched(call)
+            function phoneCallFetched(call):any
             {
                 callerUserId = call['caller_user_id'];
                 expertUserId = call['expert_id'];
                 var status = call.status;
 
                 if (PhoneCallDelegate.ALLOWED_NEXT_STATUS[status].indexOf(newStatus) != -1)
-                    return self.update({'id': phoneCallId}, {'status': newStatus});
+                    return self.update(criteria, {'status': newStatus});
                 else
                 {
                     var newStatusString = CallStatus[newStatus];
@@ -99,6 +103,7 @@ class PhoneCallDelegate extends BaseDAODelegate
             .then(
             function callUpdated()
             {
+
                 return new EmailDelegate().sendCallStatusUpdateNotifications(callerUserId, expertUserId, CallStatus.POSTPONED);
             });
 
@@ -127,7 +132,8 @@ class PhoneCallDelegate extends BaseDAODelegate
         var self = this;
         return new PhoneCallCache().getPhoneCall(callId)
             .then(
-            function CallFetched(call:any){
+            function CallFetched(call:any)
+            {
                 var phoneCallCacheObj:PhoneCallCacheModel = new PhoneCallCacheModel(call);
                 return new CallProviderFactory().getProvider().makeCall(phoneCallCacheObj.getUserNumber(), callId, phoneCallCacheObj.getNumReattempts());
             })

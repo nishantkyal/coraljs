@@ -24,7 +24,13 @@ class UserDelegate extends BaseDaoDelegate
     DEFAULT_FIELDS:string[] = [User.ID, User.FIRST_NAME, User.LAST_NAME, User.SHORT_DESC, User.LONG_DESC, User.EMAIL];
 
     imageDelegate = new ImageDelegate();
+    userProfileDelegate = new UserProfileDelegate();
+    integrationMemberDelegate = new IntegrationMemberDelegate();
 
+    constructor() { super(new UserDAO()); }
+
+    update(criteria:Object, newValues:any, transaction?:any):q.Promise<any>;
+    update(criteria:number, newValues:any, transaction?:any):q.Promise<any>;
     update(criteria:any, newValues:any, transaction?:any):q.Promise<any>
     {
         delete newValues[User.ID];
@@ -36,12 +42,14 @@ class UserDelegate extends BaseDaoDelegate
     getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
     {
         var user:User = result;
+        var self = this;
+
         switch (include)
         {
             case IncludeFlag.INCLUDE_USER_PROFILE:
-                return new UserProfileDelegate().search({'user_id': result.getId()});
+                return self.userProfileDelegate.search({'user_id': result.getId()});
             case IncludeFlag.INCLUDE_INTEGRATION_MEMBER:
-                return new IntegrationMemberDelegate().searchByUser(result.getId());
+                return self.integrationMemberDelegate.searchByUser(result.getId());
         }
         return super.getIncludeHandler(include, result);
     }
@@ -72,8 +80,6 @@ class UserDelegate extends BaseDaoDelegate
                 self.logger.debug('Image resize failed because %s', error);
             });*/
     }
-
-    getDao():IDao { return new UserDAO(); }
 
 }
 export = UserDelegate
