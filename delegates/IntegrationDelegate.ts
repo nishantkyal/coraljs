@@ -49,7 +49,9 @@ class IntegrationDelegate extends BaseDaoDelegate
 
     getSync(id:number):Integration
     {
-        id = parseInt(id.toString());
+        try {
+            id = parseInt(id.toString());
+        } catch (e) {}
         return IntegrationDelegate.cachedIntegrations[id];
     }
 

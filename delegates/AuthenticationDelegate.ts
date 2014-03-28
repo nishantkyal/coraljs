@@ -87,7 +87,7 @@ class AuthenticationDelegate
         passport.use(AuthenticationDelegate.STRATEGY_LOGIN, new passport_local.Strategy(function (username, password, done)
             {
                 var userDelegate = new UserDelegate();
-                userDelegate.find({email: username}, null, userDelegate.DEFAULT_FIELDS.concat(User.PASSWORD))
+                userDelegate.find({email: username}, userDelegate.DEFAULT_FIELDS.concat(User.PASSWORD))
                     .then(
                     function authComplete(user)
                     {

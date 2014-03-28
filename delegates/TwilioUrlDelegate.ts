@@ -1,3 +1,4 @@
+///<reference path='../_references.d.ts'/>
 import url                                      = require('url');
 
 class TwilioUrlDelegate

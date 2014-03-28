@@ -6,6 +6,7 @@ import User                                                     = require('../mo
 import IntegrationMember                                        = require('../models/IntegrationMember');
 import SMS                                                      = require('../models/SMS');
 import UserPhone                                                = require('../models/UserPhone');
+import PhoneCall                                                = require('../models/PhoneCall');
 import VerificationCodeCache                                    = require('../caches/VerificationCodeCache');
 import IntegrationMemberDelegate                                = require('../delegates/IntegrationMemberDelegate');
 import EmailDelegate                                            = require('../delegates/EmailDelegate');
@@ -92,6 +93,17 @@ class VerificationCodeDelegate
                 else
                     throw ('Invalid code entered');
             });
+    }
+
+    createAppointmentAcceptCode(call:PhoneCall, startTimes:number[]):q.Promise<any>
+    {
+        var code:string = Utils.getRandomString(20);
+        return this.verificationCodeCache.createAppointmentAcceptCode(call.getId(), code, startTimes);
+    }
+
+    verifyAppointmentAcceptCode(code:string):q.Promise<any>
+    {
+        return this.verificationCodeCache.searchAppointmentAcceptCode(code);
     }
 }
 export = VerificationCodeDelegate

@@ -1,8 +1,8 @@
 ///<reference path='./_references.d.ts'/>
 import _                                            = require('underscore');
 import express                                      = require('express');
-var connect                                         = require('connect');
-var RedisStore                                      = require('connect-redis')(connect);
+var connect = require('connect');
+var RedisStore = require('connect-redis')(connect);
 import connect_flash                                = require("connect-flash");
 import http                                         = require('http');
 import path                                         = require('path');
@@ -11,6 +11,7 @@ import log4js                                       = require('log4js');
 import moment                                       = require('moment');
 import Config                                       = require('./common/Config');
 import Formatter                                    = require('./common/Formatter');
+import Utils                                        = require('./common/Utils');
 import ApiUrlDelegate                               = require('./delegates/ApiUrlDelegate');
 import MysqlDelegate                                = require('./delegates/MysqlDelegate');
 import IntegrationDelegate                          = require('./delegates/IntegrationDelegate');
@@ -25,26 +26,32 @@ log4js.configure('/var/searchntalk/config/log4js.json');
 
 var app:express.Application = express();
 
+// View helpers
+var helpers = {
+    formatMoney: Formatter.formatMoney,
+    formatRole: Formatter.formatRole,
+    formatName: Formatter.formatName,
+    formatSchedule: Formatter.formatSchedule,
+    formatDate: Formatter.formatDate,
+    ApiUrlDelegate: ApiUrlDelegate,
+    CallFlowUrls: CallFlowUrls,
+    DashboardUrls: DashboardUrls
+};
+
 // all environments
 app.use(express.compress());
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 app.use(
-    function (req, res, next)
+    function (req:express.Request, res, next)
     {
-        res.locals.formatMoney = Formatter.formatMoney;
-        res.locals.formatRole = Formatter.formatRole;
-        res.locals.formatName = Formatter.formatName;
-        res.locals.formatSchedule = Formatter.formatSchedule;
-        res.locals.formatDate = Formatter.formatDate;
+        // This middleware applies to all urls except
+        // 1. APIs (which start with "/rest")
+        // 2. Static content (which start with "/js" or "/css" or "/img")
+        var excludeRegex = /^\/(rest|css|js|img|fonts)/;
 
-        // Api urls
-        res.locals.ApiUrlDelegate = ApiUrlDelegate;
-
-        // Route urls
-        res.locals.CallFlowUrls = CallFlowUrls;
-        res.locals.DashboardUrls = DashboardUrls;
-
+        if (Utils.isNullOrEmpty(req.path.match(excludeRegex)))
+            _.extend(res.locals, helpers);
         next();
     }
 )
@@ -77,7 +84,11 @@ api(app);
 routes(app);
 
 // Underscore template pattern
-_.templateSettings.interpolate = /\{\{(.+?)\}\}/g;
+_.templateSettings = {
+    evaluate: /\{\[([\s\S]+?)\]\}/g,
+    interpolate: /\{\{([\s\S]+?)\}\}/g
+};
+_.mixin(helpers);
 
 app.set('port', Config.get(Config.CORAL_PORT) || 3000);
 app.listen(app.get('port'), function ()

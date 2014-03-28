@@ -12,6 +12,8 @@ import Email                                                        = require('.
 import User                                                         = require('../models/User')
 import Integration                                                  = require('../models/Integration')
 import IntegrationMember                                            = require('../models/IntegrationMember')
+import ExpertSchedule                                               = require('../models/ExpertSchedule');
+import PhoneCall                                                    = require('../models/PhoneCall');
 import IDao                                                         = require('../dao/IDao');
 import ApiConstants                                                 = require('../enums/ApiConstants');
 import CallStatus                                                   = require('../enums/CallStatus');
@@ -20,9 +22,9 @@ import ApiUrlDelegate                                               = require('.
 import UserDelegate                                                 = require('../delegates/UserDelegate');
 import IntegrationDelegate                                          = require('../delegates/IntegrationDelegate');
 import IntegrationMemberDelegate                                    = require('../delegates/IntegrationMemberDelegate');
+import VerificationCodeDelegate                                     = require('../delegates/VerificationCodeDelegate');
 import Utils                                                        = require('../common/Utils');
 import Config                                                       = require('../common/Config');
-import VerificationCodeCache                                        = require('../caches/VerificationCodeCache');
 import ExpertRegistrationUrls                                       = require('../routes/expertRegistration/Urls');
 
 /*
@@ -36,6 +38,8 @@ class EmailDelegate
     private static EMAIL_EXPERT_INVITE:string = 'EMAIL_EXPERT_INVITE';
     private static EMAIL_EXPERT_WELCOME:string = 'EMAIL_EXPERT_WELCOME';
     private static EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION:string = 'EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION';
+
+    private static EMAIL_EXPERT_SCHEDULING:string = 'EMAIL_EXPERT_SCHEDULING';
 
     private static templateCache:{[templateNameAndLocale:string]:{bodyTemplate:Function; subjectTemplate:Function}} = {};
     private static transport:nodemailer.Transport;
@@ -105,7 +109,7 @@ class EmailDelegate
             });
     })();
 
-    private send(template:string, to:string, emailData:Object, replyTo?:string, from:string = 'contact@searchntalk.com'):q.Promise<any>
+    private send(template:string, to:string, emailData:Object, from:string = 'contact@searchntalk.com', replyTo?:string):q.Promise<any>
     {
         var self = this;
         var deferred = q.defer<any>();
@@ -148,41 +152,28 @@ class EmailDelegate
         return deferred.promise;
     }
 
-    sendCallStatusUpdateNotifications(callerUserId:number, expertId:number, status:CallStatus):q.Promise<any>
+    sendSchedulingEmailToExpert(expert:IntegrationMember, schedules:number[], duration:number, caller:User, call:PhoneCall):q.Promise<any>
     {
         var self = this;
+        var integration = new IntegrationDelegate().getSync(expert.getIntegrationId());
 
-        // 1. Get expert's user id
-        // 2. Get emails for caller and expert
-        // 3. Send emails
-        return new IntegrationMemberDelegate().get(expertId, ['user_id'])
+        var VerificationCodeDelegate:any = require('../delegates/VerificationCodeDelegate');
+        var verificationCodeDelegate = new VerificationCodeDelegate();
+
+        return verificationCodeDelegate.createAppointmentAcceptCode(call)
             .then(
-            function expertUserIdFetched(expert:IntegrationMember)
+            function invitationAcceptCodeCreated(code:string)
             {
-                return new UserDelegate().search({'id': [expert['user_id'], callerUserId]}, null, ['email']);
-            })
-            .then(
-            function emailsFetched(users:Array<User>)
-            {
-                var expertEmail, callerEmail;
-                _.each(users, function (user:User)
-                {
-                    if (user.getId() == callerUserId)
-                        callerEmail = user.getEmail();
-                    else
-                        expertEmail = user.getEmail();
-                });
+                var emailData = {
+                    call: call,
+                    expert: expert,
+                    caller: caller,
+                    schedules: schedules,
+                    integration: integration,
+                    acceptCode: code
+                };
 
-                switch (status)
-                {
-                    // TODO: Implement all call status emails
-                    case CallStatus.POSTPONED:
-                        return q.all([
-                        ]);
-                        break;
-                }
-
-                return null;
+                return self.send(EmailDelegate.EMAIL_EXPERT_SCHEDULING, expert.getUser().getEmail(), emailData);
             });
     }
 
@@ -233,6 +224,11 @@ class EmailDelegate
             recipient: recipient.toJson()
         };
         return this.send(EmailDelegate.EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION, recipient.getUser().getEmail(), emailData);
+    }
+
+    sendPaymentCompleteEmail():q.Promise<any>
+    {
+        return null;
     }
 
 }

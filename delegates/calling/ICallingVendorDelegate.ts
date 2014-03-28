@@ -1,7 +1,8 @@
 ///<reference path='../../_references.d.ts'/>
-import q                                                = require('q');
-import CallFragment                                     = require('../../models/CallFragment');
-import UserPhone                                        = require('../../models/UserPhone');
+import q                                                    = require('q');
+import CallFragment                                         = require('../../models/CallFragment');
+import UserPhone                                            = require('../../models/UserPhone');
+import ISmsDelegate                                         = require('../../delegates/ISmsDelegate');
 
 interface ICallingVendorDelegate
 {

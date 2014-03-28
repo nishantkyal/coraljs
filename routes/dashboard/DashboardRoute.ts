@@ -70,6 +70,12 @@ class DashboardRoute
     {
         var user = req['user'];
 
+        if (req.session['returnTo'])
+        {
+            res.redirect(req.session['returnTo']);
+            return;
+        }
+
         this.integrationMemberDelegate.searchByUser(user.id, null, [IncludeFlag.INCLUDE_INTEGRATION, IncludeFlag.INCLUDE_USER])
             .then(
             function integrationsFetched(integrationMembers)

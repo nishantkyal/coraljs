@@ -39,7 +39,7 @@ class BaseDao implements IDao
         // Remove inserts with undefined values
         _.each(data.toJson(), function (value, key)
         {
-            if (value == undefined || Utils.getObjectType(value) == 'Array' || Utils.getObjectType(value) == 'Object')
+            if (value === undefined || Utils.getObjectType(value) == 'Array' || Utils.getObjectType(value) == 'Object')
                 delete data[key];
         });
 

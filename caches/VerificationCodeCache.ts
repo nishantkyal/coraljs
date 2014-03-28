@@ -94,5 +94,15 @@ class VerificationCodeCache
             }
         );
     }
+
+    createAppointmentAcceptCode(callId:number, code:string, startTimes:number[]):q.Promise<any>
+    {
+        return CacheHelper.set('aa-' + code, {id: callId, startTimes: startTimes});
+    }
+
+    searchAppointmentAcceptCode(code:string):q.Promise<any>
+    {
+        return CacheHelper.get('aa-' + code);
+    }
 }
 export = VerificationCodeCache
