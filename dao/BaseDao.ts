@@ -36,7 +36,7 @@ class BaseDao implements IDao
         dataArray = dataArray || {};
         var id:number;
 
-        if(Utils.getObjectType(dataArray) == 'Object')
+        if(dataArray.length === undefined)
         {
             dataArray = [dataArray];
             isObject = true;
@@ -57,8 +57,8 @@ class BaseDao implements IDao
             });
 
             inserts = _.keys(data);
-            var tempvalues:any[] = _.map(_.values(data), Utils.surroundWithQuotes);
-            values.push(tempvalues);
+            var tempValues:any[] = _.values(data);
+            values.push(tempValues);
         })
         var valueString = ((Array(inserts.length+1).join('?')).split('')).join(','); // create ?,?,? string
         var allValues:any[] = [];
@@ -229,5 +229,9 @@ class BaseDao implements IDao
 
         return {where: whereStatements, values: values};
     }
+}
+
+interface FetchOptions {
+    includeDeleted?:boolean
 }
 export = BaseDao

@@ -1,4 +1,8 @@
-$('form').validate({
+$('.datepicker').datepicker({
+    format: 'dd/mm/yyyy'
+});
+
+$('#profileForm').validate({
     rules         : {
         first_name: { required: true},
         last_name : { required: true}
@@ -23,10 +27,13 @@ $('form').validate({
             type: 'post',
             data: {
                 user: {
-                    first_name: $('form #first_name').val(),
-                    last_name : $('form #last_name').val(),
-                    short_desc: $('form #short_desc').val(),
-                    long_desc : $('form #long_desc').val()
+                    title           : $('form #title').val(),
+                    first_name      : $('form #first_name').val(),
+                    last_name       : $('form #last_name').val(),
+                    short_desc      : $('form #short_desc').val(),
+                    long_desc       : $('form #long_desc').val(),
+                    industry        : $('form #industry').val(),
+                    date_of_birth   : $('form #birthDate').val()
                 }
             },
             success: function()

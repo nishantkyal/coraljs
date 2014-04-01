@@ -137,7 +137,7 @@ class AuthenticationDelegate
             {
                 var profile = profile['_json'];
 
-                var user:User = new User()
+                var user:User = new User();
                 user.setEmail(profile.email);
                 user.setFirstName(profile.first_name);
                 user.setLastName(profile.last_name);
@@ -222,8 +222,8 @@ class AuthenticationDelegate
                                     tempSkill.setSkill(1);//TODO define skillcodes
                                     tempSkill.setUserId(userId);
                                     userSkill.push(tempSkill);
-                                })
-                                new UserSkillDelegate().create(userSkill)
+                                });
+                                new UserSkillDelegate().create(userSkill);
                             }
                         }
 
@@ -245,7 +245,9 @@ class AuthenticationDelegate
                                         tempUserEmployment.setCompany(null);
 
                                     if(!Utils.isNullOrEmpty(position.startDate))
+                                    {
                                         tempUserEmployment.setStartDate((position.startDate.month  || null) + '-' + (position.startDate.year || null));
+                                    }
                                     else
                                         tempUserEmployment.setStartDate(null);
 
@@ -255,7 +257,7 @@ class AuthenticationDelegate
                                         tempUserEmployment.setEndDate(null);
 
                                     userEmployment.push(tempUserEmployment);
-                                })
+                                });
                                 new UserEmploymentDelegate().create(userEmployment);
                             }
                         }
@@ -285,7 +287,7 @@ class AuthenticationDelegate
                                         tempUserEducation.setEndYear(null);
 
                                     userEducation.push(tempUserEducation);
-                                })
+                                });
                                 new UserEducationDelegate().create(userEducation);
                             }
                         }

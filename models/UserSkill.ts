@@ -4,6 +4,9 @@ class UserSkillDetail extends BaseModel
 {
     static TABLE_NAME:string = 'user_skill';
 
+    static USER_ID:string = 'user_id';
+    static SKILL:string = 'skill';
+
     private user_id:number;
     private skill:number;
 

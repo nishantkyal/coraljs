@@ -75,6 +75,12 @@ class ApiUrlDelegate
     static userProfile():string { return this.get('/rest/user/profile'); }
     static userProfileById(profileId?:number):string { return this.get('/rest/user/profile/:profileId(\\d+)', {profileId: profileId}); }
 
+    static userEducation() { return this.get('/rest/user/education'); }
+    static userEducationById(educationId?:number) { return this.get('/rest/user/education/:educationId(\\d+)', { educationId:educationId }); }
+
+    static userEmployment() { return this.get('/rest/user/employment'); }
+    static userEmploymentById(employmentId?:number) { return this.get('/rest/user/employment/:employmentId(\\d+)', { employmentId:employmentId }); }
+
     /* URL patterns for coupons */
     static coupon():string { return this.get('/rest/coupon'); }
     static couponById(couponId?:number):string { return this.get('/rest/coupon/:couponId(\\d+)', {couponId: couponId}); }

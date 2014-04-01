@@ -1,0 +1,117 @@
+include header
+include ../scriptsAndStyles
+.container-fluid
+    .row-fluid
+        .col-md-2
+        .col-md-8
+            .navbar.navbar-default
+                .container
+                    .collapse.navbar-collapse
+                        ul.nav.navbar-nav
+                            li
+                                a(href="profile") Profile
+                            li
+                                a(href="education") Education
+                            li.active
+                                a(href="employment") Positions
+            .col-md-9
+                .form-group
+                    label.control-label(for='education') Positions Details
+                    br
+                    each emp in userEmployment
+                        label.control-label(for='position') #{emp.title}&nbsp
+                        a.fa.fa-pencil.edit(data-id=emp.id, data-toggle='modal', href='#EditUserEmploymentModal')
+                        a.fa.fa-times.delete(data-id=emp.id, data-toggle='modal', href='#DeleteUserEmploymentModal')
+                        br
+                        if emp.company
+                            normal #{emp.company}
+                            br
+                        if emp.start_date
+                            small #{emp.start_date}&nbsp
+                        if emp.end_date
+                            small - #{emp.end_date}
+                            br
+                        if emp.summary
+                            small #{emp.summary}
+                            br
+                        br
+                    a.btn.btn-default.btn-xs#addEmploymentBtn(data-toggle='modal', href='#AddUserEmploymentModal') Add Position
+#AddUserEmploymentModal.modal.fade(style='display: none;')
+    .modal-dialog
+        .modal-content
+            .modal-header
+                .close(data-dismiss='modal', aria-hidden='true') x
+                h4.modal-title Add Position Details
+            form#addForm
+                .modal-body
+                    label.control-label(for='title') Title
+                    input.form-control#title(type='text', name='title', data-toggle="tooltip", data-placement="bottom")
+                    label.control-label(for='company') Company
+                    input.form-control#company(type='text', name='company', data-toggle="tooltip", data-placement="bottom")
+                    label.control-label(for='dates_attended') Time Period
+                    br
+                    .row
+                        .form-group.col-md-2
+                            input.form-control#start_date(class="datepicker")
+                        .form-group.col-md-1
+                            normal -
+                        .form-group.col-md-2
+                            input.form-control#end_date(class="datepicker")
+                    br
+                    label.control-label(for='summary') Summary
+                    textarea.form-control#summary(type='text', name='summary', data-toggle="tooltip", data-placement="bottom")
+                    br
+                    label.control-label(for='is_current') Is Current? &nbsp&nbsp
+                    select#is_current(name='is_current', data-width='auto')
+                        option(value="1" selected = (currentYear == '#{i}')) Yes
+                        option(value="0" selected = (currentYear == '#{i}')) No
+                .modal-footer
+                    button.btn.btn-default(data-dismiss='modal') Close
+                    input.btn.btn-primary(type='submit', value='Update')
+#EditUserEmploymentModal.modal.fade(style='display: none;')
+    .modal-dialog
+        .modal-content
+            .modal-header
+                .close(data-dismiss='modal', aria-hidden='true') x
+                h4.modal-title Edit Position Details
+            form
+                .modal-body
+                    label.control-label(for='title') Title
+                    input.form-control#title(type='text', name='title', data-toggle="tooltip", data-placement="bottom")
+                    label.control-label(for='company') Company
+                    input.form-control#company(type='text', name='company', data-toggle="tooltip", data-placement="bottom")
+                    label.control-label(for='dates_attended') Time Period
+                    br
+                    .row
+                        .form-group.col-md-2
+                            input.form-control#start_date(class="datepicker")
+                        .form-group.col-md-1
+                            normal -
+                        .form-group.col-md-2
+                            input.form-control#end_date(class="datepicker")
+                    br
+                    label.control-label(for='summary') Summary
+                    textarea.form-control#summary(type='text', name='summary', data-toggle="tooltip", data-placement="bottom")
+                    br
+                    label.control-label(for='is_current') Is Current? &nbsp&nbsp
+                    select#is_current(name='is_current', data-width='auto')
+                        option(value="1" selected = (currentYear == '#{i}')) Yes
+                        option(value="0" selected = (currentYear == '#{i}')) No
+                .modal-footer
+                    button.btn.btn-default(data-dismiss='modal') Close
+                    input.btn.btn-primary(type='submit', value='Save')
+#DeleteUserEmploymentModal.modal.fade(style='display: none;')
+    .modal-dialog
+        .modal-content
+            .modal-header
+                .close(data-dismiss='modal', aria-hidden='true') x
+                h4.modal-title Delete Position Details
+            .modal-body
+                label Are you sure you want to delete this information?
+            .modal-footer
+                button.btn.btn-default(data-dismiss='modal') No
+                button.btn.btn-primary(onclick='handleDeleteClicked(event)') Yes
+script.
+    var memberId = !{memberId};
+    var userEmployment = JSON.parse( '!{JSON.stringify(userEmployment)}' );
+script(src='/js/app/dashboard/memberEmployment.js')

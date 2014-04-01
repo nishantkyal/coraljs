@@ -4,6 +4,14 @@ class UserWorkDetail extends BaseModel
 {
     static TABLE_NAME:string = 'user_employment';
 
+    static USER_ID:string = 'user_id';
+    static TITLE:string = 'title';
+    static SUMMARY:string = 'summary';
+    static START_DATE:string = 'start_date';
+    static END_DATE:string = 'end_date';
+    static IS_CURRENT:string = 'is_current';
+    static COMPANY:string = 'company';
+
     private user_id:number;
     private title:string;
     private summary:string;

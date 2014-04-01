@@ -5,6 +5,15 @@ class UserEducationDetail extends BaseModel
 {
     static TABLE_NAME:string = 'user_education';
 
+    static USER_ID:string = 'user_id';
+    static START_YEAR:string = 'start_year';
+    static END_YEAR:string = 'end_year';
+    static DEGREE:string = 'degree';
+    static FIELD_OF_STUDY:string = 'field_of_study';
+    static SCHOOL_NAME:string = 'school_name';
+    static ACTIVITIES:string = 'activities';
+    static NOTES:string = 'notes';
+
     private user_id:number;
     private start_year:number;
     private end_year:number;

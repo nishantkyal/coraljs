@@ -14,6 +14,9 @@ import IntegrationMemberDelegate                        = require('../../delegat
 import EmailDelegate                                    = require('../../delegates/EmailDelegate');
 import SMSDelegate                                      = require('../../delegates/SMSDelegate');
 import CouponDelegate                                   = require('../../delegates/CouponDelegate');
+import UserEducationDelegate                            = require('../../delegates/UserEducationDelegate');
+import UserSkillDelegate                                = require('../../delegates/UserSkillDelegate');
+import UserEmploymentDelegate                           = require('../../delegates/UserEmploymentDelegate');
 import MoneyUnit                                        = require('../../enums/MoneyUnit');
 import IncludeFlag                                      = require('../../enums/IncludeFlag');
 import User                                             = require('../../models/User');
@@ -38,12 +41,18 @@ class DashboardRoute
     static PAGE_USERS:string = 'dashboard/integrationUsers';
     static PAGE_COUPONS:string = 'dashboard/integrationCoupons';
     static PAGE_PROFILE:string = 'dashboard/memberProfile';
+    static PAGE_EDUCATION:string = 'dashboard/memberEducation';
+    static PAGE_SKILL:string = 'dashboard/memberSkill';
+    static PAGE_EMPOLYMENT:string = 'dashboard/memberEmployment';
 
     integrationDelegate = new IntegrationDelegate();
     integrationMemberDelegate = new IntegrationMemberDelegate();
     userDelegate = new UserDelegate();
     verificationCodeCache = new VerificationCodeCache();
     couponDelegate = new CouponDelegate();
+    userEmploymentDelegate = new UserEmploymentDelegate();
+    userSkillDelegate = new UserSkillDelegate();
+    userEducationDelegate = new UserEducationDelegate();
 
     constructor(app)
     {
@@ -54,10 +63,14 @@ class DashboardRoute
         app.get(Urls.integrationCoupons(), connect_ensure_login.ensureLoggedIn(), this.coupons.bind(this));
         app.get(Urls.integrationMembers(), Middleware.allowOwnerOrAdmin, this.integrationUsers.bind(this));
         app.get(Urls.memberProfile(), Middleware.allowSelf, this.memberProfile.bind(this));
+        app.get(Urls.memberEducation(), Middleware.allowSelf, this.memberEducation.bind(this));
+        app.get(Urls.memberSkill(), Middleware.allowSelf, this.memberSkill.bind(this));
+        app.get(Urls.memberEmployment(), Middleware.allowSelf, this.memberEmployment.bind(this));
         app.get(Urls.logout(), this.logout.bind(this));
 
         // Auth
         app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
+
         app.post(Urls.memberProfile(), Middleware.allowSelf, this.memberProfileSave.bind(this));
     }
 
@@ -185,27 +198,23 @@ class DashboardRoute
 
     memberProfile(req:express.Request, res:express.Response)
     {
-        var user = req[ApiConstants.USER];
-        var integrationId = parseInt(req.session[ApiConstants.INTEGRATION_ID]);
-        var integrationMembers = Middleware.getIntegrationMembers(req);
-        var member = new IntegrationMember(_.findWhere(integrationMembers, {'user_id': user.id, 'integration_id': integrationId}));
-
-        Middleware.setIntegrationId(req, member.getIntegrationId());
-
-        this.userDelegate.get(user.id)
+        var self = this;
+        var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
+        var user:any = req[ApiConstants.USER];
+        self.integrationMemberDelegate.get(memberId)
             .then(
-                function userFetched(user)
+            function memberFetched(member)
+            {
+                var pageData =
                 {
-                    var pageData =
-                    {
-                        'logged_in_user': req['user'],
-                        'member': member,
-                        'user': user
-                    };
-                    res.render(DashboardRoute.PAGE_PROFILE, pageData);
-                },
-                function userFetchError() { res.send(500); }
-            );
+                    'logged_in_user': req['user'],
+                    'member': member,
+                    'user': user
+                };
+                res.render(DashboardRoute.PAGE_PROFILE, pageData);
+            },
+            function userFetchError() { res.send(500); }
+        );
     }
 
     memberProfileSave(req:express.Request, res:express.Response)
@@ -215,9 +224,69 @@ class DashboardRoute
 
         this.userDelegate.update({id: loggedInUser.id}, user)
             .then(
-                function userUpdated() { res.send(200); },
-                function userUpdateError() { res.send(500); }
-            );
+            function userUpdated() { res.send(200); },
+            function userUpdateError() { res.send(500); }
+        );
+    }
+
+    memberEducation(req:express.Request, res:express.Response)
+    {
+        var self = this;
+        var loggedInUser = req['user'];
+        var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
+        self.userEducationDelegate.search({'user_id':loggedInUser.id})
+            .then(
+                function userEducationFetched(userEducation)
+                {
+                    var pageData =
+                    {
+                        'userEducation' : userEducation,
+                        'memberId'      : memberId
+                    };
+                    res.render(DashboardRoute.PAGE_EDUCATION, pageData);
+                },
+                function userEducationFetchError() { res.send(500); }
+            )
+    }
+
+    memberSkill(req:express.Request, res:express.Response)
+    {
+        var self = this;
+        var loggedInUser = req['user'];
+        var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
+        self.userSkillDelegate.search({'user_id':loggedInUser.id})
+            .then(
+            function userSkillFetched(userSkill)
+            {
+                var pageData =
+                {
+                    'userSkill'     : userSkill,
+                    'memberId'      : memberId
+                };
+                res.render(DashboardRoute.PAGE_SKILL, pageData);
+            },
+            function userEducationFetchError() { res.send(500); }
+        )
+    }
+
+    memberEmployment(req:express.Request, res:express.Response)
+    {
+        var self = this;
+        var loggedInUser = req['user'];
+        var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
+        self.userEmploymentDelegate.search({'user_id':loggedInUser.id})
+            .then(
+            function userEmploymentFetched(userEmployment)
+            {
+                var pageData =
+                {
+                    'userEmployment'     : userEmployment,
+                    'memberId'           : memberId
+                };
+                res.render(DashboardRoute.PAGE_EMPOLYMENT, pageData);
+            },
+            function userEducationFetchError() { res.send(500); }
+        )
     }
 
     logout(req, res)

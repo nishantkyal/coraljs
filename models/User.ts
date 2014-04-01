@@ -8,7 +8,7 @@ class User extends BaseModel
 {
     static TABLE_NAME:string = 'user';
 
-    static title:string = 'title';
+    static TITLE:string = 'title';
     static FIRST_NAME:string = 'first_name';
     static LAST_NAME:string = 'last_name';
     static EMAIL:string = 'email';
