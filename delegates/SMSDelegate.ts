@@ -4,7 +4,7 @@ import q                                                            = require('q
 import log4js                                                       = require('log4js');
 import Config                                                       = require('../common/Config');
 import Utils                                                        = require('../common/Utils');
-import ICallingVendorDelegate                                       = require('../delegates/calling/ICallingVendorDelegate');
+import ISmsProvider                                                 = require('../providers/ISmsProvider');
 import BaseDaoDelegate                                              = require('../delegates/BaseDaoDelegate');
 import LocalizationDelegate                                         = require('../delegates/LocalizationDelegate');
 import UserPhoneDelegate                                            = require('../delegates/UserPhoneDelegate');
@@ -28,7 +28,7 @@ import PhoneCallCacheModel                                          = require('.
 class SMSDelegate
 {
     private logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
-    private smsProvider:ICallingVendorDelegate = new SmsProviderFactory().getProvider();
+    private smsProvider:ISmsProvider = new SmsProviderFactory().getProvider();
 
     sendReminderSMS(callId:number)
     {
@@ -171,7 +171,7 @@ class SMSDelegate
     {
         var self = this;
 
-        var template = _.template(LocalizationDelegate.get('sms.user.failure.user'));
+        var template:Function = _.template(LocalizationDelegate.get('sms.user.failure.user'));
         var message:string = template({
             callId: callId,
             minutes: Config.get('call.retry.gap'),
@@ -186,9 +186,21 @@ class SMSDelegate
             });
     }
 
-    sendVerificationSMS(to:string, code:string):q.Promise<any>
+    sendVerificationSMS(userNumber:string, code:string):q.Promise<any>
     {
-        return null;
+        var self = this;
+
+        var template:Function = _.template(LocalizationDelegate.get('sms.VERIFY_NUMBER'));
+        var message:string = template({
+            code: code
+        });
+
+        return self.smsProvider.sendSMS(userNumber, message)
+            .then(
+            function smsSent()
+            {
+                this.logger.info("Verification SMS sent to user number: " + userNumber);
+            });
     }
 }
 export = SMSDelegate

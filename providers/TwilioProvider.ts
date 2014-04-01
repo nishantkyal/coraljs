@@ -1,17 +1,18 @@
-///<reference path='../../_references.d.ts'/>
-import q                                                = require('q');
-import log4js                                           = require('log4js');
-import Utils                                            = require('../../common/Utils');
-import ICallingVendorDelegate                           = require('./ICallingVendorDelegate');
-import ApiUrlDelegate                                   = require('../ApiUrlDelegate');
-import TwilioUrlDelegate                                = require('../../delegates/TwilioUrlDelegate');
-import Config                                           = require('../../common/Config');
-import CallFragment                                     = require('../../models/CallFragment');
-import UserPhone                                        = require('../../models/UserPhone');
-import CallFragmentStatus                               = require('../../enums/CallFragmentStatus');
-import AgentType                                        = require('../../enums/AgentType');
+///<reference path='../_references.d.ts'/>
+import q                                                        = require('q');
+import log4js                                                   = require('log4js');
+import Utils                                                    = require('../common/Utils');
+import ApiUrlDelegate                                           = require('../delegates/ApiUrlDelegate');
+import TwilioUrlDelegate                                        = require('../delegates/TwilioUrlDelegate');
+import Config                                                   = require('../common/Config');
+import CallFragment                                             = require('../models/CallFragment');
+import UserPhone                                                = require('../models/UserPhone');
+import CallFragmentStatus                                       = require('../enums/CallFragmentStatus');
+import AgentType                                                = require('../enums/AgentType');
+import IPhoneCallProvider                                       = require('./IPhoneCallProvider');
+import ISmsProvider                                             = require('./ISmsProvider');
 
-class TwilioDelegate implements ICallingVendorDelegate
+class TwilioProvider implements IPhoneCallProvider,ISmsProvider
 {
     static DURATION:string                          = 'duration';
     static START_TIME:string                        = 'start_time';
@@ -57,8 +58,8 @@ class TwilioDelegate implements ICallingVendorDelegate
 
         if(!Utils.isNullOrEmpty(reAttempts))
         {
-            url += '?' + TwilioDelegate.ATTEMPTCOUNT + '=' + reAttempts;
-            callbackUrl += '?' + TwilioDelegate.ATTEMPTCOUNT + '=' + reAttempts;
+            url += '?' + TwilioProvider.ATTEMPTCOUNT + '=' + reAttempts;
+            callbackUrl += '?' + TwilioProvider.ATTEMPTCOUNT + '=' + reAttempts;
         }
 
         var deferred = q.defer();
@@ -88,13 +89,13 @@ class TwilioDelegate implements ICallingVendorDelegate
             {
                 if(!Utils.isNullOrEmpty(callDetails))
                 {
-                    var duration:number = parseInt(callDetails[TwilioDelegate.DURATION]);
-                    var startTime:Date = new Date(callDetails[TwilioDelegate.START_TIME]);
+                    var duration:number = parseInt(callDetails[TwilioProvider.DURATION]);
+                    var startTime:Date = new Date(callDetails[TwilioProvider.START_TIME]);
                     callFragment.setDuration(duration);
                     callFragment.setStartTime(moment(startTime).valueOf());
-                    callFragment.setToNumber(callDetails[TwilioDelegate.EXPERT_NUMBER]);
+                    callFragment.setToNumber(callDetails[TwilioProvider.EXPERT_NUMBER]);
                     callFragment.setAgentId(AgentType.TWILIO);
-                    if (callDetails[TwilioDelegate.STATUS] == TwilioDelegate.COMPLETED)
+                    if (callDetails[TwilioProvider.STATUS] == TwilioProvider.COMPLETED)
                         if(duration < Config.get('minimum.duration.for.success'))
                             callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_MINIMUM_DURATION);
                         else
@@ -110,5 +111,4 @@ class TwilioDelegate implements ICallingVendorDelegate
             });
     }
 }
-
-export = TwilioDelegate
+export = TwilioProvider

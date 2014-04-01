@@ -1,12 +1,12 @@
-///<reference path='../../_references.d.ts'/>
+///<reference path='../_references.d.ts'/>
 import q                                                        = require('q');
 import _                                                        = require('underscore');
 import request                                                  = require('request');
-import ICallingVendorDelegate                                   = require('../../delegates/calling/ICallingVendorDelegate');
-import Config                                                   = require('../../common/Config');
-import CallFragment                                             = require('../../models/CallFragment');
+import ISmsProvider                                             = require('../providers/ISmsProvider');
+import Config                                                   = require('../common/Config');
+import CallFragment                                             = require('../models/CallFragment');
 
-class SmsCountryDelegate implements ICallingVendorDelegate
+class SmsCountryProvider implements ISmsProvider
 {
     sendSMS(to:string, body:string, from?:string):q.Promise<any>
     {
@@ -38,17 +38,5 @@ class SmsCountryDelegate implements ICallingVendorDelegate
         return deferred.promise;
     }
 
-    makeCall(phone:string, callId?:number, reAttempts?:number):q.Promise<any>
-    {
-        throw ("SMS country can't make phone calls");
-        return null;
-    }
-
-    updateCallFragment(callFragment:CallFragment)
-    {
-        throw ("SMS country can't make phone calls");
-        return null;
-    }
-
 }
-export = SmsCountryDelegate
+export = SmsCountryProvider

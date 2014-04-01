@@ -1,11 +1,11 @@
-import ICallingVendorDelegate           = require('../delegates/calling/ICallingVendorDelegate');
-import TwilioDelegate                   = require('../delegates/calling/TwilioDelegate');
+import IPhoneCallProvider                       = require('../providers/IPhoneCallProvider');
+import TwilioProvider                           = require('../providers/TwilioProvider');
 
 class CallProviderFactory
 {
-    getProvider():ICallingVendorDelegate
+    getProvider():IPhoneCallProvider
     {
-        return new TwilioDelegate();
+        return new TwilioProvider();
     }
 }
 export = CallProviderFactory

@@ -1,12 +1,12 @@
-import ICallingVendorDelegate           = require('../delegates/calling/ICallingVendorDelegate');
-import TwilioDelegate                   = require('../delegates/calling/TwilioDelegate');
-
+import ISmsProvider                                             = require('../providers/ISmsProvider');
+import TwilioProvider                                           = require('../providers/TwilioProvider');
+import SmsCountryProvider                                       = require('../providers/SmsCountryProvider');
 
 class SmsProviderFactory
 {
-    getProvider():ICallingVendorDelegate
+    getProvider():ISmsProvider
     {
-        return new TwilioDelegate();
+        return new SmsCountryProvider();
     }
 
 }
