@@ -23,7 +23,7 @@ class TokenApi
         var verificationCodeDelegate = new VerificationCodeDelegate();
 
         /* Create mobile verification code */
-        app.put(ApiUrlDelegate.mobileVerificationCode(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        app.post(ApiUrlDelegate.mobileVerificationCode(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
             var phoneNumber:UserPhone = req.body[ApiConstants.PHONE_NUMBER];
             phoneNumber.setUserId(req['user'].id);
@@ -31,7 +31,7 @@ class TokenApi
             verificationCodeDelegate.createAndSendMobileVerificationCode(phoneNumber)
                 .then(
                     function codeCreated() { res.json(200, {status: 'OK'}); },
-                    function codeCreateError() { res.send(500); }
+                    function codeCreateError(error) { res.send(500, error); }
                 );
         });
 
@@ -44,13 +44,20 @@ class TokenApi
 
             verificationCodeDelegate.verifyMobileCode(code, phoneNumber)
                 .then(
-                    function codeVerified(newUserPhone) { res.send(newUserPhone.toJson()); },
+                    function codeVerified(newUserPhone)
+                    {
+                        var returnTo:string = req.query[ApiConstants.RETURN_TO] || req.session[ApiConstants.RETURN_TO];
+                        if (!Utils.isNullOrEmpty(returnTo))
+                            res.redirect(returnTo);
+                        else
+                            res.send(newUserPhone.toJson());
+                    },
                     function codeVerificationError(error) { res.send(500, error); }
                 )
         });
 
         /* Create and send expert invitation code */
-        app.put(ApiUrlDelegate.expertInvitationCode(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        app.post(ApiUrlDelegate.expertInvitationCode(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
             res.send(JSON.stringify({status: 'OK'}));
 

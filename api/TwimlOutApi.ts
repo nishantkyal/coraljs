@@ -6,13 +6,13 @@ import PhoneType					                    = require('../enums/PhoneType');
 import CallFragmentStatus				                = require('../enums/CallFragmentStatus');
 import AgentType					                    = require('../enums/AgentType');
 import IntegrationMemberDelegate			            = require('../delegates/IntegrationMemberDelegate');
-import TwilioDelegate					                = require('../delegates/calling/TwilioDelegate');
 import PhoneCallDelegate				                = require('../delegates/PhoneCallDelegate');
 import UserPhoneDelegate				                = require('../delegates/UserPhoneDelegate');
 import TwilioUrlDelegate				                = require('../delegates/TwilioUrlDelegate');
 import CallFragmentDelegate				                = require('../delegates/CallFragmentDelegate');
 import SMSDelegate					                    = require('../delegates/SMSDelegate');
 import ScheduledTaskDelegate					        = require('../delegates/ScheduledTaskDelegate');
+import TwilioProvider					                = require('../providers/TwilioProvider');
 import Utils						                    = require('../common/Utils');
 import Config						                    = require('../common/Config');
 import PhoneCall					                    = require('../models/PhoneCall');
@@ -66,7 +66,7 @@ class TwimlOutApi
 
         app.post(TwilioUrlDelegate.twimlJoinCall(), function (req:express.Request, res:express.Response)
         { // called after expert has hung up. saving details into call fragment here.
-            var attemptCount = parseInt(req.query[TwilioDelegate.ATTEMPTCOUNT]);
+            var attemptCount = parseInt(req.query[TwilioProvider.ATTEMPTCOUNT]);
             if(Utils.isNullOrEmpty(attemptCount))
                 attemptCount = 0;
 
@@ -120,7 +120,7 @@ class TwimlOutApi
             res.json('OK');
 
             var callStatus = req.body[TwimlOutApi.CALL_STATUS];
-            var attemptCount = parseInt(req.query[TwilioDelegate.ATTEMPTCOUNT]);
+            var attemptCount = parseInt(req.query[TwilioProvider.ATTEMPTCOUNT]);
             if(Utils.isNullOrEmpty(attemptCount))
                 attemptCount = 0;
 

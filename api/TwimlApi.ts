@@ -3,9 +3,9 @@ import express                      = require('express');
 import json2xml                     = require('json2xml');
 import ApiConstants                 = require('../enums/ApiConstants');
 import IntegrationMemberDelegate    = require('../delegates/IntegrationMemberDelegate');
-import TwilioDelegate               = require('../delegates/calling/TwilioDelegate');
 import PhoneCallDelegate            = require('../delegates/PhoneCallDelegate');
 import ApiUrlDelegate               = require('../delegates/ApiUrlDelegate');
+import TwilioProvider               = require('../providers/TwilioProvider');
 import Utils                        = require('../common/Utils');
 import Config                       = require('../common/Config');
 import PhoneCall                    = require('../models/PhoneCall');
@@ -95,7 +95,7 @@ class TwimlApi
                 .then(
                 function responseSent()
                 {
-                    return null;//new TwilioDelegate().makeCall(user.getMobile(), req.protocol + "://" + req.get('host') + ApiUrlDelegate.twimlCall(callId));
+                    return null;//new TwilioProvider().makeCall(user.getMobile(), req.protocol + "://" + req.get('host') + ApiUrlDelegate.twimlCall(callId));
                 });
         });
 

@@ -21,19 +21,13 @@ $('#sendCode').validate({
     {
         $.ajax({
             url     : '/rest/code/mobile/verification',
-            type    : 'put',
+            type    : 'post',
             dataType: 'json',
             data    : {
                 phoneNumber: {
                     phone       : $('#sendCode #phoneNumber').val(),
                     country_code: $('#sendCode #countryCode').val()
                 }
-            },
-            success : function(data, textStatus, jqXHR)
-            {
-                // Change form to accept verification code
-                $('#sendCode input[type="submit"]').hide();
-                $('#verifyCode').show();
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 bootbox.alert(jqXHR.responseText);

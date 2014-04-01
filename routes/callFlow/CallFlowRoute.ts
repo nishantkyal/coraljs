@@ -14,13 +14,13 @@ import PhoneCallDelegate                                    = require('../../del
 import EmailDelegate                                        = require('../../delegates/EmailDelegate');
 import TransactionDelegate                                  = require('../../delegates/TransactionDelegate');
 import VerificationCodeDelegate                             = require('../../delegates/VerificationCodeDelegate');
-import ICallingVendorDelegate                               = require('../../delegates/calling/ICallingVendorDelegate');
-import CallProviderFactory                                  = require('../../factories/CallProviderFactory');
+import UserPhoneDelegate                                    = require('../../delegates/UserPhoneDelegate');
 import Utils                                                = require('../../common/Utils');
 import Config                                               = require('../../common/Config');
 import PhoneCall                                            = require('../../models/PhoneCall');
 import ExpertSchedule                                       = require('../../models/ExpertSchedule');
 import Transaction                                          = require('../../models/Transaction');
+import UserPhone                                            = require('../../models/UserPhone');
 import CallStatus                                           = require('../../enums/CallStatus');
 import ApiConstants                                         = require('../../enums/ApiConstants');
 import IncludeFlag                                          = require('../../enums/IncludeFlag');
@@ -35,12 +35,11 @@ import Middleware                                           = require('./Middlew
 class CallFlowRoute
 {
     private logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
-    private sessionStore = new SessionStoreHelper('CallFlow');
     private transactionDelegate = new TransactionDelegate();
     private verificationCodeDelegate = new VerificationCodeDelegate();
     private phoneCallDelegate = new PhoneCallDelegate();
     private emailDelegate = new EmailDelegate();
-    private callingProvider = new CallProviderFactory().getProvider();
+    private userPhoneDelegate = new UserPhoneDelegate();
 
     constructor(app)
     {
@@ -54,9 +53,10 @@ class CallFlowRoute
 
         // Auth related routes
         app.get(Urls.userFBLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {scope: ['email']}));
-        app.get(Urls.userFBLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {failureRedirect: Urls.userLogin(), scope: ['email'], successRedirect: Urls.callExpert()}));
+        app.get(Urls.userFBLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {failureRedirect: DashboardUrls.login(), scope: ['email'], successRedirect: Urls.callExpert()}));
     }
 
+    /* Render index with expert schedules */
     private index(req:express.Request, res:express.Response)
     {
         var expertId = req.params[ApiConstants.EXPERT_ID];
@@ -84,10 +84,12 @@ class CallFlowRoute
         );
     }
 
+    /* Validate request from caller and start a new transaction */
     private checkout(req, res:express.Response)
     {
         // Create phone call in scheduled state with a transaction and redirect to gateway for payment
         var self = this;
+        var loggedInUserId = req['user'].id;
 
         // TODO: Validate duration
         var duration:number = req.body[ApiConstants.DURATION];
@@ -97,33 +99,55 @@ class CallFlowRoute
         var startTimes:number[] = req.body[ApiConstants.START_TIME];
         Middleware.setSelectedStartTimes(req, startTimes);
 
+        // Require login
         if (!req.isAuthenticated())
         {
-            req.session['returnTo'] = req.url;
+            req.session[ApiConstants.RETURN_TO] = req.url;
             res.redirect(DashboardUrls.login());
             return;
         }
 
-        var call:PhoneCall = new PhoneCall();
-        call.setStatus(CallStatus.SCHEDULING);
-        call.setAgenda('');
-        call.setDuration(duration);
-        call.setCallerUserId(req['user'].id);
+        // Require mobile number verification
+        var userPhoneSearch = {};
+        userPhoneSearch[UserPhone.USER_ID] = loggedInUserId;
+        userPhoneSearch[UserPhone.VERIFIED] = true;
+        this.userPhoneDelegate.find(userPhoneSearch)
+            .then(
+            function userPhoneFound(userPhone:UserPhone)
+            {
+                if (userPhone)
+                {
+                    var call:PhoneCall = new PhoneCall();
+                    call.setStatus(CallStatus.SCHEDULING);
+                    call.setAgenda('');
+                    call.setDuration(duration);
+                    call.setCallerUserId(loggedInUserId);
+                    call.setCallerPhoneId(userPhone.getId());
 
-        var transaction = new Transaction();
-        transaction.setStatus(TransactionStatus.PENDING);
-        transaction.setUserId(req['user'].id);
-        transaction.setTotalUnit(call.getPriceCurrency());
+                    var transaction = new Transaction();
+                    transaction.setStatus(TransactionStatus.PENDING);
+                    transaction.setUserId(req['user'].id);
+                    transaction.setTotalUnit(call.getPriceCurrency());
 
-        self.transactionDelegate.createPhoneCallTransaction(transaction, call)
+                    return self.transactionDelegate.createPhoneCallTransaction(transaction, call);
+                }
+                else
+                {
+                    req.session[ApiConstants.RETURN_TO] = req.url;
+                    res.redirect(DashboardUrls.mobileVerification());
+                    res.end();
+                }
+            })
             .then(
             function transactionCreated(t)
             {
                 // Redirect to gateway
                 res.redirect(Config.get('payment_gateway.url'));
             });
+
     }
 
+    /* Handle payment response from gateway */
     private paymentComplete(req:express.Request, res:express.Response)
     {
         var self = this;
@@ -152,6 +176,7 @@ class CallFlowRoute
             });
     }
 
+    /* Invoked when expert/caller clicks on accept appointment link in email */
     private scheduling(req:express.Request, res:express.Response)
     {
         var self = this;

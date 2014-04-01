@@ -1,3 +1,5 @@
+$('#duration').selectpicker();
+
 /* Render schedules */
 var dateGroups = {};
 _.each(schedules, function(schedule)

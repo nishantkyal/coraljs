@@ -9,7 +9,7 @@ include header
             form(method='post')
                 .form-group
                     label.control-label Duration
-                    select.form-control(name='duration')
+                    select.form-control#duration(name='duration')
                         option(value='15', selected=duration==15) 15 mins
                         option(value='30', selected=duration==30) 30 mins
                         option(value='45', selected=duration==45) 45 mins

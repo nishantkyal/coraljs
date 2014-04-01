@@ -14,6 +14,7 @@ import IntegrationMemberDelegate                        = require('../../delegat
 import EmailDelegate                                    = require('../../delegates/EmailDelegate');
 import SMSDelegate                                      = require('../../delegates/SMSDelegate');
 import CouponDelegate                                   = require('../../delegates/CouponDelegate');
+import UserPhoneDelegate                                = require('../../delegates/UserPhoneDelegate');
 import MoneyUnit                                        = require('../../enums/MoneyUnit');
 import IncludeFlag                                      = require('../../enums/IncludeFlag');
 import User                                             = require('../../models/User');
@@ -21,6 +22,7 @@ import IntegrationMember                                = require('../../models/
 import Integration                                      = require('../../models/Integration');
 import SMS                                              = require('../../models/SMS');
 import Coupon                                           = require('../../models/Coupon');
+import UserPhone                                        = require('../../models/UserPhone');
 import IntegrationMemberRole                            = require('../../enums/IntegrationMemberRole');
 import ApiConstants                                     = require('../../enums/ApiConstants');
 import SmsTemplate                                      = require('../../enums/SmsTemplate');
@@ -34,22 +36,25 @@ import Urls                                             = require('./Urls');
 class DashboardRoute
 {
     static PAGE_LOGIN:string = 'dashboard/login';
+    static PAGE_MOBILE_VERIFICATION:string = 'dashboard/mobileVerification';
     static PAGE_INTEGRATIONS:string = 'dashboard/integrations';
     static PAGE_USERS:string = 'dashboard/integrationUsers';
     static PAGE_COUPONS:string = 'dashboard/integrationCoupons';
     static PAGE_PROFILE:string = 'dashboard/memberProfile';
 
-    integrationDelegate = new IntegrationDelegate();
-    integrationMemberDelegate = new IntegrationMemberDelegate();
-    userDelegate = new UserDelegate();
-    verificationCodeCache = new VerificationCodeCache();
-    couponDelegate = new CouponDelegate();
+    private integrationDelegate = new IntegrationDelegate();
+    private integrationMemberDelegate = new IntegrationMemberDelegate();
+    private userDelegate = new UserDelegate();
+    private verificationCodeCache = new VerificationCodeCache();
+    private couponDelegate = new CouponDelegate();
+    private userPhoneDelegate = new UserPhoneDelegate();
 
     constructor(app)
     {
         // Pages
         app.get(Urls.index(), connect_ensure_login.ensureLoggedIn(), this.authSuccess.bind(this));
         app.get(Urls.login(), this.login.bind(this));
+        app.get(Urls.mobileVerification(), connect_ensure_login.ensureLoggedIn(), this.verifyMobile.bind(this));
         app.get(Urls.integrations(), connect_ensure_login.ensureLoggedIn(), this.integrations.bind(this));
         app.get(Urls.integrationCoupons(), connect_ensure_login.ensureLoggedIn(), this.coupons.bind(this));
         app.get(Urls.integrationMembers(), Middleware.allowOwnerOrAdmin, this.integrationUsers.bind(this));
@@ -64,6 +69,19 @@ class DashboardRoute
     login(req:express.Request, res:express.Response)
     {
         res.render(DashboardRoute.PAGE_LOGIN, {logged_in_user: req['user'], messages: req.flash()});
+    }
+
+    verifyMobile(req:express.Request, res:express.Response)
+    {
+        this.userPhoneDelegate.getByUserId(req['user'].id)
+            .then(
+            function phoneNumbersFetched(numbers:UserPhone[]) { return numbers; },
+            function phoneNumberFetchError(error) { return null; })
+            .then(
+            function renderPage(numbers)
+            {
+                res.render(DashboardRoute.PAGE_MOBILE_VERIFICATION, {userPhones: numbers});
+            });
     }
 
     authSuccess(req:express.Request, res:express.Response)
@@ -109,7 +127,7 @@ class DashboardRoute
                 {
                     'members': integrationMembers,
                     'logged_in_user': req['user'],
-                    selectedTab : 'integrations'
+                    selectedTab: 'integrations'
                 };
 
                 res.render(DashboardRoute.PAGE_INTEGRATIONS, pageData);
@@ -128,20 +146,20 @@ class DashboardRoute
 
         this.couponDelegate.search({integration_id: integrationId}, this.couponDelegate.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_EXPERT])
             .then(
-                function couponsFetched(coupons:Coupon[])
+            function couponsFetched(coupons:Coupon[])
+            {
+                var pageData =
                 {
-                    var pageData =
-                    {
-                        'coupons': coupons,
-                        'members': integrationMembers,
-                        'logged_in_user': req['user'],
-                        'integration': integration
-                    };
+                    'coupons': coupons,
+                    'members': integrationMembers,
+                    'logged_in_user': req['user'],
+                    'integration': integration
+                };
 
-                    res.render(DashboardRoute.PAGE_COUPONS, pageData);
-                },
-                function couponFetchError(error) { res.send(500); }
-            )
+                res.render(DashboardRoute.PAGE_COUPONS, pageData);
+            },
+            function couponFetchError(error) { res.send(500); }
+        )
     }
 
     private integrationUsers(req:express.Request, res:express.Response)
@@ -161,19 +179,20 @@ class DashboardRoute
         search[IntegrationMember.INTEGRATION_ID] = integrationId;
 
         q.all([
-                this.integrationMemberDelegate.search(search, this.integrationMemberDelegate.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER]),
-                this.verificationCodeCache.getInvitationCodes(integrationId)
-            ])
+            this.integrationMemberDelegate.search(search, this.integrationMemberDelegate.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER]),
+            this.verificationCodeCache.getInvitationCodes(integrationId)
+        ])
             .then(
             function membersFetched(...results)
             {
                 var members = results[0][0];
                 var invitedMembers = [].concat(results[0][1]);
 
-                members = members.concat(_.map(invitedMembers, function(invited) { return new IntegrationMember(invited); } ));
-                _.each(members, function (member:IntegrationMember) {
+                members = members.concat(_.map(invitedMembers, function (invited) { return new IntegrationMember(invited); }));
+                _.each(members, function (member:IntegrationMember)
+                {
                     if (Utils.getObjectType(member[IntegrationMember.USER]) == 'Array')
-                        // TODO: Implement foreign keys to get rid if this goofiness
+                    // TODO: Implement foreign keys to get rid if this goofiness
                         member[IntegrationMember.USER] = _.findWhere(member[IntegrationMember.USER], {id: member.getUserId()});
                 });
 
@@ -200,18 +219,18 @@ class DashboardRoute
 
         this.userDelegate.get(user.id)
             .then(
-                function userFetched(user)
+            function userFetched(user)
+            {
+                var pageData =
                 {
-                    var pageData =
-                    {
-                        'logged_in_user': req['user'],
-                        'member': member,
-                        'user': user
-                    };
-                    res.render(DashboardRoute.PAGE_PROFILE, pageData);
-                },
-                function userFetchError() { res.send(500); }
-            );
+                    'logged_in_user': req['user'],
+                    'member': member,
+                    'user': user
+                };
+                res.render(DashboardRoute.PAGE_PROFILE, pageData);
+            },
+            function userFetchError() { res.send(500); }
+        );
     }
 
     memberProfileSave(req:express.Request, res:express.Response)
@@ -221,9 +240,9 @@ class DashboardRoute
 
         this.userDelegate.update({id: loggedInUser.id}, user)
             .then(
-                function userUpdated() { res.send(200); },
-                function userUpdateError() { res.send(500); }
-            );
+            function userUpdated() { res.send(200); },
+            function userUpdateError() { res.send(500); }
+        );
     }
 
     logout(req, res)

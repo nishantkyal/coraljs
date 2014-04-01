@@ -35,10 +35,10 @@ class CacheHelper
 
         this.getConnection().set(args, function (error, result)
         {
-            if (result)
-                deferred.resolve(result);
-            else
+            if (error)
                 deferred.reject(error);
+            else
+                deferred.resolve(result);
         });
         return deferred.promise;
     }

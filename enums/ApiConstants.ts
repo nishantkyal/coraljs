@@ -7,6 +7,7 @@ class ApiConstants
     static FILTERS:string = 'filters';
     static INCLUDE:string = 'include';
     static ROLE:string = 'role';
+    static RETURN_TO:string = 'return_to';
 
     /* Param constants */
     static COUPON_ID:string = 'couponId';

@@ -1,15 +1,15 @@
-import SmsCountryDelegate                               = require('../delegates/calling/SmsCountryDelegate');
+import SmsCountryProvider                               = require('../providers/SmsCountryProvider');
 import VerificationCodeDelegate                         = require('../delegates/VerificationCodeDelegate');
-import PhoneNumber                                      = require('../models/PhoneNumber');
+import UserPhone                                        = require('../models/UserPhone');
 import CountryCode                                      = require('../enums/CountryCode');
 export function sendSms()
 {
     var verificationCodeDelegate = new VerificationCodeDelegate();
-    var phoneNumber = new PhoneNumber();
-    phoneNumber.setCountryCode(CountryCode.IN);
-    phoneNumber.setPhone('9810723200')
+    var UserPhone = new UserPhone();
+    UserPhone.setCountryCode(CountryCode.IN);
+    UserPhone.setPhone('9810723200')
 
-    verificationCodeDelegate.createAndSendMobileVerificationCode(phoneNumber)
+    verificationCodeDelegate.createAndSendMobileVerificationCode(UserPhone)
         .then(
             function smsSent(response) {
 
