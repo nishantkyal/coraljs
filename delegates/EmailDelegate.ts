@@ -140,7 +140,7 @@ class EmailDelegate
                 html: body,
                 forceEmbeddedImages: true
             },
-            function emailSent(error:Error, response:any):any
+            function emailSent(error:Error, response:any)
             {
                 if (error)
                     deferred.reject(error);

@@ -15,6 +15,7 @@ import EmailDelegate                                    = require('../../delegat
 import SMSDelegate                                      = require('../../delegates/SMSDelegate');
 import CouponDelegate                                   = require('../../delegates/CouponDelegate');
 import UserPhoneDelegate                                = require('../../delegates/UserPhoneDelegate');
+import PhoneCallDelegate                                = require('../../delegates/PhoneCallDelegate');
 import MoneyUnit                                        = require('../../enums/MoneyUnit');
 import IncludeFlag                                      = require('../../enums/IncludeFlag');
 import User                                             = require('../../models/User');
@@ -26,6 +27,7 @@ import UserPhone                                        = require('../../models/
 import IntegrationMemberRole                            = require('../../enums/IntegrationMemberRole');
 import ApiConstants                                     = require('../../enums/ApiConstants');
 import SmsTemplate                                      = require('../../enums/SmsTemplate');
+import CallStatus                                       = require('../../enums/CallStatus');
 import Utils                                            = require('../../common/Utils');
 import Formatter                                        = require('../../common/Formatter');
 import VerificationCodeCache                            = require('../../caches/VerificationCodeCache');
@@ -48,6 +50,7 @@ class DashboardRoute
     private verificationCodeCache = new VerificationCodeCache();
     private couponDelegate = new CouponDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
+    private phoneCallDelegate = new PhoneCallDelegate();
 
     constructor(app)
     {
@@ -255,7 +258,15 @@ class DashboardRoute
     /* Handle payment response from gateway */
     private paymentComplete(req:express.Request, res:express.Response)
     {
-        
+        // If it's a call update status to scheduling
+        var callId:number;
+        this.phoneCallDelegate.update(callId, {status: CallStatus.SCHEDULING})
+            .then(
+            function callUpdated()
+            {
+
+            });
+
     }
 }
 

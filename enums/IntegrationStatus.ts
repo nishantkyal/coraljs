@@ -1,4 +1,4 @@
-export enum IntegrationStatus
+enum IntegrationStatus
 {
 }
 export = IntegrationStatus

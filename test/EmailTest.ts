@@ -12,7 +12,8 @@ export function sendExpertSchedulingEmail()
     var expert = new IntegrationMember();
     var user = new User();
     var call= new PhoneCall();
-    var schedules:ExpertSchedule[] = [];
+    var schedules:number[] = [];
+    var duration:number;
 
-    emailDelegate.sendSchedulingEmailToExpert(expert, schedules, user, call)
+    emailDelegate.sendSchedulingEmailToExpert(expert, schedules, duration, user, call)
 };

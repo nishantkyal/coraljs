@@ -1,6 +1,6 @@
-import BaseDao                  = require('./BaseDao');
+import BaseDao                  = require('../dao/BaseDao');
 import BaseModel                = require('../models/BaseModel');
-import UserPhone                = require('../models/UserPhone');
+import UserPhone              = require('../models/UserPhone');
 
 class UserPhoneDao extends BaseDao
 {
