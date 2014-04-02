@@ -102,5 +102,14 @@ class Utils
         return obj;
     }
 
+    static repeatChar(char:string, times:number, delimiter:string = ''):string
+    {
+        if (times <= 1)
+            return char;
+
+        var repeatArray:string = Array(times).join(char);
+        return delimiter === '' ? repeatArray : repeatArray.split('').join(delimiter);
+    }
+
 }
 export = Utils

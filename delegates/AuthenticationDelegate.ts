@@ -22,7 +22,6 @@ class AuthenticationDelegate
 {
     static STRATEGY_OAUTH:string = 'oauth';
     static STRATEGY_LOGIN:string = 'login';
-    static STRATEGY_REGISTER:string = 'register';
     static STRATEGY_FACEBOOK:string = 'facebook';
     static STRATEGY_LINKEDIN:string = 'linkedin';
     static STRATEGY_FACEBOOK_CALL_FLOW:string = 'facebook-call';

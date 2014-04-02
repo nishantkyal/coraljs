@@ -25,49 +25,54 @@ import CallStatus                                           = require('../../enu
 import ApiConstants                                         = require('../../enums/ApiConstants');
 import IncludeFlag                                          = require('../../enums/IncludeFlag');
 import TransactionStatus                                    = require('../../enums/TransactionStatus');
-import SessionStoreHelper                                   = require('../../helpers/SessionStorageHelper');
 import Formatter                                            = require('../../common/Formatter');
-import DashboardUrls                                        = require('../../routes/dashboard/Urls');
 import PageData                                             = require('./PageData');
 import Urls                                                 = require('./Urls');
 import Middleware                                           = require('./Middleware');
 
 class CallFlowRoute
 {
+    private static INDEX:string = 'callFlow/index';
+    private static LOGIN:string = 'callFlow/login';
+    private static MOBILE_VERIFICATION:string = 'callFlow/mobileVerification';
+    private static PAYMENT:string = 'callFlow/payment';
+    private static SCHEDULING:string = 'callFlow/scheduling';
+
     private logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
     private transactionDelegate = new TransactionDelegate();
     private verificationCodeDelegate = new VerificationCodeDelegate();
     private phoneCallDelegate = new PhoneCallDelegate();
-    private emailDelegate = new EmailDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
 
     constructor(app)
     {
         // Actual rendered pages
         app.get(Urls.callExpert(), this.index.bind(this));
-        app.post(Urls.callExpert(), this.checkout.bind(this));
-        app.get(Urls.paymentCallback(), Middleware.requireExpertAndAppointments.bind(this), this.paymentComplete.bind(this));
+        app.post(Urls.callExpert(), this.scheduleSelected.bind(this));
+        app.get(Urls.login(), this.authenticate.bind(this));
+        app.get(Urls.callPayment(), Middleware.requireExpertAndAppointments, this.callPayment.bind(this));
+        app.post(Urls.callPayment(), Middleware.requireExpertAndAppointments, this.checkout.bind(this));
 
         app.get(Urls.scheduling(), this.scheduling.bind(this));
         app.post(Urls.scheduling(), this.scheduling.bind(this));
 
         // Auth related routes
-        app.get(Urls.userFBLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {scope: ['email']}));
-        app.get(Urls.userFBLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {failureRedirect: DashboardUrls.login(), scope: ['email'], successRedirect: Urls.callExpert()}));
+        app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {successRedirect: Urls.callPayment()}));
+        app.post(Urls.register(), AuthenticationDelegate.register({failureRedirect: Urls.login()}), this.callPayment.bind(this));
+        app.get(Urls.fbLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {scope: ['email']}));
+        app.get(Urls.fbLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {failureRedirect: Urls.login(), scope: ['email'], successRedirect: Urls.callPayment()}));
     }
 
     /* Render index with expert schedules */
     private index(req:express.Request, res:express.Response)
     {
         var expertId = req.params[ApiConstants.EXPERT_ID];
-        req.session['returnTo'] = null;
 
         new IntegrationMemberDelegate().get(expertId, null, [IncludeFlag.INCLUDE_SCHEDULES, IncludeFlag.INCLUDE_USER])
             .then(
             function handleExpertFound(expert)
             {
                 Middleware.setSelectedExpert(req, expert);
-
                 var pageData = {
                     logged_in_user: req['user'],
                     user: expert.user[0],
@@ -78,19 +83,16 @@ class CallFlowRoute
                 };
 
                 res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
-                res.render('callFlow/index', pageData);
+                res.render(CallFlowRoute.INDEX, pageData);
             },
             function handleExpertSearchFailed(error) { res.status(401).json('Error getting expert details for id: ' + expertId)}
         );
     }
 
-    /* Validate request from caller and start a new transaction */
-    private checkout(req, res:express.Response)
+    // Redirect to login page if not logged in
+    // Not using a middleware for this because login is not an absolute requirement to reach payment page
+    scheduleSelected(req, res:express.Response)
     {
-        // Create phone call in scheduled state with a transaction and redirect to gateway for payment
-        var self = this;
-        var loggedInUserId = req['user'].id;
-
         // TODO: Validate duration
         var duration:number = req.body[ApiConstants.DURATION];
         Middleware.setDuration(req, duration);
@@ -99,81 +101,64 @@ class CallFlowRoute
         var startTimes:number[] = req.body[ApiConstants.START_TIME];
         Middleware.setSelectedStartTimes(req, startTimes);
 
-        // Require login
-        if (!req.isAuthenticated())
-        {
-            req.session[ApiConstants.RETURN_TO] = req.url;
-            res.redirect(DashboardUrls.login());
-            return;
-        }
-
-        // Require mobile number verification
-        var userPhoneSearch = {};
-        userPhoneSearch[UserPhone.USER_ID] = loggedInUserId;
-        userPhoneSearch[UserPhone.VERIFIED] = true;
-        this.userPhoneDelegate.find(userPhoneSearch)
-            .then(
-            function userPhoneFound(userPhone:UserPhone)
-            {
-                if (userPhone)
-                {
-                    var call:PhoneCall = new PhoneCall();
-                    call.setStatus(CallStatus.SCHEDULING);
-                    call.setAgenda('');
-                    call.setDuration(duration);
-                    call.setCallerUserId(loggedInUserId);
-                    call.setCallerPhoneId(userPhone.getId());
-
-                    var transaction = new Transaction();
-                    transaction.setStatus(TransactionStatus.PENDING);
-                    transaction.setUserId(req['user'].id);
-                    transaction.setTotalUnit(call.getPriceCurrency());
-
-                    return self.transactionDelegate.createPhoneCallTransaction(transaction, call);
-                }
-                else
-                {
-                    req.session[ApiConstants.RETURN_TO] = req.url;
-                    res.redirect(DashboardUrls.mobileVerification());
-                    res.end();
-                }
-            })
-            .then(
-            function transactionCreated(t)
-            {
-                // Redirect to gateway
-                res.redirect(Config.get('payment_gateway.url'));
-            });
-
+        if (req.isAuthenticated())
+            res.redirect(Urls.callPayment());
+        else
+            res.redirect(Urls.login());
     }
 
-    /* Handle payment response from gateway */
-    private paymentComplete(req:express.Request, res:express.Response)
+    authenticate(req:express.Request, res:express.Response)
     {
-        var self = this;
-        var callId:number;
-        var startTimes:number[] = Middleware.getSelectedStartTimes(req);
+        var expert = Middleware.getSelectedExpert(req);
 
-        // TODO: Handle gateway response
-        self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_USER, IncludeFlag.INCLUDE_USER_PHONE, IncludeFlag.INCLUDE_EXPERT_PHONE])
-            .then(
-            function callFetched(call:PhoneCall)
-            {
-                // Render payment complete page
-                var pageData = {
-                    call: call
-                };
-                res.render('callFlow/paymentComplete', pageData);
+        var pageData = {
+            logged_in_user: req['user'],
+            user: expert.getUser()[0],
+            expert: expert,
+            messages: req.flash()
+        };
 
-                return q.all([
-                    self.emailDelegate.sendSchedulingEmailToExpert(Middleware.getSelectedExpert(req), startTimes, Middleware.getDuration(req), req['user'], call),
-                    self.emailDelegate.sendPaymentCompleteEmail()
-                ]);
-            },
-            function callFetchError(error)
-            {
-                res.send(500);
-            });
+        res.render(CallFlowRoute.LOGIN, pageData);
+    }
+
+    /* Validate request from caller and start a new transaction */
+    private callPayment(req, res:express.Response)
+    {
+        var expert = Middleware.getSelectedExpert(req);
+
+        function renderPage(phoneNumbers:UserPhone[])
+        {
+            var pageData = {
+                logged_in_user: req['user'],
+                user: expert.getUser()[0],
+                expert: expert,
+                messages: req.flash(),
+                startTimes: Middleware.getSelectedStartTimes(req),
+                duration: Middleware.getDuration(req),
+                userPhones: phoneNumbers
+            };
+
+            res.render(CallFlowRoute.PAYMENT, pageData);
+        };
+
+        // Require mobile number verification
+        if (req.isAuthenticated())
+        {
+            var loggedInUserId = req['user'].id;
+            var userPhoneSearch = {};
+            userPhoneSearch[UserPhone.USER_ID] = loggedInUserId;
+            userPhoneSearch[UserPhone.VERIFIED] = true;
+
+            this.userPhoneDelegate.search(userPhoneSearch)
+                .then(renderPage);
+        }
+        else
+            renderPage(null);
+    }
+
+    /* Validate everything, create a transaction (and phone call record) and redirect to payment */
+    private checkout(req:express.Request, res:express.Response)
+    {
     }
 
     /* Invoked when expert/caller clicks on accept appointment link in email */
@@ -205,7 +190,7 @@ class CallFlowRoute
                 var pageData = {
                     call: call
                 };
-                res.render('callFlow/scheduling', pageData);
+                res.render(CallFlowRoute.SCHEDULING, pageData);
             });
     }
 

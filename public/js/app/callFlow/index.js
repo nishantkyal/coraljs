@@ -15,6 +15,7 @@ _.each(_.keys(dateGroups), function(date)
 });
 
 // Initialize start times
+startTimes = startTimes || [null];
 while (startTimes.length > 0)
 {
     var timestamp = startTimes.shift();

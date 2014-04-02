@@ -1,11 +1,13 @@
-import q                    = require('q');
-import _                    = require('underscore');
-import log4js               = require('log4js');
-import IDao                 = require('./IDao');
-import MysqlDelegate        = require('../delegates/MysqlDelegate')
-import GlobalIdDelegate     = require('../delegates/GlobalIDDelegate');
-import BaseModel            = require('../models/BaseModel');
-import Utils                = require('../common/Utils');
+///<reference path='../_references.d.ts'/>
+import mysql                                        = require('mysql');
+import q                                            = require('q');
+import _                                            = require('underscore');
+import log4js                                       = require('log4js');
+import IDao                                         = require('./IDao');
+import MysqlDelegate                                = require('../delegates/MysqlDelegate')
+import GlobalIdDelegate                             = require('../delegates/GlobalIDDelegate');
+import BaseModel                                    = require('../models/BaseModel');
+import Utils                                        = require('../common/Utils');
 
 /*
  Base class for DAO
@@ -58,7 +60,7 @@ class BaseDao implements IDao
             {
                 self.logger.error('Error while creating a new %s, error: %s', self.tableName, error.message);
                 var message = 'Error while creating a new ' + self.tableName + ', error: ' + error.message;
-                switch(error.code)
+                switch (error.code)
                 {
                     case 'ER_DUP_ENTRY':
                         error.message = Utils.snakeToCamelCase(self.tableName) + ' already exists with those details';
@@ -128,7 +130,8 @@ class BaseDao implements IDao
 
         return MysqlDelegate.executeQuery(queryString, values)
             .then(
-            function handleSearchResults(result) {
+            function handleSearchResults(result)
+            {
                 if (result.length != 0)
                     return new self.modelClass(result[0]);
                 else
@@ -157,8 +160,16 @@ class BaseDao implements IDao
         var wheres:any = whereStatements['where'];
         values = values.concat(whereStatements['values']);
 
-        var query = 'UPDATE ' + this.tableName + ' SET ' + updates.join(",") + ' WHERE ' + wheres.join(" AND ");
-        return MysqlDelegate.executeQuery(query, values, transaction);
+        var query = 'UPDATE `' + this.tableName + '` SET ' + updates.join(",") + ' WHERE ' + wheres.join(" AND ");
+        return MysqlDelegate.executeQuery(query, values, transaction)
+            .then(
+            function updateComplete(result:mysql.OkPacket)
+            {
+                if (result.affectedRows == 0)
+                    throw('No rows were updated');
+                else
+                    return result;
+            });
     }
 
     delete(criteria:number, transaction?:any):q.Promise<any>;
@@ -197,12 +208,13 @@ class BaseDao implements IDao
                     values.push(query['value'][1]);
                     break;
                 case 'Array':
-                    whereStatements.push(key + ' IN (?)');
-                    values.push(_.map(_.values(query), Utils.surroundWithQuotes));
+                    whereStatements.push(key + ' IN (' + Utils.repeatChar('?', query.length, ',') + ')');
+                    values = values.concat(query);
                     break;
                 case 'Number':
                 case 'String':
-                    whereStatements.push(key + ' = ' + Utils.surroundWithQuotes(query));
+                    whereStatements.push(key + ' = ?');
+                    values.push(query)
                     break;
             }
         }

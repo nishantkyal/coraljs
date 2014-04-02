@@ -20,16 +20,7 @@ include header
                         a.fa.fa-question-circle(title='How this works')
                     .controls#appointmentPickers
                 .form-group
-                    label.control-label Coupon
-                    .input-group
-                        input.form-control(type='text')
-                        .input-group-btn
-                            a.btn.btn-success.btn-small Apply Coupon
-                .form-group
-                    label.control-label Summary
-                    .form-control-static Rs. 100
-                .form-group
-                    input.btn.btn-primary.btn-lg(type='submit', value='MAKE PAYMENT')
+                    input.btn.btn-primary.btn-lg(type='submit', value='NEXT')
         .col-md-2
 
 #schedulePickerTemplate(style='display: none;')
@@ -52,5 +43,5 @@ include header
 
 script.
     var schedules = JSON.parse( '!{JSON.stringify(expert.schedule)}' );
-    var startTimes = JSON.parse( '!{JSON.stringify(startTimes)}' ) || [null];
+    var startTimes = JSON.parse( '!{JSON.stringify(startTimes)}' );
 script(src='/js/app/callFlow/index.js')

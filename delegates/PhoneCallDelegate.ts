@@ -23,7 +23,7 @@ import CallProviderFactory                                              = requir
 
 class PhoneCallDelegate extends BaseDAODelegate
 {
-    static ALLOWED_NEXT_STATUS:{ [s: number]: any[]; } = {};
+    static ALLOWED_NEXT_STATUS:{ [s: number]: CallStatus[]; } = {};
 
     private unscheduledCallsCache:UnscheduledCallsCache = new UnscheduledCallsCache();
     private integrationMemberDelegate = new IntegrationMemberDelegate();
@@ -61,30 +61,23 @@ class PhoneCallDelegate extends BaseDAODelegate
     update(criteria:number, newValues:Object, transaction?:any):q.Promise<any>;
     update(criteria:any, newValues:Object, transaction?:any):q.Promise<any>
     {
-        var self = this;
-        var callerPhoneId:number;
-        var expertPhoneId:number;
         var newStatus = newValues.hasOwnProperty(PhoneCall.STATUS) ? newValues[PhoneCall.STATUS] : null;
-        var superUpdate = super.update;
 
-        return this.find(criteria, [PhoneCall.STATUS, PhoneCall.CALLER_PHONE_ID, PhoneCall.EXPERT_PHONE_ID])
-            .then(
-            function phoneCallFetched(call:PhoneCall):any
+        if (!Utils.isNullOrEmpty(newStatus))
+        {
+            if (Utils.getObjectType(criteria) == 'Number')
+                criteria = {id: criteria};
+
+            var allowedPreviousStatuses:CallStatus[] = _.filter(_.keys(PhoneCallDelegate.ALLOWED_NEXT_STATUS), function (status:CallStatus)
             {
-                callerPhoneId = call.getCallerUserId();
-                expertPhoneId = call.getExpertPhoneId();
-                var status = call.getStatus();
-
-                if (!Utils.isNullOrEmpty(newStatus))
-                    if (PhoneCallDelegate.ALLOWED_NEXT_STATUS[status].indexOf(newStatus) != -1)
-                        return superUpdate(criteria, {'status': newStatus});
-                    else
-                    {
-                        var newStatusString = CallStatus[newStatus];
-                        var oldStatusString = CallStatus[status];
-                        throw new Error("Can't update call status to '" + newStatusString + "' since the call is " + oldStatusString);
-                    }
+                return _.contains(PhoneCallDelegate.ALLOWED_NEXT_STATUS[status], newStatus);
             });
+
+            if (allowedPreviousStatuses.length > 0)
+                criteria[PhoneCall.STATUS] = allowedPreviousStatuses;
+        }
+
+        return super.update(criteria, newValues, transaction);
     }
 
     getCallsBetweenInterval(startTime:number, endTime:number):q.Promise<any>

@@ -60,6 +60,7 @@ class DashboardRoute
         app.get(Urls.integrationMembers(), Middleware.allowOwnerOrAdmin, this.integrationUsers.bind(this));
         app.get(Urls.memberProfile(), Middleware.allowSelf, this.memberProfile.bind(this));
         app.get(Urls.logout(), this.logout.bind(this));
+        app.get(Urls.paymentCallback(), this.paymentComplete.bind(this));
 
         // Auth
         app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
@@ -249,6 +250,12 @@ class DashboardRoute
     {
         req.logout();
         res.redirect(Urls.index());
+    }
+
+    /* Handle payment response from gateway */
+    private paymentComplete(req:express.Request, res:express.Response)
+    {
+        
     }
 }
 

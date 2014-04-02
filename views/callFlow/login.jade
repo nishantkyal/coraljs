@@ -16,65 +16,46 @@ include header
         .col-md-8
             .row
                 .col-md-10
-                    b Please login to searchntalk.com or create an account to continue..
+                    | Please login to searchntalk.com or create an account to continue..
                 .pull-right
-                    .btn.btn-default(onclick='handleSkipClicked()') Skip >
+                    .btn.btn-default#skip Skip >
             .row
                 .col-md-5
-                    form.form-horizontal.left(method='post')
+                    form.form-horizontal.left#login(method='post', action=CallFlowUrls.login())
                         .form-group
                             label.control-label Email
                             .controls
-                                input.form-control(type='text', name='user')
+                                input.form-control#email(type='text', name='email')
                         .form-group
                             label.control-label Password
-                            .controls
-                                input.form-control(type='password', name='pass')
+                            input.form-control#password(type='password', name='password')
                         .form-group
-                            .controls
-                                input.btn.btn-primary(type='submit', value='Login')
+                            input.btn.btn-primary(type='submit', value='Login')
 
-                    form.form-horizontal.left(action=CallFlowUrls.userFBLogin(), method='get')
+                    form.form-horizontal.left(action=CallFlowUrls.fbLogin(), method='get')
                         .form-group
                             .controls
                                 input.btn.btn-primary(type='submit', value='Login using FB')
                 .col-md-1
                 .col-md-5
-                    form.form-horizontal.left(action=CallFlowUrls.userRegister(), method='post')
+                    form.form-horizontal.left#register(action=CallFlowUrls.register(), method='post')
                         .form-group
                             label.control-label Email
-                            .controls
-                                input.form-control(type='text', name='email')
+                            input.form-control#email(type='text', name='email')
                         .form-group
                             label.control-label First Name
-                            .controls
-                                input.form-control(type='text', name='first_name')
+                            input.form-control#first_name(type='text', name='first_name')
                         .form-group
                             label.control-label Last Name
-                            .controls
-                                input.form-control(type='text', name='last_name')
+                            input.form-control#last_name(type='text', name='last_name')
                         .form-group
                             label.control-label Password
-                            .controls
-                                input.form-control(type='password', name='password')
+                            input.form-control#password(type='password', name='password')
                         .form-group
                             label.control-label Confirm Password
-                            .controls
-                                input.form-control(type='password', name='confirm_password')
+                            input.form-control#confirm_password(type='password', name='confirm_password')
                         .form-group
                             .controls
                                 input.btn.btn-primary(type='submit', value='Register')
         .col-md-2
-script.
-
-    function loginSuccess()
-    {
-        window.location.href = '/call/details';
-    }
-
-    function handleSkipClicked()
-    {
-        var skip = window.confirm('Skipping login/registration will make it impossible for us to issue refunds if the call gets cancelled. Still skip?');
-        if (skip == true)
-            window.location.href = '/call/details';
-    }
+script(src='/js/app/callFlow/login.js')

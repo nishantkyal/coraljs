@@ -4,29 +4,31 @@ import Utils                                                = require('../../com
 import IntegrationMember                                    = require('../../models/IntegrationMember');
 import PhoneCall                                            = require('../../models/PhoneCall');
 import BaseModel                                            = require('../../models/BaseModel');
+import UserPhone                                            = require('../../models/UserPhone');
+import UserPhoneDelegate                                    = require('../../delegates/UserPhoneDelegate');
+import SessionStorageHelper                                 = require('../../helpers/SessionStorageHelper');
 import Urls                                                 = require('./Urls');
 
 class Middleware
 {
+    private static sessionStore = new SessionStorageHelper('CallFlow');
     private static SESSION_VARS_EXPERT:string = 'call_expert';
     private static SESSION_VARS_START_TIMES:string = 'call_start_times';
     private static SESSION_VARS_DURATION:string = 'call_durations';
 
-    static setSelectedExpert(req, expert:any):void { req.session[Middleware.SESSION_VARS_EXPERT] = expert; }
-    static getSelectedExpert(req):any { return req.session[Middleware.SESSION_VARS_EXPERT]; }
-
-    static setSelectedStartTimes(req, startTimes:number[]):void { req.session[Middleware.SESSION_VARS_START_TIMES] = JSON.stringify(startTimes); }
-    static getSelectedStartTimes(req):number[]
+    static setSelectedExpert(req, expert:IntegrationMember):void { Middleware.sessionStore.set(req, Middleware.SESSION_VARS_EXPERT, expert.toJson()); }
+    static getSelectedExpert(req):IntegrationMember
     {
-        try {
-            return JSON.parse(req.session[Middleware.SESSION_VARS_START_TIMES]);
-        } catch (e) {
-            return null;
-        }
+        var expertJson = Middleware.sessionStore.get(req, Middleware.SESSION_VARS_EXPERT);
+
+        return !Utils.isNullOrEmpty(expertJson) ? new IntegrationMember(expertJson) : expertJson;
     }
 
-    static setDuration(req, duration:number):void { req.session[Middleware.SESSION_VARS_DURATION] = duration; }
-    static getDuration(req):number { return parseInt(req.session[Middleware.SESSION_VARS_DURATION]); }
+    static setSelectedStartTimes(req, startTimes:number[]):void { Middleware.sessionStore.set(req, Middleware.SESSION_VARS_START_TIMES, startTimes); }
+    static getSelectedStartTimes(req):number[] { return Middleware.sessionStore.get(req, Middleware.SESSION_VARS_START_TIMES); }
+
+    static setDuration(req, duration:number):void { Middleware.sessionStore.set(req, Middleware.SESSION_VARS_DURATION, duration); }
+    static getDuration(req):number { return parseInt(Middleware.sessionStore.get(req, Middleware.SESSION_VARS_DURATION)); }
 
     static requireExpertAndAppointments(req, res, next)
     {
@@ -45,5 +47,6 @@ class Middleware
         else
             res.send(400, "This is strange, how did you land up here without selecting an expert");
     }
+
 }
 export = Middleware

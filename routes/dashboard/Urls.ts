@@ -10,5 +10,6 @@ class Urls
     static integrationMembers(integrationId?:number) { return ApiUrlDelegate.get('/integration/:integrationId(\\d+)/members', {integrationId: integrationId}); }
     static memberProfile(memberId?:number) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/profile', {memberId: memberId}); }
     static logout() { return ApiUrlDelegate.get('/logout'); }
+    static paymentCallback() { return ApiUrlDelegate.get('/payment/complete'); }
 }
 export = Urls;
