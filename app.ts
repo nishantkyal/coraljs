@@ -46,7 +46,9 @@ app.use(
         res.locals.CallFlowUrls = CallFlowUrls;
         res.locals.DashboardUrls = DashboardUrls;
 
-        res.locals.IndustryCodes = IndustryCodes;
+        res.locals.minYear = 1920;
+        res.locals.currentYear = new Date().getFullYear();
+
         next();
     }
 )

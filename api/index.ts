@@ -15,6 +15,7 @@ import UserApi                          = require('./UserApi');
 import UserProfileApi                   = require('./UserProfileApi');
 import UserEducationApi                 = require('./UserEducationApi');
 import UserEmploymentApi                = require('./UserEmploymentApi');
+import UserSkillApi                     = require('./UserSkillApi');
 
 function init(app)
 {
@@ -35,6 +36,7 @@ function init(app)
     new UserProfileApi(app);
     new UserEducationApi(app);
     new UserEmploymentApi(app);
+    new UserSkillApi(app);
 }
 
 export = init

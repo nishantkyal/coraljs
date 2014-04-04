@@ -1,6 +1,7 @@
 ///<reference path='../_references.d.ts'/>
 import q                                            = require('q');
-import fs                                           = require('fs');
+var fs                                           = require('fs');
+var http                                            = require('http');
 var gm                                              = require('gm');
 import ImageSize                                    = require('../enums/ImageSize');
 
@@ -45,6 +46,26 @@ class ImageDelegate
                 deferred.reject(err);
             else
                 deferred.resolve('Moved ' + oldPath + ' to ' + newPath);
+        });
+
+        return deferred.promise;
+    }
+
+    fetch(imageUrl:string, tempPath:string):q.Promise<any>
+    {
+        var deferred = q.defer();
+        var file = fs.createWriteStream(tempPath);
+        var request = http.get(imageUrl, function(response) {
+            if(response)
+            {
+                response.pipe(file);
+                file.on('finish', function() {
+                    file.close();
+                });
+                deferred.resolve('Image Fetched from '+ imageUrl);
+            }
+            else
+                deferred.reject('Error ');
         });
 
         return deferred.promise;

@@ -83,6 +83,25 @@ class Utils
         return camelCaseFrags.join('');
     }
 
+    static enumToNormalText(enumObject:Object)
+    {
+        var keys = _.keys(enumObject);
+        var finalObject = {};
+        _.map(_.values(enumObject), function(value,key,list){
+            if(Utils.getObjectType(value) == 'String' ){
+                console.log(value);
+                value = value.replace(/_/g,' ');
+                value = value.toLowerCase();
+                value = value.replace(/(^[a-z]|\s[a-z])/g, function(m:string, p):string{
+                    return m.toUpperCase();
+                })
+                finalObject[keys[key]] = value;
+                return value;
+            }
+        })
+        return finalObject;
+    }
+
     static getObjectType(obj:any):string
     {
         var type:string = Object.prototype.toString.call(obj).replace('[object ', '').replace(']', '');

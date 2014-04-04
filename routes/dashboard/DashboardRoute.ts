@@ -17,6 +17,7 @@ import CouponDelegate                                   = require('../../delegat
 import UserEducationDelegate                            = require('../../delegates/UserEducationDelegate');
 import UserSkillDelegate                                = require('../../delegates/UserSkillDelegate');
 import UserEmploymentDelegate                           = require('../../delegates/UserEmploymentDelegate');
+import RefSkillCodeDelegate                             = require('../../delegates/SkillCodeDelegate');
 import MoneyUnit                                        = require('../../enums/MoneyUnit');
 import IncludeFlag                                      = require('../../enums/IncludeFlag');
 import User                                             = require('../../models/User');
@@ -27,6 +28,7 @@ import Coupon                                           = require('../../models/
 import IntegrationMemberRole                            = require('../../enums/IntegrationMemberRole');
 import ApiConstants                                     = require('../../enums/ApiConstants');
 import SmsTemplate                                      = require('../../enums/SmsTemplate');
+import IndustryCodes                                    = require('../../enums/IndustryCodes');
 import Utils                                            = require('../../common/Utils');
 import Formatter                                        = require('../../common/Formatter');
 import VerificationCodeCache                            = require('../../caches/VerificationCodeCache');
@@ -53,6 +55,7 @@ class DashboardRoute
     userEmploymentDelegate = new UserEmploymentDelegate();
     userSkillDelegate = new UserSkillDelegate();
     userEducationDelegate = new UserEducationDelegate();
+    refSkillCodeDelegate = new RefSkillCodeDelegate();
 
     constructor(app)
     {
@@ -64,7 +67,6 @@ class DashboardRoute
         app.get(Urls.integrationMembers(), Middleware.allowOwnerOrAdmin, this.integrationUsers.bind(this));
         app.get(Urls.memberProfile(), Middleware.allowSelf, this.memberProfile.bind(this));
         app.get(Urls.memberEducation(), Middleware.allowSelf, this.memberEducation.bind(this));
-        app.get(Urls.memberSkill(), Middleware.allowSelf, this.memberSkill.bind(this));
         app.get(Urls.memberEmployment(), Middleware.allowSelf, this.memberEmployment.bind(this));
         app.get(Urls.logout(), this.logout.bind(this));
 
@@ -201,20 +203,27 @@ class DashboardRoute
         var self = this;
         var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
         var user:any = req[ApiConstants.USER];
-        self.integrationMemberDelegate.get(memberId)
+        self.refSkillCodeDelegate.getSkillName(user.id)
             .then(
-            function memberFetched(member)
-            {
-                var pageData =
+                function(skills)
                 {
-                    'logged_in_user': req['user'],
-                    'member': member,
-                    'user': user
-                };
-                res.render(DashboardRoute.PAGE_PROFILE, pageData);
-            },
-            function userFetchError() { res.send(500); }
-        );
+                    self.integrationMemberDelegate.get(memberId)
+                        .then(
+                        function memberFetched(member)
+                        {
+                            var pageData =
+                            {
+                                'logged_in_user': req['user'],
+                                'member'        : member,
+                                'user'          : user,
+                                'userSkill'     : skills,
+                                'industryCodes' : Utils.enumToNormalText(IndustryCodes)
+                            };
+                            res.render(DashboardRoute.PAGE_PROFILE, pageData);
+                        },
+                        function userSkillFetchError(error) { res.send(500); }
+                    )
+                });
     }
 
     memberProfileSave(req:express.Request, res:express.Response)
@@ -240,6 +249,7 @@ class DashboardRoute
                 {
                     var pageData =
                     {
+                        'logged_in_user': req['user'],
                         'userEducation' : userEducation,
                         'memberId'      : memberId
                     };
@@ -247,26 +257,6 @@ class DashboardRoute
                 },
                 function userEducationFetchError() { res.send(500); }
             )
-    }
-
-    memberSkill(req:express.Request, res:express.Response)
-    {
-        var self = this;
-        var loggedInUser = req['user'];
-        var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
-        self.userSkillDelegate.search({'user_id':loggedInUser.id})
-            .then(
-            function userSkillFetched(userSkill)
-            {
-                var pageData =
-                {
-                    'userSkill'     : userSkill,
-                    'memberId'      : memberId
-                };
-                res.render(DashboardRoute.PAGE_SKILL, pageData);
-            },
-            function userEducationFetchError() { res.send(500); }
-        )
     }
 
     memberEmployment(req:express.Request, res:express.Response)
@@ -280,6 +270,7 @@ class DashboardRoute
             {
                 var pageData =
                 {
+                    'logged_in_user'     : req['user'],
                     'userEmployment'     : userEmployment,
                     'memberId'           : memberId
                 };

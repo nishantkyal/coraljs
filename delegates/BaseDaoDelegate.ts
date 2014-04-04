@@ -160,7 +160,7 @@ class BaseDaoDelegate
         if(object.length === undefined)
         {
             var generatedId:number = new GlobalIdDelegate().generate(this.getDao().getModel().TABLE_NAME);
-            object[BaseModel.ID] = generatedId;
+            object[BaseModel.ID] = object[BaseModel.ID] || generatedId;
             object[BaseModel.CREATED] = new Date().getTime();
             object[BaseModel.UPDATED] = new Date().getTime();
             return this.getDao().create(object, transaction);
@@ -172,7 +172,7 @@ class BaseDaoDelegate
             _.each(object, function(data){
                 var tempObject = data;
                 var generatedId:number = new GlobalIdDelegate().generate(self.getDao().getModel().TABLE_NAME);
-                tempObject[BaseModel.ID] = generatedId;
+                tempObject[BaseModel.ID] = tempObject[BaseModel.ID] || generatedId;
                 tempObject[BaseModel.CREATED] = new Date().getTime();
                 tempObject[BaseModel.UPDATED] = new Date().getTime();
                 tempObject[BaseModel.DELETED] = false;

@@ -128,3 +128,169 @@ function submitForm(event, data)
         }
     });
 }
+
+var skillSet;
+var fetchedSkill = new Bloodhound({
+    datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    remote: {
+        url     : 'http://www.linkedin.com/ta/skill?query=',
+        replace: function(url, query) {
+            return url + query;
+        },
+        ajax:{
+            dataType: 'jsonp',
+            method: 'get'
+        },
+        filter: function(response) {
+            skillSet =  $.map(response.resultList, function (skill){
+                return {
+                    value: skill.displayName,
+                    code: skill.id
+                };
+            });
+            var skillString = $.map(skillSet,  function(skill){
+                return skill.value;
+            });
+            return skillString;
+        }
+    }
+});
+
+fetchedSkill.initialize();
+
+$('#AddUserSkillModal .typeahead').typeahead(
+    {
+        items: 'all',
+        name: 'skills',
+        source : fetchedSkill.ttAdapter()
+    }
+);
+
+$('#AddUserSkillModal form').validate({
+    rules         : {
+        skill_name : { required: true}
+    },
+    errorPlacement: function(error, element)
+    {
+        $(element).attr('title', error[0].innerHTML);
+        $(element).tooltip('show');
+    },
+    highlight     : function(element)
+    {
+        $(element).closest('.form-group').addClass('has-error');
+    },
+    unhighlight   : function(element)
+    {
+        $(element).closest('.form-group').removeClass('has-error');
+    },
+    submitHandler : function()
+    {
+        var updatedSkill = $('#AddUserSkillModal [name="skill_name"]').val();
+        var skillLkinCode;
+        $.each(skillSet, function(key,skill){
+            if(skill.value == updatedSkill)
+                skillLkinCode = skill.code;
+        });
+        $.ajax({
+            url : '/rest/user/skill',
+            type: 'put',
+            data: {
+                skill: {
+                    skill_lkin_code              :   skillLkinCode,
+                    skill_name              :   updatedSkill
+                }
+            },
+            success: function()
+            {
+                location.reload();
+            }
+        })
+    }
+});
+
+$('.editSkill').click(function()
+{
+    var selectedUserSkill;
+    var userSkillId = $(this).data('id');
+    for(var i = 0; i<userSkill.length; i++)
+        if(userSkill[i].id == userSkillId)
+            selectedUserSkill = userSkill[i];
+    if (selectedUserSkill) {
+        $('#EditUserSkillModal .btn-primary').attr('data-id', selectedUserSkill.id);
+        $('#EditUserSkillModal [name="skill_name"]').val(selectedUserSkill.skill_name);
+    }
+});
+
+$('#EditUserSkillModal .typeahead').typeahead(
+    {
+        items: 'all',
+        name: 'skills',
+        source : fetchedSkill.ttAdapter()
+    }
+);
+
+$('#EditUserSkillModal form').validate({
+    rules         : {
+        skill_name : { required: true}
+    },
+    errorPlacement: function(error, element)
+    {
+        $(element).attr('title', error[0].innerHTML);
+        $(element).tooltip('show');
+    },
+    highlight     : function(element)
+    {
+        $(element).closest('.form-group').addClass('has-error');
+    },
+    unhighlight   : function(element)
+    {
+        $(element).closest('.form-group').removeClass('has-error');
+    },
+    submitHandler : function()
+    {
+        var skillId = $('#EditUserSkillModal form .btn-primary').attr('data-id');
+        var updatedSkill = $('#EditUserSkillModal [name="skill_name"]').val();
+        var skillLkinCode;
+        $.each(skillSet, function(key,skill){
+            if(skill.value == updatedSkill)
+                skillLkinCode = skill.code;
+        });
+        $.ajax({
+            url : '/rest/user/skill/' + skillId,
+            type: 'post',
+            data: {
+                skill: {
+                    skill_lkin_code              :   skillLkinCode,
+                    skill_name              :   updatedSkill
+                }
+            },
+            success: function()
+            {
+                location.reload();
+            }
+        })
+    }
+});
+
+$('.deleteSkill').click(function()
+{
+    var skillId = $(this).data('id');
+    $('#DeleteUserSkillModal .btn-primary').attr('data-id', skillId);
+});
+
+function handleSkillDeleteClicked(event)
+{
+    var skillId = $(event.currentTarget).attr('data-id');
+    $.ajax({
+        url    : '/rest/user/skill/' + skillId,
+        type   : 'DELETE',
+        data: {
+            id              : skillId
+        },
+        success: function()
+        {
+            location.reload();
+        }
+    });
+};

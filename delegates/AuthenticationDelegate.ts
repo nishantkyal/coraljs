@@ -1,5 +1,6 @@
 ///<reference path='../_references.d.ts'/>
 import _                                    = require('underscore');
+import http                                 = require('http');
 import express                              = require('express');
 import passport                             = require('passport');
 import url                                  = require('url');
@@ -13,6 +14,7 @@ import UserOAuthDelegate                    = require('../delegates/UserOAuthDel
 import UserEmploymentDelegate               = require('../delegates/UserEmploymentDelegate');
 import UserEducationDelegate                = require('../delegates/UserEducationDelegate');
 import UserSkillDelegate                    = require('../delegates/UserSkillDelegate');
+import ImageDelegate                        = require('../delegates/ImageDelegate');
 import IntegrationMember                    = require('../models/IntegrationMember');
 import UserOauth                            = require('../models/UserOauth');
 import User                                 = require('../models/User');
@@ -162,7 +164,7 @@ class AuthenticationDelegate
     }
 
     private static configureLinkedInStrategy(strategyId:string, callbackUrl:string, profileFields:string[] = ['id', 'first-name', 'last-name', 'email-address', 'headline',
-        'industry', 'summary', 'positions', 'picture-url',  'skills', 'educations', 'date-of-birth'])
+        'industry', 'summary', 'positions', 'picture-urls::(original)',  'skills', 'educations', 'date-of-birth'])
     {
         passport.use(strategyId, new passport_linkedin.Strategy({
                 consumerKey: Config.get(Config.LINKEDIN_API_KEY),
@@ -173,6 +175,12 @@ class AuthenticationDelegate
             function (accessToken, refreshToken, profile:any, done)
             {
                 profile = profile['_json'];
+
+                var profilePictureUrl;
+                if(profile.pictureUrls)
+                    if(profile.pictureUrls.values.length > 0)
+                        profilePictureUrl = profile.pictureUrls.values[0];
+                var tempProfilePicturePath = Config.get(Config.TEMP_IMAGE_PATH) + Math.random();
 
                 var user:User = new User();
                 user.setEmail(profile.emailAddress);
@@ -212,18 +220,44 @@ class AuthenticationDelegate
                     .then(
                     function(user:User){
                         var userId:number = user.getId();
+
+                        if(!Utils.isNullOrEmpty(profilePictureUrl))
+                        {
+                            new ImageDelegate().fetch(profilePictureUrl, tempProfilePicturePath)
+                                .then(
+                                    function(){
+                                        new ImageDelegate().move(tempProfilePicturePath, Config.get(Config.PROFILE_IMAGE_PATH) + userId);
+                                    }
+                                )
+                        }
                         if(!Utils.isNullOrEmpty(profile.skills))
                         {
-                            var userSkill:UserSkill[] = [];
                             if(profile.skills._total > 0)
                             {
-                                _.each(profile.skills.values, function(skill){
-                                    var tempSkill:UserSkill = new UserSkill();
-                                    tempSkill.setSkill(1);//TODO define skillcodes
-                                    tempSkill.setUserId(userId);
-                                    userSkill.push(tempSkill);
+                                _.each(profile.skills.values, function(skillObject:any){
+                                    var tempUserSkill:UserSkill = new UserSkill();
+                                    var data:string = '';
+                                    var skillName = skillObject.skill.name;
+                                    var url:string = ('http://www.linkedin.com/ta/skill?query=' + skillName);
+                                    var request = http.get(url, function(response){
+                                        response.on('data', function (chunk) {
+                                            data = data + chunk;
+                                        });
+                                        response.on('end', function(){
+                                            var dataJson = JSON.parse(data);
+                                            var resultList = dataJson.resultList;
+                                            _.each(resultList, function(skill:any){
+                                                if(skill.displayName == skillName)
+                                                {
+                                                    tempUserSkill.setUserId(userId);
+                                                    new UserSkillDelegate().createUserSkill(tempUserSkill, skillName, skill.id);
+                                                }
+                                            });
+                                        });
+                                    });
+                                    request.on('error', function(e) {
+                                    });
                                 });
-                                new UserSkillDelegate().create(userSkill);
                             }
                         }
 

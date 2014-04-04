@@ -11,6 +11,7 @@ class Config
     static SESSION_EXPIRY:string                        = 'session.expiry';
 
     static PROFILE_IMAGE_PATH:string                    = 'profile_image_path';
+    static TEMP_IMAGE_PATH:string                       = 'temp_image_path';
     static PROFILE_IMAGE_BASE_URL:string                = 'profile_image_base_url';
 
     static DATABASE_HOST:string                         = 'database.host';
