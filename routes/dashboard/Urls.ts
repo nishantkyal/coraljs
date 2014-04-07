@@ -8,6 +8,7 @@ class Urls
     static integrationCoupons(integrationId?:number) { return ApiUrlDelegate.get('/integration/:integrationId(\\d+)/coupons', {integrationId: integrationId}); }
     static integrationMembers(integrationId?:number) { return ApiUrlDelegate.get('/integration/:integrationId(\\d+)/members', {integrationId: integrationId}); }
     static memberProfile(memberId?:number) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/profile', {memberId: memberId}); }
+    static memberProfileComplete(memberId?:number){ return ApiUrlDelegate.get('/member/:memberId(\\d+)/profileComplete', {memberId: memberId}); }
     static memberEducation(memberId?:number) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/education', {memberId: memberId}); }
     static memberEducationById(educationId?:number) { return ApiUrlDelegate.get('/member/education/:educationId(\\d+)', { educationId:educationId }); }
     static memberSkill(memberId?:number) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/skill', {memberId: memberId}); }

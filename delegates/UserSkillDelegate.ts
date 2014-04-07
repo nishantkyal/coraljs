@@ -37,9 +37,8 @@ class UserSkillDelegate extends BaseDaoDelegate
                     )
             }
         )
-
-        return this.create(userSkill);
     }
+
     updateUserSkill(userSkill:UserSkill, skillName:string, lkin_code:number):q.Promise<any>
     {
         var self = this;
@@ -66,6 +65,11 @@ class UserSkillDelegate extends BaseDaoDelegate
                 )
             }
         )
+    }
+
+    getSkillName(userId:any, transaction?:any):q.Promise<any>
+    {
+        return this.getDao().getSkillName(userId, transaction);
     }
 }
 export = UserSkillDelegate

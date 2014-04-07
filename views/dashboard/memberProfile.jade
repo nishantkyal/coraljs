@@ -14,6 +14,8 @@ include ../scriptsAndStyles
                                 a(href="education") Education
                             li
                                 a(href="employment") Positions
+                            li
+                                a(href="profileComplete") Full Profile
             .col-md-3
                 img.img.img-polaroid.img-responsive.col-md-12#profileImage(src='/rest/user/' + logged_in_user.id + '/picture')
                 form#fileUploadForm(action='/rest/user/' + logged_in_user.id + '/picture', method="post", enctype="multipart/form-data")

@@ -89,7 +89,6 @@ class Utils
         var finalObject = {};
         _.map(_.values(enumObject), function(value,key,list){
             if(Utils.getObjectType(value) == 'String' ){
-                console.log(value);
                 value = value.replace(/_/g,' ');
                 value = value.toLowerCase();
                 value = value.replace(/(^[a-z]|\s[a-z])/g, function(m:string, p):string{

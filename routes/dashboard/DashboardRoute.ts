@@ -43,6 +43,7 @@ class DashboardRoute
     static PAGE_USERS:string = 'dashboard/integrationUsers';
     static PAGE_COUPONS:string = 'dashboard/integrationCoupons';
     static PAGE_PROFILE:string = 'dashboard/memberProfile';
+    static PAGE_PROFILE_COMPLETE:string = 'dashboard/memberProfileComplete';
     static PAGE_EDUCATION:string = 'dashboard/memberEducation';
     static PAGE_SKILL:string = 'dashboard/memberSkill';
     static PAGE_EMPOLYMENT:string = 'dashboard/memberEmployment';
@@ -55,7 +56,6 @@ class DashboardRoute
     userEmploymentDelegate = new UserEmploymentDelegate();
     userSkillDelegate = new UserSkillDelegate();
     userEducationDelegate = new UserEducationDelegate();
-    refSkillCodeDelegate = new RefSkillCodeDelegate();
 
     constructor(app)
     {
@@ -66,6 +66,7 @@ class DashboardRoute
         app.get(Urls.integrationCoupons(), connect_ensure_login.ensureLoggedIn(), this.coupons.bind(this));
         app.get(Urls.integrationMembers(), Middleware.allowOwnerOrAdmin, this.integrationUsers.bind(this));
         app.get(Urls.memberProfile(), Middleware.allowSelf, this.memberProfile.bind(this));
+        app.get(Urls.memberProfileComplete(), this.memberProfileComplete.bind(this));
         app.get(Urls.memberEducation(), Middleware.allowSelf, this.memberEducation.bind(this));
         app.get(Urls.memberEmployment(), Middleware.allowSelf, this.memberEmployment.bind(this));
         app.get(Urls.logout(), this.logout.bind(this));
@@ -198,12 +199,58 @@ class DashboardRoute
             function usersFetchError(error) { res.send(500, error); });
     }
 
+    memberProfileComplete(req:express.Request, res:express.Response)
+    {
+        var self = this;
+        var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
+        var user,userId,userSkill, userEducation, userEmployment;
+        self.integrationMemberDelegate.get(memberId)
+            .then(
+            function memberFetched(member:IntegrationMember)
+            {
+                userId = member.getUserId();
+                return self.userDelegate.get(userId);
+            })
+            .then(
+            function(tempUser){
+                user = tempUser;
+                return self.userSkillDelegate.getSkillName(userId) ;
+            })
+            .then(
+            function(skills){
+                userSkill = skills;
+                return self.userEducationDelegate.search({'user_id':userId})
+            })
+            .then(
+            function (educations){
+                userEducation = educations;
+                return self.userEmploymentDelegate.search({'user_id':userId})
+            })
+            .then(
+            function(employments){
+                userEmployment = employments;
+                var pageData =
+                {
+                    'user'          : user,
+                    'userSkill'     : userSkill,
+                    'userEducation' : userEducation,
+                    'userEmployment': userEmployment,
+                    'industryCodes' : Utils.enumToNormalText(IndustryCodes)
+                };
+                res.render(DashboardRoute.PAGE_PROFILE_COMPLETE, pageData);
+            })
+            .fail(
+            function(error){
+                res.send(500);
+            });
+    }
+
     memberProfile(req:express.Request, res:express.Response)
     {
         var self = this;
         var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
         var user:any = req[ApiConstants.USER];
-        self.refSkillCodeDelegate.getSkillName(user.id)
+        self.userSkillDelegate.getSkillName(user.id)
             .then(
                 function(skills)
                 {

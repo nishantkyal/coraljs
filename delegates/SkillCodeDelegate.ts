@@ -6,9 +6,5 @@ import SkillCodeDao                                 = require('../dao/SkillCodeD
 class SkillCodeDelegate extends BaseDaoDelegate
 {
     getDao():IDao { return new SkillCodeDao(); }
-    getSkillName(userId:any, transaction?:any):q.Promise<any>
-    {
-        return this.getDao().getSkillName(userId, transaction);
-    }
 }
 export = SkillCodeDelegate
