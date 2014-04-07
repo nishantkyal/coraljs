@@ -34,7 +34,6 @@ class CallFlowRoute
 {
     private static INDEX:string = 'callFlow/index';
     private static LOGIN:string = 'callFlow/login';
-    private static MOBILE_VERIFICATION:string = 'callFlow/mobileVerification';
     private static PAYMENT:string = 'callFlow/payment';
     private static SCHEDULING:string = 'callFlow/scheduling';
 
