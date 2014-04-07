@@ -13,9 +13,6 @@ class BaseDaoDelegate
     logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
     dao:IDao;
 
-    DEFAULT_FIELDS:string[] = [BaseModel.ID];
-    TIMESTAMPS_FIELDS:string[] = [BaseModel.CREATED, BaseModel.DELETED, BaseModel.UPDATED];
-
     constructor(dao:IDao)
     {
         this.dao = dao;
@@ -23,7 +20,7 @@ class BaseDaoDelegate
 
     get(id:any, fields?:string[], includes:IncludeFlag[] = []):q.Promise<any>
     {
-        fields = fields || this.DEFAULT_FIELDS;
+        fields = fields || this.dao.modelClass.DEFAULT_FIELDS;
 
         if (Utils.getObjectType(id) == 'Array' && id.length > 0)
             return this.search({'id': id}, fields, includes);
@@ -72,7 +69,7 @@ class BaseDaoDelegate
         var self = this;
         var rawResult;
 
-        fields = fields || this.DEFAULT_FIELDS;
+        fields = fields || this.dao.modelClass.DEFAULT_FIELDS;
 
         return this.dao.find(search, fields)
             .then(
@@ -119,7 +116,7 @@ class BaseDaoDelegate
         var self = this;
         var rawResult;
 
-        fields = fields || this.DEFAULT_FIELDS;
+        fields = fields || this.dao.modelClass.DEFAULT_FIELDS;
 
         return this.dao.search(search, fields)
             .then(

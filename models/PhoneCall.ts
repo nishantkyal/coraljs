@@ -1,5 +1,8 @@
-import BaseModel            = require('./BaseModel');
-import Utils                = require('../common/Utils');
+import BaseModel                                    = require('./BaseModel');
+import Utils                                        = require('../common/Utils');
+import User                                         = require('../models/User');
+import IntegrationMember                            = require('../models/IntegrationMember');
+import UserPhone                                    = require('../models/UserPhone');
 
 /**
  Bean class for Phone call
@@ -26,9 +29,15 @@ class PhoneCall extends BaseModel
     static NUM_REATTEMPTS:string = 'num_reattempts';
     static DELAY:string = 'delay';
 
+    static CALLER:string = 'caller';
+    static EXPERT:string = 'expert';
+    static CALLER_PHONE:string = 'caller_phone';
+    static EXPERT_PHONE:string = 'expert_phone';
+
     private caller_user_id:number;
     private integration_member_id:number;
     private caller_phone_id:number;
+    private expert_id:number;
     private expert_phone_id:number;
     private start_time:number;
     private duration:number;
@@ -44,10 +53,16 @@ class PhoneCall extends BaseModel
     private num_reattempts:number;
     private delay:number;
 
+    private caller:User;
+    private expert:IntegrationMember;
+    private caller_phone:UserPhone;
+    private expert_phone:UserPhone;
+
     /* Getters */
     getCallerUserId():number { return this.caller_user_id; }
     getIntegrationMemberId():number { return this.integration_member_id; }
     getCallerPhoneId():number { return this.caller_phone_id; }
+    getExpertId():number { return this.expert_id; }
     getExpertPhoneId():number { return this.expert_phone_id; }
     getStartTime():number { return this.start_time; }
     getDuration():number { return this.duration; }
@@ -63,10 +78,16 @@ class PhoneCall extends BaseModel
     getNumReattempts():number { return this.num_reattempts; }
     getDelay():number { return this.delay; }
 
+    getCaller():User { return this.caller; }
+    getExpert():IntegrationMember { return this.expert; }
+    getCallerPhone():UserPhone { return this.caller_phone; }
+    getExpertPhone():UserPhone { return this.expert_phone; }
+
     /* Setters */
     setCallerUserId(val:number):void { this.caller_user_id = val; }
     setIntegrationMemberId(val:number):void { this.integration_member_id = val; }
     setCallerPhoneId(val:number):void { this.caller_phone_id = val; }
+    setExpertId(val:number):void { this.expert_id = val; }
     setExpertPhoneId(val:number):void { this.expert_phone_id = val; }
     setStartTime(val:number):void { this.start_time = val; }
     setDuration(val:number):void { this.duration = val; }
@@ -81,6 +102,11 @@ class PhoneCall extends BaseModel
     setNumReschedules(val:number):void { this.num_reschedules = val; }
     setNumReattempts(val:number):void {this.num_reattempts = val; }
     setDelay(val:number):void {this.delay = val; }
+
+    setCaller(val:User):void { this.caller = val; }
+    setExpert(val:IntegrationMember):void { this.expert = val; }
+    setCallerPhone(val:UserPhone):void { this.caller_phone = val; }
+    setExpertPhone(val:UserPhone):void { this.expert_phone = val; }
 
     isValid():boolean
     {

@@ -1,20 +1,22 @@
 ///<reference path='./_references.d.ts'/>
 import _                                            = require('underscore');
 import express                                      = require('express');
-var connect = require('connect');
-var RedisStore = require('connect-redis')(connect);
+var connect                                         = require('connect');
+var RedisStore                                      = require('connect-redis')(connect);
 import connect_flash                                = require("connect-flash");
 import http                                         = require('http');
 import path                                         = require('path');
 import passport                                     = require('passport');
 import log4js                                       = require('log4js');
 import moment                                       = require('moment');
+import ScheduleCallsScheduledTask                   = require('./models/tasks/ScheduleCallsScheduledTask');
 import Config                                       = require('./common/Config');
 import Formatter                                    = require('./common/Formatter');
 import Utils                                        = require('./common/Utils');
 import ApiUrlDelegate                               = require('./delegates/ApiUrlDelegate');
 import MysqlDelegate                                = require('./delegates/MysqlDelegate');
 import IntegrationDelegate                          = require('./delegates/IntegrationDelegate');
+import ScheduledTaskDelegate                        = require('./delegates/ScheduledTaskDelegate');
 import RequestHandler                               = require('./middleware/RequestHandler');
 import api                                          = require('./api/index');
 import routes                                       = require('./routes/index');
@@ -89,6 +91,9 @@ _.templateSettings = {
     interpolate: /\{\{([\s\S]+?)\}\}/g
 };
 _.mixin(helpers);
+
+// Start call scheduling cron
+new ScheduledTaskDelegate().scheduleAfter(new ScheduleCallsScheduledTask(), 1);
 
 app.set('port', Config.get(Config.CORAL_PORT) || 3000);
 app.listen(app.get('port'), function ()

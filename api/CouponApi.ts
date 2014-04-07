@@ -77,7 +77,7 @@ class CouponApi
             var coupon = req.body[ApiConstants.COUPON];
 
             // Send true if coupon not found or is invalid
-            self.couponDelegate.find(coupon, null, self.couponDelegate.DASHBOARD_FIELDS)
+            self.couponDelegate.find(coupon, null, Coupon.DASHBOARD_FIELDS)
                 .then(
                     function couponFound(c:Coupon)
                     {

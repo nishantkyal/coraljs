@@ -21,8 +21,6 @@ import Config                                                           = requir
  */
 class UserDelegate extends BaseDaoDelegate
 {
-    DEFAULT_FIELDS:string[] = [User.ID, User.FIRST_NAME, User.LAST_NAME, User.SHORT_DESC, User.LONG_DESC, User.EMAIL];
-
     imageDelegate = new ImageDelegate();
     userProfileDelegate = new UserProfileDelegate();
     integrationMemberDelegate = new IntegrationMemberDelegate();

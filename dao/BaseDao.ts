@@ -109,7 +109,7 @@ class BaseDao implements IDao
 
         selectColumns = !Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
 
-        var queryString = 'SELECT ' + selectColumns + ' FROM ' + this.tableName + ' WHERE ' + wheres.join(' AND ');
+        var queryString = 'SELECT ' + selectColumns + ' FROM `' + this.tableName + '` WHERE ' + wheres.join(' AND ');
 
         return MysqlDelegate.executeQuery(queryString, values)
             .then(
@@ -126,7 +126,7 @@ class BaseDao implements IDao
 
         selectColumns = !Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
 
-        var queryString = 'SELECT ' + selectColumns + ' FROM ' + this.tableName + ' WHERE ' + wheres.join(' AND ') + ' LIMIT 1';
+        var queryString = 'SELECT ' + selectColumns + ' FROM `' + this.tableName + '` WHERE ' + wheres.join(' AND ') + ' LIMIT 1';
 
         return MysqlDelegate.executeQuery(queryString, values)
             .then(
@@ -183,7 +183,7 @@ class BaseDao implements IDao
         var wheres = whereStatements['where'];
         var values = whereStatements['values'];
 
-        return MysqlDelegate.executeQuery('DELETE FROM ' + this.tableName + ' WHERE ' + wheres.join(' AND '), values, transaction);
+        return MysqlDelegate.executeQuery('DELETE FROM `' + this.tableName + '` WHERE ' + wheres.join(' AND '), values, transaction);
     }
 
     private generateWhereStatements(criteria:Object):any

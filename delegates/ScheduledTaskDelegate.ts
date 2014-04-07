@@ -1,3 +1,4 @@
+///<reference path='../_references.d.ts'/>
 import q                                                        = require('q');
 import _                                                        = require('underscore');
 import log4js                                                   = require('log4js');
@@ -7,72 +8,24 @@ import Config                                                   = require('../co
 import PhoneCallDelegate                                        = require('../delegates/PhoneCallDelegate');
 import SMSDelegate                                              = require('../delegates/SMSDelegate');
 import PhoneCall                                                = require('../models/PhoneCall');
-import ScheduledTask                                            = require('../models/tasks/ScheduledTask');
+import AbstractScheduledTask                                    = require('../models/tasks/AbstractScheduledTask');
 import ScheduledTaskType                                        = require('../enums/ScheduledTaskType');
 import PhoneCallCache                                           = require('../caches/PhoneCallCache');
 import CacheHelper                                              = require('../caches/CacheHelper');
 
+interface TimeoutAndTask
+{
+    task:AbstractScheduledTask;
+    timeout:any;
+}
+
 class ScheduledTaskDelegate
 {
     logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
-    private static tasks:{(id:number): ScheduledTask};
-
-    /*getTasks()
-    {
-        var self = this;
-        var currentTime = moment().valueOf();
-
-        return new PhoneCallDelegate().getCallsBetweenInterval(currentTime, currentTime + Config.get('call.schedule.interval') + Config.get('sms.reminder.time'))
-            .then(
-            function scheduledCalls(calls:PhoneCall[])
-            {
-                _.each(calls, function (call:PhoneCall)
-                {
-                    if (call.getStartTime() < currentTime + Config.get('call.schedule.interval')) // to schedule call for next interval
-                    {
-                        var tempScheduledTask:ScheduledTask = new ScheduledTask();
-                        tempScheduledTask.setTask(call);
-                        tempScheduledTask.setStartTime(call.getStartTime());
-                        tempScheduledTask.setTaskType(ScheduledTaskType.CALL);
-                        self.logger.info('Call scheduled. Id:' + call.getId() + ' at' + call.getStartTime());
-                        new PhoneCallCache().createPhoneCallCache(call.getId());
-                        ScheduledTaskDelegate.tasks.push(tempScheduledTask);
-                    }
-                    if (call.getStartTime() >= currentTime + Config.get('sms.reminder.time')) //need to schedule reminder SMS as well
-                    {
-                        var tempSmsScheduledTask:ScheduledTask = new ScheduledTask();
-                        tempSmsScheduledTask.setTask(call);
-                        tempSmsScheduledTask.setStartTime(call.getStartTime() - Config.get('sms.reminder.time'));
-                        tempSmsScheduledTask.setTaskType(ScheduledTaskType.SMS);
-                        ScheduledTaskDelegate.tasks.push(tempSmsScheduledTask);
-                    }
-                })
-                return ScheduledTaskDelegate.tasks;
-            },
-            function fetchError(error)
-            {
-                self.logger.debug('Error in getting call info for scheduling');
-            }
-        )
-    }*/
-
-    /*executeTask(job:ScheduledTask)
-    {
-        switch (job.getTaskType())
-        {
-            case ScheduledTaskType.CALL:
-                var call:PhoneCall = job.getTask();
-                new PhoneCallDelegate().triggerCall(call.getId());
-                break;
-            case ScheduledTaskType.SMS:
-                var call:PhoneCall = job.getTask();
-                new SMSDelegate().sendReminderSMS(call.getId());
-                break;
-        }
-    }*/
+    private static tasks:{[id:number]: TimeoutAndTask} = {};
 
     /* Schedule task at specified time */
-    scheduleAt(task:ScheduledTask, timestamp:number):number
+    scheduleAt(task:AbstractScheduledTask, timestamp:number):number
     {
         var self = this;
         var currentTime = moment().valueOf();
@@ -80,23 +33,43 @@ class ScheduledTaskDelegate
     }
 
     /* Schedule task after an interval */
-    scheduleAfter(task:ScheduledTask, interval:number):number
+    scheduleAfter(task:AbstractScheduledTask, interval:number):number
     {
         var self = this;
-        var taskId:number = setTimeout(task.execute, interval, task);
+        var taskId:number = moment().valueOf();
 
+        if (!task.isValid())
+        {
+            this.logger.error('Attempted to schedule invalid task, %s', task);
+            return null;
+        }
+
+        var timeout:any = setTimeout(function ()
+        {
+            task.execute();
+            self.cancel(task.getId());
+        }, interval);
+
+        task.setId(taskId);
         task.setStartTime(moment().add({ms: interval}).valueOf());
 
         // Add task to index and persist
-        ScheduledTaskDelegate.tasks[taskId] = task;
-        self.syncToRedis();
+        ScheduledTaskDelegate.tasks[taskId] = {task: task, timeout: timeout};
+
+        // TODO: Make sync to redis work
+        //self.syncToRedis();
 
         return taskId;
     }
 
-    get(taskId:number):ScheduledTask
+    getAll():AbstractScheduledTask[]
     {
-        return ScheduledTaskDelegate.tasks[taskId];
+        return _.values(ScheduledTaskDelegate.tasks);
+    }
+
+    get(taskId:number):AbstractScheduledTask
+    {
+        return ScheduledTaskDelegate.tasks[taskId].task;
     }
 
     /* Return id of task matching search */
@@ -113,8 +86,9 @@ class ScheduledTaskDelegate
 
     cancel(taskId:number):void
     {
-        clearTimeout(taskId);
+        clearTimeout(ScheduledTaskDelegate.tasks[taskId].timeout);
         delete ScheduledTaskDelegate.tasks[taskId];
+        this.syncToRedis();
     }
 
     private syncToRedis():q.Promise<any>

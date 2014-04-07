@@ -21,7 +21,7 @@ class MysqlDelegate {
             database         : Config.get(Config.DATABASE_NAME),
             user             : Config.get(Config.DATABASE_USER),
             password         : Config.get(Config.DATABASE_PASS),
-            socketPath:     Config.get(Config.DATABASE_SOCKET),
+            socketPath       : Config.get(Config.DATABASE_SOCKET),
             supportBigNumbers: true
         });
     })();
@@ -36,14 +36,14 @@ class MysqlDelegate {
             host             : Config.get(Config.DATABASE_HOST),
             user             : Config.get(Config.DATABASE_USER),
             password         : Config.get(Config.DATABASE_PASS),
-            socketPath:     Config.get(Config.DATABASE_SOCKET)
+            socketPath       : Config.get(Config.DATABASE_SOCKET)
         });
 
         connection.connect(function(err)
         {
             if (err)
             {
-                MysqlDelegate.logger.error('Error when establishing a mysql connection, error: ' + err);
+                MysqlDelegate.logger.fatal('Error when establishing a mysql connection, error: ' + err);
                 deferred.reject(err);
             }
             else
@@ -62,7 +62,7 @@ class MysqlDelegate {
             function handleConnection(err, connection)
             {
                 if (err) {
-                    MysqlDelegate.logger.error('MysqlDelegate: Failed to get new connection, error: %s', JSON.stringify(err));
+                    MysqlDelegate.logger.fatal('MysqlDelegate: Failed to get new connection, error: %s', JSON.stringify(err));
                     deferred.reject('Failed to get a DB connection');
                 }
                 else
@@ -138,7 +138,9 @@ class MysqlDelegate {
             },
             function queryFailed(err)
             {
-                connection.release();
+                try {
+                    connection.release();
+                } catch (e) {}
                 throw(err);
             });
     }

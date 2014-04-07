@@ -45,7 +45,7 @@ class Middleware
         else if (!Utils.isNullOrEmpty(expert))
             res.redirect(Urls.callExpert(expert[BaseModel.ID]));
         else
-            res.send(400, "This is strange, how did you land up here without selecting an expert");
+            res.composeAndSend(400, "This is strange, how did you land up here without selecting an expert");
     }
 
 }

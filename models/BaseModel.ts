@@ -21,6 +21,9 @@ class BaseModel
     private updated:number;
     private deleted:boolean;
 
+    static DEFAULT_FIELDS:string[] = [BaseModel.ID];
+    static TIMESTAMP_FIELDS:string[] = [BaseModel.CREATED, BaseModel.UPDATED, BaseModel.DELETED];
+
     constructor(data:Object = {})
     {
         var thisProtoConstructor = this.__proto__.constructor;
@@ -32,7 +35,8 @@ class BaseModel
                 if (typeof this.__proto__[classProperty] == 'function' && classProperty.match(/^get/) != null)
                 {
                     var key:string = Utils.camelToSnakeCase(classProperty.replace(/^get/, ''));
-                    thisProtoConstructor['COLUMNS'].push(key);
+                    if (!Utils.isNullOrEmpty(key))
+                        thisProtoConstructor['COLUMNS'].push(key);
                 }
 
         _.each (thisProtoConstructor['COLUMNS'], function(column:string) {

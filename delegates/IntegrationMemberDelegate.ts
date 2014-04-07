@@ -20,9 +20,6 @@ import ExpertScheduleRuleDelegate           = require('../delegates/ExpertSchedu
 
 class IntegrationMemberDelegate extends BaseDaoDelegate
 {
-    DEFAULT_FIELDS:string[] = [IntegrationMember.ID, IntegrationMember.INTEGRATION_ID, IntegrationMember.ROLE];
-    DASHBOARD_FIELDS:string[] = [IntegrationMember.ID, IntegrationMember.INTEGRATION_ID, IntegrationMember.ROLE, IntegrationMember.USER_ID, IntegrationMember.REVENUE_SHARE, IntegrationMember.REVENUE_SHARE_UNIT];
-
     create(object:Object, transaction?:any):q.Promise<any>
     {
         var integrationMember = new IntegrationMember(object);

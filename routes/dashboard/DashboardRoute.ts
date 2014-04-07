@@ -112,7 +112,7 @@ class DashboardRoute
     {
         var user = req['user'];
 
-        this.integrationMemberDelegate.searchByUser(user.id, this.integrationMemberDelegate.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_INTEGRATION, IncludeFlag.INCLUDE_USER])
+        this.integrationMemberDelegate.searchByUser(user.id, IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_INTEGRATION, IncludeFlag.INCLUDE_USER])
             .then(
             function integrationsFetched(integrationMembers)
             {
@@ -148,7 +148,7 @@ class DashboardRoute
         var integration = this.integrationDelegate.getSync(integrationId);
         var integrationMembers = Middleware.getIntegrationMembers(req);
 
-        this.couponDelegate.search({integration_id: integrationId}, this.couponDelegate.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_EXPERT])
+        this.couponDelegate.search({integration_id: integrationId}, Coupon.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_EXPERT])
             .then(
             function couponsFetched(coupons:Coupon[])
             {
@@ -183,7 +183,7 @@ class DashboardRoute
         search[IntegrationMember.INTEGRATION_ID] = integrationId;
 
         q.all([
-            this.integrationMemberDelegate.search(search, this.integrationMemberDelegate.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER]),
+            this.integrationMemberDelegate.search(search, IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER]),
             this.verificationCodeCache.getInvitationCodes(integrationId)
         ])
             .then(

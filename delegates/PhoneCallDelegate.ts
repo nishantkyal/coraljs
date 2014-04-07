@@ -2,7 +2,6 @@
 import _                                                                = require('underscore');
 import q                                                                = require('q');
 import Utils                                                            = require('../common/Utils');
-import Config                                                           = require('../common/Config');
 import IDao                                                             = require('../dao/IDao');
 import PhoneCallDao                                                     = require('../dao/PhoneCallDao');
 import BaseDAODelegate                                                  = require('../delegates/BaseDaoDelegate');
@@ -18,7 +17,6 @@ import UserPhone                                                        = requir
 import IntegrationMember                                                = require('../models/IntegrationMember');
 import UnscheduledCallsCache                                            = require('../caches/UnscheduledCallsCache');
 import PhoneCallCache                                                   = require('../caches/PhoneCallCache');
-import PhoneCallCacheModel                                              = require('../caches/models/PhoneCallCacheModel');
 import CallProviderFactory                                              = require('../factories/CallProviderFactory');
 
 class PhoneCallDelegate extends BaseDAODelegate
@@ -30,6 +28,7 @@ class PhoneCallDelegate extends BaseDAODelegate
     private userDelegate = new UserDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
     private callProvider = new CallProviderFactory().getProvider();
+    private phoneCallCache = new PhoneCallCache();
 
     private static ctor = (() =>
     {
@@ -43,10 +42,29 @@ class PhoneCallDelegate extends BaseDAODelegate
         PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.POSTPONED] = [CallStatus.SCHEDULING, CallStatus.CANCELLED];
     })();
 
+    get(id:any, fields?:string[], includes:IncludeFlag[] = []):q.Promise<any>
+    {
+        var superGet = super.get;
+
+        return this.phoneCallCache.get(id)
+            .then(
+            function callFetched(result):any
+            {
+                if (!Utils.isNullOrEmpty(result))
+                    return new PhoneCall(result);
+                else
+                    return superGet(id, fields, includes);
+            },
+            function callFetchError()
+            {
+                return superGet(id, fields, includes);
+            });
+    }
+
     create(object:any, transaction?:any):q.Promise<any>
     {
         if (object[PhoneCall.STATUS] == CallStatus.PLANNING)
-            return this.unscheduledCallsCache.addUnscheduledCall(object['integration_member_id'], object['schedule_id'], object);
+            return this.unscheduledCallsCache.addUnscheduledCall(object[PhoneCall.EXPERT_PHONE_ID], object[PhoneCall.START_TIME], object);
         return super.create(object, transaction);
     }
 
@@ -68,6 +86,8 @@ class PhoneCallDelegate extends BaseDAODelegate
             if (Utils.getObjectType(criteria) == 'Number')
                 criteria = {id: criteria};
 
+            // Only return calls whose current status' next step can be the new status
+            // This is a better way to update status to a valid next status without querying for current status first
             var allowedPreviousStatuses:CallStatus[] = _.filter(_.keys(PhoneCallDelegate.ALLOWED_NEXT_STATUS), function (status:CallStatus)
             {
                 return _.contains(PhoneCallDelegate.ALLOWED_NEXT_STATUS[status], newStatus);
@@ -108,10 +128,9 @@ class PhoneCallDelegate extends BaseDAODelegate
         var self = this;
         return self.get(callId)
             .then(
-            function callFetched(call:any)
+            function callFetched(call:PhoneCall)
             {
-                var phoneCallCacheObj:PhoneCallCacheModel = new PhoneCallCacheModel(call);
-                return self.callProvider.makeCall(phoneCallCacheObj.getUserNumber(), callId, phoneCallCacheObj.getNumReattempts());
+                return self.callProvider.makeCall(call.getCallerPhone().getCompleteNumber(), callId, call.getNumReattempts());
             })
             .fail(
             function callFailed(error)

@@ -1,6 +1,7 @@
 ///<reference path='../_references.d.ts'/>
 import q                                                        = require('q');
 import log4js                                                   = require('log4js');
+import twilio                                                   = require('twilio');
 import Utils                                                    = require('../common/Utils');
 import ApiUrlDelegate                                           = require('../delegates/ApiUrlDelegate');
 import TwilioUrlDelegate                                        = require('../delegates/TwilioUrlDelegate');
@@ -29,16 +30,18 @@ class TwilioProvider implements IPhoneCallProvider,ISmsProvider
     constructor()
     {
         this.logger = log4js.getLogger(Utils.getClassName(this));
-        this.twilioClient = require('twilio')(Config.get('twilio.account_sid'), Config.get('twilio.auth_token'));
+        this.twilioClient = twilio(Config.get(Config.TWILIO_ACCOUNT_SID), Config.get(Config.TWILIO_AUTH_TOKEN));
     }
 
-    sendSMS(to:string, body:string, from?:string):q.Promise<any>
+    sendSMS(to:string, body:string, from?:string):q.Promise<any>;
+    sendSMS(to:UserPhone, body:string, from?:string):q.Promise<any>;
+    sendSMS(to:any, body:string, from?:string):q.Promise<any>
     {
         var deferred = q.defer();
         this.twilioClient.sendMessage({
 
             to: to,
-            from: Config.get('twilio.number'),
+            from: Config.get(Config.TWILIO_NUMBER),
             body: body
 
         }, function (err, responseData)
@@ -66,7 +69,7 @@ class TwilioProvider implements IPhoneCallProvider,ISmsProvider
         this.twilioClient.makeCall({
 
             to : phone,
-            from : Config.get('twilio.number'),
+            from : Config.get(Config.TWILIO_NUMBER),
             url  : url,
             method: "GET",
             StatusCallback: callbackUrl
@@ -80,11 +83,12 @@ class TwilioProvider implements IPhoneCallProvider,ISmsProvider
         return deferred.promise;
     }
 
-    updateCallFragment(callFragment:CallFragment)
+    updateCallFragment(callFragment:CallFragment):q.Promise<any>
     {
         var self = this;
-        //var twilioClient = require('twilio')(Config.get('twilio.account_sid'), Config.get('twilio.auth_token'));
-        this.twilioClient.calls(callFragment.getAgentCallSidExpert()).get(//
+        var deferred = q.defer();
+
+        this.twilioClient.calls(callFragment.getAgentCallSidExpert()).get(
             function(err, callDetails)
             {
                 if(!Utils.isNullOrEmpty(callDetails))
@@ -95,6 +99,7 @@ class TwilioProvider implements IPhoneCallProvider,ISmsProvider
                     callFragment.setStartTime(moment(startTime).valueOf());
                     callFragment.setToNumber(callDetails[TwilioProvider.EXPERT_NUMBER]);
                     callFragment.setAgentId(AgentType.TWILIO);
+
                     if (callDetails[TwilioProvider.STATUS] == TwilioProvider.COMPLETED)
                         if(duration < Config.get('minimum.duration.for.success'))
                             callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_MINIMUM_DURATION);
@@ -104,11 +109,20 @@ class TwilioProvider implements IPhoneCallProvider,ISmsProvider
                         callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_EXPERT_ERROR);
 
                     var CallFragmentDelegate:any  = require('../../delegates/CallFragmentDelegate');
-                    new CallFragmentDelegate().create(callFragment);
+                    new CallFragmentDelegate().create(callFragment)
+                    .then(
+                        function callFragmentCreated(frag) { deferred.resolve(frag); },
+                        function callFragmentCreatError(error) { deferred.reject(error); }
+                    );
                 }
                 else
+                {
+                    deferred.reject('Error in getting call details');
                     self.logger.debug('Error in getting call details');
+                }
             });
+
+        return deferred.promise;
     }
 }
 export = TwilioProvider

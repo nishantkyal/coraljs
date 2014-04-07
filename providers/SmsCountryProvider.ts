@@ -4,15 +4,23 @@ import _                                                        = require('under
 import request                                                  = require('request');
 import ISmsProvider                                             = require('../providers/ISmsProvider');
 import Config                                                   = require('../common/Config');
+import Utils                                                    = require('../common/Utils');
 import CallFragment                                             = require('../models/CallFragment');
+import UserPhone                                                = require('../models/UserPhone');
+import PhoneType                                                = require('../enums/PhoneType');
 
 class SmsCountryProvider implements ISmsProvider
 {
     sendSMS(to:string, body:string, from?:string):q.Promise<any>
+    sendSMS(to:UserPhone, body:string, from?:string):q.Promise<any>
+    sendSMS(to:any, body:string, from?:string):q.Promise<any>
     {
         var deferred = q.defer();
 
-        var smsCountrySendMessageUrl = 'http://api.smscountry.com/SMSCwebservice_bulk.aspx';
+        if (Utils.getObjectType(to) == 'UserPhone' && to.getType() != PhoneType.MOBILE)
+            throw("Can't send SMS to " + to.toJson());
+
+        var smsCountrySendMessageUrl = Config.get(Config.SMS_COUNTRY_URL);
 
         var data:any = {
             User: Config.get(Config.SMS_COUNTRY_USER),

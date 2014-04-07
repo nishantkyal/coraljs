@@ -12,6 +12,8 @@ import IntegrationMemberRole                            = require('../enums/Inte
 class IntegrationMember extends BaseModel
 {
     static TABLE_NAME:string = 'integration_member';
+    static DEFAULT_FIELDS:string[] = [IntegrationMember.ID, IntegrationMember.INTEGRATION_ID, IntegrationMember.ROLE];
+    static DASHBOARD_FIELDS:string[] = [IntegrationMember.ID, IntegrationMember.INTEGRATION_ID, IntegrationMember.ROLE, IntegrationMember.USER_ID, IntegrationMember.REVENUE_SHARE, IntegrationMember.REVENUE_SHARE_UNIT];
 
     static INTEGRATION_ID:string = 'integration_id';
     static USER_ID:string = 'user_id';

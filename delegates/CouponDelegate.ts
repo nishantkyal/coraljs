@@ -13,9 +13,6 @@ import Utils                                                = require('../common
 
 class CouponDelegate extends BaseDaoDelegate
 {
-    DEFAULT_FIELDS = [Coupon.ID, Coupon.CODE];
-    DASHBOARD_FIELDS = [Coupon.ID, Coupon.CODE, Coupon.EXPERT_ID, Coupon.DISCOUNT_AMOUNT, Coupon.DISCOUNT_UNIT, Coupon.EXPIRY_TIME, Coupon.MAX_COUPONS, Coupon.NUM_USED, Coupon.INTEGRATION_ID, Coupon.WAIVE_NETWORK_CHARGES];
-
     userDelegate = new UserDelegate();
     integrationMemberDelegate = new IntegrationMemberDelegate();
 
@@ -35,7 +32,7 @@ class CouponDelegate extends BaseDaoDelegate
                 }), Coupon.EXPERT_ID);
 
                 if (expertIds.length != 0)
-                    return self.integrationMemberDelegate.search({id: expertIds}, self.integrationMemberDelegate.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER]);
+                    return self.integrationMemberDelegate.search({id: expertIds}, IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER]);
                 else
                     return null;
         }

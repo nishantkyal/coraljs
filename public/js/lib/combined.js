@@ -7708,7 +7708,7 @@
 
                 try {
                     state = 1;
-                    transport.send(requestHeaders, done);
+                    transport.composeAndSend(requestHeaders, done);
                 } catch (e) {
                     // Propagate exception as error if not done
                     if (state < 2) {
@@ -8226,7 +8226,7 @@
                         // Do send the request
                         // This may raise an exception which is actually
                         // handled in jquery.ajax (so no try/catch here)
-                        xhr.send(( s.hasContent && s.data ) || null);
+                        xhr.composeAndSend(( s.hasContent && s.data ) || null);
 
                         // Listener
                         callback = function (_, isAbort) {

@@ -5,6 +5,6 @@ import CallFragment                                         = require('../models
 interface IPhoneCallProvider
 {
     makeCall(phone:string, callId?:number, reAttempts?:number):q.Promise<any>;
-    updateCallFragment(callFragment:CallFragment);
+    updateCallFragment(callFragment:CallFragment):q.Promise<any>;
 }
 export = IPhoneCallProvider

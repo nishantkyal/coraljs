@@ -1,34 +1,34 @@
 ///<reference path='../../_references.d.ts'/>
 import q                                        = require('q');
+import log4js                                   = require('log4js');
 import ScheduledTaskType                        = require('../../enums/ScheduledTaskType');
 import Utils                                    = require('../../common/Utils');
-class ScheduledTask
+
+class AbstractScheduledTask
 {
-    private function:Function;
-    private args:any[];
+    private id:number;
     private startTime:number;
     private taskType:ScheduledTaskType;
+    logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
 
-    getFunction():Function                              { return this.function; }
-    getArgs():any[]                                     { return this.args; }
+    getId():number                                      { return this.id; }
     getStartTime():number                               { return this.startTime; }
     getTaskType():ScheduledTaskType                     { return this.taskType; }
 
-    setFunction(val:Function)                           { this.function = val; }
-    setArgs(val:any[])                                  { this.args = val; }
+    setId(val:number)                                   { this.id = val; }
     setStartTime(val:number)                            { this.startTime = val; }
     setTaskType(val:ScheduledTaskType)                  { this.taskType = val; }
 
-    execute()
+    execute():q.Promise<any>
     {
-        this.getFunction().call(this, this.getArgs());
+        throw('Implement this method');
+        return null;
     }
 
     isValid():boolean
     {
         return !Utils.isNullOrEmpty(this.getTaskType())
-                    && !Utils.isNullOrEmpty(this.getStartTime())
-                        && !Utils.isNullOrEmpty(this.getFunction());
+                    && !Utils.isNullOrEmpty(this.getStartTime());
     }
 }
-export = ScheduledTask
+export = AbstractScheduledTask

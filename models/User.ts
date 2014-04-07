@@ -7,6 +7,7 @@ import UserProfile                              = require('../models/UserProfile
 class User extends BaseModel
 {
     static TABLE_NAME:string = 'user';
+    static DEFAULT_FIELDS:string[] = [User.ID, User.FIRST_NAME, User.LAST_NAME, User.SHORT_DESC, User.LONG_DESC, User.EMAIL];
 
     static title:string = 'title';
     static FIRST_NAME:string = 'first_name';
