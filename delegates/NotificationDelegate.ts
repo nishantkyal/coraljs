@@ -3,6 +3,7 @@ import q                                                    = require('q');
 import EmailDelegate                                        = require('../delegates/EmailDelegate');
 import SMSDelegate                                          = require('../delegates/SMSDelegate');
 import PhoneCall                                            = require('../models/PhoneCall');
+import CallFragment                                         = require('../models/CallFragment');
 import Utils                                                = require('../common/Utils');
 
 class NotificationDelegate
@@ -55,5 +56,9 @@ class NotificationDelegate
         ]);
     }
 
+    sendCallStatusNotifications(callFragment:CallFragment, attemptCount:number):q.Promise<any>
+    {
+        return null;
+    }
 }
 export = NotificationDelegate

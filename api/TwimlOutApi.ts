@@ -11,7 +11,6 @@ import PhoneCallDelegate                                    = require('../delega
 import UserPhoneDelegate                                    = require('../delegates/UserPhoneDelegate');
 import TwilioUrlDelegate                                    = require('../delegates/TwilioUrlDelegate');
 import CallFragmentDelegate                                 = require('../delegates/CallFragmentDelegate');
-import SMSDelegate                                          = require('../delegates/SMSDelegate');
 import ScheduledTaskDelegate                                = require('../delegates/ScheduledTaskDelegate');
 import NotificationDelegate                                 = require('../delegates/NotificationDelegate');
 import TwilioProvider                                       = require('../providers/TwilioProvider');
@@ -39,7 +38,6 @@ class TwimlOutApi
     static START_TIME:string = 'start_time';
 
     phoneCallDelegate = new PhoneCallDelegate();
-    smsDelegate = new SMSDelegate();
     twilioProvider = new TwilioProvider();
     notificationDelegate = new NotificationDelegate();
 
@@ -115,10 +113,10 @@ class TwimlOutApi
             if (attemptCount == 0 && dialCallStatus != TwimlOutApi.COMPLETED && dialCallStatus != TwimlOutApi.BUSY)
                 console.log('Reattempt to be made');// TODO change this to rescheduling function
 
-            new CallFragmentDelegate().saveCallFragment(callFragment);
-
-            //TODO don't send sms to landline (twilio doesn't send it and return error code 21614). However, we should not even make the api call.
-            this.smsDelegate.sendStatusSMS(callFragment, attemptCount);
+            q.all([
+                new CallFragmentDelegate().saveCallFragment(callFragment),
+                self.notificationDelegate.sendCallStatusNotifications(callFragment, attemptCount)
+            ]);
 
         });
 
