@@ -20,7 +20,7 @@ class PageData
         this.logged_in_user = new User(req['user']);
         this.fb_app_id = Config.get(Config.FB_APP_ID);
         this.expert = Middleware.getSelectedExpert(req);
-        this.startTimes = Middleware.getSelectedStartTimes(req);
+        this.startTimes = Middleware.getAppointments(req);
         this.duration = Middleware.getDuration(req);
     }
 }

@@ -26,6 +26,7 @@ import ApiConstants                                         = require('../../enu
 import IncludeFlag                                          = require('../../enums/IncludeFlag');
 import TransactionStatus                                    = require('../../enums/TransactionStatus');
 import Formatter                                            = require('../../common/Formatter');
+import DashboardUrls                                        = require('../../routes/dashboard/Urls');
 import PageData                                             = require('./PageData');
 import Urls                                                 = require('./Urls');
 import Middleware                                           = require('./Middleware');
@@ -77,7 +78,7 @@ class CallFlowRoute
                     user: expert.user[0],
                     expert: expert,
                     messages: req.flash(),
-                    startTimes: Middleware.getSelectedStartTimes(req),
+                    startTimes: Middleware.getAppointments(req),
                     duration: Middleware.getDuration(req)
                 };
 
@@ -98,7 +99,7 @@ class CallFlowRoute
 
         // TODO: Validate start times
         var startTimes:number[] = req.body[ApiConstants.START_TIME];
-        Middleware.setSelectedStartTimes(req, startTimes);
+        Middleware.setAppointments(req, startTimes);
 
         if (req.isAuthenticated())
             res.redirect(Urls.callPayment());
@@ -132,7 +133,7 @@ class CallFlowRoute
                 user: expert.getUser()[0],
                 expert: expert,
                 messages: req.flash(),
-                startTimes: Middleware.getSelectedStartTimes(req),
+                startTimes: Middleware.getAppointments(req),
                 duration: Middleware.getDuration(req),
                 userPhones: phoneNumbers
             };
@@ -158,6 +159,32 @@ class CallFlowRoute
     /* Validate everything, create a transaction (and phone call record) and redirect to payment */
     private checkout(req:express.Request, res:express.Response)
     {
+        var self = this;
+
+        var phoneCall = new PhoneCall();
+        phoneCall.setExpertId(Middleware.getSelectedExpert(req).getId());
+        phoneCall.setExpertPhoneId(null);
+        phoneCall.setCallerUserId(req[ApiConstants.USER].id);
+        phoneCall.setCallerPhoneId(null);
+        phoneCall.setDelay(0);
+        phoneCall.setStatus(CallStatus.PLANNING);
+        phoneCall.setDuration(Middleware.getDuration(req));
+
+        var transaction = new Transaction();
+        transaction.setUserId(req[ApiConstants.USER].id);
+        transaction.setStatus(TransactionStatus.PENDING);
+
+        self.phoneCallDelegate.create(phoneCall)
+            .then(
+            function callCreated(call)
+            {
+                return self.transactionDelegate.createPhoneCallTransaction(transaction, call);
+            })
+            .then(
+            function transactionCreated(transaction)
+            {
+                res.redirect(DashboardUrls.paymentCallback());
+            });
     }
 
     /* Invoked when expert/caller clicks on accept appointment link in email */

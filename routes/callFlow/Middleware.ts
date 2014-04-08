@@ -13,7 +13,7 @@ class Middleware
 {
     private static sessionStore = new SessionStorageHelper('CallFlow');
     private static SESSION_VARS_EXPERT:string = 'call_expert';
-    private static SESSION_VARS_START_TIMES:string = 'call_start_times';
+    private static SESSION_VARS_APPOINTMENTS:string = 'call_appointments';
     private static SESSION_VARS_DURATION:string = 'call_durations';
 
     static setSelectedExpert(req, expert:IntegrationMember):void { Middleware.sessionStore.set(req, Middleware.SESSION_VARS_EXPERT, expert.toJson()); }
@@ -24,8 +24,8 @@ class Middleware
         return !Utils.isNullOrEmpty(expertJson) ? new IntegrationMember(expertJson) : expertJson;
     }
 
-    static setSelectedStartTimes(req, startTimes:number[]):void { Middleware.sessionStore.set(req, Middleware.SESSION_VARS_START_TIMES, startTimes); }
-    static getSelectedStartTimes(req):number[] { return Middleware.sessionStore.get(req, Middleware.SESSION_VARS_START_TIMES); }
+    static setAppointments(req, startTimes:number[]):void { Middleware.sessionStore.set(req, Middleware.SESSION_VARS_APPOINTMENTS, startTimes); }
+    static getAppointments(req):number[] { return Middleware.sessionStore.get(req, Middleware.SESSION_VARS_APPOINTMENTS); }
 
     static setDuration(req, duration:number):void { Middleware.sessionStore.set(req, Middleware.SESSION_VARS_DURATION, duration); }
     static getDuration(req):number { return parseInt(Middleware.sessionStore.get(req, Middleware.SESSION_VARS_DURATION)); }
@@ -33,8 +33,8 @@ class Middleware
     static requireExpertAndAppointments(req, res, next)
     {
         var expert = Middleware.getSelectedExpert(req);
-        var startTimes = Middleware.getSelectedStartTimes(req) || req.body[ApiConstants.START_TIME];
-        Middleware.setSelectedStartTimes(req, startTimes);
+        var startTimes = Middleware.getAppointments(req) || req.body[ApiConstants.START_TIME];
+        Middleware.setAppointments(req, startTimes);
         var duration:number = Middleware.getDuration(req) || req.body[ApiConstants.DURATION];
         Middleware.setDuration(req, duration);
 

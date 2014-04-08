@@ -16,6 +16,7 @@ import SMSDelegate                                      = require('../../delegat
 import CouponDelegate                                   = require('../../delegates/CouponDelegate');
 import UserPhoneDelegate                                = require('../../delegates/UserPhoneDelegate');
 import PhoneCallDelegate                                = require('../../delegates/PhoneCallDelegate');
+import NotificationDelegate                             = require('../../delegates/NotificationDelegate');
 import MoneyUnit                                        = require('../../enums/MoneyUnit');
 import IncludeFlag                                      = require('../../enums/IncludeFlag');
 import User                                             = require('../../models/User');
@@ -31,6 +32,7 @@ import CallStatus                                       = require('../../enums/C
 import Utils                                            = require('../../common/Utils');
 import Formatter                                        = require('../../common/Formatter');
 import VerificationCodeCache                            = require('../../caches/VerificationCodeCache');
+import CallFlowMiddleware                               = require('../../routes/callFlow/Middleware');
 
 import Middleware                                       = require('./Middleware');
 import Urls                                             = require('./Urls');
@@ -51,6 +53,7 @@ class DashboardRoute
     private couponDelegate = new CouponDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
     private phoneCallDelegate = new PhoneCallDelegate();
+    private notificationDelegate = new NotificationDelegate();
 
     constructor(app)
     {
@@ -258,15 +261,23 @@ class DashboardRoute
     /* Handle payment response from gateway */
     private paymentComplete(req:express.Request, res:express.Response)
     {
-        // If it's a call update status to scheduling
-        var callId:number;
+        var callId:number = null;
+        var self = this;
+
+        // If it's a call
+        // 1. Update status to scheduling
+        // 2. Send scheduling notification to expert
         this.phoneCallDelegate.update(callId, {status: CallStatus.SCHEDULING})
             .then(
             function callUpdated()
             {
-
+                return self.phoneCallDelegate.get(callId)
+            })
+            .then(
+            function callFetched(call)
+            {
+                self.notificationDelegate.sendCallSchedulingNotifications(call, CallFlowMiddleware.getAppointments(req));
             });
-
     }
 }
 
