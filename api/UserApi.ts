@@ -85,7 +85,7 @@ class UserApi
 
         app.get(ApiUrlDelegate.userProfilePicture(), function(req:express.Request, res:express.Response)
         {
-            var userId = parseInt(req.params[ApiConstants.USER_ID]);
+            var userId = req.params[ApiConstants.USER_ID];
             if (fs.existsSync(Config.get(Config.PROFILE_IMAGE_PATH) + userId))
                 res.sendfile(userId, {root: Config.get(Config.PROFILE_IMAGE_PATH)});
             else

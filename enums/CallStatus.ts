@@ -1,6 +1,7 @@
 enum CallStatus
 {
     PLANNING,
+    SCHEDULING,
     SCHEDULED,
     IN_PROGRESS,
     COMPLETED,
