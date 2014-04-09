@@ -119,7 +119,7 @@ class DashboardRoute
                 {
                     'members': integrationMembers,
                     'logged_in_user': req['user'],
-                    selectedTab : 'integrations'
+                    selectedTab: 'integrations'
                 };
 
                 res.render(DashboardRoute.PAGE_INTEGRATIONS, pageData);
@@ -138,20 +138,20 @@ class DashboardRoute
 
         this.couponDelegate.search({integration_id: integrationId}, null, this.couponDelegate.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_EXPERT])
             .then(
-                function couponsFetched(coupons:Coupon[])
+            function couponsFetched(coupons:Coupon[])
+            {
+                var pageData =
                 {
-                    var pageData =
-                    {
-                        'coupons': coupons,
-                        'members': integrationMembers,
-                        'logged_in_user': req['user'],
-                        'integration': integration
-                    };
+                    'coupons': coupons,
+                    'members': integrationMembers,
+                    'logged_in_user': req['user'],
+                    'integration': integration
+                };
 
-                    res.render(DashboardRoute.PAGE_COUPONS, pageData);
-                },
-                function couponFetchError(error) { res.send(500); }
-            )
+                res.render(DashboardRoute.PAGE_COUPONS, pageData);
+            },
+            function couponFetchError(error) { res.send(500); }
+        )
     }
 
     private integrationUsers(req:express.Request, res:express.Response)
@@ -171,19 +171,20 @@ class DashboardRoute
         search[IntegrationMember.INTEGRATION_ID] = integrationId;
 
         q.all([
-                this.integrationMemberDelegate.search(search, null, this.integrationMemberDelegate.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER]),
-                this.verificationCodeCache.getInvitationCodes(integrationId)
-            ])
+            this.integrationMemberDelegate.search(search, null, this.integrationMemberDelegate.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER]),
+            this.verificationCodeCache.getInvitationCodes(integrationId)
+        ])
             .then(
             function membersFetched(...results)
             {
                 var members = results[0][0];
                 var invitedMembers = [].concat(results[0][1]);
 
-                members = members.concat(_.map(invitedMembers, function(invited) { return new IntegrationMember(invited); } ));
-                _.each(members, function (member:IntegrationMember) {
+                members = members.concat(_.map(invitedMembers, function (invited) { return new IntegrationMember(invited); }));
+                _.each(members, function (member:IntegrationMember)
+                {
                     if (Utils.getObjectType(member[IntegrationMember.USER]) == 'Array')
-                        // TODO: Implement foreign keys to get rid if this goofiness
+                    // TODO: Implement foreign keys to get rid if this goofiness
                         member[IntegrationMember.USER] = _.findWhere(member[IntegrationMember.USER], {id: member.getUserId()});
                 });
 
@@ -203,44 +204,40 @@ class DashboardRoute
     {
         var self = this;
         var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
-        var user,userId,userSkill, userEducation, userEmployment;
+
         self.integrationMemberDelegate.get(memberId)
             .then(
             function memberFetched(member:IntegrationMember)
             {
-                userId = member.getUserId();
-                return self.userDelegate.get(userId);
+                var userId = member.getUserId();
+                return q.all([
+                    self.userDelegate.get(userId),
+                    self.userSkillDelegate.getSkillName(userId),
+                    self.userEducationDelegate.search({'user_id': userId}),
+                    self.userEmploymentDelegate.search({'user_id': userId})
+                ]);
             })
             .then(
-            function(tempUser){
-                user = tempUser;
-                return self.userSkillDelegate.getSkillName(userId) ;
-            })
-            .then(
-            function(skills){
-                userSkill = skills;
-                return self.userEducationDelegate.search({'user_id':userId})
-            })
-            .then(
-            function (educations){
-                userEducation = educations;
-                return self.userEmploymentDelegate.search({'user_id':userId})
-            })
-            .then(
-            function(employments){
-                userEmployment = employments;
+            function (...args)
+            {
+                var user = args[0][0];
+                var userSkill = args[0][1];
+                var userEducation = args[0][2];
+                var userEmployment = args[0][3];
+
                 var pageData =
                 {
-                    'user'          : user,
-                    'userSkill'     : userSkill,
-                    'userEducation' : userEducation,
+                    'user': user,
+                    'userSkill': userSkill,
+                    'userEducation': userEducation,
                     'userEmployment': userEmployment,
-                    'industryCodes' : Utils.enumToNormalText(IndustryCodes)
+                    'industryCodes': Utils.enumToNormalText(IndustryCodes)
                 };
                 res.render(DashboardRoute.PAGE_PROFILE_COMPLETE, pageData);
             })
             .fail(
-            function(error){
+            function (error)
+            {
                 res.send(500);
             });
     }
@@ -250,27 +247,28 @@ class DashboardRoute
         var self = this;
         var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
         var user:any = req[ApiConstants.USER];
-        self.userSkillDelegate.getSkillName(user.id)
+
+        q.all([
+            self.userSkillDelegate.getSkillName(user.id),
+            self.integrationMemberDelegate.get(memberId)
+        ])
             .then(
-                function(skills)
+            function memberDetailsFetched(...args)
+            {
+                var skills = args[0][0];
+                var member = args[0][1];
+
+                var pageData =
                 {
-                    self.integrationMemberDelegate.get(memberId)
-                        .then(
-                        function memberFetched(member)
-                        {
-                            var pageData =
-                            {
-                                'logged_in_user': req['user'],
-                                'member'        : member,
-                                'user'          : user,
-                                'userSkill'     : skills,
-                                'industryCodes' : Utils.enumToNormalText(IndustryCodes)
-                            };
-                            res.render(DashboardRoute.PAGE_PROFILE, pageData);
-                        },
-                        function userSkillFetchError(error) { res.send(500); }
-                    )
-                });
+                    'logged_in_user': req['user'],
+                    'member': member,
+                    'user': user,
+                    'userSkill': skills,
+                    'industryCodes': Utils.enumToNormalText(IndustryCodes)
+                };
+                res.render(DashboardRoute.PAGE_PROFILE, pageData);
+            },
+            function userSkillFetchError(error) { res.send(500); });
     }
 
     memberProfileSave(req:express.Request, res:express.Response)
@@ -290,20 +288,27 @@ class DashboardRoute
         var self = this;
         var loggedInUser = req['user'];
         var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
-        self.userEducationDelegate.search({'user_id':loggedInUser.id})
+
+        q.all([
+            self.userEducationDelegate.search({'user_id': loggedInUser.id}),
+            self.integrationMemberDelegate.get(memberId)
+        ])
             .then(
-                function userEducationFetched(userEducation)
+            function memberDetailsFetched(...args)
+            {
+                var userEducation = args[0][0];
+                var member = args[0][1];
+
+                var pageData =
                 {
-                    var pageData =
-                    {
-                        'logged_in_user': req['user'],
-                        'userEducation' : userEducation,
-                        'memberId'      : memberId
-                    };
-                    res.render(DashboardRoute.PAGE_EDUCATION, pageData);
-                },
-                function userEducationFetchError() { res.send(500); }
-            )
+                    'member': member,
+                    'logged_in_user': req['user'],
+                    'userEducation': userEducation
+                };
+                res.render(DashboardRoute.PAGE_EDUCATION, pageData);
+            },
+            function userEducationFetchError() { res.send(500); }
+        )
     }
 
     memberEmployment(req:express.Request, res:express.Response)
@@ -311,15 +316,22 @@ class DashboardRoute
         var self = this;
         var loggedInUser = req['user'];
         var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
-        self.userEmploymentDelegate.search({'user_id':loggedInUser.id})
+
+        q.all([
+            self.userEmploymentDelegate.search({'user_id': loggedInUser.id}),
+            self.integrationMemberDelegate.get(memberId)
+        ])
             .then(
-            function userEmploymentFetched(userEmployment)
+            function memberDetailsFetched(...args)
             {
+                var userEmployment = args[0][0];
+                var member = args[0][1];
+
                 var pageData =
                 {
-                    'logged_in_user'     : req['user'],
-                    'userEmployment'     : userEmployment,
-                    'memberId'           : memberId
+                    'member': member,
+                    'logged_in_user': req['user'],
+                    'userEmployment': userEmployment
                 };
                 res.render(DashboardRoute.PAGE_EMPOLYMENT, pageData);
             },

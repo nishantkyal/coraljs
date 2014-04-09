@@ -7,6 +7,7 @@ import MysqlDelegate            = require('../delegates/MysqlDelegate');
 class UserSkillDao extends BaseDao
 {
     getModel():typeof BaseModel { return UserSkill; }
+
     getSkillName(userId:number,transaction?:any):q.Promise<any>
     {
         var query = 'SELECT user_skill.id, skill_codes.skill as skill_name FROM user_skill INNER join skill_codes ' +

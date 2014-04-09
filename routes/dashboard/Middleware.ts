@@ -4,6 +4,7 @@ import express                                                      = require('e
 import IntegrationMemberRole                                        = require('../../enums/IntegrationMemberRole');
 import ApiConstants                                                 = require('../../enums/ApiConstants');
 import Utils                                                        = require('../../common/Utils');
+import Urls                                                         = require('./Urls');
 
 class Middleware
 {
@@ -16,7 +17,7 @@ class Middleware
     static setIntegrationId(req, integrationId:number):void { req.session[Middleware.SESSION_INTEGRATION_ID] = integrationId; }
     static getIntegrationId(req):any { return req.session[Middleware.SESSION_INTEGRATION_ID]; }
 
-    static allowOwnerOrAdmin(req:express.Request, res:express.Response, next:Function)
+    static allowOwnerOrAdmin(req, res:express.Response, next:Function)
     {
         var integrationMembers = Middleware.getIntegrationMembers(req);
         var integrationId:number = parseInt(req.params[ApiConstants.INTEGRATION_ID]);
@@ -26,8 +27,9 @@ class Middleware
 
         if (isAdmin || isOwner)
             next();
+        else if (req.isAuthenticated())
+                res.redirect(Urls.integrations());
         else
-        // TODO: Change to error flash and then redirect
             res.redirect('/login');
     }
 
