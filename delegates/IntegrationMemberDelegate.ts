@@ -23,55 +23,37 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
     DEFAULT_FIELDS:string[] = [IntegrationMember.ID, IntegrationMember.INTEGRATION_ID, IntegrationMember.ROLE];
     DASHBOARD_FIELDS:string[] = [IntegrationMember.ID, IntegrationMember.INTEGRATION_ID, IntegrationMember.ROLE, IntegrationMember.USER_ID, IntegrationMember.REVENUE_SHARE, IntegrationMember.REVENUE_SHARE_UNIT];
 
+    private expertScheduleRuleDelegate = new ExpertScheduleRuleDelegate();
+
     create(object:Object, transaction?:any):q.Promise<any>
     {
+        var self = this;
+
+        if (Utils.isNullOrEmpty(transaction))
+            return MysqlDelegate.executeInTransaction(self, arguments);
+
         var integrationMember = new IntegrationMember(object);
         integrationMember.setAuthCode(Utils.getRandomString(30));
-        var superCreate = super.create;
-        var self = this;
-        var createdExpert;
-        var transaction;
 
-        self.logger.debug('Beginning transaction for creating expert');
-
-        try {
-            return MysqlDelegate.beginTransaction()
-                .then(
-                function createUserAfterTransactionStarted(t)
-                {
-                    transaction = t;
-                    self.logger.debug('Transaction started for creating expert');
-                    return superCreate.call(self, integrationMember, transaction);
-                })
-                .then(
-                function commitTransaction(expert)
-                {
-                    createdExpert = expert;
-                    self.logger.debug('Expert created');
-                    return MysqlDelegate.commit(transaction, createdExpert);
-                })
-                .then(
-                function createDefaultScheduleRules()
-                {
-                    // TODO: Execute this in transaction. Figure out why lock times out when creating rule in same transaction
-                    self.logger.debug('Transaction committed');
-                    return new ExpertScheduleRuleDelegate().createDefaultRules(createdExpert.getId(), transaction);
-                })
-                .then(
-                function rulesCreated()
-                {
-                    self.logger.debug('Default schedule rules created');
-                    return self.get(createdExpert.getId(), [IntegrationMember.AUTH_CODE, IntegrationMember.ID, IntegrationMember.INTEGRATION_ID, IntegrationMember.USER_ID]);
-                })
-                .fail(
-                function expertCreateFailed(error)
-                {
-                    self.logger.error('Error occurred while creating new expert, error: %s', error);
-                });
-        } catch (e) {
-            self.logger.error('Error occurred while creating new expert, error: %s', e);
-            return null;
-        }
+        return super.create(integrationMember, transaction)
+            .then(
+            function expertCreated(expert:IntegrationMember)
+            {
+                integrationMember = expert;
+                return self.expertScheduleRuleDelegate.createDefaultRules(expert.getId(), transaction);
+            })
+            .then(
+            function rulesCreated()
+            {
+                self.logger.debug('Default schedule rules created');
+                return integrationMember;
+            })
+            .fail(
+            function expertCreateFailed(error)
+            {
+                self.logger.error('Error occurred while creating new expert, error: %s', error);
+                throw(error);
+            });
     }
 
     get(id:any, fields?:string[], flags:Array<IncludeFlag> = []):q.Promise<any>

@@ -29,6 +29,7 @@ class ApiConstants
     static START_TIME:string = 'startTime';
     static END_TIME:string = 'endTime';
     static DURATION:string = 'duration';
+    static TOKEN:string = 'token';
     static TYPE:string = 'type';
     static CODE:string = 'code';
     static CODE_VERIFICATION:string = 'code_verification';

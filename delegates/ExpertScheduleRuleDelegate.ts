@@ -1,19 +1,19 @@
 ///<reference path='../_references.d.ts'/>
-import moment                           = require('moment');
-import _                                = require('underscore');
-import q                                = require('q');
-import BaseDaoDelegate                  = require('./BaseDaoDelegate');
-import IDao                             = require('../dao/IDao');
-import ExpertScheduleRuleDao            = require('../dao/ExpertScheduleRuleDao');
-import ExpertScheduleRule               = require('../models/ExpertScheduleRule');
-import ExpertScheduleException          = require('../models/ExpertScheduleException');
-import ExpertScheduleExceptionDelegate  = require('../delegates/ExpertScheduleExceptionDelegate');
-import ExpertScheduleExceptionDao       = require('../dao/ExpertScheduleExceptionDao');
-import IntegrationMemberDelegate        = require('../delegates/IntegrationMemberDelegate');
-import MysqlDelegate                    = require('../delegates/MysqlDelegate');
-import ExpertSchedule                   = require('../models/ExpertSchedule');
-import parser                           = require('cron-parser');
-
+import moment                                           = require('moment');
+import _                                                = require('underscore');
+import q                                                = require('q');
+import parser                                           = require('cron-parser');
+import BaseDaoDelegate                                  = require('./BaseDaoDelegate');
+import ExpertScheduleExceptionDelegate                  = require('../delegates/ExpertScheduleExceptionDelegate');
+import IntegrationMemberDelegate                        = require('../delegates/IntegrationMemberDelegate');
+import MysqlDelegate                                    = require('../delegates/MysqlDelegate');
+import IDao                                             = require('../dao/IDao');
+import ExpertScheduleRuleDao                            = require('../dao/ExpertScheduleRuleDao');
+import ExpertScheduleExceptionDao                       = require('../dao/ExpertScheduleExceptionDao');
+import ExpertScheduleRule                               = require('../models/ExpertScheduleRule');
+import ExpertScheduleException                          = require('../models/ExpertScheduleException');
+import ExpertSchedule                                   = require('../models/ExpertSchedule');
+import Utils                                            = require('../common/Utils');
 
 class ExpertScheduleRuleDelegate extends BaseDaoDelegate
 {
@@ -28,6 +28,7 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
             startDate: moment().valueOf(),
             endDate: moment().add({year: 1}).valueOf()
         };
+
         return this.getRulesByIntegrationMemberId(newScheduleRule.getIntegrationMemberId(), options.startDate, options.endDate)
             .then(
             function createRecord(rules:ExpertScheduleRule[])
@@ -42,12 +43,17 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
                 if (hasConflicts)
                     throw('Conflicts detected');
                 else
-                    return createProxy.call(self, newScheduleRule);
+                    return createProxy.call(self, newScheduleRule, transaction);
             });
     }
 
     createDefaultRules(expertId:number, transaction?:any):q.Promise<any>
     {
+        if (Utils.isNullOrEmpty(transaction))
+            return MysqlDelegate.executeInTransaction(this, arguments);
+
+        var self = this;
+
         var weekdaysRule = new ExpertScheduleRule();
         weekdaysRule.setTitle('Weekdays');
         weekdaysRule.setRepeatStart(moment().valueOf());
@@ -62,19 +68,19 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
         weekendRule.setDuration(3 * 3600);
         weekendRule.setIntegrationMemberId(expertId);
 
-        var self = this;
-
-        return self.create(weekdaysRule, transaction)
-            .then(
-            function ruleCreated()
+        return q.all([
+            self.create(weekdaysRule, transaction),
+            self.create(weekendRule, transaction)
+        ]).fail(
+            function rulesCreateFailed(error)
             {
-                self.create(weekendRule, transaction)
-            });
+                throw(error);
+            }
+        );
     }
 
     update(criteria:Object, updatedScheduleRule:ExpertScheduleRule, transaction?:any):q.Promise<any>
     {
-        var self = this;
         var transaction = null;
         var ruleId = updatedScheduleRule.getId();
         var updateProxy = super.update;
@@ -84,13 +90,10 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
             endDate: moment().add({year: 1}).valueOf()
         };
 
-        return MysqlDelegate.beginTransaction()
-            .then(
-            function transactionStarted(t)
-            {
-                transaction = t;
-                return self.getRulesByIntegrationMemberId(updatedScheduleRule.getIntegrationMemberId(), options.startDate, options.endDate, transaction);
-            })
+        if (Utils.isNullOrEmpty(transaction))
+            return MysqlDelegate.executeInTransaction(this, arguments);
+
+        return this.getRulesByIntegrationMemberId(updatedScheduleRule.getIntegrationMemberId(), options.startDate, options.endDate, transaction)
             .then(
             function updateRecord(rawschedules)
             {
@@ -114,12 +117,7 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
             {
                 var expertScheduleExceptionDelegate = new ExpertScheduleExceptionDelegate();
                 return expertScheduleExceptionDelegate.deleteByRuleId(ruleId, transaction);
-            })
-            .then(
-            function exceptionsDeleted()
-            {
-                return MysqlDelegate.commit(transaction, updatedScheduleRule);
-            })
+            });
     }
 
     getRulesByIntegrationMemberId(integrationMemberId:number, startTime?:number, endTime?:number, transaction?:any):q.Promise<any>
@@ -130,28 +128,18 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
 
     delete(scheduleRuleId:number, transaction?:any):q.Promise<any>
     {
-        var self = this;
         var transaction = null;
-        var deleteProxy = super.delete;
 
-        return MysqlDelegate.beginTransaction()
-            .then(
-            function transactionStarted(t)
-            {
-                transaction = t;
-                return deleteProxy(scheduleRuleId, true, transaction);
-            })
+        if (Utils.isNullOrEmpty(transaction))
+            return MysqlDelegate.executeInTransaction(this, arguments);
+
+        return super.delete(scheduleRuleId, true, transaction)
             .then(
             function ruleDeleted()
             {
                 var expertScheduleExceptionDelegate = new ExpertScheduleExceptionDelegate();
                 return expertScheduleExceptionDelegate.deleteByRuleId(scheduleRuleId, transaction);
-            })
-            .then(
-            function exceptionsDeleted()
-            {
-                return MysqlDelegate.commit(transaction, scheduleRuleId);
-            })
+            });
     }
 
     applyExceptions(schedules:ExpertSchedule[], exceptions:ExpertScheduleException[]):ExpertSchedule[]

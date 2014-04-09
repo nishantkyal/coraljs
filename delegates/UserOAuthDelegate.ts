@@ -1,13 +1,13 @@
 ///<reference path='../_references.d.ts'/>
-import q                    = require('q');
-import IDao                 = require('../dao/IDao');
-import UserAuthDAO          = require('../dao/UserOAuthDao');
-import BaseDaoDelegate      = require('./BaseDaoDelegate');
-import UserDelegate         = require('../delegates/UserDelegate');
-import MysqlDelegate        = require('../delegates/MysqlDelegate');
-import UserOAuth            = require('../models/UserOauth');
-import User                 = require('../models/User');
-
+import q                                            = require('q');
+import IDao                                         = require('../dao/IDao');
+import UserAuthDAO                                  = require('../dao/UserOAuthDao');
+import BaseDaoDelegate                              = require('./BaseDaoDelegate');
+import UserDelegate                                 = require('../delegates/UserDelegate');
+import MysqlDelegate                                = require('../delegates/MysqlDelegate');
+import UserOAuth                                    = require('../models/UserOauth');
+import User                                         = require('../models/User');
+import Utils                                        = require('../common/Utils');
 /*
  Delegate class for managing user's oauth integrations (FB/LinkedIn logins)
  */
@@ -35,30 +35,17 @@ class UserOAuthDelegate extends BaseDaoDelegate
                 else {
                     var transaction = null;
                     var newUser:User = null;
-                    return MysqlDelegate.beginTransaction()
-                        .then(
-                        function transactionStarted(t)
-                        {
-                            transaction = t;
-                            return new UserDelegate().create(user, transaction);
-                        })
+
+                    if (Utils.isNullOrEmpty(transaction))
+                        return MysqlDelegate.executeInTransaction(this, arguments);
+
+                    return new UserDelegate().create(user, transaction)
                         .then(
                         function userCreated(user:User)
                         {
                             newUser = user;
                             userOAuth.setUserId(newUser.getId());
                             return self.create(userOAuth, transaction);
-                        })
-                        .then(
-                        function oauthCreated(oauth:UserOAuth)
-                        {
-                            return MysqlDelegate.commit(transaction, newUser);
-                        })
-                        .then(
-                        function transactionCommitted()
-                        {
-                            // Need to do this because this is a transaction and we won't have user in db until commit
-                            return new UserDelegate().get(newUser.getId());
                         });
                 }
             });

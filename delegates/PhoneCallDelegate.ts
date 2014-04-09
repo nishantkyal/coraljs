@@ -54,16 +54,11 @@ class PhoneCallDelegate extends BaseDAODelegate
             return this.unscheduledCallsCache.addUnscheduledCall(object[PhoneCall.EXPERT_ID], object[PhoneCall.START_TIME], object);
 
         var createdCall;
-        var superCreate = super.create;
-        var self = this;
 
-        return MysqlDelegate.beginTransaction()
-            .then(
-            function transactionStarted(t)
-            {
-                transaction = t;
-                return superCreate.call(self, object, transaction)
-            })
+        if (Utils.isNullOrEmpty(transaction))
+            return MysqlDelegate.executeInTransaction(this, arguments);
+
+        return super.create(object, transaction)
             .then(
             function callCreated(call:PhoneCall)
             {
@@ -74,11 +69,6 @@ class PhoneCallDelegate extends BaseDAODelegate
                 t.setTotalUnit(createdCall.getPriceCurrency());
                 t.setUserId(createdCall.getCallerId());
                 return new TransactionDelegate().createPhoneCallTransaction(t, call, transaction);
-            })
-            .then(
-            function commit()
-            {
-                return MysqlDelegate.commit(transaction, createdCall);
             });
     }
 

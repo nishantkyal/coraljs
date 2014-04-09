@@ -1,14 +1,14 @@
 ///<reference path='../_references.d.ts'/>
-import mysql                = require('mysql');
-import q                    = require('q');
-import log4js               = require('log4js');
-import Config               = require('../common/Config');
-
+import mysql                                        = require('mysql');
+import q                                            = require('q');
+import log4js                                       = require('log4js');
+import Config                                       = require('../common/Config');
+import Utils                                        = require('../common/Utils');
 /*
  Delegate class to manage mysql connections
  */
-class MysqlDelegate {
-
+class MysqlDelegate
+{
     // Connection pool
     private static pool:any;
     private static logger:log4js.Logger = log4js.getLogger('MysqlDelegate');
@@ -17,11 +17,11 @@ class MysqlDelegate {
     private static ctor = (() =>
     {
         MysqlDelegate.pool = mysql.createPool({
-            host             : Config.get(Config.DATABASE_HOST),
-            database         : Config.get(Config.DATABASE_NAME),
-            user             : Config.get(Config.DATABASE_USER),
-            password         : Config.get(Config.DATABASE_PASS),
-            socketPath:     Config.get(Config.DATABASE_SOCKET),
+            host: Config.get(Config.DATABASE_HOST),
+            database: Config.get(Config.DATABASE_NAME),
+            user: Config.get(Config.DATABASE_USER),
+            password: Config.get(Config.DATABASE_PASS),
+            socketPath: Config.get(Config.DATABASE_SOCKET),
             supportBigNumbers: true
         });
     })();
@@ -33,13 +33,13 @@ class MysqlDelegate {
     {
         var deferred = q.defer();
         var connection = mysql.createConnection({
-            host             : Config.get(Config.DATABASE_HOST),
-            user             : Config.get(Config.DATABASE_USER),
-            password         : Config.get(Config.DATABASE_PASS),
-            socketPath:     Config.get(Config.DATABASE_SOCKET)
+            host: Config.get(Config.DATABASE_HOST),
+            user: Config.get(Config.DATABASE_USER),
+            password: Config.get(Config.DATABASE_PASS),
+            socketPath: Config.get(Config.DATABASE_SOCKET)
         });
 
-        connection.connect(function(err)
+        connection.connect(function (err)
         {
             if (err)
             {
@@ -61,13 +61,13 @@ class MysqlDelegate {
         MysqlDelegate.pool.getConnection(
             function handleConnection(err, connection)
             {
-                if (err) {
+                if (err)
+                {
                     MysqlDelegate.logger.error('MysqlDelegate: Failed to get new connection, error: %s', JSON.stringify(err));
                     deferred.reject('Failed to get a DB connection');
                 }
-                else
-                    if (connection)
-                        deferred.resolve(connection);
+                else if (connection)
+                    deferred.resolve(connection);
             });
         return deferred.promise;
     }
@@ -75,30 +75,37 @@ class MysqlDelegate {
     /*
      * Begin a transaction and return the transaction
      */
-    static beginTransaction():q.Promise<any>
+    private static beginTransaction(transaction?:any):q.Promise<any>
     {
         var deferred = q.defer();
 
-        MysqlDelegate.logger.debug("Beginning transaction");
-
-        MysqlDelegate.getConnectionFromPool()
-            .then(
-            function handleConnection(connection)
+        if (Utils.isNullOrEmpty(transaction))
+            MysqlDelegate.getConnectionFromPool()
+                .then(
+                function handleConnection(connection)
+                {
+                    MysqlDelegate.logger.debug("Connection obtained");
+                    connection.transaction(
+                        function handleTransactionCallback(error, transaction)
+                        {
+                            if (error)
+                            {
+                                MysqlDelegate.logger.error("Failed to start a transaction");
+                                deferred.reject('Failed to start a transaction');
+                            }
+                            else
+                            {
+                                MysqlDelegate.logger.debug("Transaction started");
+                                deferred.resolve(transaction);
+                            }
+                        });
+                });
+        else
+            process.nextTick(function ()
             {
-                MysqlDelegate.logger.debug("Connection obtained");
-                connection.transaction(
-                    function handleTransactionCallback(error, transaction)
-                    {
-                        if (error) {
-                            MysqlDelegate.logger.error("Failed to start a transaction");
-                            deferred.reject('Failed to start a transaction');
-                        }
-                        else{
-                            MysqlDelegate.logger.debug("Transaction started");
-                            deferred.resolve(transaction);
-                        }
-                    });
+                deferred.resolve(transaction);
             });
+
         return deferred.promise;
     }
 
@@ -109,7 +116,8 @@ class MysqlDelegate {
     static executeQuery(query:string, parameters?:any[], connection?:any):q.Promise<any>
     {
         // If transaction specified, use it
-        if (connection) {
+        if (connection)
+        {
             var deferred = q.defer();
             connection.query(query, parameters,
                 function handleQueryExecuted(err, rows)
@@ -140,6 +148,31 @@ class MysqlDelegate {
             {
                 connection.release();
                 throw(err);
+            });
+    }
+
+    static executeInTransaction(thisArg, args?:IArguments):q.Promise<any>
+    {
+        var transaction;
+
+        return MysqlDelegate.beginTransaction()
+            .then(
+            function transactionStarted(t)
+            {
+                transaction = t;
+                var newArgs = [].slice.call(args, 0);
+                newArgs.push(transaction);
+                return args.callee.apply(thisArg, newArgs);
+            })
+            .then(
+            function operationCompleted(result)
+            {
+                return MysqlDelegate.commit(transaction, result);
+            },
+            function operationFailed(error)
+            {
+                transaction.rollback();
+                throw (error);
             });
     }
 

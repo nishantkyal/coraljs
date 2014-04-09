@@ -110,11 +110,12 @@ class ExpertScheduleRule extends BaseModel
             .then(
             function schedulesGenerated(...args)
             {
-                var existingSchedules:ExpertSchedule[] = args[0][1];
-                var newSchedules:ExpertSchedule[] = args[0][2];
-                _.each(existingSchedules, function (es:ExpertSchedule):any
+                var existingSchedules:ExpertSchedule[] = args[0][0];
+                var newSchedules:ExpertSchedule[] = args[0][1];
+
+                _.each(existingSchedules, function (es:ExpertSchedule)
                 {
-                    _.each(newSchedules, function (ns:ExpertSchedule):any
+                    _.each(newSchedules, function (ns:ExpertSchedule)
                     {
                         if (es.conflicts(ns))
                             throw('Conflicting schedule found');

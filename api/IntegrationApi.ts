@@ -4,10 +4,14 @@ import ApiConstants                                 = require('../enums/ApiConst
 import ApiUrlDelegate                               = require('../delegates/ApiUrlDelegate');
 import IntegrationDelegate                          = require('../delegates/IntegrationDelegate');
 import IntegrationMemberDelegate                    = require('../delegates/IntegrationMemberDelegate');
+import MysqlDelegate                                = require('../delegates/MysqlDelegate');
 import Integration                                  = require('../models/Integration');
+import IntegrationMember                            = require('../models/IntegrationMember');
+import User                                         = require('../models/User');
 import AccessControl                                = require('../middleware/AccessControl');
 import Utils                                        = require('../common/Utils');
 import IncludeFlag                                  = require('../enums/IncludeFlag');
+import IntegrationMemberRole                        = require('../enums/IntegrationMemberRole');
 
 /*
  Rest Calls for Third party integrations
@@ -25,11 +29,11 @@ class IntegrationApi
          */
         app.put(ApiUrlDelegate.integration(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
-            var integration = req.params[ApiConstants.INTEGRATION];
+            var integration = req.body[ApiConstants.INTEGRATION];
 
-            integrationDelegate.create(integration)
+            integrationDelegate.createByUser(integration, new User(req[ApiConstants.USER]))
                 .then(
-                function handleIntegrationCreated(result) { res.json(result); },
+                function integrationCreated(integration:Integration) { res.json(integration.toJson()); },
                 function handleIntegrationCreateError(err) { res.status(500).json(err); }
             );
         });

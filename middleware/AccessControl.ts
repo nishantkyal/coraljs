@@ -17,10 +17,10 @@ class AccessControl
 {
     private static logger:log4js.Logger = log4js.getLogger(Utils.getClassName('AccessControl'));
 
-    static allowOwner(req, res, next:Function):any
+    static allowOwner(req, res, next:Function)
     {
-        var accessToken = req.query['token'];
-        var integrationMemberId = req.params['memberId'];
+        var accessToken = req.query[ApiConstants.TOKEN];
+        var integrationMemberId = req.params[ApiConstants.MEMBER_ID];
         AccessControl.getMember(accessToken, integrationMemberId)
             .then(
             function handleMemberFetched(integrationMember)
@@ -38,10 +38,10 @@ class AccessControl
         )
     }
 
-    static allowAdmin(req, res, next):any
+    static allowAdmin(req, res, next)
     {
-        var accessToken = req.query['token'];
-        var integrationMemberId = req.params['memberId'] || req.params[ApiConstants.EXPERT_ID];
+        var accessToken = req.query[ApiConstants.TOKEN];
+        var integrationMemberId = req.params[ApiConstants.MEMBER_ID] || req.params[ApiConstants.EXPERT_ID];
         AccessControl.getMember(accessToken, integrationMemberId)
             .then(
             function handleMemberFetched(integrationMember)
@@ -59,9 +59,9 @@ class AccessControl
         )
     }
 
-    static allowExpert(req, res, next):any
+    static allowExpert(req, res, next)
     {
-        var accessToken = req.query['token'];
+        var accessToken = req.query[ApiConstants.TOKEN];
         var integrationMemberId = req.params[ApiConstants.EXPERT_ID];
         AccessControl.getMember(accessToken, integrationMemberId)
             .then(

@@ -3,11 +3,14 @@ import _                                        = require('underscore');
 import q                                        = require('q');
 import log4js                                   = require('log4js');
 import BaseDaoDelegate                          = require('./BaseDaoDelegate');
+import MysqlDelegate                            = require('./MysqlDelegate');
 import IDao                                     = require('../dao/IDao');
 import IntegrationDAO                           = require('../dao/IntegrationDao');
 import Integration                              = require('../models/Integration');
+import IntegrationMember                        = require('../models/IntegrationMember');
+import User                                     = require('../models/User');
 import Utils                                    = require('../common/Utils');
-
+import IntegrationMemberRole                    = require('../enums/IntegrationMemberRole');
 /*
  * Delegate class for third party integration data
  */
@@ -16,6 +19,7 @@ class IntegrationDelegate extends BaseDaoDelegate
     DEFAULT_FIELDS:string[] = [Integration.ID, Integration.TITLE, Integration.INTEGRATION_TYPE];
 
     private static cachedIntegrations:{[id:number]:Integration} = {};
+
 
     /* Static constructor workaround */
     private static ctor = (() =>
@@ -39,6 +43,27 @@ class IntegrationDelegate extends BaseDaoDelegate
             function integrationsFetchError(err)
             {
                 log4js.getDefaultLogger().debug('Error fetching list of integrations from services, error: ' + err);
+            });
+    }
+
+    createByUser(object:any, user?:User, transaction?:any):q.Promise<any>
+    {
+        if (Utils.isNullOrEmpty(transaction))
+            return MysqlDelegate.executeInTransaction(this, arguments);
+
+        return this.create(object, transaction)
+            .then(
+            function integrationCreated(integration:Integration)
+            {
+                var member = new IntegrationMember();
+                member.setIntegrationId(integration.getId());
+                member.setRole(IntegrationMemberRole.Owner);
+                member.setUserId(user.getId())
+
+
+                var IntegrationMemberDelegate:any = require('./IntegrationMemberDelegate');
+                var integrationMemberDelegate = new IntegrationMemberDelegate();
+                return integrationMemberDelegate.create(member, transaction);
             });
     }
 

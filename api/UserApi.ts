@@ -32,7 +32,7 @@ class UserApi
         var userProfileDelegate = new UserProfileDelegate();
 
         /* Create user */
-        app.put(ApiUrlDelegate.user(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        app.put(ApiUrlDelegate.user(), AccessControl.allowOwner, function (req:express.Request, res:express.Response)
         {
             var user:User = req.body[ApiConstants.USER];
 
