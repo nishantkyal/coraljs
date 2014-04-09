@@ -69,7 +69,8 @@ class UserSkillDelegate extends BaseDaoDelegate
 
     getSkillName(userId:any, transaction?:any):q.Promise<any>
     {
-        return this.getDao().getSkillName(userId, transaction);
+        var skillDao:any = this.getDao();
+        return skillDao.getSkillName(userId, transaction);
     }
 }
 export = UserSkillDelegate
