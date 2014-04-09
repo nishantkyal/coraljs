@@ -20,16 +20,18 @@ include header
                 .pull-right
                     .btn.btn-default(onclick='handleSkipClicked()') Skip >
             .row
+                include ../errorMessage
+            .row
                 .col-md-5
                     form.form-horizontal.left(method='post')
                         .form-group
                             label.control-label Email
                             .controls
-                                input.form-control(type='text', name='user')
+                                input.form-control(type='text', name='username')
                         .form-group
                             label.control-label Password
                             .controls
-                                input.form-control(type='password', name='pass')
+                                input.form-control(type='password', name='password')
                         .form-group
                             .controls
                                 input.btn.btn-primary(type='submit', value='Login')

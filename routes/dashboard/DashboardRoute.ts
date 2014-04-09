@@ -73,7 +73,6 @@ class DashboardRoute
 
         // Auth
         app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
-
         app.post(Urls.memberProfile(), Middleware.allowSelf, this.memberProfileSave.bind(this));
     }
 

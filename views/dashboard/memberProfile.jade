@@ -122,7 +122,7 @@ include ../scriptsAndStyles
                 button.btn.btn-default(data-dismiss='modal') No
                 button.btn.btn-primary(onclick='handleSkillDeleteClicked(event)') Yes
 script.
-    var memberId = !{member.id}
+    var memberId = '!{member.id}';
     var userSkill = JSON.parse( '!{JSON.stringify(userSkill)}' );
 script(src='/js/lib/bootstrap3-typeahead.js')
 script(src='/js/lib/bloodhound.js')

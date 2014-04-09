@@ -36,7 +36,7 @@ class CallFlowRoute
         app.get(Urls.checkout(), this.checkout.bind(this));
 
         // Auth related routes
-        app.post(Urls.userLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.userLogin(), successRedirect: Urls.callDetails()}));
+        app.post(Urls.userLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.userLogin(), failureFlash: true, successRedirect: Urls.callDetails()}));
         app.post(Urls.userRegister(), passport.authenticate(AuthenticationDelegate.STRATEGY_REGISTER, {failureRedirect: Urls.userLogin(), successRedirect: Urls.callDetails()}));
         app.get(Urls.userFBLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {scope: ['email']}));
         app.get(Urls.userFBLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {failureRedirect: Urls.userLogin(), scope: ['email'], successRedirect: Urls.callDetails()}));
@@ -89,6 +89,7 @@ class CallFlowRoute
         pageData['price_per_min'] = scheduleIds['price_per_min'];
         pageData['price_unit'] = '$';
         pageData['schedules'] = [];
+        pageData['messages'] = req.flash();
 
         _.each(scheduleIds, function (scheduleId)
         {

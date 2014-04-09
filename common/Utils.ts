@@ -10,7 +10,8 @@ class Utils
         var buf = [];
         var chars = characters || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 
-        for (var i = 0; i < length; ++i) {
+        for (var i = 0; i < length; ++i)
+        {
             buf.push(chars[this.getRandomInt(0, length - 1)]);
         }
 
@@ -26,15 +27,15 @@ class Utils
     /*
      * Get a promise that'll get rejected in next tick
      *  Used when we need to cancel an operation for invalid input
-    static getRejectedPromise(errorMessage:string):q.Promise<any>
-    {
-        var deferred = q.defer();
-        process.nextTick(function fail() {
-            deferred.reject(errorMessage);
-        });
-        return deferred.promise;
-    }
-    */
+     static getRejectedPromise(errorMessage:string):q.Promise<any>
+     {
+     var deferred = q.defer();
+     process.nextTick(function fail() {
+     deferred.reject(errorMessage);
+     });
+     return deferred.promise;
+     }
+     */
 
     static isNullOrEmpty(val:any):boolean
     {
@@ -54,12 +55,16 @@ class Utils
         return (results && results.length > 1) ? results[1] : "";
     }
 
-    static copyProperties(source:any, target:any):void {
-        for(var prop in source){
-            if(target[prop] !== undefined){
+    static copyProperties(source:any, target:any):void
+    {
+        for (var prop in source)
+        {
+            if (target[prop] !== undefined)
+            {
                 target[prop] = source[prop];
             }
-            else {
+            else
+            {
                 log4js.getDefaultLogger().debug("Cannot set undefined property: " + prop);
             }
         }
@@ -68,7 +73,8 @@ class Utils
     static camelToSnakeCase(camelCasedString:string)
     {
         var frags:Array<string> = camelCasedString.match(/[A-Z][a-z]+/g);
-        var lowerCasedFrags:Array<string> = _.map(frags, function(frag:string) {
+        var lowerCasedFrags:Array<string> = _.map(frags, function (frag:string)
+        {
             return frag.toLowerCase();
         })
         return lowerCasedFrags.join('_');
@@ -77,8 +83,9 @@ class Utils
     static snakeToCamelCase(snakeCasedString:string)
     {
         var frags:Array<string> = snakeCasedString.toLowerCase().split('_');
-        var camelCaseFrags:Array<string> = _.map(frags, function(frag:string) {
-            return frag.replace(/^([a-z])/, function(m:string, p1):string { return p1.toUpperCase(); });
+        var camelCaseFrags:Array<string> = _.map(frags, function (frag:string)
+        {
+            return frag.replace(/^([a-z])/, function (m:string, p1):string { return p1.toUpperCase(); });
         });
         return camelCaseFrags.join('');
     }
@@ -86,19 +93,20 @@ class Utils
     static enumToNormalText(enumObject:Object)
     {
         var keys = _.keys(enumObject);
-        var finalObject = {};
-        _.map(_.values(enumObject), function(value,key,list){
-            if(Utils.getObjectType(value) == 'String' ){
-                value = value.replace(/_/g,' ');
+        var convertedObject = {};
+        _.map(_.values(enumObject), function (value, key, list)
+        {
+            if (Utils.getObjectType(value) == 'String')
+            {
+                value = value.replace(/_/g, ' ');
                 value = value.toLowerCase();
-                value = value.replace(/(^[a-z]|\s[a-z])/g, function(m:string, p):string{
-                    return m.toUpperCase();
-                })
-                finalObject[keys[key]] = value;
+                value = value.replace(/(^[a-z]|\s[a-z])/g, function (m:string, p):string { return m.toUpperCase(); })
+                convertedObject[keys[key]] = value;
                 return value;
             }
+            return null;
         })
-        return finalObject;
+        return convertedObject;
     }
 
     static getObjectType(obj:any):string
@@ -107,7 +115,8 @@ class Utils
         return type === 'Object' ? obj.toString().replace('[object ', '').replace(']', '') : type;
     }
 
-    static surroundWithQuotes(val:any):string{
+    static surroundWithQuotes(val:any):string
+    {
         if (Utils.getObjectType(val) == 'String')
             return "'" + val + "'";
         return val;
