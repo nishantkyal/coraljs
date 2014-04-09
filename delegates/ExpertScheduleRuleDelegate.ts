@@ -19,7 +19,7 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
 {
     getDao():IDao { return new ExpertScheduleRuleDao(); }
 
-    create(newScheduleRule:ExpertScheduleRule, transaction?:any):q.Promise<any>
+    create(newScheduleRule:any, transaction?:any):q.Promise<any>
     {
         var self = this;
         var createProxy = super.create;

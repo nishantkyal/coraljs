@@ -18,6 +18,7 @@ import RequestHandler                               = require('./middleware/Requ
 import api                                          = require('./api/index');
 import routes                                       = require('./routes/index');
 import CountryCode                                  = require('./enums/CountryCode');
+import IndustryCodes                                = require('./enums/IndustryCodes');
 import CallFlowUrls                                 = require('./routes/callFlow/Urls');
 import DashboardUrls                                = require('./routes/dashboard/Urls');
 
@@ -44,6 +45,9 @@ app.use(
         // Route urls
         res.locals.CallFlowUrls = CallFlowUrls;
         res.locals.DashboardUrls = DashboardUrls;
+
+        res.locals.minYear = 1920;
+        res.locals.currentYear = new Date().getFullYear();
 
         next();
     }

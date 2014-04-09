@@ -1,0 +1,65 @@
+include ../scriptsAndStyles
+title Expert Profile
+.container-fluid
+    .row-fluid
+        .col-md-2
+        .col-md-10
+            .col-md-3
+                img.img.img-polaroid.img-responsive.col-md-14#profileImage(src='/rest/user/' + user.id + '/picture')
+            .col-md-9
+                .form-group
+                    label.control-label(for='Name') #{user.title} #{user.first_name} #{user.middle_name} #{user.last_name}
+                    div #{user.short_desc}
+                    label.control-label(for='long_desc') Description
+                    div #{user.long_desc}
+                    label.control-label(for='industry') Industry
+                    normal  - #{industryCodes[user.industry]}
+                    br
+                    label.control-label(for='birth_day') Date of Birth
+                    normal  - #{user.date_of_birth}
+                    br
+                    label.control-label(for='skill') Skill Details
+                    br
+                    each skill,i in userSkill
+                        if i != userSkill.length -1
+                            normal #{skill.skill_name}&nbsp,
+                        else
+                            normal #{skill.skill_name}&nbsp
+                hr
+                .form-group
+                    label.control-label(for='education') Experience Details
+                    br
+                    each emp,i in userEmployment
+                        b
+                            big #{emp.title}&nbsp
+                        br
+                        if emp.company
+                            big #{emp.company}
+                            br
+                        if emp.start_date
+                            small #{emp.start_date}&nbsp
+                        if emp.end_date
+                            small - #{emp.end_date}
+                            br
+                        if emp.summary
+                            div #{emp.summary}
+                        if i != userEmployment.length - 1
+                            br
+                hr
+                .form-group
+                    label.control-label(for='education') Education Details
+                    br
+                    each edu in userEducation
+                        b
+                            big #{edu.school_name}&nbsp
+                        br
+                        if edu.degree
+                            small #{edu.degree}
+                        if edu.field_of_study
+                            small , #{edu.field_of_study}
+                            br
+                        if edu.start_year
+                            small #{edu.start_year}&nbsp
+                        if edu.end_year
+                            small - #{edu.end_year}
+                            br

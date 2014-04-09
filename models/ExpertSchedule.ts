@@ -5,13 +5,13 @@ class ExpertSchedule extends BaseModel
 {
     private start_time:number;
     private duration:number;
-    private rule_id:number;
+    private schedule_rule_id:number;
 
-    public getRuleId():number           { return this.rule_id; }
+    public getScheduleRuleId():number           { return this.schedule_rule_id; }
     public getStartTime():number        { return this.start_time; }
     public getDuration():number         { return this.duration; }
 
-    public setRuleId(val:number)        { this.rule_id = val; }
+    public setScheduleRuleId(val:number)        { this.schedule_rule_id = val; }
     public setStartTime(val:number)     { this.start_time = val; }
     public setDuration(val:number)      { this.duration = val; }
 

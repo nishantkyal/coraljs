@@ -60,7 +60,7 @@ class ExpertScheduleDelegate
                         var temp = new ExpertSchedule();
                         temp.setStartTime(moment(t).valueOf());
                         temp.setDuration(rule.getDuration());
-                        temp.setRuleId(rule.getId());
+                        temp.setScheduleRuleId(rule.getId());
                         schedules.push(temp);
                     }
                 } catch (e) {}

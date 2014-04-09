@@ -14,6 +14,10 @@ import IntegrationMemberDelegate                        = require('../../delegat
 import EmailDelegate                                    = require('../../delegates/EmailDelegate');
 import SMSDelegate                                      = require('../../delegates/SMSDelegate');
 import CouponDelegate                                   = require('../../delegates/CouponDelegate');
+import UserEducationDelegate                            = require('../../delegates/UserEducationDelegate');
+import UserSkillDelegate                                = require('../../delegates/UserSkillDelegate');
+import UserEmploymentDelegate                           = require('../../delegates/UserEmploymentDelegate');
+import RefSkillCodeDelegate                             = require('../../delegates/SkillCodeDelegate');
 import MoneyUnit                                        = require('../../enums/MoneyUnit');
 import IncludeFlag                                      = require('../../enums/IncludeFlag');
 import User                                             = require('../../models/User');
@@ -24,6 +28,7 @@ import Coupon                                           = require('../../models/
 import IntegrationMemberRole                            = require('../../enums/IntegrationMemberRole');
 import ApiConstants                                     = require('../../enums/ApiConstants');
 import SmsTemplate                                      = require('../../enums/SmsTemplate');
+import IndustryCodes                                    = require('../../enums/IndustryCodes');
 import Utils                                            = require('../../common/Utils');
 import Formatter                                        = require('../../common/Formatter');
 import VerificationCodeCache                            = require('../../caches/VerificationCodeCache');
@@ -38,12 +43,19 @@ class DashboardRoute
     static PAGE_USERS:string = 'dashboard/integrationUsers';
     static PAGE_COUPONS:string = 'dashboard/integrationCoupons';
     static PAGE_PROFILE:string = 'dashboard/memberProfile';
+    static PAGE_PROFILE_COMPLETE:string = 'dashboard/memberProfileComplete';
+    static PAGE_EDUCATION:string = 'dashboard/memberEducation';
+    static PAGE_SKILL:string = 'dashboard/memberSkill';
+    static PAGE_EMPOLYMENT:string = 'dashboard/memberEmployment';
 
     integrationDelegate = new IntegrationDelegate();
     integrationMemberDelegate = new IntegrationMemberDelegate();
     userDelegate = new UserDelegate();
     verificationCodeCache = new VerificationCodeCache();
     couponDelegate = new CouponDelegate();
+    userEmploymentDelegate = new UserEmploymentDelegate();
+    userSkillDelegate = new UserSkillDelegate();
+    userEducationDelegate = new UserEducationDelegate();
 
     constructor(app)
     {
@@ -54,10 +66,14 @@ class DashboardRoute
         app.get(Urls.integrationCoupons(), connect_ensure_login.ensureLoggedIn(), this.coupons.bind(this));
         app.get(Urls.integrationMembers(), Middleware.allowOwnerOrAdmin, this.integrationUsers.bind(this));
         app.get(Urls.memberProfile(), Middleware.allowSelf, this.memberProfile.bind(this));
+        app.get(Urls.memberProfileComplete(), this.memberProfileComplete.bind(this));
+        app.get(Urls.memberEducation(), Middleware.allowSelf, this.memberEducation.bind(this));
+        app.get(Urls.memberEmployment(), Middleware.allowSelf, this.memberEmployment.bind(this));
         app.get(Urls.logout(), this.logout.bind(this));
 
         // Auth
         app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
+
         app.post(Urls.memberProfile(), Middleware.allowSelf, this.memberProfileSave.bind(this));
     }
 
@@ -183,29 +199,78 @@ class DashboardRoute
             function usersFetchError(error) { res.send(500, error); });
     }
 
+    memberProfileComplete(req:express.Request, res:express.Response)
+    {
+        var self = this;
+        var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
+        var user,userId,userSkill, userEducation, userEmployment;
+        self.integrationMemberDelegate.get(memberId)
+            .then(
+            function memberFetched(member:IntegrationMember)
+            {
+                userId = member.getUserId();
+                return self.userDelegate.get(userId);
+            })
+            .then(
+            function(tempUser){
+                user = tempUser;
+                return self.userSkillDelegate.getSkillName(userId) ;
+            })
+            .then(
+            function(skills){
+                userSkill = skills;
+                return self.userEducationDelegate.search({'user_id':userId})
+            })
+            .then(
+            function (educations){
+                userEducation = educations;
+                return self.userEmploymentDelegate.search({'user_id':userId})
+            })
+            .then(
+            function(employments){
+                userEmployment = employments;
+                var pageData =
+                {
+                    'user'          : user,
+                    'userSkill'     : userSkill,
+                    'userEducation' : userEducation,
+                    'userEmployment': userEmployment,
+                    'industryCodes' : Utils.enumToNormalText(IndustryCodes)
+                };
+                res.render(DashboardRoute.PAGE_PROFILE_COMPLETE, pageData);
+            })
+            .fail(
+            function(error){
+                res.send(500);
+            });
+    }
+
     memberProfile(req:express.Request, res:express.Response)
     {
-        var user = req[ApiConstants.USER];
-        var integrationId = parseInt(req.session[ApiConstants.INTEGRATION_ID]);
-        var integrationMembers = Middleware.getIntegrationMembers(req);
-        var member = new IntegrationMember(_.findWhere(integrationMembers, {'user_id': user.id, 'integration_id': integrationId}));
-
-        Middleware.setIntegrationId(req, member.getIntegrationId());
-
-        this.userDelegate.get(user.id)
+        var self = this;
+        var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
+        var user:any = req[ApiConstants.USER];
+        self.userSkillDelegate.getSkillName(user.id)
             .then(
-                function userFetched(user)
+                function(skills)
                 {
-                    var pageData =
-                    {
-                        'logged_in_user': req['user'],
-                        'member': member,
-                        'user': user
-                    };
-                    res.render(DashboardRoute.PAGE_PROFILE, pageData);
-                },
-                function userFetchError() { res.send(500); }
-            );
+                    self.integrationMemberDelegate.get(memberId)
+                        .then(
+                        function memberFetched(member)
+                        {
+                            var pageData =
+                            {
+                                'logged_in_user': req['user'],
+                                'member'        : member,
+                                'user'          : user,
+                                'userSkill'     : skills,
+                                'industryCodes' : Utils.enumToNormalText(IndustryCodes)
+                            };
+                            res.render(DashboardRoute.PAGE_PROFILE, pageData);
+                        },
+                        function userSkillFetchError(error) { res.send(500); }
+                    )
+                });
     }
 
     memberProfileSave(req:express.Request, res:express.Response)
@@ -215,9 +280,51 @@ class DashboardRoute
 
         this.userDelegate.update({id: loggedInUser.id}, user)
             .then(
-                function userUpdated() { res.send(200); },
-                function userUpdateError() { res.send(500); }
-            );
+            function userUpdated() { res.send(200); },
+            function userUpdateError() { res.send(500); }
+        );
+    }
+
+    memberEducation(req:express.Request, res:express.Response)
+    {
+        var self = this;
+        var loggedInUser = req['user'];
+        var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
+        self.userEducationDelegate.search({'user_id':loggedInUser.id})
+            .then(
+                function userEducationFetched(userEducation)
+                {
+                    var pageData =
+                    {
+                        'logged_in_user': req['user'],
+                        'userEducation' : userEducation,
+                        'memberId'      : memberId
+                    };
+                    res.render(DashboardRoute.PAGE_EDUCATION, pageData);
+                },
+                function userEducationFetchError() { res.send(500); }
+            )
+    }
+
+    memberEmployment(req:express.Request, res:express.Response)
+    {
+        var self = this;
+        var loggedInUser = req['user'];
+        var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
+        self.userEmploymentDelegate.search({'user_id':loggedInUser.id})
+            .then(
+            function userEmploymentFetched(userEmployment)
+            {
+                var pageData =
+                {
+                    'logged_in_user'     : req['user'],
+                    'userEmployment'     : userEmployment,
+                    'memberId'           : memberId
+                };
+                res.render(DashboardRoute.PAGE_EMPOLYMENT, pageData);
+            },
+            function userEducationFetchError() { res.send(500); }
+        )
     }
 
     logout(req, res)

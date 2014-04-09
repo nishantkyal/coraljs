@@ -11,6 +11,7 @@ class Config
     static SESSION_EXPIRY:string                        = 'session.expiry';
 
     static PROFILE_IMAGE_PATH:string                    = 'profile_image_path';
+    static TEMP_IMAGE_PATH:string                       = 'temp_image_path';
     static PROFILE_IMAGE_BASE_URL:string                = 'profile_image_base_url';
 
     static DATABASE_HOST:string                         = 'database.host';
@@ -21,7 +22,7 @@ class Config
     static REDIS_HOST:string                            = 'redis.host';
     static REDIS_PORT:string                            = 'redis.port';
     static EMAIL_CDN_BASE_URI:string                    = 'email.cdn.base_uri';
-    static CORAL_URI:string                             = 'Coral_uri';
+    static CORAL_URI:string                             = 'Coral.uri';
     static CORAL_PORT:string                            = 'Coral.port';
     static ACCESS_TOKEN_EXPIRY:string                   = 'access_token.expiry';
     static PASSWORD_RESET_EXPIRY:string                 = 'password_reset.expiry';

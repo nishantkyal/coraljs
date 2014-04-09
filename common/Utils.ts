@@ -78,9 +78,27 @@ class Utils
     {
         var frags:Array<string> = snakeCasedString.toLowerCase().split('_');
         var camelCaseFrags:Array<string> = _.map(frags, function(frag:string) {
-            return frag.replace(/^([a-z])/, function(m, p1) { return p1.toUpperCase(); });
-        })
+            return frag.replace(/^([a-z])/, function(m:string, p1):string { return p1.toUpperCase(); });
+        });
         return camelCaseFrags.join('');
+    }
+
+    static enumToNormalText(enumObject:Object)
+    {
+        var keys = _.keys(enumObject);
+        var finalObject = {};
+        _.map(_.values(enumObject), function(value,key,list){
+            if(Utils.getObjectType(value) == 'String' ){
+                value = value.replace(/_/g,' ');
+                value = value.toLowerCase();
+                value = value.replace(/(^[a-z]|\s[a-z])/g, function(m:string, p):string{
+                    return m.toUpperCase();
+                })
+                finalObject[keys[key]] = value;
+                return value;
+            }
+        })
+        return finalObject;
     }
 
     static getObjectType(obj:any):string

@@ -14,6 +14,9 @@ class ApiConstants
     static USER_PROFILE_ID:string = 'profileId';
     static EXPERT_ID:string = 'expertId';
     static MEMBER_ID:string = 'memberId';
+    static EDUCATION_ID:string = 'educationId';
+    static EMPLOYMENT_ID:string = 'employmentId';
+    static SKILL_ID:string = 'skillId';
     static INTEGRATION_ID:string = 'integrationId';
     static PROFILE_TYPE:string = 'profileType';
     static USERNAME:string = 'login';
@@ -33,7 +36,10 @@ class ApiConstants
     /* Body constants */
     static COUPON:string = 'coupon';
     static USER:string = 'user';
-    static USER_PROFILE:string = 'profile';
+    static USER_PROFILE:string = 'user';
+    static USER_EDUCATION:string = 'education';
+    static USER_EMPLOYMENT:string = 'employment';
+    static USER_SKILL:string = 'skill';
     static OAUTH:string = 'oauth';
     static INTEGRATION:string = 'integration';
     static INTEGRATION_MEMBER:string = 'integration_member';

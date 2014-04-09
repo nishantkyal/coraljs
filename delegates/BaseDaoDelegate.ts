@@ -2,6 +2,7 @@
 import _                = require('underscore');
 import log4js           = require('log4js');
 import q                = require('q');
+import moment           = require('moment');
 import IDao             = require('../dao/IDao');
 import Utils            = require('../common/Utils');
 import BaseModel        = require('../models/BaseModel');
@@ -150,17 +151,35 @@ class BaseDaoDelegate
                 return rawResult;
             });
     }
-
+    create(object:any, transaction?:any):q.Promise<any>;
+    create(object:any[], transaction?:any):q.Promise<any>;
     create(object:any, transaction?:any):q.Promise<any>
     {
         var self = this;
-
-        var generatedId:number = new GlobalIdDelegate().generate(this.getDao().getModel().TABLE_NAME);
-        object[BaseModel.ID] = generatedId;
-        object[BaseModel.CREATED] = new Date().getTime();
-        object[BaseModel.UPDATED] = new Date().getTime();
-
-        return this.getDao().create(object, transaction);
+        object = object || {};
+        if(object.length === undefined)
+        {
+            var generatedId:number = new GlobalIdDelegate().generate(this.getDao().getModel().TABLE_NAME);
+            object[BaseModel.ID] = object[BaseModel.ID] || generatedId;
+            object[BaseModel.CREATED] = new Date().getTime();
+            object[BaseModel.UPDATED] = new Date().getTime();
+            return this.getDao().create(object, transaction);
+        }
+        else
+        {
+            object = [object];
+            var newObject:any[] = [];
+            _.each(object, function(data){
+                var tempObject = data;
+                var generatedId:number = new GlobalIdDelegate().generate(self.getDao().getModel().TABLE_NAME);
+                tempObject[BaseModel.ID] = tempObject[BaseModel.ID] || generatedId;
+                tempObject[BaseModel.CREATED] = new Date().getTime();
+                tempObject[BaseModel.UPDATED] = new Date().getTime();
+                tempObject[BaseModel.DELETED] = false;
+                newObject.push(tempObject);
+            })
+            return this.getDao().create(newObject, transaction);
+        }
     }
 
     update(criteria:Object, newValues:Object, transaction?:any):q.Promise<any>
@@ -175,15 +194,15 @@ class BaseDaoDelegate
 
     delete(id:number, softDelete:boolean = true, transaction?:any):q.Promise<any>
     {
-        if (softDelete)
+        if (!softDelete)
             return this.getDao().delete(id, transaction);
         else
-            return this.getDao().update({id: 1}, {'deleted': moment().valueOf()}, transaction)
+            return this.getDao().update({'id': id}, {'deleted': moment().valueOf()}, transaction)
     }
 
     searchAndDelete(criteria:Object, softDelete:boolean = true, transaction?:any):q.Promise<any>
     {
-        if (softDelete)
+        if (!softDelete)
             this.getDao().searchAndDelete(criteria, transaction);
         else
             return this.getDao().update(criteria, {'deleted': moment().valueOf()}, transaction);
