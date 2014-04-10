@@ -10,21 +10,26 @@ import Utils                                        = require('../common/Utils')
  */
 class CacheHelper
 {
-    private static connection;
+    private static connection:redis.RedisClient;
 
     private static getConnection()
     {
-        this.connection = this.connection ? this.connection : redis.createClient(Config.get(Config.REDIS_PORT), Config.get("redis.host"), {connect_timeout: 60000});
-        this.connection.on('error', function (error)
+        // We're going to maintain just one connection to redis since both node and redis are single threaded
+        if (Utils.isNullOrEmpty(this.connection))
         {
-            console.log(error);
-        })
+            this.connection = redis.createClient(Config.get(Config.REDIS_PORT), Config.get("redis.host"), {connect_timeout: 60000});
+            this.connection.on('error', function (error)
+            {
+                console.log(error);
+            })
+        }
         return this.connection;
     }
 
     static set(key, value, expiry?:number, overwrite:boolean = false):q.Promise<any>
     {
         var deferred = q.defer();
+        var self = this;
 
         var args = [key, JSON.stringify(value)];
 
@@ -46,6 +51,8 @@ class CacheHelper
     static get(key):q.Promise<any>
     {
         var deferred = q.defer();
+        var self = this;
+
         this.getConnection().get(key, function (error, result:any)
         {
             if (error)
