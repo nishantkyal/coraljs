@@ -16,9 +16,10 @@ class UserOAuthDelegate extends BaseDaoDelegate
     /* Add or update an OAuth token
      * Created new user if can't update
      */
-    addOrUpdateToken(userOAuth:UserOAuth, user?:User):q.Promise<any>
+    addOrUpdateToken(userOAuth:UserOAuth, user?:User, transaction?:any):q.Promise<any>
     {
         var self = this;
+        var args = arguments;
 
         // 1. Try updating the token
         // 2. If it fails for uniqueness constraint, create a new user and add token to it
@@ -32,19 +33,16 @@ class UserOAuthDelegate extends BaseDaoDelegate
                     userOAuth.setUserId(token.getUserId());
                     return self.update(oauthId, userOAuth);
                 }
-                else {
-                    var transaction = null;
-                    var newUser:User = null;
-
+                else
+                {
                     if (Utils.isNullOrEmpty(transaction))
-                        return MysqlDelegate.executeInTransaction(this, arguments);
+                        return MysqlDelegate.executeInTransaction(self, args);
 
                     return new UserDelegate().create(user, transaction)
                         .then(
                         function userCreated(user:User)
                         {
-                            newUser = user;
-                            userOAuth.setUserId(newUser.getId());
+                            userOAuth.setUserId(user.getId());
                             return self.create(userOAuth, transaction);
                         });
                 }

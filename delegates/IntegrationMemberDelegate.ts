@@ -39,7 +39,7 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
             .then(
             function expertCreated(expert:IntegrationMember)
             {
-                integrationMember = expert;
+                integrationMember.setId(expert.getId());
                 return self.expertScheduleRuleDelegate.createDefaultRules(expert.getId(), transaction);
             })
             .then(
