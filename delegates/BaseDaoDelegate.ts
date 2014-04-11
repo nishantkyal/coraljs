@@ -208,7 +208,11 @@ class BaseDaoDelegate
             return this.getDao().update(criteria, {'deleted': moment().valueOf()}, transaction);
     }
 
-    getDao():IDao { throw('getDao method not implemented'); }
+    getDao():IDao
+    {
+        throw('getDao method not implemented');
+        return null;
+    }
 
 }
 export = BaseDaoDelegate

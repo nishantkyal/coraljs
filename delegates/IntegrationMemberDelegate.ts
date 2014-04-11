@@ -130,7 +130,6 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
 
     getDao():IDao { return new IntegrationMemberDAO(); }
 
-
     getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
     {
         result = [].concat(result);

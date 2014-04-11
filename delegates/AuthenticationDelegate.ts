@@ -4,17 +4,21 @@ import http                                 = require('http');
 import express                              = require('express');
 import passport                             = require('passport');
 import url                                  = require('url');
+import q                                    = require('q');
 import passport_http_bearer                 = require('passport-http-bearer');
 import passport_facebook                    = require('passport-facebook');
 import passport_linkedin                    = require('passport-linkedin');
 import passport_local                       = require('passport-local');
+import log4js                               = require('log4js');
 import IntegrationMemberDelegate            = require('../delegates/IntegrationMemberDelegate');
 import UserDelegate                         = require('../delegates/UserDelegate');
 import UserOAuthDelegate                    = require('../delegates/UserOAuthDelegate');
 import UserEmploymentDelegate               = require('../delegates/UserEmploymentDelegate');
 import UserEducationDelegate                = require('../delegates/UserEducationDelegate');
 import UserSkillDelegate                    = require('../delegates/UserSkillDelegate');
+import SkillCodeDelegate                    = require('../delegates/SkillCodeDelegate');
 import ImageDelegate                        = require('../delegates/ImageDelegate');
+import MysqlDelegate                        = require('../delegates/MysqlDelegate');
 import IntegrationMember                    = require('../models/IntegrationMember');
 import UserOauth                            = require('../models/UserOauth');
 import User                                 = require('../models/User');
@@ -24,8 +28,8 @@ import UserEducation                        = require('../models/UserEducation')
 import Config                               = require('../common/Config');
 import Utils                                = require('../common/Utils');
 import ApiConstants                         = require('../enums/ApiConstants');
-import IndustryCodes                        = require('../enums/IndustryCodes');
-
+import IndustryCodes                        = require('../enums/IndustryCode');
+import UserStatus                           = require('../enums/UserStatus');
 import ExpertRegistrationUrls               = require('../routes/expertRegistration/Urls')
 
 class AuthenticationDelegate
@@ -37,6 +41,8 @@ class AuthenticationDelegate
     static STRATEGY_LINKEDIN:string = 'linkedin';
     static STRATEGY_FACEBOOK_CALL_FLOW:string = 'facebook-call';
     static STRATEGY_LINKEDIN_EXPERT_REGISTRATION:string = 'linkedin-expert';
+
+    private static logger = log4js.getLogger('AuthenticationDelegate');
 
     /* Static constructor workaround */
     private static ctor = (() =>
@@ -59,7 +65,6 @@ class AuthenticationDelegate
 
     })();
 
-
     static register(options?:any)
     {
         options = options || {};
@@ -69,8 +74,8 @@ class AuthenticationDelegate
         {
             var user = new User(req.body);
             if (user.isValid()
-                    && !Utils.isNullOrEmpty(user.getPassword())
-                        && !Utils.isNullOrEmpty(user.getFirstName()))
+                && !Utils.isNullOrEmpty(user.getPassword())
+                && !Utils.isNullOrEmpty(user.getFirstName()))
             {
                 var userDelegate = new UserDelegate();
 
@@ -164,7 +169,7 @@ class AuthenticationDelegate
     }
 
     private static configureLinkedInStrategy(strategyId:string, callbackUrl:string, profileFields:string[] = ['id', 'first-name', 'last-name', 'email-address', 'headline',
-        'industry', 'summary', 'positions', 'picture-urls::(original)',  'skills', 'educations', 'date-of-birth'])
+        'industry', 'summary', 'positions', 'picture-urls::(original)', 'skills', 'educations', 'date-of-birth'])
     {
         passport.use(strategyId, new passport_linkedin.Strategy({
                 consumerKey: Config.get(Config.LINKEDIN_API_KEY),
@@ -176,25 +181,19 @@ class AuthenticationDelegate
             {
                 profile = profile['_json'];
 
-                var profilePictureUrl;
-                if(profile.pictureUrls)
-                    if(profile.pictureUrls.values.length > 0)
-                        profilePictureUrl = profile.pictureUrls.values[0];
-                var tempProfilePicturePath = Config.get(Config.TEMP_IMAGE_PATH) + Math.random();
-
                 var user:User = new User();
                 user.setEmail(profile.emailAddress);
                 user.setFirstName(profile.firstName);
                 user.setLastName(profile.lastName);
                 user.setShortDesc(profile.headline);
                 user.setLongDesc(profile.summary);
-                if(!Utils.isNullOrEmpty(profile.dateOfBirth))
+                if (!Utils.isNullOrEmpty(profile.dateOfBirth))
                 {
                     var dob:string = profile.dateOfBirth.day + '-' + profile.dateOfBirth.month + '-' + profile.dateOfBirth.year;
                     user.setDateOfBirth(dob);
                 }
 
-                if(!Utils.isNullOrEmpty(profile.industry))
+                if (!Utils.isNullOrEmpty(profile.industry))
                 {
                     var industry:string = profile.industry.toString().replace(/-|\/|\s/g, '_').toUpperCase();
                     user.setIndustry(IndustryCodes[industry]);
@@ -206,126 +205,128 @@ class AuthenticationDelegate
                 userOauth.setAccessToken(accessToken);
                 userOauth.setRefreshToken(refreshToken);
 
-                new UserOAuthDelegate().addOrUpdateToken(userOauth, user)
+                return new UserOAuthDelegate().addOrUpdateToken(userOauth, user)
                     .then(
-                    function tokenUpdated(result:any)
+                    function tokenUpdated(oauth:UserOauth)
                     {
-                        var user = new User(result);
-                        return user.isValid() ? done(null, user) : done('Login failed');
+                        return new UserDelegate().get(oauth.getUserId());
+                    })
+                    .then(
+                    function userFetched(createdUser:User):any
+                    {
+                        user.setId(createdUser.getId());
+
+                        if (createdUser.isValid())
+                            done(null, createdUser)
+                        else
+                            done('Login failed');
+
+                        return createdUser;
                     },
                     function tokenUpdateError(error)
                     {
+                        AuthenticationDelegate.logger.error('An error occurred while logging in using linkedin. Error: %s', error);
                         done(error);
                     })
                     .then(
-                    function(user:User){
+                    function updateFieldsFromLinkedIn(user:User)
+                    {
+                        var transaction;
                         var userId:number = user.getId();
 
-                        if(!Utils.isNullOrEmpty(profilePictureUrl))
-                        {
-                            new ImageDelegate().fetch(profilePictureUrl, tempProfilePicturePath)
-                                .then(
-                                    function(){
-                                        new ImageDelegate().move(tempProfilePicturePath, Config.get(Config.PROFILE_IMAGE_PATH) + userId);
-                                    }
-                                )
-                        }
-                        if(!Utils.isNullOrEmpty(profile.skills))
-                        {
-                            if(profile.skills._total > 0)
+                        return MysqlDelegate.beginTransaction()
+                            .then(
+                            function transactionStarted(t)
                             {
-                                _.each(profile.skills.values, function(skillObject:any){
-                                    var tempUserSkill:UserSkill = new UserSkill();
-                                    var data:string = '';
-                                    var skillName = skillObject.skill.name;
-                                    var url:string = ('http://www.linkedin.com/ta/skill?query=' + skillName);
-                                    var request = http.get(url, function(response){
-                                        response.on('data', function (chunk) {
-                                            data = data + chunk;
-                                        });
-                                        response.on('end', function(){
-                                            var dataJson = JSON.parse(data);
-                                            var resultList = dataJson.resultList;
-                                            _.each(resultList, function(skill:any){
-                                                if(skill.displayName == skillName)
-                                                {
-                                                    tempUserSkill.setUserId(userId);
-                                                    new UserSkillDelegate().createUserSkill(tempUserSkill, skillName, skill.id);
-                                                }
-                                            });
-                                        });
-                                    });
-                                    request.on('error', function(e) {
-                                    });
-                                });
-                            }
-                        }
+                                transaction = t;
+                                var updateProfileTasks = [];
 
-                        if(!Utils.isNullOrEmpty(profile.positions))
-                        {
-                            var userEmployment:UserEmployment[] = [];
-                            if(profile.positions._total > 0)
-                            {
-                                _.each(profile.positions.values, function(position:any){
-                                    var tempUserEmployment:UserEmployment = new UserEmployment();
-                                    tempUserEmployment.setIsCurrent(position.isCurrent || false);
-                                    tempUserEmployment.setTitle(position.title || null);
-                                    tempUserEmployment.setSummary(position.summary || null);
-                                    tempUserEmployment.setUserId(userId);
+                                // Fetch and process profile image if available
+                                var profilePictureUrl;
+                                if (profile.pictureUrls && profile.pictureUrls.values.length > 0)
+                                    profilePictureUrl = profile.pictureUrls.values[0];
 
-                                    if(!Utils.isNullOrEmpty(position.company))
-                                        tempUserEmployment.setCompany(position.company.name || null);
-                                    else
-                                        tempUserEmployment.setCompany(null);
+                                if (!Utils.isNullOrEmpty(profilePictureUrl))
+                                {
+                                    var tempProfilePicturePath = Config.get(Config.TEMP_IMAGE_PATH) + Math.random();
+                                    updateProfileTasks.push(new ImageDelegate().fetch(profilePictureUrl, tempProfilePicturePath)
+                                        .then(
+                                        function imageFetched()
+                                        {
+                                            return new UserDelegate().processProfileImage(userId, tempProfilePicturePath);
+                                        })
+                                    );
+                                }
 
-                                    if(!Utils.isNullOrEmpty(position.startDate))
+                                // Update skills
+                                if (!Utils.isNullOrEmpty(profile.skills) && profile.skills._total > 0)
+                                    updateProfileTasks = updateProfileTasks.concat(_.map(profile.skills.values, function (skillObject:any)
                                     {
-                                        tempUserEmployment.setStartDate((position.startDate.month  || null) + '-' + (position.startDate.year || null));
-                                    }
-                                    else
-                                        tempUserEmployment.setStartDate(null);
+                                        var skillName = skillObject.skill.name;
+                                        return new SkillCodeDelegate().getSkillCodeFromLinkedIn(skillName)
+                                            .then(
+                                            function skillCodeFetched(skillCode:number)
+                                            {
+                                                var tempUserSkill:UserSkill = new UserSkill();
+                                                tempUserSkill.setUserId(userId);
+                                                return new UserSkillDelegate().createUserSkill(tempUserSkill, skillName, skillCode, transaction);
+                                            });
+                                    }));
 
-                                    if(!position.isCurrent && !Utils.isNullOrEmpty(position.endDate))
-                                        tempUserEmployment.setEndDate((position.endDate.month  || null) + '-' + (position.endDate.year || null));
-                                    else
-                                        tempUserEmployment.setEndDate(null);
+                                // Update employment
+                                if (!Utils.isNullOrEmpty(profile.positions) && profile.positions._total > 0)
+                                {
+                                    var userEmployment = _.map(profile.positions.values, function (position:any)
+                                    {
+                                        var tempUserEmployment:UserEmployment = new UserEmployment();
+                                        tempUserEmployment.setIsCurrent(position.isCurrent);
+                                        tempUserEmployment.setTitle(position.title);
+                                        tempUserEmployment.setSummary(position.summary);
+                                        tempUserEmployment.setUserId(userId);
+                                        tempUserEmployment.setCompany(position.company ? position.company.name : null);
 
-                                    userEmployment.push(tempUserEmployment);
-                                });
-                                new UserEmploymentDelegate().create(userEmployment);
-                            }
-                        }
+                                        if (!Utils.isNullOrEmpty(position.startDate))
+                                            tempUserEmployment.setStartDate((position.startDate.month || null) + '-' + (position.startDate.year || null));
 
-                        if(!Utils.isNullOrEmpty(profile.educations))
-                        {
-                            var userEducation:UserEducation[] = [];
-                            if(profile.educations._total > 0)
+                                        if (!position.isCurrent && !Utils.isNullOrEmpty(position.endDate))
+                                            tempUserEmployment.setEndDate((position.endDate.month || null) + '-' + (position.endDate.year || null));
+
+                                        return tempUserEmployment;
+                                    });
+                                    updateProfileTasks.push(new UserEmploymentDelegate().create(userEmployment, transaction));
+                                }
+
+                                // Update education
+                                if (!Utils.isNullOrEmpty(profile.educations) && profile.educations._total > 0)
+                                {
+                                    var userEducation = _.map(profile.educations.values, function (education:any)
+                                    {
+                                        var tempUserEducation:UserEducation = new UserEducation();
+                                        tempUserEducation.setSchoolName(education.schoolName);
+                                        tempUserEducation.setFieldOfStudy(education.fieldOfStudy);
+                                        tempUserEducation.setDegree(education.degree);
+                                        tempUserEducation.setActivities(education.activities);
+                                        tempUserEducation.setNotes(education.notes);
+                                        tempUserEducation.setUserId(userId);
+                                        tempUserEducation.setStartYear(education.startDate ? education.startDate.year : null);
+                                        tempUserEducation.setEndYear(education.endDate ? education.endDate.year : null);
+
+                                        return tempUserEducation;
+                                    });
+                                    updateProfileTasks.push(new UserEducationDelegate().create(userEducation, transaction));
+                                }
+
+                                // Set user status to active since linkedin means we've a verified email and profile information
+                                updateProfileTasks.push(new UserDelegate().update({id: user.getId()}, {status: UserStatus.ACTIVE}, transaction));
+
+                                return q.all(updateProfileTasks);
+                            })
+                            .finally(
+                            function userStatusUpdated()
                             {
-                                _.each(profile.educations.values, function(education:any){
-                                    var tempUserEducation:UserEducation = new UserEducation();
-                                    tempUserEducation.setSchoolName(education.schoolName || null);
-                                    tempUserEducation.setFieldOfStudy(education.fieldOfStudy || null);
-                                    tempUserEducation.setDegree(education.degree || null);
-                                    tempUserEducation.setActivities(education.activities || null);
-                                    tempUserEducation.setNotes(education.notes || null);
-                                    tempUserEducation.setUserId(userId);
-
-                                    if(!Utils.isNullOrEmpty(education.startDate))
-                                        tempUserEducation.setStartYear(education.startDate.year || null);
-                                    else
-                                        tempUserEducation.setStartYear(null);
-
-                                    if(!Utils.isNullOrEmpty(education.endDate))
-                                        tempUserEducation.setEndYear(education.endDate.year || null);
-                                    else
-                                        tempUserEducation.setEndYear(null);
-
-                                    userEducation.push(tempUserEducation);
-                                });
-                                new UserEducationDelegate().create(userEducation);
-                            }
-                        }
-                    });
+                                return MysqlDelegate.commit(transaction);
+                            });
+                    })
             }
         ));
     }

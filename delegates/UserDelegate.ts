@@ -21,7 +21,7 @@ import Config                                                           = requir
  */
 class UserDelegate extends BaseDaoDelegate
 {
-    DEFAULT_FIELDS:string[] = [User.ID, User.TITLE,  User.FIRST_NAME, User.LAST_NAME, User.SHORT_DESC, User.LONG_DESC, User.EMAIL, User.INDUSTRY, User.DATE_OF_BIRTH];
+    DEFAULT_FIELDS:string[] = [User.ID, User.TITLE,  User.FIRST_NAME, User.LAST_NAME, User.SHORT_DESC, User.LONG_DESC, User.EMAIL, User.INDUSTRY, User.DATE_OF_BIRTH, User.STATUS];
 
     imageDelegate = new ImageDelegate();
 
@@ -39,9 +39,9 @@ class UserDelegate extends BaseDaoDelegate
         switch (include)
         {
             case IncludeFlag.INCLUDE_USER_PROFILE:
-                return new UserProfileDelegate().search({'user_id': result.getId()});
+                return new UserProfileDelegate().search({'user_id': user.getId()});
             case IncludeFlag.INCLUDE_INTEGRATION_MEMBER:
-                return new IntegrationMemberDelegate().searchByUser(result.getId());
+                return new IntegrationMemberDelegate().searchByUser(user.getId());
         }
         return super.getIncludeHandler(include, result);
     }

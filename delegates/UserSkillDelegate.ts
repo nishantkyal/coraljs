@@ -10,8 +10,10 @@ import SkillCodeModel                                       = require('../models
 class UserSkillDelegate extends BaseDaoDelegate
 {
     DEFAULT_FIELDS:string[] = [UserSkill.ID, UserSkill.USER_ID,UserSkill.SKILL_ID];
+
     getDao():IDao { return new UserSkillDao(); }
-    createUserSkill(userSkill:UserSkill, skillName:string, lkin_code:number):q.Promise<any>
+
+    createUserSkill(userSkill:UserSkill, skillName:string, lkin_code:number, transaction?:any):q.Promise<any>
     {
         var self = this;
         var skillCodeDelegate = new SkillCodeDelegate();
@@ -24,7 +26,7 @@ class UserSkillDelegate extends BaseDaoDelegate
             .then(
             function skillCodeCreated(refSkill){
                 userSkill.setSkillId(refSkill.getId());
-                return self.create(userSkill)
+                return self.create(userSkill, transaction)
             },
             function skillCodeError(error) //code exists
             {
@@ -32,14 +34,14 @@ class UserSkillDelegate extends BaseDaoDelegate
                     .then(
                         function skillFound(refSkill){
                             userSkill.setSkillId(refSkill.getId());
-                            return self.create(userSkill);
+                            return self.create(userSkill, transaction);
                         }
                     )
             }
-        )
+        );
     }
 
-    updateUserSkill(userSkill:UserSkill, skillName:string, lkin_code:number):q.Promise<any>
+    updateUserSkill(userSkill:UserSkill, skillName:string, lkin_code:number, transaction?:any):q.Promise<any>
     {
         var self = this;
         var skillCodeDelegate = new SkillCodeDelegate();
@@ -52,7 +54,7 @@ class UserSkillDelegate extends BaseDaoDelegate
             .then(
             function skillCodeCreated(refSkill){
                 userSkill.setSkillId(refSkill.getId());
-                return self.update({id: userSkill.getId()}, userSkill)
+                return self.update({id: userSkill.getId()}, userSkill, transaction)
             },
             function skillCodeError(error) //code exists
             {
@@ -60,7 +62,7 @@ class UserSkillDelegate extends BaseDaoDelegate
                     .then(
                     function skillFound(refSkill){
                         userSkill.setSkillId(refSkill.getId());
-                        return self.update({id: userSkill.getId()}, userSkill);
+                        return self.update({id: userSkill.getId()}, userSkill, transaction);
                     }
                 )
             }

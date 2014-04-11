@@ -18,7 +18,8 @@ import RequestHandler                               = require('./middleware/Requ
 import api                                          = require('./api/index');
 import routes                                       = require('./routes/index');
 import CountryCode                                  = require('./enums/CountryCode');
-import IndustryCodes                                = require('./enums/IndustryCodes');
+import IndustryCode                                 = require('./enums/IndustryCode');
+import CountryName                                  = require('./enums/CountryName');
 import CallFlowUrls                                 = require('./routes/callFlow/Urls');
 import DashboardUrls                                = require('./routes/dashboard/Urls');
 
@@ -30,6 +31,7 @@ var app:express.Application = express();
 app.use(express.compress());
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
+
 app.use(
     function (req, res, next)
     {
@@ -48,6 +50,9 @@ app.use(
 
         res.locals.minYear = 1920;
         res.locals.currentYear = new Date().getFullYear();
+
+        res.locals.CountryCode = CountryCode;
+        res.locals.CountryName = CountryName;
 
         next();
     }

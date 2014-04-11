@@ -135,7 +135,7 @@ class ExpertRegistrationRoute
                 var pageData = {
                     integration: integration,
                     user: user
-                }
+                };
 
                 res.render('expertRegistration/updateProfile', pageData);
             },

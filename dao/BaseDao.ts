@@ -25,6 +25,7 @@ class BaseDao implements IDao
         else
             throw ('Invalid Model class specified for ' + Utils.getClassName(this));
     }
+
     create(dataArray:any, transaction?:any):q.Promise<any>;
     create(dataArray:any[], transaction?:any):q.Promise<any>;
     create(dataArray:any, transaction?:any):q.Promise<any>
@@ -193,7 +194,10 @@ class BaseDao implements IDao
         return MysqlDelegate.executeQuery('DELETE FROM ' + this.tableName + ' WHERE ' + wheres.join(' AND '), values, transaction);
     }
 
-    getModel():typeof BaseModel { throw('Model class not defined for ' + Utils.getClassName(this)); }
+    getModel():typeof BaseModel
+    {
+        return null;
+        throw('Model class not defined for ' + Utils.getClassName(this)); }
 
     private generateWhereStatements(criteria:Object):any
     {

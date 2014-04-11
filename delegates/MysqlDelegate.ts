@@ -75,7 +75,7 @@ class MysqlDelegate
     /*
      * Begin a transaction and return the transaction
      */
-    private static beginTransaction(transaction?:any):q.Promise<any>
+    static beginTransaction(transaction?:any):q.Promise<any>
     {
         var deferred = q.defer();
 

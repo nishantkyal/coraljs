@@ -1,4 +1,4 @@
-enum IndustryCodes
+enum IndustryCode
 {
     DEFENSE_AND_SPACE = 1,
     COMPUTER_HARDWARE = 3,
@@ -148,6 +148,6 @@ enum IndustryCodes
     INDUSTRIAL_AUTOMATION = 147,
     GOVERNMENT_RELATIONS = 148
 }
-export = IndustryCodes
+export = IndustryCode
 
 

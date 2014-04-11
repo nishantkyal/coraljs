@@ -8,6 +8,7 @@ import MysqlDelegate                                = require('../delegates/Mysq
 import UserOAuth                                    = require('../models/UserOauth');
 import User                                         = require('../models/User');
 import Utils                                        = require('../common/Utils');
+
 /*
  Delegate class for managing user's oauth integrations (FB/LinkedIn logins)
  */
@@ -33,8 +34,7 @@ class UserOAuthDelegate extends BaseDaoDelegate
                     userOAuth.setUserId(token.getUserId());
                     return self.update(oauthId, userOAuth);
                 }
-                else
-                {
+                else {
                     if (Utils.isNullOrEmpty(transaction))
                         return MysqlDelegate.executeInTransaction(self, args);
 
@@ -44,6 +44,12 @@ class UserOAuthDelegate extends BaseDaoDelegate
                         {
                             userOAuth.setUserId(user.getId());
                             return self.create(userOAuth, transaction);
+                        })
+                        .then(
+                        function oauthCreated(oauth:UserOAuth)
+                        {
+                            userOAuth.setId(oauth.getId());
+                            return userOAuth;
                         });
                 }
             });
@@ -62,12 +68,6 @@ class UserOAuthDelegate extends BaseDaoDelegate
             {
                 return new UserDelegate().get(userId);
             });
-    }
-
-    deleteByUser(userId:string):q.Promise<any>
-    {
-        // TODO: Implement delete oauth token
-        return null;
     }
 
     getDao():IDao { return new UserAuthDAO(); }
