@@ -179,13 +179,30 @@ class DashboardRoute
                 var members = results[0][0];
                 var invitedMembers = [].concat(results[0][1]);
 
-                members = members.concat(_.map(invitedMembers, function (invited) { return new IntegrationMember(invited); }));
                 _.each(members, function (member:IntegrationMember)
                 {
                     if (Utils.getObjectType(member[IntegrationMember.USER]) == 'Array')
                     // TODO: Implement foreign keys to get rid if this goofiness
                         member[IntegrationMember.USER] = _.findWhere(member[IntegrationMember.USER], {id: member.getUserId()});
                 });
+
+                // Mark members who have an expert entry as well as an invited entry as inactive
+                // since this means they haven't completed the registration process
+
+                _.each(invitedMembers, function(invitedMember) {
+                    var expertEntry = _.find(members, function(member:IntegrationMember) {
+                        return invitedMember['user']['first_name'] == member.getUser().getFirstName()
+                                    && invitedMember['user']['last_name'] == member.getUser().getLastName();
+                    });
+
+                    if (!Utils.isNullOrEmpty(expertEntry))
+                    {
+                        expertEntry['status'] = 'Inactive';
+                        invitedMembers = _.without(invitedMembers, invitedMember);
+                    }
+                });
+
+                members = members.concat(_.map(invitedMembers, function (invited) { return new IntegrationMember(invited); }));
 
                 var pageData =
                 {
