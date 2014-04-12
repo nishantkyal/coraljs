@@ -5,17 +5,18 @@ class RefSkillCode extends BaseModel
     static TABLE_NAME:string = 'skill_codes';
 
     static SKILL:string = 'skill';
-    static LKIN_CODE:string = 'lkin_code';
+    static LINKEDIN_CODE:string = 'linkedin_code';
 
     private skill:string;
-    private lkin_code:number;
+    private linkedin_code:number;
+
     /* Getters */
-    getSkill():string           { return this.skill; }
-    getLkinCode():number        { return this.lkin_code; }
+    getSkill():string                               { return this.skill; }
+    getLinkedinCode():number                        { return this.linkedin_code; }
 
     /* Setters */
-    setSkill(val:string):void   { this.skill = val; }
-    setLkinCode(val:number):void{ this.lkin_code = val; }
+    setSkill(val:string):void                       { this.skill = val; }
+    setLinkedinCode(val:number):void                { this.linkedin_code = val; }
 }
 export = RefSkillCode
 

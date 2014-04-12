@@ -130,5 +130,21 @@ class Utils
         return obj;
     }
 
+    static repeatChar(char:string, times:number, delimiter:string = ''):string
+    {
+        if (times <= 1)
+            return char;
+
+        if (char.trim().length > 1)
+        {
+            var repeatArray = [];
+            for (var i = 0; i < times; i++)
+                repeatArray.push(char);
+            return repeatArray.join(delimiter);
+        }
+
+        var repeatString:string = Array(times + 1).join(char);
+        return delimiter === '' ? repeatString : repeatString.split('').join(delimiter);
+    }
 }
 export = Utils

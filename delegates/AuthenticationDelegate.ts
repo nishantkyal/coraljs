@@ -25,6 +25,7 @@ import User                                 = require('../models/User');
 import UserSkill                            = require('../models/UserSkill');
 import UserEmployment                       = require('../models/UserEmployment');
 import UserEducation                        = require('../models/UserEducation');
+import SkillCode                            = require('../models/SkillCode');
 import Config                               = require('../common/Config');
 import Utils                                = require('../common/Utils');
 import ApiConstants                         = require('../enums/ApiConstants');
@@ -250,33 +251,39 @@ class AuthenticationDelegate
                                 {
                                     var tempProfilePicturePath = Config.get(Config.TEMP_IMAGE_PATH) + Math.random();
                                     updateProfileTasks.push(new ImageDelegate().fetch(profilePictureUrl, tempProfilePicturePath)
-                                        .then(
-                                        function imageFetched()
-                                        {
-                                            return new UserDelegate().processProfileImage(userId, tempProfilePicturePath);
-                                        })
+                                            .then(
+                                            function imageFetched()
+                                            {
+                                                return new UserDelegate().processProfileImage(userId, tempProfilePicturePath);
+                                            })
                                     );
                                 }
 
                                 // Update skills
                                 if (!Utils.isNullOrEmpty(profile.skills) && profile.skills._total > 0)
-                                    updateProfileTasks = updateProfileTasks.concat(_.map(profile.skills.values, function (skillObject:any)
-                                    {
-                                        var skillName = skillObject.skill.name;
-                                        return new SkillCodeDelegate().getSkillCodeFromLinkedIn(skillName)
+                                    updateProfileTasks = updateProfileTasks.concat(
+                                        new SkillCodeDelegate().createSkillCodeFromLinkedIn(_.map(profile.skills.values, function (skillObject:any)
+                                        {
+                                            return skillObject.skill.name;
+                                        }))
                                             .then(
-                                            function skillCodeFetched(skillCode:number)
+                                            function skillCodesCreated(createdSkillCodes:SkillCode[])
                                             {
-                                                var tempUserSkill:UserSkill = new UserSkill();
-                                                tempUserSkill.setUserId(userId);
-                                                return new UserSkillDelegate().createUserSkill(tempUserSkill, skillName, skillCode, transaction);
-                                            });
-                                    }));
+                                                var userSkills = _.map(createdSkillCodes, function (skillCode:SkillCode)
+                                                {
+                                                    var userSkill = new UserSkill();
+                                                    userSkill.setUserId(userId);
+                                                    userSkill.setSkillId(skillCode.getId())
+                                                    return userSkill;
+                                                });
+                                                return new UserSkillDelegate().create(userSkills, transaction);
+                                            })
+                                    );
 
                                 // Update employment
                                 if (!Utils.isNullOrEmpty(profile.positions) && profile.positions._total > 0)
                                 {
-                                    var userEmployment = _.map(profile.positions.values, function (position:any)
+                                    updateProfileTasks = updateProfileTasks.concat(_.map(profile.positions.values, function (position:any)
                                     {
                                         var tempUserEmployment:UserEmployment = new UserEmployment();
                                         tempUserEmployment.setIsCurrent(position.isCurrent);
@@ -291,15 +298,14 @@ class AuthenticationDelegate
                                         if (!position.isCurrent && !Utils.isNullOrEmpty(position.endDate))
                                             tempUserEmployment.setEndDate((position.endDate.month || null) + '-' + (position.endDate.year || null));
 
-                                        return tempUserEmployment;
-                                    });
-                                    updateProfileTasks.push(new UserEmploymentDelegate().create(userEmployment, transaction));
+                                        return new UserEmploymentDelegate().create(tempUserEmployment, transaction);
+                                    }));
                                 }
 
                                 // Update education
                                 if (!Utils.isNullOrEmpty(profile.educations) && profile.educations._total > 0)
                                 {
-                                    var userEducation = _.map(profile.educations.values, function (education:any)
+                                    updateProfileTasks = updateProfileTasks.concat(_.map(profile.educations.values, function (education:any)
                                     {
                                         var tempUserEducation:UserEducation = new UserEducation();
                                         tempUserEducation.setSchoolName(education.schoolName);
@@ -311,9 +317,8 @@ class AuthenticationDelegate
                                         tempUserEducation.setStartYear(education.startDate ? education.startDate.year : null);
                                         tempUserEducation.setEndYear(education.endDate ? education.endDate.year : null);
 
-                                        return tempUserEducation;
-                                    });
-                                    updateProfileTasks.push(new UserEducationDelegate().create(userEducation, transaction));
+                                        return new UserEducationDelegate().create(tempUserEducation, transaction);
+                                    }));
                                 }
 
                                 // Set user status to active since linkedin means we've a verified email and profile information
@@ -321,8 +326,12 @@ class AuthenticationDelegate
 
                                 return q.all(updateProfileTasks);
                             })
-                            .finally(
+                            .then(
                             function userStatusUpdated()
+                            {
+                                return MysqlDelegate.commit(transaction);
+                            },
+                            function userStatusUpdateError(error)
                             {
                                 return MysqlDelegate.commit(transaction);
                             });

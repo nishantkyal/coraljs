@@ -1,6 +1,6 @@
 import BaseModel                                      = require('./BaseModel');
 
-class UserSkillDetail extends BaseModel
+class UserSkill extends BaseModel
 {
     static TABLE_NAME:string = 'user_skill';
 
@@ -18,4 +18,4 @@ class UserSkillDetail extends BaseModel
     setUserId(val:number):void { this.user_id = val; }
     setSkillId(val:number):void { this.skill_id = val; }
 }
-export = UserSkillDetail
+export = UserSkill

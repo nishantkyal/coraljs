@@ -155,31 +155,23 @@ class BaseDaoDelegate
     create(object:any[], transaction?:any):q.Promise<any>;
     create(object:any, transaction?:any):q.Promise<any>
     {
+        if (Utils.isNullOrEmpty(object))
+            throw ('Invalid data. Trying to create object with null data');
+
         var self = this;
-        object = object || {};
-        if(object.length === undefined)
+
+        function prepareData(data)
         {
-            var generatedId:number = new GlobalIdDelegate().generate(this.getDao().getModel().TABLE_NAME);
-            object[BaseModel.ID] = object[BaseModel.ID] || generatedId;
-            object[BaseModel.CREATED] = new Date().getTime();
-            object[BaseModel.UPDATED] = new Date().getTime();
-            return this.getDao().create(object, transaction);
-        }
-        else
-        {
-            object = [object];
-            var newObject:any[] = [];
-            _.each(object, function(data){
-                var tempObject = data;
-                var generatedId:number = new GlobalIdDelegate().generate(self.getDao().getModel().TABLE_NAME);
-                tempObject[BaseModel.ID] = tempObject[BaseModel.ID] || generatedId;
-                tempObject[BaseModel.CREATED] = new Date().getTime();
-                tempObject[BaseModel.UPDATED] = new Date().getTime();
-                tempObject[BaseModel.DELETED] = false;
-                newObject.push(tempObject);
-            })
-            return this.getDao().create(newObject, transaction);
-        }
+            var generatedId:number = new GlobalIdDelegate().generate(self.getDao().getModel().TABLE_NAME);
+            data[BaseModel.ID] = data[BaseModel.ID] || generatedId;
+            data[BaseModel.CREATED] = moment().valueOf();
+            data[BaseModel.UPDATED] = moment().valueOf();
+            return data;
+        };
+
+        var newObject = (Utils.getObjectType(object) == 'Array') ? _.map(object, prepareData) : prepareData(object);
+
+        return this.getDao().create(newObject, transaction);
     }
 
     update(criteria:Object, newValues:Object, transaction?:any):q.Promise<any>

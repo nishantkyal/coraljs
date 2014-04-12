@@ -1,11 +1,12 @@
 ///<reference path='../_references.d.ts'/>
-import _                                            = require('underscore');
-import q                                            = require('q');
-import request                                      = require('request');
-import BaseDaoDelegate                              = require('./BaseDaoDelegate');
-import IDao                                         = require('../dao/IDao');
-import SkillCodeDao                                 = require('../dao/SkillCodeDao');
-import Utils                                        = require('../common/Utils');
+import _                                                = require('underscore');
+import q                                                = require('q');
+import request                                          = require('request');
+import BaseDaoDelegate                                  = require('./BaseDaoDelegate');
+import IDao                                             = require('../dao/IDao');
+import SkillCodeDao                                     = require('../dao/SkillCodeDao');
+import SkillCode                                        = require('../models/SkillCode');
+import Utils                                            = require('../common/Utils');
 
 class SkillCodeDelegate extends BaseDaoDelegate
 {
@@ -24,12 +25,42 @@ class SkillCodeDelegate extends BaseDaoDelegate
             {
                 var dataJson = JSON.parse(body);
                 var resultList = dataJson.resultList;
-                var skillCode = _.findWhere(resultList, {displayName: skillName});
+                var matchingSkillCode:number = _.findWhere(resultList, {displayName: skillName})['id'];
+
+                var skillCode = new SkillCode();
+                skillCode.setLinkedinCode(matchingSkillCode);
+                skillCode.setSkill(skillName);
+
                 deferred.resolve(skillCode);
             }
         });
 
         return deferred.promise;
+    }
+
+    createSkillCodeFromLinkedIn(skillName:string[], transaction?:any):q.Promise<any>;
+    createSkillCodeFromLinkedIn(skillName:string, transaction?:any):q.Promise<any>;
+    createSkillCodeFromLinkedIn(skillName:any, transaction?:any):q.Promise<any>
+    {
+        var self = this;
+        var skillNames = [].concat(skillName);
+
+        return q.all(_.map(skillNames, function (skillName)
+        {
+            return self.getSkillCodeFromLinkedIn(skillName);
+        }))
+            .then(
+            function skillCodesFetched(skillCodes:SkillCode[])
+            {
+                return self.create(skillCodes, transaction);
+            })
+            .fail(
+            function skillCodeCreationFailed(error)
+            {
+                self.logger.debug('Error creating skill code from linkedin code, error: %s', error);
+                return self.find({skill: skillName});
+            });
+
     }
 }
 export = SkillCodeDelegate

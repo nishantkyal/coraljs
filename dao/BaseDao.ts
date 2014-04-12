@@ -25,63 +25,53 @@ class BaseDao implements IDao
         else
             throw ('Invalid Model class specified for ' + Utils.getClassName(this));
     }
-
-    create(dataArray:any, transaction?:any):q.Promise<any>;
-    create(dataArray:any[], transaction?:any):q.Promise<any>;
-    create(dataArray:any, transaction?:any):q.Promise<any>
+    create(data:any, transaction?:any):q.Promise<any>;
+    create(data:any[], transaction?:any):q.Promise<any>;
+    create(data:any, transaction?:any):q.Promise<any>
     {
-        var isObject = false;
         var self = this;
-        var inserts:string[] = [];
-        var values:any[] = [];
-        dataArray = dataArray || {};
-        var id:number;
+        var dataAsArray = [].concat(data);
 
-        if(dataArray.length === undefined)
+        var insertedFields = [];
+        var values = [];
+        var rows = [];
+
+        _.each(dataAsArray, function(row)
         {
-            dataArray = [dataArray];
-            isObject = true;
-        }
-
-        _.each(dataArray,  function(data:any){
-
-            id = data[BaseModel.ID];
-            _.each(data, function (value, key) // Remove inserts with undefined values
-            {
-                if (value === undefined || Utils.getObjectType(value) == 'Array' || Utils.getObjectType(value) == 'Object')
-                {
-                    if(isObject)
-                        delete data[key];
-                    else
-                        throw new Error('Array of Object ' + self.tableName + ' contains undefined value');
-                }
+            // 1. Remove fields with undefined values
+            // 2. Check if it matches the existing list of fields being inserted
+            // 3. If matches, create query string and values array
+            _.each(row, function(value, key) {
+                if (value == undefined || Utils.getObjectType(value) == 'Array' || Utils.getObjectType(value) == 'Object')
+                    delete row[key];
             });
 
-            inserts = _.keys(data);
-            var tempValues:any[] = _.values(data);
-            values.push(tempValues);
-        })
-        var valueString = ((Array(inserts.length+1).join('?')).split('')).join(','); // create ?,?,? string
-        var allValues:any[] = [];
+            var fieldsToInsert = _.keys(row);
+            if (insertedFields.join(':') == fieldsToInsert.join(':') || insertedFields.length == 0)
+            {
+                values = values.concat(_.values(row));
+                rows.push(row);
+            }
+            else
+                throw('Inconsistent data. Not all values have same fields to be inserted');
 
-        var query = 'INSERT INTO `' + this.tableName + '` (' + inserts.join(',') + ') VALUES ';
-        _.each(values, function(value){
-            query = query + '('+ valueString + '),';
-            allValues = allValues.concat(value);
-        })
-        query = query.substring(0,query.lastIndexOf(',')); //remove the last ','
+            insertedFields = fieldsToInsert;
+        });
 
-        return MysqlDelegate.executeQuery(query, allValues, transaction)
+        var query = 'INSERT INTO `' + self.tableName + '` (' + insertedFields.join(',') + ') VALUES ';
+        query += Utils.repeatChar('(' + Utils.repeatChar('?', insertedFields.length, ',') + ')', rows.length, ',');
+
+        return MysqlDelegate.executeQuery(query, values, transaction)
             .then(
             function created()
             {
-
-                return (!transaction) ? self.get(id) : new self.modelClass({'id': id});
+                // Since there were no errors we can just echo back the input as result (implied that these rows were created successfully)
+                return data;
             },
             function createFailure(error)
             {
                 self.logger.error('Error while creating a new %s, error: %s', self.tableName, error.message);
-                var message = 'Error while creating a new ' + self.tableName + ', error: ' + error.message;
+                error.message = 'Error while creating a new ' + self.tableName + ', error: ' + error.message;
                 switch(error.code)
                 {
                     case 'ER_DUP_ENTRY':
@@ -91,28 +81,26 @@ class BaseDao implements IDao
             });
     }
 
+    get(id:number[], fields?:string[]):q.Promise<any>
     get(id:number, fields?:string[]):q.Promise<any>
+    get(id:any, fields?:string[]):q.Promise<any>
     {
         var self = this;
-        var selectColumns = fields && fields.length != 0 ? fields.join(',') : '*';
-        var query = 'SELECT ' + selectColumns + ' FROM `' + this.tableName + '` WHERE id = ?';
-
-        return MysqlDelegate.executeQuery(query, [id])
+        if (Utils.getObjectType(id) == 'Array')
+            return this.search({id: id}, fields);
+        else
+            return this.find({id: id}, fields)
             .then(
-            function objectFetched(rows:Object[])
+            function objectFetched(result:any)
             {
-                switch (rows.length)
+                if (Utils.isNullOrEmpty(result))
                 {
-                    case 0:
-                        var errorMessage:string = 'No ' + self.tableName.replace('_', ' ') + ' found for id: ' + id;
-                        self.logger.debug('No %s found for id: %s', self.tableName, id);
-                        throw(errorMessage);
-                        break;
-                    case 1:
-                        return new self.modelClass(rows[0]);
-                        break;
+                    var errorMessage:string = 'No ' + self.tableName.replace('_', ' ') + ' found for id: ' + id;
+                    self.logger.debug('No %s found for id: %s', self.tableName, id);
+                    throw(errorMessage);
                 }
-                return null;
+                else
+                    return result;
             },
             function objectFetchError(error)
             {
@@ -196,8 +184,9 @@ class BaseDao implements IDao
 
     getModel():typeof BaseModel
     {
+        throw('Model class not defined for ' + Utils.getClassName(this));
         return null;
-        throw('Model class not defined for ' + Utils.getClassName(this)); }
+    }
 
     private generateWhereStatements(criteria:Object):any
     {
