@@ -60,7 +60,6 @@ class SkillCodeDelegate extends BaseDaoDelegate
                 self.logger.debug('Error creating skill code from linkedin code, error: %s', error);
                 return self.find({skill: skillName});
             });
-
     }
 }
 export = SkillCodeDelegate

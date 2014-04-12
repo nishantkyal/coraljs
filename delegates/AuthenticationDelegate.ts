@@ -232,110 +232,95 @@ class AuthenticationDelegate
                     .then(
                     function updateFieldsFromLinkedIn(user:User)
                     {
-                        var transaction;
                         var userId:number = user.getId();
+                        var updateProfileTasks = [];
 
-                        return MysqlDelegate.beginTransaction()
-                            .then(
-                            function transactionStarted(t)
-                            {
-                                transaction = t;
-                                var updateProfileTasks = [];
+                        // Fetch and process profile image if available
+                        var profilePictureUrl;
+                        if (profile.pictureUrls && profile.pictureUrls.values.length > 0)
+                            profilePictureUrl = profile.pictureUrls.values[0];
 
-                                // Fetch and process profile image if available
-                                var profilePictureUrl;
-                                if (profile.pictureUrls && profile.pictureUrls.values.length > 0)
-                                    profilePictureUrl = profile.pictureUrls.values[0];
+                        if (!Utils.isNullOrEmpty(profilePictureUrl))
+                        {
+                            var tempProfilePicturePath = Config.get(Config.TEMP_IMAGE_PATH) + Math.random();
+                            updateProfileTasks.push(new ImageDelegate().fetch(profilePictureUrl, tempProfilePicturePath)
+                                    .then(
+                                    function imageFetched()
+                                    {
+                                        return new UserDelegate().processProfileImage(userId, tempProfilePicturePath);
+                                    })
+                            );
+                        }
 
-                                if (!Utils.isNullOrEmpty(profilePictureUrl))
+                        // Update skills
+                        if (!Utils.isNullOrEmpty(profile.skills) && profile.skills._total > 0)
+                            updateProfileTasks = updateProfileTasks.concat(
+                                new SkillCodeDelegate().createSkillCodeFromLinkedIn(_.map(profile.skills.values, function (skillObject:any)
                                 {
-                                    var tempProfilePicturePath = Config.get(Config.TEMP_IMAGE_PATH) + Math.random();
-                                    updateProfileTasks.push(new ImageDelegate().fetch(profilePictureUrl, tempProfilePicturePath)
-                                            .then(
-                                            function imageFetched()
-                                            {
-                                                return new UserDelegate().processProfileImage(userId, tempProfilePicturePath);
-                                            })
-                                    );
-                                }
-
-                                // Update skills
-                                if (!Utils.isNullOrEmpty(profile.skills) && profile.skills._total > 0)
-                                    updateProfileTasks = updateProfileTasks.concat(
-                                        new SkillCodeDelegate().createSkillCodeFromLinkedIn(_.map(profile.skills.values, function (skillObject:any)
+                                    return skillObject.skill.name;
+                                }))
+                                    .then(
+                                    function skillCodesCreated(createdSkillCodes:SkillCode[])
+                                    {
+                                        var userSkills = _.map(createdSkillCodes, function (skillCode:SkillCode)
                                         {
-                                            return skillObject.skill.name;
-                                        }))
-                                            .then(
-                                            function skillCodesCreated(createdSkillCodes:SkillCode[])
-                                            {
-                                                var userSkills = _.map(createdSkillCodes, function (skillCode:SkillCode)
-                                                {
-                                                    var userSkill = new UserSkill();
-                                                    userSkill.setUserId(userId);
-                                                    userSkill.setSkillId(skillCode.getId())
-                                                    return userSkill;
-                                                });
-                                                return new UserSkillDelegate().create(userSkills, transaction);
-                                            })
-                                    );
+                                            var userSkill = new UserSkill();
+                                            userSkill.setUserId(userId);
+                                            userSkill.setSkillId(skillCode.getId())
+                                            return userSkill;
+                                        });
+                                        return new UserSkillDelegate().create(userSkills);
+                                    })
+                            );
 
-                                // Update employment
-                                if (!Utils.isNullOrEmpty(profile.positions) && profile.positions._total > 0)
-                                {
-                                    updateProfileTasks = updateProfileTasks.concat(_.map(profile.positions.values, function (position:any)
-                                    {
-                                        var tempUserEmployment:UserEmployment = new UserEmployment();
-                                        tempUserEmployment.setIsCurrent(position.isCurrent);
-                                        tempUserEmployment.setTitle(position.title);
-                                        tempUserEmployment.setSummary(position.summary);
-                                        tempUserEmployment.setUserId(userId);
-                                        tempUserEmployment.setCompany(position.company ? position.company.name : null);
-
-                                        if (!Utils.isNullOrEmpty(position.startDate))
-                                            tempUserEmployment.setStartDate((position.startDate.month || null) + '-' + (position.startDate.year || null));
-
-                                        if (!position.isCurrent && !Utils.isNullOrEmpty(position.endDate))
-                                            tempUserEmployment.setEndDate((position.endDate.month || null) + '-' + (position.endDate.year || null));
-
-                                        return new UserEmploymentDelegate().create(tempUserEmployment, transaction);
-                                    }));
-                                }
-
-                                // Update education
-                                if (!Utils.isNullOrEmpty(profile.educations) && profile.educations._total > 0)
-                                {
-                                    updateProfileTasks = updateProfileTasks.concat(_.map(profile.educations.values, function (education:any)
-                                    {
-                                        var tempUserEducation:UserEducation = new UserEducation();
-                                        tempUserEducation.setSchoolName(education.schoolName);
-                                        tempUserEducation.setFieldOfStudy(education.fieldOfStudy);
-                                        tempUserEducation.setDegree(education.degree);
-                                        tempUserEducation.setActivities(education.activities);
-                                        tempUserEducation.setNotes(education.notes);
-                                        tempUserEducation.setUserId(userId);
-                                        tempUserEducation.setStartYear(education.startDate ? education.startDate.year : null);
-                                        tempUserEducation.setEndYear(education.endDate ? education.endDate.year : null);
-
-                                        return new UserEducationDelegate().create(tempUserEducation, transaction);
-                                    }));
-                                }
-
-                                // Set user status to active since linkedin means we've a verified email and profile information
-                                updateProfileTasks.push(new UserDelegate().update({id: user.getId()}, {status: UserStatus.ACTIVE}, transaction));
-
-                                return q.all(updateProfileTasks);
-                            })
-                            .then(
-                            function userStatusUpdated()
+                        // Update employment
+                        if (!Utils.isNullOrEmpty(profile.positions) && profile.positions._total > 0)
+                        {
+                            updateProfileTasks = updateProfileTasks.concat(_.map(profile.positions.values, function (position:any)
                             {
-                                return MysqlDelegate.commit(transaction);
-                            },
-                            function userStatusUpdateError(error)
+                                var tempUserEmployment:UserEmployment = new UserEmployment();
+                                tempUserEmployment.setIsCurrent(position.isCurrent);
+                                tempUserEmployment.setTitle(position.title);
+                                tempUserEmployment.setSummary(position.summary);
+                                tempUserEmployment.setUserId(userId);
+                                tempUserEmployment.setCompany(position.company ? position.company.name : null);
+
+                                if (!Utils.isNullOrEmpty(position.startDate))
+                                    tempUserEmployment.setStartDate((position.startDate.month || null) + '-' + (position.startDate.year || null));
+
+                                if (!position.isCurrent && !Utils.isNullOrEmpty(position.endDate))
+                                    tempUserEmployment.setEndDate((position.endDate.month || null) + '-' + (position.endDate.year || null));
+
+                                return new UserEmploymentDelegate().create(tempUserEmployment);
+                            }));
+                        }
+
+                        // Update education
+                        if (!Utils.isNullOrEmpty(profile.educations) && profile.educations._total > 0)
+                        {
+                            updateProfileTasks = updateProfileTasks.concat(_.map(profile.educations.values, function (education:any)
                             {
-                                return MysqlDelegate.commit(transaction);
-                            });
+                                var tempUserEducation:UserEducation = new UserEducation();
+                                tempUserEducation.setSchoolName(education.schoolName);
+                                tempUserEducation.setFieldOfStudy(education.fieldOfStudy);
+                                tempUserEducation.setDegree(education.degree);
+                                tempUserEducation.setActivities(education.activities);
+                                tempUserEducation.setNotes(education.notes);
+                                tempUserEducation.setUserId(userId);
+                                tempUserEducation.setStartYear(education.startDate ? education.startDate.year : null);
+                                tempUserEducation.setEndYear(education.endDate ? education.endDate.year : null);
+
+                                return new UserEducationDelegate().create(tempUserEducation);
+                            }));
+                        }
+
+                        return q.all(updateProfileTasks);
                     })
+                    .finally(
+                    function userStatusUpdated()
+                    {
+                        return MysqlDelegate.commit(new UserDelegate().update({id: user.getId()}, {status: UserStatus.ACTIVE}));
+                    });
             }
         ));
     }
