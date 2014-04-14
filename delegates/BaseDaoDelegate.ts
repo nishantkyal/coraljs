@@ -1,13 +1,13 @@
 ///<reference path='../_references.d.ts'/>
-import _                = require('underscore');
-import log4js           = require('log4js');
-import q                = require('q');
-import moment           = require('moment');
-import IDao             = require('../dao/IDao');
-import Utils            = require('../common/Utils');
-import BaseModel        = require('../models/BaseModel');
-import GlobalIdDelegate = require('../delegates/GlobalIDDelegate');
-import IncludeFlag      = require('../enums/IncludeFlag');
+import _                                = require('underscore');
+import log4js                           = require('log4js');
+import q                                = require('q');
+import moment                           = require('moment');
+import IDao                             = require('../dao/IDao');
+import Utils                            = require('../common/Utils');
+import BaseModel                        = require('../models/BaseModel');
+import GlobalIdDelegate                 = require('../delegates/GlobalIDDelegate');
+import IncludeFlag                      = require('../enums/IncludeFlag');
 
 class BaseDaoDelegate
 {
@@ -174,7 +174,9 @@ class BaseDaoDelegate
         return this.getDao().create(newObject, transaction);
     }
 
-    update(criteria:Object, newValues:Object, transaction?:any):q.Promise<any>
+    update(criteria:Object, newValues:any, transaction?:any):q.Promise<any>;
+    update(criteria:number, newValues:any, transaction?:any):q.Promise<any>;
+    update(criteria:any, newValues:any, transaction?:any):q.Promise<any>
     {
         // Compose update statement based on newValues
         newValues[BaseModel.UPDATED] = new Date().getTime();
@@ -184,27 +186,20 @@ class BaseDaoDelegate
         return this.getDao().update(criteria, newValues, transaction);
     }
 
-    delete(id:number, softDelete:boolean = true, transaction?:any):q.Promise<any>
+    delete(criteria:number, softDelete?:boolean, transaction?:any):q.Promise<any>;
+    delete(criteria:Object, softDelete?:boolean, transaction?:any):q.Promise<any>;
+    delete(criteria:any, softDelete:boolean = true, transaction?:any):q.Promise<any>
     {
-        if (!softDelete)
-            return this.getDao().delete(id, transaction);
+        if (softDelete)
+            return this.getDao().delete(criteria, transaction);
         else
-            return this.getDao().update({'id': id}, {'deleted': moment().valueOf()}, transaction)
-    }
-
-    searchAndDelete(criteria:Object, softDelete:boolean = true, transaction?:any):q.Promise<any>
-    {
-        if (!softDelete)
-            this.getDao().searchAndDelete(criteria, transaction);
-        else
-            return this.getDao().update(criteria, {'deleted': moment().valueOf()}, transaction);
+            return this.getDao().update(criteria, {'deleted': moment().valueOf()}, transaction)
     }
 
     getDao():IDao
     {
-        throw('getDao method not implemented');
+        throw('Dao not specified for ' + Utils.getClassName(this));
         return null;
     }
-
 }
 export = BaseDaoDelegate

@@ -1,11 +1,12 @@
-import q                    = require('q');
-import _                    = require('underscore');
-import log4js               = require('log4js');
-import IDao                 = require('./IDao');
-import MysqlDelegate        = require('../delegates/MysqlDelegate')
-import GlobalIdDelegate     = require('../delegates/GlobalIDDelegate');
-import BaseModel            = require('../models/BaseModel');
-import Utils                = require('../common/Utils');
+import mysql                                        = require('mysql');
+import q                                            = require('q');
+import _                                            = require('underscore');
+import log4js                                       = require('log4js');
+import IDao                                         = require('./IDao');
+import MysqlDelegate                                = require('../delegates/MysqlDelegate')
+import GlobalIdDelegate                             = require('../delegates/GlobalIDDelegate');
+import BaseModel                                    = require('../models/BaseModel');
+import Utils                                        = require('../common/Utils');
 
 /*
  Base class for DAO
@@ -13,8 +14,8 @@ import Utils                = require('../common/Utils');
 class BaseDao implements IDao
 {
     modelClass;
-    tableName:string;
-    logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
+    private tableName:string;
+    private logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
 
     constructor()
     {
@@ -148,8 +149,13 @@ class BaseDao implements IDao
             });
     }
 
+    update(criteria:number, newValues:BaseModel, transaction?:any):q.Promise<any>
+    update(criteria:Object, newValues:BaseModel, transaction?:any):q.Promise<any>
     update(criteria:any, newValues:any, transaction?:any):q.Promise<any>
     {
+        if (Utils.getObjectType(criteria) == 'Number')
+            criteria = {id: criteria};
+
         // Remove fields with null values
         _.each(criteria, function (val, key) { if (val == undefined) delete criteria[key]; });
         _.each(newValues, function (val, key) { if (val == undefined) delete newValues[key]; });
@@ -164,22 +170,30 @@ class BaseDao implements IDao
         var wheres:any = whereStatements['where'];
         values = values.concat(whereStatements['values']);
 
-        var query = 'UPDATE ' + this.tableName + ' SET ' + updates.join(",") + ' WHERE ' + wheres.join(" AND ");
-        return MysqlDelegate.executeQuery(query, values, transaction);
+        var query = 'UPDATE `' + this.tableName + '` SET ' + updates.join(",") + ' WHERE ' + wheres.join(" AND ");
+        return MysqlDelegate.executeQuery(query, values, transaction)
+            .then(
+            function updateComplete(result:mysql.OkPacket)
+            {
+                if (result.affectedRows == 0)
+                    throw('No rows were updated');
+                else
+                    return result;
+            });
     }
 
-    delete(id:number, transaction?:any):q.Promise<any>
+    delete(criteria:number, transaction?:any):q.Promise<any>;
+    delete(criteria:Object, transaction?:any):q.Promise<any>;
+    delete(criteria:any, transaction?:any):q.Promise<any>
     {
-        return MysqlDelegate.executeQuery('DELETE FROM ' + this.tableName + ' WHERE id = ?', [id], transaction);
-    }
+        if (Utils.getObjectType(criteria) == 'Number')
+            criteria = {id: criteria};
 
-    searchAndDelete(criteria:Object, transaction?:any):q.Promise<any>
-    {
         var whereStatements = this.generateWhereStatements(criteria);
         var wheres = whereStatements['where'];
         var values = whereStatements['values'];
 
-        return MysqlDelegate.executeQuery('DELETE FROM ' + this.tableName + ' WHERE ' + wheres.join(' AND '), values, transaction);
+        return MysqlDelegate.executeQuery('DELETE FROM `' + this.tableName + '` WHERE ' + wheres.join(' AND '), values, transaction);
     }
 
     getModel():typeof BaseModel
