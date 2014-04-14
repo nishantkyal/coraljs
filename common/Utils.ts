@@ -27,15 +27,15 @@ class Utils
     /*
      * Get a promise that'll get rejected in next tick
      *  Used when we need to cancel an operation for invalid input
-     static getRejectedPromise(errorMessage:string):q.Promise<any>
-     {
-     var deferred = q.defer();
-     process.nextTick(function fail() {
-     deferred.reject(errorMessage);
-     });
-     return deferred.promise;
-     }
-     */
+    static getRejectedPromise(errorMessage:string):q.Promise<any>
+    {
+        var deferred = q.defer();
+        process.nextTick(function fail() {
+            deferred.reject(errorMessage);
+        });
+        return deferred.promise;
+    }
+    */
 
     static isNullOrEmpty(val:any):boolean
     {
@@ -60,13 +60,9 @@ class Utils
         for (var prop in source)
         {
             if (target[prop] !== undefined)
-            {
                 target[prop] = source[prop];
-            }
             else
-            {
                 log4js.getDefaultLogger().debug("Cannot set undefined property: " + prop);
-            }
         }
     }
 

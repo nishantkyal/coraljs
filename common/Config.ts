@@ -35,8 +35,15 @@ class Config
     static TWILIO_NUMBER:string                         = 'twilio.number';
     static EXOTEL_SID:string                            = 'exotel.sid';
     static EXOTEL_TOKEN:string                          = 'exotel.token';
+    static SMS_COUNTRY_URL:string                       = 'sms_country.url';
     static SMS_COUNTRY_USER:string                      = 'sms_country.user';
     static SMS_COUNTRY_PASSWORD:string                  = 'sms_country.password';
+    static KOOKOO_NUMBER:string                         = 'kookoo.number';
+
+    static PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS   = 'task.call_trigger.interval';                 // How often do we create scheduled tasks for triggering calls
+    static CALL_REMINDER_LEAD_TIME_SECS:string          = 'call.reminder_notification.lead_time';       // Lead time for sending reminder for upcoming call
+    static CALL_RETRY_DELAY_SECS:string                 = 'call.retry.delay';                           // Delay after which failed calls are retried
+
 
     /* Static constructor workaround */
     private static ctor = (() =>

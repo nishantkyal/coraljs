@@ -1,6 +1,6 @@
 enum Priority
 {
-    HIGHEST,
+    HIGHEST = 1,
     HIGH,
     NORMAL,
     LOW,

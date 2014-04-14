@@ -20,6 +20,7 @@ import IntegrationType                                      = require('../../enu
 import IncludeFlag                                          = require('../../enums/IncludeFlag');
 import Config                                               = require('../../common/Config');
 import Utils                                                = require('../../common/Utils');
+import DashboardUrls                                        = require('../../routes/dashboard/Urls');
 
 import Urls                                                 = require('./Urls');
 import Middleware                                           = require('./Middleware');
@@ -36,7 +37,7 @@ class ExpertRegistrationRoute
         // Pages
         app.get(Urls.index(), this.authenticate.bind(this));
         app.get(Urls.authorization(), OAuthProviderDelegate.authorization, this.authorize.bind(this));
-        app.get(Urls.mobileVerification(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index()}), this.mobileVerification.bind(this));
+        app.get(DashboardUrls.mobileVerification(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index()}), this.mobileVerification.bind(this));
         app.get(Urls.profile(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index()}), this.updateProfile.bind(this));
         app.get(Urls.complete(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index()}), this.expertComplete.bind(this));
 
@@ -116,14 +117,12 @@ class ExpertRegistrationRoute
     private authorize(req:express.Request, res:express.Response)
     {
         var integrationId = parseInt(req.query[ApiConstants.INTEGRATION_ID] || req.session[ApiConstants.INTEGRATION_ID]);
-
         res.render('expertRegistration/authorize',
             {
                 'transactionID': req['oauth2']['transactionID'],
                 'user': new User(req.user.data),
                 'integration': new IntegrationDelegate().getSync(integrationId)
             });
-
     }
 
     private updateProfile(req:express.Request, res:express.Response)
@@ -193,9 +192,9 @@ class ExpertRegistrationRoute
         var self = this;
 
         q.all([
-            self.verificationCodeCache.deleteInvitationCode(req.session[ApiConstants.CODE], req.session[ApiConstants.INTEGRATION_ID]),
-            self.integrationMemberDelegate.find({'user_id': userId, 'integration_id': integrationId}, null, null, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
-        ])
+                self.verificationCodeCache.deleteInvitationCode(req.session[ApiConstants.CODE], req.session[ApiConstants.INTEGRATION_ID]),
+                self.integrationMemberDelegate.search({'user_id': userId, 'integration_id': integrationId}, null, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
+            ])
             .then(
             function scheduleRulesFetched(...args)
             {

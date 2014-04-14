@@ -5,6 +5,6 @@ import UserProfile                                      = require('../models/Use
 
 class UserProfileDao extends BaseDao
 {
-    getModel():typeof BaseModel { return UserProfile; }
+    constructor() { super(UserProfile); }
 }
 export = UserProfileDao

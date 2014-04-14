@@ -38,7 +38,6 @@ class AuthenticationDelegate
 {
     static STRATEGY_OAUTH:string = 'oauth';
     static STRATEGY_LOGIN:string = 'login';
-    static STRATEGY_REGISTER:string = 'register';
     static STRATEGY_FACEBOOK:string = 'facebook';
     static STRATEGY_LINKEDIN:string = 'linkedin';
     static STRATEGY_FACEBOOK_CALL_FLOW:string = 'facebook-call';
@@ -103,7 +102,7 @@ class AuthenticationDelegate
         passport.use(AuthenticationDelegate.STRATEGY_LOGIN, new passport_local.Strategy(function (username, password, done)
             {
                 var userDelegate = new UserDelegate();
-                userDelegate.find({email: username}, null, userDelegate.DEFAULT_FIELDS.concat(User.PASSWORD))
+                userDelegate.find({email: username}, User.DEFAULT_FIELDS.concat(User.PASSWORD))
                     .then(
                     function authComplete(user)
                     {

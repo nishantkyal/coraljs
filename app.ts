@@ -9,11 +9,14 @@ import path                                         = require('path');
 import passport                                     = require('passport');
 import log4js                                       = require('log4js');
 import moment                                       = require('moment');
+import ScheduleCallsScheduledTask                   = require('./models/tasks/ScheduleCallsScheduledTask');
 import Config                                       = require('./common/Config');
 import Formatter                                    = require('./common/Formatter');
+import Utils                                        = require('./common/Utils');
 import ApiUrlDelegate                               = require('./delegates/ApiUrlDelegate');
 import MysqlDelegate                                = require('./delegates/MysqlDelegate');
 import IntegrationDelegate                          = require('./delegates/IntegrationDelegate');
+import ScheduledTaskDelegate                        = require('./delegates/ScheduledTaskDelegate');
 import RequestHandler                               = require('./middleware/RequestHandler');
 import api                                          = require('./api/index');
 import routes                                       = require('./routes/index');
@@ -27,33 +30,34 @@ log4js.configure('/var/searchntalk/config/log4js.json');
 
 var app:express.Application = express();
 
+// View helpers
+var helpers = {
+    formatMoney: Formatter.formatMoney,
+    formatRole: Formatter.formatRole,
+    formatName: Formatter.formatName,
+    formatSchedule: Formatter.formatSchedule,
+    formatDate: Formatter.formatDate,
+    formatUserStatus:Formatter.formatUserStatus,
+    ApiUrlDelegate: ApiUrlDelegate,
+    CallFlowUrls: CallFlowUrls,
+    DashboardUrls: DashboardUrls
+};
+
 // all environments
 app.use(express.compress());
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 app.use(
-    function (req, res, next)
+    function (req:express.Request, res, next)
     {
-        res.locals.formatMoney = Formatter.formatMoney;
-        res.locals.formatRole = Formatter.formatRole;
-        res.locals.formatName = Formatter.formatName;
-        res.locals.formatSchedule = Formatter.formatSchedule;
-        res.locals.formatDate = Formatter.formatDate;
-        res.locals.formatUserStatus = Formatter.formatUserStatus;
+        // This middleware applies to all urls except
+        // 1. APIs (which start with "/rest")
+        // 2. Static content (which start with "/js" or "/css" or "/img")
+        var excludeRegex = /^\/(rest|css|js|img|fonts)/;
 
-        // Api urls
-        res.locals.ApiUrlDelegate = ApiUrlDelegate;
-
-        // Route urls
-        res.locals.CallFlowUrls = CallFlowUrls;
-        res.locals.DashboardUrls = DashboardUrls;
-
-        res.locals.minYear = 1920;
-        res.locals.currentYear = new Date().getFullYear();
-
-        res.locals.CountryCode = CountryCode;
-        res.locals.CountryName = CountryName;
+        if (Utils.isNullOrEmpty(req.path.match(excludeRegex)))
+            _.extend(res.locals, helpers);
 
         next();
     }
@@ -86,7 +90,15 @@ app.use(connect_flash());
 api(app);
 routes(app);
 
-_.templateSettings.interpolate = /\{\{(.+?)\}\}/g;
+// Underscore template pattern
+_.templateSettings = {
+    evaluate: /\{\[([\s\S]+?)\]\}/g,
+    interpolate: /\{\{([\s\S]+?)\}\}/g
+};
+_.mixin(helpers);
+
+// Start call scheduling cron
+new ScheduledTaskDelegate().scheduleAfter(new ScheduleCallsScheduledTask(), 1);
 
 app.set('port', Config.get(Config.CORAL_PORT) || 3000);
 app.listen(app.get('port'), function ()

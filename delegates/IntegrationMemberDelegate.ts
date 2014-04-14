@@ -20,13 +20,13 @@ import ExpertScheduleRuleDelegate           = require('../delegates/ExpertSchedu
 
 class IntegrationMemberDelegate extends BaseDaoDelegate
 {
-    DEFAULT_FIELDS:string[] = [IntegrationMember.ID, IntegrationMember.INTEGRATION_ID, IntegrationMember.ROLE];
-    DASHBOARD_FIELDS:string[] = [IntegrationMember.ID, IntegrationMember.INTEGRATION_ID, IntegrationMember.ROLE, IntegrationMember.USER_ID, IntegrationMember.REVENUE_SHARE, IntegrationMember.REVENUE_SHARE_UNIT];
-
     private expertScheduleRuleDelegate = new ExpertScheduleRuleDelegate();
 
     create(object:Object, transaction?:any):q.Promise<any>
     {
+        var integrationMember = new IntegrationMember(object);
+        integrationMember.setAuthCode(Utils.getRandomString(30));
+        var superCreate = super.create;
         var self = this;
 
         if (Utils.isNullOrEmpty(transaction))
@@ -68,7 +68,7 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
         search[IntegrationMember.USER_ID] = user_id;
 
         fields = fields || ['id', 'role', 'integration_id', 'user_id'];
-        return this.search(search, null, fields, includes);
+        return this.search(search, fields, includes);
     }
 
     findValidAccessToken(accessToken:string, integrationMemberId?:string):q.Promise<any>
@@ -128,7 +128,8 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
             });
     }
 
-    getDao():IDao { return new IntegrationMemberDAO(); }
+    constructor() { super(new IntegrationMemberDAO()); }
+
 
     getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
     {

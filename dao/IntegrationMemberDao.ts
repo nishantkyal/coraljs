@@ -4,6 +4,6 @@ import IntegrationMember    = require('../models/IntegrationMember');
 
 class IntegrationMemberDao extends BaseDao
 {
-    getModel():typeof BaseModel { return IntegrationMember; }
+    constructor() { super(IntegrationMember); }
 }
 export = IntegrationMemberDao

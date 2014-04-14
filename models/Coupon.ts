@@ -7,6 +7,8 @@ import Utils                                                    = require('../co
 class Coupon extends BaseModel
 {
     static TABLE_NAME:string = 'coupon';
+    static DEFAULT_FIELDS = [Coupon.ID, Coupon.CODE];
+    static DASHBOARD_FIELDS = [Coupon.ID, Coupon.CODE, Coupon.EXPERT_ID, Coupon.DISCOUNT_AMOUNT, Coupon.DISCOUNT_UNIT, Coupon.EXPIRY_TIME, Coupon.MAX_COUPONS, Coupon.NUM_USED, Coupon.INTEGRATION_ID, Coupon.WAIVE_NETWORK_CHARGES];
 
     static CODE:string                      = 'code';
     static NUM_USED:string                  = 'num_used';

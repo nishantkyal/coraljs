@@ -6,26 +6,46 @@ include header
     .row-fluid
         .col-md-2
         .col-md-8
-            h4 Available Time Slots
-            label
-                | Please pick
-                b &nbsp;at least three slots&nbsp;
-                | that fit your schedule. We'll send these to expert and get his confirmation for the call
-            form(action=CallFlowUrls.userLogin(), method='get')
-                - for (var i = 1; i <= 3; i++)
-                    .form-group
-                        label Option #{i}
-                        select.form-control.col-md-6.scheduleSelect(name='scheduleId')
-                            for schedule in schedules
-                                option(value=schedule.id) #{formatSchedule(schedule)}
+            form(method='post')
                 .form-group
-                    .controls
-                        input(type='hidden', name='key', value='val')
-                        a.btn.btn-primary Add Row
-                        input.btn.btn-primary(type='submit', value='DONE >')
-            em
-                small
-                    b Note:&nbsp;
-                    | Picking more slots will mean lesser back-and-forth communication with the expert for scheduling the call.
+                    label.control-label Duration
+                    select.form-control#duration(name='duration')
+                        option(value='15', selected=duration==15) 15 mins
+                        option(value='30', selected=duration==30) 30 mins
+                        option(value='45', selected=duration==45) 45 mins
+                        option(value='60', selected=duration==60) 1 hour
+                .form-group
+                    label.control-label
+                        | Convenient Times&nbsp;
+                        a.fa.fa-question-circle(title='How this works')
+                    .controls#appointmentPickers
+                .form-group
+                    input.btn.btn-primary.btn-lg(type='submit', value='NEXT')
         .col-md-2
+
+#schedulePickerTemplate(style='display: none;')
+    select.dateSelect(data-width='auto')
+        option(value="-1") Pick a date
+    select.timeSelect(name='startTime', data-width='auto')
+        option(value="-1") Pick a date
+
+#loginModal(style='display: none;')
+    .form-group
+        label.control-label Email
+        input.form-control(type='text')
+    .form-group
+        label.control-label Password
+        input.form-control(type='password')
+    .controls
+        a.btn.btn-primary Login
+        a.btn.btn-primary Login using FB
+        a.btn.btn-primary Create Acount
+
+script.
+    var schedules = JSON.parse( '!{JSON.stringify(expert.schedule)}' );
+    var startTimes;
+    try{
+        startTimes = JSON.parse( '!{JSON.stringify(startTimes)}' );
+    }
+    catch(e){}
 script(src='/js/app/callFlow/index.js')

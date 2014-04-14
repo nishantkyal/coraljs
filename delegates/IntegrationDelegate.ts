@@ -16,8 +16,6 @@ import IntegrationMemberRole                    = require('../enums/IntegrationM
  */
 class IntegrationDelegate extends BaseDaoDelegate
 {
-    DEFAULT_FIELDS:string[] = [Integration.ID, Integration.TITLE, Integration.INTEGRATION_TYPE];
-
     private static cachedIntegrations:{[id:number]:Integration} = {};
 
 
@@ -74,20 +72,22 @@ class IntegrationDelegate extends BaseDaoDelegate
 
     getSync(id:number):Integration
     {
-        id = parseInt(id.toString());
+        try {
+            id = parseInt(id.toString());
+        } catch (e) {}
         return IntegrationDelegate.cachedIntegrations[id];
     }
 
     resetSecret(integrationId:string):q.Promise<any>
     {
         var newSecret = Utils.getRandomString(30);
-        return this.getDao().update({'integration_id': integrationId}, {'secret': newSecret})
+        return this.dao.update({'integration_id': integrationId}, {'secret': newSecret})
             .then(
             function handleSecretReset() { return newSecret; }
         );
     }
 
-    getDao():IDao { return new IntegrationDAO(); }
+    constructor() { super(new IntegrationDAO()); }
 
 }
 export = IntegrationDelegate

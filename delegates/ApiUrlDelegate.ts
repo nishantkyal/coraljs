@@ -58,9 +58,9 @@ class ApiUrlDelegate
     static phoneCallReschedule(callId?:number):string { return this.get('/rest/call/:callId(\\d+)/reschedule', {callId: callId}); }
     static phoneCallCancel(callId?:number):string { return this.get('/rest/call/:callId(\\d+)/cancel', {callId: callId}); }
 
-    /* URL patterns for phone numbers */
-    static phoneNumber():string { return this.get('/rest/phone-number'); }
-    static phoneNumberById(phoneNumberId?:number):string { return this.get('/rest/phone-number/:phoneNumberId(\\d+)', {phoneNumberId: phoneNumberId}); }
+    /** URL patterns for phone numbers **/
+    static UserPhone():string { return this.get('/rest/phone-number'); }
+    static UserPhoneById(UserPhoneId?:number):string { return this.get('/rest/phone-number/:UserPhoneId', {UserPhoneId: UserPhoneId}); }
 
     /* URL patterns for transaction */
     static transaction():string { return this.get('/rest/transaction'); }
@@ -94,6 +94,9 @@ class ApiUrlDelegate
     static twimlJoinConference():string { return this.get('/rest/twiml/call'); }
     static twimlCallExpert(callId?:number):string { return this.get('/rest/twiml/call/:callId(\\d+)/expert', {callId: callId}); }
     static twimlCall(callId?:number):string { return this.get('/rest/twiml/call/:callId(\\d+)', {callId: callId}); }
+
+    static exotel():string { return this.get('/rest/exotel'); }
+    static exotelAddExpert():string { return this.get('/rest/exotelAddExpert'); }
 
     /* URL patterns for temporary tokens (invite codes, password reset, mobile verification etc.) */
     static tempToken():string { return this.get('/rest/token'); }

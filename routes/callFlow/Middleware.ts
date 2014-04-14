@@ -1,39 +1,52 @@
+///<reference path='../../_references.d.ts'/>
 import ApiConstants                                         = require('../../enums/ApiConstants');
 import Utils                                                = require('../../common/Utils');
+import IntegrationMember                                    = require('../../models/IntegrationMember');
+import PhoneCall                                            = require('../../models/PhoneCall');
+import BaseModel                                            = require('../../models/BaseModel');
+import UserPhone                                            = require('../../models/UserPhone');
+import UserPhoneDelegate                                    = require('../../delegates/UserPhoneDelegate');
+import SessionStorageHelper                                 = require('../../helpers/SessionStorageHelper');
 import Urls                                                 = require('./Urls');
 
 class Middleware
 {
-    private static SESSION_VARS_CALL_DETAILS:string = 'call_details';
+    private static sessionStore = new SessionStorageHelper('CallFlow');
     private static SESSION_VARS_EXPERT:string = 'call_expert';
-    private static SESSION_VARS_SCHEDULE:string = 'call_schedule';
+    private static SESSION_VARS_APPOINTMENTS:string = 'call_appointments';
+    private static SESSION_VARS_DURATION:string = 'call_durations';
 
-    static setCallDetails(req, call:any):void { req.session[Middleware.SESSION_VARS_CALL_DETAILS] = call; }
-    static getCallDetails(req):any { return req.session[Middleware.SESSION_VARS_CALL_DETAILS]; }
+    static setSelectedExpert(req, expert:IntegrationMember):void { Middleware.sessionStore.set(req, Middleware.SESSION_VARS_EXPERT, expert.toJson()); }
+    static getSelectedExpert(req):IntegrationMember
+    {
+        var expertJson = Middleware.sessionStore.get(req, Middleware.SESSION_VARS_EXPERT);
 
-    static setSelectedExpert(req, expert:any):void { req.session[Middleware.SESSION_VARS_EXPERT] = expert; }
-    static getSelectedExpert(req):any{ return req.session[Middleware.SESSION_VARS_EXPERT]; }
+        return !Utils.isNullOrEmpty(expertJson) ? new IntegrationMember(expertJson) : expertJson;
+    }
 
-    static setSelectedSchedule(req, schedule:any):void { req.session[Middleware.SESSION_VARS_SCHEDULE] = schedule; }
-    static getSelectedSchedule(req):any { return req.session[Middleware.SESSION_VARS_SCHEDULE]; }
-    
-    static requireScheduleAndExpert(req, res, next)
+    static setAppointments(req, startTimes:number[]):void { Middleware.sessionStore.set(req, Middleware.SESSION_VARS_APPOINTMENTS, startTimes); }
+    static getAppointments(req):number[] { return Middleware.sessionStore.get(req, Middleware.SESSION_VARS_APPOINTMENTS); }
+
+    static setDuration(req, duration:number):void { Middleware.sessionStore.set(req, Middleware.SESSION_VARS_DURATION, duration); }
+    static getDuration(req):number { return parseInt(Middleware.sessionStore.get(req, Middleware.SESSION_VARS_DURATION)); }
+
+    static requireExpertAndAppointments(req, res, next)
     {
         var expert = Middleware.getSelectedExpert(req);
-        var selectedScheduleIds = Middleware.getSelectedSchedule(req);
-        var scheduleIds:string[] = [].concat(req.query[ApiConstants.SCHEDULE_ID]);
+        var startTimes = Middleware.getAppointments(req) || req.body[ApiConstants.START_TIME];
+        Middleware.setAppointments(req, startTimes);
+        var duration:number = Middleware.getDuration(req) || req.body[ApiConstants.DURATION];
+        Middleware.setDuration(req, duration);
 
-        if (!Utils.isNullOrEmpty(selectedScheduleIds) && !Utils.isNullOrEmpty(expert))
+        // TODO: Validate that selected start times and durations fit expert's schedules
+
+        if (!Utils.isNullOrEmpty(startTimes) && !Utils.isNullOrEmpty(expert) && !Utils.isNullOrEmpty(duration))
             next();
-        else if (!Utils.isNullOrEmpty(scheduleIds) && !Utils.isNullOrEmpty(expert))
-        {
-            Middleware.setSelectedSchedule(req, scheduleIds);
-            next();
-        }
         else if (!Utils.isNullOrEmpty(expert))
-            res.redirect(Urls.callExpert(expert['id']));
+            res.redirect(Urls.callExpert(expert[BaseModel.ID]));
         else
-            res.send(400, "This is strange, how did you land up here without selecting an expert");
+            res.composeAndSend(400, "This is strange, how did you land up here without selecting an expert");
     }
+
 }
 export = Middleware

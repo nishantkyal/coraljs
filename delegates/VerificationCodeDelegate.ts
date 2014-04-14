@@ -5,13 +5,14 @@ import log4js                                                   = require('log4j
 import User                                                     = require('../models/User');
 import IntegrationMember                                        = require('../models/IntegrationMember');
 import SMS                                                      = require('../models/SMS');
-import PhoneNumber                                              = require('../models/PhoneNumber');
+import UserPhone                                                = require('../models/UserPhone');
+import PhoneCall                                                = require('../models/PhoneCall');
 import VerificationCodeCache                                    = require('../caches/VerificationCodeCache');
 import IntegrationMemberDelegate                                = require('../delegates/IntegrationMemberDelegate');
 import EmailDelegate                                            = require('../delegates/EmailDelegate');
 import SmsDelegate                                              = require('../delegates/SMSDelegate');
 import UserDelegate                                             = require('../delegates/UserDelegate');
-import PhoneNumberDelegate                                      = require('../delegates/PhoneNumberDelegate');
+import UserPhoneDelegate                                        = require('../delegates/UserPhoneDelegate');
 import Utils                                                    = require('../common/Utils');
 import IncludeFlag                                              = require('../enums/IncludeFlag');
 import SmsTemplate                                              = require('../enums/SmsTemplate');
@@ -25,7 +26,7 @@ class VerificationCodeDelegate
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private emailDelegate = new EmailDelegate();
     private smsDelegate = new SmsDelegate();
-    private phoneNumberDelegate = new PhoneNumberDelegate();
+    private phoneNumberDelegate = new UserPhoneDelegate();
 
     createAndSendExpertInvitationCode(integrationId:number, member:IntegrationMember, sender?:User):q.Promise<any>
     {
@@ -68,23 +69,18 @@ class VerificationCodeDelegate
         );
     }
 
-    createAndSendMobileVerificationCode(phoneNumber:PhoneNumber):q.Promise<any>
+    createAndSendMobileVerificationCode(phoneNumber:UserPhone):q.Promise<any>
     {
         var self = this;
         var code:string = Utils.getRandomInt(10001, 99999);
-        var smsMessage = this.smsDelegate.generateSMSText(SmsTemplate.VERIFY_NUMBER, {code: code});
-
-        var sms = new SMS();
-        sms.setPhone(phoneNumber);
-        sms.setMessage(smsMessage);
 
         return q.all([
-            self.smsDelegate.send(sms),
+            self.smsDelegate.sendVerificationSMS(phoneNumber.getCompleteNumber(), code),
             self.verificationCodeCache.createMobileVerificationCode(phoneNumber.getCompleteNumber(), code)
         ]);
     }
 
-    verifyMobileCode(code:string, phoneNumber:PhoneNumber):q.Promise<PhoneNumber>
+    verifyMobileCode(code:string, phoneNumber:UserPhone):q.Promise<UserPhone>
     {
         var self = this;
 
@@ -97,6 +93,20 @@ class VerificationCodeDelegate
                 else
                     throw ('Invalid code entered');
             });
+    }
+
+    createAppointmentAcceptCode(call:PhoneCall, startTimes:number[]):q.Promise<any>
+    {
+        var code:string = Utils.getRandomString(20);
+        return this.verificationCodeCache.createAppointmentAcceptCode(call.getId(), code, startTimes)
+            .then(function(status){
+                return code;
+            })
+    }
+
+    verifyAppointmentAcceptCode(code:string):q.Promise<any>
+    {
+        return this.verificationCodeCache.searchAppointmentAcceptCode(code);
     }
 }
 export = VerificationCodeDelegate

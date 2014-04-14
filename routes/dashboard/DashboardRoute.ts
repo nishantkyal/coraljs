@@ -14,6 +14,9 @@ import IntegrationMemberDelegate                        = require('../../delegat
 import EmailDelegate                                    = require('../../delegates/EmailDelegate');
 import SMSDelegate                                      = require('../../delegates/SMSDelegate');
 import CouponDelegate                                   = require('../../delegates/CouponDelegate');
+import UserPhoneDelegate                                = require('../../delegates/UserPhoneDelegate');
+import PhoneCallDelegate                                = require('../../delegates/PhoneCallDelegate');
+import NotificationDelegate                             = require('../../delegates/NotificationDelegate');
 import UserEducationDelegate                            = require('../../delegates/UserEducationDelegate');
 import UserSkillDelegate                                = require('../../delegates/UserSkillDelegate');
 import UserEmploymentDelegate                           = require('../../delegates/UserEmploymentDelegate');
@@ -25,13 +28,17 @@ import IntegrationMember                                = require('../../models/
 import Integration                                      = require('../../models/Integration');
 import SMS                                              = require('../../models/SMS');
 import Coupon                                           = require('../../models/Coupon');
+import UserPhone                                        = require('../../models/UserPhone');
+import PhoneCall                                        = require('../../models/PhoneCall');
 import IntegrationMemberRole                            = require('../../enums/IntegrationMemberRole');
 import ApiConstants                                     = require('../../enums/ApiConstants');
 import SmsTemplate                                      = require('../../enums/SmsTemplate');
+import CallStatus                                       = require('../../enums/CallStatus');
 import IndustryCodes                                    = require('../../enums/IndustryCode');
 import Utils                                            = require('../../common/Utils');
 import Formatter                                        = require('../../common/Formatter');
 import VerificationCodeCache                            = require('../../caches/VerificationCodeCache');
+import CallFlowMiddleware                               = require('../../routes/callFlow/Middleware');
 
 import Middleware                                       = require('./Middleware');
 import Urls                                             = require('./Urls');
@@ -39,6 +46,7 @@ import Urls                                             = require('./Urls');
 class DashboardRoute
 {
     static PAGE_LOGIN:string = 'dashboard/login';
+    static PAGE_MOBILE_VERIFICATION:string = 'dashboard/mobileVerification';
     static PAGE_INTEGRATIONS:string = 'dashboard/integrations';
     static PAGE_USERS:string = 'dashboard/integrationUsers';
     static PAGE_COUPONS:string = 'dashboard/integrationCoupons';
@@ -62,6 +70,7 @@ class DashboardRoute
         // Pages
         app.get(Urls.index(), connect_ensure_login.ensureLoggedIn(), this.authSuccess.bind(this));
         app.get(Urls.login(), this.login.bind(this));
+        app.get(Urls.mobileVerification(), connect_ensure_login.ensureLoggedIn(), this.verifyMobile.bind(this));
         app.get(Urls.integrations(), connect_ensure_login.ensureLoggedIn(), this.integrations.bind(this));
         app.get(Urls.integrationCoupons(), connect_ensure_login.ensureLoggedIn(), this.coupons.bind(this));
         app.get(Urls.integrationMembers(), Middleware.allowOwnerOrAdmin, this.integrationUsers.bind(this));
@@ -70,6 +79,7 @@ class DashboardRoute
         app.get(Urls.memberEducation(), Middleware.allowSelf, this.memberEducation.bind(this));
         app.get(Urls.memberEmployment(), Middleware.allowSelf, this.memberEmployment.bind(this));
         app.get(Urls.logout(), this.logout.bind(this));
+        app.get(Urls.paymentCallback(), this.paymentComplete.bind(this));
 
         // Auth
         app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
@@ -81,9 +91,28 @@ class DashboardRoute
         res.render(DashboardRoute.PAGE_LOGIN, {logged_in_user: req['user'], messages: req.flash()});
     }
 
+    verifyMobile(req:express.Request, res:express.Response)
+    {
+        this.userPhoneDelegate.getByUserId(req['user'].id)
+            .then(
+            function phoneNumbersFetched(numbers:UserPhone[]) { return numbers; },
+            function phoneNumberFetchError(error) { return null; })
+            .then(
+            function renderPage(numbers)
+            {
+                res.render(DashboardRoute.PAGE_MOBILE_VERIFICATION, {userPhones: numbers});
+            });
+    }
+
     authSuccess(req:express.Request, res:express.Response)
     {
         var user = req['user'];
+
+        if (req.session['returnTo'])
+        {
+            res.redirect(req.session['returnTo']);
+            return;
+        }
 
         this.integrationMemberDelegate.searchByUser(user.id, null, [IncludeFlag.INCLUDE_INTEGRATION, IncludeFlag.INCLUDE_USER])
             .then(
@@ -99,7 +128,7 @@ class DashboardRoute
     {
         var user = req['user'];
 
-        this.integrationMemberDelegate.searchByUser(user.id, this.integrationMemberDelegate.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_INTEGRATION, IncludeFlag.INCLUDE_USER])
+        this.integrationMemberDelegate.searchByUser(user.id, IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_INTEGRATION, IncludeFlag.INCLUDE_USER])
             .then(
             function integrationsFetched(integrationMembers)
             {
@@ -135,7 +164,7 @@ class DashboardRoute
         var integration = this.integrationDelegate.getSync(integrationId);
         var integrationMembers = Middleware.getIntegrationMembers(req);
 
-        this.couponDelegate.search({integration_id: integrationId}, null, this.couponDelegate.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_EXPERT])
+        this.couponDelegate.search({integration_id: integrationId}, Coupon.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_EXPERT])
             .then(
             function couponsFetched(coupons:Coupon[])
             {
@@ -170,7 +199,7 @@ class DashboardRoute
         search[IntegrationMember.INTEGRATION_ID] = integrationId;
 
         q.all([
-            this.integrationMemberDelegate.search(search, null, this.integrationMemberDelegate.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER]),
+            this.integrationMemberDelegate.search(search, IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER]),
             this.verificationCodeCache.getInvitationCodes(integrationId)
         ])
             .then(
@@ -179,6 +208,7 @@ class DashboardRoute
                 var members = results[0][0];
                 var invitedMembers = [].concat(results[0][1]);
 
+                members = members.concat(_.map(invitedMembers, function (invited) { return new IntegrationMember(invited); }));
                 _.each(members, function (member:IntegrationMember)
                 {
                     if (Utils.getObjectType(member[IntegrationMember.USER]) == 'Array')
@@ -266,6 +296,9 @@ class DashboardRoute
             self.integrationMemberDelegate.get(memberId)
         ])
             .then(
+            function userFetched(user)
+            {
+                var pageData =
             function memberDetailsFetched(...args)
             {
                 var skills = args[0][0];
@@ -273,6 +306,14 @@ class DashboardRoute
 
                 var pageData =
                 {
+                    'logged_in_user': req['user'],
+                    'member': member,
+                    'user': user
+                };
+                res.render(DashboardRoute.PAGE_PROFILE, pageData);
+            },
+            function userFetchError() { res.send(500); }
+        );
                     'logged_in_user': req['user'],
                     'member': member,
                     'user': user,
@@ -291,6 +332,9 @@ class DashboardRoute
 
         this.userDelegate.update({id: loggedInUser.id}, user)
             .then(
+            function userUpdated() { res.send(200); },
+            function userUpdateError() { res.send(500); }
+        );
             function userUpdated() { res.send(200); },
             function userUpdateError() { res.send(500); }
         );
@@ -356,6 +400,30 @@ class DashboardRoute
     {
         req.logout();
         res.redirect(Urls.index());
+    }
+
+    /* Handle payment response from gateway */
+    private paymentComplete(req:express.Request, res:express.Response)
+    {
+        var callId:number = null;
+        var self = this;
+        var call;
+
+        callId = req.session['callId']; //TODO remove this and get callId from transaction
+        // If it's a call
+        // 1. Update status to scheduling
+        // 2. Send scheduling notification to expert
+        this.phoneCallDelegate.update(callId, {status: CallStatus.SCHEDULING})
+            .then(
+            function callUpdated()
+            {
+                return self.phoneCallDelegate.get(callId,null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER]);
+            })
+            .then(
+            function callFetched(call:PhoneCall)
+            {
+                self.notificationDelegate.sendCallSchedulingNotifications(call, CallFlowMiddleware.getAppointments(req));
+            })
     }
 }
 

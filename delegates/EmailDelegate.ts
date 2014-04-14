@@ -1,10 +1,10 @@
 ///<reference path='../_references.d.ts'/>
+import _                                                            = require('underscore');
 import url                                                          = require('url');
 import cheerio                                                      = require('cheerio');
 import fs                                                           = require('fs');
 import log4js                                                       = require('log4js');
 import path                                                         = require('path');
-import _                                                            = require('underscore');
 import q                                                            = require('q');
 import nodemailer                                                   = require('nodemailer');
 import watch                                                        = require('watch');
@@ -12,6 +12,8 @@ import Email                                                        = require('.
 import User                                                         = require('../models/User')
 import Integration                                                  = require('../models/Integration')
 import IntegrationMember                                            = require('../models/IntegrationMember')
+import ExpertSchedule                                               = require('../models/ExpertSchedule');
+import PhoneCall                                                    = require('../models/PhoneCall');
 import IDao                                                         = require('../dao/IDao');
 import ApiConstants                                                 = require('../enums/ApiConstants');
 import CallStatus                                                   = require('../enums/CallStatus');
@@ -20,9 +22,10 @@ import ApiUrlDelegate                                               = require('.
 import UserDelegate                                                 = require('../delegates/UserDelegate');
 import IntegrationDelegate                                          = require('../delegates/IntegrationDelegate');
 import IntegrationMemberDelegate                                    = require('../delegates/IntegrationMemberDelegate');
+import VerificationCodeDelegate                                     = require('../delegates/VerificationCodeDelegate');
+import PhoneCallDelegate                                            = require('../delegates/PhoneCallDelegate');
 import Utils                                                        = require('../common/Utils');
 import Config                                                       = require('../common/Config');
-import VerificationCodeCache                                        = require('../caches/VerificationCodeCache');
 import ExpertRegistrationUrls                                       = require('../routes/expertRegistration/Urls');
 
 /*
@@ -35,10 +38,15 @@ class EmailDelegate
 {
     private static EMAIL_EXPERT_INVITE:string = 'EMAIL_EXPERT_INVITE';
     private static EMAIL_EXPERT_WELCOME:string = 'EMAIL_EXPERT_WELCOME';
-    private static EMAIL_ACCOUNT_VERIFICATION:string = 'EMAIL_ACCOUNT_VERIFICATION';
+    private static EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION:string = 'EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION';
+    private static EMAIL_EXPERT_SCHEDULING:string = 'EMAIL_EXPERT_SCHEDULING';
+    private static EMAIL_EXPERT_REMINDER:string = 'EMAIL_EXPERT_REMINDER';
+    private static EMAIL_CALLER_REMINDER:string = 'EMAIL_CALLER_REMINDER';
 
     private static templateCache:{[templateNameAndLocale:string]:{bodyTemplate:Function; subjectTemplate:Function}} = {};
     private static transport:nodemailer.Transport;
+    private phoneCallDelegate = new PhoneCallDelegate();
+    private userDelegate = new UserDelegate();
 
     constructor()
     {
@@ -85,19 +93,10 @@ class EmailDelegate
                     });
                 }
 
-                _.each(monitor.files, function (data, fileName)
-                {
-                    readFileAndCache(fileName);
-                });
+                _.each(monitor.files, function (data, fileName) { readFileAndCache(fileName); });
 
-                monitor.on("created", function (f, stat)
-                {
-                    readFileAndCache(f);
-                });
-                monitor.on("changed", function (f, curr, prev)
-                {
-                    readFileAndCache(f);
-                });
+                monitor.on("created", function (f, stat) { readFileAndCache(f); });
+                monitor.on("changed", function (f, curr, prev) { readFileAndCache(f); });
                 monitor.on("removed", function (f, stat)
                 {
                     // TODO: Remove from template cache
@@ -105,24 +104,23 @@ class EmailDelegate
             });
     })();
 
-    private send(template:string, to:string, emailData:Object, replyTo?:string, from:string = 'contact@searchntalk.com'):q.Promise<any>
+    private composeAndSend(template:string, to:string, emailData:Object, from?:string, replyTo?:string):q.Promise<any>
     {
         var self = this;
         var deferred = q.defer<any>();
-
-        var bodyTemplate:Function = EmailDelegate.templateCache[template].bodyTemplate;
-        var subjectTemplate:Function = EmailDelegate.templateCache[template].subjectTemplate;
+        var logger = log4js.getLogger(Utils.getClassName(self));
 
         emailData["email_cdn_base_uri"] = Config.get(Config.EMAIL_CDN_BASE_URI);
+        from = from || 'contact@searchntalk.com';
         replyTo = replyTo || from;
 
         try
         {
-            var body:string = bodyTemplate(emailData);
-            var subject:string = subjectTemplate(emailData);
+            var body:string = this.getEmailBody(template, emailData);
+            var subject:string = this.getEmailSubject(template, emailData);
         } catch (e)
         {
-            log4js.getLogger(Utils.getClassName(self)).error('Invalid email template: ' + template);
+            logger.error('Invalid email template: ' + template);
             deferred.reject("Invalid email data");
             return null;
         }
@@ -136,53 +134,85 @@ class EmailDelegate
                 html: body,
                 forceEmbeddedImages: true
             },
-            function emailSent(error:Error, response:any):any
+            function emailSent(error:Error, response:any)
             {
                 if (error)
+                {
+                    logger.info('Error in sending Email to:' + to);
                     deferred.reject(error);
+                }
                 else
+                {
+                    logger.info('Email sent to:' + to);
                     deferred.resolve(response);
+                }
             }
         );
 
         return deferred.promise;
     }
 
-    sendCallStatusUpdateNotifications(callerUserId:number, expertId:number, status:CallStatus):q.Promise<any>
+    getEmailBody(template:string, emailData:Object):string
+    {
+        var self = this;
+        try
+        {
+            var bodyTemplate:Function = EmailDelegate.templateCache[template].bodyTemplate;
+            return bodyTemplate(emailData);
+        }
+        catch (err)
+        {
+            log4js.getLogger(Utils.getClassName(self)).error("Couldn't generate email body for (template %s, data: %s), Error: %s", template, emailData, err);
+            throw(err);
+        }
+    }
+
+    getEmailSubject(template:string, emailData:Object):string
+    {
+        var self = this;
+        try
+        {
+            var subjectTemplate:Function = EmailDelegate.templateCache[template].subjectTemplate;
+            return subjectTemplate(emailData);
+        }
+        catch (err)
+        {
+            log4js.getLogger(Utils.getClassName(self)).error("Couldn't generate email subject for (template %s, data: %s), Error: %s", template, emailData, err);
+            throw(err);
+        }
+    }
+
+    sendSchedulingEmailToExpert(call:number, appointments:number[]):q.Promise<any>;
+    sendSchedulingEmailToExpert(call:PhoneCall, appointments:number[]):q.Promise<any>;
+    sendSchedulingEmailToExpert(call:any, appointments:number[]):q.Promise<any>
     {
         var self = this;
 
-        // 1. Get expert's user id
-        // 2. Get emails for caller and expert
-        // 3. Send emails
-        return new IntegrationMemberDelegate().get(expertId, ['user_id'])
-            .then(
-            function expertUserIdFetched(expert:IntegrationMember)
+        if (Utils.getObjectType(call) == 'Number')
+            return self.phoneCallDelegate.get(call).then(function (fetchedCall:PhoneCall)
             {
-                return new UserDelegate().search({'id': [expert['user_id'], callerUserId]}, ['email']);
-            })
+                self.sendSchedulingEmailToExpert(fetchedCall, appointments);
+            });
+
+        var expert:IntegrationMember = call.getIntegrationMember();
+        var integration = new IntegrationDelegate().getSync(expert.getIntegrationId());
+
+        var VerificationCodeDelegate:any = require('../delegates/VerificationCodeDelegate');
+        var verificationCodeDelegate = new VerificationCodeDelegate();
+
+        return verificationCodeDelegate.createAppointmentAcceptCode(call)
             .then(
-            function emailsFetched(users:Array<User>)
+            function invitationAcceptCodeCreated(code:string)
             {
-                var expertEmail, callerEmail;
-                _.each(users, function (user:User)
-                {
-                    if (user.getId() == callerUserId)
-                        callerEmail = user.getEmail();
-                    else
-                        expertEmail = user.getEmail();
-                });
+                var emailData = {
+                    call: call,
+                    appointments: appointments,
+                    integration: integration,
+                    acceptCode: code
+                };
 
-                switch (status)
-                {
-                    // TODO: Implement all call status emails
-                    case CallStatus.POSTPONED:
-                        return q.all([
-                        ]);
-                        break;
-                }
-
-                return null;
+                return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_SCHEDULING, expert.getUser()[0].getEmail(), emailData);
+                //TODO[alpha-calling] correct include procesing so that it doesnt return an array
             });
     }
 
@@ -203,7 +233,7 @@ class EmailDelegate
             recipient: recipient.toJson(),
             sender: sender.toJson()
         };
-        return self.send(EmailDelegate.EMAIL_EXPERT_INVITE, recipient.getUser().getEmail(), emailData, sender.getEmail());
+        return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_INVITE, recipient.getUser().getEmail(), emailData, sender.getEmail());
     }
 
     sendWelcomeEmail(integrationId:number, recipient:IntegrationMember):q.Promise<any>
@@ -213,16 +243,72 @@ class EmailDelegate
             integration: integration,
             recipient: recipient.toJson()
         };
-        return this.send(EmailDelegate.EMAIL_EXPERT_WELCOME, recipient.getUser().getEmail(), emailData);
+        return this.composeAndSend(EmailDelegate.EMAIL_EXPERT_WELCOME, recipient.getUser().getEmail(), emailData);
     }
 
-    sendVerificationEmail(user:User):q.Promise<any>
+    sendMobileVerificationReminderEmail(integrationId:number, invitationCode:string, recipient:IntegrationMember):q.Promise<any>
     {
+        var invitationUrl = ExpertRegistrationUrls.index();
+        invitationUrl += '?';
+        invitationUrl += ApiConstants.INTEGRATION_ID + '=' + integrationId;
+        invitationUrl += '&';
+        invitationUrl += ApiConstants.CODE + '=' + invitationCode;
+        invitationUrl = url.resolve(Config.get(Config.CORAL_URI), invitationUrl);
+
+        var integration = new IntegrationDelegate().getSync(integrationId)
+
         var emailData = {
-            user: user
+            integration: integration,
+            invitation_url: invitationUrl,
+            recipient: recipient.toJson()
         };
-        return this.send(EmailDelegate.EMAIL_ACCOUNT_VERIFICATION, user.getEmail(), emailData);
+        return this.composeAndSend(EmailDelegate.EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION, recipient.getUser().getEmail(), emailData);
     }
 
+    sendPaymentCompleteEmail():q.Promise<any>
+    {
+        return null;
+    }
+
+    sendCallReminderEmail(call:number):q.Promise<any>;
+    sendCallReminderEmail(call:PhoneCall):q.Promise<any>;
+    sendCallReminderEmail(call:any):q.Promise<any>
+    {
+        var self = this;
+
+        if (Utils.getObjectType(call) == 'Number')
+            return self.phoneCallDelegate.get(call).then(self.sendCallReminderEmail);
+
+        return this.phoneCallDelegate.get(call)
+            .then(
+            function callFetched(c:PhoneCall)
+            {
+                call = c;
+                return self.userDelegate.search({id: [call.getIntegrationMember().getUser().getId(), call.getCallerUserId()]})
+            })
+            .then(
+            function usersFetched(users:User[])
+            {
+                var expertEmail:string = _.findWhere(users, {id: call.getIntegrationMember().getUser().getId()}).getEmail();
+                var callerEmail:string = _.findWhere(users, {id: call.getCallerUserId()}).getEmail();
+
+                return q.all([
+                    self.composeAndSend(EmailDelegate.EMAIL_CALLER_REMINDER, callerEmail, {call: call}),
+                    self.composeAndSend(EmailDelegate.EMAIL_EXPERT_REMINDER, expertEmail, {call: call})
+                ]);
+            });
+    }
+
+    sendCallFailureEmail(call:number):q.Promise<any>;
+    sendCallFailureEmail(call:PhoneCall):q.Promise<any>;
+    sendCallFailureEmail(call:any):q.Promise<any>
+    {
+        var self = this;
+
+        if (Utils.getObjectType(call) == 'Number')
+            return self.phoneCallDelegate.get(call).then(self.sendCallFailureEmail);
+
+        return null;
+    }
 }
 export = EmailDelegate

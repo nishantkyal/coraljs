@@ -1,4 +1,3 @@
-include header
 include ../scriptsAndStyles
 .container-fluid
     .row-fluid
@@ -7,7 +6,7 @@ include ../scriptsAndStyles
             p Please verify your mobile number
             em.small This number will be used to connect the users to you for calls that you accept to receive
             hr
-            form#sendCode
+            form#sendCode(action=ApiUrlDelegate.mobileVerificationCode(), method='post')
                 .form-group
                     label Mobile Number
                     .controls
@@ -27,5 +26,4 @@ include ../scriptsAndStyles
                 .form-group
                     input.btn.btn-primary.form-control(type='submit', value='Verify', name='verify')
         .col-md-2
-include footer
-script(src='/js/app/expertRegistration/mobileVerification.js')
+script(src='/js/app/dashboard/mobileVerification.js')

@@ -1,6 +1,7 @@
 import q                                = require('q');
 import CacheHelper                      = require('./CacheHelper');
 import PhoneCall                        = require('../models/PhoneCall');
+import moment                           = require('moment');
 
 class UnscheduledCallsCache
 {

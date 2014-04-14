@@ -2,7 +2,7 @@
 import _                                        = require('underscore');
 import BaseModel                                = require('./BaseModel');
 import Priority                                 = require('../enums/Priority');
-import PhoneNumber                              = require('../models/PhoneNumber');
+import UserPhone                              = require('../models/UserPhone');
 import Utils                                    = require('../common/Utils');
 
 class SMS extends BaseModel
@@ -18,7 +18,7 @@ class SMS extends BaseModel
     static NUM_RETRIES:string = 'num_retries';
     static PRIORITY:string = 'priority';
 
-    private phone:PhoneNumber;
+    private phone:UserPhone;
     private sender:string;
     private message:string;
     private scheduled_date:number;
@@ -27,7 +27,7 @@ class SMS extends BaseModel
     private priority:Priority;
 
     /* Getters */
-    getPhone():PhoneNumber { return this.phone; }
+    getPhone():UserPhone { return this.phone; }
     getSender():string { return this.sender; }
     getMessage():string { return this.message; }
     getScheduledDate():number { return this.scheduled_date; }
@@ -36,7 +36,7 @@ class SMS extends BaseModel
     getPriority():Priority { return this.priority; }
 
     /* Setters */
-    setPhone(val:PhoneNumber):void { this.phone = val; }
+    setPhone(val:UserPhone):void { this.phone = val; }
     setSender(val:string):void { this.sender = val; }
     setMessage(val:string):void { this.message = val; }
     setScheduledDate(val:number):void { this.scheduled_date = val; }

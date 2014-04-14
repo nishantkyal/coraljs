@@ -7,6 +7,7 @@ import IntegrationType          = require('../enums/IntegrationType');
 class Integration extends BaseModel
 {
     static TABLE_NAME:string = 'integration';
+    static DEFAULT_FIELDS:string[] = [Integration.ID, Integration.TITLE, Integration.INTEGRATION_TYPE];
 
     static TITLE:string = 'title';
     static WEBSITE_URL:string = 'website_url';

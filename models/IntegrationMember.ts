@@ -29,6 +29,9 @@ class IntegrationMember extends BaseModel
     static SCHEDULE:string = 'schedule';
     static SCHEDULE_RULE:string = 'schedule_rule';
 
+    static DEFAULT_FIELDS:string[] = [IntegrationMember.ID, IntegrationMember.INTEGRATION_ID, IntegrationMember.ROLE];
+    static DASHBOARD_FIELDS:string[] = [IntegrationMember.ID, IntegrationMember.INTEGRATION_ID, IntegrationMember.ROLE, IntegrationMember.USER_ID, IntegrationMember.REVENUE_SHARE, IntegrationMember.REVENUE_SHARE_UNIT];
+
     private integration_id:number;
     private user_id:number;
     private role:IntegrationMemberRole;

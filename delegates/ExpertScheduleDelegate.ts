@@ -63,7 +63,8 @@ class ExpertScheduleDelegate
                         temp.setScheduleRuleId(rule.getId());
                         schedules.push(temp);
                     }
-                } catch (e) {}
+                } catch (e) {
+                }
                 deferred.resolve(schedules);
             }
         });

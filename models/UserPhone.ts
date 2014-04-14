@@ -1,9 +1,9 @@
 import BaseModel                                        = require('./BaseModel');
-import PhoneNumberType                                  = require('../enums/PhoneNumberType');
+import PhoneType                                        = require('../enums/PhoneType');
 import CountryCode                                      = require('../enums/CountryCode');
 import Utils                                            = require('../common/Utils');
 
-class PhoneNumber extends BaseModel
+class UserPhone extends BaseModel
 {
     static TABLE_NAME:string = 'user_phone';
 
@@ -18,7 +18,7 @@ class PhoneNumber extends BaseModel
     private country_code:CountryCode;
     private area_code:string;
     private phone:string;
-    private type:PhoneNumberType;
+    private type:PhoneType;
     private verified:boolean;
 
     /* Getters */
@@ -26,19 +26,19 @@ class PhoneNumber extends BaseModel
     getCountryCode():CountryCode { return this.country_code; }
     getAreaCode():string { return this.area_code; }
     getPhone():string { return this.phone; }
-    getType():PhoneNumberType { return this.type; }
+    getType():PhoneType { return this.type; }
     getVerified():boolean { return this.verified; }
 
     isValid():boolean
     {
         return !Utils.isNullOrEmpty(this.getUserId())
                 && !Utils.isNullOrEmpty(this.getPhone())
-                    && (this.getType() == PhoneNumberType.MOBILE || Utils.isNullOrEmpty(this.getAreaCode()));
+                    && (this.getType() == PhoneType.MOBILE || Utils.isNullOrEmpty(this.getAreaCode()));
     }
 
     getCompleteNumber():string
     {
-        if (this.getType() == PhoneNumberType.LANDLINE)
+        if (this.getType() == PhoneType.LANDLINE)
             return '+' + this.getCountryCode() + this.getAreaCode() + this.getPhone();
         else
             return '+' + this.getCountryCode() + this.getPhone();
@@ -49,8 +49,8 @@ class PhoneNumber extends BaseModel
     setCountryCode(val:CountryCode):void { this.country_code = val; }
     setAreaCode(val:string):void { this.area_code = val; }
     setPhone(val:string):void { this.phone = val; }
-    setType(val:PhoneNumberType):void { this.type = val; }
+    setType(val:PhoneType):void { this.type = val; }
     setVerified(val:boolean):void { this.verified = val; }
 
 }
-export = PhoneNumber
+export = UserPhone

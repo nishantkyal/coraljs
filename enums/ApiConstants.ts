@@ -7,6 +7,7 @@ class ApiConstants
     static FILTERS:string = 'filters';
     static INCLUDE:string = 'include';
     static ROLE:string = 'role';
+    static RETURN_TO:string = 'return_to';
 
     /* Param constants */
     static COUPON_ID:string = 'couponId';
@@ -52,5 +53,7 @@ class ApiConstants
     static SCHEDULE_EXCEPTION:string = 'expertScheduleException';
     static SMS:string = 'sms';
     static TRANSACTION:string = 'transaction';
+    static PAGE_DATE:string = 'pageData';
+
 }
 export = ApiConstants

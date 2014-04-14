@@ -22,6 +22,7 @@ class User extends BaseModel
     static DATE_OF_BIRTH:string = 'date_of_birth';
     static INDUSTRY:string = 'industry';
 
+    static DEFAULT_FIELDS:string[] = [User.ID, User.FIRST_NAME, User.LAST_NAME, User.SHORT_DESC, User.LONG_DESC, User.EMAIL];
     private title:string;
     private first_name:string;
     private last_name:string;

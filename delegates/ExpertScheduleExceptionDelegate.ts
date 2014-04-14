@@ -13,7 +13,7 @@ import ExpertScheduleRuleDelegate   = require('../delegates/ExpertScheduleRuleDe
 
 class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
 {
-    getDao():IDao { return new ExpertScheduleExceptionDao();}
+    constructor() { super(new ExpertScheduleExceptionDao()); }
 
     createException(newScheduleException:ExpertScheduleException, transaction?:any):q.Promise<any>
     {
@@ -79,7 +79,7 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
 
     getExceptionsByIntegrationMemberId(expertId:number, startTime:number, endTime:number):q.Promise<any>
     {
-        var expertScheduleExceptionDao:any = this.getDao();
+        var expertScheduleExceptionDao:any = this.dao;
         return expertScheduleExceptionDao.getExceptionByIntegrationMemberId(expertId, startTime, endTime);
     }
 

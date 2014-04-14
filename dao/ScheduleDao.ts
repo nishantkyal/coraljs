@@ -4,6 +4,6 @@ import ExpertSchedule           = require('../models/ExpertSchedule');
 
 class ScheduleDao extends BaseDao
 {
-    getModel():typeof BaseModel { return ExpertSchedule; }
+    constructor() { super(ExpertSchedule); }
 }
 export = ScheduleDao
