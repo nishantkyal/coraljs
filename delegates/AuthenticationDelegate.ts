@@ -88,8 +88,6 @@ class AuthenticationDelegate
                     {
                         req.flash('info', error.message);
                         res.redirect(options.failureRedirect);
-
-                        return new EmailDelegate().sendWelcomeEmail();
                     });
             }
             else
