@@ -82,8 +82,8 @@ class BaseDao implements IDao
             });
     }
 
-    get(id:number[], fields?:string[]):q.Promise<any>
-    get(id:number, fields?:string[]):q.Promise<any>
+    get(id:number[], fields?:string[]):q.Promise<any>;
+    get(id:number, fields?:string[]):q.Promise<any>;
     get(id:any, fields?:string[]):q.Promise<any>
     {
         var self = this;
@@ -149,8 +149,8 @@ class BaseDao implements IDao
             });
     }
 
-    update(criteria:number, newValues:BaseModel, transaction?:any):q.Promise<any>
-    update(criteria:Object, newValues:BaseModel, transaction?:any):q.Promise<any>
+    update(criteria:number, newValues:BaseModel, transaction?:any):q.Promise<any>;
+    update(criteria:Object, newValues:BaseModel, transaction?:any):q.Promise<any>;
     update(criteria:any, newValues:any, transaction?:any):q.Promise<any>
     {
         if (Utils.getObjectType(criteria) == 'Number')

@@ -128,7 +128,7 @@ class ExpertRegistrationRoute
         var integrationId = parseInt(req.session[ApiConstants.INTEGRATION_ID]);
         var integration = new IntegrationDelegate().getSync(integrationId);
 
-        this.userDelegate.get(req['user'].id)
+        this.userDelegate.get(req[ApiConstants.USER].id)
             .then(
             function userFetched(user)
             {
@@ -145,7 +145,7 @@ class ExpertRegistrationRoute
 
     private saveProfile(req:express.Request, res:express.Response)
     {
-        var userId = req['user'].id;
+        var userId = req[ApiConstants.USER].id;
         var user = req.body[ApiConstants.USER];
 
         this.userDelegate.update({id: userId}, user)
@@ -170,7 +170,7 @@ class ExpertRegistrationRoute
     {
         var integrationId = parseInt(req.session[ApiConstants.INTEGRATION_ID]);
         var integration = new IntegrationDelegate().getSync(integrationId);
-        var userId = req['user'].id;
+        var userId = req[ApiConstants.USER].id;
         var self = this;
 
         q.all([
@@ -182,7 +182,7 @@ class ExpertRegistrationRoute
             {
                 var member = new IntegrationMember(args[0][1][0]);
                 var pageData = {
-                    user: req['user'],
+                    user: req[ApiConstants.USER],
                     integration: integration,
                     "SearchNTalkUri": Config.get(Config.CORAL_URI),
                     "schedule_rules": member[IncludeFlag.INCLUDE_SCHEDULE_RULES]
