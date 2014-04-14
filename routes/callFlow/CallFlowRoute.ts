@@ -53,8 +53,8 @@ class CallFlowRoute
         app.get(Urls.callPayment(), Middleware.requireExpertAndAppointments, this.callPayment.bind(this));
         app.post(Urls.callPayment(), Middleware.requireExpertAndAppointments, this.checkout.bind(this));
 
-        app.get(Urls.scheduling(), this.scheduling.bind(this));
-        app.post(Urls.scheduling(), this.scheduling.bind(this));
+        app.get(Urls.scheduling(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, redirectTo: DashboardUrls.login()}), this.scheduling.bind(this));
+        app.post(Urls.scheduling(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, redirectTo: DashboardUrls.login()}), this.scheduling.bind(this));
 
         // Auth related routes
         app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {successRedirect: Urls.callPayment(), failureRedirect: Urls.login(), failureFlash: true}));

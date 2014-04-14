@@ -412,9 +412,9 @@ class DashboardRoute
     {
         var callId:number = null;
         var self = this;
-        var call;
 
         callId = req.session['callId']; //TODO remove this and get callId from transaction
+
         // If it's a call
         // 1. Update status to scheduling
         // 2. Send scheduling notification to expert
@@ -428,7 +428,7 @@ class DashboardRoute
             function callFetched(call:PhoneCall)
             {
                 self.notificationDelegate.sendCallSchedulingNotifications(call, CallFlowMiddleware.getAppointments(req), CallFlowMiddleware.getDuration(req), new User(req[ApiConstants.USER]));
-            })
+            });
     }
 
     private emailAccountVerification(req:express.Request, res:express.Response)
