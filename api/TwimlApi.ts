@@ -58,11 +58,11 @@ class TwimlApi
             var expert:IntegrationMember, user:User;
             ;
 
-            new PhoneCallDelegate().get(callId, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER_USER])
+            new PhoneCallDelegate().get(callId, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER])
                 .then(
                 function callFetched(call:PhoneCall)
                 {
-                    expert = call[IncludeFlag.INCLUDE_INTEGRATION_MEMBER_USER];
+                    expert = call[IncludeFlag.INCLUDE_INTEGRATION_MEMBER];
                     user = expert[IncludeFlag.INCLUDE_USER];
                     return {
                         'Response': [

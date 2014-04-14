@@ -20,12 +20,14 @@ include header
                 .pull-right
                     .btn.btn-default#skip Skip >
             .row
+                include ../errorMessage
+            .row
                 .col-md-5
                     form.form-horizontal.left#login(method='post', action=CallFlowUrls.login())
                         .form-group
                             label.control-label Email
                             .controls
-                                input.form-control#email(type='text', name='email')
+                                input.form-control#email(type='text', name='username')
                         .form-group
                             label.control-label Password
                             input.form-control#password(type='password', name='password')

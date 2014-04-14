@@ -43,5 +43,9 @@ include header
 
 script.
     var schedules = JSON.parse( '!{JSON.stringify(expert.schedule)}' );
-    var startTimes = JSON.parse( '!{JSON.stringify(startTimes)}' );
+    var startTimes;
+    try{
+        startTimes = JSON.parse( '!{JSON.stringify(startTimes)}' );
+    }
+    catch(e){}
 script(src='/js/app/callFlow/index.js')

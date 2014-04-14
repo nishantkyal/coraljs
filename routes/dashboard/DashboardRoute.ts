@@ -25,6 +25,7 @@ import Integration                                      = require('../../models/
 import SMS                                              = require('../../models/SMS');
 import Coupon                                           = require('../../models/Coupon');
 import UserPhone                                        = require('../../models/UserPhone');
+import PhoneCall                                        = require('../../models/PhoneCall');
 import IntegrationMemberRole                            = require('../../enums/IntegrationMemberRole');
 import ApiConstants                                     = require('../../enums/ApiConstants');
 import SmsTemplate                                      = require('../../enums/SmsTemplate');
@@ -263,7 +264,9 @@ class DashboardRoute
     {
         var callId:number = null;
         var self = this;
+        var call;
 
+        callId = req.session['callId']; //TODO remove this and get callId from transaction
         // If it's a call
         // 1. Update status to scheduling
         // 2. Send scheduling notification to expert
@@ -271,13 +274,13 @@ class DashboardRoute
             .then(
             function callUpdated()
             {
-                return self.phoneCallDelegate.get(callId)
+                return self.phoneCallDelegate.get(callId,null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER]);
             })
             .then(
-            function callFetched(call)
+            function callFetched(call:PhoneCall)
             {
                 self.notificationDelegate.sendCallSchedulingNotifications(call, CallFlowMiddleware.getAppointments(req));
-            });
+            })
     }
 }
 

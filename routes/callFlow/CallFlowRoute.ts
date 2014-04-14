@@ -57,7 +57,7 @@ class CallFlowRoute
         app.post(Urls.scheduling(), this.scheduling.bind(this));
 
         // Auth related routes
-        app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {successRedirect: Urls.callPayment()}));
+        app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {successRedirect: Urls.callPayment(), failureRedirect: Urls.login(), failureFlash: true}));
         app.post(Urls.register(), AuthenticationDelegate.register({failureRedirect: Urls.login()}), this.callPayment.bind(this));
         app.get(Urls.fbLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {scope: ['email']}));
         app.get(Urls.fbLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {failureRedirect: Urls.login(), scope: ['email'], successRedirect: Urls.callPayment()}));
@@ -162,10 +162,10 @@ class CallFlowRoute
         var self = this;
 
         var phoneCall = new PhoneCall();
-        phoneCall.setExpertId(Middleware.getSelectedExpert(req).getId());
-        phoneCall.setExpertPhoneId(null);
+        phoneCall.setIntegrationMemberId(Middleware.getSelectedExpert(req).getId());
+        phoneCall.setExpertPhoneId(00);//TODO[alpha-calling] set expert phone Id correctly
         phoneCall.setCallerUserId(req[ApiConstants.USER].id);
-        phoneCall.setCallerPhoneId(null);
+        phoneCall.setCallerPhoneId(00);//TODO[alpha-calling] set caller phone Id correctly
         phoneCall.setDelay(0);
         phoneCall.setStatus(CallStatus.PLANNING);
         phoneCall.setDuration(Middleware.getDuration(req));
@@ -178,13 +178,18 @@ class CallFlowRoute
             .then(
             function callCreated(call)
             {
-                return self.transactionDelegate.createPhoneCallTransaction(transaction, call);
+                req.session['callId'] = call.getId();
+               //TODO[alpha-calling] remove comment
+               /* return self.transactionDelegate.createPhoneCallTransaction(transaction, call);
             })
             .then(
             function transactionCreated(transaction)
-            {
+            {*/
                 res.redirect(DashboardUrls.paymentCallback());
-            });
+            })
+            .fail (function(error){
+                res.status(500);
+            })
     }
 
     /* Invoked when expert/caller clicks on accept appointment link in email */
@@ -193,6 +198,7 @@ class CallFlowRoute
         var self = this;
         var startTime:number = parseInt(req.query[ApiConstants.START_TIME]);
         var appointmentCode:string = req.query[ApiConstants.CODE];
+
 
         this.verificationCodeDelegate.verifyAppointmentAcceptCode(appointmentCode)
             .then(

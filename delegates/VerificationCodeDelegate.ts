@@ -98,7 +98,10 @@ class VerificationCodeDelegate
     createAppointmentAcceptCode(call:PhoneCall, startTimes:number[]):q.Promise<any>
     {
         var code:string = Utils.getRandomString(20);
-        return this.verificationCodeCache.createAppointmentAcceptCode(call.getId(), code, startTimes);
+        return this.verificationCodeCache.createAppointmentAcceptCode(call.getId(), code, startTimes)
+            .then(function(status){
+                return code;
+            })
     }
 
     verifyAppointmentAcceptCode(code:string):q.Promise<any>

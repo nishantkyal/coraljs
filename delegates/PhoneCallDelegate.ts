@@ -45,6 +45,7 @@ class PhoneCallDelegate extends BaseDAODelegate
     get(id:any, fields?:string[], includes:IncludeFlag[] = []):q.Promise<any>
     {
         var superGet = super.get;
+        var self = this;
 
         return this.phoneCallCache.get(id)
             .then(
@@ -53,7 +54,7 @@ class PhoneCallDelegate extends BaseDAODelegate
                 if (!Utils.isNullOrEmpty(result))
                     return new PhoneCall(result);
                 else
-                    return superGet(id, fields, includes);
+                    return superGet.call(self, id, fields, includes);
             },
             function callFetchError()
             {
@@ -63,8 +64,9 @@ class PhoneCallDelegate extends BaseDAODelegate
 
     create(object:any, transaction?:any):q.Promise<any>
     {
-        if (object[PhoneCall.STATUS] == CallStatus.PLANNING)
-            return this.unscheduledCallsCache.addUnscheduledCall(object[PhoneCall.EXPERT_PHONE_ID], object[PhoneCall.START_TIME], object);
+        //TODO[alpha-calling] remoce the comment
+        //if (object[PhoneCall.STATUS] == CallStatus.PLANNING)
+        //    return this.unscheduledCallsCache.addUnscheduledCall(object[PhoneCall.EXPERT_PHONE_ID], object[PhoneCall.START_TIME], object);
         return super.create(object, transaction);
     }
 
@@ -111,7 +113,7 @@ class PhoneCallDelegate extends BaseDAODelegate
         var self = this;
         switch (include)
         {
-            case IncludeFlag.INCLUDE_INTEGRATION_MEMBER_USER:
+            case IncludeFlag.INCLUDE_INTEGRATION_MEMBER:
                 return self.integrationMemberDelegate.get(result.getIntegrationMemberId(), null, [IncludeFlag.INCLUDE_USER]);
             case IncludeFlag.INCLUDE_USER:
                 return self.userDelegate.get(result.getCallerUserId());

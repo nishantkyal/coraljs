@@ -108,6 +108,7 @@ class EmailDelegate
     {
         var self = this;
         var deferred = q.defer<any>();
+        var logger = log4js.getLogger(Utils.getClassName(self));
 
         emailData["email_cdn_base_uri"] = Config.get(Config.EMAIL_CDN_BASE_URI);
         from = from || 'contact@searchntalk.com';
@@ -119,7 +120,7 @@ class EmailDelegate
             var subject:string = this.getEmailSubject(template, emailData);
         } catch (e)
         {
-            log4js.getLogger(Utils.getClassName(self)).error('Invalid email template: ' + template);
+            logger.error('Invalid email template: ' + template);
             deferred.reject("Invalid email data");
             return null;
         }
@@ -136,9 +137,15 @@ class EmailDelegate
             function emailSent(error:Error, response:any)
             {
                 if (error)
+                {
+                    logger.info('Error in sending Email to:' + to);
                     deferred.reject(error);
+                }
                 else
+                {
+                    logger.info('Email sent to:' + to);
                     deferred.resolve(response);
+                }
             }
         );
 
@@ -147,6 +154,7 @@ class EmailDelegate
 
     getEmailBody(template:string, emailData:Object):string
     {
+        var self = this;
         try
         {
             var bodyTemplate:Function = EmailDelegate.templateCache[template].bodyTemplate;
@@ -161,6 +169,7 @@ class EmailDelegate
 
     getEmailSubject(template:string, emailData:Object):string
     {
+        var self = this;
         try
         {
             var subjectTemplate:Function = EmailDelegate.templateCache[template].subjectTemplate;
@@ -185,7 +194,7 @@ class EmailDelegate
                 self.sendSchedulingEmailToExpert(fetchedCall, appointments);
             });
 
-        var expert = call.getExpert();
+        var expert:IntegrationMember = call.getIntegrationMember();
         var integration = new IntegrationDelegate().getSync(expert.getIntegrationId());
 
         var VerificationCodeDelegate:any = require('../delegates/VerificationCodeDelegate');
@@ -202,7 +211,8 @@ class EmailDelegate
                     acceptCode: code
                 };
 
-                return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_SCHEDULING, expert.getUser().getEmail(), emailData);
+                return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_SCHEDULING, expert.getUser()[0].getEmail(), emailData);
+                //TODO[alpha-calling] correct include procesing so that it doesnt return an array
             });
     }
 
@@ -274,12 +284,12 @@ class EmailDelegate
             function callFetched(c:PhoneCall)
             {
                 call = c;
-                return self.userDelegate.search({id: [call.getExpert().getUser().getId(), call.getCallerUserId()]})
+                return self.userDelegate.search({id: [call.getIntegrationMember().getUser().getId(), call.getCallerUserId()]})
             })
             .then(
             function usersFetched(users:User[])
             {
-                var expertEmail:string = _.findWhere(users, {id: call.getExpert().getUser().getId()}).getEmail();
+                var expertEmail:string = _.findWhere(users, {id: call.getIntegrationMember().getUser().getId()}).getEmail();
                 var callerEmail:string = _.findWhere(users, {id: call.getCallerUserId()}).getEmail();
 
                 return q.all([

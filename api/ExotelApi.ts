@@ -33,12 +33,12 @@ class ExotelApi
 
                 if (callId && callerNumber && exotelCallId && callTime)
                 {
-                    new PhoneCallDelegate().get(callId, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER_USER])
+                    new PhoneCallDelegate().get(callId, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER])
                         .then(
                         function callFetched(call:PhoneCall)
                         {
                             //need to save exotelCallId as it will be used to send expert number afterwards
-                            expert = call[IncludeFlag.INCLUDE_INTEGRATION_MEMBER_USER];
+                            expert = call[IncludeFlag.INCLUDE_INTEGRATION_MEMBER];
                             user = expert[IncludeFlag.INCLUDE_USER];
                             res.json('OK');
                         },

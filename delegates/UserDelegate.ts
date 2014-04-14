@@ -6,7 +6,6 @@ import passport                                                         = requir
 import BaseDaoDelegate                                                  = require('../delegates/BaseDaoDelegate');
 import MysqlDelegate                                                    = require('../delegates/MysqlDelegate');
 import UserProfileDelegate                                              = require('../delegates/UserProfileDelegate');
-import IntegrationMemberDelegate                                        = require('../delegates/IntegrationMemberDelegate');
 import ImageDelegate                                                    = require('../delegates/ImageDelegate');
 import IDao                                                             = require('../dao/IDao')
 import UserDAO                                                          = require('../dao/UserDao')
@@ -23,7 +22,6 @@ class UserDelegate extends BaseDaoDelegate
 {
     imageDelegate = new ImageDelegate();
     userProfileDelegate = new UserProfileDelegate();
-    integrationMemberDelegate = new IntegrationMemberDelegate();
 
     constructor() { super(new UserDAO()); }
 
@@ -47,7 +45,9 @@ class UserDelegate extends BaseDaoDelegate
             case IncludeFlag.INCLUDE_USER_PROFILE:
                 return self.userProfileDelegate.search({'user_id': result.getId()});
             case IncludeFlag.INCLUDE_INTEGRATION_MEMBER:
-                return self.integrationMemberDelegate.searchByUser(result.getId());
+                var IntegrationMemberDelegate:any  = require('../delegates/IntegrationMemberDelegate');
+                var integrationMemberDelegate = new IntegrationMemberDelegate();
+                return integrationMemberDelegate.searchByUser(result.getId());
         }
         return super.getIncludeHandler(include, result);
     }
