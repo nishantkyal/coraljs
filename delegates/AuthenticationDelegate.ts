@@ -323,7 +323,7 @@ class AuthenticationDelegate
                     .finally(
                     function userStatusUpdated()
                     {
-                        return MysqlDelegate.commit(new UserDelegate().update({id: user.getId()}, {status: UserStatus.ACTIVE}));
+                        return MysqlDelegate.commit(new UserDelegate().recalculateStatus(user.getId()));
                     });
             }
         ));

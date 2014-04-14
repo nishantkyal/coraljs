@@ -86,13 +86,14 @@ class UserDelegate extends BaseDaoDelegate
     }
 
     recalculateStatus(criteria:number):q.Promise<any>;
-
     recalculateStatus(criteria:Object):q.Promise<any>;
-
     recalculateStatus(criteria:any):q.Promise<any>
     {
         var self = this;
         var user:User;
+
+        if (Utils.getObjectType(criteria) == 'Number')
+            criteria = {id: criteria};
 
         return this.find(criteria)
             .then(
