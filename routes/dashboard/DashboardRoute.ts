@@ -196,10 +196,7 @@ class DashboardRoute
                     });
 
                     if (!Utils.isNullOrEmpty(expertEntry))
-                    {
-                        expertEntry['status'] = 'Inactive';
-                        invitedMembers = _.without(invitedMembers, invitedMember);
-                    }
+                        invitedMember['status'] = 'Registered';
                 });
 
                 members = members.concat(_.map(invitedMembers, function (invited) { return new IntegrationMember(invited); }));

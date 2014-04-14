@@ -112,30 +112,26 @@ class BaseDao implements IDao
 
     search(searchQuery:Object, options?:Object, fields?:string[]):q.Promise<any>
     {
-        var self = this, values = [], whereStatements = [], selectColumns;
-
+        var self = this;
         var whereStatements:any[] = this.generateWhereStatements(searchQuery);
         var wheres:string[] = whereStatements['where'];
         var values:any[] = whereStatements['values'];
+        var selectColumns = !Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
 
-        selectColumns = !Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
-
-        var queryString = 'SELECT ' + selectColumns + ' FROM ' + this.tableName + ' WHERE ' + wheres.join(' AND ');
+        var queryString = 'SELECT ' + selectColumns + ' FROM `' + this.tableName + '` WHERE ' + wheres.join(' AND ');
 
         return MysqlDelegate.executeQuery(queryString, values)
             .then(
-            function handleSearchResults(results:Array<any>) { return _.map(results, function (result) { return new self.modelClass(result); }); });
+            function handleSearchResults(results:any[]) { return _.map(results, function (result) { return new self.modelClass(result); }); });
     }
 
     find(searchQuery:Object, options?:Object, fields?:string[]):q.Promise<any>
     {
-        var self = this, values = [], whereStatements = [], selectColumns;
-
-        var whereStatements:any[] = this.generateWhereStatements(searchQuery);
+        var self = this;
+        var whereStatements:string[] = this.generateWhereStatements(searchQuery);
         var wheres:string[] = whereStatements['where'];
         var values:any[] = whereStatements['values'];
-
-        selectColumns = !Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
+        var selectColumns:string = !Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
 
         var queryString = 'SELECT ' + selectColumns + ' FROM ' + this.tableName + ' WHERE ' + wheres.join(' AND ') + ' LIMIT 1';
 
@@ -225,11 +221,12 @@ class BaseDao implements IDao
                     break;
                 case 'Array':
                     whereStatements.push(key + ' IN (?)');
-                    values.push(_.map(_.values(query), Utils.surroundWithQuotes));
+                    values.push(_.map(query, Utils.surroundWithQuotes));
                     break;
                 case 'Number':
                 case 'String':
-                    whereStatements.push(key + ' = ' + Utils.surroundWithQuotes(query));
+                    whereStatements.push(key + ' = ?');
+                    values.push(query)
                     break;
             }
         }

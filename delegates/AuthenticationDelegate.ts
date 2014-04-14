@@ -1,37 +1,38 @@
 ///<reference path='../_references.d.ts'/>
-import _                                    = require('underscore');
-import http                                 = require('http');
-import express                              = require('express');
-import passport                             = require('passport');
-import url                                  = require('url');
-import q                                    = require('q');
-import passport_http_bearer                 = require('passport-http-bearer');
-import passport_facebook                    = require('passport-facebook');
-import passport_linkedin                    = require('passport-linkedin');
-import passport_local                       = require('passport-local');
-import log4js                               = require('log4js');
-import IntegrationMemberDelegate            = require('../delegates/IntegrationMemberDelegate');
-import UserDelegate                         = require('../delegates/UserDelegate');
-import UserOAuthDelegate                    = require('../delegates/UserOAuthDelegate');
-import UserEmploymentDelegate               = require('../delegates/UserEmploymentDelegate');
-import UserEducationDelegate                = require('../delegates/UserEducationDelegate');
-import UserSkillDelegate                    = require('../delegates/UserSkillDelegate');
-import SkillCodeDelegate                    = require('../delegates/SkillCodeDelegate');
-import ImageDelegate                        = require('../delegates/ImageDelegate');
-import MysqlDelegate                        = require('../delegates/MysqlDelegate');
-import IntegrationMember                    = require('../models/IntegrationMember');
-import UserOauth                            = require('../models/UserOauth');
-import User                                 = require('../models/User');
-import UserSkill                            = require('../models/UserSkill');
-import UserEmployment                       = require('../models/UserEmployment');
-import UserEducation                        = require('../models/UserEducation');
-import SkillCode                            = require('../models/SkillCode');
-import Config                               = require('../common/Config');
-import Utils                                = require('../common/Utils');
-import ApiConstants                         = require('../enums/ApiConstants');
-import IndustryCodes                        = require('../enums/IndustryCode');
-import UserStatus                           = require('../enums/UserStatus');
-import ExpertRegistrationUrls               = require('../routes/expertRegistration/Urls')
+import _                                        = require('underscore');
+import http                                     = require('http');
+import express                                  = require('express');
+import passport                                 = require('passport');
+import url                                      = require('url');
+import q                                        = require('q');
+import passport_http_bearer                     = require('passport-http-bearer');
+import passport_facebook                        = require('passport-facebook');
+import passport_linkedin                        = require('passport-linkedin');
+import passport_local                           = require('passport-local');
+import log4js                                   = require('log4js');
+import IntegrationMemberDelegate                = require('../delegates/IntegrationMemberDelegate');
+import UserDelegate                             = require('../delegates/UserDelegate');
+import UserOAuthDelegate                        = require('../delegates/UserOAuthDelegate');
+import UserEmploymentDelegate                   = require('../delegates/UserEmploymentDelegate');
+import UserEducationDelegate                    = require('../delegates/UserEducationDelegate');
+import UserSkillDelegate                        = require('../delegates/UserSkillDelegate');
+import SkillCodeDelegate                        = require('../delegates/SkillCodeDelegate');
+import ImageDelegate                            = require('../delegates/ImageDelegate');
+import MysqlDelegate                            = require('../delegates/MysqlDelegate');
+import EmailDelegate                            = require('../delegates/EmailDelegate');
+import IntegrationMember                        = require('../models/IntegrationMember');
+import UserOauth                                = require('../models/UserOauth');
+import User                                     = require('../models/User');
+import UserSkill                                = require('../models/UserSkill');
+import UserEmployment                           = require('../models/UserEmployment');
+import UserEducation                            = require('../models/UserEducation');
+import SkillCode                                = require('../models/SkillCode');
+import Config                                   = require('../common/Config');
+import Utils                                    = require('../common/Utils');
+import ApiConstants                             = require('../enums/ApiConstants');
+import IndustryCodes                            = require('../enums/IndustryCode');
+import UserStatus                               = require('../enums/UserStatus');
+import ExpertRegistrationUrls                   = require('../routes/expertRegistration/Urls')
 
 class AuthenticationDelegate
 {
@@ -87,8 +88,9 @@ class AuthenticationDelegate
                     {
                         req.flash('info', error.message);
                         res.redirect(options.failureRedirect);
-                    }
-                );
+
+                        return new EmailDelegate().sendWelcomeEmail();
+                    });
             }
             else
             {

@@ -90,6 +90,7 @@ class ExpertRegistrationRoute
                 else
                 {
                     var member = new IntegrationMember(invitedMember);
+                    req.session[ApiConstants.EXPERT] = invitedMember;
                     res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
                     res.render('expertRegistration/authenticate', {'integration': integration, messages: req.flash(), member: member, user: member.getUser(), code: invitationCode});
                 }
@@ -105,7 +106,7 @@ class ExpertRegistrationRoute
     {
         var integrationId = req.session[ApiConstants.INTEGRATION_ID];
         var integration = new IntegrationDelegate().getSync(integrationId);
-        var redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? url.resolve(Config.get(Config.CORAL_URI), Urls.profile()) : integration.getRedirectUrl();
+        var redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? url.resolve(Config.get(Config.CORAL_URI), Urls.mobileVerification()) : integration.getRedirectUrl();
 
         var authorizationUrl = Urls.authorization() + '?response_type=code&client_id=' + integrationId + '&redirect_uri=' + redirectUrl;
         res.redirect(authorizationUrl);
@@ -115,26 +116,34 @@ class ExpertRegistrationRoute
     private authorize(req:express.Request, res:express.Response)
     {
         var integrationId = parseInt(req.query[ApiConstants.INTEGRATION_ID] || req.session[ApiConstants.INTEGRATION_ID]);
+
         res.render('expertRegistration/authorize',
             {
                 'transactionID': req['oauth2']['transactionID'],
                 'user': new User(req.user.data),
                 'integration': new IntegrationDelegate().getSync(integrationId)
             });
+
     }
 
     private updateProfile(req:express.Request, res:express.Response)
     {
+        var self = this;
         var integrationId = parseInt(req.session[ApiConstants.INTEGRATION_ID]);
         var integration = new IntegrationDelegate().getSync(integrationId);
+        var userId = req[ApiConstants.USER].id;
+        var member = req.session[ApiConstants.EXPERT];
 
-        this.userDelegate.get(req[ApiConstants.USER].id)
+        q.all([
+            self.integrationMemberDelegate.update({'user_id': userId, 'integration_id': integrationId}, {role: member.role}),
+            self.userDelegate.get(req[ApiConstants.USER].id)
+        ])
             .then(
-            function userFetched(user)
+            function userFetched(...result)
             {
                 var pageData = {
                     integration: integration,
-                    user: user
+                    user: result[0][1]
                 };
 
                 res.render('expertRegistration/updateProfile', pageData);
@@ -157,13 +166,23 @@ class ExpertRegistrationRoute
 
     private mobileVerification(req:express.Request, res:express.Response)
     {
+        var self = this;
         var integrationId = parseInt(req.session[ApiConstants.INTEGRATION_ID]);
         var integration = new IntegrationDelegate().getSync(integrationId);
+        var userId = req[ApiConstants.USER].id;
+        var member = req.session[ApiConstants.EXPERT];
 
-        var pageData = {
-            integration: integration
-        }
-        res.render('expertRegistration/mobileVerification', pageData);
+        self.integrationMemberDelegate.update({'user_id': userId, 'integration_id': integrationId}, {role: member.role})
+        .then(
+            function memberRoleCorrected()
+            {
+                var pageData = {
+                    integration: integration
+                };
+                res.render('expertRegistration/mobileVerification', pageData);
+            },
+            function memberRoleCorrectionError(error) { res.send(500); }
+        )
     }
 
     private expertComplete(req:express.Request, res:express.Response)
@@ -174,13 +193,13 @@ class ExpertRegistrationRoute
         var self = this;
 
         q.all([
-                self.verificationCodeCache.deleteInvitationCode(req.session[ApiConstants.CODE], req.session[ApiConstants.INTEGRATION_ID]),
-                self.integrationMemberDelegate.search({'user_id': userId, 'integration_id': integrationId}, null, null, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
-            ])
+            self.verificationCodeCache.deleteInvitationCode(req.session[ApiConstants.CODE], req.session[ApiConstants.INTEGRATION_ID]),
+            self.integrationMemberDelegate.find({'user_id': userId, 'integration_id': integrationId}, null, null, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
+        ])
             .then(
             function scheduleRulesFetched(...args)
             {
-                var member = new IntegrationMember(args[0][1][0]);
+                var member = new IntegrationMember(args[0][1]);
                 var pageData = {
                     user: req[ApiConstants.USER],
                     integration: integration,

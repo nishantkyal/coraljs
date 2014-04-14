@@ -35,6 +35,7 @@ class EmailDelegate
 {
     private static EMAIL_EXPERT_INVITE:string = 'EMAIL_EXPERT_INVITE';
     private static EMAIL_EXPERT_WELCOME:string = 'EMAIL_EXPERT_WELCOME';
+    private static EMAIL_ACCOUNT_VERIFICATION:string = 'EMAIL_ACCOUNT_VERIFICATION';
 
     private static templateCache:{[templateNameAndLocale:string]:{bodyTemplate:Function; subjectTemplate:Function}} = {};
     private static transport:nodemailer.Transport;
@@ -213,6 +214,14 @@ class EmailDelegate
             recipient: recipient.toJson()
         };
         return this.send(EmailDelegate.EMAIL_EXPERT_WELCOME, recipient.getUser().getEmail(), emailData);
+    }
+
+    sendVerificationEmail(user:User):q.Promise<any>
+    {
+        var emailData = {
+            user: user
+        };
+        return this.send(EmailDelegate.EMAIL_ACCOUNT_VERIFICATION, user.getEmail(), emailData);
     }
 
 }

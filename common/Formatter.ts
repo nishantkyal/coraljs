@@ -3,7 +3,9 @@ import moment                                                       = require('m
 import accounting                                                   = require('accounting');
 import MoneyUnit                                                    = require('../enums/MoneyUnit');
 import IntegrationMemberRole                                        = require('../enums/IntegrationMemberRole');
+import UserStatus                                                   = require('../enums/UserStatus');
 import ExpertSchedule                                               = require('../models/ExpertSchedule');
+import Utils                                                        = require('../common/Utils');
 
 class Formatter
 {
@@ -61,6 +63,11 @@ class Formatter
     static formatDate(m:any, format:string = 'DD/MM/YYYY hh:mm:ss a'):string
     {
         return moment(m).format(format).toString();
+    }
+
+    static formatUserStatus(status:UserStatus):string
+    {
+        return Utils.enumToNormalText(UserStatus)[status];
     }
 }
 export = Formatter

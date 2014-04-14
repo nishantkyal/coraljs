@@ -10,7 +10,7 @@ $('.save').click(function()
         $('#editUserModal [name="last_name"]').val(user.last_name);
         $('#editUserModal [name="revenue_share"]').val(selectedMember.revenue_share);
         $('#editUserModal #revenueShareUnit').selectpicker('val', selectedMember.revenue_share_unit);
-        $('#editUserModal #role option:contains(' + selectedMember.role + ')').attr('selected', true);
+        $('#editUserModal #role').val(selectedMember.role);
         $('#editUserModal #role').selectpicker('render');
     }
 });

@@ -70,7 +70,7 @@ class Utils
         }
     }
 
-    static camelToSnakeCase(camelCasedString:string)
+    static camelToSnakeCase(camelCasedString:string):string
     {
         var frags:Array<string> = camelCasedString.match(/[A-Z][a-z]+/g);
         var lowerCasedFrags:Array<string> = _.map(frags, function (frag:string)
@@ -80,7 +80,7 @@ class Utils
         return lowerCasedFrags.join('_');
     }
 
-    static snakeToCamelCase(snakeCasedString:string)
+    static snakeToCamelCase(snakeCasedString:string):string
     {
         var frags:Array<string> = snakeCasedString.toLowerCase().split('_');
         var camelCaseFrags:Array<string> = _.map(frags, function (frag:string)
@@ -90,23 +90,23 @@ class Utils
         return camelCaseFrags.join('');
     }
 
+    static snakeCaseToNormalText(snakeCasedString:string):string
+    {
+        snakeCasedString = snakeCasedString.replace(/_/g, ' ');
+        snakeCasedString = snakeCasedString.toLowerCase();
+        snakeCasedString = snakeCasedString.replace(/(^[a-z]|\s[a-z])/g, function (m:string, p):string { return m.toUpperCase(); })
+        return snakeCasedString;
+    }
+
     static enumToNormalText(enumObject:Object)
     {
-        var keys = _.keys(enumObject);
-        var convertedObject = {};
-        _.map(_.values(enumObject), function (value, key, list)
+        for (var key in enumObject)
         {
+            var value = enumObject[key];
             if (Utils.getObjectType(value) == 'String')
-            {
-                value = value.replace(/_/g, ' ');
-                value = value.toLowerCase();
-                value = value.replace(/(^[a-z]|\s[a-z])/g, function (m:string, p):string { return m.toUpperCase(); })
-                convertedObject[keys[key]] = value;
-                return value;
-            }
-            return null;
-        })
-        return convertedObject;
+                enumObject[key] = Utils.snakeCaseToNormalText(value);
+        }
+        return enumObject;
     }
 
     static getObjectType(obj:any):string

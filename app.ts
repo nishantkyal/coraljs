@@ -40,6 +40,7 @@ app.use(
         res.locals.formatName = Formatter.formatName;
         res.locals.formatSchedule = Formatter.formatSchedule;
         res.locals.formatDate = Formatter.formatDate;
+        res.locals.formatUserStatus = Formatter.formatUserStatus;
 
         // Api urls
         res.locals.ApiUrlDelegate = ApiUrlDelegate;
