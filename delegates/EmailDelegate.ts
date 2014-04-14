@@ -26,6 +26,7 @@ import VerificationCodeDelegate                                     = require('.
 import PhoneCallDelegate                                            = require('../delegates/PhoneCallDelegate');
 import Utils                                                        = require('../common/Utils');
 import Config                                                       = require('../common/Config');
+import Formatter                                                    = require('../common/Formatter');
 import ExpertRegistrationUrls                                       = require('../routes/expertRegistration/Urls');
 import DashboardUrls                                                = require('../routes/dashboard/Urls');
 
@@ -113,8 +114,8 @@ class EmailDelegate
         var logger = log4js.getLogger(Utils.getClassName(self));
 
         emailData["email_cdn_base_uri"] = Config.get(Config.EMAIL_CDN_BASE_URI);
-        from = from || 'contact@searchntalk.com';
-        replyTo = replyTo || from;
+        from = from || 'SearchNTalk.com\<contact@searchntalk.com\>';
+        replyTo = replyTo || 'no-reply\<no-reply@searchntalk.com\>';
 
         try
         {
@@ -237,7 +238,7 @@ class EmailDelegate
             recipient: recipient.toJson(),
             sender: sender.toJson()
         };
-        return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_INVITE, recipient.getUser().getEmail(), emailData, sender.getEmail());
+        return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_INVITE, recipient.getUser().getEmail(), emailData, Formatter.formatUserName(sender, true));
     }
 
     sendWelcomeEmail(integrationId:number, recipient:IntegrationMember):q.Promise<any>
