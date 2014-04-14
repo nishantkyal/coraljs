@@ -247,7 +247,7 @@ class DashboardRoute
                     });
 
                     if (!Utils.isNullOrEmpty(expertEntry))
-                        invitedMember['status'] = 'Registered';
+                        invitedMember.user['status'] = 'Registered';
                 });
 
                 members = members.concat(_.map(invitedMembers, function (invited) { return new IntegrationMember(invited); }));
