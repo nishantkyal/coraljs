@@ -86,7 +86,9 @@ class UserDelegate extends BaseDaoDelegate
     }
 
     recalculateStatus(criteria:number):q.Promise<any>;
+
     recalculateStatus(criteria:Object):q.Promise<any>;
+
     recalculateStatus(criteria:any):q.Promise<any>
     {
         var self = this;
@@ -106,17 +108,22 @@ class UserDelegate extends BaseDaoDelegate
             function phoneFound(phone)
             {
                 if (Utils.isNullOrEmpty(phone))
-                    return self.update({id: user.getId()}, {status: UserStatus.MOBILE_NOT_VERIFIED});
+                    throw(UserStatus.MOBILE_NOT_VERIFIED);
                 else
                     return self.userProfileDelegate.find({user_id: user.getId()});
             })
             .then(
             function userProfileFound(profile)
             {
-                if (!Utils.isNullOrEmpty(profile) && Utils.getObjectType(profile) == 'UserProfile')
-                    return self.update({id: user.getId()}, {status: UserStatus.ACTIVE});
+                if (Utils.isNullOrEmpty(profile) || Utils.getObjectType(profile) != 'UserProfile')
+                    throw(UserStatus.PROFILE_NOT_PUBLISHED);
                 else
-                    return self.update({id: user.getId()}, {status: UserStatus.PROFILE_NOT_PUBLISHED});
+                    throw(UserStatus.ACTIVE);
+            })
+            .fail(
+            function updateStatus(status)
+            {
+                return self.update({id: user.getId()}, {status: status});
             });
     }
 
