@@ -32,6 +32,7 @@ class ApiConstants
     static DURATION:string = 'duration';
     static TOKEN:string = 'token';
     static TYPE:string = 'type';
+    static EMAIL:string = 'email';
     static CODE:string = 'code';
     static CODE_VERIFICATION:string = 'code_verification';
 

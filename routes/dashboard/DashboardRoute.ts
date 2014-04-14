@@ -21,6 +21,7 @@ import UserEducationDelegate                            = require('../../delegat
 import UserSkillDelegate                                = require('../../delegates/UserSkillDelegate');
 import UserEmploymentDelegate                           = require('../../delegates/UserEmploymentDelegate');
 import RefSkillCodeDelegate                             = require('../../delegates/SkillCodeDelegate');
+import VerificationCodeDelegate                         = require('../../delegates/VerificationCodeDelegate');
 import MoneyUnit                                        = require('../../enums/MoneyUnit');
 import IncludeFlag                                      = require('../../enums/IncludeFlag');
 import User                                             = require('../../models/User');
@@ -45,28 +46,30 @@ import Urls                                             = require('./Urls');
 
 class DashboardRoute
 {
-    static PAGE_LOGIN:string = 'dashboard/login';
-    static PAGE_MOBILE_VERIFICATION:string = 'dashboard/mobileVerification';
-    static PAGE_INTEGRATIONS:string = 'dashboard/integrations';
-    static PAGE_USERS:string = 'dashboard/integrationUsers';
-    static PAGE_COUPONS:string = 'dashboard/integrationCoupons';
-    static PAGE_PROFILE:string = 'dashboard/memberProfile';
-    static PAGE_PROFILE_COMPLETE:string = 'dashboard/memberProfileComplete';
-    static PAGE_EDUCATION:string = 'dashboard/memberEducation';
-    static PAGE_SKILL:string = 'dashboard/memberSkill';
-    static PAGE_EMPOLYMENT:string = 'dashboard/memberEmployment';
+    private static PAGE_LOGIN:string = 'dashboard/login';
+    private static PAGE_MOBILE_VERIFICATION:string = 'dashboard/mobileVerification';
+    private static PAGE_INTEGRATIONS:string = 'dashboard/integrations';
+    private static PAGE_USERS:string = 'dashboard/integrationUsers';
+    private static PAGE_COUPONS:string = 'dashboard/integrationCoupons';
+    private static PAGE_PROFILE:string = 'dashboard/memberProfile';
+    private static PAGE_PROFILE_COMPLETE:string = 'dashboard/memberProfileComplete';
+    private static PAGE_EDUCATION:string = 'dashboard/memberEducation';
+    private static PAGE_SKILL:string = 'dashboard/memberSkill';
+    private static PAGE_EMPOLYMENT:string = 'dashboard/memberEmployment';
+    private static PAGE_ACCOUNT_VERIFICATION:string = 'dashboard/accountVerification';
 
-    integrationDelegate = new IntegrationDelegate();
-    integrationMemberDelegate = new IntegrationMemberDelegate();
-    userDelegate = new UserDelegate();
-    verificationCodeCache = new VerificationCodeCache();
-    couponDelegate = new CouponDelegate();
-    userEmploymentDelegate = new UserEmploymentDelegate();
-    userSkillDelegate = new UserSkillDelegate();
-    userEducationDelegate = new UserEducationDelegate();
-    userPhoneDelegate = new UserPhoneDelegate();
-    phoneCallDelegate = new PhoneCallDelegate();
-    notificationDelegate = new NotificationDelegate();
+    private integrationDelegate = new IntegrationDelegate();
+    private integrationMemberDelegate = new IntegrationMemberDelegate();
+    private userDelegate = new UserDelegate();
+    private verificationCodeCache = new VerificationCodeCache();
+    private couponDelegate = new CouponDelegate();
+    private userEmploymentDelegate = new UserEmploymentDelegate();
+    private userSkillDelegate = new UserSkillDelegate();
+    private userEducationDelegate = new UserEducationDelegate();
+    private userPhoneDelegate = new UserPhoneDelegate();
+    private phoneCallDelegate = new PhoneCallDelegate();
+    private notificationDelegate = new NotificationDelegate();
+    private verificationCodeDelegate = new VerificationCodeDelegate();
 
     constructor(app)
     {
@@ -83,6 +86,7 @@ class DashboardRoute
         app.get(Urls.memberEmployment(), Middleware.allowSelf, this.memberEmployment.bind(this));
         app.get(Urls.logout(), this.logout.bind(this));
         app.get(Urls.paymentCallback(), this.paymentComplete.bind(this));
+        app.get(Urls.emailAccountVerification(), this.emailAccountVerification.bind(this));
 
         // Auth
         app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
@@ -107,13 +111,14 @@ class DashboardRoute
             });
     }
 
-    authSuccess(req:express.Request, res:express.Response)
+    authSuccess(req, res:express.Response)
     {
-        var user = req['user'];
+        var user = req[ApiConstants.USER];
 
-        if (req.session['returnTo'])
+        if (req.session[ApiConstants.RETURN_TO])
         {
-            res.redirect(req.session['returnTo']);
+            res.redirect(req.session[ApiConstants.RETURN_TO]);
+            req.session[ApiConstants.RETURN_TO] = null;
             return;
         }
 
@@ -121,10 +126,22 @@ class DashboardRoute
             .then(
             function integrationsFetched(integrationMembers)
             {
-                Middleware.setIntegrationMembers(req, integrationMembers);
-                res.redirect(Urls.integrations());
+                if (Utils.isNullOrEmpty(integrationMembers))
+                {
+                    req.logout();
+                    res.send(401, 'Seems like you don\'t have an account yet.');
+                }
+                else
+                {
+                    Middleware.setIntegrationMembers(req, integrationMembers);
+                    res.redirect(Urls.integrations());
+                }
             },
-            function integrationsFetchError(error) { res.send(500); });
+            function integrationsFetchError(error)
+            {
+                res.send(500);
+            }
+        );
     }
 
     integrations(req:express.Request, res:express.Response)
@@ -211,7 +228,6 @@ class DashboardRoute
                 var members = results[0][0];
                 var invitedMembers = [].concat(results[0][1]);
 
-                members = members.concat(_.map(invitedMembers, function (invited) { return new IntegrationMember(invited); }));
                 _.each(members, function (member:IntegrationMember)
                 {
                     if (Utils.getObjectType(member[IntegrationMember.USER]) == 'Array')
@@ -222,10 +238,12 @@ class DashboardRoute
                 // Mark members who have an expert entry as well as an invited entry as inactive
                 // since this means they haven't completed the registration process
 
-                _.each(invitedMembers, function(invitedMember) {
-                    var expertEntry = _.find(members, function(member:IntegrationMember) {
+                _.each(invitedMembers, function (invitedMember)
+                {
+                    var expertEntry = _.find(members, function (member:IntegrationMember)
+                    {
                         return invitedMember['user']['first_name'] == member.getUser().getFirstName()
-                                    && invitedMember['user']['last_name'] == member.getUser().getLastName();
+                            && invitedMember['user']['last_name'] == member.getUser().getLastName();
                     });
 
                     if (!Utils.isNullOrEmpty(expertEntry))
@@ -404,13 +422,50 @@ class DashboardRoute
             .then(
             function callUpdated()
             {
-                return self.phoneCallDelegate.get(callId,null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER]);
+                return self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER]);
             })
             .then(
             function callFetched(call:PhoneCall)
             {
-                self.notificationDelegate.sendCallSchedulingNotifications(call, CallFlowMiddleware.getAppointments(req));
+                self.notificationDelegate.sendCallSchedulingNotifications(call, CallFlowMiddleware.getAppointments(req), CallFlowMiddleware.getDuration(req), new User(req[ApiConstants.USER]));
             })
+    }
+
+    private emailAccountVerification(req:express.Request, res:express.Response)
+    {
+        var self = this;
+        var code:string = req.query[ApiConstants.CODE];
+        var email:string = req.query[ApiConstants.EMAIL];
+
+        if (Utils.isNullOrEmpty(code) || Utils.isNullOrEmpty(email))
+        {
+            res.send(400, 'Invalid code or email');
+            return;
+        }
+
+        this.verificationCodeDelegate.verifyAccountVerificationCode(email, code)
+            .then(
+            function verified(result):any
+            {
+                if (result)
+                {
+                    res.send(200, 'Account activated!');
+                    return email;
+                }
+                else
+                    res.send(401, 'Account verification failed. Invalid code or email');
+            },
+            function verificationFailed(error) { res.send(500); })
+            .then(
+            function responseSent()
+            {
+                return self.userDelegate.recalculateStatus({email: email});
+            })
+            .then(
+            function statusUpdated()
+            {
+                return self.verificationCodeDelegate.deleteAccountVerificationCode(email);
+            });
     }
 }
 

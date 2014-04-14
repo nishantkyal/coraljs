@@ -4,6 +4,7 @@ class Urls
 {
     static index() { return ApiUrlDelegate.get('/'); }
     static login() { return ApiUrlDelegate.get('/login'); }
+    static emailAccountVerification() { return ApiUrlDelegate.get('/email/verification'); }
     static mobileVerification():string { return ApiUrlDelegate.get('/userPhone/verification'); }
     static integrations() { return ApiUrlDelegate.get('/integrations'); }
     static integrationCoupons(integrationId?:number) { return ApiUrlDelegate.get('/integration/:integrationId(\\d+)/coupons', {integrationId: integrationId}); }

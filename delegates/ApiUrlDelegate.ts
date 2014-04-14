@@ -1,6 +1,6 @@
 ///<reference path='../_references.d.ts'/>
 import url                                      = require('url');
-
+import Utils                                    = require('../common/Utils');
 /*
  * Class to hold all API URLs
  * Used to keep API URLs consistent between SearchNTalk and Coral
@@ -109,7 +109,7 @@ class ApiUrlDelegate
      * @param values
      * @returns {string}
      */
-    static get(urlPattern:string, values?:Object):string
+    static get(urlPattern:string, values?:Object, baseUrl?:string):string
     {
         if (values)
             for (var key in values)
@@ -121,6 +121,9 @@ class ApiUrlDelegate
                         .replace(urlParamRegex, values[key])
                         .replace(urlParamTypeRegex, '');
                 }
+        if (!Utils.isNullOrEmpty(baseUrl))
+            urlPattern = url.resolve(baseUrl, urlPattern);
+
         return urlPattern;
     }
 }

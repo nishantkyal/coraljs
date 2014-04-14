@@ -4,6 +4,7 @@ import EmailDelegate                                        = require('../delega
 import SMSDelegate                                          = require('../delegates/SMSDelegate');
 import PhoneCall                                            = require('../models/PhoneCall');
 import CallFragment                                         = require('../models/CallFragment');
+import User                                                 = require('../models/User');
 import Utils                                                = require('../common/Utils');
 
 class NotificationDelegate
@@ -11,14 +12,14 @@ class NotificationDelegate
     private smsDelegate = new SMSDelegate();
     private emailDelegate = new EmailDelegate();
 
-    sendCallSchedulingNotifications(call:number, appointments:number[]):q.Promise<any>;
-    sendCallSchedulingNotifications(call:PhoneCall, appointments:number[]):q.Promise<any>;
-    sendCallSchedulingNotifications(call:any, appointments:number[]):q.Promise<any>
+    sendCallSchedulingNotifications(call:number, appointments:number[], duration:number, caller:User):q.Promise<any>;
+    sendCallSchedulingNotifications(call:PhoneCall, appointments:number[], duration:number, caller:User):q.Promise<any>;
+    sendCallSchedulingNotifications(call:any, appointments:number[], duration:number, caller:User):q.Promise<any>
     {
         var self = this;
 
         return q.all([
-            self.emailDelegate.sendSchedulingEmailToExpert(call, appointments)
+            self.emailDelegate.sendSchedulingEmailToExpert(call, appointments, duration, caller)
         ]);
     }
 
@@ -59,6 +60,11 @@ class NotificationDelegate
     sendCallStatusNotifications(callFragment:CallFragment, attemptCount:number):q.Promise<any>
     {
         return null;
+    }
+
+    sendAccountVerificationEmail(user:User, code:string):q.Promise<any>
+    {
+        return this.emailDelegate.sendAccountVerificationEmail(user, code);
     }
 }
 export = NotificationDelegate

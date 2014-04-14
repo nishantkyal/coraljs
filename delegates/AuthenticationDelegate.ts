@@ -20,6 +20,7 @@ import SkillCodeDelegate                        = require('../delegates/SkillCod
 import ImageDelegate                            = require('../delegates/ImageDelegate');
 import MysqlDelegate                            = require('../delegates/MysqlDelegate');
 import EmailDelegate                            = require('../delegates/EmailDelegate');
+import VerificationCodeDelegate                 = require('../delegates/VerificationCodeDelegate');
 import IntegrationMember                        = require('../models/IntegrationMember');
 import UserOauth                                = require('../models/UserOauth');
 import User                                     = require('../models/User');
@@ -82,7 +83,11 @@ class AuthenticationDelegate
 
                 userDelegate.create(user)
                     .then(
-                    function userRegistered(user) { req.logIn(user, next) },
+                    function userRegistered(user)
+                    {
+                        req.logIn(user, next)
+                        return new VerificationCodeDelegate().createAndSendEmailVerificationCode(user);
+                    },
                     function registrationError(error)
                     {
                         req.flash('info', error.message);
