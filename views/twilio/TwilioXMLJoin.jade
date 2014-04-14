@@ -1,0 +1,4 @@
+doctype xml
+Response
+    Say #{message}
+    Dial(timeout = "30", record = '#{record}', action = '#{actionURL}', timeLimit = '#{timeLimit}', method = "POST" ) #{phoneNumber}
