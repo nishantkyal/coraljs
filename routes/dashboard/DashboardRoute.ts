@@ -64,6 +64,9 @@ class DashboardRoute
     userEmploymentDelegate = new UserEmploymentDelegate();
     userSkillDelegate = new UserSkillDelegate();
     userEducationDelegate = new UserEducationDelegate();
+    userPhoneDelegate = new UserPhoneDelegate();
+    phoneCallDelegate = new PhoneCallDelegate();
+    notificationDelegate = new NotificationDelegate();
 
     constructor(app)
     {
@@ -296,9 +299,6 @@ class DashboardRoute
             self.integrationMemberDelegate.get(memberId)
         ])
             .then(
-            function userFetched(user)
-            {
-                var pageData =
             function memberDetailsFetched(...args)
             {
                 var skills = args[0][0];
@@ -312,16 +312,6 @@ class DashboardRoute
                 };
                 res.render(DashboardRoute.PAGE_PROFILE, pageData);
             },
-            function userFetchError() { res.send(500); }
-        );
-                    'logged_in_user': req['user'],
-                    'member': member,
-                    'user': user,
-                    'userSkill': skills,
-                    'industryCodes': Utils.enumToNormalText(IndustryCodes)
-                };
-                res.render(DashboardRoute.PAGE_PROFILE, pageData);
-            },
             function userSkillFetchError(error) { res.send(500); });
     }
 
@@ -332,9 +322,6 @@ class DashboardRoute
 
         this.userDelegate.update({id: loggedInUser.id}, user)
             .then(
-            function userUpdated() { res.send(200); },
-            function userUpdateError() { res.send(500); }
-        );
             function userUpdated() { res.send(200); },
             function userUpdateError() { res.send(500); }
         );

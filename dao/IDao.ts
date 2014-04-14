@@ -3,6 +3,7 @@ import BaseModel    = require('../models/BaseModel');
 
 interface IDao
 {
+    modelClass:typeof BaseModel;
     create(data:any, transaction?:any):q.Promise<any>;
     get(id:number, fields?:string[]):q.Promise<any>;
     find(searchQuery:Object, options?:Object, fields?:string[]):q.Promise<any>;
@@ -11,6 +12,5 @@ interface IDao
     update(criteria:Object, newValues:any, transaction?:any):q.Promise<any>;
     delete(id:number, transaction?:any):q.Promise<any>;
     delete(criteria:Object, transaction?:any):q.Promise<any>;
-    getModel():typeof BaseModel;
 }
 export = IDao

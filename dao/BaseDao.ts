@@ -17,18 +17,17 @@ class BaseDao implements IDao
     private tableName:string;
     private logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
 
-    constructor()
+    constructor(modelClass:typeof BaseModel)
     {
-        this.modelClass = this.getModel();
+        this.modelClass = modelClass;
 
-        if (this.getModel() && this.getModel().TABLE_NAME)
-            this.tableName = this.getModel().TABLE_NAME;
+        if (this.modelClass && this.modelClass.TABLE_NAME)
+            this.tableName = this.modelClass.TABLE_NAME;
         else
             throw ('Invalid Model class specified for ' + Utils.getClassName(this));
     }
-    create(data:any, transaction?:any):q.Promise<any>;
-    create(data:any[], transaction?:any):q.Promise<any>;
-    create(data:any, transaction?:any):q.Promise<any>
+
+    create(data:BaseModel, transaction?:any):q.Promise<any>
     {
         var self = this;
         var dataAsArray = [].concat(data);
@@ -64,7 +63,7 @@ class BaseDao implements IDao
 
         return MysqlDelegate.executeQuery(query, values, transaction)
             .then(
-            function created()
+            function created():any
             {
                 // Since there were no errors we can just echo back the input as result (implied that these rows were created successfully)
                 return data;
@@ -125,7 +124,7 @@ class BaseDao implements IDao
             function handleSearchResults(results:any[]) { return _.map(results, function (result) { return new self.modelClass(result); }); });
     }
 
-    find(searchQuery:Object, options?:Object, fields?:string[]):q.Promise<any>
+    find(searchQuery:Object, fields?:string[]):q.Promise<any>
     {
         var self = this;
         var whereStatements:string[] = this.generateWhereStatements(searchQuery);
@@ -190,12 +189,6 @@ class BaseDao implements IDao
         var values = whereStatements['values'];
 
         return MysqlDelegate.executeQuery('DELETE FROM `' + this.tableName + '` WHERE ' + wheres.join(' AND '), values, transaction);
-    }
-
-    getModel():typeof BaseModel
-    {
-        throw('Model class not defined for ' + Utils.getClassName(this));
-        return null;
     }
 
     private generateWhereStatements(criteria:Object):any

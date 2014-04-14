@@ -9,10 +9,9 @@ import SkillCode                                            = require('../models
 
 class UserSkillDelegate extends BaseDaoDelegate
 {
-    DEFAULT_FIELDS:string[] = [UserSkill.ID, UserSkill.USER_ID,UserSkill.SKILL_ID];
-    private skillCodeDelegate = new SkillCodeDelegate();
+    constructor() { super(new UserSkillDao()); }
 
-    getDao():IDao { return new UserSkillDao(); }
+    private skillCodeDelegate = new SkillCodeDelegate();
 
     createUserSkill(userSkill:UserSkill, skillName:string, linkedInSkillCode:number, transaction?:any):q.Promise<any>
     {
@@ -70,7 +69,7 @@ class UserSkillDelegate extends BaseDaoDelegate
 
     getSkillName(userId:any, transaction?:any):q.Promise<any>
     {
-        var skillDao:any = this.getDao();
+        var skillDao:any = this.dao;
         return skillDao.getSkillName(userId, transaction);
     }
 }

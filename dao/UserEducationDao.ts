@@ -4,6 +4,6 @@ import UserEducation    = require('../models/UserEducation');
 
 class UserEducationDao extends BaseDao
 {
-    getModel():typeof BaseModel { return UserEducation; }
+    constructor() { super(UserEducation); }
 }
 export = UserEducationDao

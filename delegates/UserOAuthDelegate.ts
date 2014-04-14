@@ -14,6 +14,8 @@ import Utils                                        = require('../common/Utils')
  */
 class UserOAuthDelegate extends BaseDaoDelegate
 {
+    constructor() { super(new UserAuthDAO()); }
+
     /* Add or update an OAuth token
      * Created new user if can't update
      */

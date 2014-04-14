@@ -6,8 +6,6 @@ import UserEmployment                                       = require('../models
 
 class UserEmploymentDelegate extends BaseDaoDelegate
 {
-    DEFAULT_FIELDS:string[] = [UserEmployment.ID,  UserEmployment.USER_ID,UserEmployment.TITLE, UserEmployment.SUMMARY, UserEmployment.START_DATE,
-        UserEmployment.END_DATE, UserEmployment.IS_CURRENT,UserEmployment.COMPANY];
-    getDao():IDao { return new UserEmploymentDao(); }
+    constructor() { super(new UserEmploymentDao()); }
 }
 export = UserEmploymentDelegate

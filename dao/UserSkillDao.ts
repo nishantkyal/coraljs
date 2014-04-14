@@ -6,7 +6,7 @@ import MysqlDelegate            = require('../delegates/MysqlDelegate');
 
 class UserSkillDao extends BaseDao
 {
-    getModel():typeof BaseModel { return UserSkill; }
+    constructor() { super(UserSkill); }
 
     getSkillName(userId:number,transaction?:any):q.Promise<any>
     {

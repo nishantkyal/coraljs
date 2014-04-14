@@ -4,6 +4,6 @@ import UserEmployment       = require('../models/UserEmployment');
 
 class UserEmploymentDao extends BaseDao
 {
-    getModel():typeof BaseModel { return UserEmployment; }
+    constructor() { super(UserEmployment); }
 }
 export = UserEmploymentDao

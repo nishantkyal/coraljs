@@ -8,9 +8,7 @@ import ApiConstants                                         = require('../enums/
 
 class UserEducationDelegate extends BaseDaoDelegate
 {
-    DEFAULT_FIELDS:string[] = [UserEducation.ID, UserEducation.USER_ID,UserEducation.START_YEAR, UserEducation.END_YEAR, UserEducation.DEGREE,
-        UserEducation.FIELD_OF_STUDY, UserEducation.SCHOOL_NAME, UserEducation.ACTIVITIES, UserEducation.NOTES];
-    getDao():IDao { return new UserEducationDao(); }
+    constructor() { super(new UserEducationDao()); }
 
 }
 export = UserEducationDelegate

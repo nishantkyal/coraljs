@@ -1,7 +1,6 @@
 import BaseModel                                      = require('./BaseModel');
 
-
-class UserEducationDetail extends BaseModel
+class UserEducation extends BaseModel
 {
     static TABLE_NAME:string = 'user_education';
 
@@ -14,6 +13,9 @@ class UserEducationDetail extends BaseModel
     static ACTIVITIES:string = 'activities';
     static NOTES:string = 'notes';
 
+    static DEFAULT_FIELDS:string[] = [UserEducation.ID, UserEducation.USER_ID,UserEducation.START_YEAR, UserEducation.END_YEAR, UserEducation.DEGREE,
+        UserEducation.FIELD_OF_STUDY, UserEducation.SCHOOL_NAME, UserEducation.ACTIVITIES, UserEducation.NOTES];
+
     private user_id:number;
     private start_year:number;
     private end_year:number;
@@ -22,7 +24,6 @@ class UserEducationDetail extends BaseModel
     private school_name:string;
     private activities:string;
     private notes:string;
-
 
     /* Getters */
     getUserId():number              { return this.user_id; }
@@ -33,6 +34,7 @@ class UserEducationDetail extends BaseModel
     getSchoolName():string          { return this.school_name; }
     getActivities():string          { return this.activities; }
     getNotes():string               { return this.notes; }
+
     /* Setters */
     setUserId(val:number):void      { this.user_id = val; }
     setStartYear(val:number):void   { this.start_year = val; }
@@ -43,4 +45,4 @@ class UserEducationDetail extends BaseModel
     setActivities(val:string):void  { this.activities = val; }
     setNotes(val:string):void       { this.notes = val; }
 }
-export = UserEducationDetail
+export = UserEducation

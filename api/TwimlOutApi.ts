@@ -61,7 +61,7 @@ class TwimlOutApi
                     pageData['timeLimit'] = call.getDuration();
                     pageData['phoneNumber'] = call.getExpertPhone().getCompleteNumber();
                     pageData['record'] = (call.getRecorded() == false) ? 'false' : 'true';
-                    pageData['message'] = 'Please wait while we get ' + Formatter.formatName(call.getExpert().getUser().getFirstName(), call.getExpert().getUser().getLastName(), call.getExpert().getUser().getTitle()) + ' on the call';
+                    pageData['message'] = 'Please wait while we get ' + Formatter.formatName(call.getIntegrationMember().getUser().getFirstName(), call.getIntegrationMember().getUser().getLastName(), call.getIntegrationMember().getUser().getTitle()) + ' on the call';
                     res.render('../delegates/calling/TwilioXMLJoin.jade', pageData);
                 })
                 .fail(function (error)

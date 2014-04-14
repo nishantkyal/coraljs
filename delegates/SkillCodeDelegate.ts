@@ -10,7 +10,7 @@ import Utils                                            = require('../common/Uti
 
 class SkillCodeDelegate extends BaseDaoDelegate
 {
-    getDao():IDao { return new SkillCodeDao(); }
+    constructor() { super(new SkillCodeDao()); }
 
     getSkillCodeFromLinkedIn(skillName:string):q.Promise<any>
     {

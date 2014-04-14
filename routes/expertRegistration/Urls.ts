@@ -9,6 +9,7 @@ class Urls
     static linkedInLoginCallback():string { return ApiUrlDelegate.get('/expert/login/linkedin/callback'); }
     static authorization():string { return ApiUrlDelegate.get('/expert/authorization'); }
     static authorizationDecision():string { return ApiUrlDelegate.get('/expert/authorization/decision'); }
+    static mobileVerification():string { return ApiUrlDelegate.get('/expert/registration/mobile/verification'); }
     static profile():string { return ApiUrlDelegate.get('/expert/registration/profile'); }
     static complete():string { return ApiUrlDelegate.get('/expert/registration/complete'); }
 }

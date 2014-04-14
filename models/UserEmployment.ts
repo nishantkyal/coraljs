@@ -1,6 +1,6 @@
 import BaseModel                                      = require('./BaseModel');
 
-class UserWorkDetail extends BaseModel
+class UserEmployment extends BaseModel
 {
     static TABLE_NAME:string = 'user_employment';
 
@@ -20,6 +20,8 @@ class UserWorkDetail extends BaseModel
     private is_current:boolean;
     private company:string;
 
+    static DEFAULT_FIELDS:string[] = [UserEmployment.ID,  UserEmployment.USER_ID,UserEmployment.TITLE, UserEmployment.SUMMARY, UserEmployment.START_DATE,
+        UserEmployment.END_DATE, UserEmployment.IS_CURRENT,UserEmployment.COMPANY];
 
     /* Getters */
     getUserId():number              { return this.user_id; }
@@ -38,4 +40,4 @@ class UserWorkDetail extends BaseModel
     setIsCurrent(val:boolean):void  { this.is_current = val; }
     setCompany(val:string):void     { this.company = val; }
 }
-export = UserWorkDetail
+export = UserEmployment

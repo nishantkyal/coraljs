@@ -7,6 +7,8 @@ class UserSkill extends BaseModel
     static USER_ID:string = 'user_id';
     static SKILL_ID:string = 'skill_id';
 
+    static DEFAULT_FIELDS:string[] = [UserSkill.ID, UserSkill.USER_ID,UserSkill.SKILL_ID];
+
     private user_id:number;
     private skill_id:number;
 

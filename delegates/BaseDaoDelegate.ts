@@ -1,5 +1,5 @@
 ///<reference path='../_references.d.ts'/>
-import _                                = require('underscore');
+import _                = require('underscore');
 import log4js                           = require('log4js');
 import q                                = require('q');
 import moment                           = require('moment');
@@ -12,16 +12,19 @@ import IncludeFlag                      = require('../enums/IncludeFlag');
 class BaseDaoDelegate
 {
     logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
+    dao:IDao;
 
-    DEFAULT_FIELDS:string[] = [BaseModel.ID];
-    TIMESTAMPS_FIELDS:string[] = [BaseModel.CREATED, BaseModel.DELETED, BaseModel.UPDATED];
+    constructor(dao:IDao)
+    {
+        this.dao = dao;
+    }
 
     get(id:any, fields?:string[], includes:IncludeFlag[] = []):q.Promise<any>
     {
-        fields = fields || this.DEFAULT_FIELDS;
+        fields = fields || this.dao.modelClass.DEFAULT_FIELDS;
 
         if (Utils.getObjectType(id) == 'Array' && id.length > 0)
-            return this.search({'id': id}, null, fields, includes);
+            return this.search({'id': id}, fields, includes);
 
         if (Utils.getObjectType(id) == 'Array' && id.length == 1)
             id = id[0];
@@ -33,7 +36,7 @@ class BaseDaoDelegate
         // 1. Get the queried object
         // 2. Parse flags and add handlers to a queue
         // 3. When queue is complete, concat all results to queried object and return
-        return this.getDao().get(id, fields)
+        return this.dao.get(id, fields)
             .then(
             function processIncludes(result):any
             {
@@ -62,14 +65,14 @@ class BaseDaoDelegate
         return null;
     }
 
-    find(search:Object, options?:Object, fields?:string[], includes:IncludeFlag[] = []):q.Promise<any>
+    find(search:Object, fields?:string[], includes:IncludeFlag[] = []):q.Promise<any>
     {
         var self = this;
         var rawResult;
 
-        fields = fields || this.DEFAULT_FIELDS;
+        fields = fields || this.dao.modelClass.DEFAULT_FIELDS;
 
-        return this.getDao().find(search, options, fields)
+        return this.dao.find(search, fields)
             .then(
             function processIncludes(result)
             {
@@ -109,14 +112,14 @@ class BaseDaoDelegate
      * Perform search based on seacrh query
      * Also fetch joint fields
      */
-    search(search:Object, options?:Object, fields?:string[], includes:IncludeFlag[] = []):q.Promise<any>
+    search(search:Object, fields?:string[], includes:IncludeFlag[] = []):q.Promise<any>
     {
         var self = this;
         var rawResult;
 
-        fields = fields || this.DEFAULT_FIELDS;
+        fields = fields || this.dao.modelClass.DEFAULT_FIELDS;
 
-        return this.getDao().search(search, options, fields)
+        return this.dao.search(search, fields)
             .then(
             function processIncludes(result)
             {
@@ -151,8 +154,7 @@ class BaseDaoDelegate
                 return rawResult;
             });
     }
-    create(object:any, transaction?:any):q.Promise<any>;
-    create(object:any[], transaction?:any):q.Promise<any>;
+
     create(object:any, transaction?:any):q.Promise<any>
     {
         if (Utils.isNullOrEmpty(object))
@@ -162,7 +164,7 @@ class BaseDaoDelegate
 
         function prepareData(data)
         {
-            var generatedId:number = new GlobalIdDelegate().generate(self.getDao().getModel().TABLE_NAME);
+            var generatedId:number = new GlobalIdDelegate().generate(self.dao.modelClass.TABLE_NAME);
             data[BaseModel.ID] = data[BaseModel.ID] || generatedId;
             data[BaseModel.CREATED] = moment().valueOf();
             data[BaseModel.UPDATED] = moment().valueOf();
@@ -171,7 +173,7 @@ class BaseDaoDelegate
 
         var newObject = (Utils.getObjectType(object) == 'Array') ? _.map(object, prepareData) : prepareData(object);
 
-        return this.getDao().create(newObject, transaction);
+        return this.dao.create(newObject, transaction);
     }
 
     update(criteria:Object, newValues:any, transaction?:any):q.Promise<any>;
@@ -183,7 +185,7 @@ class BaseDaoDelegate
         delete newValues[BaseModel.CREATED];
         delete newValues[BaseModel.ID];
 
-        return this.getDao().update(criteria, newValues, transaction);
+        return this.dao.update(criteria, newValues, transaction);
     }
 
     delete(criteria:number, softDelete?:boolean, transaction?:any):q.Promise<any>;
@@ -191,15 +193,10 @@ class BaseDaoDelegate
     delete(criteria:any, softDelete:boolean = true, transaction?:any):q.Promise<any>
     {
         if (softDelete)
-            return this.getDao().delete(criteria, transaction);
+            return this.dao.delete(criteria, transaction);
         else
-            return this.getDao().update(criteria, {'deleted': moment().valueOf()}, transaction)
+            return this.dao.update(criteria, {'deleted': moment().valueOf()}, transaction)
     }
 
-    getDao():IDao
-    {
-        throw('Dao not specified for ' + Utils.getClassName(this));
-        return null;
-    }
 }
 export = BaseDaoDelegate
