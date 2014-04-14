@@ -26,12 +26,6 @@ class PhoneNumberDelegate extends BaseDaoDelegate
             )
     }
 
-    update(id:string, phoneNumber:PhoneNumber):q.Promise<any>
-    {
-        return super.update({'phoneNumberId': id}, phoneNumber);
-    }
-
     getDao():IDao { return new PhoneNumberDao(); }
-
 }
 export = PhoneNumberDelegate
