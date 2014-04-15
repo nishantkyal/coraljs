@@ -1,3 +1,4 @@
+///<reference path='../_references.d.ts'/>
 import mysql                                        = require('mysql');
 import q                                            = require('q');
 import _                                            = require('underscore');
@@ -104,7 +105,7 @@ class BaseDao implements IDao
             },
             function objectFetchError(error)
             {
-                self.logger.error('Error while fetching %s, id: %s', self.tableName, id);
+                self.logger.error('GET failed table: %s, id: %s', self.tableName, id);
                 throw(error);
             });
     }

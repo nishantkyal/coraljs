@@ -30,9 +30,8 @@ include ../scriptsAndStyles
                     .row
                         .form-group.col-md-2
                             label(for='title').control-label Title
-                            titles = ["Mr.", "Mrs.", "Ms.", "Dr.", "Prof.", "Gen.", "St."]
                             select#title(name='title', data-width='auto')
-                                each title in titles
+                                each title in Salutation
                                     option(value="#{title}" selected = (user.title == '#{title}')) #{title}
                         .form-group.col-md-3
                             label.control-label(for='first_name') First Name
@@ -54,7 +53,7 @@ include ../scriptsAndStyles
                         .form-group.col-md-6
                             label.control-label(for='industry') Industry
                             select#industry(name='industry', data-width='auto')
-                                each key,option in industryCodes
+                                each key,option in IndustryCodes
                                     option(value="#{option}", selected = (user.industry == '#{option}')) #{key}
                         birthDate = user.date_of_birth
                         .form-group.col-md-3
@@ -77,11 +76,12 @@ include ../scriptsAndStyles
                 .form-group
                     label.control-label(for='skill') Skill Details
                     br
-                    each skill in userSkill
-                        label.control-label(for='skill') #{skill.skill_name}&nbsp
-                        a.fa.fa-pencil.editSkill(data-id=skill.id, data-toggle='modal', href='#EditUserSkillModal')
-                        a.fa.fa-times.deleteSkill(data-id=skill.id, data-toggle='modal', href='#DeleteUserSkillModal')
-                        br
+                    if (userSkill)
+                        each skill in userSkill
+                            label.control-label(for='skill') #{skill.skill_name}&nbsp
+                            a.fa.fa-pencil.editSkill(data-id=skill.id, data-toggle='modal', href='#EditUserSkillModal')
+                            a.fa.fa-times.deleteSkill(data-id=skill.id, data-toggle='modal', href='#DeleteUserSkillModal')
+                            br
                     a.btn.btn-default.btn-xs#addSkillBtn(data-toggle='modal', href='#AddUserSkillModal') Add Skill
         .col-md-2
 #AddUserSkillModal.modal.fade(style='display: none;')
