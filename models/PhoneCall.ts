@@ -33,9 +33,9 @@ class PhoneCall extends BaseModel
     static DEFAULT_FIELDS:string[] = [PhoneCall.ID, PhoneCall.CALLER_USER_ID, PhoneCall.INTEGRATION_MEMBER_ID, PhoneCall.CALLER_PHONE_ID, PhoneCall.EXPERT_PHONE_ID,
                                       PhoneCall.START_TIME, PhoneCall.DURATION, PhoneCall.STATUS ];
 
-    static CALLER:string = 'caller';
+    static USER:string = 'user';
     static INTEGRATION_MEMBER:string = 'integration_member';
-    static CALLER_PHONE:string = 'caller_phone';
+    static CALLER_PHONE:string = 'user_phone';
     static EXPERT_PHONE:string = 'expert_phone';
 
     private caller_user_id:number;
@@ -56,9 +56,9 @@ class PhoneCall extends BaseModel
     private num_reattempts:number;
     private delay:number;
 
-    private caller:User;
+    private user:User;
     private integration_member:IntegrationMember;
-    private caller_phone:UserPhone;
+    private user_phone:UserPhone;
     private expert_phone:UserPhone;
 
     /* Getters */
@@ -80,9 +80,9 @@ class PhoneCall extends BaseModel
     getNumReattempts():number { return this.num_reattempts; }
     getDelay():number { return this.delay; }
 
-    getCaller():User { return this.caller; }
+    getUser():User { return this.user; }
     getIntegrationMember():IntegrationMember { return this.integration_member; }
-    getCallerPhone():UserPhone { return this.caller_phone; }
+    getUserPhone():UserPhone { return this.user_phone; }
     getExpertPhone():UserPhone { return this.expert_phone; }
 
     /* Setters */
@@ -104,9 +104,9 @@ class PhoneCall extends BaseModel
     setNumReattempts(val:number):void {this.num_reattempts = val; }
     setDelay(val:number):void {this.delay = val; }
 
-    setCaller(val:User):void { this.caller = val; }
+    setUser(val:User):void { this.user = val; }
     setIntegrationMember(val:IntegrationMember):void { this.integration_member = val; }
-    setCallerPhone(val:UserPhone):void { this.caller_phone = val; }
+    setUserPhone(val:UserPhone):void { this.user_phone = val; }
     setExpertPhone(val:UserPhone):void { this.expert_phone = val; }
 
     isValid():boolean

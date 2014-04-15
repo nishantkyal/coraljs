@@ -132,7 +132,7 @@ class BaseDao implements IDao
         var values:any[] = whereStatements['values'];
         var selectColumns:string = !Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
 
-        var queryString = 'SELECT ' + selectColumns + ' FROM ' + this.tableName + ' WHERE ' + wheres.join(' AND ') + ' LIMIT 1';
+        var queryString = 'SELECT ' + selectColumns + ' FROM `' + this.tableName + '` WHERE ' + wheres.join(' AND ') + ' LIMIT 1';
 
         return MysqlDelegate.executeQuery(queryString, values)
             .then(
@@ -213,8 +213,8 @@ class BaseDao implements IDao
                     values.push(query['value'][1]);
                     break;
                 case 'Array':
-                    whereStatements.push(key + ' IN (?)');
-                    values.push(_.map(query, Utils.surroundWithQuotes));
+                    whereStatements.push(key + ' IN (?) ');
+                    values.push(query);
                     break;
                 case 'Number':
                 case 'String':

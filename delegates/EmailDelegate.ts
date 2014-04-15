@@ -40,9 +40,12 @@ class EmailDelegate
     private static EMAIL_EXPERT_WELCOME:string = 'EMAIL_EXPERT_WELCOME';
     private static EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION:string = 'EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION';
     private static EMAIL_EXPERT_SCHEDULING:string = 'EMAIL_EXPERT_SCHEDULING';
+    private static EMAIL_EXPERT_SCHEDULED:string = 'EMAIL_EXPERT_SCHEDULED';
     private static EMAIL_EXPERT_REMINDER:string = 'EMAIL_EXPERT_REMINDER';
-    private static EMAIL_CALLER_REMINDER:string = 'EMAIL_CALLER_REMINDER';
 
+    private static EMAIL_USER_REMINDER:string = 'EMAIL_USER_REMINDER';
+    private static EMAIL_USER_SCHEDULED:string = 'EMAIL_USER_SCHEDULED';
+    private static EMAIL_USER_AGENDA_FAIL:string = 'EMAIL_USER_AGENDA_FAIL';
     private static templateCache:{[templateNameAndLocale:string]:{bodyTemplate:Function; subjectTemplate:Function}} = {};
     private static transport:nodemailer.Transport;
     private phoneCallDelegate = new PhoneCallDelegate();
@@ -182,6 +185,22 @@ class EmailDelegate
         }
     }
 
+    sendAgendaFailedEmailToUser(call:number):q.Promise<any>;
+    sendAgendaFailedEmailToUser(call:PhoneCall):q.Promise<any>;
+    sendAgendaFailedEmailToUser(call:any):q.Promise<any>
+    {
+        var self = this;
+
+        if (Utils.getObjectType(call) == 'Number')
+            return self.phoneCallDelegate.get(call,null, [IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall){
+                self.sendAgendaFailedEmailToUser(fetchedCall);
+            });
+
+        return q.all([
+            self.composeAndSend(EmailDelegate.EMAIL_USER_AGENDA_FAIL, call.getUser().getEmail(), {call: call}),
+        ]);
+    }
+
     sendSchedulingEmailToExpert(call:number, appointments:number[]):q.Promise<any>;
     sendSchedulingEmailToExpert(call:PhoneCall, appointments:number[]):q.Promise<any>;
     sendSchedulingEmailToExpert(call:any, appointments:number[]):q.Promise<any>
@@ -189,7 +208,7 @@ class EmailDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call).then(function (fetchedCall:PhoneCall)
+            return self.phoneCallDelegate.get(call,null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER]).then(function (fetchedCall:PhoneCall)
             {
                 self.sendSchedulingEmailToExpert(fetchedCall, appointments);
             });
@@ -200,7 +219,7 @@ class EmailDelegate
         var VerificationCodeDelegate:any = require('../delegates/VerificationCodeDelegate');
         var verificationCodeDelegate = new VerificationCodeDelegate();
 
-        return verificationCodeDelegate.createAppointmentAcceptCode(call)
+        return verificationCodeDelegate.createAppointmentAcceptCode(call,appointments)
             .then(
             function invitationAcceptCodeCreated(code:string)
             {
@@ -212,8 +231,35 @@ class EmailDelegate
                 };
 
                 return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_SCHEDULING, expert.getUser()[0].getEmail(), emailData);
-                //TODO[alpha-calling] correct include procesing so that it doesnt return an array
             });
+    }
+
+    sendSchedulingCompleteEmail(call:number, appointment:number):q.Promise<any>;
+    sendSchedulingCompleteEmail(call:PhoneCall, appointment:number):q.Promise<any>;
+    sendSchedulingCompleteEmail(call:any, appointment:number):q.Promise<any>
+    {
+        var self = this;
+
+        if (Utils.getObjectType(call) == 'Number')
+            return self.phoneCallDelegate.get(call,null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall)
+            {
+                self.sendSchedulingCompleteEmail(fetchedCall, appointment);
+            });
+
+        var expert:IntegrationMember = call.getIntegrationMember();
+        var integration = new IntegrationDelegate().getSync(expert.getIntegrationId());
+
+        var emailData = {
+            call: call,
+            appointment: appointment,
+            integration: integration
+        };
+
+        return q.all([
+            self.composeAndSend(EmailDelegate.EMAIL_EXPERT_SCHEDULED, expert.getUser()[0].getEmail(), emailData),
+            self.composeAndSend(EmailDelegate.EMAIL_USER_SCHEDULED, call.getUser().getEmail(), emailData)
+        ]);
+
     }
 
     sendExpertInvitationEmail(integrationId:number, invitationCode:string, recipient:IntegrationMember, sender:User):q.Promise<any>
@@ -277,26 +323,15 @@ class EmailDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call).then(self.sendCallReminderEmail);
-
-        return this.phoneCallDelegate.get(call)
-            .then(
-            function callFetched(c:PhoneCall)
+            return self.phoneCallDelegate.get(call,null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall)
             {
-                call = c;
-                return self.userDelegate.search({id: [call.getIntegrationMember().getUser().getId(), call.getCallerUserId()]})
-            })
-            .then(
-            function usersFetched(users:User[])
-            {
-                var expertEmail:string = _.findWhere(users, {id: call.getIntegrationMember().getUser().getId()}).getEmail();
-                var callerEmail:string = _.findWhere(users, {id: call.getCallerUserId()}).getEmail();
-
-                return q.all([
-                    self.composeAndSend(EmailDelegate.EMAIL_CALLER_REMINDER, callerEmail, {call: call}),
-                    self.composeAndSend(EmailDelegate.EMAIL_EXPERT_REMINDER, expertEmail, {call: call})
-                ]);
+                self.sendCallReminderEmail(fetchedCall);
             });
+
+        return q.all([
+            self.composeAndSend(EmailDelegate.EMAIL_USER_REMINDER, call.getUser().getEmail(), {call: call}),
+            self.composeAndSend(EmailDelegate.EMAIL_EXPERT_REMINDER, call.getIntegrationMember().getUser()[0].getEmail(), {call: call})
+        ]);
     }
 
     sendCallFailureEmail(call:number):q.Promise<any>;
@@ -306,7 +341,10 @@ class EmailDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call).then(self.sendCallFailureEmail);
+            return self.phoneCallDelegate.get(call).then(function (fetchedCall:PhoneCall)
+            {
+                self.sendCallFailureEmail(fetchedCall);
+            });
 
         return null;
     }
