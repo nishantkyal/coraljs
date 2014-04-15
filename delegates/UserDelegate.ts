@@ -7,26 +7,32 @@ import BaseDaoDelegate                                                  = requir
 import MysqlDelegate                                                    = require('../delegates/MysqlDelegate');
 import UserProfileDelegate                                              = require('../delegates/UserProfileDelegate');
 import ImageDelegate                                                    = require('../delegates/ImageDelegate');
+import UserPhoneDelegate                                                = require('../delegates/UserPhoneDelegate');
 import IDao                                                             = require('../dao/IDao')
 import UserDAO                                                          = require('../dao/UserDao')
 import User                                                             = require('../models/User');
 import UserProfile                                                      = require('../models/UserProfile');
 import IncludeFlag                                                      = require('../enums/IncludeFlag');
 import ImageSize                                                        = require('../enums/ImageSize');
+import UserStatus                                                       = require('../enums/UserStatus');
 import Config                                                           = require('../common/Config');
+import Utils                                                            = require('../common/Utils');
 
 /*
  Delegate class for User operations
  */
 class UserDelegate extends BaseDaoDelegate
 {
-    imageDelegate = new ImageDelegate();
-    userProfileDelegate = new UserProfileDelegate();
+    private imageDelegate = new ImageDelegate();
+    private userProfileDelegate = new UserProfileDelegate();
+    private userPhoneDelegate = new UserPhoneDelegate();
 
     constructor() { super(new UserDAO()); }
 
     update(criteria:Object, newValues:any, transaction?:any):q.Promise<any>;
+
     update(criteria:number, newValues:any, transaction?:any):q.Promise<any>;
+
     update(criteria:any, newValues:any, transaction?:any):q.Promise<any>
     {
         delete newValues[User.ID];
@@ -45,7 +51,7 @@ class UserDelegate extends BaseDaoDelegate
             case IncludeFlag.INCLUDE_USER_PROFILE:
                 return self.userProfileDelegate.search({'user_id': result.getId()});
             case IncludeFlag.INCLUDE_INTEGRATION_MEMBER:
-                var IntegrationMemberDelegate:any  = require('../delegates/IntegrationMemberDelegate');
+                var IntegrationMemberDelegate:any = require('../delegates/IntegrationMemberDelegate');
                 var integrationMemberDelegate = new IntegrationMemberDelegate();
                 return integrationMemberDelegate.searchByUser(result.getId());
         }
@@ -60,23 +66,65 @@ class UserDelegate extends BaseDaoDelegate
 
         return self.imageDelegate.move(tempImagePath, newImagePath)
             .fail(
-                function imageMoveFailed(err)
-                {
-                    self.logger.error('Failed renaming file %s to %s. Error: %s', tempImagePath, newImagePath, err);
-                    throw('An error occurred while uploading your image');
-                });
+            function imageMoveFailed(err)
+            {
+                self.logger.error('Failed renaming file %s to %s. Error: %s', tempImagePath, newImagePath, err);
+                throw('An error occurred while uploading your image');
+            });
 
         /*
-        var sizes = [ImageSize.SMALL];
-        return q.all(_.map(sizes, function (size:ImageSize):q.Promise<any>
+         var sizes = [ImageSize.SMALL];
+         return q.all(_.map(sizes, function (size:ImageSize):q.Promise<any>
+         {
+         return self.imageDelegate.resize(tempImagePath, imageBasePath + '_' + ImageSize[size].toLowerCase(), size);
+         }))
+         .fail(
+         function imageResizeFiled(error)
+         {
+         self.logger.debug('Image resize failed because %s', error);
+         });*/
+    }
+
+    recalculateStatus(criteria:number):q.Promise<any>;
+
+    recalculateStatus(criteria:Object):q.Promise<any>;
+
+    recalculateStatus(criteria:any):q.Promise<any>
+    {
+        var self = this;
+        var user:User;
+
+        if (Utils.getObjectType(criteria) == 'Number')
+            criteria = {id: criteria};
+
+        return this.find(criteria)
+            .then(
+            function userFound(u)
             {
-                return self.imageDelegate.resize(tempImagePath, imageBasePath + '_' + ImageSize[size].toLowerCase(), size);
-            }))
+                user = u;
+                return self.userPhoneDelegate.find({user_id: user.getId(), verified: true});
+            })
+            .then(
+            function phoneFound(phone)
+            {
+                if (Utils.isNullOrEmpty(phone))
+                    throw(UserStatus.MOBILE_NOT_VERIFIED);
+                else
+                    return self.userProfileDelegate.find({user_id: user.getId()});
+            })
+            .then(
+            function userProfileFound(profile)
+            {
+                if (Utils.isNullOrEmpty(profile) || Utils.getObjectType(profile) != 'UserProfile')
+                    throw(UserStatus.PROFILE_NOT_PUBLISHED);
+                else
+                    throw(UserStatus.ACTIVE);
+            })
             .fail(
-            function imageResizeFiled(error)
+            function updateStatus(status)
             {
-                self.logger.debug('Image resize failed because %s', error);
-            });*/
+                return self.update({id: user.getId()}, {status: status});
+            });
     }
 
 }

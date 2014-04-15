@@ -26,7 +26,9 @@ import VerificationCodeDelegate                                     = require('.
 import PhoneCallDelegate                                            = require('../delegates/PhoneCallDelegate');
 import Utils                                                        = require('../common/Utils');
 import Config                                                       = require('../common/Config');
+import Formatter                                                    = require('../common/Formatter');
 import ExpertRegistrationUrls                                       = require('../routes/expertRegistration/Urls');
+import DashboardUrls                                                = require('../routes/dashboard/Urls');
 
 /*
  Delegate class for managing email
@@ -114,8 +116,8 @@ class EmailDelegate
         var logger = log4js.getLogger(Utils.getClassName(self));
 
         emailData["email_cdn_base_uri"] = Config.get(Config.EMAIL_CDN_BASE_URI);
-        from = from || 'contact@searchntalk.com';
-        replyTo = replyTo || from;
+        from = from || 'SearchNTalk.com\<contact@searchntalk.com\>';
+        replyTo = replyTo || 'no-reply\<no-reply@searchntalk.com\>';
 
         try
         {
@@ -184,7 +186,7 @@ class EmailDelegate
             throw(err);
         }
     }
-
+    
     sendAgendaFailedEmailToUser(call:number):q.Promise<any>;
     sendAgendaFailedEmailToUser(call:PhoneCall):q.Promise<any>;
     sendAgendaFailedEmailToUser(call:any):q.Promise<any>
@@ -201,16 +203,16 @@ class EmailDelegate
         ]);
     }
 
-    sendSchedulingEmailToExpert(call:number, appointments:number[]):q.Promise<any>;
-    sendSchedulingEmailToExpert(call:PhoneCall, appointments:number[]):q.Promise<any>;
-    sendSchedulingEmailToExpert(call:any, appointments:number[]):q.Promise<any>
+    sendSchedulingEmailToExpert(call:number, appointments:number[], duration:number, caller:User):q.Promise<any>;
+    sendSchedulingEmailToExpert(call:PhoneCall, appointments:number[], duration:number, caller:User):q.Promise<any>;
+    sendSchedulingEmailToExpert(call:any, appointments:number[], duration:number, caller:User):q.Promise<any>
     {
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call,null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER]).then(function (fetchedCall:PhoneCall)
+            return self.phoneCallDelegate.get(call).then(function (fetchedCall:PhoneCall)
             {
-                self.sendSchedulingEmailToExpert(fetchedCall, appointments);
+                self.sendSchedulingEmailToExpert(fetchedCall, appointments, duration, caller);
             });
 
         var expert:IntegrationMember = call.getIntegrationMember();
@@ -219,7 +221,7 @@ class EmailDelegate
         var VerificationCodeDelegate:any = require('../delegates/VerificationCodeDelegate');
         var verificationCodeDelegate = new VerificationCodeDelegate();
 
-        return verificationCodeDelegate.createAppointmentAcceptCode(call,appointments)
+        return verificationCodeDelegate.createAppointmentAcceptCode(call)
             .then(
             function invitationAcceptCodeCreated(code:string)
             {
@@ -227,7 +229,9 @@ class EmailDelegate
                     call: call,
                     appointments: appointments,
                     integration: integration,
-                    acceptCode: code
+                    acceptCode: code,
+                    caller: caller,
+                    duration: duration
                 };
 
                 return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_SCHEDULING, expert.getUser()[0].getEmail(), emailData);

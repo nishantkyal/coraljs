@@ -13,6 +13,7 @@ import EmailDelegate                                            = require('../de
 import SmsDelegate                                              = require('../delegates/SMSDelegate');
 import UserDelegate                                             = require('../delegates/UserDelegate');
 import UserPhoneDelegate                                        = require('../delegates/UserPhoneDelegate');
+import NotificationDelegate                                     = require('../delegates/NotificationDelegate');
 import Utils                                                    = require('../common/Utils');
 import IncludeFlag                                              = require('../enums/IncludeFlag');
 import SmsTemplate                                              = require('../enums/SmsTemplate');
@@ -22,11 +23,11 @@ class VerificationCodeDelegate
     private logger = log4js.getLogger(Utils.getClassName(this));
 
     private verificationCodeCache = new VerificationCodeCache();
-    private userDelegate = new UserDelegate();
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private emailDelegate = new EmailDelegate();
     private smsDelegate = new SmsDelegate();
     private phoneNumberDelegate = new UserPhoneDelegate();
+    private notificationDelegate = new NotificationDelegate();
 
     createAndSendExpertInvitationCode(integrationId:number, member:IntegrationMember, sender?:User):q.Promise<any>
     {
@@ -98,15 +99,37 @@ class VerificationCodeDelegate
     createAppointmentAcceptCode(call:PhoneCall, startTimes:number[]):q.Promise<any>
     {
         var code:string = Utils.getRandomString(20);
-        return this.verificationCodeCache.createAppointmentAcceptCode(call.getId(), code, startTimes)
-            .then(function(status){
-                return code;
-            })
+        return this.verificationCodeCache.createAppointmentAcceptCode(call.getId(), code, startTimes);
     }
 
     verifyAppointmentAcceptCode(code:string):q.Promise<any>
     {
         return this.verificationCodeCache.searchAppointmentAcceptCode(code);
     }
+
+    createAndSendEmailVerificationCode(user:User):q.Promise<any>
+    {
+        var self = this;
+        var code = Utils.getRandomString(20);
+
+        return this.verificationCodeCache.createEmailVerificationCode(user.getEmail(), code)
+            .then(
+            function codeCreated(code:string)
+            {
+                return self.notificationDelegate.sendAccountVerificationEmail(user, code);
+            });
+    }
+
+    verifyAccountVerificationCode(email:string, code:string):q.Promise<boolean>
+    {
+        return this.verificationCodeCache.searchEmailVerificationCode(email, code);
+    }
+
+    deleteAccountVerificationCode(email:string):q.Promise<boolean>
+    {
+        return this.verificationCodeCache.deleteEmailVerificationCode(email);
+    }
+
+
 }
 export = VerificationCodeDelegate

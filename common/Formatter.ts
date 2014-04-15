@@ -5,6 +5,7 @@ import MoneyUnit                                                    = require('.
 import IntegrationMemberRole                                        = require('../enums/IntegrationMemberRole');
 import UserStatus                                                   = require('../enums/UserStatus');
 import ExpertSchedule                                               = require('../models/ExpertSchedule');
+import User                                                         = require('../models/User');
 import Utils                                                        = require('../common/Utils');
 
 class Formatter
@@ -68,6 +69,20 @@ class Formatter
     static formatUserStatus(status:UserStatus):string
     {
         return Utils.enumToNormalText(UserStatus)[status];
+    }
+
+    static formatUserName(user:User, includeEmail:boolean = false):string
+    {
+        if (includeEmail)
+            return Formatter.formatEmail(user.getEmail(), user.getFirstName(), user.getLastName(), user.getTitle());
+        return Formatter.formatName(user.getFirstName(), user.getLastName(), user.getTitle());
+    }
+
+    static formatEmail(email:string, firstName?:string, lastName?:string, title?:string):string
+    {
+        if (!Utils.isNullOrEmpty(firstName))
+            return Formatter.formatName(firstName, lastName, title) + '<' + email+ '>';
+        return email;
     }
 }
 export = Formatter

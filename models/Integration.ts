@@ -7,7 +7,6 @@ import IntegrationType          = require('../enums/IntegrationType');
 class Integration extends BaseModel
 {
     static TABLE_NAME:string = 'integration';
-    static DEFAULT_FIELDS:string[] = [Integration.ID, Integration.TITLE, Integration.INTEGRATION_TYPE];
 
     static TITLE:string = 'title';
     static WEBSITE_URL:string = 'website_url';
@@ -22,6 +21,8 @@ class Integration extends BaseModel
     private integration_type:IntegrationType;
     private secret:string;
     private status:string;
+
+    static DEFAULT_FIELDS:string[] = [Integration.ID, Integration.TITLE, Integration.INTEGRATION_TYPE];
 
     /* Getters */
     getTitle():string                                   { return this.title; }

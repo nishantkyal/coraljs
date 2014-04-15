@@ -98,7 +98,7 @@ $('#inviteUserModal form').validate({
     {
         $.ajax({
             url    : '/rest/code/expert/invitation',
-            type   : 'PUT',
+            type   : 'POST',
             data   : {
                 integration_member: {
                     role          : $('#inviteUserModal [name="role"]').val(),

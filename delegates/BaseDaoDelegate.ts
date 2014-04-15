@@ -121,8 +121,11 @@ class BaseDaoDelegate
 
         return this.dao.search(search, fields)
             .then(
-            function processIncludes(result)
+            function processIncludes(result):any
             {
+                if (result.length == 0)
+                    return result;
+
                 rawResult = result;
                 var includeTasks = [];
                 _.each(includes, function (flag)

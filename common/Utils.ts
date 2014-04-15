@@ -27,15 +27,15 @@ class Utils
     /*
      * Get a promise that'll get rejected in next tick
      *  Used when we need to cancel an operation for invalid input
-    static getRejectedPromise(errorMessage:string):q.Promise<any>
-    {
-        var deferred = q.defer();
-        process.nextTick(function fail() {
-            deferred.reject(errorMessage);
-        });
-        return deferred.promise;
-    }
-    */
+     static getRejectedPromise(errorMessage:string):q.Promise<any>
+     {
+     var deferred = q.defer();
+     process.nextTick(function fail() {
+     deferred.reject(errorMessage);
+     });
+     return deferred.promise;
+     }
+     */
 
     static isNullOrEmpty(val:any):boolean
     {
@@ -141,6 +141,22 @@ class Utils
 
         var repeatString:string = Array(times + 1).join(char);
         return delimiter === '' ? repeatString : repeatString.split('').join(delimiter);
+    }
+
+    static escapeHTML(s:string):string
+    {
+        return s.replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+    }
+
+    static unescapeHTML(s:string):string
+    {
+        return s.replace(/&amp;/g, '&')
+            .replace(/&quot;/g, '"')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>');
     }
 }
 export = Utils

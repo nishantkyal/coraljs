@@ -121,7 +121,15 @@ class BaseDao implements IDao
 
         return MysqlDelegate.executeQuery(queryString, values)
             .then(
-            function handleSearchResults(results:any[]) { return _.map(results, function (result) { return new self.modelClass(result); }); });
+            function handleSearchResults(results:any[]):any
+            {
+                return _.map(results, function (result) { return new self.modelClass(result); });
+            },
+            function searchError(error)
+            {
+                self.logger.error('SEARCH failed for table: %s, criteria: %s, error: %s', self.tableName, searchQuery, JSON.stringify(error));
+                throw(error);
+            });
     }
 
     find(searchQuery:Object, fields?:string[]):q.Promise<any>
@@ -141,13 +149,21 @@ class BaseDao implements IDao
                     return new self.modelClass(result[0]);
                 else
                     return null;
-            });
+            },
+            function findError(error)
+            {
+                self.logger.error('FIND failed for table: %s, criteria: %s, error: %s', self.tableName, searchQuery, JSON.stringify(error));
+                throw(error);
+            }
+        );
     }
 
     update(criteria:number, newValues:BaseModel, transaction?:any):q.Promise<any>;
     update(criteria:Object, newValues:BaseModel, transaction?:any):q.Promise<any>;
     update(criteria:any, newValues:any, transaction?:any):q.Promise<any>
     {
+        var self = this;
+
         if (Utils.getObjectType(criteria) == 'Number')
             criteria = {id: criteria};
 
@@ -155,10 +171,8 @@ class BaseDao implements IDao
         _.each(criteria, function (val, key) { if (val == undefined) delete criteria[key]; });
         _.each(newValues, function (val, key) { if (val == undefined) delete newValues[key]; });
 
-        var values = [], updates, wheres;
-
-        updates = _.map(_.keys(newValues), function (updateColumn) { return updateColumn + ' = ?'; });
-        values = values.concat(_.values(newValues));
+        var updates = _.map(_.keys(newValues), function (updateColumn) { return updateColumn + ' = ?'; });
+        var values = _.values(newValues);
 
         // Compose criteria statements
         var whereStatements:any[] = this.generateWhereStatements(criteria);
@@ -168,19 +182,27 @@ class BaseDao implements IDao
         var query = 'UPDATE `' + this.tableName + '` SET ' + updates.join(",") + ' WHERE ' + wheres.join(" AND ");
         return MysqlDelegate.executeQuery(query, values, transaction)
             .then(
-            function updateComplete(result:mysql.OkPacket)
+            function updateComplete(result:mysql.OkPacket):any
             {
                 if (result.affectedRows == 0)
                     throw('No rows were updated');
                 else
                     return result;
-            });
+            },
+            function updateError(error)
+            {
+                self.logger.error('UPDATE failed, error: %s', JSON.stringify(error));
+                throw(error);
+            }
+        );
     }
 
     delete(criteria:number, transaction?:any):q.Promise<any>;
     delete(criteria:Object, transaction?:any):q.Promise<any>;
     delete(criteria:any, transaction?:any):q.Promise<any>
     {
+        var self = this;
+
         if (Utils.getObjectType(criteria) == 'Number')
             criteria = {id: criteria};
 
@@ -188,7 +210,13 @@ class BaseDao implements IDao
         var wheres = whereStatements['where'];
         var values = whereStatements['values'];
 
-        return MysqlDelegate.executeQuery('DELETE FROM `' + this.tableName + '` WHERE ' + wheres.join(' AND '), values, transaction);
+        return MysqlDelegate.executeQuery('DELETE FROM `' + this.tableName + '` WHERE ' + wheres.join(' AND '), values, transaction)
+            .fail(
+            function deleteFailed(error)
+            {
+                self.logger.error('DELETE failed for table: %s, criteria: %s, error: %s', self.tableName, criteria, JSON.stringify(error));
+                throw(error);
+            });
     }
 
     private generateWhereStatements(criteria:Object):any

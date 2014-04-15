@@ -7,28 +7,39 @@ import IntegrationMember                        = require('../models/Integration
 
 class VerificationCodeCache
 {
-    createEmailVerificationCode(userId:number):q.Promise<any>
+    createEmailVerificationCode(email:string, code?:string):q.Promise<any>
     {
-        var code:string = Utils.getRandomString(20);
+        code = code || Utils.getRandomString(20);
         var secondsInThreeDays:number = 60 * 60 * 24 * 3;
-        return CacheHelper.set('ev-' + userId, code, secondsInThreeDays);
+        return CacheHelper.set('ev-' + email, code, secondsInThreeDays)
+            .then(
+            function codeCreated() { return code; }
+        );
     }
 
-    searchEmailVerificationCode(userId:number, code:string):q.Promise<any>
+    searchEmailVerificationCode(email:string, code:string):q.Promise<boolean>
     {
-        return CacheHelper.get('ev-' + userId)
+        return CacheHelper.get('ev-' + email)
             .then(
             function tokenSearched(result)
             {
-                return {isValid: result == code};
+                return result == code;
             });
     }
 
-    createPasswordResetCode(userId:number):q.Promise<any>
+    deleteEmailVerificationCode(email:string):q.Promise<any>
     {
-        var code:string = Utils.getRandomString(20);
+        return CacheHelper.del('ev-' + email);
+    }
+
+    createPasswordResetCode(userId:number, code?:string):q.Promise<any>
+    {
+        code = code || Utils.getRandomString(20);
         var secondsInAnHr:number = 60 * 60;
-        return CacheHelper.set('pr-' + userId, code, secondsInAnHr);
+        return CacheHelper.set('pr-' + userId, code, secondsInAnHr)
+            .then(
+            function codeCreated() { return code; }
+        );
     }
 
     searchPasswordResetCode(userId:number, code:string):q.Promise<any>
@@ -41,9 +52,10 @@ class VerificationCodeCache
             });
     }
 
-    createInvitationCode(integrationId:number, member:IntegrationMember):q.Promise<string>
+    createInvitationCode(integrationId:number, member:IntegrationMember, code?:string):q.Promise<string>
     {
-        var code = Utils.getRandomString(20, 'ABXDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890');
+        code = code || Utils.getRandomString(20, 'ABXDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890');
+
         return CacheHelper.addToHash('ic-' + integrationId, code, member)
             .then(
             function codeCreated() { return code; }
