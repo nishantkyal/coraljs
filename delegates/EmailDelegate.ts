@@ -44,6 +44,7 @@ class EmailDelegate
     private static EMAIL_EXPERT_SCHEDULING:string = 'EMAIL_EXPERT_SCHEDULING';
     private static EMAIL_EXPERT_SCHEDULED:string = 'EMAIL_EXPERT_SCHEDULED';
     private static EMAIL_EXPERT_REMINDER:string = 'EMAIL_EXPERT_REMINDER';
+    private static EMAIL_ACCOUNT_VERIFICATION:string = 'EMAIL_ACCOUNT_VERIFICATION';
 
     private static EMAIL_USER_REMINDER:string = 'EMAIL_USER_REMINDER';
     private static EMAIL_USER_SCHEDULED:string = 'EMAIL_USER_SCHEDULED';
@@ -51,7 +52,6 @@ class EmailDelegate
     private static templateCache:{[templateNameAndLocale:string]:{bodyTemplate:Function; subjectTemplate:Function}} = {};
     private static transport:nodemailer.Transport;
     private phoneCallDelegate = new PhoneCallDelegate();
-    private userDelegate = new UserDelegate();
 
     constructor()
     {
@@ -186,7 +186,7 @@ class EmailDelegate
             throw(err);
         }
     }
-    
+
     sendAgendaFailedEmailToUser(call:number):q.Promise<any>;
     sendAgendaFailedEmailToUser(call:PhoneCall):q.Promise<any>;
     sendAgendaFailedEmailToUser(call:any):q.Promise<any>
@@ -351,6 +351,22 @@ class EmailDelegate
             });
 
         return null;
+    }
+
+    sendAccountVerificationEmail(user:User, verificationCode:string):q.Promise<any>
+    {
+        var verificationUrl = url.resolve(Config.get(Config.CORAL_URI), DashboardUrls.emailAccountVerification());
+        verificationUrl += '?';
+        verificationUrl += ApiConstants.CODE + '=' + verificationCode;
+        verificationUrl += '&';
+        verificationUrl += ApiConstants.EMAIL + '=' + user.getEmail();
+
+        var emailData = {
+            code: verificationCode,
+            verificationUrl: verificationUrl
+        };
+
+        return this.composeAndSend(EmailDelegate.EMAIL_ACCOUNT_VERIFICATION, user.getEmail(), emailData);
     }
 }
 export = EmailDelegate
