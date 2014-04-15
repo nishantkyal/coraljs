@@ -241,8 +241,8 @@ class BaseDao implements IDao
                     values.push(query['value'][1]);
                     break;
                 case 'Array':
-                    whereStatements.push(key + ' IN (?)');
-                    values.push(_.map(query, Utils.surroundWithQuotes));
+                    whereStatements.push(key + ' IN (?) ');
+                    values.push(query);
                     break;
                 case 'Number':
                 case 'String':

@@ -1,3 +1,18 @@
-title Rescheduling
+title Scheduling
 include ../scriptsAndStyles
-include header
+    .container-fluid
+    .row-fluid
+        .col-md-2
+        .col-md-8
+            .row
+                .col-md-10
+                    form#appointment
+                        p You have choses the following appointment for call (Id: #{call.id})
+                        p #{formatDate(startTime)}
+                        p Do you want to confirm this appointment?
+                        button.btn.btn-default(onclick='handleRejectAppointment(event)') No
+                        button.btn.btn-primary(onclick='handleConfirmAppointment(event)') Yes
+script.
+    var startTime = !{startTime};
+    var call = JSON.parse( '!{JSON.stringify(call)}' );
+script(src='/js/app/callFlow/scheduling.js')

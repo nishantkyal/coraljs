@@ -7,6 +7,7 @@ enum CallStatus
     COMPLETED = 5,
     CANCELLED = 6,
     POSTPONED = 7,
-    FAILED = 8
+    FAILED = 8,
+    AGENDA_DECLINED = 9,
 }
 export = CallStatus

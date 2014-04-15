@@ -15,6 +15,7 @@ import EmailDelegate                                        = require('../../del
 import TransactionDelegate                                  = require('../../delegates/TransactionDelegate');
 import VerificationCodeDelegate                             = require('../../delegates/VerificationCodeDelegate');
 import UserPhoneDelegate                                    = require('../../delegates/UserPhoneDelegate');
+import NotificationDelegate                                 = require('../../delegates/NotificationDelegate');
 import Utils                                                = require('../../common/Utils');
 import Config                                               = require('../../common/Config');
 import PhoneCall                                            = require('../../models/PhoneCall');
@@ -43,6 +44,7 @@ class CallFlowRoute
     private verificationCodeDelegate = new VerificationCodeDelegate();
     private phoneCallDelegate = new PhoneCallDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
+    private notificationDelegate = new NotificationDelegate();
 
     constructor(app)
     {
@@ -53,8 +55,11 @@ class CallFlowRoute
         app.get(Urls.callPayment(), Middleware.requireExpertAndAppointments, this.callPayment.bind(this));
         app.post(Urls.callPayment(), Middleware.requireExpertAndAppointments, this.checkout.bind(this));
 
-        app.get(Urls.scheduling(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, redirectTo: DashboardUrls.login()}), this.scheduling.bind(this));
-        app.post(Urls.scheduling(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, redirectTo: DashboardUrls.login()}), this.scheduling.bind(this));
+        app.get(Urls.scheduling(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.login() }), this.scheduling.bind(this));
+        app.post(Urls.scheduling(), this.scheduled.bind(this));
+
+        app.get(Urls.reschedule(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.login() }), this.reschedule.bind(this));
+        app.get(Urls.reject(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.login() }), this.reject.bind(this));
 
         // Auth related routes
         app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {successRedirect: Urls.callPayment(), failureRedirect: Urls.login(), failureFlash: true}));
@@ -204,12 +209,12 @@ class CallFlowRoute
             .then(
             function appointmentDetailsFetched(appointment)
             {
-                if (!_.contains(appointment.startTimes, startTime))
+                if (!_.contains(appointment.startTimes, startTime.toString()))
                     throw 'Invalid request. Please click on one of the links in the email';
                 else
                 {
                     var callId:number = appointment.id;
-                    self.phoneCallDelegate.get(callId, [IncludeFlag.INCLUDE_USER, IncludeFlag.INCLUDE_USER_PHONE, IncludeFlag.INCLUDE_EXPERT_PHONE]);
+                    return self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_USER, IncludeFlag.INCLUDE_USER_PHONE, IncludeFlag.INCLUDE_EXPERT_PHONE]);
                 }
             },
             function appointDetailsFetchFailed(error)
@@ -220,10 +225,75 @@ class CallFlowRoute
             function callFetched(call)
             {
                 var pageData = {
-                    call: call
+                    call: call,
+                    startTime: startTime
                 };
                 res.render(CallFlowRoute.SCHEDULING, pageData);
-            });
+            })
+            .fail(function(error){
+                res.status(501);
+            })
+    }
+
+    private scheduled(req:express.Request, res:express.Response)
+    {
+        var self = this;
+        var startTime:number = parseInt(req.body[ApiConstants.START_TIME]);
+        var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
+        self.phoneCallDelegate.update(callId, {status: CallStatus.SCHEDULED, start_time: startTime})
+            .then(
+            function callUpdated()
+            {
+                return self.phoneCallDelegate.get(callId,null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_USER]);
+            })
+            .then(
+            function callFetched(call:PhoneCall)
+            {
+                self.notificationDelegate.sendCallSchedulingCompleteNotifications(call, startTime);
+            })
+            .fail(function(error){
+                res.status(501);
+            })
+    }
+
+    private reschedule(req:express.Request, res:express.Response)
+    {
+        var self = this;
+        var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
+        self.phoneCallDelegate.update(callId, {status: CallStatus.SCHEDULED})
+            .then(
+            function callUpdated()
+            {
+                return self.phoneCallDelegate.get(callId,null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_USER]);
+            })
+            .then(
+            function callFetched(call:PhoneCall)
+            {
+
+            })
+            .fail(function(error){
+                res.status(501);
+            })
+    }
+
+    private reject(req:express.Request, res:express.Response)
+    {
+        var self = this;
+        var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
+        self.phoneCallDelegate.update(callId, {status: CallStatus.AGENDA_DECLINED})
+            .then(
+            function callUpdated()
+            {
+                return self.phoneCallDelegate.get(callId,null, [IncludeFlag.INCLUDE_USER]);
+            })
+            .then(
+            function callFetched(call:PhoneCall)
+            {
+                self.notificationDelegate.sendCallAgendaFailedNotifications(call);
+            })
+            .fail(function(error){
+                res.status(501);
+            })
     }
 
 }
