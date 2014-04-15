@@ -23,6 +23,7 @@ import routes                                       = require('./routes/index');
 import CountryCode                                  = require('./enums/CountryCode');
 import IndustryCode                                 = require('./enums/IndustryCode');
 import CountryName                                  = require('./enums/CountryName');
+import Salutation                                   = require('./enums/Salutation');
 import CallFlowUrls                                 = require('./routes/callFlow/Urls');
 import DashboardUrls                                = require('./routes/dashboard/Urls');
 
@@ -40,7 +41,13 @@ var helpers = {
     formatUserStatus:Formatter.formatUserStatus,
     ApiUrlDelegate: ApiUrlDelegate,
     CallFlowUrls: CallFlowUrls,
-    DashboardUrls: DashboardUrls
+    DashboardUrls: DashboardUrls,
+    IndustryCodes: _.filter(Utils.enumToNormalText(IndustryCode), function(code) {
+        return Utils.getObjectType(code) == 'String';
+    }),
+    Salutation: _.filter(Utils.enumToNormalText(Salutation), function(s) {
+        return Utils.getObjectType(s) == 'String';
+    })
 };
 
 // all environments
