@@ -19,7 +19,7 @@ import UserEducationApi                 = require('./UserEducationApi');
 import UserEmploymentApi                = require('./UserEmploymentApi');
 import UserSkillApi                     = require('./UserSkillApi');
 
-function init(app, secureApp)
+function init(app, secureApp?)
 {
     new CouponApi(app, secureApp);
     new ExpertApi(app, secureApp);
