@@ -6,12 +6,11 @@ import UserSkillDelegate                                    = require('../delega
 import ApiConstants                                         = require('../enums/ApiConstants');
 import UserSkill                                            = require('../models/UserSkill');
 
-
 class UserSkillApi
 {
     userSkillDelegate;
-    skillCodeDelegate;
-    constructor(app)
+
+    constructor(app, secureApp)
     {
         var self = this;
         this.userSkillDelegate = new UserSkillDelegate();

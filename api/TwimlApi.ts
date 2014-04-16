@@ -30,7 +30,7 @@ class TwimlApi
 
     private static PARAM_DIGITS:string = 'Digits';
 
-    constructor(app)
+    constructor(app, secureApp)
     {
         app.get(ApiUrlDelegate.twiml(), function (req:express.Request, res:express.Response)
         {

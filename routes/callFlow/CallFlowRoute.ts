@@ -46,7 +46,7 @@ class CallFlowRoute
     private userPhoneDelegate = new UserPhoneDelegate();
     private notificationDelegate = new NotificationDelegate();
 
-    constructor(app)
+    constructor(app, secureApp)
     {
         // Actual rendered pages
         app.get(Urls.callExpert(), this.index.bind(this));

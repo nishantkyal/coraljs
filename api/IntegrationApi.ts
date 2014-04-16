@@ -18,7 +18,7 @@ import IntegrationMemberRole                        = require('../enums/Integrat
  */
 class IntegrationApi
 {
-    constructor(app)
+    constructor(app, secureApp)
     {
         var integrationDelegate = new IntegrationDelegate();
         var integrationMemberDelegate = new IntegrationMemberDelegate();

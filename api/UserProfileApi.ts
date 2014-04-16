@@ -7,7 +7,7 @@ import ApiConstants                                         = require('../enums/
 
 class UserProfileApi
 {
-    constructor(app)
+    constructor(app, secureApp)
     {
         var userProfileDelegate = new UserProfileDelegate();
 

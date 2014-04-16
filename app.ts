@@ -31,6 +31,7 @@ import DashboardUrls                                = require('./routes/dashboar
 log4js.configure('/var/searchntalk/config/log4js.json');
 
 var app:express.Application = express();
+var secureApp:express.Application = express();
 
 // View helpers
 var helpers = {
@@ -95,8 +96,8 @@ app.use(passport.session({}));
 app.use(connect_flash());
 
 // APIs and Route endpoints
-api(app);
-routes(app);
+api(app, secureApp);
+routes(app, secureApp);
 
 // Underscore template pattern
 _.templateSettings = {
@@ -105,12 +106,11 @@ _.templateSettings = {
 };
 _.mixin(helpers);
 
-// Start call scheduling cron
-new ScheduledTaskDelegate().scheduleAfter(new ScheduleCallsScheduledTask(), 1);
+app.set('port', Config.get(Config.DASHBOARD_HTTP_PORT));
+app.listen(app.get('port'), function ()
+{
+    console.log("SearchNTalk started on port %d in %s mode", app.get('port'), app.settings.env);
+});
 
-var httpPort = Config.get(Config.DASHBOARD_HTTP_PORT);
-http.createServer(app).listen(httpPort);
-
-var httpsPort = Config.get(Config.DASHBOARD_HTTPS_PORT);
-//https.createServer(app).listen(httpsPort);
-
+secureApp.set('port', Config.get(Config.DASHBOARD_HTTPS_PORT));
+//https.createServer({}, secureApp).listen(Config.get(Config.DASHBOARD_HTTPS_PORT));

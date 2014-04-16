@@ -32,7 +32,7 @@ class ExpertRegistrationRoute
     private verificationCodeCache = new VerificationCodeCache();
     private emailDelegate = new EmailDelegate();
 
-    constructor(app)
+    constructor(app, secureApp)
     {
         // Pages
         app.get(Urls.index(), this.authenticate.bind(this));

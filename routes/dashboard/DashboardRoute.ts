@@ -71,7 +71,7 @@ class DashboardRoute
     private notificationDelegate = new NotificationDelegate();
     private verificationCodeDelegate = new VerificationCodeDelegate();
 
-    constructor(app)
+    constructor(app, secureApp)
     {
         // Pages
         app.get(Urls.index(), connect_ensure_login.ensureLoggedIn(), this.authSuccess.bind(this));

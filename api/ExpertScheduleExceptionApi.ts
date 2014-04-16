@@ -15,7 +15,7 @@ import Utils                            = require('../common/Utils');
  */
 class ExpertScheduleExceptionApi
 {
-    constructor(app)
+    constructor(app, secureApp)
     {
         var expertScheduleExceptionDelegate = new ExpertScheduleExceptionDelegate();
 
