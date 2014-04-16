@@ -95,19 +95,19 @@ class DashboardRoute
 
     login(req:express.Request, res:express.Response)
     {
-        res.render(DashboardRoute.PAGE_LOGIN, {logged_in_user: req['user'], messages: req.flash()});
+        res.render(DashboardRoute.PAGE_LOGIN, {logged_in_user: req[ApiConstants.USER], messages: req.flash()});
     }
 
     verifyMobile(req:express.Request, res:express.Response)
     {
-        this.userPhoneDelegate.getByUserId(req['user'].id)
+        this.userPhoneDelegate.getByUserId(req[ApiConstants.USER].id)
             .then(
-            function phoneNumbersFetched(numbers:UserPhone[]) { return numbers; },
-            function phoneNumberFetchError(error) { return null; })
+                function phoneNumbersFetched(numbers:UserPhone[]) { return numbers; },
+                function phoneNumberFetchError(error) { return null; })
             .then(
             function renderPage(numbers)
             {
-                res.render(DashboardRoute.PAGE_MOBILE_VERIFICATION, {userPhones: numbers});
+                res.render(DashboardRoute.PAGE_MOBILE_VERIFICATION, {userPhones: numbers, context: req.query[ApiConstants.CONTEXT]});
             });
     }
 
@@ -146,7 +146,7 @@ class DashboardRoute
 
     integrations(req:express.Request, res:express.Response)
     {
-        var user = req['user'];
+        var user = req[ApiConstants.USER];
 
         this.integrationMemberDelegate.searchByUser(user.id, IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_INTEGRATION, IncludeFlag.INCLUDE_USER])
             .then(
@@ -166,7 +166,7 @@ class DashboardRoute
                 var pageData =
                 {
                     'members': integrationMembers,
-                    'logged_in_user': req['user'],
+                    'logged_in_user': user,
                     selectedTab: 'integrations'
                 };
 
@@ -192,7 +192,7 @@ class DashboardRoute
                 {
                     'coupons': coupons,
                     'members': integrationMembers,
-                    'logged_in_user': req['user'],
+                    'logged_in_user': req[ApiConstants.USER],
                     'integration': integration
                 };
 
@@ -254,7 +254,7 @@ class DashboardRoute
 
                 var pageData =
                 {
-                    'logged_in_user': req['user'],
+                    'logged_in_user': req[ApiConstants.USER],
                     'integrationMembers': members,
                     'integration': integration
                 };
@@ -324,7 +324,7 @@ class DashboardRoute
 
                 var pageData =
                 {
-                    'logged_in_user': req['user'],
+                    'logged_in_user': user,
                     'member': member,
                     'user': user
                 };
@@ -335,7 +335,7 @@ class DashboardRoute
 
     memberProfileSave(req:express.Request, res:express.Response)
     {
-        var loggedInUser = req['user'];
+        var loggedInUser = req[ApiConstants.USER];
         var user = req.body[ApiConstants.USER];
 
         this.userDelegate.update({id: loggedInUser.id}, user)
@@ -348,7 +348,7 @@ class DashboardRoute
     memberEducation(req:express.Request, res:express.Response)
     {
         var self = this;
-        var loggedInUser = req['user'];
+        var loggedInUser = req[ApiConstants.USER];
         var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
 
         q.all([
@@ -364,7 +364,7 @@ class DashboardRoute
                 var pageData =
                 {
                     'member': member,
-                    'logged_in_user': req['user'],
+                    'logged_in_user': loggedInUser,
                     'userEducation': userEducation
                 };
                 res.render(DashboardRoute.PAGE_EDUCATION, pageData);
@@ -376,7 +376,7 @@ class DashboardRoute
     memberEmployment(req:express.Request, res:express.Response)
     {
         var self = this;
-        var loggedInUser = req['user'];
+        var loggedInUser = req[ApiConstants.USER];
         var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
 
         q.all([
@@ -392,7 +392,7 @@ class DashboardRoute
                 var pageData =
                 {
                     'member': member,
-                    'logged_in_user': req['user'],
+                    'logged_in_user': loggedInUser,
                     'userEmployment': userEmployment
                 };
                 res.render(DashboardRoute.PAGE_EMPOLYMENT, pageData);
@@ -413,7 +413,7 @@ class DashboardRoute
         var callId:number = null;
         var self = this;
 
-        callId = req.session['callId']; //TODO remove this and get callId from transaction
+        callId = req.session[ApiConstants.PHONE_CALL_ID]; //TODO remove this and get callId from transaction
 
         // If it's a call
         // 1. Update status to scheduling

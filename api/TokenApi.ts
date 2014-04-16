@@ -46,7 +46,7 @@ class TokenApi
                 .then(
                 function codeVerified(newUserPhone)
                 {
-                    var returnTo:string = req.query[ApiConstants.RETURN_TO] || req.session[ApiConstants.RETURN_TO];
+                    var returnTo:string = req.flash()[ApiConstants.RETURN_TO];
                     if (!Utils.isNullOrEmpty(returnTo))
                         res.redirect(returnTo);
                     else

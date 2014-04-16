@@ -27,10 +27,10 @@ import Middleware                                           = require('./Middlew
 
 class ExpertRegistrationRoute
 {
-    userDelegate = new UserDelegate();
-    integrationMemberDelegate = new IntegrationMemberDelegate();
-    verificationCodeCache = new VerificationCodeCache();
-    emailDelegate = new EmailDelegate();
+    private userDelegate = new UserDelegate();
+    private integrationMemberDelegate = new IntegrationMemberDelegate();
+    private verificationCodeCache = new VerificationCodeCache();
+    private emailDelegate = new EmailDelegate();
 
     constructor(app)
     {
@@ -78,15 +78,17 @@ class ExpertRegistrationRoute
                 var invitedMemberEmail = invitedMember.getUser()[User.EMAIL];
                 return self.integrationMemberDelegate.findByEmail(invitedMemberEmail, integrationId)
             },
-            function verificationFailed() { throw("The invitation is either invalid or has expired"); }
-        )
+            function verificationFailed()
+            {
+                throw("The invitation is either invalid or has expired");
+            })
             .then(
             function expertFound(expert:IntegrationMember)
             {
                 if (expert.isValid())
                 {
                     req.session[ApiConstants.EXPERT] = expert;
-                    res.redirect(Urls.profile());
+                    res.redirect(DashboardUrls.mobileVerification());
                 }
                 else
                 {
@@ -101,13 +103,13 @@ class ExpertRegistrationRoute
         );
     }
 
-
     /* Handle authentication success -> Redirect to authorization */
     private authenticationSuccess(req:express.Request, res:express.Response)
     {
         var integrationId = req.session[ApiConstants.INTEGRATION_ID];
         var integration = new IntegrationDelegate().getSync(integrationId);
-        var redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? url.resolve(Config.get(Config.DASHBOARD_URI), Urls.mobileVerification()) : integration.getRedirectUrl();
+        var redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? url.resolve(Config.get(Config.DASHBOARD_URI), DashboardUrls.mobileVerification()) : integration.getRedirectUrl();
+        req.flash(ApiConstants.RETURN_TO, Urls.complete());
 
         var authorizationUrl = Urls.authorization() + '?response_type=code&client_id=' + integrationId + '&redirect_uri=' + redirectUrl;
         res.redirect(authorizationUrl);
@@ -172,7 +174,7 @@ class ExpertRegistrationRoute
         var member = req.session[ApiConstants.EXPERT];
 
         self.integrationMemberDelegate.update({'user_id': userId, 'integration_id': integrationId}, {role: member.role})
-        .then(
+            .then(
             function memberRoleCorrected()
             {
                 var pageData = {
@@ -192,9 +194,9 @@ class ExpertRegistrationRoute
         var self = this;
 
         q.all([
-                self.verificationCodeCache.deleteInvitationCode(req.session[ApiConstants.CODE], req.session[ApiConstants.INTEGRATION_ID]),
-                self.integrationMemberDelegate.search({'user_id': userId, 'integration_id': integrationId}, null, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
-            ])
+            self.verificationCodeCache.deleteInvitationCode(req.session[ApiConstants.CODE], req.session[ApiConstants.INTEGRATION_ID]),
+            self.integrationMemberDelegate.search({'user_id': userId, 'integration_id': integrationId}, null, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
+        ])
             .then(
             function scheduleRulesFetched(...args)
             {
