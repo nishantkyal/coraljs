@@ -55,7 +55,7 @@ class DashboardRoute
     private static PAGE_PROFILE_COMPLETE:string = 'dashboard/memberProfileComplete';
     private static PAGE_EDUCATION:string = 'dashboard/memberEducation';
     private static PAGE_SKILL:string = 'dashboard/memberSkill';
-    private static PAGE_EMPOLYMENT:string = 'dashboard/memberEmployment';
+    private static PAGE_EMPLOYMENT:string = 'dashboard/memberEmployment';
     private static PAGE_ACCOUNT_VERIFICATION:string = 'dashboard/accountVerification';
 
     private integrationDelegate = new IntegrationDelegate();
@@ -395,7 +395,7 @@ class DashboardRoute
                     'logged_in_user': loggedInUser,
                     'userEmployment': userEmployment
                 };
-                res.render(DashboardRoute.PAGE_EMPOLYMENT, pageData);
+                res.render(DashboardRoute.PAGE_EMPLOYMENT, pageData);
             },
             function userEducationFetchError() { res.send(500); }
         )

@@ -28,7 +28,6 @@ import IncludeFlag                                          = require('../../enu
 import TransactionStatus                                    = require('../../enums/TransactionStatus');
 import Formatter                                            = require('../../common/Formatter');
 import DashboardUrls                                        = require('../../routes/dashboard/Urls');
-import PageData                                             = require('./PageData');
 import Urls                                                 = require('./Urls');
 import Middleware                                           = require('./Middleware');
 
@@ -40,6 +39,7 @@ class CallFlowRoute
     private static SCHEDULING:string = 'callFlow/scheduling';
 
     private logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
+    private integrationMemberDelegate = new IntegrationMemberDelegate();
     private transactionDelegate = new TransactionDelegate();
     private verificationCodeDelegate = new VerificationCodeDelegate();
     private phoneCallDelegate = new PhoneCallDelegate();
@@ -73,7 +73,7 @@ class CallFlowRoute
     {
         var expertId = req.params[ApiConstants.EXPERT_ID];
 
-        new IntegrationMemberDelegate().get(expertId, null, [IncludeFlag.INCLUDE_SCHEDULES, IncludeFlag.INCLUDE_USER])
+        this.integrationMemberDelegate.get(expertId, null, [IncludeFlag.INCLUDE_SCHEDULES, IncludeFlag.INCLUDE_USER])
             .then(
             function handleExpertFound(expert)
             {
