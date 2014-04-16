@@ -38,9 +38,6 @@ class UserDelegate extends BaseDaoDelegate
         delete newValues[User.ID];
         delete newValues[User.EMAIL];
 
-        if (newValues.hasOwnProperty(User.PASSWORD))
-            newValues[User.PASSWORD] = this.md5sum.digest(newValues[User.PASSWORD]);
-
         return super.update(criteria, newValues);
     }
 
