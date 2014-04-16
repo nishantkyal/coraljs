@@ -1,14 +1,10 @@
 ///<reference path='../../_references.d.ts'/>
 import ApiConstants                                         = require('../../enums/ApiConstants');
 import Utils                                                = require('../../common/Utils');
-import IntegrationMember                                    = require('../../models/IntegrationMember');
-import PhoneCall                                            = require('../../models/PhoneCall');
 import BaseModel                                            = require('../../models/BaseModel');
-import UserPhone                                            = require('../../models/UserPhone');
-import UserPhoneDelegate                                    = require('../../delegates/UserPhoneDelegate');
-import SessionStorageHelper                                 = require('../../helpers/SessionStorageHelper');
 import Urls                                                 = require('./Urls');
 import SessionData                                          = require('./SessionData');
+
 class Middleware
 {
     static requireExpertAndAppointments(req, res, next)
