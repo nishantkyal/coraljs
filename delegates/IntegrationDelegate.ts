@@ -18,7 +18,6 @@ class IntegrationDelegate extends BaseDaoDelegate
 {
     private static cachedIntegrations:{[id:number]:Integration} = {};
 
-
     /* Static constructor workaround */
     private static ctor = (() =>
     {
@@ -28,6 +27,7 @@ class IntegrationDelegate extends BaseDaoDelegate
     private static updateCache()
     {
         var integrationDao:any = new IntegrationDAO();
+
         return integrationDao.getAll()
             .then(
             function integrationsFetched(integrations)
@@ -36,11 +36,11 @@ class IntegrationDelegate extends BaseDaoDelegate
                     var integration = new Integration(i);
                     IntegrationDelegate.cachedIntegrations[integration.getId()] = integration;
                 });
-                log4js.getDefaultLogger().info(integrations.length + ' integrations fetched and cached');
+                log4js.getLogger('IntegrationDelegate').info(integrations.length + ' integrations fetched and cached');
             },
             function integrationsFetchError(err)
             {
-                log4js.getDefaultLogger().debug('Error fetching list of integrations from services, error: ' + err);
+                log4js.getLogger('IntegrationDelegate').fatal('Error fetching list of integrations from services, error: ' + err);
             });
     }
 

@@ -22,8 +22,11 @@ class Config
     static REDIS_HOST:string                            = 'redis.host';
     static REDIS_PORT:string                            = 'redis.port';
     static EMAIL_CDN_BASE_URI:string                    = 'email.cdn.base_uri';
-    static CORAL_URI:string                             = 'Coral.uri';
-    static CORAL_PORT:string                            = 'Coral.port';
+    static DASHBOARD_URI:string                         = 'Dashboard.uri';
+    static DASHBOARD_HTTP_PORT:string                   = 'Dashboard.httpPort';
+    static DASHBOARD_HTTPS_PORT:string                  = 'Dashboard.httpsPort';
+    static API_URI:string                               = 'Api.uri';
+    static API_PORT:string                              = 'Api.port';
     static ACCESS_TOKEN_EXPIRY:string                   = 'access_token.expiry';
     static PASSWORD_RESET_EXPIRY:string                 = 'password_reset.expiry';
     static FB_APP_ID:string                             = 'fb.app_id';

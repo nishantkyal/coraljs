@@ -33,6 +33,18 @@ class VerificationCodeDelegate
     {
         var self = this;
 
+        return self.verificationCodeCache.createInvitationCode(integrationId, member)
+            .then(
+            function codeGenerated(code:string)
+            {
+                return self.emailDelegate.sendExpertInvitationEmail(member.getIntegrationId(), code, member, sender);
+            });
+    }
+
+    checkExistingAndSendEmailVerificationCode(integrationId:number, member:IntegrationMember, sender?:User):q.Promise<any>
+    {
+        var self = this;
+
         return self.integrationMemberDelegate.findByEmail(member.getUser().getEmail(), integrationId)
             .then(
             function expertFound(expert)
@@ -52,22 +64,17 @@ class VerificationCodeDelegate
                 });
 
                 if (Utils.isNullOrEmpty(matchingMember))
-                    return self.verificationCodeCache.createInvitationCode(integrationId, member);
+                    return self.createAndSendExpertInvitationCode(integrationId, member, sender);
                 else
                     throw('The user has already been sent an invitation');
-            })
-            .then(
-            function codeGenerated(code:string)
-            {
-                return self.emailDelegate.sendExpertInvitationEmail(member.getIntegrationId(), code, member, sender);
             })
             .fail(
             function codeSendFailed(error)
             {
                 // TODO: Mark as failed
                 self.logger.debug('Error occurred while sending invitation to %s, error: %s', JSON.stringify(member.toJson()), error);
-            }
-        );
+                throw(error);
+            });
     }
 
     createAndSendMobileVerificationCode(phoneNumber:UserPhone):q.Promise<any>

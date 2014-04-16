@@ -107,7 +107,7 @@ class ExpertRegistrationRoute
     {
         var integrationId = req.session[ApiConstants.INTEGRATION_ID];
         var integration = new IntegrationDelegate().getSync(integrationId);
-        var redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? url.resolve(Config.get(Config.CORAL_URI), Urls.mobileVerification()) : integration.getRedirectUrl();
+        var redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? url.resolve(Config.get(Config.DASHBOARD_URI), Urls.mobileVerification()) : integration.getRedirectUrl();
 
         var authorizationUrl = Urls.authorization() + '?response_type=code&client_id=' + integrationId + '&redirect_uri=' + redirectUrl;
         res.redirect(authorizationUrl);
@@ -202,7 +202,7 @@ class ExpertRegistrationRoute
                 var pageData = {
                     user: req[ApiConstants.USER],
                     integration: integration,
-                    "SearchNTalkUri": Config.get(Config.CORAL_URI),
+                    "SearchNTalkUri": Config.get(Config.DASHBOARD_URI),
                     "schedule_rules": member[IncludeFlag.INCLUDE_SCHEDULE_RULES]
                 };
                 res.render('expertRegistration/complete', pageData);

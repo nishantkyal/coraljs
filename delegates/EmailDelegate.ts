@@ -45,13 +45,14 @@ class EmailDelegate
     private static EMAIL_EXPERT_SCHEDULED:string = 'EMAIL_EXPERT_SCHEDULED';
     private static EMAIL_EXPERT_REMINDER:string = 'EMAIL_EXPERT_REMINDER';
     private static EMAIL_ACCOUNT_VERIFICATION:string = 'EMAIL_ACCOUNT_VERIFICATION';
-
     private static EMAIL_USER_REMINDER:string = 'EMAIL_USER_REMINDER';
     private static EMAIL_USER_SCHEDULED:string = 'EMAIL_USER_SCHEDULED';
     private static EMAIL_USER_AGENDA_FAIL:string = 'EMAIL_USER_AGENDA_FAIL';
+
     private static templateCache:{[templateNameAndLocale:string]:{bodyTemplate:Function; subjectTemplate:Function}} = {};
     private static transport:nodemailer.Transport;
     private phoneCallDelegate = new PhoneCallDelegate();
+    private static logger:log4js.Logger = log4js.getLogger('EmailDelegate');
 
     constructor()
     {
@@ -93,7 +94,7 @@ class EmailDelegate
                                 'bodyTemplate': _.template(data),
                                 'subjectTemplate': _.template(cheerio.load(data)('title').text())
                             };
-                            log4js.getDefaultLogger().debug('Email template updated: ' + fileNameWithoutExtension.toUpperCase());
+                            EmailDelegate.logger.debug('Email template updated: ' + fileNameWithoutExtension.toUpperCase());
                         }
                     });
                 }
@@ -113,7 +114,6 @@ class EmailDelegate
     {
         var self = this;
         var deferred = q.defer<any>();
-        var logger = log4js.getLogger(Utils.getClassName(self));
 
         emailData["email_cdn_base_uri"] = Config.get(Config.EMAIL_CDN_BASE_URI);
         from = from || 'SearchNTalk.com\<contact@searchntalk.com\>';
@@ -125,7 +125,7 @@ class EmailDelegate
             var subject:string = this.getEmailSubject(template, emailData);
         } catch (e)
         {
-            logger.error('Invalid email template: ' + template);
+            EmailDelegate.logger.error('Invalid email template: ' + template);
             deferred.reject("Invalid email data");
             return null;
         }
@@ -143,12 +143,12 @@ class EmailDelegate
             {
                 if (error)
                 {
-                    logger.info('Error in sending Email to:' + to);
+                    EmailDelegate.logger.info('Error in sending Email to:' + to);
                     deferred.reject(error);
                 }
                 else
                 {
-                    logger.info('Email sent to:' + to);
+                    EmailDelegate.logger.info('Email sent to:' + to);
                     deferred.resolve(response);
                 }
             }
@@ -167,7 +167,7 @@ class EmailDelegate
         }
         catch (err)
         {
-            log4js.getLogger(Utils.getClassName(self)).error("Couldn't generate email body for (template %s, data: %s), Error: %s", template, emailData, err);
+            EmailDelegate.logger.error("Couldn't generate email body for (template %s, data: %s), Error: %s", template, emailData, err);
             throw(err);
         }
     }
@@ -182,7 +182,7 @@ class EmailDelegate
         }
         catch (err)
         {
-            log4js.getLogger(Utils.getClassName(self)).error("Couldn't generate email subject for (template %s, data: %s), Error: %s", template, emailData, err);
+            EmailDelegate.logger.error("Couldn't generate email subject for (template %s, data: %s), Error: %s", template, emailData, err);
             throw(err);
         }
     }
@@ -274,7 +274,7 @@ class EmailDelegate
         invitationUrl += ApiConstants.INTEGRATION_ID + '=' + integrationId;
         invitationUrl += '&';
         invitationUrl += ApiConstants.CODE + '=' + invitationCode;
-        invitationUrl = url.resolve(Config.get(Config.CORAL_URI), invitationUrl);
+        invitationUrl = url.resolve(Config.get(Config.DASHBOARD_URI), invitationUrl);
 
         var integration = new IntegrationDelegate().getSync(integrationId)
         var emailData = {
@@ -283,7 +283,7 @@ class EmailDelegate
             recipient: recipient.toJson(),
             sender: sender.toJson()
         };
-        return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_INVITE, recipient.getUser().getEmail(), emailData, sender.getEmail());
+        return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_INVITE, recipient.getUser().getEmail(), emailData, Formatter.formatUserName(sender, true));
     }
 
     sendWelcomeEmail(integrationId:number, recipient:IntegrationMember):q.Promise<any>
@@ -303,7 +303,7 @@ class EmailDelegate
         invitationUrl += ApiConstants.INTEGRATION_ID + '=' + integrationId;
         invitationUrl += '&';
         invitationUrl += ApiConstants.CODE + '=' + invitationCode;
-        invitationUrl = url.resolve(Config.get(Config.CORAL_URI), invitationUrl);
+        invitationUrl = url.resolve(Config.get(Config.DASHBOARD_URI), invitationUrl);
 
         var integration = new IntegrationDelegate().getSync(integrationId)
 
@@ -355,7 +355,7 @@ class EmailDelegate
 
     sendAccountVerificationEmail(user:User, verificationCode:string):q.Promise<any>
     {
-        var verificationUrl = url.resolve(Config.get(Config.CORAL_URI), DashboardUrls.emailAccountVerification());
+        var verificationUrl = url.resolve(Config.get(Config.DASHBOARD_URI), DashboardUrls.emailAccountVerification());
         verificationUrl += '?';
         verificationUrl += ApiConstants.CODE + '=' + verificationCode;
         verificationUrl += '&';
