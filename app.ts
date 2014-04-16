@@ -95,8 +95,8 @@ app.use(passport.session({}));
 app.use(connect_flash());
 
 // APIs and Route endpoints
-api(app, secureApp);
-routes(app, secureApp);
+api(app);
+routes(app);
 
 // Underscore template pattern
 _.templateSettings = {
