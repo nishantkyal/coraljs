@@ -28,8 +28,10 @@ import IncludeFlag                                          = require('../../enu
 import TransactionStatus                                    = require('../../enums/TransactionStatus');
 import Formatter                                            = require('../../common/Formatter');
 import DashboardUrls                                        = require('../../routes/dashboard/Urls');
+
 import Urls                                                 = require('./Urls');
 import Middleware                                           = require('./Middleware');
+import SessionData                                          = require('./SessionData');
 
 class CallFlowRoute
 {
@@ -72,20 +74,17 @@ class CallFlowRoute
     private index(req:express.Request, res:express.Response)
     {
         var expertId = req.params[ApiConstants.EXPERT_ID];
+        var sessionData = new SessionData(req);
 
         this.integrationMemberDelegate.get(expertId, null, [IncludeFlag.INCLUDE_SCHEDULES, IncludeFlag.INCLUDE_USER])
             .then(
             function handleExpertFound(expert)
             {
-                Middleware.setSelectedExpert(req, expert);
-                var pageData = {
-                    logged_in_user: req['user'],
-                    user: expert.user[0],
-                    expert: expert,
-                    messages: req.flash(),
-                    startTimes: Middleware.getAppointments(req),
-                    duration: Middleware.getDuration(req)
-                };
+                sessionData.setExpert(expert);
+
+                var pageData = _.extend(sessionData.getData(), {
+                    messages: req.flash()
+                });
 
                 res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
                 res.render(CallFlowRoute.INDEX, pageData);
@@ -98,13 +97,15 @@ class CallFlowRoute
     // Not using a middleware for this because login is not an absolute requirement to reach payment page
     scheduleSelected(req, res:express.Response)
     {
+        var sessionData = new SessionData(req);
+
         // TODO: Validate duration
         var duration:number = req.body[ApiConstants.DURATION];
-        Middleware.setDuration(req, duration);
+        sessionData.setDuration(duration);
 
         // TODO: Validate start times
         var startTimes:number[] = req.body[ApiConstants.START_TIME];
-        Middleware.setAppointments(req, startTimes);
+        sessionData.setAppointments(startTimes);
 
         if (req.isAuthenticated())
             res.redirect(Urls.callPayment());
@@ -114,14 +115,11 @@ class CallFlowRoute
 
     authenticate(req:express.Request, res:express.Response)
     {
-        var expert = Middleware.getSelectedExpert(req);
+        var sessionData = new SessionData(req);
 
-        var pageData = {
-            logged_in_user: req['user'],
-            user: expert.getUser()[0],
-            expert: expert,
+        var pageData = _.extend(sessionData.getData(), {
             messages: req.flash()
-        };
+        });
 
         res.render(CallFlowRoute.LOGIN, pageData);
     }
@@ -129,19 +127,14 @@ class CallFlowRoute
     /* Validate request from caller and start a new transaction */
     private callPayment(req, res:express.Response)
     {
-        var expert = Middleware.getSelectedExpert(req);
+        var sessionData = new SessionData(req);
 
         function renderPage(phoneNumbers:UserPhone[])
         {
-            var pageData = {
-                logged_in_user: req['user'],
-                user: expert.getUser()[0],
-                expert: expert,
+            var pageData = _.extend(sessionData.getData(), {
                 messages: req.flash(),
-                startTimes: Middleware.getAppointments(req),
-                duration: Middleware.getDuration(req),
                 userPhones: phoneNumbers
-            };
+            });
 
             res.render(CallFlowRoute.PAYMENT, pageData);
         };
@@ -165,15 +158,16 @@ class CallFlowRoute
     private checkout(req:express.Request, res:express.Response)
     {
         var self = this;
+        var sessionData = new SessionData(req);
 
         var phoneCall = new PhoneCall();
-        phoneCall.setIntegrationMemberId(Middleware.getSelectedExpert(req).getId());
+        phoneCall.setIntegrationMemberId(sessionData.getExpert().getId());
         phoneCall.setExpertPhoneId(00);//TODO[alpha-calling] set expert phone Id correctly
         phoneCall.setCallerUserId(req[ApiConstants.USER].id);
         phoneCall.setCallerPhoneId(00);//TODO[alpha-calling] set caller phone Id correctly
         phoneCall.setDelay(0);
         phoneCall.setStatus(CallStatus.PLANNING);
-        phoneCall.setDuration(Middleware.getDuration(req));
+        phoneCall.setDuration(sessionData.getDuration());
 
         var transaction = new Transaction();
         transaction.setUserId(req[ApiConstants.USER].id);
@@ -203,7 +197,6 @@ class CallFlowRoute
         var self = this;
         var startTime:number = parseInt(req.query[ApiConstants.START_TIME]);
         var appointmentCode:string = req.query[ApiConstants.CODE];
-
 
         this.verificationCodeDelegate.verifyAppointmentAcceptCode(appointmentCode)
             .then(

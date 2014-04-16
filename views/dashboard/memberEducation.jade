@@ -19,21 +19,22 @@ include ../scriptsAndStyles
                 .form-group
                     label.control-label(for='education') Education Details
                     br
-                    each edu in userEducation
-                        label.control-label(for='education') #{edu.school_name}&nbsp
-                        a.fa.fa-pencil.edit(data-id=edu.id, data-toggle='modal', href='#EditUserEducationModal')
-                        a.fa.fa-times.delete(data-id=edu.id, data-toggle='modal', href='#DeleteUserEducationModal')
-                        br
-                        if edu.degree
-                            small #{edu.degree}
-                        if edu.field_of_study
-                            small , #{edu.field_of_study}
+                    if userEducation
+                        each edu in userEducation
+                            label.control-label(for='education') #{edu.school_name}&nbsp
+                            a.fa.fa-pencil.edit(data-id=edu.id, data-toggle='modal', href='#EditUserEducationModal')
+                            a.fa.fa-times.delete(data-id=edu.id, data-toggle='modal', href='#DeleteUserEducationModal')
                             br
-                        if edu.start_year
-                            small #{edu.start_year}&nbsp
-                        if edu.end_year
-                            small - #{edu.end_year}
-                            br
+                            if edu.degree
+                                small #{edu.degree}
+                            if edu.field_of_study
+                                small , #{edu.field_of_study}
+                                br
+                            if edu.start_year
+                                small #{edu.start_year}&nbsp
+                            if edu.end_year
+                                small - #{edu.end_year}
+                                br
                     br
                     a.btn.btn-default.btn-xs#addEducationBtn(data-toggle='modal', href='#AddUserEducationModal') Add Education
 #AddUserEducationModal.modal.fade(style='display: none;')

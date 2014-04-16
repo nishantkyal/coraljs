@@ -31,12 +31,33 @@ class UserDelegate extends BaseDaoDelegate
 
     constructor() { super(new UserDAO()); }
 
+    create(object:any, transaction?:any):q.Promise<any>
+    {
+        if (object.hasOwnProperty(User.PASSWORD))
+            object[User.PASSWORD] = this.computePasswordHash(object[User.EMAIL], object[User.PASSWORD]);
+
+        return super.create(object, transaction);
+    }
+
     update(criteria:Object, newValues:any, transaction?:any):q.Promise<any>;
     update(criteria:number, newValues:any, transaction?:any):q.Promise<any>;
     update(criteria:any, newValues:any, transaction?:any):q.Promise<any>
     {
+        var self = this;
+        var superGet = super.get.bind(this);
         delete newValues[User.ID];
         delete newValues[User.EMAIL];
+
+        if (newValues.hasOwnProperty(User.PASSWORD))
+        {
+            return this.find(criteria)
+                .then(
+                function userFetched(user:User)
+                {
+                    user.setPassword(self.computePasswordHash(user.getEmail(), user.getPassword()));
+                    return superGet(user, transaction);
+                });
+        }
 
         return super.update(criteria, newValues);
     }
@@ -123,6 +144,11 @@ class UserDelegate extends BaseDaoDelegate
             {
                 return self.update({id: user.getId()}, {status: status});
             });
+    }
+
+    private computePasswordHash(email:string, textPassword:string)
+    {
+        return this.md5sum.update(email + ':' + textPassword).digest('hex');
     }
 
 }

@@ -62,15 +62,6 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
         return super.get(id, fields, flags);
     }
 
-    searchByUser(user_id:number, fields?:string[], includes:Array<IncludeFlag> = []):q.Promise<any>
-    {
-        var search = {};
-        search[IntegrationMember.USER_ID] = user_id;
-
-        fields = fields || ['id', 'role', 'integration_id', 'user_id'];
-        return this.search(search, fields, includes);
-    }
-
     findValidAccessToken(accessToken:string, integrationMemberId?:string):q.Promise<any>
     {
         var accessTokenCache = new AccessTokenCache();

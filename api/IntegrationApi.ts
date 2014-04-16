@@ -100,7 +100,7 @@ class IntegrationApi
             var userId:number = parseInt(req.query[ApiConstants.USER_ID]);
 
             if (!Utils.isNullOrEmpty(userId))
-                integrationMemberDelegate.searchByUser(userId, null, [IncludeFlag.INCLUDE_INTEGRATION, IncludeFlag.INCLUDE_USER])
+                integrationMemberDelegate.search({user_id: userId}, null, [IncludeFlag.INCLUDE_INTEGRATION, IncludeFlag.INCLUDE_USER])
                     .then(
                     function integrationFetched(result:Array<Integration>) { res.json(result); },
                     function integrationFetchError(error) { res.status(500).json(error); }

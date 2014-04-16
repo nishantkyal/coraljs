@@ -39,10 +39,12 @@ import IndustryCodes                                    = require('../../enums/I
 import Utils                                            = require('../../common/Utils');
 import Formatter                                        = require('../../common/Formatter');
 import VerificationCodeCache                            = require('../../caches/VerificationCodeCache');
-import CallFlowMiddleware                               = require('../../routes/callFlow/Middleware');
+
+import CallFlowSessionData                              = require('../../routes/callFlow/SessionData');
 
 import Middleware                                       = require('./Middleware');
 import Urls                                             = require('./Urls');
+import SessionData                                      = require('./SessionData');
 
 class DashboardRoute
 {
@@ -95,25 +97,36 @@ class DashboardRoute
 
     login(req:express.Request, res:express.Response)
     {
-        res.render(DashboardRoute.PAGE_LOGIN, {logged_in_user: req[ApiConstants.USER], messages: req.flash()});
+        var sessionData = new SessionData(req);
+
+        var pageData = _.extend(sessionData.getData(), {
+            messages: req.flash()
+        });
+
+        res.render(DashboardRoute.PAGE_LOGIN, pageData);
     }
 
     verifyMobile(req:express.Request, res:express.Response)
     {
         this.userPhoneDelegate.getByUserId(req[ApiConstants.USER].id)
             .then(
-                function phoneNumbersFetched(numbers:UserPhone[]) { return numbers; },
-                function phoneNumberFetchError(error) { return null; })
+            function phoneNumbersFetched(numbers:UserPhone[]) { return numbers; },
+            function phoneNumberFetchError(error) { return null; })
             .then(
             function renderPage(numbers)
             {
-                res.render(DashboardRoute.PAGE_MOBILE_VERIFICATION, {userPhones: numbers, context: req.query[ApiConstants.CONTEXT]});
+                var sessionData = new SessionData(req);
+                var pageData = _.extend(sessionData.getData(), {
+                    userPhones: numbers,
+                    context: req.query[ApiConstants.CONTEXT]
+                });
+                res.render(DashboardRoute.PAGE_MOBILE_VERIFICATION, pageData);
             });
     }
 
     authSuccess(req, res:express.Response)
     {
-        var user = req[ApiConstants.USER];
+        var sessionData = new SessionData(req);
 
         if (req.session[ApiConstants.RETURN_TO])
         {
@@ -122,7 +135,7 @@ class DashboardRoute
             return;
         }
 
-        this.integrationMemberDelegate.searchByUser(user.id, null, [IncludeFlag.INCLUDE_INTEGRATION, IncludeFlag.INCLUDE_USER])
+        this.integrationMemberDelegate.search({user_id: sessionData.getLoggedInUser().getId()}, null, [IncludeFlag.INCLUDE_INTEGRATION, IncludeFlag.INCLUDE_USER])
             .then(
             function integrationsFetched(integrationMembers)
             {
@@ -133,7 +146,17 @@ class DashboardRoute
                 }
                 else
                 {
-                    Middleware.setIntegrationMembers(req, integrationMembers);
+                    // TODO: Clean up data because we haven't implemented foreign keys correctly
+                    var correctedMembers = _.map(integrationMembers, function (member:IntegrationMember)
+                    {
+                        var users:User[] = member[IntegrationMember.USER];
+                        var integrations:Integration[] = member[IntegrationMember.INTEGRATION];
+                        member.setUser(_.findWhere(users, {'id': member.getUserId()}));
+                        member.setIntegration(_.findWhere(integrations, {'id': member.getIntegrationId()}));
+                        return member;
+                    });
+
+                    sessionData.setMembers(correctedMembers);
                     res.redirect(Urls.integrations());
                 }
             },
@@ -146,55 +169,30 @@ class DashboardRoute
 
     integrations(req:express.Request, res:express.Response)
     {
-        var user = req[ApiConstants.USER];
+        var sessionData = new SessionData(req);
 
-        this.integrationMemberDelegate.searchByUser(user.id, IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_INTEGRATION, IncludeFlag.INCLUDE_USER])
-            .then(
-            function integrationsFetched(integrationMembers)
-            {
-                Middleware.setIntegrationMembers(req, integrationMembers);
+        var pageData = _.extend(sessionData.getData(), {
+            selectedTab: 'integrations'
+        });
 
-                // TODO: Clean up data because we havent implemented foreign keys correctly
-                _.each(integrationMembers, function (member:IntegrationMember)
-                {
-                    var users:User[] = member[IntegrationMember.USER];
-                    var integrations:Integration[] = member[IntegrationMember.INTEGRATION];
-                    member.setUser(_.findWhere(users, {'id': member.getUserId()}));
-                    member.setIntegration(_.findWhere(integrations, {'id': member.getIntegrationId()}));
-                });
-
-                var pageData =
-                {
-                    'members': integrationMembers,
-                    'logged_in_user': user,
-                    selectedTab: 'integrations'
-                };
-
-                res.render(DashboardRoute.PAGE_INTEGRATIONS, pageData);
-            },
-            function integrationsFetchError(error)
-            {
-                res.send(500, error);
-            });
+        res.render(DashboardRoute.PAGE_INTEGRATIONS, pageData);
     }
 
     private coupons(req:express.Request, res:express.Response)
     {
+        var sessionData = new SessionData(req);
+
         var integrationId = parseInt(req.params[ApiConstants.INTEGRATION_ID]);
         var integration = this.integrationDelegate.getSync(integrationId);
-        var integrationMembers = Middleware.getIntegrationMembers(req);
 
         this.couponDelegate.search({integration_id: integrationId}, Coupon.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_EXPERT])
             .then(
             function couponsFetched(coupons:Coupon[])
             {
-                var pageData =
-                {
+                var pageData = _.extend(sessionData.getData(),  {
                     'coupons': coupons,
-                    'members': integrationMembers,
-                    'logged_in_user': req[ApiConstants.USER],
                     'integration': integration
-                };
+                });
 
                 res.render(DashboardRoute.PAGE_COUPONS, pageData);
             },
@@ -204,15 +202,11 @@ class DashboardRoute
 
     private integrationUsers(req:express.Request, res:express.Response)
     {
+        var sessionData = new SessionData(req);
+
         var integrationId = parseInt(req.params[ApiConstants.INTEGRATION_ID]);
-        req.session[ApiConstants.INTEGRATION_ID] = integrationId;
-
-        var integrationMembers = Middleware.getIntegrationMembers(req);
-
-        Middleware.setIntegrationId(req, integrationId);
-
-        var member = _.findWhere(integrationMembers, {'integration_id': integrationId});
-        var integration = member[IntegrationMember.INTEGRATION];
+        var integration = this.integrationDelegate.getSync(integrationId);
+        sessionData.setIntegrationId(integrationId);
 
         // Fetch all users for integration
         var search = {};
@@ -252,12 +246,11 @@ class DashboardRoute
 
                 members = members.concat(_.map(invitedMembers, function (invited) { return new IntegrationMember(invited); }));
 
-                var pageData =
-                {
-                    'logged_in_user': req[ApiConstants.USER],
-                    'integrationMembers': members,
+                var pageData = _.extend(sessionData.getData(), {
+                    'members': members,
                     'integration': integration
-                };
+                });
+
                 res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
                 res.render(DashboardRoute.PAGE_USERS, pageData);
             },
@@ -268,6 +261,7 @@ class DashboardRoute
     {
         var self = this;
         var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
+        var sessionData = new SessionData(req);
 
         self.integrationMemberDelegate.get(memberId)
             .then(
@@ -289,14 +283,13 @@ class DashboardRoute
                 var userEducation = args[0][2];
                 var userEmployment = args[0][3];
 
-                var pageData =
-                {
+                var pageData = _.extend(sessionData.getData(),  {
                     'user': user,
                     'userSkill': userSkill,
                     'userEducation': userEducation,
-                    'userEmployment': userEmployment,
-                    'industryCodes': Utils.enumToNormalText(IndustryCodes)
-                };
+                    'userEmployment': userEmployment
+                });
+
                 res.render(DashboardRoute.PAGE_PROFILE_COMPLETE, pageData);
             })
             .fail(
@@ -311,6 +304,7 @@ class DashboardRoute
         var self = this;
         var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
         var user:any = req[ApiConstants.USER];
+        var sessionData = new SessionData(req);
 
         q.all([
             self.userSkillDelegate.getSkillName(user.id),
@@ -322,12 +316,10 @@ class DashboardRoute
                 var skills = args[0][0];
                 var member = args[0][1];
 
-                var pageData =
-                {
-                    'logged_in_user': user,
+                var pageData = _.extend(sessionData.getData(), {
                     'member': member,
-                    'user': user
-                };
+                    'skills': skills
+                });
                 res.render(DashboardRoute.PAGE_PROFILE, pageData);
             },
             function userSkillFetchError(error) { res.send(500); });
@@ -335,10 +327,10 @@ class DashboardRoute
 
     memberProfileSave(req:express.Request, res:express.Response)
     {
-        var loggedInUser = req[ApiConstants.USER];
+        var sessionData = new SessionData(req);
         var user = req.body[ApiConstants.USER];
 
-        this.userDelegate.update({id: loggedInUser.id}, user)
+        this.userDelegate.update({id: sessionData.getLoggedInUser().getId()}, user)
             .then(
             function userUpdated() { res.send(200); },
             function userUpdateError() { res.send(500); }
@@ -348,11 +340,11 @@ class DashboardRoute
     memberEducation(req:express.Request, res:express.Response)
     {
         var self = this;
-        var loggedInUser = req[ApiConstants.USER];
+        var sessionData = new SessionData(req);
         var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
 
         q.all([
-            self.userEducationDelegate.search({'user_id': loggedInUser.id}),
+            self.userEducationDelegate.search({'user_id': sessionData.getLoggedInUser().getId()}),
             self.integrationMemberDelegate.get(memberId)
         ])
             .then(
@@ -361,12 +353,11 @@ class DashboardRoute
                 var userEducation = args[0][0];
                 var member = args[0][1];
 
-                var pageData =
-                {
+                var pageData = _.extend(sessionData.getData(), {
                     'member': member,
-                    'logged_in_user': loggedInUser,
                     'userEducation': userEducation
-                };
+                });
+
                 res.render(DashboardRoute.PAGE_EDUCATION, pageData);
             },
             function userEducationFetchError() { res.send(500); }
@@ -376,11 +367,11 @@ class DashboardRoute
     memberEmployment(req:express.Request, res:express.Response)
     {
         var self = this;
-        var loggedInUser = req[ApiConstants.USER];
+        var sessionData = new SessionData(req);
         var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
 
         q.all([
-            self.userEmploymentDelegate.search({'user_id': loggedInUser.id}),
+            self.userEmploymentDelegate.search({'user_id': sessionData.getLoggedInUser().getId()}),
             self.integrationMemberDelegate.get(memberId)
         ])
             .then(
@@ -389,12 +380,11 @@ class DashboardRoute
                 var userEmployment = args[0][0];
                 var member = args[0][1];
 
-                var pageData =
-                {
+                var pageData = _.extend(sessionData.getData(), {
                     'member': member,
-                    'logged_in_user': loggedInUser,
                     'userEmployment': userEmployment
-                };
+                });
+
                 res.render(DashboardRoute.PAGE_EMPLOYMENT, pageData);
             },
             function userEducationFetchError() { res.send(500); }
@@ -427,7 +417,8 @@ class DashboardRoute
             .then(
             function callFetched(call:PhoneCall)
             {
-                self.notificationDelegate.sendCallSchedulingNotifications(call, CallFlowMiddleware.getAppointments(req), CallFlowMiddleware.getDuration(req), new User(req[ApiConstants.USER]));
+                var callFlowSessionData = new CallFlowSessionData(req);
+                self.notificationDelegate.sendCallSchedulingNotifications(call, callFlowSessionData.getAppointments(), callFlowSessionData.getDuration(), callFlowSessionData.getLoggedInUser());
             });
     }
 
