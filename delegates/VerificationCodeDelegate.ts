@@ -33,11 +33,19 @@ class VerificationCodeDelegate
     {
         var self = this;
 
-        return self.verificationCodeCache.createInvitationCode(integrationId, member)
+        return self.deleteVerificationCode(integrationId, member.getUser().getEmail())
+            .then(
+            function oldCodeDeleted()
+            {
+                return self.verificationCodeCache.createInvitationCode(integrationId, member);
+            })
             .then(
             function codeGenerated(code:string)
             {
-                return self.emailDelegate.sendExpertInvitationEmail(member.getIntegrationId(), code, member, sender);
+                return q.all([
+                    self.emailDelegate.sendExpertInvitationEmail(member.getIntegrationId(), code, member, sender),
+                    self.verificationCodeCache.getInvitationCodes(integrationId)
+                ]);
             });
     }
 
@@ -45,28 +53,21 @@ class VerificationCodeDelegate
     {
         var self = this;
 
-        return self.integrationMemberDelegate.findByEmail(member.getUser().getEmail(), integrationId)
-            .then(
-            function expertFound(expert)
+        return q.all([
+            self.integrationMemberDelegate.findByEmail(member.getUser().getEmail(), integrationId),
+            self.findVerificationCode(integrationId, member.getUser().getEmail())
+        ]).
+            then(
+            function existingSearched(...args)
             {
-                if (!expert.isValid())
-                    return self.verificationCodeCache.getInvitationCodes(integrationId);
-                else
-                    throw('The expert is already registered');
-            })
-            .then(
-            function invitationCodesFetched(invitedMembers:any[])
-            {
-                // Check if an invitation has already been sent to the email
-                var matchingMember = _.find(invitedMembers, function (m:any):boolean
-                {
-                    return m.user.email == member.getUser().getEmail();
-                });
+                var expert = args[0][0];
+                var invited = args[0][1];
 
-                if (Utils.isNullOrEmpty(matchingMember))
-                    return self.createAndSendExpertInvitationCode(integrationId, member, sender);
-                else
-                    throw('The user has already been sent an invitation');
+                if (!Utils.isNullOrEmpty(expert))
+                    throw('The expert is already registered');
+
+                if (!Utils.isNullOrEmpty(invited))
+                    throw('The expert is already registered');
             })
             .fail(
             function codeSendFailed(error)
@@ -74,6 +75,37 @@ class VerificationCodeDelegate
                 // TODO: Mark as failed
                 self.logger.debug('Error occurred while sending invitation to %s, error: %s', JSON.stringify(member.toJson()), error);
                 throw(error);
+            });
+    }
+
+    deleteVerificationCode(integrationId:number, email:string):q.Promise<any>
+    {
+        var self = this;
+
+        return self.findVerificationCode(integrationId, email)
+            .then(
+            function codesFetched(invitedMembers:any[]):any
+            {
+                if (!Utils.isNullOrEmpty(invitedMembers))
+                    return q.all(_.map(_.keys(invitedMembers), function (code:string)
+                    {
+                        return self.verificationCodeCache.deleteInvitationCode(code, integrationId);
+                    }));
+            });
+    }
+
+    findVerificationCode(integrationId:number, email:string):q.Promise<any>
+    {
+        var self = this;
+
+        return self.verificationCodeCache.getInvitationCodes(integrationId)
+            .then(
+            function codesFetched(invitedMembers:any[])
+            {
+                return _.where(_.values(invitedMembers), function (member)
+                {
+                    return member.user.email == email;
+                });
             });
     }
 

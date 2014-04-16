@@ -203,24 +203,22 @@ class DashboardRoute
     private integrationUsers(req:express.Request, res:express.Response)
     {
         var sessionData = new SessionData(req);
+        var self = this;
 
         var integrationId = parseInt(req.params[ApiConstants.INTEGRATION_ID]);
         var integration = this.integrationDelegate.getSync(integrationId);
         sessionData.setIntegrationId(integrationId);
 
         // Fetch all users for integration
-        var search = {};
-        search[IntegrationMember.INTEGRATION_ID] = integrationId;
-
         q.all([
-            this.integrationMemberDelegate.search(search, IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER]),
-            this.verificationCodeCache.getInvitationCodes(integrationId)
+            self.integrationMemberDelegate.search({integration_id: integrationId}, IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER]),
+            self.verificationCodeCache.getInvitationCodes(integrationId)
         ])
             .then(
             function membersFetched(...results)
             {
                 var members = results[0][0];
-                var invitedMembers = [].concat(results[0][1]);
+                var invitedMembers = [].concat(_.values(results[0][1]));
 
                 _.each(members, function (member:IntegrationMember)
                 {

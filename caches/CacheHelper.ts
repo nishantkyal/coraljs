@@ -155,15 +155,29 @@ class CacheHelper
         {
             if (error)
                 deferred.reject(error);
-            else if (Utils.getObjectType(result) == 'Array')
-                deferred.resolve(_.map(result, function (row:any)
-                {
-                    return JSON.parse(row);
-                }));
             else
-                deferred.resolve(JSON.parse(result));
+                deferred.resolve(result);
         });
         return deferred.promise;
+    }
+
+    static getHash(set:string):q.Promise<any>
+    {
+        return q.all([
+            CacheHelper.getHashKeys(set),
+            CacheHelper.getHashValues(set)
+        ])
+            .then(
+            function valuesFetched(...args)
+            {
+                var keys = args[0][0];
+                var values = args[0][1];
+                var indexed = {};
+                _.each(keys, function(code:string, index) {
+                    indexed[code] = values[index];
+                });
+                return indexed;
+            });
     }
 
     static getFromHash(set, key):q.Promise<any>
