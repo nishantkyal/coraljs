@@ -118,7 +118,7 @@ class ExpertRegistrationRoute
     private authenticationSuccess(req:express.Request, res:express.Response)
     {
         var sessionData = new SessionData(req);
-        var integrationId = sessionData.getIntegrationId;
+        var integrationId = sessionData.getIntegrationId();
         var integration = sessionData.getIntegration();
         var redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? Utils.addQueryToUrl(DashboardUrls.mobileVerification(), Utils.createSimpleObject(ApiConstants.CONTEXT, 'expertRegistration')) : integration.getRedirectUrl();
         req.flash(ApiConstants.RETURN_TO, Urls.complete());

@@ -3,7 +3,7 @@ import User                                                 = require('../models
 
 class AbstractSessionData
 {
-    private static LOGGED_IN_USER:string    = 'loggedInUser';
+    private static LOGGED_IN_USER:string = 'loggedInUser';
 
     private req;
     private data:Object;
@@ -15,15 +15,18 @@ class AbstractSessionData
     }
 
     /* Getters */
-    getIdentifier():string                      { throw('Implement this method'); }
+    getIdentifier():string { throw('Implement this method'); }
 
     getLoggedInUser():User
     {
-        try {
-            return new User(this.req[ApiConstants.USER]);
-        } catch(e) {
-            return this.req[ApiConstants.USER];
+        if (this.req[ApiConstants.USER])
+        {
+            var user = new User(this.req[ApiConstants.USER]);
+            if (user.isValid())
+                return user;
         }
+
+        return this.req[ApiConstants.USER];
     }
 
     getData():Object
