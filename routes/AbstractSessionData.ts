@@ -12,15 +12,16 @@ class AbstractSessionData
     {
         this.data = this.data || req.session[this.getIdentifier()] || {};
         this.req = req;
-
-        if (req[ApiConstants.USER])
-            this.data[AbstractSessionData.LOGGED_IN_USER] = new User(req[ApiConstants.USER]);
     }
 
     /* Getters */
     getIdentifier():string                      { return 'PLEASE_SET_THIS_VALUE'; }
-    getLoggedInUser():User                      { return this.data[AbstractSessionData.LOGGED_IN_USER]; }
-    getData():Object                            { return this.data; }
+    getLoggedInUser():User                      { return this.req[ApiConstants.USER]; }
+    getData():Object
+    {
+        this.data[AbstractSessionData.LOGGED_IN_USER] = this.getLoggedInUser();
+        return JSON.parse(JSON.stringify(this.data));
+    }
 
     /* Setters */
     set(key:string, val:Object)
