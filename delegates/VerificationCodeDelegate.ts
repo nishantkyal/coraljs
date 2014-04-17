@@ -82,13 +82,8 @@ class VerificationCodeDelegate
 
                 if (!Utils.isNullOrEmpty(invited))
                     throw('The expert is already registered');
-            })
-            .fail(
-            function codeSendFailed(error)
-            {
-                // TODO: Mark as failed
-                self.logger.debug('Error occurred while sending invitation to %s, error: %s', JSON.stringify(member.toJson()), error);
-                throw(error);
+
+                return self.createAndSendExpertInvitationCode(integrationId, member, sender);
             });
     }
 
@@ -120,7 +115,8 @@ class VerificationCodeDelegate
                 for (var code in invites)
                 {
                     var member = invites[code];
-                    if (member.user.email == email) {
+                    if (member.user.email == email)
+                    {
                         matchingInvites = matchingInvites || {};
                         matchingInvites[code] = member;
                     }
