@@ -116,12 +116,14 @@ class VerificationCodeDelegate
             .then(
             function codesFetched(invites:any[])
             {
-                var matchingInvites = {};
+                var matchingInvites;
                 for (var code in invites)
                 {
                     var member = invites[code];
-                    if (member.user.email == email)
+                    if (member.user.email == email) {
+                        matchingInvites = matchingInvites || {};
                         matchingInvites[code] = member;
+                    }
                 }
                 return matchingInvites;
             });

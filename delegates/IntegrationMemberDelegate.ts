@@ -114,7 +114,9 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
             .then(
             function membersFound(members)
             {
-                return new IntegrationMember(members[0]);
+                if (!Utils.isNullOrEmpty(members))
+                    return new IntegrationMember(members[0]);
+                return null;
             });
     }
 
