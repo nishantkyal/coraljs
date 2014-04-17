@@ -41,6 +41,7 @@ import Formatter                                        = require('../../common/
 import VerificationCodeCache                            = require('../../caches/VerificationCodeCache');
 
 import CallFlowSessionData                              = require('../../routes/callFlow/SessionData');
+import ExpertRegistrationSessionData                    = require('../../routes/expertRegistration/SessionData');
 
 import Middleware                                       = require('./Middleware');
 import Urls                                             = require('./Urls');
@@ -115,10 +116,25 @@ class DashboardRoute
             .then(
             function renderPage(numbers)
             {
-                var sessionData = new SessionData(req);
+                var sessionData:any;
+                var context = req.query[ApiConstants.CONTEXT] || 'Dashboard';
+
+                switch(context)
+                {
+                    case 'expertRegistration':
+                        sessionData = new ExpertRegistrationSessionData(req);
+                        break;
+                    case 'callFlow':
+                        sessionData = new CallFlowSessionData(req);
+                        break;
+                    default:
+                        sessionData = new SessionData(req);
+                        break;
+                }
+
                 var pageData = _.extend(sessionData.getData(), {
                     userPhones: numbers,
-                    context: req.query[ApiConstants.CONTEXT]
+                    context: context
                 });
                 res.render(DashboardRoute.PAGE_MOBILE_VERIFICATION, pageData);
             });

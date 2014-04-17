@@ -10,6 +10,7 @@ class SessionData extends AbstractSessionData
     private static INTEGRATION_ID:string        = 'integrationId';
 
     /* Getters */
+    getIdentifier():string                      { return 'Dashboard'; }
     getMembers():IntegrationMember[]            { return _.map(this.getData()[SessionData.MEMBERS] || [], function(member) { return new IntegrationMember(member); }); }
     getIntegrationId():number                   { return parseInt(this.getData()[SessionData.INTEGRATION_ID]); }
 

@@ -4,8 +4,16 @@ meta(name='viewport', content='width=device-width, initial-scale=1')
     .row-fluid
         .col-md-2
         .col-md-8
-            h3
-                | #{integration.title}
-                small &nbsp;Expert Registration huhas
+            .row
+                .col-md-7
+                    h3
+                        | #{integration.title}
+                        small &nbsp;Expert Registration
+                .col-md-5
+                    p.pull-right
+                        if (loggedInUser)
+                            | Hey, #{loggedInUser.first_name}
+                            a.btn.btn-link(href='/logout') Logout
+                            h3
             block content
         .col-md-2

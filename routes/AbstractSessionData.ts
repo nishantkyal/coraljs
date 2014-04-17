@@ -15,8 +15,17 @@ class AbstractSessionData
     }
 
     /* Getters */
-    getIdentifier():string                      { return 'PLEASE_SET_THIS_VALUE'; }
-    getLoggedInUser():User                      { return new User(this.req[ApiConstants.USER]); }
+    getIdentifier():string                      { throw('Implement this method'); }
+
+    getLoggedInUser():User
+    {
+        try {
+            return new User(this.req[ApiConstants.USER]);
+        } catch(e) {
+            return this.req[ApiConstants.USER];
+        }
+    }
+
     getData():Object
     {
         this.data[AbstractSessionData.LOGGED_IN_USER] = this.getLoggedInUser();

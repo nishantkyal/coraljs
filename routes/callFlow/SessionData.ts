@@ -14,6 +14,7 @@ class SessionData extends AbstractSessionData
     private static DURATION:string          = 'duration';
 
     /* Getters */
+    getIdentifier():string              { return 'CallFlow'; }
     getCallId():number                  { return parseInt(this.getData()[SessionData.CALL_ID]); }
     getCall():PhoneCall                 { return new PhoneCall(this.getData()[SessionData.CALL]); }
     getIntegration():Integration        { return new Integration(this.getData()[SessionData.INTEGRATION]); }

@@ -13,7 +13,7 @@ meta(name='viewport', content='width=device-width, initial-scale=1')
                 .col-md-5
                     p.pull-right
                         if (loggedInUser)
-                            | Hey #{loggedInUser.first_name}
+                            | Hey, #{loggedInUser.first_name}
                             a.btn.btn-link(href='/logout') Logout
             hr
             block content

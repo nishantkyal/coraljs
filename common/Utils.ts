@@ -1,6 +1,7 @@
 ///<reference path='../_references.d.ts'/>
-import log4js           = require('log4js');
-import _                = require('underscore');
+import url                                          = require('url');
+import log4js                                       = require('log4js');
+import _                                            = require('underscore');
 
 class Utils
 {
@@ -157,6 +158,13 @@ class Utils
             .replace(/&quot;/g, '"')
             .replace(/&lt;/g, '<')
             .replace(/&gt;/g, '>');
+    }
+
+    static addQueryToUrl(baseUrl:string, query:Object):string
+    {
+        var urlObj = url.parse(baseUrl);
+        urlObj.query = _.extend(urlObj.query || {}, query);
+        return url.format(urlObj);
     }
 }
 export = Utils

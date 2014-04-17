@@ -4,6 +4,7 @@ import express                                              = require('express')
 import passport                                             = require('passport');
 import connect_ensure_login                                 = require('connect-ensure-login');
 import url                                                  = require('url');
+import _                                                    = require('underscore');
 import RequestHandler                                       = require('../../middleware/RequestHandler');
 import OAuthProviderDelegate                                = require('../../delegates/OAuthProviderDelegate');
 import AuthenticationDelegate                               = require('../../delegates/AuthenticationDelegate');
@@ -23,7 +24,7 @@ import Utils                                                = require('../../com
 import DashboardUrls                                        = require('../../routes/dashboard/Urls');
 
 import Urls                                                 = require('./Urls');
-import Middleware                                           = require('./Middleware');
+import SessionData                                          = require('./SessionData');
 
 class ExpertRegistrationRoute
 {
@@ -52,12 +53,14 @@ class ExpertRegistrationRoute
     }
 
     /* Render login/register page */
-    private authenticate(req:express.Request, res:express.Response):void
+    private authenticate(req, res:express.Response):void
     {
         var self = this;
-        var integrationId = parseInt(req.query[ApiConstants.INTEGRATION_ID] || req.session[ApiConstants.INTEGRATION_ID]);
+        var sessionData = new SessionData(req);
+        var integrationId = parseInt(req.query[ApiConstants.INTEGRATION_ID] || sessionData.getIntegrationId());
         var integration = new IntegrationDelegate().getSync(integrationId);
-        var invitationCode:string = req.query[ApiConstants.CODE] || req.session[ApiConstants.CODE];
+
+        var invitationCode:string = req.query[ApiConstants.CODE] || sessionData.getInvitationCode();
         var invitedMember;
 
         if (Utils.isNullOrEmpty(integration))
@@ -67,8 +70,9 @@ class ExpertRegistrationRoute
         }
 
         // Add invitation code and integration id to session
-        req.session[ApiConstants.INTEGRATION_ID] = integrationId;
-        req.session[ApiConstants.CODE] = invitationCode;
+        sessionData.setInvitationCode(invitationCode);
+        sessionData.setIntegrationId(integrationId);
+        sessionData.setIntegration(integration);
 
         this.verificationCodeCache.searchInvitationCode(invitationCode, integrationId)
             .then(
@@ -85,17 +89,24 @@ class ExpertRegistrationRoute
             .then(
             function expertFound(expert:IntegrationMember)
             {
-                if (expert.isValid())
+                if (!Utils.isNullOrEmpty(expert) && expert.isValid() && expert.getUserId() == sessionData.getLoggedInUser().getId())
                 {
-                    req.session[ApiConstants.EXPERT] = expert;
-                    res.redirect(DashboardUrls.mobileVerification());
+                    sessionData.setMember(expert);
+                    res.redirect(Utils.addQueryToUrl(DashboardUrls.mobileVerification(), Utils.createSimpleObject(ApiConstants.CONTEXT, 'expertRegistration')));
                 }
                 else
                 {
                     var member = new IntegrationMember(invitedMember);
-                    req.session[ApiConstants.EXPERT] = invitedMember;
+                    sessionData.setMember(member);
                     res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
-                    res.render('expertRegistration/authenticate', {'integration': integration, messages: req.flash(), member: member, user: member.getUser(), code: invitationCode});
+
+                    req.logout();
+
+                    var pageData = _.extend(sessionData.getData(), {
+                        messages: req.flash(),
+                        context: 'expertRegistration'
+                    });
+                    res.render('expertRegistration/authenticate', pageData);
                 }
             })
             .fail(
@@ -106,9 +117,10 @@ class ExpertRegistrationRoute
     /* Handle authentication success -> Redirect to authorization */
     private authenticationSuccess(req:express.Request, res:express.Response)
     {
-        var integrationId = req.session[ApiConstants.INTEGRATION_ID];
-        var integration = new IntegrationDelegate().getSync(integrationId);
-        var redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? url.resolve(Config.get(Config.DASHBOARD_URI), DashboardUrls.mobileVerification()) : integration.getRedirectUrl();
+        var sessionData = new SessionData(req);
+        var integrationId = sessionData.getIntegrationId;
+        var integration = sessionData.getIntegration();
+        var redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? Utils.addQueryToUrl(DashboardUrls.mobileVerification(), Utils.createSimpleObject(ApiConstants.CONTEXT, 'expertRegistration')) : integration.getRedirectUrl();
         req.flash(ApiConstants.RETURN_TO, Urls.complete());
 
         var authorizationUrl = Urls.authorization() + '?response_type=code&client_id=' + integrationId + '&redirect_uri=' + redirectUrl;
@@ -118,34 +130,33 @@ class ExpertRegistrationRoute
     /* Render authorization page */
     private authorize(req:express.Request, res:express.Response)
     {
-        var integrationId = parseInt(req.query[ApiConstants.INTEGRATION_ID] || req.session[ApiConstants.INTEGRATION_ID]);
+        var sessionData = new SessionData(req);
+
         res.render('expertRegistration/authorize',
             {
                 'transactionID': req['oauth2']['transactionID'],
-                'user': new User(req.user.data),
-                'integration': new IntegrationDelegate().getSync(integrationId)
+                'user': sessionData.getLoggedInUser(),
+                'integration': sessionData.getIntegration()
             });
     }
 
     private updateProfile(req:express.Request, res:express.Response)
     {
         var self = this;
-        var integrationId = parseInt(req.session[ApiConstants.INTEGRATION_ID]);
-        var integration = new IntegrationDelegate().getSync(integrationId);
-        var userId = req[ApiConstants.USER].id;
-        var member = req.session[ApiConstants.EXPERT];
+        var sessionData = new SessionData(req);
+        var integrationId = sessionData.getIntegrationId();
+        var userId = sessionData.getLoggedInUser().getId();
+        var member = sessionData.getMember();
 
         q.all([
-            self.integrationMemberDelegate.update({'user_id': userId, 'integration_id': integrationId}, {role: member.role}),
-            self.userDelegate.get(req[ApiConstants.USER].id)
+            self.integrationMemberDelegate.update({'user_id': userId, 'integration_id': integrationId}, {role: member.getRole()}),
+            self.userDelegate.get(userId)
         ])
             .then(
             function userFetched(...result)
             {
-                var pageData = {
-                    integration: integration,
-                    user: result[0][1]
-                };
+                var pageData = _.extend(sessionData.getData(), {
+                });
 
                 res.render('expertRegistration/updateProfile', pageData);
             },
@@ -155,7 +166,9 @@ class ExpertRegistrationRoute
 
     private saveProfile(req:express.Request, res:express.Response)
     {
-        var userId = req[ApiConstants.USER].id;
+        var sessionData = new SessionData(req);
+
+        var userId = sessionData.getLoggedInUser().getId();
         var user = req.body[ApiConstants.USER];
 
         this.userDelegate.update({id: userId}, user)
@@ -168,18 +181,19 @@ class ExpertRegistrationRoute
     private mobileVerification(req:express.Request, res:express.Response)
     {
         var self = this;
-        var integrationId = parseInt(req.session[ApiConstants.INTEGRATION_ID]);
-        var integration = new IntegrationDelegate().getSync(integrationId);
-        var userId = req[ApiConstants.USER].id;
-        var member = req.session[ApiConstants.EXPERT];
+        var sessionData = new SessionData(req);
+        var integrationId = sessionData.getIntegrationId();
+        var integration = sessionData.getIntegration();
+        var userId = sessionData.getLoggedInUser().getId();
+        var member = sessionData.getMember();
 
-        self.integrationMemberDelegate.update({'user_id': userId, 'integration_id': integrationId}, {role: member.role})
+        self.integrationMemberDelegate.update({'user_id': userId, 'integration_id': integrationId}, {role: member.getRole()})
             .then(
             function memberRoleCorrected()
             {
-                var pageData = {
+                var pageData = _.extend(sessionData.getData(), {
                     integration: integration
-                };
+                });
                 res.render('expertRegistration/mobileVerification', pageData);
             },
             function memberRoleCorrectionError(error) { res.send(500); }
@@ -188,9 +202,9 @@ class ExpertRegistrationRoute
 
     private expertComplete(req:express.Request, res:express.Response)
     {
-        var integrationId = parseInt(req.session[ApiConstants.INTEGRATION_ID]);
-        var integration = new IntegrationDelegate().getSync(integrationId);
-        var userId = req[ApiConstants.USER].id;
+        var sessionData = new SessionData(req);
+        var integrationId = sessionData.getIntegrationId();
+        var userId = sessionData.getLoggedInUser().getId();
         var self = this;
 
         q.all([
@@ -201,12 +215,10 @@ class ExpertRegistrationRoute
             function scheduleRulesFetched(...args)
             {
                 var member = new IntegrationMember(args[0][1]);
-                var pageData = {
-                    user: req[ApiConstants.USER],
-                    integration: integration,
+                var pageData = _.extend(sessionData.getData(), {
                     "SearchNTalkUri": Config.get(Config.DASHBOARD_URI),
                     "schedule_rules": member[IncludeFlag.INCLUDE_SCHEDULE_RULES]
-                };
+                });
                 res.render('expertRegistration/complete', pageData);
 
                 return self.emailDelegate.sendWelcomeEmail(integrationId, member);
