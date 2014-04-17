@@ -1,8 +1,8 @@
-import BaseDao                  = require('./BaseDao');
+import AbstractDao                  = require('./AbstractDao');
 import BaseModel                = require('../models/BaseModel');
 import ExpertSchedule           = require('../models/ExpertSchedule');
 
-class ScheduleDao extends BaseDao
+class ScheduleDao extends AbstractDao
 {
     constructor() { super(ExpertSchedule); }
 }

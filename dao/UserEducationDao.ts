@@ -1,8 +1,8 @@
-import BaseDao          = require('./BaseDao');
+import AbstractDao          = require('./AbstractDao');
 import BaseModel        = require('../models/BaseModel');
 import UserEducation    = require('../models/UserEducation');
 
-class UserEducationDao extends BaseDao
+class UserEducationDao extends AbstractDao
 {
     constructor() { super(UserEducation); }
 }

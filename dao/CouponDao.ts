@@ -1,9 +1,9 @@
 ///<reference path='../_references.d.ts'/>
-import BaseDao                                      = require('../dao/BaseDao');
+import AbstractDao                                      = require('AbstractDao');
 import BaseModel                                    = require('../models/BaseModel');
 import Coupon                                       = require('../models/Coupon');
 
-class CouponDao extends BaseDao
+class CouponDao extends AbstractDao
 {
     constructor() { super(Coupon); }
 }

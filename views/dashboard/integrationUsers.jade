@@ -123,7 +123,7 @@ include ../scriptsAndStyles
 include footer
 
 script.
-    var members = JSON.parse( '!{JSON.stringify(integrationMembers)}' );
+    var members = JSON.parse( '!{JSON.stringify(members)}' );
     var integrationId = '!{integration.id}';
 
 script(src='/js/app/dashboard/integrationUsers.js')

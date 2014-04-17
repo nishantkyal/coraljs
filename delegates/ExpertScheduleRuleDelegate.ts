@@ -7,7 +7,6 @@ import BaseDaoDelegate                                  = require('./BaseDaoDele
 import ExpertScheduleExceptionDelegate                  = require('../delegates/ExpertScheduleExceptionDelegate');
 import IntegrationMemberDelegate                        = require('../delegates/IntegrationMemberDelegate');
 import MysqlDelegate                                    = require('../delegates/MysqlDelegate');
-import IDao                                             = require('../dao/IDao');
 import ExpertScheduleRuleDao                            = require('../dao/ExpertScheduleRuleDao');
 import ExpertScheduleExceptionDao                       = require('../dao/ExpertScheduleExceptionDao');
 import ExpertScheduleRule                               = require('../models/ExpertScheduleRule');

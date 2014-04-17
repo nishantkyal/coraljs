@@ -1,11 +1,11 @@
 import q                        = require('q');
-import BaseDAO                  = require('./BaseDao');
+import AbstractDao                  = require('./AbstractDao');
 import BaseModel                = require('../models/BaseModel');
 import ExpertScheduleException  = require('../models/ExpertScheduleException');
 import MysqlDelegate            = require('../delegates/MysqlDelegate');
 import Utils                    = require('../common/Utils');
 
-class ExpertScheduleExceptionDao extends BaseDAO
+class ExpertScheduleExceptionDao extends AbstractDao
 {
     constructor() { super(ExpertScheduleException); }
 

@@ -8,7 +8,6 @@ import ExpertScheduleDelegate               = require('../delegates/ExpertSchedu
 import IntegrationDelegate                  = require('../delegates/IntegrationDelegate');
 import UserDelegate                         = require('../delegates/UserDelegate');
 import UserProfileDelegate                  = require('../delegates/UserProfileDelegate');
-import IDao                                 = require ('../dao/IDao');
 import IntegrationMemberDAO                 = require ('../dao/IntegrationMemberDao');
 import IntegrationMemberRole                = require('../enums/IntegrationMemberRole');
 import IncludeFlag                          = require('../enums/IncludeFlag');

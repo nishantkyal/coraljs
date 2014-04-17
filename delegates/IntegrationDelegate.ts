@@ -4,7 +4,6 @@ import q                                        = require('q');
 import log4js                                   = require('log4js');
 import BaseDaoDelegate                          = require('./BaseDaoDelegate');
 import MysqlDelegate                            = require('./MysqlDelegate');
-import IDao                                     = require('../dao/IDao');
 import IntegrationDAO                           = require('../dao/IntegrationDao');
 import Integration                              = require('../models/Integration');
 import IntegrationMember                        = require('../models/IntegrationMember');

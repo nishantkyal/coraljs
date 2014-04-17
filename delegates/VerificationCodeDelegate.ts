@@ -29,6 +29,23 @@ class VerificationCodeDelegate
     private phoneNumberDelegate = new UserPhoneDelegate();
     private notificationDelegate = new NotificationDelegate();
 
+    resendExpertInvitationCode(integrationId:number, member:IntegrationMember, sender?:User):q.Promise<any>
+    {
+        var self = this;
+
+        return self.findVerificationCode(integrationId, member.getUser().getEmail())
+            .then(
+            function codeFound(invites:Object)
+            {
+                return q.all(_.map(_.keys(invites), function (code)
+                {
+                    var member = new IntegrationMember(invites[code]);
+                    member.setUser(new User(member.getUser()));
+                    return self.emailDelegate.sendExpertInvitationEmail(integrationId, code, member, sender)
+                }));
+            });
+    }
+
     createAndSendExpertInvitationCode(integrationId:number, member:IntegrationMember, sender?:User):q.Promise<any>
     {
         var self = this;
@@ -42,10 +59,7 @@ class VerificationCodeDelegate
             .then(
             function codeGenerated(code:string)
             {
-                return q.all([
-                    self.emailDelegate.sendExpertInvitationEmail(member.getIntegrationId(), code, member, sender),
-                    self.verificationCodeCache.getInvitationCodes(integrationId)
-                ]);
+                return self.emailDelegate.sendExpertInvitationEmail(member.getIntegrationId(), code, member, sender);
             });
     }
 
@@ -100,12 +114,16 @@ class VerificationCodeDelegate
 
         return self.verificationCodeCache.getInvitationCodes(integrationId)
             .then(
-            function codesFetched(invitedMembers:any[])
+            function codesFetched(invites:any[])
             {
-                return _.where(_.values(invitedMembers), function (member)
+                var matchingInvites = {};
+                for (var code in invites)
                 {
-                    return member.user.email == email;
-                });
+                    var member = invites[code];
+                    if (member.user.email == email)
+                        matchingInvites[code] = member;
+                }
+                return matchingInvites;
             });
     }
 

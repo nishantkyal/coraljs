@@ -1,7 +1,6 @@
 ///<reference path='../_references.d.ts'/>
 import q                                = require('q');
 import BaseDaoDelegate                  = require('./BaseDaoDelegate');
-import IDao                             = require('../dao/IDao');
 import UserPhoneDao                     = require('../dao/UserPhoneDao');
 import UserPhone                        = require('../models/UserPhone');
 

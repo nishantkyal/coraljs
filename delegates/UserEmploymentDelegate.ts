@@ -1,6 +1,5 @@
 ///<reference path='../_references.d.ts'/>
 import BaseDaoDelegate                                      = require('./BaseDaoDelegate');
-import IDao                                                 = require('../dao/IDao');
 import UserEmploymentDao                                    = require('../dao/UserEmploymentDao');
 import UserEmployment                                       = require('../models/UserEmployment');
 

@@ -1,11 +1,11 @@
 ///<reference path='../_references.d.ts'/>
 import q                        = require('q');
-import BaseDao                  = require('./BaseDao');
+import AbstractDao                  = require('./AbstractDao');
 import BaseModel                = require('../models/BaseModel');
 import UserOauth                = require('../models/UserOauth');
 import MysqlDelegate            = require('../delegates/MysqlDelegate');
 
-class UserOAuthDao extends BaseDao
+class UserOAuthDao extends AbstractDao
 {
 
     static TABLE_NAME:string = 'user_oauth'

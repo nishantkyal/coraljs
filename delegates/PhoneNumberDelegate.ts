@@ -1,12 +1,11 @@
 ///<reference path='../_references.d.ts'/>
 import q                                            = require('q');
 import BaseDaoDelegate                              = require('./BaseDaoDelegate');
-import IDao                                         = require('../dao/IDao');
-import PhoneNumberDao                               = require('../dao/PhoneNumberDao');
-import PhoneNumber                                  = require('../models/PhoneNumber');
+import UserPhoneDao                                 = require('../dao/UserPhoneDao');
+import UserPhone                                    = require('../models/UserPhone');
 import Utils                                        = require('../common/Utils');
 
-class PhoneNumberDelegate extends BaseDaoDelegate
+class UserPhoneDelegate extends BaseDaoDelegate
 {
     create(data:any, transaction?:any):q.Promise<any>
     {
@@ -16,16 +15,16 @@ class PhoneNumberDelegate extends BaseDaoDelegate
 
         return self.find(data)
             .then(
-                function handlePhoneNumberSearched(phoneNumber:PhoneNumber):any
+                function handleUserPhoneSearched(UserPhone:UserPhone):any
                 {
-                    if (Utils.isNullOrEmpty(phoneNumber) || !phoneNumber.isValid())
+                    if (Utils.isNullOrEmpty(UserPhone) || !UserPhone.isValid())
                         return superCreate(data, transaction);
                     else
-                        return phoneNumber;
+                        return UserPhone;
                 }
             )
     }
 
-    getDao():IDao { return new PhoneNumberDao(); }
+    constructor() { super(new UserPhoneDao(); )}
 }
-export = PhoneNumberDelegate
+export = UserPhoneDelegate

@@ -1,13 +1,13 @@
 ///<reference path='../_references.d.ts'/>
 import _                        = require('underscore');
-import BaseDao                  = require('./BaseDao');
+import AbstractDao                  = require('./AbstractDao');
 import q                        = require('q');
 import BaseModel                = require('../models/BaseModel');
 import ExpertScheduleRule       = require('../models/ExpertScheduleRule');
 import MysqlDelegate            = require('../delegates/MysqlDelegate');
 import Utils                    = require('../common/Utils');
 
-class ExpertScheduleRuleDao extends BaseDao
+class ExpertScheduleRuleDao extends AbstractDao
 {
     constructor() { super(ExpertScheduleRule); }
 

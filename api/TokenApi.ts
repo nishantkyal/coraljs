@@ -77,7 +77,7 @@ class TokenApi
             var member:IntegrationMember = req.body[ApiConstants.INTEGRATION_MEMBER];
             member.setUser(new User(member.getUser()));
 
-            verificationCodeDelegate.createAndSendExpertInvitationCode(member.getIntegrationId(), member, sender)
+            verificationCodeDelegate.resendExpertInvitationCode(member.getIntegrationId(), member, sender)
                 .then(
                 function codeSent() { res.send(JSON.stringify({status: 'OK'})); },
                 function codeSendError(error) { res.json(500, error); }

@@ -14,7 +14,6 @@ import Integration                                                  = require('.
 import IntegrationMember                                            = require('../models/IntegrationMember')
 import ExpertSchedule                                               = require('../models/ExpertSchedule');
 import PhoneCall                                                    = require('../models/PhoneCall');
-import IDao                                                         = require('../dao/IDao');
 import ApiConstants                                                 = require('../enums/ApiConstants');
 import CallStatus                                                   = require('../enums/CallStatus');
 import IncludeFlag                                                  = require('../enums/IncludeFlag');
