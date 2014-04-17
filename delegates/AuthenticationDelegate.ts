@@ -111,7 +111,7 @@ class AuthenticationDelegate
                     .then(
                     function authComplete(user)
                     {
-                        var hashedPassword = userDelegate.computePasswordHash(user.getEmail(), user.getPassword());
+                        var hashedPassword = userDelegate.computePasswordHash(username, password);
                         if (Utils.isNullOrEmpty(user))
                             done(null, false, {message: 'Invalid email'});
                         else if (hashedPassword != password)
