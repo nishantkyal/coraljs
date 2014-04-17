@@ -29,6 +29,10 @@ $('#sendCode').validate({
                     country_code: $('#sendCode #countryCode').val()
                 }
             },
+            success: function() {
+                $('#sendCode input[type="submit"]').hide();
+                $('#verifyCode').show();
+            },
             error: function(jqXHR, textStatus, errorThrown) {
                 bootbox.alert(jqXHR.responseText);
             }

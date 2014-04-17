@@ -5,10 +5,20 @@ include header
     .row-fluid
         .col-md-2
         .col-md-8
-            p Congrats! You're now registered as an expert on #{integration.title}
-            p We've sent you an email with all the information you'll need :)
+            p
+                strong Congrats!&nbsp;
+                | You're now registered as an expert on #{integration.title}
+            p
+                | We've&nbsp;
+                strong sent you an email&nbsp;
+                | with all the information you'll need :)
             hr
-            p We'll schedule calls for you based on settings below. You may update these settings now or later by visiting <a href='#{SearchNTalkUri}'>#{SearchNTalkUri}</a>
+            h4 Your Public Profile
+            | We've created a profile page for you. Please take a moment to view it.&nbsp;
+            a.btn.btn-primary(href=DashboardUrls.memberProfileComplete(member.id), target='_blank') Take me to my profile page
+            hr
+            h4 Your Availability Schedule
+            | We'll schedule calls for you based on settings below. You may update these settings now or later by visiting <a href='#{SearchNTalkUri}'>#{SearchNTalkUri}</a>
             form
                 each rule in schedule_rules
                     .form-group

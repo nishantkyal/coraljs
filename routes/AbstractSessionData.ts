@@ -41,5 +41,10 @@ class AbstractSessionData
         this.data[key] = val;
         this.req.session[this.getIdentifier()] = this.data;
     }
+
+    clear():void
+    {
+        this.data = {};
+    }
 }
 export = AbstractSessionData

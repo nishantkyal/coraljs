@@ -91,18 +91,15 @@ class BaseDaoDelegate
             {
                 var results = args[0];
 
-                _.each(rawResult, function (result:any)
+                _.each(results, function (resultSet:any, index)
                 {
-                    _.each(results, function (resultSet:any, index)
+                    // TODO: Implement foreign keys so mapping can work in search
+                    var foreignKeyColumn = null;
+                    rawResult.set(includes[index], _.map(resultSet, function (res)
                     {
-                        // TODO: Implement foreign keys so mapping can work in search
-                        var foreignKeyColumn = null;
-                        result.set(includes[index], _.map(resultSet, function (res)
-                        {
-                            // return result[foreignKeyColumn] == res['id'] ? res : null;
-                            return res;
-                        }));
-                    });
+                        // return result[foreignKeyColumn] == res['id'] ? res : null;
+                        return res;
+                    }));
                 });
                 return rawResult;
             });

@@ -26,7 +26,7 @@ class VerificationCodeDelegate
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private emailDelegate = new EmailDelegate();
     private smsDelegate = new SmsDelegate();
-    private phoneNumberDelegate = new UserPhoneDelegate();
+    private userPhoneDelegate = new UserPhoneDelegate();
     private notificationDelegate = new NotificationDelegate();
 
     resendExpertInvitationCode(integrationId:number, member:IntegrationMember, sender?:User):q.Promise<any>
@@ -133,7 +133,17 @@ class VerificationCodeDelegate
         return q.all([
             self.smsDelegate.sendVerificationSMS(phoneNumber.getCompleteNumber(), code),
             self.verificationCodeCache.createMobileVerificationCode(phoneNumber.getCompleteNumber(), code)
-        ]);
+        ])
+            .then(
+            function codeGeneratedAndSent(...args):any
+            {
+                return args;
+            },
+            function codeSendError(error)
+            {
+                throw (error);
+            }
+        );
     }
 
     verifyMobileCode(code:string, phoneNumber:UserPhone):q.Promise<UserPhone>
@@ -145,7 +155,7 @@ class VerificationCodeDelegate
             function verified(result)
             {
                 if (result)
-                    return self.phoneNumberDelegate.create(phoneNumber);
+                    return self.userPhoneDelegate.create(phoneNumber);
                 else
                     throw ('Invalid code entered');
             });

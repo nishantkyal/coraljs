@@ -35,7 +35,7 @@ class CacheHelper
 
         if (expiry)
             args.concat(['EX', expiry]);
-        if (overwrite)
+        if (!overwrite)
             args.push('NX');
 
         this.getConnection().set(args, function (error, result)

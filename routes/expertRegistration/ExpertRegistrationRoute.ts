@@ -57,6 +57,8 @@ class ExpertRegistrationRoute
     {
         var self = this;
         var sessionData = new SessionData(req);
+        sessionData.clear();
+
         var integrationId = parseInt(req.query[ApiConstants.INTEGRATION_ID] || sessionData.getIntegrationId());
         var integration = new IntegrationDelegate().getSync(integrationId);
 
@@ -89,7 +91,17 @@ class ExpertRegistrationRoute
             .then(
             function expertFound(expert:IntegrationMember)
             {
-                if (!Utils.isNullOrEmpty(expert) && expert.isValid() && expert.getUserId() == sessionData.getLoggedInUser().getId())
+                // Continue to mobile verification if
+                // 1. Expert already exists
+                // 2. Expert is linked to logged in user (if user is logged in)
+                // Else
+                // 1. Destroy session
+                // 2. Display login page
+                var isExpertValid = !Utils.isNullOrEmpty(expert) && expert.isValid();
+                var isLoggedIn = !Utils.isNullOrEmpty(sessionData.getLoggedInUser());
+                var isExpertLinkedToLoggedInUser = isLoggedIn && (expert.getUserId() == sessionData.getLoggedInUser().getId());
+
+                if (isExpertValid && isExpertLinkedToLoggedInUser)
                 {
                     sessionData.setMember(expert);
                     res.redirect(Utils.addQueryToUrl(DashboardUrls.mobileVerification(), Utils.createSimpleObject(ApiConstants.CONTEXT, 'expertRegistration')));
@@ -195,9 +207,11 @@ class ExpertRegistrationRoute
                     integration: integration
                 });
                 res.render('expertRegistration/mobileVerification', pageData);
+
+                return self.emailDelegate.sendWelcomeEmail(integrationId, member)
             },
             function memberRoleCorrectionError(error) { res.send(500); }
-        )
+        );
     }
 
     private expertComplete(req:express.Request, res:express.Response)
@@ -209,7 +223,7 @@ class ExpertRegistrationRoute
 
         q.all([
             self.verificationCodeCache.deleteInvitationCode(req.session[ApiConstants.CODE], req.session[ApiConstants.INTEGRATION_ID]),
-            self.integrationMemberDelegate.search({'user_id': userId, 'integration_id': integrationId}, null, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
+            self.integrationMemberDelegate.find({'user_id': userId, 'integration_id': integrationId}, null, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
         ])
             .then(
             function scheduleRulesFetched(...args)
@@ -217,11 +231,10 @@ class ExpertRegistrationRoute
                 var member = new IntegrationMember(args[0][1]);
                 var pageData = _.extend(sessionData.getData(), {
                     "SearchNTalkUri": Config.get(Config.DASHBOARD_URI),
-                    "schedule_rules": member[IncludeFlag.INCLUDE_SCHEDULE_RULES]
+                    "schedule_rules": member[IncludeFlag.INCLUDE_SCHEDULE_RULES],
+                    member: member
                 });
                 res.render('expertRegistration/complete', pageData);
-
-                return self.emailDelegate.sendWelcomeEmail(integrationId, member);
             },
             function scheduleRulesFetchError(error)
             {
