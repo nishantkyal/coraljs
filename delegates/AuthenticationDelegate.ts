@@ -114,7 +114,7 @@ class AuthenticationDelegate
                         var hashedPassword = userDelegate.computePasswordHash(username, password);
                         if (Utils.isNullOrEmpty(user))
                             done(null, false, {message: 'Invalid email'});
-                        else if (hashedPassword != password)
+                        else if (hashedPassword != user.getPassword())
                             done(null, false, {message: 'Invalid password'});
                         else
                             done(null, user);
