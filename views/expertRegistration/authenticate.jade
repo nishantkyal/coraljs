@@ -9,38 +9,40 @@ block content
             strong #{integration.title}
         em.small Note: We've pre-filled some of the fields based on the invitation for your convenience
     .row-fluid
-        form#login-form(role='form', action='/expert/login', method='POST', style='display: none;')
-            .form-group
-                label(for='username') Email
-                input.form-control#username(name='username', type='text', data-toggle="tooltip", data-placement="bottom", value=member.user.email)
-            .form-group
-                label(for='login_password') Password
-                input.form-control#login_password(name='password', type='password', data-toggle="tooltip", data-placement="bottom")
-            .form-group
-                .controls
-                    input.btn-primary.btn(value='Login', type='submit')
-                    .btn.btn-link#registrationLink Create an account
-        form(role='form', action='/expert/login/linkedin')
-            .form-group
-                input.btn-primary.btn(value='Login with LinkedIn', type='submit')
-        form#registration-form(action='/expert/register', method='POST')
-            .form-group
-                label(for='email') Email
-                input.form-control#email(name='email', type='text', data-toggle="tooltip", data-placement="bottom", value=member.user.email, autocomplete='off')
-            .form-group
-                label(for='first_name') First Name
-                input.form-control#first_name(name='first_name', type='text', data-toggle="tooltip", data-placement="bottom", value=member.user.first_name, autocomplete='off')
-            .form-group
-                label(for='last_name') Last Name
-                input.form-control#last_name(name='last_name', type='text', data-toggle="tooltip", data-placement="bottom", value=member.user.last_name, autocomplete='off')
-            .form-group
-                label(for='password') Password
-                input.form-control#password(type='password', name='password', data-toggle="tooltip", data-placement="bottom", autocomplete='off')
-            .form-group
-                label(for='confirm_password') Confirm Password
-                input.form-control#confirm_password(type='password', name='confirm_password', data-toggle="tooltip", data-placement="bottom", autocomplete='off')
-            .form-group
-                input(type='hidden', name='invitation_code', value=code)
-                input.btn-primary.btn(value='Register', type='submit')
-                .btn.btn-link#loginLink Login
-script(src='/js/app/expertRegistration/authenticate.js')
+        div(style='display: none;')
+            form#login-form(role='form', action='/expert/login', method='POST')
+                .form-group
+                    label(for='username') Email
+                    input.form-control#username(name='username', type='text', data-toggle="tooltip", data-placement="bottom", value=member.user.email)
+                .form-group
+                    label(for='login_password') Password
+                    input.form-control#login_password(name='password', type='password', data-toggle="tooltip", data-placement="bottom")
+                .form-group
+                    .controls
+                        input.btn-primary.btn(value='Login', type='submit')
+                        .btn.btn-link#registrationLink Create an account
+            form(role='form', action='/expert/login/linkedin')
+                .form-group
+                    input.btn-primary.btn(value='Login with LinkedIn', type='submit')
+        div
+            form#registration-form(action='/expert/register', method='POST')
+                .form-group
+                    label(for='email') Email
+                    input.form-control#email(name='email', type='text', data-toggle="tooltip", data-placement="bottom", value=member.user.email, autocomplete='off')
+                .form-group
+                    label(for='first_name') First Name
+                    input.form-control#first_name(name='first_name', type='text', data-toggle="tooltip", data-placement="bottom", value=member.user.first_name, autocomplete='off')
+                .form-group
+                    label(for='last_name') Last Name
+                    input.form-control#last_name(name='last_name', type='text', data-toggle="tooltip", data-placement="bottom", value=member.user.last_name, autocomplete='off')
+                .form-group
+                    label(for='password') Password
+                    input.form-control#password(type='password', name='password', data-toggle="tooltip", data-placement="bottom", autocomplete='off')
+                .form-group
+                    label(for='confirm_password') Confirm Password
+                    input.form-control#confirm_password(type='password', name='confirm_password', data-toggle="tooltip", data-placement="bottom", autocomplete='off')
+                .form-group
+                    input(type='hidden', name='invitation_code', value=code)
+                    input.btn-primary.btn(value='Register', type='submit')
+                    .btn.btn-link#loginLink Login
+    script(src='/js/app/expertRegistration/authenticate.js')
