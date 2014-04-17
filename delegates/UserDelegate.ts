@@ -145,7 +145,7 @@ class UserDelegate extends BaseDaoDelegate
             });
     }
 
-    private computePasswordHash(email:string, textPassword:string)
+    computePasswordHash(email:string, textPassword:string)
     {
         return this.md5sum.update(email + ':' + textPassword).digest('hex');
     }

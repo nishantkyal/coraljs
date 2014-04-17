@@ -1,4 +1,4 @@
-import AbstractDao              = require('./AbstractDao');
+import AbstractDao          = require('./AbstractDao');
 import BaseModel            = require('../models/BaseModel');
 import IntegrationMember    = require('../models/IntegrationMember');
 

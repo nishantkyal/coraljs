@@ -1,9 +1,9 @@
-import q                        = require('q');
-import AbstractDao                  = require('./AbstractDao');
-import BaseModel                = require('../models/BaseModel');
-import ExpertScheduleException  = require('../models/ExpertScheduleException');
-import MysqlDelegate            = require('../delegates/MysqlDelegate');
-import Utils                    = require('../common/Utils');
+import q                                                    = require('q');
+import AbstractDao                                          = require('./AbstractDao');
+import BaseModel                                            = require('../models/BaseModel');
+import ExpertScheduleException                              = require('../models/ExpertScheduleException');
+import MysqlDelegate                                        = require('../delegates/MysqlDelegate');
+import Utils                                                = require('../common/Utils');
 
 class ExpertScheduleExceptionDao extends AbstractDao
 {

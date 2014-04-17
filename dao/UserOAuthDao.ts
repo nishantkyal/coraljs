@@ -1,6 +1,6 @@
 ///<reference path='../_references.d.ts'/>
 import q                        = require('q');
-import AbstractDao                  = require('./AbstractDao');
+import AbstractDao              = require('./AbstractDao');
 import BaseModel                = require('../models/BaseModel');
 import UserOauth                = require('../models/UserOauth');
 import MysqlDelegate            = require('../delegates/MysqlDelegate');

@@ -1,6 +1,6 @@
 ///<reference path='../_references.d.ts'/>
 import _                        = require('underscore');
-import AbstractDao                  = require('./AbstractDao');
+import AbstractDao              = require('./AbstractDao');
 import q                        = require('q');
 import BaseModel                = require('../models/BaseModel');
 import ExpertScheduleRule       = require('../models/ExpertScheduleRule');

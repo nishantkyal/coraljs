@@ -1,8 +1,8 @@
-import q                        = require('q');
-import MysqlDelegate            = require('../delegates/MysqlDelegate');
-import AbstractDao                  = require('./AbstractDao');
-import BaseModel                = require('../models/BaseModel');
-import Integration              = require('../models/Integration');
+import q                                                = require('q');
+import MysqlDelegate                                    = require('../delegates/MysqlDelegate');
+import AbstractDao                                      = require('./AbstractDao');
+import BaseModel                                        = require('../models/BaseModel');
+import Integration                                      = require('../models/Integration');
 
 /*
  * DAO class for third party integrations

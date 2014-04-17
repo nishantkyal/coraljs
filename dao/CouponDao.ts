@@ -1,5 +1,5 @@
 ///<reference path='../_references.d.ts'/>
-import AbstractDao                                      = require('AbstractDao');
+import AbstractDao                                  = require('./AbstractDao');
 import BaseModel                                    = require('../models/BaseModel');
 import Coupon                                       = require('../models/Coupon');
 
