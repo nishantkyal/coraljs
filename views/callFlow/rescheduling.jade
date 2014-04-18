@@ -1,0 +1,36 @@
+title
+include ../scriptsAndStyles
+.container-fluid
+    .row-fluid
+        .col-md-2
+        .col-md-8
+            form#selectNewTime
+                .form-group
+                    label.control-label Duration of the call is #{call.duration} minutes
+                .form-group
+                    label.control-label
+                        | Convenient Times&nbsp;
+                        a.fa.fa-question-circle(title='How this works')
+                .form-group.col-md-2
+                    label.control-label(for='date') Date
+                    input.form-control#date(class="datepicker")
+                .form-group.col-md-1
+                    label.control-label(for='time_hour') Hour
+                    br
+                    select.selectpicker#time_hour(name='time_hour', data-width='auto')
+                        - for( var i=0; i<24; i++){
+                            option(value="#{i}") #{i}
+                        -}
+                .form-group.col-md-1
+                    label.control-label(for='time_min') Minute
+                    br
+                    select.selectpicker#time_min(name='time_min', data-width='auto')
+                        - for( var i=0; i<=59; i=i+5){
+                            option(value="#{i}") #{i}
+                        -}
+                br
+                .form-group.col-md-1
+                    input.btn.btn-primary(type='submit', value='Send')
+script.
+    var call = JSON.parse( '!{JSON.stringify(call)}' );
+script(src='/js/app/callFlow/rescheduling.js')

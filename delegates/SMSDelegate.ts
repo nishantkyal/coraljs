@@ -8,7 +8,6 @@ import ISmsProvider                                                 = require('.
 import BaseDaoDelegate                                              = require('../delegates/BaseDaoDelegate');
 import LocalizationDelegate                                         = require('../delegates/LocalizationDelegate');
 import UserPhoneDelegate                                            = require('../delegates/UserPhoneDelegate');
-import PhoneCallDelegate                                            = require('../delegates/PhoneCallDelegate');
 import IDao                                                         = require('../dao/IDao');
 import SMS                                                          = require('../models/SMS');
 import CallFragment                                                 = require('../models/CallFragment');
@@ -27,7 +26,13 @@ class SMSDelegate
 {
     private logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
     private smsProvider:ISmsProvider = new SmsProviderFactory().getProvider();
-    private phoneCallDelegate = new PhoneCallDelegate();
+    private phoneCallDelegate;
+
+    constructor()
+    {
+        var PhoneCallDelegate = require('../delegates/PhoneCallDelegate');
+        this.phoneCallDelegate = new PhoneCallDelegate();
+    }
 
     sendReminderSMS(call:number):q.Promise<any>;
     sendReminderSMS(call:PhoneCall):q.Promise<any>;

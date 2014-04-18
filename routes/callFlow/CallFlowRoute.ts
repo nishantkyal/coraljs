@@ -38,6 +38,8 @@ class CallFlowRoute
     private static LOGIN:string = 'callFlow/login';
     private static PAYMENT:string = 'callFlow/payment';
     private static SCHEDULING:string = 'callFlow/scheduling';
+    private static RESCHEDULING:string = 'callFlow/rescheduling';
+    private static RESCHEDULING_BY_USER:string = 'callFlow/reschedulingByUser';
 
     private logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
     private transactionDelegate = new TransactionDelegate();
@@ -58,7 +60,12 @@ class CallFlowRoute
         app.get(Urls.scheduling(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.login() }), this.scheduling.bind(this));
         app.post(Urls.scheduling(), this.scheduled.bind(this));
 
-        app.get(Urls.reschedule(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.login() }), this.reschedule.bind(this));
+        app.get(Urls.rescheduleByExpert(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.login() }), this.reschedulingByExpert.bind(this));
+        app.post(Urls.rescheduleByExpert(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.login() }), this.appointmentSelectedByExpert.bind(this));
+
+        app.get(Urls.rescheduleByUser(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.login() }), this.reschedulingByUser.bind(this));
+        app.post(Urls.rescheduleByUser(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.login() }), this.appointmentSelectedByUser.bind(this));
+
         app.get(Urls.reject(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.login() }), this.reject.bind(this));
 
         // Auth related routes
@@ -240,6 +247,7 @@ class CallFlowRoute
         var self = this;
         var startTime:number = parseInt(req.body[ApiConstants.START_TIME]);
         var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
+
         self.phoneCallDelegate.update(callId, {status: CallStatus.SCHEDULED, start_time: startTime})
             .then(
             function callUpdated()
@@ -249,6 +257,12 @@ class CallFlowRoute
             .then(
             function callFetched(call:PhoneCall)
             {
+                //If call is scheduled within one hour then schedule it manually as scheduler might have already run for this hour
+                //TODO[alpha-calling] double scheduling can occur..
+                if(startTime - moment().valueOf() < Config.get(Config.PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS)*1000)
+                {
+                    self.phoneCallDelegate.scheduleCall(call);
+                }
                 self.notificationDelegate.sendCallSchedulingCompleteNotifications(call, startTime);
             })
             .fail(function(error){
@@ -256,20 +270,90 @@ class CallFlowRoute
             })
     }
 
-    private reschedule(req:express.Request, res:express.Response)
+    private reschedulingByExpert(req:express.Request, res:express.Response)
     {
         var self = this;
-        var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
-        self.phoneCallDelegate.update(callId, {status: CallStatus.SCHEDULED})
+        var appointmentCode:string = req.query[ApiConstants.CODE];
+
+        this.verificationCodeDelegate.verifyAppointmentAcceptCode(appointmentCode)
             .then(
-            function callUpdated()
+            function appointmentDetailsFetched(appointment)
             {
-                return self.phoneCallDelegate.get(callId,null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_USER]);
+                var callId:number = appointment.id;
+                return self.phoneCallDelegate.get(callId);
+            },
+            function appointDetailsFetchFailed(error)
+            {
+                res.send(401, 'Invalid code');
             })
             .then(
             function callFetched(call:PhoneCall)
             {
+                var pageData = {
+                    call: call
+                };
+                res.render(CallFlowRoute.RESCHEDULING, pageData);
+            })
+            .fail(function(error){
+                res.status(501);
+            })
+    }
 
+    private appointmentSelectedByExpert(req:express.Request, res:express.Response)
+    {
+        var self = this;
+        var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
+        var startTime:number = parseInt(req.body[ApiConstants.START_TIME]);
+        self.phoneCallDelegate.get(callId,null, [IncludeFlag.INCLUDE_USER])
+            .then(
+            function callFetched(call:PhoneCall)
+            {
+                self.notificationDelegate.sendCallReschedulingNotificationsToExpert(call, startTime);
+            })
+            .fail(function(error){
+                res.status(501);
+            })
+    }
+
+    private reschedulingByUser(req:express.Request, res:express.Response)
+    {
+        var self = this;
+        var appointmentCode:string = req.query[ApiConstants.CODE];
+
+        this.verificationCodeDelegate.verifyAppointmentAcceptCode(appointmentCode)
+            .then(
+            function appointmentDetailsFetched(appointment)
+            {
+                var callId:number = appointment.id;
+                return self.phoneCallDelegate.get(callId);
+            },
+            function appointDetailsFetchFailed(error)
+            {
+                res.send(401, 'Invalid code');
+            })
+            .then(
+            function callFetched(call:PhoneCall)
+            {
+                var pageData = {
+                    call: call
+                };
+                res.render(CallFlowRoute.RESCHEDULING_BY_USER, pageData);
+            })
+            .fail(function(error){
+                res.status(501);
+            })
+    }
+
+    private appointmentSelectedByUser(req:express.Request, res:express.Response)
+    {
+        var self = this;
+        var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
+        var startTime:number = parseInt(req.body[ApiConstants.START_TIME]);
+        self.phoneCallDelegate.get(callId,null, [IncludeFlag.INCLUDE_USER])
+            .then(
+            function callFetched(call:PhoneCall)
+            {
+                self.notificationDelegate.sendCallReschedulingNotificationsToUser(call, startTime);
             })
             .fail(function(error){
                 res.status(501);

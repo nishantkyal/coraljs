@@ -23,7 +23,6 @@ import UserDelegate                                                 = require('.
 import IntegrationDelegate                                          = require('../delegates/IntegrationDelegate');
 import IntegrationMemberDelegate                                    = require('../delegates/IntegrationMemberDelegate');
 import VerificationCodeDelegate                                     = require('../delegates/VerificationCodeDelegate');
-import PhoneCallDelegate                                            = require('../delegates/PhoneCallDelegate');
 import Utils                                                        = require('../common/Utils');
 import Config                                                       = require('../common/Config');
 import Formatter                                                    = require('../common/Formatter');
@@ -44,17 +43,23 @@ class EmailDelegate
     private static EMAIL_EXPERT_SCHEDULING:string = 'EMAIL_EXPERT_SCHEDULING';
     private static EMAIL_EXPERT_SCHEDULED:string = 'EMAIL_EXPERT_SCHEDULED';
     private static EMAIL_EXPERT_REMINDER:string = 'EMAIL_EXPERT_REMINDER';
+    private static EMAIL_CALLER_REMINDER:string = 'EMAIL_CALLER_REMINDER';
+    private static EMAIL_ACCOUNT_VERIFICATION:string = 'EMAIL_ACCOUNT_VERIFICATION';
 
     private static EMAIL_USER_REMINDER:string = 'EMAIL_USER_REMINDER';
     private static EMAIL_USER_SCHEDULED:string = 'EMAIL_USER_SCHEDULED';
     private static EMAIL_USER_AGENDA_FAIL:string = 'EMAIL_USER_AGENDA_FAIL';
+    private static EMAIL_USER_RESCHEDULE:string = 'EMAIL_USER_RESCHEDULE';
+
     private static templateCache:{[templateNameAndLocale:string]:{bodyTemplate:Function; subjectTemplate:Function}} = {};
     private static transport:nodemailer.Transport;
-    private phoneCallDelegate = new PhoneCallDelegate();
+    private phoneCallDelegate;
     private userDelegate = new UserDelegate();
 
     constructor()
     {
+        var PhoneCallDelegate = require('../delegates/PhoneCallDelegate');
+        this.phoneCallDelegate = new PhoneCallDelegate();
         if (Utils.isNullOrEmpty(EmailDelegate.transport))
             EmailDelegate.transport = nodemailer.createTransport('SMTP', {
                 service: 'SendGrid',
@@ -266,6 +271,37 @@ class EmailDelegate
 
     }
 
+    sendReschedulingEmailToUser(call:number, appointment:number):q.Promise<any>;
+    sendReschedulingEmailToUser(call:PhoneCall, appointment:number):q.Promise<any>;
+    sendReschedulingEmailToUser(call:any, appointment:number):q.Promise<any>
+    {
+        var self = this;
+
+        if (Utils.getObjectType(call) == 'Number')
+            return self.phoneCallDelegate.get(call,null, [IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall)
+            {
+                self.sendReschedulingEmailToUser(fetchedCall, appointment);
+            });
+        var VerificationCodeDelegate:any = require('../delegates/VerificationCodeDelegate');
+        var verificationCodeDelegate = new VerificationCodeDelegate();
+
+        return verificationCodeDelegate.createAppointmentAcceptCode(call)
+            .then(
+            function invitationAcceptCodeCreated(code:string)
+            {
+                var emailData = {
+                    call: call,
+                    acceptCode: code,
+                    appointment:appointment
+                };
+
+                return q.all([
+                    self.composeAndSend(EmailDelegate.EMAIL_USER_RESCHEDULE, call.getUser().getEmail(), emailData)
+                ]);
+            });
+
+    }
+
     sendExpertInvitationEmail(integrationId:number, invitationCode:string, recipient:IntegrationMember, sender:User):q.Promise<any>
     {
         var self = this;
@@ -351,6 +387,22 @@ class EmailDelegate
             });
 
         return null;
+    }
+
+    sendAccountVerificationEmail(user:User, verificationCode:string):q.Promise<any>
+    {
+        var verificationUrl = url.resolve(Config.get(Config.CORAL_URI), DashboardUrls.emailAccountVerification());
+        verificationUrl += '?';
+        verificationUrl += ApiConstants.CODE + '=' + verificationCode;
+        verificationUrl += '&';
+        verificationUrl += ApiConstants.EMAIL + '=' + user.getEmail();
+
+        var emailData = {
+            code: verificationCode,
+            verificationUrl: verificationUrl
+        };
+
+        return this.composeAndSend(EmailDelegate.EMAIL_ACCOUNT_VERIFICATION, user.getEmail(), emailData);
     }
 }
 export = EmailDelegate
