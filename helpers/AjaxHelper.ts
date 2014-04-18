@@ -1,4 +1,4 @@
-///<reference path='../../SearchNTalk-Dashboard/_references.d.ts'/>
+///<reference path='../_references.d.ts'/>
 import q                                            = require('q');
 import request                                      = require('request');
 import log4js                                       = require('log4js');

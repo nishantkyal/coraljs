@@ -3,9 +3,8 @@ import _                                                                = requir
 import q                                                                = require('q');
 import Utils                                                            = require('../common/Utils');
 import Config                                                           = require('../common/Config');
-import IDao                                                             = require('../dao/IDao');
 import PhoneCallDao                                                     = require('../dao/PhoneCallDao');
-import BaseDAODelegate                                                  = require('../delegates/BaseDaoDelegate');
+import BaseDaoDelegate                                                  = require('../delegates/BaseDaoDelegate');
 import IntegrationMemberDelegate                                        = require('../delegates/IntegrationMemberDelegate');
 import UserPhoneDelegate                                                = require('../delegates/UserPhoneDelegate');
 import UserDelegate                                                     = require('../delegates/UserDelegate');
@@ -24,7 +23,7 @@ import UnscheduledCallsCache                                            = requir
 import PhoneCallCache                                                   = require('../caches/PhoneCallCache');
 import CallProviderFactory                                              = require('../factories/CallProviderFactory');
 
-class PhoneCallDelegate extends BaseDAODelegate
+class PhoneCallDelegate extends BaseDaoDelegate
 {
     static ALLOWED_NEXT_STATUS:{ [s: number]: CallStatus[]; } = {};
 

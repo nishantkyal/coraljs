@@ -11,7 +11,7 @@ import UserPhone            = require('../models/UserPhone');
  */
 class UserPhoneApi
 {
-    constructor(app)
+    constructor(app, secureApp)
     {
         var userPhoneDelegate = new UserPhoneDelegate();
 

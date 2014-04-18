@@ -1,13 +1,13 @@
-import q                        = require('q');
-import MysqlDelegate            = require('../delegates/MysqlDelegate');
-import BaseDAO                  = require('./BaseDao');
-import BaseModel                = require('../models/BaseModel');
-import Integration              = require('../models/Integration');
+import q                                                = require('q');
+import MysqlDelegate                                    = require('../delegates/MysqlDelegate');
+import AbstractDao                                      = require('./AbstractDao');
+import BaseModel                                        = require('../models/BaseModel');
+import Integration                                      = require('../models/Integration');
 
 /*
  * DAO class for third party integrations
  */
-class IntegrationDao extends BaseDAO {
+class IntegrationDao extends AbstractDao {
 
     getAll():q.Promise<any>
     {

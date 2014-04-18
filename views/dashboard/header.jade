@@ -1,4 +1,5 @@
 doctype html
+include ../scriptsAndStyles
 meta(name='viewport', content='width=device-width, initial-scale=1')
 .container-fluid
     .row-fluid
@@ -11,8 +12,9 @@ meta(name='viewport', content='width=device-width, initial-scale=1')
                         small &nbsp;Alpha
                 .col-md-5
                     p.pull-right
-                        if (logged_in_user)
-                            | Hey #{logged_in_user.first_name}
+                        if (loggedInUser)
+                            | Hey, #{loggedInUser.first_name}
                             a.btn.btn-link(href='/logout') Logout
+            hr
+            block content
         .col-md-2
-hr

@@ -124,8 +124,45 @@ $('#inviteUserModal form').validate({
                 $("#inviteUserModal").modal('hide');
                 bootbox.alert(jqXHR.responseText);
             }
-        })
+        });
     }
 })
+
+$('.sendAgain').click(function(event)
+{
+    var emailId = $(event.currentTarget).data('emailid');
+    var invitedMember = _.find(members, function(member) {
+        return member.user.email == emailId && member.id == null;
+    });
+
+    if (invitedMember)
+        $.ajax({
+            url    : '/rest/code/expert/invitation/resend',
+            type   : 'POST',
+            data   : {
+                integration_member: {
+                    role          : invitedMember.role,
+                    integration_id: integrationId,
+                    user          : {
+                        email     : invitedMember.user.email,
+                        title     : invitedMember.user.title,
+                        first_name: invitedMember.user.first_name,
+                        last_name : invitedMember.user.last_name
+                    }
+                }
+            },
+            success: function(result)
+            {
+                $("#inviteUserModal").modal('hide');
+                bootbox.alert('Your invitation has been sent. The invited member will receive an email with registration link.');
+            },
+            error: function(jqXHR, textStatus, errorThrown)
+            {
+                $("#inviteUserModal").modal('hide');
+                bootbox.alert(jqXHR.responseText);
+            }
+        });
+
+});
 
 $('select').selectpicker();

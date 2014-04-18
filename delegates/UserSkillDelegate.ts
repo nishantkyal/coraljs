@@ -2,7 +2,6 @@
 import q                                                    = require('q');
 import BaseDaoDelegate                                      = require('./BaseDaoDelegate');
 import SkillCodeDelegate                                    = require('./SkillCodeDelegate');
-import IDao                                                 = require('../dao/IDao');
 import UserSkillDao                                         = require('../dao/UserSkillDao');
 import UserSkill                                            = require('../models/UserSkill');
 import SkillCode                                            = require('../models/SkillCode');

@@ -19,22 +19,23 @@ include ../scriptsAndStyles
                 .form-group
                     label.control-label(for='education') Positions Details
                     br
-                    each emp in userEmployment
-                        label.control-label(for='position') #{emp.title}&nbsp
-                        a.fa.fa-pencil.edit(data-id=emp.id, data-toggle='modal', href='#EditUserEmploymentModal')
-                        a.fa.fa-times.delete(data-id=emp.id, data-toggle='modal', href='#DeleteUserEmploymentModal')
-                        br
-                        if emp.company
-                            normal #{emp.company}
+                    if userEmployment
+                        each emp in userEmployment
+                            label.control-label(for='position') #{emp.title}&nbsp
+                            a.fa.fa-pencil.edit(data-id=emp.id, data-toggle='modal', href='#EditUserEmploymentModal')
+                            a.fa.fa-times.delete(data-id=emp.id, data-toggle='modal', href='#DeleteUserEmploymentModal')
                             br
-                        if emp.start_date
-                            small #{emp.start_date}&nbsp
-                        if emp.end_date
-                            small - #{emp.end_date}
-                            br
-                        if emp.summary
-                            small #{emp.summary}
-                            br
+                            if emp.company
+                                normal #{emp.company}
+                                br
+                            if emp.start_date
+                                small #{emp.start_date}&nbsp
+                            if emp.end_date
+                                small - #{emp.end_date}
+                                br
+                            if emp.summary
+                                small #{emp.summary}
+                                br
                         br
                     a.btn.btn-default.btn-xs#addEmploymentBtn(data-toggle='modal', href='#AddUserEmploymentModal') Add Position
 #AddUserEmploymentModal.modal.fade(style='display: none;')
@@ -113,6 +114,6 @@ include ../scriptsAndStyles
                 button.btn.btn-default(data-dismiss='modal') No
                 button.btn.btn-primary(onclick='handleDeleteClicked(event)') Yes
 script.
-    var memberId = !{memberId};
+    var memberId = '!{memberId}';
     var userEmployment = JSON.parse( '!{JSON.stringify(userEmployment)}' );
 script(src='/js/app/dashboard/memberEmployment.js')

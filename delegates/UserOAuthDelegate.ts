@@ -1,6 +1,5 @@
 ///<reference path='../_references.d.ts'/>
 import q                                            = require('q');
-import IDao                                         = require('../dao/IDao');
 import UserAuthDAO                                  = require('../dao/UserOAuthDao');
 import BaseDaoDelegate                              = require('./BaseDaoDelegate');
 import UserDelegate                                 = require('../delegates/UserDelegate');
@@ -26,7 +25,7 @@ class UserOAuthDelegate extends BaseDaoDelegate
 
         // 1. Try updating the token
         // 2. If it fails for uniqueness constraint, create a new user and add token to it
-        return this.getDao().search({oauth_user_id: userOAuth.getOauthUserId(), provider_id: userOAuth.getProviderId()}, {'fields': ['id', 'user_id']})
+        return this.dao.search({oauth_user_id: userOAuth.getOauthUserId(), provider_id: userOAuth.getProviderId()}, {'fields': ['id', 'user_id']})
             .then(
             function oauthSearchCompleted(existingTokens)
             {
@@ -71,8 +70,6 @@ class UserOAuthDelegate extends BaseDaoDelegate
                 return new UserDelegate().get(userId);
             });
     }
-
-    getDao():IDao { return new UserAuthDAO(); }
 
 }
 export = UserOAuthDelegate

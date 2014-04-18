@@ -7,7 +7,7 @@ import ApiConstants                                         = require('../enums/
 class UserEducationApi
 {
     userEducationDelegate;
-    constructor(app)
+    constructor(app, secureApp)
     {
         var self = this;
         this.userEducationDelegate = new UserEducationDelegate();

@@ -8,7 +8,6 @@ import ExpertScheduleDelegate               = require('../delegates/ExpertSchedu
 import IntegrationDelegate                  = require('../delegates/IntegrationDelegate');
 import UserDelegate                         = require('../delegates/UserDelegate');
 import UserProfileDelegate                  = require('../delegates/UserProfileDelegate');
-import IDao                                 = require ('../dao/IDao');
 import IntegrationMemberDAO                 = require ('../dao/IntegrationMemberDao');
 import IntegrationMemberRole                = require('../enums/IntegrationMemberRole');
 import IncludeFlag                          = require('../enums/IncludeFlag');
@@ -60,15 +59,6 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
     {
         fields = fields || ['id', 'role', 'integration_id', 'user_id'];
         return super.get(id, fields, flags);
-    }
-
-    searchByUser(user_id:number, fields?:string[], includes:Array<IncludeFlag> = []):q.Promise<any>
-    {
-        var search = {};
-        search[IntegrationMember.USER_ID] = user_id;
-
-        fields = fields || ['id', 'role', 'integration_id', 'user_id'];
-        return this.search(search, fields, includes);
     }
 
     findValidAccessToken(accessToken:string, integrationMemberId?:string):q.Promise<any>
@@ -124,7 +114,9 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
             .then(
             function membersFound(members)
             {
-                return new IntegrationMember(members[0]);
+                if (!Utils.isNullOrEmpty(members))
+                    return new IntegrationMember(members[0]);
+                return null;
             });
     }
 

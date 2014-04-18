@@ -102,6 +102,7 @@ class ApiUrlDelegate
     static tempToken():string { return this.get('/rest/token'); }
     static mobileVerificationCode():string { return this.get('/rest/code/mobile/verification'); }
     static expertInvitationCode():string { return this.get('/rest/code/expert/invitation'); }
+    static expertInvitationCodeResend():string { return this.get('/rest/code/expert/invitation/resend'); }
 
     /*
      * Helper method to generate URLs with values substituted for parameters (if supplied)

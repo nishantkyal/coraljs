@@ -1,4 +1,5 @@
 ///<reference path='../_references.d.ts'/>
+import _                                        = require('underscore');
 import q                                        = require('q');
 import Config                                   = require('../common/Config');
 import CacheHelper                              = require('./CacheHelper');
@@ -83,7 +84,7 @@ class VerificationCodeCache
 
     getInvitationCodes(integrationId:number):q.Promise<any>
     {
-        return CacheHelper.getHashValues('ic-' + integrationId);
+        return CacheHelper.getHash('ic-' + integrationId);
     }
 
     createMobileVerificationCode(phoneNumber:string, code?:string):q.Promise<any>
