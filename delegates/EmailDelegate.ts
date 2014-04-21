@@ -403,5 +403,12 @@ class EmailDelegate
 
         return this.composeAndSend(EmailDelegate.EMAIL_ACCOUNT_VERIFICATION, user.getEmail(), emailData);
     }
+
+    sendReschedulingEmailToExpert(call:number, appointment:number):q.Promise<any>;
+    sendReschedulingEmailToExpert(call:PhoneCall, appointment:number):q.Promise<any>;
+    sendReschedulingEmailToExpert(call:any, appointment:number):q.Promise<any>
+    {
+        return null;
+    }
 }
 export = EmailDelegate
