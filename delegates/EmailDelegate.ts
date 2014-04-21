@@ -346,10 +346,7 @@ class EmailDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call).then(function (fetchedCall:PhoneCall)
-            {
-                self.sendCallFailureEmail(fetchedCall);
-            });
+            return self.phoneCallDelegate.get(call).then(self.sendCallFailureEmail);
 
         return null;
     }
