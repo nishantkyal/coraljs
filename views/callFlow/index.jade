@@ -1,51 +1,47 @@
 title Expert Profile
 include ../scriptsAndStyles
-include header
+extends header
 
-.container-fluid
-    .row-fluid
-        .col-md-2
-        .col-md-8
-            form(method='post')
-                .form-group
-                    label.control-label Duration
-                    select.form-control#duration(name='duration')
-                        option(value='15', selected=duration==15) 15 mins
-                        option(value='30', selected=duration==30) 30 mins
-                        option(value='45', selected=duration==45) 45 mins
-                        option(value='60', selected=duration==60) 1 hour
-                .form-group
-                    label.control-label
-                        | Convenient Times&nbsp;
-                        a.fa.fa-question-circle(title='How this works')
-                    .controls#appointmentPickers
-                .form-group
-                    input.btn.btn-primary.btn-lg(type='submit', value='NEXT')
-        .col-md-2
+block content
+    form(method='post')
+        .form-group
+            label.control-label Duration
+            select.form-control#duration(name='duration')
+                option(value='15', selected=duration==15) 15 mins
+                option(value='30', selected=duration==30) 30 mins
+                option(value='45', selected=duration==45) 45 mins
+                option(value='60', selected=duration==60) 1 hour
+        .form-group
+            label.control-label
+                | Convenient Times&nbsp;
+                a.fa.fa-question-circle(title='How this works')
+            .controls#appointmentPickers
+        .form-group
+            input.btn.btn-primary.btn-lg(type='submit', value='NEXT')
 
-#schedulePickerTemplate(style='display: none;')
-    select.dateSelect(data-width='auto')
-        option(value="-1") Pick a date
-    select.timeSelect(name='startTime', data-width='auto')
-        option(value="-1") Pick a date
+    #schedulePickerTemplate(style='display: none;')
+        select.dateSelect.form-control(data-width='auto')
+            option(value="-1") Pick a date
+        select.timeSelect.form-control(name='startTime', data-width='auto')
+            option(value="-1") Pick a date
 
-#loginModal(style='display: none;')
-    .form-group
-        label.control-label Email
-        input.form-control(type='text')
-    .form-group
-        label.control-label Password
-        input.form-control(type='password')
-    .controls
-        a.btn.btn-primary Login
-        a.btn.btn-primary Login using FB
-        a.btn.btn-primary Create Acount
+    #loginModal(style='display: none;')
+        .form-group
+            label.control-label Email
+            input.form-control(type='text')
+        .form-group
+            label.control-label Password
+            input.form-control(type='password')
+        .controls
+            a.btn.btn-primary Login
+            a.btn.btn-primary Login using FB
+            a.btn.btn-primary Create Acount
 
-script.
-    var schedules = JSON.parse( '!{JSON.stringify(expert.schedule)}' );
-    var startTimes;
-    try{
-        startTimes = JSON.parse( '!{JSON.stringify(startTimes)}' );
-    }
-    catch(e){}
-script(src='/js/app/callFlow/index.js')
+    script.
+        var schedules = JSON.parse( '!{JSON.stringify(expert.schedule)}' );
+        var appointments;
+        try{
+            appointments = JSON.parse( '!{JSON.stringify(appointments)}' );
+        }
+        catch(e){}
+    script(src='/js/app/callFlow/index.js')

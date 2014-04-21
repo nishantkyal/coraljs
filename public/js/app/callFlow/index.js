@@ -15,10 +15,10 @@ _.each(_.keys(dateGroups), function(date)
 });
 
 // Initialize start times
-startTimes = startTimes || [null];
-while (startTimes.length > 0)
+appointments = appointments || [null];
+while (appointments.length > 0)
 {
-    var timestamp = startTimes.shift();
+    var timestamp = appointments.shift();
     if (parseInt(timestamp) != -1)
         createSchedulePicker(timestamp);
 }
