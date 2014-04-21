@@ -165,6 +165,7 @@ class VerificationCodeDelegate
                 else
                     throw ('Invalid code entered');
             });
+        // TODO: Remove any scheduled tasks for reminding this guy to verify his mobile number
     }
 
     createAppointmentAcceptCode(call:PhoneCall, startTimes:number[]):q.Promise<any>

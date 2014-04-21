@@ -19,6 +19,7 @@ import IntegrationMember                                    = require('../../mod
 import ApiConstants                                         = require('../../enums/ApiConstants');
 import IntegrationType                                      = require('../../enums/IntegrationType');
 import IncludeFlag                                          = require('../../enums/IncludeFlag');
+import IntegrationMemberRole                                = require('../../enums/IntegrationMemberRole');
 import Config                                               = require('../../common/Config');
 import Utils                                                = require('../../common/Utils');
 import DashboardUrls                                        = require('../../routes/dashboard/Urls');
@@ -26,7 +27,7 @@ import DashboardUrls                                        = require('../../rou
 import Urls                                                 = require('./Urls');
 import SessionData                                          = require('./SessionData');
 
-class ExpertRegistrationRoute
+class MemberRegistrationRoute
 {
     private userDelegate = new UserDelegate();
     private integrationMemberDelegate = new IntegrationMemberDelegate();
@@ -38,8 +39,7 @@ class ExpertRegistrationRoute
         // Pages
         app.get(Urls.index(), this.authenticate.bind(this));
         app.get(Urls.authorization(), OAuthProviderDelegate.authorization, this.authorize.bind(this));
-        app.get(DashboardUrls.mobileVerification(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index()}), this.mobileVerification.bind(this));
-        app.get(Urls.profile(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index()}), this.updateProfile.bind(this));
+        app.get(Urls.authorizationRedirect(), this.authorizationRedirect.bind(this));
         app.get(Urls.complete(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index()}), this.expertComplete.bind(this));
 
         // Auth
@@ -48,8 +48,6 @@ class ExpertRegistrationRoute
         app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: Urls.index(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
         app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: Urls.index(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}), this.authenticationSuccess.bind(this));
         app.post(Urls.authorizationDecision(), OAuthProviderDelegate.decision);
-
-        app.post(Urls.profile(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index()}), this.saveProfile.bind(this));
     }
 
     /* Render login/register page */
@@ -131,11 +129,9 @@ class ExpertRegistrationRoute
     {
         var sessionData = new SessionData(req);
         var integrationId = sessionData.getIntegrationId();
-        var integration = sessionData.getIntegration();
-        var redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? Utils.addQueryToUrl(DashboardUrls.mobileVerification(), Utils.createSimpleObject(ApiConstants.CONTEXT, 'expertRegistration')) : integration.getRedirectUrl();
         req.flash(ApiConstants.RETURN_TO, Urls.complete());
 
-        var authorizationUrl = Urls.authorization() + '?response_type=code&client_id=' + integrationId + '&redirect_uri=' + redirectUrl;
+        var authorizationUrl = Urls.authorization() + '?response_type=code&client_id=' + integrationId + '&redirect_uri=' + Urls.authorizationRedirect();
         res.redirect(authorizationUrl);
     }
 
@@ -152,45 +148,11 @@ class ExpertRegistrationRoute
             });
     }
 
-    private updateProfile(req:express.Request, res:express.Response)
-    {
-        var self = this;
-        var sessionData = new SessionData(req);
-        var integrationId = sessionData.getIntegrationId();
-        var userId = sessionData.getLoggedInUser().getId();
-        var member = sessionData.getMember();
-
-        q.all([
-            self.integrationMemberDelegate.update({'user_id': userId, 'integration_id': integrationId}, {role: member.getRole()}),
-            self.userDelegate.get(userId)
-        ])
-            .then(
-            function userFetched(...result)
-            {
-                var pageData = _.extend(sessionData.getData(), {
-                });
-
-                res.render('expertRegistration/updateProfile', pageData);
-            },
-            function userFetchError() { res.send(500); }
-        );
-    }
-
-    private saveProfile(req:express.Request, res:express.Response)
-    {
-        var sessionData = new SessionData(req);
-
-        var userId = sessionData.getLoggedInUser().getId();
-        var user = req.body[ApiConstants.USER];
-
-        this.userDelegate.update({id: userId}, user)
-            .then(
-            function userUpdated() { res.send(200); },
-            function userUpdateError() { res.send(500); }
-        );
-    }
-
-    private mobileVerification(req:express.Request, res:express.Response)
+    /*
+     Authorization redirect is used to update the role of the created member to match the invite
+     Since we can't do this while creating the expert in OauthProviderDelegate
+     */
+    private authorizationRedirect(req:express.Request, res:express.Response)
     {
         var self = this;
         var sessionData = new SessionData(req);
@@ -199,18 +161,26 @@ class ExpertRegistrationRoute
         var userId = sessionData.getLoggedInUser().getId();
         var member = sessionData.getMember();
 
-        self.integrationMemberDelegate.update({'user_id': userId, 'integration_id': integrationId}, {role: member.getRole()})
-            .then(
-            function memberRoleCorrected()
-            {
-                var pageData = _.extend(sessionData.getData(), {
-                    integration: integration
-                });
-                res.render('expertRegistration/mobileVerification', pageData);
+        var mobileVerificationUrl = Utils.addQueryToUrl(DashboardUrls.mobileVerification(), Utils.createSimpleObject(ApiConstants.CONTEXT, 'expertRegistration'));
+        var redirectUrl;
 
-                return self.emailDelegate.sendWelcomeEmail(integrationId, member)
-            },
-            function memberRoleCorrectionError(error) { res.send(500); }
+        switch(member.getRole())
+        {
+            case IntegrationMemberRole.Expert:
+                redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? mobileVerificationUrl : integration.getRedirectUrl();
+                break;
+
+            case IntegrationMemberRole.Admin:
+            case IntegrationMemberRole.Owner:
+                redirectUrl = DashboardUrls.integrationMembers(integrationId);
+                break;
+        }
+
+        // 1. Update role and redirect
+        // 2. Schedule the mobile verification reminder notification
+        self.integrationMemberDelegate.update({'user_id': userId, 'integration_id': integrationId}, {role: member.getRole()})
+            .finally(
+            function memberRoleCorrected() { res.redirect(redirectUrl); }
         );
     }
 
@@ -243,4 +213,4 @@ class ExpertRegistrationRoute
             });
     }
 }
-export = ExpertRegistrationRoute
+export = MemberRegistrationRoute

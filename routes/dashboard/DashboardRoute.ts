@@ -79,7 +79,7 @@ class DashboardRoute
         // Pages
         app.get(Urls.index(), connect_ensure_login.ensureLoggedIn(), this.authSuccess.bind(this));
         app.get(Urls.login(), this.login.bind(this));
-        app.get(Urls.mobileVerification(), connect_ensure_login.ensureLoggedIn(), this.verifyMobile.bind(this));
+        app.get(Urls.mobileVerification(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index()}), this.verifyMobile.bind(this));
         app.get(Urls.integrations(), connect_ensure_login.ensureLoggedIn(), this.integrations.bind(this));
         app.get(Urls.integrationCoupons(), connect_ensure_login.ensureLoggedIn(), this.coupons.bind(this));
         app.get(Urls.integrationMembers(), Middleware.allowOwnerOrAdmin, this.integrationUsers.bind(this));
@@ -119,7 +119,7 @@ class DashboardRoute
                 var sessionData:any;
                 var context = req.query[ApiConstants.CONTEXT] || 'Dashboard';
 
-                switch(context)
+                switch (context)
                 {
                     case 'expertRegistration':
                         sessionData = new ExpertRegistrationSessionData(req);
@@ -205,7 +205,7 @@ class DashboardRoute
             .then(
             function couponsFetched(coupons:Coupon[])
             {
-                var pageData = _.extend(sessionData.getData(),  {
+                var pageData = _.extend(sessionData.getData(), {
                     'coupons': coupons,
                     'integration': integration
                 });
@@ -297,7 +297,7 @@ class DashboardRoute
                 var userEducation = args[0][2];
                 var userEmployment = args[0][3];
 
-                var pageData = _.extend(sessionData.getData(),  {
+                var pageData = _.extend(sessionData.getData(), {
                     'user': user,
                     'userSkill': userSkill,
                     'userEducation': userEducation,
@@ -414,10 +414,9 @@ class DashboardRoute
     /* Handle payment response from gateway */
     private paymentComplete(req:express.Request, res:express.Response)
     {
-        var callId:number = null;
         var self = this;
-
-        callId = req.session[ApiConstants.PHONE_CALL_ID]; //TODO remove this and get callId from transaction
+        var callFlowSessionData = new CallFlowSessionData(req);
+        var callId = callFlowSessionData.getCallId();
 
         // If it's a call
         // 1. Update status to scheduling
@@ -431,8 +430,7 @@ class DashboardRoute
             .then(
             function callFetched(call:PhoneCall)
             {
-                var callFlowSessionData = new CallFlowSessionData(req);
-                self.notificationDelegate.sendCallSchedulingNotifications(call, callFlowSessionData.getAppointments(), callFlowSessionData.getDuration(), callFlowSessionData.getLoggedInUser());
+                return self.notificationDelegate.sendCallSchedulingNotifications(call, callFlowSessionData.getAppointments(), callFlowSessionData.getDuration(), callFlowSessionData.getLoggedInUser());
             });
     }
 
