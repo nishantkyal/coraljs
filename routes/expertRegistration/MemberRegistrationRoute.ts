@@ -19,6 +19,7 @@ import IntegrationMember                                    = require('../../mod
 import ApiConstants                                         = require('../../enums/ApiConstants');
 import IntegrationType                                      = require('../../enums/IntegrationType');
 import IncludeFlag                                          = require('../../enums/IncludeFlag');
+import IntegrationMemberRole                                = require('../../enums/IntegrationMemberRole');
 import Config                                               = require('../../common/Config');
 import Utils                                                = require('../../common/Utils');
 import DashboardUrls                                        = require('../../routes/dashboard/Urls');
@@ -26,7 +27,7 @@ import DashboardUrls                                        = require('../../rou
 import Urls                                                 = require('./Urls');
 import SessionData                                          = require('./SessionData');
 
-class ExpertRegistrationRoute
+class MemberRegistrationRoute
 {
     private userDelegate = new UserDelegate();
     private integrationMemberDelegate = new IntegrationMemberDelegate();
@@ -161,7 +162,19 @@ class ExpertRegistrationRoute
         var member = sessionData.getMember();
 
         var mobileVerificationUrl = Utils.addQueryToUrl(DashboardUrls.mobileVerification(), Utils.createSimpleObject(ApiConstants.CONTEXT, 'expertRegistration'));
-        var redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? mobileVerificationUrl : integration.getRedirectUrl();
+        var redirectUrl;
+
+        switch(member.getRole())
+        {
+            case IntegrationMemberRole.Expert:
+                redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? mobileVerificationUrl : integration.getRedirectUrl();
+                break;
+
+            case IntegrationMemberRole.Admin:
+            case IntegrationMemberRole.Owner:
+                redirectUrl = DashboardUrls.integrationMembers(integrationId);
+                break;
+        }
 
         // 1. Update role and redirect
         // 2. Schedule the mobile verification reminder notification
@@ -200,4 +213,4 @@ class ExpertRegistrationRoute
             });
     }
 }
-export = ExpertRegistrationRoute
+export = MemberRegistrationRoute
