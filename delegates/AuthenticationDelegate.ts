@@ -163,13 +163,27 @@ class AuthenticationDelegate
 
                 new UserOAuthDelegate().addOrUpdateToken(userOauth, user)
                     .then(
-                    function tokenUpdated(result:any)
+                    function tokenUpdated(oauth:UserOauth)
                     {
-                        var user = new User(result);
-                        return user.isValid() ? done(null, user) : done('Login failed');
+                        return new UserDelegate().get(oauth.getUserId());
+                    })
+                    .then(
+                    function userFetched(createdUser:User):any
+                    {
+                        user.setId(createdUser.getId());
+
+                        if (createdUser.isValid())
+                            done(null, createdUser)
+                        else
+                            done('Login failed');
+
+                        return createdUser;
                     },
-                    function tokenUpdateError(error) { done(error); }
-                );
+                    function tokenUpdateError(error)
+                    {
+                        AuthenticationDelegate.logger.error('An error occurred while logging in using linkedin. Error: %s', error);
+                        done(error);
+                    });
             }
         ));
     }
