@@ -22,6 +22,7 @@ import UserDelegate                                                 = require('.
 import IntegrationDelegate                                          = require('../delegates/IntegrationDelegate');
 import IntegrationMemberDelegate                                    = require('../delegates/IntegrationMemberDelegate');
 import VerificationCodeDelegate                                     = require('../delegates/VerificationCodeDelegate');
+import FileWatcherDelegate                                          = require('../delegates/FileWatcherDelegate');
 import PhoneCallDelegate                                            = require('../delegates/PhoneCallDelegate');
 import Utils                                                        = require('../common/Utils');
 import Config                                                       = require('../common/Config');
@@ -70,46 +71,35 @@ class EmailDelegate
     /* Static constructor workaround */
     private static ctor = (() =>
     {
-        watch.createMonitor('/var/searchntalk/emailTemplates',
+        new FileWatcherDelegate(Config.get(Config.EMAIL_TEMPLATE_BASE_DIR), [new RegExp('\.html$')],
+            function initHandler(files)
             {
-                filter: function (file)
-                {
-                    return file.substring(file.lastIndexOf('.') + 1) === 'html';
-                }
+                _.each(files, function (fileName) { EmailDelegate.readFileAndCache(fileName); });
             },
-            function monitorCreated(monitor)
-            {
-                function readFileAndCache(filePath)
-                {
-                    var fileName = filePath.substring(filePath.lastIndexOf(path.sep) + 1);
-                    var extension = fileName.substring(fileName.lastIndexOf('.') + 1);
-                    if (extension != 'html') return;
-
-                    var fileNameWithoutExtension = fileName.substring(0, fileName.lastIndexOf('.'));
-                    fs.readFile(filePath, 'utf8', function (err, data)
-                    {
-                        if (data)
-                        {
-                            EmailDelegate.templateCache[fileNameWithoutExtension.toUpperCase()] =
-                            {
-                                'bodyTemplate': _.template(data),
-                                'subjectTemplate': _.template(cheerio.load(data)('title').text())
-                            };
-                            EmailDelegate.logger.debug('Email template updated: ' + fileNameWithoutExtension.toUpperCase());
-                        }
-                    });
-                }
-
-                _.each(monitor.files, function (data, fileName) { readFileAndCache(fileName); });
-
-                monitor.on("created", function (f, stat) { readFileAndCache(f); });
-                monitor.on("changed", function (f, curr, prev) { readFileAndCache(f); });
-                monitor.on("removed", function (f, stat)
-                {
-                    // TODO: Remove from template cache
-                });
-            });
+            EmailDelegate.readFileAndCache,
+            EmailDelegate.readFileAndCache);
     })();
+
+    private static readFileAndCache(filePath)
+    {
+        var fileName = filePath.substring(filePath.lastIndexOf(path.sep) + 1);
+        var extension = fileName.substring(fileName.lastIndexOf('.') + 1);
+        if (extension != 'html') return;
+
+        var fileNameWithoutExtension = fileName.substring(0, fileName.lastIndexOf('.'));
+        fs.readFile(filePath, 'utf8', function (err, data)
+        {
+            if (data)
+            {
+                EmailDelegate.templateCache[fileNameWithoutExtension.toUpperCase()] =
+                {
+                    'bodyTemplate': _.template(data),
+                    'subjectTemplate': _.template(cheerio.load(data)('title').text())
+                };
+                EmailDelegate.logger.debug('Email template updated: ' + fileNameWithoutExtension.toUpperCase());
+            }
+        });
+    }
 
     private composeAndSend(template:string, to:string, emailData:Object, from?:string, replyTo?:string):q.Promise<any>
     {
@@ -189,13 +179,16 @@ class EmailDelegate
     }
 
     sendAgendaFailedEmailToUser(call:number):q.Promise<any>;
+
     sendAgendaFailedEmailToUser(call:PhoneCall):q.Promise<any>;
+
     sendAgendaFailedEmailToUser(call:any):q.Promise<any>
     {
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call,null, [IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall){
+            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall)
+            {
                 self.sendAgendaFailedEmailToUser(fetchedCall);
             });
 
@@ -205,7 +198,9 @@ class EmailDelegate
     }
 
     sendSchedulingEmailToExpert(call:number, appointments:number[], duration:number, caller:User):q.Promise<any>;
+
     sendSchedulingEmailToExpert(call:PhoneCall, appointments:number[], duration:number, caller:User):q.Promise<any>;
+
     sendSchedulingEmailToExpert(call:any, appointments:number[], duration:number, caller:User):q.Promise<any>
     {
         var self = this;
@@ -240,13 +235,15 @@ class EmailDelegate
     }
 
     sendSchedulingCompleteEmail(call:number, appointment:number):q.Promise<any>;
+
     sendSchedulingCompleteEmail(call:PhoneCall, appointment:number):q.Promise<any>;
+
     sendSchedulingCompleteEmail(call:any, appointment:number):q.Promise<any>
     {
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call,null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall)
+            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall)
             {
                 self.sendSchedulingCompleteEmail(fetchedCall, appointment);
             });
@@ -324,13 +321,15 @@ class EmailDelegate
     }
 
     sendCallReminderEmail(call:number):q.Promise<any>;
+
     sendCallReminderEmail(call:PhoneCall):q.Promise<any>;
+
     sendCallReminderEmail(call:any):q.Promise<any>
     {
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call,null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall)
+            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall)
             {
                 self.sendCallReminderEmail(fetchedCall);
             });
@@ -342,7 +341,9 @@ class EmailDelegate
     }
 
     sendCallFailureEmail(call:number):q.Promise<any>;
+
     sendCallFailureEmail(call:PhoneCall):q.Promise<any>;
+
     sendCallFailureEmail(call:any):q.Promise<any>
     {
         var self = this;

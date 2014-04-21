@@ -21,7 +21,10 @@ class Config
     static DATABASE_SOCKET:string                       = 'database.socket';
     static REDIS_HOST:string                            = 'redis.host';
     static REDIS_PORT:string                            = 'redis.port';
+    static EMAIL_TEMPLATE_BASE_DIR:string               = 'email_template_base_dir';
     static EMAIL_CDN_BASE_URI:string                    = 'email.cdn.base_uri';
+    static WIDGET_TEMPLATE_BASE_DIR:string              = 'widget_template_base_dir';
+    static WIDGET_PARTIALS_BASE_DIR:string              = 'widget_partial_base_dir';
     static DASHBOARD_URI:string                         = 'Dashboard.uri';
     static DASHBOARD_HTTP_PORT:string                   = 'Dashboard.httpPort';
     static DASHBOARD_HTTPS_PORT:string                  = 'Dashboard.httpsPort';
