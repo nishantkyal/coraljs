@@ -3,7 +3,6 @@ import moment                       = require('moment');
 import _                            = require('underscore');
 import q                            = require('q');
 import BaseDaoDelegate              = require('./BaseDaoDelegate');
-import IDao                         = require('../dao/IDao');
 import ExpertScheduleExceptionDao   = require('../dao/ExpertScheduleExceptionDao');
 import ExpertSchedule               = require('../models/ExpertSchedule');
 import ExpertScheduleRule           = require('../models/ExpertScheduleRule');

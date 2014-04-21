@@ -1,11 +1,11 @@
 import CallFlowRoute                                        = require('./callFlow/CallFlowRoute');
 import DashboardRoute                                       = require('./dashboard/DashboardRoute');
-import ExpertRegistrationRoute                              = require('./expertRegistration/ExpertRegistrationRoute');
+import MemberRegistrationRoute                              = require('./expertRegistration/MemberRegistrationRoute');
 
-function init(app)
+function init(app, secureApp?)
 {
-    new CallFlowRoute(app);
-    new DashboardRoute(app);
-    new ExpertRegistrationRoute(app);
+    new CallFlowRoute(app, secureApp);
+    new DashboardRoute(app, secureApp);
+    new MemberRegistrationRoute(app, secureApp);
 }
 export = init

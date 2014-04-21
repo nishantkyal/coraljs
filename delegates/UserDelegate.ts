@@ -3,12 +3,12 @@ import q                                                                = requir
 import _                                                                = require('underscore');
 import fs                                                               = require('fs');
 import passport                                                         = require('passport');
+import crypto                                                           = require('crypto');
 import BaseDaoDelegate                                                  = require('../delegates/BaseDaoDelegate');
 import MysqlDelegate                                                    = require('../delegates/MysqlDelegate');
 import UserProfileDelegate                                              = require('../delegates/UserProfileDelegate');
 import ImageDelegate                                                    = require('../delegates/ImageDelegate');
 import UserPhoneDelegate                                                = require('../delegates/UserPhoneDelegate');
-import IDao                                                             = require('../dao/IDao')
 import UserDAO                                                          = require('../dao/UserDao')
 import User                                                             = require('../models/User');
 import UserProfile                                                      = require('../models/UserProfile');
@@ -26,17 +26,37 @@ class UserDelegate extends BaseDaoDelegate
     private imageDelegate = new ImageDelegate();
     private userProfileDelegate = new UserProfileDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
+    private md5sum = crypto.createHash('md5');
 
     constructor() { super(new UserDAO()); }
 
+    create(object:any, transaction?:any):q.Promise<any>
+    {
+        if (object.hasOwnProperty(User.PASSWORD))
+            object[User.PASSWORD] = this.computePasswordHash(object[User.EMAIL], object[User.PASSWORD]);
+
+        return super.create(object, transaction);
+    }
+
     update(criteria:Object, newValues:any, transaction?:any):q.Promise<any>;
-
     update(criteria:number, newValues:any, transaction?:any):q.Promise<any>;
-
     update(criteria:any, newValues:any, transaction?:any):q.Promise<any>
     {
+        var self = this;
+        var superGet = super.get.bind(this);
         delete newValues[User.ID];
         delete newValues[User.EMAIL];
+
+        if (newValues.hasOwnProperty(User.PASSWORD))
+        {
+            return this.find(criteria)
+                .then(
+                function userFetched(user:User)
+                {
+                    user.setPassword(self.computePasswordHash(user.getEmail(), user.getPassword()));
+                    return superGet(user, transaction);
+                });
+        }
 
         return super.update(criteria, newValues);
     }
@@ -86,9 +106,7 @@ class UserDelegate extends BaseDaoDelegate
     }
 
     recalculateStatus(criteria:number):q.Promise<any>;
-
     recalculateStatus(criteria:Object):q.Promise<any>;
-
     recalculateStatus(criteria:any):q.Promise<any>
     {
         var self = this;
@@ -125,6 +143,11 @@ class UserDelegate extends BaseDaoDelegate
             {
                 return self.update({id: user.getId()}, {status: status});
             });
+    }
+
+    computePasswordHash(email:string, textPassword:string)
+    {
+        return this.md5sum.update(email + ':' + textPassword).digest('hex');
     }
 
 }

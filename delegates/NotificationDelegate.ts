@@ -23,6 +23,26 @@ class NotificationDelegate
         ]);
     }
 
+    sendCallSchedulingCompleteNotifications(call:number, appointment:number):q.Promise<any>;
+    sendCallSchedulingCompleteNotifications(call:PhoneCall, appointment:number):q.Promise<any>;
+    sendCallSchedulingCompleteNotifications(call:any, appointment:number):q.Promise<any>
+    {
+        var self = this;
+        return q.all([
+            self.emailDelegate.sendSchedulingCompleteEmail(call, appointment)
+        ]);
+    }
+
+    sendCallAgendaFailedNotifications(call:number):q.Promise<any>;
+    sendCallAgendaFailedNotifications(call:PhoneCall):q.Promise<any>;
+    sendCallAgendaFailedNotifications(call:any):q.Promise<any>
+    {
+        var self = this;
+        return q.all([
+            self.emailDelegate.sendAgendaFailedEmailToUser(call)
+        ]);
+    }
+
     sendCallReminderNotification(call:number):q.Promise<any>;
     sendCallReminderNotification(call:PhoneCall):q.Promise<any>;
     sendCallReminderNotification(call:any):q.Promise<any>

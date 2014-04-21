@@ -4,7 +4,6 @@ import q                                        = require('q');
 import log4js                                   = require('log4js');
 import BaseDaoDelegate                          = require('./BaseDaoDelegate');
 import MysqlDelegate                            = require('./MysqlDelegate');
-import IDao                                     = require('../dao/IDao');
 import IntegrationDAO                           = require('../dao/IntegrationDao');
 import Integration                              = require('../models/Integration');
 import IntegrationMember                        = require('../models/IntegrationMember');
@@ -18,7 +17,6 @@ class IntegrationDelegate extends BaseDaoDelegate
 {
     private static cachedIntegrations:{[id:number]:Integration} = {};
 
-
     /* Static constructor workaround */
     private static ctor = (() =>
     {
@@ -28,6 +26,7 @@ class IntegrationDelegate extends BaseDaoDelegate
     private static updateCache()
     {
         var integrationDao:any = new IntegrationDAO();
+
         return integrationDao.getAll()
             .then(
             function integrationsFetched(integrations)
@@ -36,11 +35,11 @@ class IntegrationDelegate extends BaseDaoDelegate
                     var integration = new Integration(i);
                     IntegrationDelegate.cachedIntegrations[integration.getId()] = integration;
                 });
-                log4js.getDefaultLogger().info(integrations.length + ' integrations fetched and cached');
+                log4js.getLogger('IntegrationDelegate').info(integrations.length + ' integrations fetched and cached');
             },
             function integrationsFetchError(err)
             {
-                log4js.getDefaultLogger().debug('Error fetching list of integrations from services, error: ' + err);
+                log4js.getLogger('IntegrationDelegate').fatal('Error fetching list of integrations from services, error: ' + err);
             });
     }
 

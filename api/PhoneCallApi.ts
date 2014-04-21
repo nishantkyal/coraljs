@@ -12,7 +12,7 @@ import PhoneCall            = require('../models/PhoneCall');
  */
 class PhoneCallApi
 {
-    constructor(app)
+    constructor(app, secureApp)
     {
         var phoneCallDelegate = new PhoneCallDelegate();
 

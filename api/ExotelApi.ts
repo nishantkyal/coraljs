@@ -16,7 +16,7 @@ class ExotelApi
     private static CALLER_ID:string = 'From';
     private static CALL_TIME:string = "StartTime";
 
-    constructor(app)
+    constructor(app, secureApp)
     {
         app.get(ApiUrlDelegate.exotel(), function (req:express.Request, res:express.Response)
         {

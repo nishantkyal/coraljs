@@ -18,8 +18,8 @@ include ../scriptsAndStyles
                             li
                                 a(href="profileComplete") Full Profile
             .col-md-3
-                img.img.img-polaroid.img-responsive.col-md-12#profileImage(src='/rest/user/' + logged_in_user.id + '/picture')
-                form#fileUploadForm(action='/rest/user/' + logged_in_user.id + '/picture', method="post", enctype="multipart/form-data")
+                img.img.img-polaroid.img-responsive.col-md-12#profileImage(src=ApiUrlDelegate.userProfilePicture(loggedInUser.id))
+                form#fileUploadForm(action=ApiUrlDelegate.userProfilePicture(loggedInUser.id), method="post", enctype="multipart/form-data")
                     input(type='hidden', name='huha', value='juja')
                     input#selectFile(type='file', name='profile', style='display: none')
                     input#selectFileSubmit(type='submit', style='display: none')
@@ -32,33 +32,32 @@ include ../scriptsAndStyles
                             label(for='title').control-label Title
                             select#title(name='title', data-width='auto')
                                 each title in Salutation
-                                    option(value="#{title}" selected = (user.title == '#{title}')) #{title}
+                                    option(value="#{title}" selected = (loggedInUser.title == '#{title}')) #{title}
                         .form-group.col-md-3
                             label.control-label(for='first_name') First Name
-                            input.form-control#first_name(type='text', name='first_name', value=user.first_name, data-toggle="tooltip", data-placement="bottom")
+                            input.form-control#first_name(type='text', name='first_name', value=loggedInUser.first_name, data-toggle="tooltip", data-placement="bottom")
                         .form-group.col-md-3
                             label.control-label(for='middle_name') Middle Name
-                            input.form-control#middle_name(type='text', name='middle_name', value=user.midle_name, data-toggle="tooltip", data-placement="bottom")
+                            input.form-control#middle_name(type='text', name='middle_name', value=loggedInUser.middle_name, data-toggle="tooltip", data-placement="bottom")
                         .form-group.col-md-3
                             label.control-label(for='last_name') Last Name
-                            input.form-control#last_name(type='text', name='last_name', value=user.last_name, data-toggle="tooltip", data-placement="bottom")
+                            input.form-control#last_name(type='text', name='last_name', value=loggedInUser.last_name, data-toggle="tooltip", data-placement="bottom")
                     hr
                     .form-group
                         label.control-label(for='short_desc') Summary
-                        input.form-control#short_desc(type='text', name='short_desc', value=user.short_desc, autocomplete='off', data-toggle="tooltip", data-placement="bottom")
+                        input.form-control#short_desc(type='text', name='short_desc', value=loggedInUser.short_desc, autocomplete='off', data-toggle="tooltip", data-placement="bottom")
                     .form-group
                         label.control-label(for='long_desc') Description
-                        textarea.form-control#long_desc(name='long_desc', data-toggle="tooltip", data-placement="bottom") #{user.long_desc}
+                        textarea.form-control#long_desc(name='long_desc', data-toggle="tooltip", data-placement="bottom") #{loggedInUser.long_desc}
                     .row
                         .form-group.col-md-6
                             label.control-label(for='industry') Industry
                             select#industry(name='industry', data-width='auto')
                                 each key,option in IndustryCodes
-                                    option(value="#{option}", selected = (user.industry == '#{option}')) #{key}
-                        birthDate = user.date_of_birth
+                                    option(value="#{option}", selected = (loggedInUser.industry == '#{option}')) #{key}
                         .form-group.col-md-3
                             label.control-label(for='birth_day') Birthday
-                            input.form-control#birthDate(class="datepicker" value = '#{birthDate}')
+                            input.form-control#birthDate(class="datepicker" value = '#{loggedInUser.date_of_birth}')
                     hr
                     .form-group
                         label.control-label(for='revenue_share') Revenue Share
@@ -76,7 +75,7 @@ include ../scriptsAndStyles
                 .form-group
                     label.control-label(for='skill') Skill Details
                     br
-                    if (userSkill)
+                    if userSkill
                         each skill in userSkill
                             label.control-label(for='skill') #{skill.skill_name}&nbsp
                             a.fa.fa-pencil.editSkill(data-id=skill.id, data-toggle='modal', href='#EditUserSkillModal')

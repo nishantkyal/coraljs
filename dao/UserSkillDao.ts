@@ -1,10 +1,10 @@
-import q                        = require('q');
-import BaseDao                  = require('./BaseDao');
-import BaseModel                = require('../models/BaseModel');
-import UserSkill                = require('../models/UserSkill');
-import MysqlDelegate            = require('../delegates/MysqlDelegate');
+import q                                            = require('q');
+import AbstractDao                                  = require('./AbstractDao');
+import BaseModel                                    = require('../models/BaseModel');
+import UserSkill                                    = require('../models/UserSkill');
+import MysqlDelegate                                = require('../delegates/MysqlDelegate');
 
-class UserSkillDao extends BaseDao
+class UserSkillDao extends AbstractDao
 {
     constructor() { super(UserSkill); }
 

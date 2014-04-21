@@ -11,8 +11,8 @@ import PhoneType                                                = require('../en
 
 class SmsCountryProvider implements ISmsProvider
 {
-    sendSMS(to:string, body:string, from?:string):q.Promise<any>
-    sendSMS(to:UserPhone, body:string, from?:string):q.Promise<any>
+    sendSMS(to:string, body:string, from?:string):q.Promise<any>;
+    sendSMS(to:UserPhone, body:string, from?:string):q.Promise<any>;
     sendSMS(to:any, body:string, from?:string):q.Promise<any>
     {
         var deferred = q.defer();
@@ -40,7 +40,7 @@ class SmsCountryProvider implements ISmsProvider
             if (error)
                 deferred.reject(error);
             else
-                deferred.resolve(response);
+                deferred.resolve(body);
         });
 
         return deferred.promise;

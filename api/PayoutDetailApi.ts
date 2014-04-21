@@ -7,7 +7,7 @@ import ApiUrlDelegate       = require('../delegates/ApiUrlDelegate');
  */
 class PayoutDetailApi
 {
-    constructor(app)
+    constructor(app, secureApp)
     {
         /* Search payout-detail */
         app.get(ApiUrlDelegate.payoutDetail(), function(req:express.Request, res:express.Response)

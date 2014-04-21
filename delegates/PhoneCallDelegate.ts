@@ -2,9 +2,8 @@
 import _                                                                = require('underscore');
 import q                                                                = require('q');
 import Utils                                                            = require('../common/Utils');
-import IDao                                                             = require('../dao/IDao');
 import PhoneCallDao                                                     = require('../dao/PhoneCallDao');
-import BaseDAODelegate                                                  = require('../delegates/BaseDaoDelegate');
+import BaseDaoDelegate                                                  = require('../delegates/BaseDaoDelegate');
 import IntegrationMemberDelegate                                        = require('../delegates/IntegrationMemberDelegate');
 import UserPhoneDelegate                                                = require('../delegates/UserPhoneDelegate');
 import UserDelegate                                                     = require('../delegates/UserDelegate');
@@ -19,7 +18,7 @@ import UnscheduledCallsCache                                            = requir
 import PhoneCallCache                                                   = require('../caches/PhoneCallCache');
 import CallProviderFactory                                              = require('../factories/CallProviderFactory');
 
-class PhoneCallDelegate extends BaseDAODelegate
+class PhoneCallDelegate extends BaseDaoDelegate
 {
     static ALLOWED_NEXT_STATUS:{ [s: number]: CallStatus[]; } = {};
 
@@ -40,6 +39,7 @@ class PhoneCallDelegate extends BaseDAODelegate
         PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.IN_PROGRESS] = [CallStatus.COMPLETED, CallStatus.FAILED];
         PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.FAILED] = [CallStatus.SCHEDULING];
         PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.POSTPONED] = [CallStatus.SCHEDULING, CallStatus.CANCELLED];
+        PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.AGENDA_DECLINED] = [CallStatus.SCHEDULING];
     })();
 
     get(id:any, fields?:string[], includes:IncludeFlag[] = []):q.Promise<any>
@@ -128,11 +128,11 @@ class PhoneCallDelegate extends BaseDAODelegate
     triggerCall(callId:number):q.Promise<any>
     {
         var self = this;
-        return self.get(callId)
+        return self.get(callId,null, [IncludeFlag.INCLUDE_USER_PHONE])
             .then(
             function callFetched(call:PhoneCall)
             {
-                return self.callProvider.makeCall(call.getCallerPhone().getCompleteNumber(), callId, call.getNumReattempts());
+                return self.callProvider.makeCall(call.getUserPhone().getCompleteNumber(), callId, call.getNumReattempts());
             })
             .fail(
             function callFailed(error)

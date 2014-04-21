@@ -1,7 +1,6 @@
 import _                            = require('underscore');
 import q                            = require('q');
 import BaseDaoDelegate              = require('./BaseDaoDelegate');
-import IDao                         = require('../dao/IDao');
 import CallFragmentDao              = require('../dao/CallFragmentDao');
 import CallFragment                 = require('../models/CallFragment');
 import AgentType                    = require('../enums/AgentType');

@@ -17,7 +17,7 @@ import UserPhone                                            = require('../models
 
 class TokenApi
 {
-    constructor(app)
+    constructor(app, secureApp)
     {
         var verificationCodeCache = new VerificationCodeCache();
         var verificationCodeDelegate = new VerificationCodeDelegate();
@@ -30,9 +30,9 @@ class TokenApi
 
             verificationCodeDelegate.createAndSendMobileVerificationCode(phoneNumber)
                 .then(
-                    function codeCreated() { res.json(200, {status: 'OK'}); },
-                    function codeCreateError(error) { res.send(500, error); }
-                );
+                function codeCreated() { res.json(200, {status: 'OK'}); },
+                function codeCreateError(error) { res.send(500, error); }
+            );
         });
 
         /* Verify mobile number code */
@@ -44,29 +44,42 @@ class TokenApi
 
             verificationCodeDelegate.verifyMobileCode(code, phoneNumber)
                 .then(
-                    function codeVerified(newUserPhone)
-                    {
-                        var returnTo:string = req.query[ApiConstants.RETURN_TO] || req.session[ApiConstants.RETURN_TO];
-                        if (!Utils.isNullOrEmpty(returnTo))
-                            res.redirect(returnTo);
-                        else
-                            res.send(newUserPhone.toJson());
-                    },
-                    function codeVerificationError(error) { res.send(500, error); }
-                )
+                function codeVerified(newUserPhone)
+                {
+                    var returnTo:string = req.flash()[ApiConstants.RETURN_TO];
+                    if (!Utils.isNullOrEmpty(returnTo))
+                        res.redirect(returnTo);
+                    else
+                        res.send(newUserPhone.toJson());
+                },
+                function codeVerificationError(error) { res.send(500, error); }
+            )
         });
 
         /* Create and send expert invitation code */
         app.post(ApiUrlDelegate.expertInvitationCode(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
         {
-            res.send(JSON.stringify({status: 'OK'}));
-
             var sender:User = new User(req['user']);
             var member:IntegrationMember = req.body[ApiConstants.INTEGRATION_MEMBER];
             member.setUser(new User(member.getUser()));
-            verificationCodeDelegate.createAndSendExpertInvitationCode(member.getIntegrationId(), member, sender)
-            .then(
-                function codeSent(result) { res.send(200); },
+
+            verificationCodeDelegate.checkExistingAndSendEmailVerificationCode(member.getIntegrationId(), member, sender)
+                .then(
+                function codeSent() { res.send(JSON.stringify({status: 'OK'})); },
+                function codeSendError(error) { res.json(500, error); }
+            );
+        });
+
+        /* Create and send expert invitation code */
+        app.post(ApiUrlDelegate.expertInvitationCodeResend(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        {
+            var sender:User = new User(req['user']);
+            var member:IntegrationMember = req.body[ApiConstants.INTEGRATION_MEMBER];
+            member.setUser(new User(member.getUser()));
+
+            verificationCodeDelegate.resendExpertInvitationCode(member.getIntegrationId(), member, sender)
+                .then(
+                function codeSent() { res.send(JSON.stringify({status: 'OK'})); },
                 function codeSendError(error) { res.json(500, error); }
             );
         });

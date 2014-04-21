@@ -26,48 +26,103 @@ class VerificationCodeDelegate
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private emailDelegate = new EmailDelegate();
     private smsDelegate = new SmsDelegate();
-    private phoneNumberDelegate = new UserPhoneDelegate();
+    private userPhoneDelegate = new UserPhoneDelegate();
     private notificationDelegate = new NotificationDelegate();
+
+    resendExpertInvitationCode(integrationId:number, member:IntegrationMember, sender?:User):q.Promise<any>
+    {
+        var self = this;
+
+        return self.findVerificationCode(integrationId, member.getUser().getEmail())
+            .then(
+            function codeFound(invites:Object)
+            {
+                return q.all(_.map(_.keys(invites), function (code)
+                {
+                    var member = new IntegrationMember(invites[code]);
+                    member.setUser(new User(member.getUser()));
+                    return self.emailDelegate.sendExpertInvitationEmail(integrationId, code, member, sender)
+                }));
+            });
+    }
 
     createAndSendExpertInvitationCode(integrationId:number, member:IntegrationMember, sender?:User):q.Promise<any>
     {
         var self = this;
 
-        return self.integrationMemberDelegate.findByEmail(member.getUser().getEmail(), integrationId)
+        return self.deleteVerificationCode(integrationId, member.getUser().getEmail())
             .then(
-            function expertFound(expert)
+            function oldCodeDeleted()
             {
-                if (!expert.isValid())
-                    return self.verificationCodeCache.getInvitationCodes(integrationId);
-                else
-                    throw('The expert is already registered');
-            })
-            .then(
-            function invitationCodesFetched(invitedMembers:any[])
-            {
-                // Check if an invitation has already been sent to the email
-                var matchingMember = _.find(invitedMembers, function (m:any):boolean
-                {
-                    return m.user.email == member.getUser().getEmail();
-                });
-
-                if (Utils.isNullOrEmpty(matchingMember))
-                    return self.verificationCodeCache.createInvitationCode(integrationId, member);
-                else
-                    throw('The user has already been sent an invitation');
+                return self.verificationCodeCache.createInvitationCode(integrationId, member);
             })
             .then(
             function codeGenerated(code:string)
             {
                 return self.emailDelegate.sendExpertInvitationEmail(member.getIntegrationId(), code, member, sender);
-            })
-            .fail(
-            function codeSendFailed(error)
+            });
+    }
+
+    checkExistingAndSendEmailVerificationCode(integrationId:number, member:IntegrationMember, sender?:User):q.Promise<any>
+    {
+        var self = this;
+
+        return q.all([
+            self.integrationMemberDelegate.findByEmail(member.getUser().getEmail(), integrationId),
+            self.findVerificationCode(integrationId, member.getUser().getEmail())
+        ]).
+            then(
+            function existingSearched(...args)
             {
-                // TODO: Mark as failed
-                self.logger.debug('Error occurred while sending invitation to %s, error: %s', JSON.stringify(member.toJson()), error);
-            }
-        );
+                var expert = args[0][0];
+                var invited = args[0][1];
+
+                if (!Utils.isNullOrEmpty(expert))
+                    throw('The expert is already registered');
+
+                if (!Utils.isNullOrEmpty(invited))
+                    throw('The expert is already registered');
+
+                return self.createAndSendExpertInvitationCode(integrationId, member, sender);
+            });
+    }
+
+    deleteVerificationCode(integrationId:number, email:string):q.Promise<any>
+    {
+        var self = this;
+
+        return self.findVerificationCode(integrationId, email)
+            .then(
+            function codesFetched(invitedMembers:any[]):any
+            {
+                if (!Utils.isNullOrEmpty(invitedMembers))
+                    return q.all(_.map(_.keys(invitedMembers), function (code:string)
+                    {
+                        return self.verificationCodeCache.deleteInvitationCode(code, integrationId);
+                    }));
+            });
+    }
+
+    findVerificationCode(integrationId:number, email:string):q.Promise<any>
+    {
+        var self = this;
+
+        return self.verificationCodeCache.getInvitationCodes(integrationId)
+            .then(
+            function codesFetched(invites:any[])
+            {
+                var matchingInvites;
+                for (var code in invites)
+                {
+                    var member = invites[code];
+                    if (member.user.email == email)
+                    {
+                        matchingInvites = matchingInvites || {};
+                        matchingInvites[code] = member;
+                    }
+                }
+                return matchingInvites;
+            });
     }
 
     createAndSendMobileVerificationCode(phoneNumber:UserPhone):q.Promise<any>
@@ -78,7 +133,17 @@ class VerificationCodeDelegate
         return q.all([
             self.smsDelegate.sendVerificationSMS(phoneNumber.getCompleteNumber(), code),
             self.verificationCodeCache.createMobileVerificationCode(phoneNumber.getCompleteNumber(), code)
-        ]);
+        ])
+            .then(
+            function codeGeneratedAndSent(...args):any
+            {
+                return args;
+            },
+            function codeSendError(error)
+            {
+                throw (error);
+            }
+        );
     }
 
     verifyMobileCode(code:string, phoneNumber:UserPhone):q.Promise<UserPhone>
@@ -90,10 +155,11 @@ class VerificationCodeDelegate
             function verified(result)
             {
                 if (result)
-                    return self.phoneNumberDelegate.create(phoneNumber);
+                    return self.userPhoneDelegate.create(phoneNumber);
                 else
                     throw ('Invalid code entered');
             });
+        // TODO: Remove any scheduled tasks for reminding this guy to verify his mobile number
     }
 
     createAppointmentAcceptCode(call:PhoneCall, startTimes:number[]):q.Promise<any>

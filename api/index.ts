@@ -19,28 +19,28 @@ import UserEducationApi                 = require('./UserEducationApi');
 import UserEmploymentApi                = require('./UserEmploymentApi');
 import UserSkillApi                     = require('./UserSkillApi');
 
-function init(app)
+function init(app, secureApp?)
 {
-    new CouponApi(app);
-    new ExpertApi(app);
-    new ExpertScheduleRuleApi(app);
-    new ExpertScheduleExceptionApi(app);
-    new IntegrationApi(app);
-    new IntegrationOwnerApi(app);
-    new PaymentApi(app);
-    new PayoutDetailApi(app);
-    new PhoneCallApi(app);
-    new UserPhoneApi(app);
-    new TokenApi(app);
-    new TransactionApi(app);
-    new TwimlOutApi(app);
-    new TwimlApi(app);
-    new ExotelApi(app);
-    new UserApi(app);
-    new UserProfileApi(app);
-    new UserEducationApi(app);
-    new UserEmploymentApi(app);
-    new UserSkillApi(app);
+    new CouponApi(app, secureApp);
+    new ExpertApi(app, secureApp);
+    new ExpertScheduleRuleApi(app, secureApp);
+    new ExpertScheduleExceptionApi(app, secureApp);
+    new IntegrationApi(app, secureApp);
+    new IntegrationOwnerApi(app, secureApp);
+    new PaymentApi(app, secureApp);
+    new PayoutDetailApi(app, secureApp);
+    new PhoneCallApi(app, secureApp);
+    new UserPhoneApi(app, secureApp);
+    new TokenApi(app, secureApp);
+    new TransactionApi(app, secureApp);
+    new TwimlOutApi(app, secureApp);
+    new TwimlApi(app, secureApp);
+    new ExotelApi(app, secureApp);
+    new UserApi(app, secureApp);
+    new UserProfileApi(app, secureApp);
+    new UserEducationApi(app, secureApp);
+    new UserEmploymentApi(app, secureApp);
+    new UserSkillApi(app, secureApp);
 }
 
 export = init

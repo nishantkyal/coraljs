@@ -4,7 +4,6 @@ import q                                                    = require('q');
 import BaseDaoDelegate                                      = require('../delegates/BaseDaoDelegate');
 import UserDelegate                                         = require('../delegates/UserDelegate');
 import IntegrationMemberDelegate                            = require('../delegates/IntegrationMemberDelegate');
-import IDao                                                 = require('../dao/IDao');
 import CouponDao                                            = require('../dao/CouponDao');
 import Coupon                                               = require('../models/Coupon');
 import IntegrationMember                                    = require('../models/IntegrationMember');

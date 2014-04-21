@@ -5,7 +5,6 @@ import BaseDaoDelegate                          = require('../delegates/BaseDaoD
 import PhoneCallDelegate                        = require('../delegates/PhoneCallDelegate');
 import TransactionLine                          = require('../models/TransactionLine');
 import PhoneCall                                = require('../models/PhoneCall');
-import IDao                                     = require('../dao/IDao');
 import TransactionLineDao                       = require('../dao/TransactionLineDao');
 import ItemType                                 = require('../enums/ItemType');
 import TransactionType                          = require('../enums/TransactionType');

@@ -137,7 +137,7 @@ $('.sendAgain').click(function(event)
 
     if (invitedMember)
         $.ajax({
-            url    : '/rest/code/expert/invitation',
+            url    : '/rest/code/expert/invitation/resend',
             type   : 'POST',
             data   : {
                 integration_member: {

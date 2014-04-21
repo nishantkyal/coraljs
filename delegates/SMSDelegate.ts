@@ -9,7 +9,6 @@ import BaseDaoDelegate                                              = require('.
 import LocalizationDelegate                                         = require('../delegates/LocalizationDelegate');
 import UserPhoneDelegate                                            = require('../delegates/UserPhoneDelegate');
 import PhoneCallDelegate                                            = require('../delegates/PhoneCallDelegate');
-import IDao                                                         = require('../dao/IDao');
 import SMS                                                          = require('../models/SMS');
 import CallFragment                                                 = require('../models/CallFragment');
 import User                                                         = require('../models/User');
@@ -161,8 +160,8 @@ class SMSDelegate
             .then(
             function smsSent()
             {
-                this.logger.info("Failure SMS sent to user number: " + call.getCallerPhone().getCompleteNumber());
-                this.logger.info("Failure SMS sent to expert number: " + call.getExpertPhone().getCompleteNumber());
+                self.logger.info("Failure SMS sent to user number: " + call.getCallerPhone().getCompleteNumber());
+                self.logger.info("Failure SMS sent to expert number: " + call.getExpertPhone().getCompleteNumber());
             });
     }
 
@@ -173,7 +172,7 @@ class SMSDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return this.phoneCallDelegate.get(call).then(self.sendFailureUserSMS);
+            return self.phoneCallDelegate.get(call).then(self.sendFailureUserSMS);
 
         var template:Function = _.template(LocalizationDelegate.get('sms.user.failure.user'));
         var message:string = template({
@@ -186,7 +185,7 @@ class SMSDelegate
             .then(
             function smsSent()
             {
-                this.logger.info("Failure(User) SMS sent to user number: " + call.getCallerPhone().getCompleteNumber());
+                self.logger.info("Failure(User) SMS sent to user number: " + call.getCallerPhone().getCompleteNumber());
             });
     }
 
@@ -203,7 +202,7 @@ class SMSDelegate
             .then(
             function smsSent()
             {
-                this.logger.info("Verification SMS sent to user number: " + userNumber);
+                self.logger.info("Verification SMS sent to user number: " + userNumber);
             });
     }
 }

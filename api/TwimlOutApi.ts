@@ -41,7 +41,7 @@ class TwimlOutApi
     twilioProvider = new TwilioProvider();
     notificationDelegate = new NotificationDelegate();
 
-    constructor(app)
+    constructor(app, secureApp)
     {
         var self = this;
 

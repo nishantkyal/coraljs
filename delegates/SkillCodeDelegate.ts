@@ -3,7 +3,6 @@ import _                                                = require('underscore');
 import q                                                = require('q');
 import request                                          = require('request');
 import BaseDaoDelegate                                  = require('./BaseDaoDelegate');
-import IDao                                             = require('../dao/IDao');
 import SkillCodeDao                                     = require('../dao/SkillCodeDao');
 import SkillCode                                        = require('../models/SkillCode');
 import Utils                                            = require('../common/Utils');

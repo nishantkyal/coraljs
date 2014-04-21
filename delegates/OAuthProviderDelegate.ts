@@ -77,10 +77,28 @@ class OAuthProviderDelegate
 
             OAuthProviderDelegate.logger.debug('Creating expert for user id: %s, integration id: %s', user.id, integration.id);
 
-            new IntegrationMemberDelegate().create(expert)
+            var integrationMemberDelegate = new IntegrationMemberDelegate();
+
+            integrationMemberDelegate.create(expert)
                 .then(
-                function expertCreated(expert) { done(null, expert.getAuthCode()); },
-                function expertCreateError(err) { done(err); }
+                function expertCreated(expert)
+                {
+                    done(null, expert.getAuthCode());
+                },
+                function expertCreateError(error)
+                {
+                    if (error.code == 'ER_DUP_ENTRY')
+                        return integrationMemberDelegate.find(expert, [IntegrationMember.AUTH_CODE]);
+                })
+                .then(
+                function existingExpertFetched(expert)
+                {
+                    done(null, expert.getAuthCode());
+                },
+                function(error)
+                {
+                    done(error);
+                }
             );
         }));
 

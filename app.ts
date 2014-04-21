@@ -5,6 +5,7 @@ var connect                                         = require('connect');
 var RedisStore                                      = require('connect-redis')(connect);
 import connect_flash                                = require("connect-flash");
 import http                                         = require('http');
+import https                                        = require('https');
 import path                                         = require('path');
 import passport                                     = require('passport');
 import log4js                                       = require('log4js');
@@ -104,10 +105,7 @@ _.templateSettings = {
 };
 _.mixin(helpers);
 
-// Start call scheduling cron
-new ScheduledTaskDelegate().scheduleAfter(new ScheduleCallsScheduledTask(), 1);
-
-app.set('port', Config.get(Config.CORAL_PORT) || 3000);
+app.set('port', Config.get(Config.DASHBOARD_HTTP_PORT));
 app.listen(app.get('port'), function ()
 {
     console.log("SearchNTalk started on port %d in %s mode", app.get('port'), app.settings.env);

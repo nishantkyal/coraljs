@@ -25,7 +25,7 @@ import VerificationCodeCache                = require('../caches/VerificationCod
  */
 class UserApi
 {
-    constructor(app)
+    constructor(app, secureApp)
     {
         var userDelegate = new UserDelegate();
         var userOauthDelegate = new UserOAuthDelegate();

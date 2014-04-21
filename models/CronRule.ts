@@ -30,7 +30,7 @@ class CronRule
 
     toString():string
     {
-
+        return null;
     }
 }
 export = CronRule

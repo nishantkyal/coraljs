@@ -1,14 +1,14 @@
-import q                        = require('q');
-import BaseDao                  = require('./BaseDao');
-import BaseModel                = require('../models/BaseModel');
-import CallFragment             = require('../models/CallFragment');
-import MysqlDelegate            = require('../delegates/MysqlDelegate');
-import CallFragmentStatus       = require('../enums/CallFragmentStatus');
+import q                                                = require('q');
+import AbstractDao                                      = require('./AbstractDao');
+import BaseModel                                        = require('../models/BaseModel');
+import CallFragment                                     = require('../models/CallFragment');
+import MysqlDelegate                                    = require('../delegates/MysqlDelegate');
+import CallFragmentStatus                               = require('../enums/CallFragmentStatus');
 
 /**
  * DAO class for CallFragment queue
  */
-class CallFragmentDao extends BaseDao
+class CallFragmentDao extends AbstractDao
 {
     constructor() { super(CallFragment) }
 

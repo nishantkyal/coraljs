@@ -19,7 +19,7 @@ import IncludeFlag                      = require('../enums/IncludeFlag');
  */
 class ExpertApi
 {
-    constructor(app)
+    constructor(app, secureApp)
     {
         var integrationMemberDelegate = new IntegrationMemberDelegate();
 

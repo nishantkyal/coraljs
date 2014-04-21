@@ -1,9 +1,9 @@
 ///<reference path='../_references.d.ts'/>
-import _                = require('underscore');
+import _                                = require('underscore');
 import log4js                           = require('log4js');
 import q                                = require('q');
 import moment                           = require('moment');
-import IDao                             = require('../dao/IDao');
+import AbstractDao                      = require('../dao/AbstractDao');
 import Utils                            = require('../common/Utils');
 import BaseModel                        = require('../models/BaseModel');
 import GlobalIdDelegate                 = require('../delegates/GlobalIDDelegate');
@@ -12,9 +12,9 @@ import IncludeFlag                      = require('../enums/IncludeFlag');
 class BaseDaoDelegate
 {
     logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
-    dao:IDao;
+    dao:AbstractDao;
 
-    constructor(dao:IDao)
+    constructor(dao:AbstractDao)
     {
         this.dao = dao;
     }
@@ -91,18 +91,15 @@ class BaseDaoDelegate
             {
                 var results = args[0];
 
-                _.each(rawResult, function (result:any)
+                _.each(results, function (resultSet:any, index)
                 {
-                    _.each(results, function (resultSet:any, index)
+                    // TODO: Implement foreign keys so mapping can work in search
+                    var foreignKeyColumn = null;
+                    rawResult.set(includes[index], _.map(resultSet, function (res)
                     {
-                        // TODO: Implement foreign keys so mapping can work in search
-                        var foreignKeyColumn = null;
-                        result.set(includes[index], _.map(resultSet, function (res)
-                        {
-                            // return result[foreignKeyColumn] == res['id'] ? res : null;
-                            return res;
-                        }));
-                    });
+                        // return result[foreignKeyColumn] == res['id'] ? res : null;
+                        return res;
+                    }));
                 });
                 return rawResult;
             });

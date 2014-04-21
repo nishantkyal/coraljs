@@ -5,11 +5,10 @@ include ../scriptsAndStyles
     .row-fluid
         .col-md-2
         .col-md-8
-            block body
-                .col-md-2.col-xs-5
-                    img.img-polaroid(src='http://www.geovic.net/userfiles/image/Blank%20Profile(1).png', width=80, height=80)
-                .left
-                    h3= formatName(user.first_name, user.last_name)
-                    label #{user.short_desc}
-                hr
+            .col-md-2.col-xs-5
+                img.img-polaroid(src='http://www.geovic.net/userfiles/image/Blank%20Profile(1).png', width=80, height=80)
+            .left
+                h3= formatName(user.first_name, user.last_name)
+                label #{user.short_desc}
+            block content
         .col-md-2
