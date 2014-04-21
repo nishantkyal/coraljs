@@ -271,11 +271,12 @@ class EmailDelegate
     {
         var self = this;
         var invitationUrl = ExpertRegistrationUrls.index();
-        invitationUrl += '?';
-        invitationUrl += ApiConstants.INTEGRATION_ID + '=' + integrationId;
-        invitationUrl += '&';
-        invitationUrl += ApiConstants.CODE + '=' + invitationCode;
         invitationUrl = url.resolve(Config.get(Config.DASHBOARD_URI), invitationUrl);
+
+        var query = {};
+        query[ApiConstants.INTEGRATION_ID] = integrationId;
+        query[ApiConstants.CODE] = invitationCode;
+        invitationUrl = Utils.addQueryToUrl(invitationUrl, query);
 
         var integration = new IntegrationDelegate().getSync(integrationId)
         var emailData = {
@@ -300,11 +301,12 @@ class EmailDelegate
     sendMobileVerificationReminderEmail(integrationId:number, invitationCode:string, recipient:IntegrationMember):q.Promise<any>
     {
         var invitationUrl = ExpertRegistrationUrls.index();
-        invitationUrl += '?';
-        invitationUrl += ApiConstants.INTEGRATION_ID + '=' + integrationId;
-        invitationUrl += '&';
-        invitationUrl += ApiConstants.CODE + '=' + invitationCode;
         invitationUrl = url.resolve(Config.get(Config.DASHBOARD_URI), invitationUrl);
+
+        var query = {};
+        query[ApiConstants.INTEGRATION_ID] = integrationId;
+        query[ApiConstants.CODE] = invitationCode;
+        invitationUrl = Utils.addQueryToUrl(invitationUrl, query);
 
         var integration = new IntegrationDelegate().getSync(integrationId)
 
@@ -354,10 +356,11 @@ class EmailDelegate
     sendAccountVerificationEmail(user:User, verificationCode:string):q.Promise<any>
     {
         var verificationUrl = url.resolve(Config.get(Config.DASHBOARD_URI), DashboardUrls.emailAccountVerification());
-        verificationUrl += '?';
-        verificationUrl += ApiConstants.CODE + '=' + verificationCode;
-        verificationUrl += '&';
-        verificationUrl += ApiConstants.EMAIL + '=' + user.getEmail();
+
+        var query = {};
+        query[ApiConstants.CODE] = verificationCode;
+        query[ApiConstants.EMAIL] = user.getEmail();
+        verificationUrl = Utils.addQueryToUrl(verificationUrl, query);
 
         var emailData = {
             code: verificationCode,
