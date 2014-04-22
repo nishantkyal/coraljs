@@ -1,36 +1,29 @@
-title Expert Profile
+title Reselect the appointment
 include ../scriptsAndStyles
-include header
-.container-fluid
-    .row-fluid
-        .col-md-2
-        .col-md-8
-            form(method='post')
-                .form-group
-                    label.control-label Duration
-                    select.form-control#duration(name='duration')
-                        option(value='15', selected=duration==15) 15 mins
-                        option(value='30', selected=duration==30) 30 mins
-                        option(value='45', selected=duration==45) 45 mins
-                        option(value='60', selected=duration==60) 1 hour
-                .form-group
-                    label.control-label
-                        | Convenient Times&nbsp;
-                        a.fa.fa-question-circle(title='How this works')
-                    .controls#appointmentPickers
-                .form-group
-                    input.btn.btn-primary.btn-lg(type='submit', value='NEXT')
-        .col-md-2
-#schedulePickerTemplate(style='display: none;')
-    select.dateSelect(data-width='auto')
-        option(value="-1") Pick a date
-    select.timeSelect(name='startTime', data-width='auto')
-        option(value="-1") Pick a date
-script.
-    var schedules = JSON.parse( '!{JSON.stringify(expert.schedule)}' );
-var startTimes;
-try{
-    startTimes = JSON.parse( '!{JSON.stringify(startTimes)}' );
-}
-catch(e){}
-script(src='/js/app/callFlow/index.js')
+extends header
+
+block content
+    form(method='post')
+        .form-group
+            label.control-label Duration - #{call.duration} minutes
+        .form-group
+            label.control-label
+                | Convenient Times&nbsp;
+                a.fa.fa-question-circle(title='How this works')
+            .controls#appointmentPickers
+        .form-group
+            input.btn.btn-primary.btn-lg(type='submit', value='NEXT')
+
+    #schedulePickerTemplate(style='display: none;')
+        select.dateSelect.form-control(data-width='auto')
+            option(value="-1") Pick a date
+        select.timeSelect.form-control(name='startTime', data-width='auto')
+            option(value="-1") Pick a time
+    script.
+        var schedules = JSON.parse( '!{JSON.stringify(expert.schedule)}' );
+        var appointments;
+        try{
+            appointments = JSON.parse( '!{JSON.stringify(startTimes)}' );
+        }
+        catch(e){}
+    script(src='/js/app/callFlow/index.js')

@@ -42,6 +42,7 @@ class EmailDelegate
     private static EMAIL_EXPERT_SCHEDULING:string = 'EMAIL_EXPERT_SCHEDULING';
     private static EMAIL_EXPERT_SCHEDULED:string = 'EMAIL_EXPERT_SCHEDULED';
     private static EMAIL_EXPERT_REMINDER:string = 'EMAIL_EXPERT_REMINDER';
+    private static EMAIL_EXPERT_RESCHEDULE:string = 'EMAIL_EXPERT_RESCHEDULE';
     private static EMAIL_ACCOUNT_VERIFICATION:string = 'EMAIL_ACCOUNT_VERIFICATION';
     private static EMAIL_USER_REMINDER:string = 'EMAIL_USER_REMINDER';
     private static EMAIL_USER_SCHEDULED:string = 'EMAIL_USER_SCHEDULED';
@@ -214,7 +215,7 @@ class EmailDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call).then(function (fetchedCall:PhoneCall)
+            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER]).then(function (fetchedCall:PhoneCall)
             {
                 self.sendSchedulingEmailToExpert(fetchedCall, appointments, duration, caller);
             });
@@ -225,7 +226,7 @@ class EmailDelegate
         var VerificationCodeDelegate:any = require('../delegates/VerificationCodeDelegate');
         var verificationCodeDelegate = new VerificationCodeDelegate();
 
-        return verificationCodeDelegate.createAppointmentAcceptCode(call)
+        return verificationCodeDelegate.createAppointmentAcceptCode(call,appointments)
             .then(
             function invitationAcceptCodeCreated(code:string)
             {
@@ -299,6 +300,39 @@ class EmailDelegate
                 ]);
             });
 
+    }
+
+    sendReschedulingEmailToExpert(call:number, appointments:number[]):q.Promise<any>;
+    sendReschedulingEmailToExpert(call:PhoneCall, appointments:number[]):q.Promise<any>;
+    sendReschedulingEmailToExpert(call:any, appointments:number[]):q.Promise<any>
+    {
+        var self = this;
+
+        if (Utils.getObjectType(call) == 'Number')
+            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER]).then(function (fetchedCall:PhoneCall)
+            {
+                self.sendReschedulingEmailToExpert(fetchedCall, appointments);
+            });
+        var VerificationCodeDelegate:any = require('../delegates/VerificationCodeDelegate');
+        var verificationCodeDelegate = new VerificationCodeDelegate();
+
+        return verificationCodeDelegate.createAppointmentAcceptCode(call,appointments)
+            .then(
+            function invitationAcceptCodeCreated(code:string)
+            {
+                var expert:IntegrationMember = call.getIntegrationMember();
+                var integration = new IntegrationDelegate().getSync(expert.getIntegrationId());
+                var emailData = {
+                    call: call,
+                    acceptCode: code,
+                    integration: integration,
+                    appointments:appointments
+                };
+
+                return q.all([
+                    self.composeAndSend(EmailDelegate.EMAIL_EXPERT_RESCHEDULE, expert.getUser()[0].getEmail(), emailData)
+                ]);
+            });
     }
 
     sendExpertInvitationEmail(integrationId:number, invitationCode:string, recipient:IntegrationMember, sender:User):q.Promise<any>
@@ -404,11 +438,5 @@ class EmailDelegate
         return this.composeAndSend(EmailDelegate.EMAIL_ACCOUNT_VERIFICATION, user.getEmail(), emailData);
     }
 
-    sendReschedulingEmailToExpert(call:number, appointment:number):q.Promise<any>;
-    sendReschedulingEmailToExpert(call:PhoneCall, appointment:number):q.Promise<any>;
-    sendReschedulingEmailToExpert(call:any, appointment:number):q.Promise<any>
-    {
-        return null;
-    }
 }
 export = EmailDelegate

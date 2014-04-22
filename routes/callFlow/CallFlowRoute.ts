@@ -301,7 +301,7 @@ class CallFlowRoute
             .then(
             function callFetched(call:PhoneCall)
             {
-                self.notificationDelegate.sendCallReschedulingNotificationsToExpert(call, startTime);
+                self.notificationDelegate.sendCallReschedulingNotificationsToUser(call, startTime);
             })
             .fail(function(error){
                 res.status(501);
@@ -312,6 +312,9 @@ class CallFlowRoute
     {
         var self = this;
         var appointmentCode:string = req.query[ApiConstants.CODE];
+        var expertId;
+        var call:PhoneCall;
+        var sessionData = new SessionData(req);
 
         this.verificationCodeDelegate.verifyAppointmentAcceptCode(appointmentCode)
             .then(
@@ -325,13 +328,27 @@ class CallFlowRoute
                 res.send(401, 'Invalid code');
             })
             .then(
-            function callFetched(call:PhoneCall)
+            function callFetched(tempCall:PhoneCall)
             {
-                var pageData = {
-                    call: call
-                };
-                res.render(CallFlowRoute.RESCHEDULING_BY_USER, pageData);
+                expertId = tempCall.getIntegrationMemberId();
+                call = tempCall;
+                return self.integrationMemberDelegate.get(expertId, null, [IncludeFlag.INCLUDE_SCHEDULES, IncludeFlag.INCLUDE_USER]);
             })
+            .then(
+            function handleExpertFound(expert)
+            {
+                sessionData.setExpert(expert);
+
+                var pageData = _.extend(sessionData.getData(), {
+                    messages: req.flash(),
+                    call    :   call
+                });
+
+                res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
+                res.render(CallFlowRoute.RESCHEDULING_BY_USER, pageData);
+            },
+            function handleExpertSearchFailed(error) { res.status(401).json('Error getting expert details for id: ' + expertId)}
+            )
             .fail(function(error){
                 res.status(501);
             })
@@ -341,12 +358,12 @@ class CallFlowRoute
     {
         var self = this;
         var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
-        var startTime:number = parseInt(req.body[ApiConstants.START_TIME]);
-        self.phoneCallDelegate.get(callId,null, [IncludeFlag.INCLUDE_USER])
+        var startTime:any = req.body[ApiConstants.START_TIME];
+        self.phoneCallDelegate.get(callId,null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER])
             .then(
             function callFetched(call:PhoneCall)
             {
-                self.notificationDelegate.sendCallReschedulingNotificationsToUser(call, startTime);
+                self.notificationDelegate.sendCallReschedulingNotificationsToExpert(call, startTime);
             })
             .fail(function(error){
                 res.status(501);

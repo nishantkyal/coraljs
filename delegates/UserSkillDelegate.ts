@@ -29,7 +29,7 @@ class UserSkillDelegate extends BaseDaoDelegate
             },
             function skillCodeError(error) //code exists
             {
-                return self.skillCodeDelegate.find({'lkin_code':skillCode.getLinkedinCode()})
+                return self.skillCodeDelegate.find({'linkedin_code':skillCode.getLinkedinCode()})
                     .then(
                         function skillFound(refSkill){
                             userSkill.setSkillId(refSkill.getId());

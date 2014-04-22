@@ -33,9 +33,9 @@ class NotificationDelegate
         ]);
     }
 
-    sendCallReschedulingNotificationsToExpert(call:number, appointment:number):q.Promise<any>;
-    sendCallReschedulingNotificationsToExpert(call:PhoneCall, appointment:number):q.Promise<any>;
-    sendCallReschedulingNotificationsToExpert(call:any, appointment:number):q.Promise<any>
+    sendCallReschedulingNotificationsToUser(call:number, appointment:number):q.Promise<any>;
+    sendCallReschedulingNotificationsToUser(call:PhoneCall, appointment:number):q.Promise<any>;
+    sendCallReschedulingNotificationsToUser(call:any, appointment:number):q.Promise<any>
     {
         var self = this;
         return q.all([
@@ -43,9 +43,9 @@ class NotificationDelegate
         ]);
     }
 
-    sendCallReschedulingNotificationsToUser(call:number, appointment:number):q.Promise<any>;
-    sendCallReschedulingNotificationsToUser(call:PhoneCall, appointment:number):q.Promise<any>;
-    sendCallReschedulingNotificationsToUser(call:any, appointment:number):q.Promise<any>
+    sendCallReschedulingNotificationsToExpert(call:number, appointment:number[]):q.Promise<any>;
+    sendCallReschedulingNotificationsToExpert(call:PhoneCall, appointment:number[]):q.Promise<any>;
+    sendCallReschedulingNotificationsToExpert(call:any, appointment:number[]):q.Promise<any>
     {
         var self = this;
         return q.all([
