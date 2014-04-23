@@ -11,5 +11,6 @@ class IncludeFlag
     static INCLUDE_INTEGRATION_MEMBER_USER:string = 'integration_member_user';
     static INCLUDE_SCHEDULES:string = 'schedule';
     static INCLUDE_SCHEDULE_RULES:string = 'schedule_rule';
+    static INCLUDE_TRANSACTION_LINE:String = 'transaction_line';
 }
 export = IncludeFlag

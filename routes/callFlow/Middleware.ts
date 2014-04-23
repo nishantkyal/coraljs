@@ -24,7 +24,7 @@ class Middleware
         if (!Utils.isNullOrEmpty(appointments) && !Utils.isNullOrEmpty(expert) && !Utils.isNullOrEmpty(duration))
             next();
         else if (!Utils.isNullOrEmpty(expert))
-            res.redirect(Urls.callExpert(expert[BaseModel.ID]));
+            res.redirect(Urls.callExpert(expert.getId()));
         else
             res.composeAndSend(400, "This is strange, how did you land up here without selecting an expert");
     }

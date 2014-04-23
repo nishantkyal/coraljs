@@ -44,6 +44,7 @@ class PhoneCall extends BaseModel
     private expert_phone_id:number;
     private start_time:number;
     private duration:number;
+    private delay:number;
     private status:number;
     private price:number;
     private price_currency:number;
@@ -54,7 +55,6 @@ class PhoneCall extends BaseModel
     private extension:string;
     private num_reschedules:number;
     private num_reattempts:number;
-    private delay:number;
 
     private user:User;
     private integration_member:IntegrationMember;
@@ -68,6 +68,7 @@ class PhoneCall extends BaseModel
     getExpertPhoneId():number { return this.expert_phone_id; }
     getStartTime():number { return this.start_time; }
     getDuration():number { return this.duration; }
+    getDelay():number { return this.delay; }
     getStatus():number { return this.status; }
     getPrice():number { return this.price; }
     getPriceCurrency():number { return this.price_currency; }
@@ -78,7 +79,6 @@ class PhoneCall extends BaseModel
     getExtension():string { return this.extension; }
     getNumReschedules():number { return this.num_reschedules; }
     getNumReattempts():number { return this.num_reattempts; }
-    getDelay():number { return this.delay; }
 
     getUser():User { return this.user; }
     getIntegrationMember():IntegrationMember { return this.integration_member; }
@@ -92,6 +92,7 @@ class PhoneCall extends BaseModel
     setExpertPhoneId(val:number):void { this.expert_phone_id = val; }
     setStartTime(val:number):void { this.start_time = val; }
     setDuration(val:number):void { this.duration = val; }
+    setDelay(val:number):void {this.delay = val; }
     setStatus(val:number):void { this.status = val; }
     setPrice(val:number):void { this.price = val; }
     setPriceCurrency(val:number):void { this.price_currency = val; }
@@ -102,7 +103,6 @@ class PhoneCall extends BaseModel
     setExtension(val:string):void { this.extension = val; }
     setNumReschedules(val:number):void { this.num_reschedules = val; }
     setNumReattempts(val:number):void {this.num_reattempts = val; }
-    setDelay(val:number):void {this.delay = val; }
 
     setUser(val:User):void { this.user = val; }
     setIntegrationMember(val:IntegrationMember):void { this.integration_member = val; }

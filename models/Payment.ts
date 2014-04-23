@@ -1,4 +1,5 @@
-import BaseModel                = require('./BaseModel');
+import BaseModel                                        = require('./BaseModel');
+import MoneyUnit                                        = require('../enums/MoneyUnit');
 
 class Payment extends BaseModel
 {
@@ -6,28 +7,24 @@ class Payment extends BaseModel
 
     static USER_ID:string = 'user_id';
     static AMOUNT:string = 'amount';
-    static UPDATE_DATE:string = 'update_date';
-    static TRANSACTION_ID:string = 'transaction_id';
+    static AMOUNT_UNIT:string = 'amount_unit';
     static STATUS:string = 'status';
 
     private user_id:number;
     private amount:number;
-    private update_date:number;
-    private transaction_id:string;
+    private amount_unit:MoneyUnit;
     private status:number;
 
     /* Getters */
-    getUserId():number { return this.user_id; }
-    getAmount():number { return this.amount; }
-    getUpdateDate():number { return this.update_date; }
-    getTransactionId():string { return this.transaction_id; }
-    getStatus():number { return this.status; }
+    getUserId():number                                  { return this.user_id; }
+    getAmount():number                                  { return this.amount; }
+    getAmountUnit():MoneyUnit                           { return this.amount_unit; }
+    getStatus():number                                  { return this.status; }
 
     /* Setters */
-    setUserId(val:number):void { this.user_id = val; }
-    setAmount(val:number):void { this.amount = val; }
-    setUpdateDate(val:number):void { this.update_date = val; }
-    setTransactionId(val:string):void { this.transaction_id = val; }
-    setStatus(val:number):void { this.status = val; }
+    setUserId(val:number):void                          { this.user_id = val; }
+    setAmount(val:number):void                          { this.amount = val; }
+    setAmountUnit(val:MoneyUnit):void                   { this.amount_unit = val; }
+    setStatus(val:number):void                          { this.status = val; }
 }
 export = Payment

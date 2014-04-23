@@ -3,6 +3,7 @@ import AbstractSessionData                              = require('../AbstractSe
 import PhoneCall                                        = require('../../models/PhoneCall');
 import Integration                                      = require('../../models/Integration');
 import IntegrationMember                                = require('../../models/IntegrationMember');
+import Transaction                                      = require('../../models/Transaction');
 
 class SessionData extends AbstractSessionData
 {
@@ -12,6 +13,7 @@ class SessionData extends AbstractSessionData
     private static EXPERT:string            = 'expert';
     private static APPOINTMENTS:string      = 'appointments';
     private static DURATION:string          = 'duration';
+    private static TRANSACTION:string       = 'transaction';
 
     /* Getters */
     getIdentifier():string              { return 'CallFlow'; }
@@ -21,6 +23,7 @@ class SessionData extends AbstractSessionData
     getExpert():IntegrationMember       { return new IntegrationMember(this.getData()[SessionData.EXPERT]); }
     getAppointments():number[]          { return this.getData()[SessionData.APPOINTMENTS]; }
     getDuration():number                { return parseInt(this.getData()[SessionData.DURATION]); }
+    getTransaction():Transaction        { return new Transaction(this.getData()[SessionData.TRANSACTION]); }
 
     /* Setters */
     setCallId(val:number)               { this.set(SessionData.CALL_ID, val); }
@@ -29,6 +32,7 @@ class SessionData extends AbstractSessionData
     setExpert(val:IntegrationMember)    { this.set(SessionData.EXPERT, val.toJson()); }
     setAppointments(val:number[])       { this.set(SessionData.APPOINTMENTS, val); }
     setDuration(val:number)             { this.set(SessionData.DURATION, val); }
+    setTransaction(val:Transaction)     { this.set(SessionData.TRANSACTION, val.toJson()); }
 
 }
 export = SessionData

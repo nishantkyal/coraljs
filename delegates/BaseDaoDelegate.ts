@@ -40,6 +40,9 @@ class BaseDaoDelegate
             .then(
             function processIncludes(result):any
             {
+                if (Utils.isNullOrEmpty(result))
+                    return result;
+
                 rawResult = result;
                 var includeTasks = [];
                 _.each(includes, function (flag)
@@ -76,6 +79,9 @@ class BaseDaoDelegate
             .then(
             function processIncludes(result)
             {
+                if (Utils.isNullOrEmpty(result))
+                    return result;
+
                 rawResult = result;
                 var includeTasks = [];
                 _.each(includes, function (flag)

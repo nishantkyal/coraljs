@@ -1,26 +1,179 @@
 ///<reference path='../_references.d.ts'/>
-import q                            = require('q');
-import _                            = require('underscore');
-import BaseDaoDelegate              = require('./BaseDaoDelegate');
-import MysqlDelegate                = require('./MysqlDelegate');
-import TransactionLineDelegate      = require('./TransactionLineDelegate');
-import TransactionDAO               = require('../dao/TransactionDao');
-import Transaction                  = require('../models/Transaction');
-import TransactionLine              = require('../models/TransactionLine');
-import PhoneCall                    = require('../models/PhoneCall');
+import q                                                    = require('q');
+import _                                                    = require('underscore');
+import BaseDaoDelegate                                      = require('./BaseDaoDelegate');
+import MysqlDelegate                                        = require('./MysqlDelegate');
+import TransactionLineDelegate                              = require('./TransactionLineDelegate');
+import PhoneCallDelegate                                    = require('./PhoneCallDelegate');
+import CouponDelegate                                       = require('./CouponDelegate');
+import TransactionDAO                                       = require('../dao/TransactionDao');
+import Transaction                                          = require('../models/Transaction');
+import TransactionLine                                      = require('../models/TransactionLine');
+import PhoneCall                                            = require('../models/PhoneCall');
+import Coupon                                               = require('../models/Coupon');
+import Utils                                                = require('../common/Utils');
+import TransactionType                                      = require('../enums/TransactionType');
+import CouponType                                           = require('../enums/CouponType');
+import ItemType                                             = require('../enums/ItemType');
+import MoneyUnit                                            = require('../enums/MoneyUnit');
+import IncludeFlag                                          = require('../enums/IncludeFlag');
+import TransactionStatus                                    = require('../enums/TransactionStatus');
 
 class TransactionDelegate extends BaseDaoDelegate
 {
+    private couponDelegate = new CouponDelegate();
+    private transactionLineDelegate = new TransactionLineDelegate();
+    private phoneCallDelegate = new PhoneCallDelegate();
+
     constructor() { super(new TransactionDAO()); }
 
-    createPhoneCallTransaction(object:any, phonecall:PhoneCall, transaction?:any):q.Promise<any>
+    createPhoneCallTransaction(object:any, phonecall:PhoneCall, dbTransaction?:any):q.Promise<any>
     {
-        return this.create(object, transaction)
+        var self = this;
+        var transaction;
+
+        if (Utils.isNullOrEmpty(dbTransaction))
+            return MysqlDelegate.executeInTransaction(self, arguments)
+                .then(
+                function transactionLinesCreated(transactionId:number)
+                {
+                    return self.get(transactionId, null, [IncludeFlag.INCLUDE_TRANSACTION_LINE]);
+                });
+
+        return this.create(object, dbTransaction)
             .then(
             function transactionCreated(t)
             {
-                return new TransactionLineDelegate().createPhoneCallTransactionLines(t.getId(), phonecall, transaction);
+                transaction = t;
+                return self.transactionLineDelegate.createPhoneCallTransactionLines(t.getId(), phonecall, dbTransaction);
+            })
+            .then(
+            function transactionLinesCreated(...result)
+            {
+                return transaction.getId();
             });
+    }
+
+    applyCoupon(transactionId:number, code:string, dbTransaction?:any):q.Promise<any>
+    {
+        var self = this;
+        var args = arguments;
+
+        return q.all([
+            self.couponDelegate.findCoupon(code, Coupon.DASHBOARD_FIELDS),
+            self.transactionLineDelegate.find({transaction_id: transactionId})
+        ])
+            .then(
+            function couponFetched(...result)
+            {
+                var coupon = result[0][0];
+                var transactionLines = result[0][1];
+
+                if (!Utils.isNullOrEmpty(coupon))
+                    throw('Invalid or expired coupon');
+
+                // TODO: Check if coupon applies to selected expert
+                var expertResourceId = coupon.getExpertResourceId();
+
+                if (Utils.isNullOrEmpty(dbTransaction))
+                    return MysqlDelegate.executeInTransaction(self, args)
+                        .then(
+                        function operationCompleted()
+                        {
+                            return self.get(transactionId, null, [IncludeFlag.INCLUDE_TRANSACTION_LINE]);
+                        });
+
+                var discountUnit = coupon.getDiscountUnit();
+                var discountAmount = coupon.getDiscountAmount();
+                var couponType = coupon.getCouponType();
+
+                var discountableLines = _.map(transactionLines, function (transactionLine:TransactionLine)
+                {
+                    if (discountUnit != MoneyUnit.PERCENT && transactionLine.getAmountUnit() != discountUnit)
+                        return false;
+
+                    switch (couponType)
+                    {
+                        case CouponType.ALL:
+                            return true;
+
+                        case CouponType.PHONE_CALL:
+                            return transactionLine.getItemType() == ItemType.PHONE_CALL;
+                        case CouponType.NETWORK_CHARGES:
+                            return transactionLine.getItemType() == ItemType.NETWORK_CHARGES;
+                        case CouponType.CALL_AND_NETWORK_CHARGES:
+                            return transactionLine.getItemType() == ItemType.PHONE_CALL || transactionLine.getItemType() == ItemType.NETWORK_CHARGES;
+
+                        case CouponType.PREPAID_DEPOSIT:
+                            return transactionLine.getItemType() == ItemType.PREPAID_DEPOSIT;
+
+                        case CouponType.VAT:
+                            return transactionLine.getItemType() == ItemType.VAT;
+                        case CouponType.SERVICE_TAX:
+                            return transactionLine.getItemType() == ItemType.SERVICE_TAX;
+                        case CouponType.ALL_TAXES:
+                            return transactionLine.getItemType() == ItemType.SERVICE_TAX || transactionLine.getItemType() == ItemType.VAT;
+                    }
+                });
+
+                var discountableAmounts = _.pluck(discountableLines, TransactionLine.AMOUNT);
+                var discountableTotalAmount = _.reduce(discountableAmounts, function (sum:number, n:number) { return sum += n; })
+                var discount:number = (discountUnit == MoneyUnit.PERCENT) ? discountableTotalAmount * (1 - discountAmount / 100) : discountableTotalAmount - discountAmount;
+                discount = Math.max(0, discount);
+
+                // Create discount transaction line and update transaction total
+                return q.all([
+                    self.couponDelegate.markUsed(code, dbTransaction),
+                    self.transactionLineDelegate.create(null, dbTransaction)
+                ]);
+            },
+            function couponFetchFailed(error)
+            {
+                self.logger.error('Error while applying coupon: %s. Error: %s', code, error);
+                throw('Apply coupon failed');
+            });
+    }
+
+    /* Mark transaction as expired if user operation times out */
+    markExpired(transactionId:number, dbTransaction?:any):q.Promise<any>
+    {
+        var self = this;
+
+        if (Utils.isNullOrEmpty(dbTransaction))
+            return MysqlDelegate.executeInTransaction(self, arguments)
+
+        // 1. Update transaction status to expired
+        // 2. Remove all coupons from transaction and free them
+
+        var couponLinesSearch = {};
+        couponLinesSearch[TransactionLine.TRANSACTION_ID] = transactionId;
+        couponLinesSearch[TransactionLine.TRANSACTION_TYPE] = TransactionType.DISCOUNT;
+
+        return q.all([
+            self.update(transactionId, Utils.createSimpleObject(Transaction.STATUS, TransactionStatus.EXPIRED), dbTransaction),
+            self.transactionLineDelegate.find(couponLinesSearch, [TransactionLine.ID, TransactionLine.ITEM_ID])
+        ])
+            .then(
+            function couponsFetched(lines:TransactionLine[])
+            {
+                return q.all([
+                    self.couponDelegate.markRemoved(_.pluck(lines, TransactionLine.ITEM_ID), dbTransaction),
+                    self.transactionLineDelegate.delete({id: _.pluck(lines, TransactionLine.ID)}, dbTransaction)
+                ]);
+            });
+    }
+
+    getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
+    {
+        var self = this;
+        result = [].concat(result);
+
+        switch(include)
+        {
+            case IncludeFlag.INCLUDE_TRANSACTION_LINE:
+                return self.transactionLineDelegate.find(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, _.pluck(result, Transaction.ID)));
+        }
+        return super.getIncludeHandler(include, result);
     }
 }
 export = TransactionDelegate

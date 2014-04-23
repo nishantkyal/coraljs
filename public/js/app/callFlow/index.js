@@ -48,7 +48,7 @@ function handleTimeSelected(event)
     // Create a new picker if last element
     var index = $('select.timeSelect').index($(event.currentTarget));
     if (index == $('select.timeSelect').length - 2)
-        createSchedulePicker($(event.currentTarget).val());
+        createSchedulePicker(null);
 }
 
 function createSchedulePicker(timestamp)
