@@ -8,7 +8,6 @@ import AbstractModel                            = require('./AbstractModel');
  */
 class BaseModel extends AbstractModel
 {
-    static TABLE_NAME:string;
 
     static ID:string = 'id';
     static CREATED:string = 'created';

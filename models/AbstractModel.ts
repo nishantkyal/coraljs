@@ -4,6 +4,7 @@ import Utils                                    = require('../common/Utils');
 class AbstractModel
 {
     __proto__;
+    static TABLE_NAME:string;
 
     constructor(data:Object = {})
     {

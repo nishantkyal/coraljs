@@ -20,9 +20,10 @@ class User extends BaseModel
     static DATE_OF_BIRTH:string = 'date_of_birth';
     static INDUSTRY:string = 'industry';
     static LOCATION:string = 'location';
-    static TIMEZONE:string = 'timezone'
+    static TIMEZONE:string = 'timezone';
+    static DEFAULT_PROFILE_ID:string = 'default_profile_id';
 
-    static DEFAULT_FIELDS:string[] = [User.ID, User.FIRST_NAME, User.LAST_NAME, User.EMAIL, User.INDUSTRY, User.LOCATION, User.STATUS, User.USER_PROFILE, User.DATE_OF_BIRTH];
+    static DEFAULT_FIELDS:string[] = [User.ID, User.FIRST_NAME, User.LAST_NAME, User.EMAIL, User.INDUSTRY, User.LOCATION, User.STATUS, User.DATE_OF_BIRTH, User.DEFAULT_PROFILE_ID];
     private title:string;
     private first_name:string;
     private last_name:string;
@@ -33,6 +34,7 @@ class User extends BaseModel
     private industry:IndustryCode;
     private location:string;
     private timezone:string;
+    private default_profile_id:number;
 
     private user_profile:UserProfile;
 
@@ -47,6 +49,8 @@ class User extends BaseModel
     getIndustry():IndustryCode                                  { return this.industry; }
     getLocation():string                                        { return this.location; }
     getTimezone():string                                        { return this.timezone; }
+    getDefaultProfileId():number                                { return this.default_profile_id; }
+
     getUserProfile():UserProfile                                { return this.user_profile; }
 
     isValid():boolean {
@@ -64,6 +68,8 @@ class User extends BaseModel
     setIndustry(val:IndustryCode)                               { this.industry = val; }
     setLocation(val:string)                                     { this.location = val; }
     setTimezone(val:string)                                     { this.timezone = val; }
+    setDefaultProfileId(val:number)                             { this.default_profile_id = val; }
+
     setUserProfile(val:UserProfile):void                        { this.user_profile = val; }
 
 }

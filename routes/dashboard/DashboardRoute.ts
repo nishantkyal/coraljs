@@ -336,7 +336,7 @@ class DashboardRoute
                 });
                 res.render(DashboardRoute.PAGE_PROFILE, pageData);
             },
-            function userSkillFetchError(error) { res.send(500); });
+            function memberDetailsFetchError(error) { res.send(500); });
     }
 
     memberProfileSave(req:express.Request, res:express.Response)
@@ -401,7 +401,7 @@ class DashboardRoute
 
                 res.render(DashboardRoute.PAGE_EMPLOYMENT, pageData);
             },
-            function userEducationFetchError() { res.send(500); }
+            function memberDetailsFetchError() { res.send(500); }
         )
     }
 
