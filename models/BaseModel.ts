@@ -1,11 +1,12 @@
 ///<reference path='../_references.d.ts'/>
 import _                                        = require('underscore');
 import Utils                                    = require('../common/Utils');
+import AbstractModel                            = require('./AbstractModel');
 
 /*
  * Base class for Models
  */
-class BaseModel
+class BaseModel extends AbstractModel
 {
     static TABLE_NAME:string;
 
@@ -13,8 +14,6 @@ class BaseModel
     static CREATED:string = 'created';
     static UPDATED:string = 'updated';
     static DELETED:string = 'deleted';
-
-    private __proto__;
 
     private id:number;
     private created:number;
@@ -24,25 +23,6 @@ class BaseModel
     static DEFAULT_FIELDS:string[] = [BaseModel.ID];
     static TIMESTAMP_FIELDS:string[] = [BaseModel.CREATED, BaseModel.UPDATED, BaseModel.DELETED];
 
-    constructor(data:Object = {})
-    {
-        var thisProtoConstructor = this.__proto__.constructor;
-        thisProtoConstructor['COLUMNS'] = thisProtoConstructor['COLUMNS'] || [];
-        var self = this;
-
-        if (thisProtoConstructor['COLUMNS'].length == 0)
-            for (var classProperty in this.__proto__)
-                if (typeof this.__proto__[classProperty] == 'function' && classProperty.match(/^get/) != null)
-                {
-                    var key:string = Utils.camelToSnakeCase(classProperty.replace(/^get/, ''));
-                    if (!Utils.isNullOrEmpty(key))
-                        thisProtoConstructor['COLUMNS'].push(key);
-                }
-
-        _.each (thisProtoConstructor['COLUMNS'], function(column:string) {
-            self[column] = data[column];
-        });
-    }
 
     /* Getters */
     getId():number { return this.id; }
@@ -78,33 +58,7 @@ class BaseModel
         }
     }
 
-    toJson():any
-    {
-        var thisProtoConstructor = this.__proto__.constructor;
-        var self = this;
-        var data = {};
-        _.each (thisProtoConstructor['COLUMNS'], function(column:string) {
-            if (Utils.getObjectType(self[column]) == 'Array')
-            {
-                data[column] = _.map(self[column], function(obj:any)
-                {
-                    return obj.toJson();
-                });
-            }
-            else
-            {
-                try {
-                    data[column] = self[column].toJson();
-                } catch (e) {
-                    data[column] = self[column];
-                }
-            }
-        });
-        return data;
-    }
-
     isValid():boolean { return true; }
-    toString():string { return '[object ' + Utils.getClassName(this) + ']'; }
 
 }
 export = BaseModel

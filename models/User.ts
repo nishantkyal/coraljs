@@ -22,7 +22,7 @@ class User extends BaseModel
     static LOCATION:string = 'location';
     static TIMEZONE:string = 'timezone'
 
-    static DEFAULT_FIELDS:string[] = [User.ID, User.FIRST_NAME, User.LAST_NAME, User.EMAIL, User.INDUSTRY, User.LOCATION];
+    static DEFAULT_FIELDS:string[] = [User.ID, User.FIRST_NAME, User.LAST_NAME, User.EMAIL, User.INDUSTRY, User.LOCATION, User.STATUS, User.USER_PROFILE, User.DATE_OF_BIRTH];
     private title:string;
     private first_name:string;
     private last_name:string;
