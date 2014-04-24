@@ -26,6 +26,7 @@ import UserPhone                                            = require('../../mod
 import CallStatus                                           = require('../../enums/CallStatus');
 import ApiConstants                                         = require('../../enums/ApiConstants');
 import IncludeFlag                                          = require('../../enums/IncludeFlag');
+import MoneyUnit                                            = require('../../enums/MoneyUnit');
 import TransactionStatus                                    = require('../../enums/TransactionStatus');
 import Formatter                                            = require('../../common/Formatter');
 import DashboardUrls                                        = require('../../routes/dashboard/Urls');
@@ -359,8 +360,6 @@ class CallFlowRoute
                 call = tempCall;
                 return self.integrationMemberDelegate.get(expertId, null, [IncludeFlag.INCLUDE_SCHEDULES, IncludeFlag.INCLUDE_USER]);
             })
-            .fail(function (error)
-            {
             .then(
             function handleExpertFound(expert)
             {
@@ -374,18 +373,15 @@ class CallFlowRoute
                 res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
                 res.render(CallFlowRoute.RESCHEDULING_BY_USER, pageData);
             },
-            function handleExpertSearchFailed(error) { res.status(401).json('Error getting expert details for id: ' + expertId)}
-            )
-            .fail(function(error){
-                res.status(501);
-            })
+            function handleExpertSearchFailed(error) { res.status(401).json('Error getting expert details for id: ' + expertId)});
     }
 
     private appointmentSelectedByUser(req:express.Request, res:express.Response)
     {
         var self = this;
         var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
-        var startTime:number = parseInt(req.body[ApiConstants.START_TIME]);
+        var startTime:number[] = [parseInt(req.body[ApiConstants.START_TIME])];
+        
         self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_USER])
             .then(
             function callFetched(call:PhoneCall)

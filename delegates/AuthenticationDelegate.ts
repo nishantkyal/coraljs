@@ -286,7 +286,6 @@ class AuthenticationDelegate
                                         var userSkills = _.map(createdSkillCodes, function (skillCode:SkillCode)
                                         {
                                             var userSkill = new UserSkill();
-                                            userSkill.setUserId(userId);
                                             userSkill.setSkillId(skillCode.getId())
                                             return userSkill;
                                         });
@@ -303,7 +302,6 @@ class AuthenticationDelegate
                                 tempUserEmployment.setIsCurrent(position.isCurrent);
                                 tempUserEmployment.setTitle(position.title);
                                 tempUserEmployment.setSummary(position.summary);
-                                tempUserEmployment.setUserId(userId);
                                 tempUserEmployment.setCompany(position.company ? position.company.name : null);
 
                                 if (!Utils.isNullOrEmpty(position.startDate))
@@ -327,7 +325,6 @@ class AuthenticationDelegate
                                 tempUserEducation.setDegree(education.degree);
                                 tempUserEducation.setActivities(education.activities);
                                 tempUserEducation.setNotes(education.notes);
-                                tempUserEducation.setUserId(userId);
                                 tempUserEducation.setStartYear(education.startDate ? education.startDate.year : null);
                                 tempUserEducation.setEndYear(education.endDate ? education.endDate.year : null);
 

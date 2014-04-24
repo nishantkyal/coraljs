@@ -29,14 +29,14 @@ class MysqlDelegate
     /*
      * Helper method to get a connection from pool
      */
-    static createConnection():q.Promise<any>
+    static createConnection(host:string = Config.get(Config.DATABASE_HOST), user:string = Config.get(Config.DATABASE_USER), password:string = Config.get(Config.DATABASE_PASS), socketPath:string = Config.get(Config.DATABASE_SOCKET)):q.Promise<any>
     {
         var deferred = q.defer();
         var connection = mysql.createConnection({
-            host: Config.get(Config.DATABASE_HOST),
-            user: Config.get(Config.DATABASE_USER),
-            password: Config.get(Config.DATABASE_PASS),
-            socketPath: Config.get(Config.DATABASE_SOCKET)
+            host: host,
+            user: user,
+            password: password,
+            socketPath: socketPath
         });
 
         connection.connect(function (err)

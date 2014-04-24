@@ -171,7 +171,7 @@ class TransactionDelegate extends BaseDaoDelegate
         switch(include)
         {
             case IncludeFlag.INCLUDE_TRANSACTION_LINE:
-                return self.transactionLineDelegate.find(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, _.pluck(result, Transaction.ID)));
+                return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, _.pluck(result, Transaction.ID)));
         }
         return super.getIncludeHandler(include, result);
     }

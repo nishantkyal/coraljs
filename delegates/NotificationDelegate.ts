@@ -43,13 +43,13 @@ class NotificationDelegate
         ]);
     }
 
-    sendCallReschedulingNotificationsToExpert(call:number, appointment:number[]):q.Promise<any>;
-    sendCallReschedulingNotificationsToExpert(call:PhoneCall, appointment:number[]):q.Promise<any>;
-    sendCallReschedulingNotificationsToExpert(call:any, appointment:number[]):q.Promise<any>
+    sendCallReschedulingNotificationsToExpert(call:number, appointments:number[]):q.Promise<any>;
+    sendCallReschedulingNotificationsToExpert(call:PhoneCall, appointments:number[]):q.Promise<any>;
+    sendCallReschedulingNotificationsToExpert(call:any, appointments:number[]):q.Promise<any>
     {
         var self = this;
         return q.all([
-            self.emailDelegate.sendReschedulingEmailToExpert(call, appointment)
+            self.emailDelegate.sendReschedulingEmailToExpert(call, appointments)
         ]);
     }
 

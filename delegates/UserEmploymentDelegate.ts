@@ -11,7 +11,7 @@ class UserEmploymentDelegate extends BaseDaoDelegate
 
     createUserEmployment(userEmployment:UserEmployment, profileId:number):q.Promise<any>
     {
-
+        return null;
     }
 }
 export = UserEmploymentDelegate

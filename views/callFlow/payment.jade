@@ -26,6 +26,17 @@ block append content
             .form-control-static
         hr
         h4 Summary
+        ul.list-group
+        - for line in transaction.transaction_line
+            .list-group-item
+                label= line.item_type
+                .pull-right
+                    label= formatMoney(line.amount, line.amount_unit)
+        .list-group-item#total
+            strong Total
+            .pull-right
+                strong Amount
+        .clearfix
         .form-group
             label.control-label(for='coupon') Coupon
             .controls
