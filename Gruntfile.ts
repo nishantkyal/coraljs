@@ -2,9 +2,9 @@
 import q                                                    = require('q');
 import Config                                               = require('./common/Config');
 import MysqlDelegate                                        = require('./delegates/MysqlDelegate');
-var AsyncTask                                               = require('grunt-promise-q');
 
-function gruntConfig(grunt) {
+function gruntConfig(grunt)
+{
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         clean: ['Coral.d.ts'],
@@ -23,9 +23,9 @@ function gruntConfig(grunt) {
                 ],
                 dest: 'public/css/combined.css'
             },
-            js : {
-                src : ['public/js/lib/jquery.js', 'public/js/lib/jquery.validate.js', 'public/js/lib/!(combined).js'],
-                dest : 'public/js/lib/combined.js'
+            js: {
+                src: ['public/js/lib/jquery.js', 'public/js/lib/jquery.validate.js', 'public/js/lib/!(combined).js'],
+                dest: 'public/js/lib/combined.js'
             }
         },
         'generate-index': {
@@ -65,32 +65,29 @@ function gruntConfig(grunt) {
                 }
             }
         },
-        cssmin : {
-            css:{
+        cssmin: {
+            css: {
                 src: 'public/css/combined.css',
                 dest: 'public/css/combined.min.css'
             }
         },
-        'apply-alter-scripts' : {
+        'apply-alter-scripts': {
             db: 'huha'
         }
     });
 
     /* Generate indx.js by combining all generated .js files */
-    grunt.registerMultiTask('generate-index', function()
+    grunt.registerMultiTask('generate-index', function ()
     {
-        this.files.forEach(function(file) {
-            var output = file.src.map(function(filepath) {
+        this.files.forEach(function (file)
+        {
+            var output = file.src.map(function (filepath)
+            {
                 var filename = filepath.match(/\/([A-Za-z]*)\.js/);
                 return 'exports.' + filename[1] + ' = require("./' + filepath + '");';
             }).join('\n');
             grunt.file.write(file.dest, output);
         });
-    });
-
-    grunt.registerMultiTask('apply-alter-scripts', function()
-    {
-        MysqlDelegate.executeQuery('CREATE DATABASE `compare1`');
     });
 
     grunt.loadNpmTasks('grunt-contrib-concat');
@@ -102,7 +99,6 @@ function gruntConfig(grunt) {
 
     grunt.registerTask('coral', ['clean', 'concat', 'replace', 'generate-index']);
     grunt.registerTask('default', ['concat:js', 'concat:css', 'cssmin:css']);
-    grunt.registerTask('generate-sql-alter', ['apply-alter-scripts', 'generate-index']);
 }
 
 export = gruntConfig

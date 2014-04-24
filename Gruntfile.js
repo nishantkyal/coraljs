@@ -1,6 +1,3 @@
-var MysqlDelegate = require('./delegates/MysqlDelegate');
-var AsyncTask = require('grunt-promise-q');
-
 function gruntConfig(grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -84,10 +81,6 @@ function gruntConfig(grunt) {
         });
     });
 
-    grunt.registerMultiTask('apply-alter-scripts', function () {
-        MysqlDelegate.executeQuery('CREATE DATABASE `compare1`');
-    });
-
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-uglify');
@@ -97,7 +90,6 @@ function gruntConfig(grunt) {
 
     grunt.registerTask('coral', ['clean', 'concat', 'replace', 'generate-index']);
     grunt.registerTask('default', ['concat:js', 'concat:css', 'cssmin:css']);
-    grunt.registerTask('generate-sql-alter', ['apply-alter-scripts', 'generate-index']);
 }
 
 module.exports = gruntConfig;
