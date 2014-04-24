@@ -1,4 +1,11 @@
-function gruntConfig(grunt) {
+function init(grunt) {
+    grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-cssmin');
+    grunt.loadNpmTasks('grunt-text-replace');
+    grunt.loadNpmTasks('grunt-promise-q');
+
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         clean: ['Coral.d.ts'],
@@ -81,16 +88,9 @@ function gruntConfig(grunt) {
         });
     });
 
-    grunt.loadNpmTasks('grunt-contrib-concat');
-    grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-contrib-cssmin');
-    grunt.loadNpmTasks('grunt-text-replace');
-    grunt.loadNpmTasks('grunt-promise-q');
-
     grunt.registerTask('coral', ['clean', 'concat', 'replace', 'generate-index']);
     grunt.registerTask('default', ['concat:js', 'concat:css', 'cssmin:css']);
 }
 
-module.exports = gruntConfig;
+module.exports = init;
 //# sourceMappingURL=Gruntfile.js.map
