@@ -4,7 +4,6 @@ class UserEmployment extends BaseModel
 {
     static TABLE_NAME:string = 'user_employment';
 
-    static USER_ID:string = 'user_id';
     static TITLE:string = 'title';
     static SUMMARY:string = 'summary';
     static START_DATE:string = 'start_date';
@@ -12,7 +11,6 @@ class UserEmployment extends BaseModel
     static IS_CURRENT:string = 'is_current';
     static COMPANY:string = 'company';
 
-    private user_id:number;
     private title:string;
     private summary:string;
     private start_date:string;
@@ -20,11 +18,10 @@ class UserEmployment extends BaseModel
     private is_current:boolean;
     private company:string;
 
-    static DEFAULT_FIELDS:string[] = [UserEmployment.ID,  UserEmployment.USER_ID,UserEmployment.TITLE, UserEmployment.SUMMARY, UserEmployment.START_DATE,
+    static DEFAULT_FIELDS:string[] = [UserEmployment.ID,UserEmployment.TITLE, UserEmployment.SUMMARY, UserEmployment.START_DATE,
         UserEmployment.END_DATE, UserEmployment.IS_CURRENT,UserEmployment.COMPANY];
 
     /* Getters */
-    getUserId():number              { return this.user_id; }
     getTitle():string               { return this.title; }
     getSummary():string             { return this.summary; }
     getStartDate():string           { return this.start_date; }
@@ -32,7 +29,6 @@ class UserEmployment extends BaseModel
     getIsCurrent():boolean          { return this.is_current; }
     getCompany():string             { return this.company; }
     /* Setters */
-    setUserId(val:number):void      { this.user_id = val; }
     setTitle(val:string):void       { this.title = val; }
     setSummary(val:string):void     { this.summary = val; }
     setStartDate(val:string):void   { this.start_date = val; }

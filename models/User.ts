@@ -16,23 +16,25 @@ class User extends BaseModel
     static EMAIL:string = 'email';
     static PASSWORD:string = 'password';
     static STATUS:string = 'status';
-    static SHORT_DESC:string = 'short_desc';
-    static LONG_DESC:string = 'long_desc';
     static USER_PROFILE:string = 'user_profile';
     static DATE_OF_BIRTH:string = 'date_of_birth';
     static INDUSTRY:string = 'industry';
+    static LOCATION:string = 'location';
+    static TIMEZONE:string = 'timezone';
+    static DEFAULT_PROFILE_ID:string = 'default_profile_id';
 
-    static DEFAULT_FIELDS:string[] = [User.ID, User.FIRST_NAME, User.LAST_NAME, User.SHORT_DESC, User.LONG_DESC, User.EMAIL];
+    static DEFAULT_FIELDS:string[] = [User.ID, User.FIRST_NAME, User.LAST_NAME, User.EMAIL, User.INDUSTRY, User.LOCATION, User.STATUS, User.DATE_OF_BIRTH, User.DEFAULT_PROFILE_ID];
     private title:string;
     private first_name:string;
     private last_name:string;
     private email:string;
     private password:string;
     private status:UserStatus;
-    private long_desc:string;
-    private short_desc:string;
     private date_of_birth:string;
     private industry:IndustryCode;
+    private location:string;
+    private timezone:string;
+    private default_profile_id:number;
 
     private user_profile:UserProfile;
 
@@ -43,10 +45,11 @@ class User extends BaseModel
     getEmail():string                                           { return this.email; }
     getPassword():string                                        { return this.password; }
     getStatus():UserStatus                                      { return this.status; }
-    getShortDesc():string                                       { return this.short_desc; }
-    getLongDesc():string                                        { return this.long_desc; }
     getDateOfBirth():string                                     { return this.date_of_birth; }
     getIndustry():IndustryCode                                  { return this.industry; }
+    getLocation():string                                        { return this.location; }
+    getTimezone():string                                        { return this.timezone; }
+    getDefaultProfileId():number                                { return this.default_profile_id; }
 
     getUserProfile():UserProfile                                { return this.user_profile; }
 
@@ -61,10 +64,11 @@ class User extends BaseModel
     setEmail(val:string)                                        { this.email = val; }
     setPassword(val:string)                                     { this.password = val; }
     setStatus(val:UserStatus)                                   { this.status = val; }
-    setShortDesc(val:string)                                    { this.short_desc = val; }
-    setLongDesc(val:string)                                     { this.long_desc = val; }
     setDateOfBirth(val:string)                                  { this.date_of_birth = val;}
     setIndustry(val:IndustryCode)                               { this.industry = val; }
+    setLocation(val:string)                                     { this.location = val; }
+    setTimezone(val:string)                                     { this.timezone = val; }
+    setDefaultProfileId(val:number)                             { this.default_profile_id = val; }
 
     setUserProfile(val:UserProfile):void                        { this.user_profile = val; }
 

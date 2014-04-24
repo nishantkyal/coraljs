@@ -24,6 +24,7 @@ import VerificationCodeDelegate                 = require('../delegates/Verifica
 import IntegrationMember                        = require('../models/IntegrationMember');
 import UserOauth                                = require('../models/UserOauth');
 import User                                     = require('../models/User');
+import UserProfile                              = require('../models/UserProfile');
 import UserSkill                                = require('../models/UserSkill');
 import UserEmployment                           = require('../models/UserEmployment');
 import UserEducation                            = require('../models/UserEducation');
@@ -205,19 +206,20 @@ class AuthenticationDelegate
                 user.setEmail(profile.emailAddress);
                 user.setFirstName(profile.firstName);
                 user.setLastName(profile.lastName);
-                user.setShortDesc(profile.headline);
-                user.setLongDesc(profile.summary);
                 if (!Utils.isNullOrEmpty(profile.dateOfBirth))
                 {
                     var dob:string = profile.dateOfBirth.day + '-' + profile.dateOfBirth.month + '-' + profile.dateOfBirth.year;
                     user.setDateOfBirth(dob);
                 }
-
                 if (!Utils.isNullOrEmpty(profile.industry))
                 {
                     var industry:string = profile.industry.toString().replace(/-|\/|\s/g, '_').toUpperCase();
                     user.setIndustry(IndustryCodes[industry]);
                 }
+
+                var userProfile:UserProfile = new UserProfile();
+                userProfile.setShortDesc(profile.headline);
+                userProfile.setLongDesc(profile.summary);
 
                 var userOauth = new UserOauth();
                 userOauth.setOauthUserId(profile.id);
@@ -305,10 +307,10 @@ class AuthenticationDelegate
                                 tempUserEmployment.setCompany(position.company ? position.company.name : null);
 
                                 if (!Utils.isNullOrEmpty(position.startDate))
-                                    tempUserEmployment.setStartDate((position.startDate.month || null) + '-' + (position.startDate.year || null));
+                                    tempUserEmployment.setStartDate((position.startDate.month || 1) + '-' + (position.startDate.year || null));
 
                                 if (!position.isCurrent && !Utils.isNullOrEmpty(position.endDate))
-                                    tempUserEmployment.setEndDate((position.endDate.month || null) + '-' + (position.endDate.year || null));
+                                    tempUserEmployment.setEndDate((position.endDate.month || 12) + '-' + (position.endDate.year || null));
 
                                 return new UserEmploymentDelegate().create(tempUserEmployment);
                             }));
