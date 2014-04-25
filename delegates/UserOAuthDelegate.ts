@@ -36,7 +36,12 @@ class UserOAuthDelegate extends BaseDaoDelegate
                     var token = new UserOAuth(existingTokens[0]);
                     var oauthId:number = token.getId();
                     userOAuth.setUserId(token.getUserId());
-                    return self.update(oauthId, userOAuth);
+                    return self.update(oauthId, userOAuth)
+                        .then(
+                        function tokenUpdated()
+                        {
+                            return self.get(token.getId());
+                        });
                 }
                 else
                 {
@@ -71,15 +76,10 @@ class UserOAuthDelegate extends BaseDaoDelegate
     update(id:number, oauth:UserOAuth):q.Promise<any>
     {
         // Can't update user id for a token
-        var userId = oauth.getUserId();
         oauth.setUserId(null);
         oauth.setId(null);
 
-        return super.update({id: id}, oauth)
-            .then(function oauthUpdated()
-            {
-                return new UserDelegate().get(userId);
-            });
+        return super.update({id: id}, oauth);
     }
 
 }

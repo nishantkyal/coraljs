@@ -27,7 +27,7 @@ class AbstractDao
             throw ('Invalid Model class specified for ' + Utils.getClassName(this));
     }
 
-    create(data:BaseModel, transaction?:any):q.Promise<any>
+    create(data:AbstractModel, transaction?:any):q.Promise<any>
     {
         var self = this;
         var dataAsArray = [].concat(data);
