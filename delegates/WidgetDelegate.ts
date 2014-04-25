@@ -19,6 +19,8 @@ class WidgetDelegate extends BaseDaoDelegate
     private static widgetTemplateCache:{[templateNameAndLocale:string]:string} = {};
     private widgetExpertDelegate = new WidgetExpertDelegate();
 
+    constructor() { super(new WidgetDao(); )}
+
     /* Static constructor workaround */
     private static ctor = (() =>
     {

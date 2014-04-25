@@ -104,6 +104,9 @@ class ApiUrlDelegate
     static expertInvitationCode():string { return this.get('/rest/code/expert/invitation'); }
     static expertInvitationCodeResend():string { return this.get('/rest/code/expert/invitation/resend'); }
 
+    /* URL pattern for widgets */
+    static widget(widgetId?:number):string { return this.get('/widget/:widgetId', {widgetId: widgetId})}
+
     /*
      * Helper method to generate URLs with values substituted for parameters (if supplied)
      * @param urlPattern
