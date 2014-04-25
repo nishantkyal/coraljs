@@ -97,13 +97,14 @@ class Utils
 
     static enumToNormalText(enumObject:Object)
     {
+        var newEnumObject = {};
         for (var key in enumObject)
         {
             var value = enumObject[key];
             if (Utils.getObjectType(value) == 'String')
-                enumObject[key] = Utils.snakeCaseToNormalText(value);
+                newEnumObject[key] = Utils.snakeCaseToNormalText(value);
         }
-        return enumObject;
+        return newEnumObject;
     }
 
     static getObjectType(obj:any):string

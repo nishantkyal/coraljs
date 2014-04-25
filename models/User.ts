@@ -5,6 +5,7 @@ import Utils                                                = require('../common
 import UserProfile                                          = require('../models/UserProfile');
 import IndustryCode                                         = require('../enums/IndustryCode');
 import UserStatus                                           = require('../enums/UserStatus');
+import Salutation                                           = require('../enums/Salutation');
 
 class User extends BaseModel
 {
@@ -25,7 +26,7 @@ class User extends BaseModel
 
     static DEFAULT_FIELDS:string[] = [User.ID, User.FIRST_NAME, User.LAST_NAME, User.EMAIL, User.INDUSTRY, User.LOCATION, User.STATUS, User.DATE_OF_BIRTH, User.DEFAULT_PROFILE_ID];
 
-    private title:string;
+    private title:Salutation;
     private first_name:string;
     private last_name:string;
     private email:string;
@@ -40,7 +41,7 @@ class User extends BaseModel
     private user_profile:UserProfile;
 
     /* Getters */
-    getTitle():string                                           { return this.title; }
+    getTitle():Salutation                                       { return this.title; }
     getFirstName():string                                       { return this.first_name; }
     getLastName():string                                        { return this.last_name; }
     getEmail():string                                           { return this.email; }
@@ -59,7 +60,7 @@ class User extends BaseModel
     }
 
     /* Setters */
-    setTitle(val:string)                                        { this.title = val; }
+    setTitle(val:Salutation)                                    { this.title = val; }
     setFirstName(val:string)                                    { this.first_name = val; }
     setLastName(val:string)                                     { this.last_name = val; }
     setEmail(val:string)                                        { this.email = val; }

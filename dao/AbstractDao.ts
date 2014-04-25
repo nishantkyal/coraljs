@@ -27,7 +27,9 @@ class AbstractDao
             throw ('Invalid Model class specified for ' + Utils.getClassName(this));
     }
 
-    create(data:AbstractModel, transaction?:any):q.Promise<any>
+    create(data:Object[], transaction?:any):q.Promise<any>;
+    create(data:Object, transaction?:any):q.Promise<any>;
+    create(data:any, transaction?:any):q.Promise<any>
     {
         var self = this;
         var dataAsArray = [].concat(data);
@@ -210,7 +212,9 @@ class AbstractDao
         var wheres = whereStatements['where'];
         var values = whereStatements['values'];
 
-        return MysqlDelegate.executeQuery('DELETE FROM `' + this.tableName + '` WHERE ' + wheres.join(' AND '), values, transaction)
+        var query = 'DELETE FROM `' + this.tableName + '` WHERE ' + wheres.join(' AND ');
+
+        return MysqlDelegate.executeQuery(query, values, transaction)
             .fail(
             function deleteFailed(error)
             {

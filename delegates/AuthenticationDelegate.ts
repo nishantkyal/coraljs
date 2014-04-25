@@ -189,9 +189,8 @@ class AuthenticationDelegate
             },
             function (accessToken, refreshToken, profile:any, done)
             {
-                var profileFields:string[] = ['id', 'first-name', 'last-name', 'email-address', 'headline',
+                /*var profileFields:string[] = ['id', 'first-name', 'last-name', 'email-address', 'headline',
                     'industry', 'summary', 'positions', 'picture-urls::(original)', 'skills', 'educations', 'date-of-birth'];
-                var fields:string = _
                 var oauth = new OAuth.OAuth(
                     'https://www.linkedin.com/uas/oauth/authenticate?oauth_token=',
                     'https://api.linkedin.com/uas/oauth/accessToken',
@@ -209,7 +208,7 @@ class AuthenticationDelegate
                         if (e) console.error(e);
                         console.log(require('util').inspect(data));
                         done();
-                    });
+                    });*/
                 /*profile = profile['_json'];
 
                 var user:User = new User();

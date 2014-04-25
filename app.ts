@@ -25,6 +25,7 @@ import CountryCode                                  = require('./enums/CountryCo
 import IndustryCode                                 = require('./enums/IndustryCode');
 import CountryName                                  = require('./enums/CountryName');
 import Salutation                                   = require('./enums/Salutation');
+import ItemType                                     = require('./enums/ItemType');
 import CallFlowUrls                                 = require('./routes/callFlow/Urls');
 import DashboardUrls                                = require('./routes/dashboard/Urls');
 
@@ -43,12 +44,10 @@ var helpers = {
     ApiUrlDelegate: ApiUrlDelegate,
     CallFlowUrls: CallFlowUrls,
     DashboardUrls: DashboardUrls,
-    IndustryCodes: _.filter(Utils.enumToNormalText(IndustryCode), function(code) {
-        return Utils.getObjectType(code) == 'String';
-    }),
-    Salutation: _.filter(Utils.enumToNormalText(Salutation), function(s) {
-        return Utils.getObjectType(s) == 'String';
-    })
+
+    IndustryCodes: Utils.enumToNormalText(IndustryCode),
+    Salutation: Utils.enumToNormalText(Salutation),
+    ItemType: Utils.enumToNormalText(ItemType)
 };
 
 // all environments

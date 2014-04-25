@@ -60,7 +60,9 @@ include ../scriptsAndStyles
                         input.form-control(type='text', placeholder='Email', name='email')
                     .form-group
                         label.control-label(for='title') Title
-                        input.form-control(type='text', placeholder='Title', name='title')
+                        select.form-control
+                            - for title,id in Salutation
+                                option(value=id)= title
                     .form-group
                         label.control-label(for='firstName') First Name
                         input.form-control(type='text', placeholder='First Name', name='first_name')

@@ -25,7 +25,7 @@ class UserProfileDelegate extends BaseDaoDelegate
     static STRATEGY_LINKEDIN:string = 'linkedin';
     constructor() { super(new UserProfileDao()); }
 
-    fetchFromLinkedIn(userId:number, integrationId:number, transaction?:any):q.Promise<any>
+    /*fetchFromLinkedIn(userId:number, integrationId:number, transaction?:any):q.Promise<any>
     {
         var self = this;
         var profileFields:string[] = ['id', 'first-name', 'last-name', 'email-address', 'headline',
@@ -129,6 +129,6 @@ class UserProfileDelegate extends BaseDaoDelegate
                     });
             }
         ))
-    }
+    }*/
 }
 export = UserProfileDelegate

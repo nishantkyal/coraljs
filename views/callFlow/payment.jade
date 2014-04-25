@@ -10,9 +10,13 @@ block append content
             - for slot in appointments
                 .form-control-static#appointments #{formatDate(slot, 'ddd DD MMM YYYY, hh:mm a Z')}
         .form-group
-            label.control-label(for='phone') Your Phone
+            label.control-label(for='phone') Your Mobile Number
             .controls
-                .input-group
+                select#phoneNumberSelector(style=userPhones ? '' : 'display: none;')
+                    - for phone in userPhones
+                        option(value=phone.id)= phone.phone
+                    option(value=-1) Enter new number
+                .input-group#phoneNumberInput(style=userPhones ? 'display: none;' : '')
                     .input-group-btn
                         select.form-control.col-md-2#countryCode
                             option(value='91') India (+91)
@@ -20,7 +24,8 @@ block append content
                             option(value='65') Singapore (+65)
                     input(type='tel').form-control#phoneNumber
                     .input-group-btn
-                        button.btn.btn-success Verify
+                        a.btn.btn-success#sendPhoneVerificationCode Verify
+
         .form-group
             label.control-label(for='agenda') Agenda
             .form-control-static
@@ -29,9 +34,9 @@ block append content
         ul.list-group
         - for line in transaction.transaction_line
             .list-group-item
-                label= line.item_type
+                | #{ItemType[line.item_type]}
                 .pull-right
-                    label= formatMoney(line.amount, line.amount_unit)
+                    | #{formatMoney(line.amount, line.amount_unit)}
         .list-group-item#total
             strong Total
             .pull-right
@@ -47,4 +52,18 @@ block append content
         hr
         .form-group
             input.btn.btn-primary.btn-lg(type='submit', value='Make Payment')
+
+    #enterVerificationCodeModal.modal.fade(style='display: none;')
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    .close(data-dismiss='modal', aria-hidden='true') x
+                    h4.modal-title Verify Phone
+                .modal-body
+                    | Please enter the verification code received on your mobile
+                    .form-group
+                            input(type='text').form-control#verificationCode
+                     .form-group
+                            a.btn.btn-primary.form-control#verifyCode Verify
+
     script(src='/js/app/callFlow/payment.js')
