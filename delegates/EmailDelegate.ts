@@ -313,6 +313,7 @@ class EmailDelegate
             {
                 self.sendReschedulingEmailToExpert(fetchedCall, appointments);
             });
+
         var VerificationCodeDelegate:any = require('../delegates/VerificationCodeDelegate');
         var verificationCodeDelegate = new VerificationCodeDelegate();
 

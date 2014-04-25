@@ -17,6 +17,56 @@ class CouponDelegate extends BaseDaoDelegate
 
     constructor() { super(new CouponDao()); }
 
+    findCoupon(code:string, fields?:string[], includeExpiredAndExhausted:boolean = false):q.Promise<Coupon>
+    {
+        var search = {};
+        search[Coupon.CODE] = code;
+
+        if (!includeExpiredAndExhausted)
+        {
+            search[Coupon.NUM_USED] = {
+                operator: '<',
+                value: Coupon.MAX_COUPONS
+            };
+
+            search[Coupon.EXPIRY_TIME] = {
+                operator: '>',
+                value: moment().valueOf()
+            };
+        }
+
+        return this.find(search, fields);
+    }
+
+    markUsed(criteria:number[], transaction?:any):q.Promise<any>;
+    markUsed(criteria:string[], transaction?:any):q.Promise<any>;
+    markUsed(criteria:number, transaction?:any):q.Promise<any>;
+    markUsed(criteria:string, transaction?:any):q.Promise<any>;
+    markUsed(criteria:any, transaction?:any):q.Promise<any>
+    {
+        var self = this;
+        criteria = [].concat(criteria);
+
+        var criteriaField = Utils.getObjectType(criteria[0]) == 'String' ? Coupon.CODE : Coupon.ID;
+        criteria = Utils.createSimpleObject(criteriaField, criteria);
+        return self.update(criteria, Utils.createSimpleObject(Coupon.NUM_USED, Coupon.NUM_USED + ' + 1'), transaction);
+    }
+
+    markRemoved(criteria:number[], transaction?:any):q.Promise<any>;
+    markRemoved(criteria:string[], transaction?:any):q.Promise<any>;
+    markRemoved(criteria:number, transaction?:any):q.Promise<any>;
+    markRemoved(criteria:string, transaction?:any):q.Promise<any>;
+    markRemoved(criteria:any, transaction?:any):q.Promise<any>
+    {
+        var self = this;
+        criteria = [].concat(criteria);
+
+        var criteriaField = Utils.getObjectType(criteria[0]) == 'String' ? Coupon.CODE : Coupon.ID;
+        criteria = Utils.createSimpleObject(criteriaField, criteria);
+
+        return self.update(criteria, Utils.createSimpleObject(Coupon.NUM_USED, Coupon.NUM_USED + ' - 1'), transaction);
+    }
+
     getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
     {
         var coupon:Coupon = result;
@@ -27,8 +77,8 @@ class CouponDelegate extends BaseDaoDelegate
             case IncludeFlag.INCLUDE_EXPERT:
                 var expertIds = _.pluck(_.filter(coupon, function (c:Coupon)
                 {
-                    return !Utils.isNullOrEmpty(c.getExpertId());
-                }), Coupon.EXPERT_ID);
+                    return !Utils.isNullOrEmpty(c.getExpertResourceId());
+                }), Coupon.EXPERT_RESOURCE_ID);
 
                 if (expertIds.length != 0)
                     return self.integrationMemberDelegate.search({id: expertIds}, IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER]);

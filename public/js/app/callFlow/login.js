@@ -57,14 +57,3 @@ $('form#register').validate({
         $(element).closest('.form-group').removeClass('has-error');
     }
 });
-
-$('#skip').click(function()
-{
-    bootbox.confirm("If you skip login, we'll not be able to process refunds. Continue?", function(result)
-    {
-        bootbox.hideAll();
-
-        if (result)
-            window.location = "/expert/call/payment";
-    });
-});

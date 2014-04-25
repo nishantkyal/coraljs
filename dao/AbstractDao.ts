@@ -180,7 +180,7 @@ class AbstractDao
         values = values.concat(whereStatements['values']);
 
         var query = 'UPDATE `' + this.tableName + '` SET ' + updates.join(",") + ' WHERE ' + wheres.join(" AND ");
-        return MysqlDelegate.executeQuery(query, values, transaction)
+            return MysqlDelegate.executeQuery(query, values, transaction)
             .then(
             function updateComplete(result:mysql.OkPacket):any
             {
@@ -234,11 +234,17 @@ class AbstractDao
                 case 'Object':
                     var operator = query['operator'];
                     var statement = key + ' ' + query['operator'] + ' ?';
+
                     if (operator.toLowerCase() === 'between')
+                    {
                         statement += ' AND ?';
+                        values.push(query['value'][0]);
+                        values.push(query['value'][1]);
+                    }
+                    else
+                        values.push(query['value']);
+
                     whereStatements.push(statement);
-                    values.push(query['value'][0]);
-                    values.push(query['value'][1]);
                     break;
                 case 'Array':
                     whereStatements.push(key + ' IN (?) ');
