@@ -97,7 +97,7 @@ class MemberRegistrationRoute
                 // 2. Display login page
                 var isExpertValid = !Utils.isNullOrEmpty(expert) && expert.isValid();
                 var isLoggedIn = !Utils.isNullOrEmpty(sessionData.getLoggedInUser());
-                var isExpertLinkedToLoggedInUser = isLoggedIn && (expert.getUserId() == sessionData.getLoggedInUser().getId());
+                var isExpertLinkedToLoggedInUser = isLoggedIn && (isExpertValid && expert.getUserId() == sessionData.getLoggedInUser().getId());
 
                 if (isExpertValid && isExpertLinkedToLoggedInUser)
                 {
@@ -162,9 +162,9 @@ class MemberRegistrationRoute
         var member = sessionData.getMember();
 
         var mobileVerificationUrl = Utils.addQueryToUrl(DashboardUrls.mobileVerification(), Utils.createSimpleObject(ApiConstants.CONTEXT, 'expertRegistration'));
-        var redirectUrl;
+        var redirectUrl = '';
 
-        switch(member.getRole())
+        switch(parseInt(member.getRole().toString()))
         {
             case IntegrationMemberRole.Expert:
                 redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? mobileVerificationUrl : integration.getRedirectUrl();
@@ -175,7 +175,8 @@ class MemberRegistrationRoute
                 redirectUrl = DashboardUrls.integrationMembers(integrationId);
                 break;
         }
-
+        //TODO set profile info here from linkedin
+        //then set status in user to profile published
         // 1. Update role and redirect
         // 2. Schedule the mobile verification reminder notification
         self.integrationMemberDelegate.update({'user_id': userId, 'integration_id': integrationId}, {role: member.getRole()})

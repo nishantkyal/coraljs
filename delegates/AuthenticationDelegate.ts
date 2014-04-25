@@ -10,25 +10,16 @@ import passport_facebook                        = require('passport-facebook');
 import passport_linkedin                        = require('passport-linkedin');
 import passport_local                           = require('passport-local');
 import log4js                                   = require('log4js');
+import OAuth                                    = require('oauth');
 import IntegrationMemberDelegate                = require('../delegates/IntegrationMemberDelegate');
 import UserDelegate                             = require('../delegates/UserDelegate');
 import UserOAuthDelegate                        = require('../delegates/UserOAuthDelegate');
-import UserEmploymentDelegate                   = require('../delegates/UserEmploymentDelegate');
-import UserEducationDelegate                    = require('../delegates/UserEducationDelegate');
-import UserSkillDelegate                        = require('../delegates/UserSkillDelegate');
-import SkillCodeDelegate                        = require('../delegates/SkillCodeDelegate');
-import ImageDelegate                            = require('../delegates/ImageDelegate');
 import MysqlDelegate                            = require('../delegates/MysqlDelegate');
 import EmailDelegate                            = require('../delegates/EmailDelegate');
 import VerificationCodeDelegate                 = require('../delegates/VerificationCodeDelegate');
 import IntegrationMember                        = require('../models/IntegrationMember');
 import UserOauth                                = require('../models/UserOauth');
 import User                                     = require('../models/User');
-import UserProfile                              = require('../models/UserProfile');
-import UserSkill                                = require('../models/UserSkill');
-import UserEmployment                           = require('../models/UserEmployment');
-import UserEducation                            = require('../models/UserEducation');
-import SkillCode                                = require('../models/SkillCode');
 import Config                                   = require('../common/Config');
 import Utils                                    = require('../common/Utils');
 import ApiConstants                             = require('../enums/ApiConstants');
@@ -189,18 +180,37 @@ class AuthenticationDelegate
         ));
     }
 
-    private static configureLinkedInStrategy(strategyId:string, callbackUrl:string, profileFields:string[] = ['id', 'first-name', 'last-name', 'email-address', 'headline',
-        'industry', 'summary', 'positions', 'picture-urls::(original)', 'skills', 'educations', 'date-of-birth'])
+    private static configureLinkedInStrategy(strategyId:string, callbackUrl:string)
     {
         passport.use(strategyId, new passport_linkedin.Strategy({
                 consumerKey: Config.get(Config.LINKEDIN_API_KEY),
                 consumerSecret: Config.get(Config.LINKEDIN_API_SECRET),
-                callbackURL: callbackUrl,
-                profileFields: profileFields
+                callbackURL: callbackUrl
             },
             function (accessToken, refreshToken, profile:any, done)
             {
-                profile = profile['_json'];
+                var profileFields:string[] = ['id', 'first-name', 'last-name', 'email-address', 'headline',
+                    'industry', 'summary', 'positions', 'picture-urls::(original)', 'skills', 'educations', 'date-of-birth'];
+                var fields:string = _
+                var oauth = new OAuth.OAuth(
+                    'https://www.linkedin.com/uas/oauth/authenticate?oauth_token=',
+                    'https://api.linkedin.com/uas/oauth/accessToken',
+                    Config.get(Config.LINKEDIN_API_KEY),
+                    Config.get(Config.LINKEDIN_API_SECRET),
+                    '1.0A',
+                    null,
+                    'HMAC-SHA1'
+                );
+                oauth.get(
+                    'https://api.linkedin.com/v1/people/~:(first-name,last-name,headline,picture-url) ',
+                    accessToken, //test user token
+                    refreshToken, //test user secret
+                    function (e, data, res){
+                        if (e) console.error(e);
+                        console.log(require('util').inspect(data));
+                        done();
+                    });
+                /*profile = profile['_json'];
 
                 var user:User = new User();
                 user.setEmail(profile.emailAddress);
@@ -216,10 +226,6 @@ class AuthenticationDelegate
                     var industry:string = profile.industry.toString().replace(/-|\/|\s/g, '_').toUpperCase();
                     user.setIndustry(IndustryCodes[industry]);
                 }
-
-                var userProfile:UserProfile = new UserProfile();
-                userProfile.setShortDesc(profile.headline);
-                userProfile.setLongDesc(profile.summary);
 
                 var userOauth = new UserOauth();
                 userOauth.setOauthUserId(profile.id);
@@ -250,95 +256,11 @@ class AuthenticationDelegate
                         AuthenticationDelegate.logger.error('An error occurred while logging in using linkedin. Error: %s', error);
                         done(error);
                     })
-                    .then(
-                    function updateFieldsFromLinkedIn(user:User)
-                    {
-                        var userId:number = user.getId();
-                        var updateProfileTasks = [];
-
-                        // Fetch and process profile image if available
-                        var profilePictureUrl;
-                        if (profile.pictureUrls && profile.pictureUrls.values.length > 0)
-                            profilePictureUrl = profile.pictureUrls.values[0];
-
-                        if (!Utils.isNullOrEmpty(profilePictureUrl))
-                        {
-                            var tempProfilePicturePath = Config.get(Config.TEMP_IMAGE_PATH) + Math.random();
-                            updateProfileTasks.push(new ImageDelegate().fetch(profilePictureUrl, tempProfilePicturePath)
-                                    .then(
-                                    function imageFetched()
-                                    {
-                                        return new UserDelegate().processProfileImage(userId, tempProfilePicturePath);
-                                    })
-                            );
-                        }
-
-                        // Update skills
-                        if (!Utils.isNullOrEmpty(profile.skills) && profile.skills._total > 0)
-                            updateProfileTasks = updateProfileTasks.concat(
-                                new SkillCodeDelegate().createSkillCodeFromLinkedIn(_.map(profile.skills.values, function (skillObject:any)
-                                {
-                                    return skillObject.skill.name;
-                                }))
-                                    .then(
-                                    function skillCodesCreated(createdSkillCodes:SkillCode[])
-                                    {
-                                        var userSkills = _.map(createdSkillCodes, function (skillCode:SkillCode)
-                                        {
-                                            var userSkill = new UserSkill();
-                                            userSkill.setSkillId(skillCode.getId())
-                                            return userSkill;
-                                        });
-                                        return new UserSkillDelegate().create(userSkills);
-                                    })
-                            );
-
-                        // Update employment
-                        if (!Utils.isNullOrEmpty(profile.positions) && profile.positions._total > 0)
-                        {
-                            updateProfileTasks = updateProfileTasks.concat(_.map(profile.positions.values, function (position:any)
-                            {
-                                var tempUserEmployment:UserEmployment = new UserEmployment();
-                                tempUserEmployment.setIsCurrent(position.isCurrent);
-                                tempUserEmployment.setTitle(position.title);
-                                tempUserEmployment.setSummary(position.summary);
-                                tempUserEmployment.setCompany(position.company ? position.company.name : null);
-
-                                if (!Utils.isNullOrEmpty(position.startDate))
-                                    tempUserEmployment.setStartDate((position.startDate.month || 1) + '-' + (position.startDate.year || null));
-
-                                if (!position.isCurrent && !Utils.isNullOrEmpty(position.endDate))
-                                    tempUserEmployment.setEndDate((position.endDate.month || 12) + '-' + (position.endDate.year || null));
-
-                                return new UserEmploymentDelegate().create(tempUserEmployment);
-                            }));
-                        }
-
-                        // Update education
-                        if (!Utils.isNullOrEmpty(profile.educations) && profile.educations._total > 0)
-                        {
-                            updateProfileTasks = updateProfileTasks.concat(_.map(profile.educations.values, function (education:any)
-                            {
-                                var tempUserEducation:UserEducation = new UserEducation();
-                                tempUserEducation.setSchoolName(education.schoolName);
-                                tempUserEducation.setFieldOfStudy(education.fieldOfStudy);
-                                tempUserEducation.setDegree(education.degree);
-                                tempUserEducation.setActivities(education.activities);
-                                tempUserEducation.setNotes(education.notes);
-                                tempUserEducation.setStartYear(education.startDate ? education.startDate.year : null);
-                                tempUserEducation.setEndYear(education.endDate ? education.endDate.year : null);
-
-                                return new UserEducationDelegate().create(tempUserEducation);
-                            }));
-                        }
-
-                        return q.all(updateProfileTasks);
-                    })
                     .finally(
                     function userStatusUpdated()
                     {
                         return MysqlDelegate.commit(new UserDelegate().recalculateStatus(user.getId()));
-                    });
+                    });*/
             }
         ));
     }

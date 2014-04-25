@@ -250,8 +250,7 @@ class DashboardRoute
                 {
                     var expertEntry = _.find(members, function (member:IntegrationMember)
                     {
-                        return invitedMember['user']['first_name'] == member.getUser().getFirstName()
-                            && invitedMember['user']['last_name'] == member.getUser().getLastName();
+                        return invitedMember['user']['email'] == member.getUser().getEmail();
                     });
 
                     if (!Utils.isNullOrEmpty(expertEntry))
