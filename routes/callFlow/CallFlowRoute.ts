@@ -223,10 +223,19 @@ class CallFlowRoute
     /* Validate everything, create a transaction (and phone call record) and redirect to payment */
     private checkout(req:express.Request, res:express.Response)
     {
+        // TODO: Verify that supplied phone number belongs to logged in user
         var self = this;
         var sessionData = new SessionData(req);
+        var userPhoneId:number = parseInt(req.body[ApiConstants.PHONE_NUMBER_ID]);
+        var call = sessionData.getCall();
+        call.setCallerPhoneId(userPhoneId);
 
-
+        self.phoneCallDelegate.update(sessionData.getCallId(), Utils.createSimpleObject(PhoneCall.CALLER_PHONE_ID, userPhoneId))
+            .then(
+            function phoneNumberUpdated()
+            {
+                // Redirect to payment gateway
+            });
     }
 
     /* Invoked when expert/caller clicks on accept appointment link in email */
