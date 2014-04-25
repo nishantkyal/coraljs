@@ -13,13 +13,14 @@ import WidgetType                                               = require('../en
 import IncludeFlag                                              = require('../enums/IncludeFlag');
 import Config                                                   = require('../common/Config');
 import Utils                                                    = require('../common/Utils');
+import WidgetDao                                                = require('../dao/WidgetDao');
 
 class WidgetDelegate extends BaseDaoDelegate
 {
     private static widgetTemplateCache:{[templateNameAndLocale:string]:string} = {};
     private widgetExpertDelegate = new WidgetExpertDelegate();
 
-    constructor() { super(new WidgetDao(); )}
+    constructor() { super(new WidgetDao()); }
 
     /* Static constructor workaround */
     private static ctor = (() =>
@@ -133,7 +134,7 @@ class WidgetDelegate extends BaseDaoDelegate
     }
 
     /* Render the partial widget html into final html to be sent to client*/
-    render(widgetId:string):q.Promise<string>
+    render(widgetId:number):q.Promise<string>
     {
         var self = this;
 
@@ -142,7 +143,7 @@ class WidgetDelegate extends BaseDaoDelegate
 
         return fs_io.read(widgetPartialHtmlPath)
             .then(
-            function partialHtmlRead(data)
+            function partialHtmlRead(data):any
             {
                 var widgetPartialHtml:string = data;
                 var widgetHtml = self.renderWidgetExpertData(widgetPartialHtml, expertData);
