@@ -34,7 +34,6 @@ class UserSkillApi
             var loggedInUser = req['user'];
             var skill = req.body[ApiConstants.USER_SKILL];
             var newUserSkill:UserSkill = new UserSkill();
-            newUserSkill.setUserId(loggedInUser.id);
 
             self.userSkillDelegate.createUserSkill(newUserSkill,skill.skill_name, skill.skill_lkin_code)
                 .then(

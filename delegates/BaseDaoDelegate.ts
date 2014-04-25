@@ -40,6 +40,9 @@ class BaseDaoDelegate
             .then(
             function processIncludes(result):any
             {
+                if (Utils.isNullOrEmpty(result))
+                    return result;
+
                 rawResult = result;
                 var includeTasks = [];
                 _.each(includes, function (flag)
@@ -76,6 +79,9 @@ class BaseDaoDelegate
             .then(
             function processIncludes(result)
             {
+                if (Utils.isNullOrEmpty(result))
+                    return result;
+
                 rawResult = result;
                 var includeTasks = [];
                 _.each(includes, function (flag)
@@ -155,6 +161,8 @@ class BaseDaoDelegate
             });
     }
 
+    create(object:Object, transaction?:any):q.Promise<any>;
+    create(object:Object[], transaction?:any):q.Promise<any>;
     create(object:any, transaction?:any):q.Promise<any>
     {
         if (Utils.isNullOrEmpty(object))
@@ -193,9 +201,9 @@ class BaseDaoDelegate
     delete(criteria:any, softDelete:boolean = true, transaction?:any):q.Promise<any>
     {
         if (softDelete)
-            return this.dao.delete(criteria, transaction);
+            return this.dao.update(criteria, {'deleted': moment().valueOf()}, transaction);
         else
-            return this.dao.update(criteria, {'deleted': moment().valueOf()}, transaction)
+            return this.dao.delete(criteria, transaction);
     }
 
 }

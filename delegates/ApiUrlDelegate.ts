@@ -119,8 +119,8 @@ class ApiUrlDelegate
                     var urlParamRegex:RegExp = new RegExp(':' + key);
                     var urlParamTypeRegex:RegExp = new RegExp('\\(([^\\(]*)\\)', 'i');
                     urlPattern = urlPattern
-                        .replace(urlParamRegex, values[key])
-                        .replace(urlParamTypeRegex, '');
+                        .replace(urlParamTypeRegex, '')
+                        .replace(urlParamRegex, values[key]);
                 }
         if (!Utils.isNullOrEmpty(baseUrl))
             urlPattern = url.resolve(baseUrl, urlPattern);

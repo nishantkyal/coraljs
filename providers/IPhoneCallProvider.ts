@@ -1,6 +1,7 @@
 ///<reference path='../_references.d.ts'/>
 import q                                                    = require('q');
 import CallFragment                                         = require('../models/CallFragment');
+import MoneyUnit                                            = require('../enums/MoneyUnit');
 
 interface IPhoneCallProvider
 {

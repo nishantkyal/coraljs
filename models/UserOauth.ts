@@ -24,6 +24,8 @@ class UserOauth extends BaseModel
     private refresh_token:string;
     private refresh_token_expiry:string;
 
+    static DEFAULT_FIELDS:string[] = [UserOauth.USER_ID, UserOauth.PROVIDER_ID, UserOauth.OAUTH_USER_ID, UserOauth.ACCESS_TOKEN, UserOauth.ACCESS_TOKEN_EXPIRY, UserOauth.REFRESH_TOKEN, UserOauth.REFRESH_TOKEN_EXPIRY];
+
     /* Getters */
     getUserId() { return this.user_id; }
     getProviderId() { return this.provider_id; }

@@ -9,11 +9,9 @@ import UserPhone                                                = require('../mo
 import PhoneCall                                                = require('../models/PhoneCall');
 import VerificationCodeCache                                    = require('../caches/VerificationCodeCache');
 import IntegrationMemberDelegate                                = require('../delegates/IntegrationMemberDelegate');
-import EmailDelegate                                            = require('../delegates/EmailDelegate');
 import SmsDelegate                                              = require('../delegates/SMSDelegate');
 import UserDelegate                                             = require('../delegates/UserDelegate');
 import UserPhoneDelegate                                        = require('../delegates/UserPhoneDelegate');
-import NotificationDelegate                                     = require('../delegates/NotificationDelegate');
 import Utils                                                    = require('../common/Utils');
 import IncludeFlag                                              = require('../enums/IncludeFlag');
 import SmsTemplate                                              = require('../enums/SmsTemplate');
@@ -24,10 +22,18 @@ class VerificationCodeDelegate
 
     private verificationCodeCache = new VerificationCodeCache();
     private integrationMemberDelegate = new IntegrationMemberDelegate();
-    private emailDelegate = new EmailDelegate();
+    private emailDelegate;
     private smsDelegate = new SmsDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
-    private notificationDelegate = new NotificationDelegate();
+    private notificationDelegate;
+
+    constructor()
+    {
+        var EmailDelegate = require('../delegates/EmailDelegate');
+        this.emailDelegate = new EmailDelegate();
+        var NotificationDelegate  = require('../delegates/NotificationDelegate');
+        this.notificationDelegate = new NotificationDelegate();
+    }
 
     resendExpertInvitationCode(integrationId:number, member:IntegrationMember, sender?:User):q.Promise<any>
     {
@@ -165,7 +171,10 @@ class VerificationCodeDelegate
     createAppointmentAcceptCode(call:PhoneCall, startTimes:number[]):q.Promise<any>
     {
         var code:string = Utils.getRandomString(20);
-        return this.verificationCodeCache.createAppointmentAcceptCode(call.getId(), code, startTimes);
+        return this.verificationCodeCache.createAppointmentAcceptCode(call.getId(), code, startTimes)
+            .then(function(status){
+                return code;
+            })
     }
 
     verifyAppointmentAcceptCode(code:string):q.Promise<any>

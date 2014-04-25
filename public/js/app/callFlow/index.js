@@ -15,10 +15,10 @@ _.each(_.keys(dateGroups), function(date)
 });
 
 // Initialize start times
-startTimes = startTimes || [null];
-while (startTimes.length > 0)
+appointments = appointments || [null];
+while (appointments.length > 0)
 {
-    var timestamp = startTimes.shift();
+    var timestamp = appointments.shift();
     if (parseInt(timestamp) != -1)
         createSchedulePicker(timestamp);
 }
@@ -48,7 +48,7 @@ function handleTimeSelected(event)
     // Create a new picker if last element
     var index = $('select.timeSelect').index($(event.currentTarget));
     if (index == $('select.timeSelect').length - 2)
-        createSchedulePicker($(event.currentTarget).val());
+        createSchedulePicker(null);
 }
 
 function createSchedulePicker(timestamp)

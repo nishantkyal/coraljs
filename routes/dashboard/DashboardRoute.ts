@@ -250,8 +250,7 @@ class DashboardRoute
                 {
                     var expertEntry = _.find(members, function (member:IntegrationMember)
                     {
-                        return invitedMember['user']['first_name'] == member.getUser().getFirstName()
-                            && invitedMember['user']['last_name'] == member.getUser().getLastName();
+                        return invitedMember['user']['email'] == member.getUser().getEmail();
                     });
 
                     if (!Utils.isNullOrEmpty(expertEntry))
@@ -336,7 +335,7 @@ class DashboardRoute
                 });
                 res.render(DashboardRoute.PAGE_PROFILE, pageData);
             },
-            function userSkillFetchError(error) { res.send(500); });
+            function memberDetailsFetchError(error) { res.send(500); });
     }
 
     memberProfileSave(req:express.Request, res:express.Response)
@@ -401,7 +400,7 @@ class DashboardRoute
 
                 res.render(DashboardRoute.PAGE_EMPLOYMENT, pageData);
             },
-            function userEducationFetchError() { res.send(500); }
+            function memberDetailsFetchError() { res.send(500); }
         )
     }
 

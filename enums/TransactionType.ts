@@ -1,9 +1,8 @@
 enum TransactionType
 {
-    NONE,
-    PRODUCT,
-    NETWORK_CHARGES,
-    TAX,
-    DISCOUNT
+    PRODUCT = 1,
+    NETWORK_CHARGES = 2,
+    TAX = 3,
+    DISCOUNT = 4
 }
 export = TransactionType

@@ -1,0 +1,29 @@
+title Reselect the appointment
+include ../scriptsAndStyles
+extends header
+
+block content
+    form(method='post')
+        .form-group
+            label.control-label Duration - #{call.duration} minutes
+        .form-group
+            label.control-label
+                | Convenient Times&nbsp;
+                a.fa.fa-question-circle(title='How this works')
+            .controls#appointmentPickers
+        .form-group
+            input.btn.btn-primary.btn-lg(type='submit', value='NEXT')
+
+    #schedulePickerTemplate(style='display: none;')
+        select.dateSelect.form-control(data-width='auto')
+            option(value="-1") Pick a date
+        select.timeSelect.form-control(name='startTime', data-width='auto')
+            option(value="-1") Pick a time
+    script.
+        var schedules = JSON.parse( '!{JSON.stringify(expert.schedule)}' );
+        var appointments;
+        try{
+            appointments = JSON.parse( '!{JSON.stringify(startTimes)}' );
+        }
+        catch(e){}
+    script(src='/js/app/callFlow/index.js')

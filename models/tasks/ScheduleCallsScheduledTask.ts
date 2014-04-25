@@ -33,12 +33,7 @@ class ScheduleCallsScheduledTask extends AbstractScheduledTask
             {
                 return q.all(_.map(calls, function (call:PhoneCall)
                 {
-                    scheduledTaskDelegate.scheduleAt(new TriggerPhoneCallTask(call.getId()), call.getStartTime());
-
-                    var reminderNotificationTask = new CustomPromiseScheduledTask()
-                    reminderNotificationTask.setFunction(new NotificationDelegate().sendCallReminderNotification);
-                    reminderNotificationTask.setArgs([call.getId()]);
-                    scheduledTaskDelegate.scheduleAt(reminderNotificationTask, call.getStartTime() - parseInt(Config.get(Config.CALL_REMINDER_LEAD_TIME_SECS)) * 1000);
+                    phoneCallDelegate.scheduleCall(call);
 
                     return phoneCallCache.addCall(call);
                 }));

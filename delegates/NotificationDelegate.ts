@@ -33,6 +33,26 @@ class NotificationDelegate
         ]);
     }
 
+    sendCallReschedulingNotificationsToUser(call:number, appointment:number):q.Promise<any>;
+    sendCallReschedulingNotificationsToUser(call:PhoneCall, appointment:number):q.Promise<any>;
+    sendCallReschedulingNotificationsToUser(call:any, appointment:number):q.Promise<any>
+    {
+        var self = this;
+        return q.all([
+            self.emailDelegate.sendReschedulingEmailToUser(call, appointment)
+        ]);
+    }
+
+    sendCallReschedulingNotificationsToExpert(call:number, appointments:number[]):q.Promise<any>;
+    sendCallReschedulingNotificationsToExpert(call:PhoneCall, appointments:number[]):q.Promise<any>;
+    sendCallReschedulingNotificationsToExpert(call:any, appointments:number[]):q.Promise<any>
+    {
+        var self = this;
+        return q.all([
+            self.emailDelegate.sendReschedulingEmailToExpert(call, appointments)
+        ]);
+    }
+
     sendCallAgendaFailedNotifications(call:number):q.Promise<any>;
     sendCallAgendaFailedNotifications(call:PhoneCall):q.Promise<any>;
     sendCallAgendaFailedNotifications(call:any):q.Promise<any>

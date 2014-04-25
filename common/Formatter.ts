@@ -61,9 +61,12 @@ class Formatter
     }
 
     static formatDate(m:Date):string;
+    static formatDate(m:string):string;
     static formatDate(m:number):string;
     static formatDate(m:any, format:string = 'DD/MM/YYYY hh:mm:ss a'):string
     {
+        if (Utils.getObjectType(m) == 'String')
+            m = parseInt(m);
         return moment(m).format(format).toString();
     }
 

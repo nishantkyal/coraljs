@@ -12,9 +12,11 @@
 ///<reference path='../DefinitelyTyped/passportjs/passport-http-bearer.d.ts'/>
 ///<reference path='../DefinitelyTyped/passportjs/passport-facebook.d.ts'/>
 ///<reference path='../DefinitelyTyped/passportjs/passport-linkedin.d.ts'/>
+///<reference path='../DefinitelyTyped/passportjs/passport-linkedin-oauth2.d.ts'/>
 ///<reference path='../DefinitelyTyped/passportjs/passport-local.d.ts'/>
 ///<reference path='../DefinitelyTyped/node-mysql/mysql.d.ts'/>
 ///<reference path='../DefinitelyTyped/twilio/twilio.d.ts'/>
+///<reference path='../DefinitelyTyped/oauth/oauth.d.ts'/>
 ///<reference path='../DefinitelyTyped/i18n/i18n.d.ts'/>
 ///<reference path='../DefinitelyTyped/cron-parser/cron-parser.d.ts'/>
 ///<reference path='../DefinitelyTyped/cron/cron.d.ts'/>

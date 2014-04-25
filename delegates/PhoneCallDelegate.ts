@@ -2,11 +2,14 @@
 import _                                                                = require('underscore');
 import q                                                                = require('q');
 import Utils                                                            = require('../common/Utils');
+import Config                                                           = require('../common/Config');
 import PhoneCallDao                                                     = require('../dao/PhoneCallDao');
 import BaseDaoDelegate                                                  = require('../delegates/BaseDaoDelegate');
 import IntegrationMemberDelegate                                        = require('../delegates/IntegrationMemberDelegate');
 import UserPhoneDelegate                                                = require('../delegates/UserPhoneDelegate');
 import UserDelegate                                                     = require('../delegates/UserDelegate');
+import ScheduledTaskDelegate                                            = require('../delegates/ScheduledTaskDelegate');
+import NotificationDelegate                                             = require('../delegates/NotificationDelegate');
 import CallStatus                                                       = require('../enums/CallStatus');
 import IncludeFlag                                                      = require('../enums/IncludeFlag');
 import PhoneType                                                        = require('../enums/PhoneType');
@@ -14,6 +17,8 @@ import PhoneCall                                                        = requir
 import User                                                             = require('../models/User');
 import UserPhone                                                        = require('../models/UserPhone');
 import IntegrationMember                                                = require('../models/IntegrationMember');
+import CustomPromiseScheduledTask                                       = require('../models/tasks/CustomPromiseScheduledTask');
+import TriggerPhoneCallTask                                             = require('../models/tasks/TriggerPhoneCallTask');
 import UnscheduledCallsCache                                            = require('../caches/UnscheduledCallsCache');
 import PhoneCallCache                                                   = require('../caches/PhoneCallCache');
 import CallProviderFactory                                              = require('../factories/CallProviderFactory');
@@ -139,6 +144,17 @@ class PhoneCallDelegate extends BaseDaoDelegate
             {
                 self.logger.error("Error in call triggering, error: %s", error);
             });
+    }
+
+    scheduleCall(call:PhoneCall)
+    {
+        var scheduledTaskDelegate = new ScheduledTaskDelegate();
+        scheduledTaskDelegate.scheduleAt(new TriggerPhoneCallTask(call.getId()), call.getStartTime());
+
+        var reminderNotificationTask = new CustomPromiseScheduledTask();
+        reminderNotificationTask.setFunction(new NotificationDelegate().sendCallReminderNotification);
+        reminderNotificationTask.setArgs([call.getId()]);
+        scheduledTaskDelegate.scheduleAt(reminderNotificationTask, call.getStartTime() - parseInt(Config.get(Config.CALL_REMINDER_LEAD_TIME_SECS)) * 1000);
     }
 
     constructor() { super(new PhoneCallDao()); }

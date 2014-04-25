@@ -1,45 +1,38 @@
-import BaseModel                = require('./BaseModel');
-import TransactionLine          = require('./TransactionLine');
-import Utils                    = require('../common/Utils');
-import TransactionStatus        = require('../enums/TransactionStatus');
-import MoneyUnit                = require('../enums/MoneyUnit');
+import BaseModel                                            = require('./BaseModel');
+import TransactionLine                                      = require('./TransactionLine');
+import Utils                                                = require('../common/Utils');
+import TransactionStatus                                    = require('../enums/TransactionStatus');
 
 class Transaction extends BaseModel
 {
     static TABLE_NAME:string = 'transaction';
 
-    static USER_ID:string = 'user_id';
-    static TOTAL:string = 'total';
-    static TOTAL_UNIT:string = 'total_unit';
-    static STATUS:string = 'status';
-    static TRANSACTION_LINES:string = 'transaction_lines';
+    static USER_ID:string                                   = 'user_id';
+    static PAYMENT_ID:string                                = 'payment_id';
+    static STATUS:string                                    = 'status';
+    static TRANSACTION_LINE:string                          = 'transaction_line';
 
     private user_id:number;
-    private total:number;
-    private total_unit:MoneyUnit;
+    private payment_id:number;
     private status:TransactionStatus;
 
-    private transaction_lines:TransactionLine[];
+    private transaction_line:TransactionLine[];
 
     /* Getters */
-    getUserId():number { return this.user_id; }
-    getTotal():number { return this.total; }
-    getTotalUnit():MoneyUnit { return this.total_unit; }
-    getStatus():TransactionStatus { return this.status; }
+    getUserId():number                                      { return this.user_id; }
+    getPaymentId():number                                   { return this.payment_id; }
+    getStatus():TransactionStatus                           { return this.status; }
+    getTransactionLine():TransactionLine[]                  { return this.transaction_line; }
 
     /* Setters */
-    setUserId(val:number):void { this.user_id = val; }
-    setTotal(val:number):void { this.total = val; }
-    setTotalUnit(val:MoneyUnit):void { this.total_unit = val; }
-    setStatus(val:TransactionStatus):void { this.status = val; }
+    setUserId(val:number):void                              { this.user_id = val; }
+    setPaymentId(val:number):void                           { this.payment_id = val; }
+    setStatus(val:TransactionStatus):void                   { this.status = val; }
+    setTransactionLine(val:TransactionLine[]):void         { this.transaction_line= val; }
 
     isValid():boolean
     {
-        return !Utils.isNullOrEmpty(this.getUserId())
-                && !Utils.isNullOrEmpty(this.transaction_lines)
-                    && _.filter(this.transaction_lines, function isTransactionLineValid(tl:TransactionLine) {
-            return tl.isValid();
-        }).length == this.transaction_lines.length;
+        return !Utils.isNullOrEmpty(this.getUserId());
     }
 }
 export = Transaction

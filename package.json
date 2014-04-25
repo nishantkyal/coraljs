@@ -33,6 +33,7 @@
         "grunt-text-replace"  : "*",
         "grunt-contrib-jade"  : "*",
         "grunt-ts"            : "*",
+        "grunt-promise-q"     : "*",
         "nodeunit"            : "0.8.2",
         "redis"               : "0.10.0",
         "cron-parser"         : "0.2.5",

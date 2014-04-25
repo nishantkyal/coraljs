@@ -13,6 +13,8 @@ import Utils                                        = require('../common/Utils')
  */
 class UserOAuthDelegate extends BaseDaoDelegate
 {
+    private userDelegate = new UserDelegate();
+
     constructor() { super(new UserAuthDAO()); }
 
     /* Add or update an OAuth token
@@ -29,19 +31,33 @@ class UserOAuthDelegate extends BaseDaoDelegate
             .then(
             function oauthSearchCompleted(existingTokens)
             {
-                if (existingTokens.length != 0) {
+                if (existingTokens.length != 0)
+                {
                     var token = new UserOAuth(existingTokens[0]);
                     var oauthId:number = token.getId();
                     userOAuth.setUserId(token.getUserId());
-                    return self.update(oauthId, userOAuth);
+                    return self.update(oauthId, userOAuth)
+                        .then(
+                        function tokenUpdated()
+                        {
+                            return self.get(token.getId());
+                        });
                 }
-                else {
+                else
+                {
                     if (Utils.isNullOrEmpty(transaction))
                         return MysqlDelegate.executeInTransaction(self, args);
 
-                    return new UserDelegate().create(user, transaction)
+                    return self.userDelegate.create(user, transaction)
+                        .fail(
+                        function userCreateError(error):any
+                        {
+                            if (error.code == 'ER_DUP_ENTRY')
+                                return self.userDelegate.find({email: user.getEmail()});
+                            throw(error);
+                        })
                         .then(
-                        function userCreated(user:User)
+                        function userCreatedOrFetched(user:User):any
                         {
                             userOAuth.setUserId(user.getId());
                             return self.create(userOAuth, transaction);
@@ -60,15 +76,10 @@ class UserOAuthDelegate extends BaseDaoDelegate
     update(id:number, oauth:UserOAuth):q.Promise<any>
     {
         // Can't update user id for a token
-        var userId = oauth.getUserId();
         oauth.setUserId(null);
         oauth.setId(null);
 
-        return super.update({id: id}, oauth)
-            .then(function oauthUpdated()
-            {
-                return new UserDelegate().get(userId);
-            });
+        return super.update({id: id}, oauth);
     }
 
 }
