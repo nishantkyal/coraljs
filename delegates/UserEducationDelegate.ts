@@ -13,7 +13,7 @@ class UserEducationDelegate extends BaseDaoDelegate
 
     createUserEducation(userEducation:UserEducation, profileId:number):q.Promise<any>
     {
-
+        return null;
     }
 
 }
