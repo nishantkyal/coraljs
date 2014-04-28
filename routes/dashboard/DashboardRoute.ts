@@ -433,7 +433,7 @@ class DashboardRoute
             });
     }
 
-    private emailAccountVerification(req:express.Request, res:express.Response)
+    private emailAccountVerification(req, res:express.Response)
     {
         var self = this;
         var code:string = req.query[ApiConstants.CODE];
