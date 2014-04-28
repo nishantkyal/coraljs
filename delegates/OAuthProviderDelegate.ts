@@ -88,7 +88,7 @@ class OAuthProviderDelegate
                 function expertCreateError(error)
                 {
                     if (error.code == 'ER_DUP_ENTRY')
-                        return integrationMemberDelegate.find(expert, [IntegrationMember.AUTH_CODE]);
+                        return integrationMemberDelegate.find({integration_id: expert.getIntegrationId(), user_id: expert.getUserId()}, [IntegrationMember.AUTH_CODE]);
                 })
                 .then(
                 function existingExpertFetched(expert)
