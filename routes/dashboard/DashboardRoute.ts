@@ -451,11 +451,11 @@ class DashboardRoute
             {
                 if (result)
                 {
-                    res.send(200, 'Account activated!');
+                    res.render(DashboardRoute.PAGE_ACCOUNT_VERIFICATION);
                     return email;
                 }
                 else
-                    res.send(401, 'Account verification failed. Invalid code or email');
+                    res.send(500, 'Account verification failed. Invalid code or email');
             },
             function verificationFailed(error) { res.send(500); })
             .then(

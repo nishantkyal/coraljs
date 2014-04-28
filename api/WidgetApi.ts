@@ -18,6 +18,10 @@ class WidgetApi
             // TODO: Handle caching of response sent by this endpoint
             // Since the url is fixed, response will get cached
             // Which is fine for certain cases (e.g. my own call-me button)
+            // TODO: Handle customizable widget styling alongwith default styles
+            // TODO: Handle widget versions
+            // TODO: Handle cross-domain goofiness
+            // TODO: Compile Widget jade
 
             widgetDelegate.render(widgetId)
                 .then(

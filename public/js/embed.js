@@ -79,9 +79,6 @@
 
         jQuery(document).ready(function($)
         {
-            //or you could wait until the page is ready
-
-            //example jsonp call
             var widgets = jQuery('.snt-expert-widget') || [];
             for (var i = 0; i < widgets.length; i++)
             {
@@ -91,7 +88,7 @@
             }
 
             // load css
-            //loadCss("http://localhost:3333/widget.css");
+            loadCss("//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css");
 
             //example script load
             //loadScript("http://example.com/anotherscript.js", function() { /* loaded */ });
