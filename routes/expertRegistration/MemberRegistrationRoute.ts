@@ -55,7 +55,6 @@ class MemberRegistrationRoute
     {
         var self = this;
         var sessionData = new SessionData(req);
-        sessionData.clear();
 
         var integrationId = parseInt(req.query[ApiConstants.INTEGRATION_ID] || sessionData.getIntegrationId());
         var integration = new IntegrationDelegate().getSync(integrationId);
