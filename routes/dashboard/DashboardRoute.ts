@@ -96,9 +96,10 @@ class DashboardRoute
         app.post(Urls.memberProfile(), Middleware.allowSelf, this.memberProfileSave.bind(this));
     }
 
-    login(req:express.Request, res:express.Response)
+    login(req, res:express.Response)
     {
         var sessionData = new SessionData(req);
+        req.logout();
 
         var pageData = _.extend(sessionData.getData(), {
             messages: req.flash()
