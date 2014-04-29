@@ -37,28 +37,22 @@ class SkillCodeDelegate extends BaseDaoDelegate
         return deferred.promise;
     }
 
-    createSkillCodeFromLinkedIn(skillName:string[], transaction?:any):q.Promise<any>;
-    createSkillCodeFromLinkedIn(skillName:string, transaction?:any):q.Promise<any>;
-    createSkillCodeFromLinkedIn(skillName:any, transaction?:any):q.Promise<any>
+    createSkillCodeFromLinkedIn(skillName:string, transaction?:any):q.Promise<any>
     {
         var self = this;
         var skillNames = [].concat(skillName);
-
-        return q.all(_.map(skillNames, function (skillName)
-        {
-            return self.getSkillCodeFromLinkedIn(skillName);
-        }))
+        return self.getSkillCodeFromLinkedIn(skillName)
             .then(
-            function skillCodesFetched(skillCodes:SkillCode[])
+            function skillCodesFetched(skillCode:SkillCode)
             {
-                return self.create(skillCodes, transaction);
+                return self.create(skillCode, transaction)
+                    .fail(
+                    function skillCodeCreationFailed(error)
+                    {
+                        self.logger.debug('Error creating skill code from linkedin code, error: %s', error);
+                        return self.find({skill: skillName});
+                    });
             })
-            .fail(
-            function skillCodeCreationFailed(error)
-            {
-                self.logger.debug('Error creating skill code from linkedin code, error: %s', error);
-                return self.find({skill: skillName});
-            });
     }
 }
 export = SkillCodeDelegate

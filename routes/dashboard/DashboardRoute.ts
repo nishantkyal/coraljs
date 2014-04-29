@@ -22,6 +22,8 @@ import UserSkillDelegate                                = require('../../delegat
 import UserEmploymentDelegate                           = require('../../delegates/UserEmploymentDelegate');
 import RefSkillCodeDelegate                             = require('../../delegates/SkillCodeDelegate');
 import VerificationCodeDelegate                         = require('../../delegates/VerificationCodeDelegate');
+import UserProfileDelegate                              = require('../../delegates/UserProfileDelegate');
+import UserUrlDelegate                                  = require('../../delegates/UserUrlDelegate');
 import MoneyUnit                                        = require('../../enums/MoneyUnit');
 import IncludeFlag                                      = require('../../enums/IncludeFlag');
 import User                                             = require('../../models/User');
@@ -31,6 +33,7 @@ import SMS                                              = require('../../models/
 import Coupon                                           = require('../../models/Coupon');
 import UserPhone                                        = require('../../models/UserPhone');
 import PhoneCall                                        = require('../../models/PhoneCall');
+import UserProfile                                      = require('../../models/UserProfile');
 import IntegrationMemberRole                            = require('../../enums/IntegrationMemberRole');
 import ApiConstants                                     = require('../../enums/ApiConstants');
 import SmsTemplate                                      = require('../../enums/SmsTemplate');
@@ -73,6 +76,8 @@ class DashboardRoute
     private phoneCallDelegate = new PhoneCallDelegate();
     private notificationDelegate = new NotificationDelegate();
     private verificationCodeDelegate = new VerificationCodeDelegate();
+    private userProfileDelegate = new UserProfileDelegate();
+    private userUrlDelegate = new UserUrlDelegate();
 
     constructor(app, secureApp)
     {
@@ -277,16 +282,22 @@ class DashboardRoute
         var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
         var sessionData = new SessionData(req);
 
-        self.integrationMemberDelegate.get(memberId)
+        q.all([
+            self.integrationMemberDelegate.get(memberId),
+            self.userProfileDelegate.find({'integration_member_id':memberId})
+        ])
             .then(
-            function memberFetched(member:IntegrationMember)
+            function memberFetched(...args)
             {
+                var member:IntegrationMember = args[0][0];
+                var userProfile:UserProfile = args[0][1];
                 var userId = member.getUserId();
                 return q.all([
                     self.userDelegate.get(userId),
-                    self.userSkillDelegate.getSkillName(userId),
-                    self.userEducationDelegate.search({'user_id': userId}),
-                    self.userEmploymentDelegate.search({'user_id': userId})
+                    self.userSkillDelegate.getSkillWithName(userProfile.getId()),
+                    self.userEducationDelegate.search({'profileId':userProfile.getId()}),
+                    self.userEmploymentDelegate.search({'profileId':userProfile.getId()}),
+                    self.userUrlDelegate.search({'profileId':userProfile.getId()})
                 ]);
             })
             .then(
@@ -295,13 +306,15 @@ class DashboardRoute
                 var user = args[0][0];
                 var userSkill = args[0][1];
                 var userEducation = args[0][2];
-                var userEmployment = args[0][3];
+                var userEmployment = args[0][3]
+                var userUrl = args[0][4];
 
                 var pageData = _.extend(sessionData.getData(), {
                     'user': user,
                     'userSkill': userSkill,
                     'userEducation': userEducation,
-                    'userEmployment': userEmployment
+                    'userEmployment': userEmployment,
+                    'userUrl': userUrl
                 });
 
                 res.render(DashboardRoute.PAGE_PROFILE_COMPLETE, pageData);
@@ -321,7 +334,7 @@ class DashboardRoute
         var sessionData = new SessionData(req);
 
         q.all([
-            self.userSkillDelegate.getSkillName(user.id),
+            self.userSkillDelegate.getSkillWithName(user.id),
             self.integrationMemberDelegate.get(memberId)
         ])
             .then(
