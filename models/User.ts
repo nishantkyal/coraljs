@@ -2,6 +2,7 @@
 import validator                                            = require('validator');
 import BaseModel                                            = require('./BaseModel')
 import Utils                                                = require('../common/Utils');
+import Formatter                                            = require('../common/Formatter');
 import UserProfile                                          = require('../models/UserProfile');
 import IndustryCode                                         = require('../enums/IndustryCode');
 import UserStatus                                           = require('../enums/UserStatus');
@@ -74,5 +75,12 @@ class User extends BaseModel
 
     setUserProfile(val:UserProfile):void                        { this.user_profile = val; }
 
+    getFormattedName(includeTitle:boolean = true):string
+    {
+        if (includeTitle)
+            return Formatter.formatName(this.getFirstName(), this.getLastName(), this.getTitle());
+        else
+            return Formatter.formatName(this.getFirstName(), this.getLastName());
+    }
 }
 export = User

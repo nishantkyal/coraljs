@@ -1,22 +1,11 @@
 import BaseModel                                        = require('../models/BaseModel');
-import WidgetType                                       = require('../enums/WidgetType');
 
 /**
- *
  * Style settings
  * - Color theme
  * - Font
  *
- * Expert Settings:
- * - Name
- * - Availability
- * - Cost
- * - Location and TZ
- * - Keywords
- * - Summary
- * - Profile picture
- * - User feedback
- * - Network rating
+ * Display settings
  * - Next available slot
  * - Pick appointment slots
  * - Agenda field
@@ -26,22 +15,28 @@ class Widget extends BaseModel
 {
     static TABLE_NAME:string = 'widget';
 
-    static TYPE:string                                  = 'type';
+    static INTEGRATION_MEMBER_ID:string                 = 'integration_member_id';
+    static TEMPLATE:string                              = 'template';
     static SETTINGS:string                              = 'settings';
-    static EXPERT_RESOURCE_ID:string                    = 'expert_resource_id';
+    static EXPERT_ID:string                             = 'expert_id';
 
-    private type:WidgetType;
+    static DEFAULT_FIELDS:string[] = [Widget.ID, Widget.EXPERT_ID, Widget.SETTINGS, Widget.TEMPLATE, Widget.INTEGRATION_MEMBER_ID];
+
+    private integration_member_id:number;
+    private template:string;
     private settings:Object;
-    private expert_resource_id:number;                  // Can be expert_id or expert_group_id or integration_id, so that we can choose what expert or group of experts to display
+    private expert_id:number;
 
     /* Getters */
-    getType():WidgetType                                { return this.type; }
+    getIntegrationMemberId():number                     { return this.integration_member_id; }
+    getTemplate():string                                { return this.template; }
     getSettings():Object                                { return this.settings; }
-    getExpertResourceId():number                        { return this.expert_resource_id; }
+    getExpertId():number                                { return this.expert_id; }
 
     /* Setters */
-    setType(val:WidgetType)                             { this.type = val; }
+    setIntegrationMemberId(val:number)                  { this.integration_member_id = val; }
+    setTemplate(val:string)                             { this.template = val; }
     setSettings(val:Object)                             { this.settings = val; }
-    setExpertResourceId(val:number)                     { this.expert_resource_id = val; }
+    setExpertId(val:number)                             { this.expert_id = val; }
 }
 export = Widget

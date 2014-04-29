@@ -65,10 +65,17 @@
 
     function renderWidget(widgetId)
     {
-        var widgetHtmlUrl = "http://localhost:3333/widget/" + widgetId + "?callback=?";
+        /* JSONP
+        var widgetHtmlUrl = "http://localhost:3333/widget/" + widgetId + "?callback=";
         jQuery.getJSON(widgetHtmlUrl, function(result)
         {
-            jQuery('.snt-expert-widget[data-widget-id=' + widgetId + ']').html(result);
+        });*/
+        var widgetHtmlUrl = "http://localhost:3333/widget/" + widgetId;
+        jQuery('.snt-expert-widget[data-widget-id=' + widgetId + ']').html('<iframe src="' + widgetHtmlUrl + '"></iframe>');
+
+        jQuery('.snt-expert-widget iframe').load(function () {
+            jQuery(this).height(jQuery(this).contents().height());
+            jQuery(this).width(jQuery(this).contents().width());
         });
     }
 

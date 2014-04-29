@@ -57,6 +57,7 @@ class ApiConstants
     static SMS:string = 'sms';
     static TRANSACTION:string = 'transaction';
     static PAGE_DATE:string = 'pageData';
+    static WIDGET:string = 'widget';
 
 }
 export = ApiConstants

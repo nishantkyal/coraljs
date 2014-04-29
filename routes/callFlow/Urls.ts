@@ -2,7 +2,7 @@ import ApiUrlDelegate                                       = require('../../del
 
 class Urls
 {
-    static callExpert(expertId?:number):string { return ApiUrlDelegate.get('/expert/:expertId(\\d+)/call', {expertId: expertId}); }
+    static callExpert(expertId?:number, baseUrl?:string):string { return ApiUrlDelegate.get('/expert/:expertId(\\d+)/call', {expertId: expertId}, baseUrl); }
     static login():string { return ApiUrlDelegate.get('/call/login'); }
     static register():string { return ApiUrlDelegate.get('/call/register'); }
     static fbLogin():string { return ApiUrlDelegate.get('/call/login/fb'); }

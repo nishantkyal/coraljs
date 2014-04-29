@@ -3,13 +3,16 @@ import _                                                        = require('under
 import q                                                        = require('q');
 import path                                                     = require('path');
 import fs_io                                                    = require('q-io/fs');
+import fs                                                       = require('fs');
+import log4js                                                   = require('log4js');
+import WidgetExpertDelegate                                     = require('../delegates/WidgetExpertDelegate');
 import BaseDaoDelegate                                          = require('../delegates/BaseDaoDelegate');
 import FileWatcherDelegate                                      = require('../delegates/FileWatcherDelegate');
-import WidgetExpertDelegate                                     = require('../delegates/WidgetExpertDelegate');
+import IntegrationMemberDelegate                                = require('../delegates/IntegrationMemberDelegate');
 import IntegrationMember                                        = require('../models/IntegrationMember');
 import Widget                                                   = require('../models/Widget');
 import WidgetExpert                                             = require('../models/WidgetExpert');
-import WidgetType                                               = require('../enums/WidgetType');
+import WidgetRuntimeData                                        = require('../models/WidgetRuntimeData');
 import IncludeFlag                                              = require('../enums/IncludeFlag');
 import Config                                                   = require('../common/Config');
 import Utils                                                    = require('../common/Utils');
@@ -18,6 +21,7 @@ import WidgetDao                                                = require('../da
 class WidgetDelegate extends BaseDaoDelegate
 {
     private static widgetTemplateCache:{[templateNameAndLocale:string]:string} = {};
+    private static logger:log4js.Logger = log4js.getLogger('WidgetDelegate');
     private widgetExpertDelegate = new WidgetExpertDelegate();
 
     constructor() { super(new WidgetDao()); }
@@ -35,14 +39,40 @@ class WidgetDelegate extends BaseDaoDelegate
             WidgetDelegate.readFileAndCache);
     })();
 
-    private static readFileAndCache(fileName:string)
+    private static readFileAndCache(filePath:string)
     {
+        var fileName = filePath.substring(filePath.lastIndexOf(path.sep) + 1);
+        var extension = fileName.substring(fileName.lastIndexOf('.') + 1);
+        var fileNameWithoutExtension = fileName.substring(0, fileName.lastIndexOf('.'));
+        var self = this;
 
+        if (extension != 'html') return;
+
+        fs.readFile(filePath, 'utf8', function (err, data)
+        {
+            if (data)
+            {
+                var template = fileNameWithoutExtension.toUpperCase();
+                WidgetDelegate.widgetTemplateCache[template] = data;
+                WidgetDelegate.logger.debug('Widget template updated: ' + template);
+
+                var widgetDelegate = new WidgetDelegate();
+                widgetDelegate.search({template: template})
+                    .then(
+                    function widgetSearched(widgets:Widget[])
+                    {
+                        return _.map(widgets, function (widget)
+                        {
+                            return widgetDelegate.computeAndCachePartialWidgetHtml(widget);
+                        });
+                    });
+            }
+        });
     }
 
     /**
      * Helper method to embed expert data into widget html. May be used at run time or while generating partial htmls
-     * Expert data is specified using pattern <%= %>
+     * Expert data is specified using pattern {%= %}, {% %}
      * */
     private renderWidgetExpertData(widgetPartialHtml:string, widgetExpert:WidgetExpert[]):string;
     private renderWidgetExpertData(widgetPartialHtml:string, widgetExpert:WidgetExpert):string;
@@ -52,11 +82,11 @@ class WidgetDelegate extends BaseDaoDelegate
         widgetExpert = [].concat(widgetExpert);
 
         _.templateSettings = {
-            evaluate: /<%([\s\S]+?)%>/g,
-            interpolate: /<%=([\s\S]+?)%>/g
+            evaluate: /{%([\s\S]+?)%}/g,
+            interpolate: /{%=([\s\S]+?)%}/g
         };
         var widgetTemplate = _.template(widgetPartialHtml);
-        var widgetHtml = widgetTemplate(widgetExpert);
+        var widgetHtml = widgetTemplate({experts: widgetExpert});
 
         _.templateSettings = originalSettings;
 
@@ -65,7 +95,7 @@ class WidgetDelegate extends BaseDaoDelegate
 
     /**
      * Helper method to embed settings into widget html. Used when settings are updated
-     * Settings are specified by pattern {{ }}
+     * Settings are specified by pattern {{ }}, {[ ]}
      * */
     private renderWidgetSettings(widgetPartialHtml:string, widgetSettings:Object):string
     {
@@ -83,6 +113,27 @@ class WidgetDelegate extends BaseDaoDelegate
         return widgetHtml;
     }
 
+    /**
+     * Helper method to render runtime data into widget partials
+     * e.g. Availability, Price
+     * Settings are specified by pattern [[ ]], [{ }]
+     * */
+    private renderWidgetRuntimeData(widgetPartialHtml:string, runtimeData:Object):string
+    {
+        var originalSettings = _.templateSettings;
+
+        _.templateSettings = {
+            evaluate: /\[\{([\s\S]+?)\}\]/g,
+            interpolate: /\[\[([\s\S]+?)]]/g
+        };
+        var widgetTemplate = _.template(widgetPartialHtml);
+        var widgetHtml = widgetTemplate(runtimeData);
+
+        _.templateSettings = originalSettings;
+
+        return widgetHtml;
+    }
+
     update(criteria:Object, newValues:any, transaction?:any):q.Promise<any>;
     update(criteria:number, newValues:any, transaction?:any):q.Promise<any>;
     update(criteria:any, newValues:any, transaction?:any):q.Promise<any>
@@ -90,7 +141,16 @@ class WidgetDelegate extends BaseDaoDelegate
         var self = this;
 
         return super.update(criteria, newValues, transaction)
-            .then(self.computeAndCachePartialWidgetHtml);
+            .then(
+            function widgetUpdated()
+            {
+                return Utils.getObjectType(criteria) == 'Number' ? self.get(criteria) : self.find(criteria);
+            })
+            .then(
+            function widgetFetched(widget:Widget)
+            {
+                return self.computeAndCachePartialWidgetHtml(widget);
+            });
     }
 
     /**
@@ -106,23 +166,24 @@ class WidgetDelegate extends BaseDaoDelegate
 
         function computeAndCache(widget:Widget):q.Promise<any>
         {
-            return self.widgetExpertDelegate.get(widget.getExpertResourceId())
+            return self.widgetExpertDelegate.get(widget.getExpertId())
                 .then(
                 function widgetExpertFetched(widgetExpert:WidgetExpert[])
                 {
-                    var widgetBaseHtml = WidgetDelegate.widgetTemplateCache[widget.getType()];
+                    var widgetBaseHtml = WidgetDelegate.widgetTemplateCache[widget.getTemplate().toUpperCase()];
                     var widgetHtmlWithExpertData = self.renderWidgetExpertData(widgetBaseHtml, widgetExpert)
-                    var widgetHtmlWithSettings = self.renderWidgetSettings(widgetHtmlWithExpertData, widget.getSettings());
-                    return widgetHtmlWithSettings;
+                    var widgetHtmlWithSettingsAndExpertData = self.renderWidgetSettings(widgetHtmlWithExpertData, widget.getSettings());
+                    return widgetHtmlWithSettingsAndExpertData;
                 })
                 .then(
                 function widgetComputed(widgetHtml:string)
                 {
                     return fs_io.write(Config.get(Config.WIDGET_PARTIALS_BASE_DIR) + path.sep + widget.getId(), widgetHtml);
-                },
+                })
+                .fail(
                 function widgetCachingFailed(error)
                 {
-                    self.logger.error('Widget html compute failed. Error: %s', error);
+                    self.logger.error('Widget html compute failed. Error: %s', JSON.stringify(error));
                     return fs_io.remove(Config.get(Config.WIDGET_PARTIALS_BASE_DIR) + path.sep + widget.getId());
                 });
         };
@@ -131,35 +192,32 @@ class WidgetDelegate extends BaseDaoDelegate
             return this.get(widget).then(computeAndCache);
         else if (Utils.getObjectType(widget) == 'Widget')
             return computeAndCache(widget);
+
+        return null;
     }
 
     /* Render the partial widget html into final html to be sent to client*/
     render(widgetId:number):q.Promise<string>
     {
         var self = this;
-
         var widgetPartialHtmlPath:string = Config.get(Config.WIDGET_PARTIALS_BASE_DIR) + path.sep + widgetId;
-        var expertData = {};
 
-        return fs_io.read(widgetPartialHtmlPath)
+        return q.all([
+            fs_io.read(widgetPartialHtmlPath),
+            self.get(widgetId).then(
+                function widgetFetched(widget:Widget)
+                {
+                    return self.widgetExpertDelegate.get(widget.getExpertId())
+                })
+        ])
             .then(
-            function partialHtmlRead(data):any
+            function partialHtmlRead(...args)
             {
-                var widgetPartialHtml:string = data;
-                var widgetHtml = self.renderWidgetExpertData(widgetPartialHtml, expertData);
-
-                return widgetHtml;
-            },
-            function partialHtmlReadError(err)
-            {
-                self.logger.error('Error occurred while reading partial html for widget id: %s, error: %s', widgetId, err);
-                throw('Invalid widget configuration');
+                var partialHtml:string = args[0][0];
+                var expertData = args[0][1];
+                return self.renderWidgetRuntimeData(partialHtml, expertData);
             });
     }
 
-    getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
-    {
-        return super.getIncludeHandler(include, result);
-    }
 }
 export = WidgetDelegate

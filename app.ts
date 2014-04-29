@@ -44,6 +44,7 @@ var helpers = {
     ApiUrlDelegate: ApiUrlDelegate,
     CallFlowUrls: CallFlowUrls,
     DashboardUrls: DashboardUrls,
+    Config: Config,
 
     IndustryCodes: Utils.enumToNormalText(IndustryCode),
     Salutation: Utils.enumToNormalText(Salutation),
