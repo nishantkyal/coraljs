@@ -1,17 +1,41 @@
-///<reference path='../_references.d.ts'/>
 import q                                                    = require('q');
 import WidgetExpert                                         = require('../models/WidgetExpert');
+import IntegrationMember                                    = require('../models/IntegrationMember');
+import WidgetExpertCache                                    = require('../caches/WidgetExpertCache');
+import IntegrationMemberDelegate                            = require('../delegates/IntegrationMemberDelegate');
+import Utils                                                = require('../common/Utils');
+import IncludeFlag                                          = require('../enums/IncludeFlag');
 
 class WidgetExpertDelegate
 {
-    get(expertResourceId:number):q.Promise<any>
+    private widgetExpertCache = new WidgetExpertCache();
+    private integrationMemberDelegate = new IntegrationMemberDelegate();
+
+    get(expertId:number):q.Promise<any>
     {
-        return null;
+        var self = this;
+
+        return self.widgetExpertCache.get(expertId)
+            .then(
+            function widgetExpertFetchedFromCache(widgetExpert:WidgetExpert)
+            {
+                if (Utils.isNullOrEmpty(widgetExpert))
+                    throw('Not found in cache');
+                return widgetExpert;
+            })
+            .fail(
+            function widgetExpertFetchFailed():any
+            {
+                return self.integrationMemberDelegate.get(expertId, null, [IncludeFlag.INCLUDE_USER]);
+            })
+            .then(
+            function expertFetched(expert:IntegrationMember):any
+            {
+                var widgetExpert = new WidgetExpert(expert);
+                self.widgetExpertCache.save(widgetExpert);
+                return widgetExpert;
+            });
     }
 
-    set(expertResourceId:number, expertData:WidgetExpert):q.Promise<any>
-    {
-        return null;
-    }
 }
 export = WidgetExpertDelegate

@@ -16,6 +16,7 @@ import ExpertScheduleRule               = require('../models/ExpertScheduleRule'
 import ExpertScheduleException          = require('../models/ExpertScheduleException');
 import UserProfile                      = require('../models/UserProfile');
 import Transaction                      = require('../models/Transaction');
+import Widget                           = require('../models/Widget');
 
 class RequestHandler
 {
@@ -90,6 +91,9 @@ class RequestHandler
                     break;
                 case ApiConstants.TRANSACTION:
                     modelClass = Transaction;
+                    break;
+                case ApiConstants.WIDGET:
+                    modelClass = Widget;
                     break;
             }
 

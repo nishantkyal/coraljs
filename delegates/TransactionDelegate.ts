@@ -73,7 +73,7 @@ class TransactionDelegate extends BaseDaoDelegate
                     throw('Invalid or expired coupon');
 
                 // TODO: Check if coupon applies to selected expert
-                var expertResourceId = coupon.getExpertResourceId();
+                var expertResourceId = coupon.getExpertId();
 
                 if (Utils.isNullOrEmpty(dbTransaction))
                     return MysqlDelegate.executeInTransaction(self, args)
