@@ -2,7 +2,6 @@
 import q                                            = require('q');
 import UserAuthDAO                                  = require('../dao/UserOAuthDao');
 import BaseDaoDelegate                              = require('./BaseDaoDelegate');
-import UserDelegate                                 = require('../delegates/UserDelegate');
 import MysqlDelegate                                = require('../delegates/MysqlDelegate');
 import UserOAuth                                    = require('../models/UserOauth');
 import User                                         = require('../models/User');
@@ -13,9 +12,13 @@ import Utils                                        = require('../common/Utils')
  */
 class UserOAuthDelegate extends BaseDaoDelegate
 {
-    private userDelegate = new UserDelegate();
+    private userDelegate;
 
-    constructor() { super(new UserAuthDAO()); }
+    constructor() {
+        var UserDelegate  = require('../delegates/UserDelegate');
+        this.userDelegate = new UserDelegate();
+        super(new UserAuthDAO());
+    }
 
     /* Add or update an OAuth token
      * Created new user if can't update

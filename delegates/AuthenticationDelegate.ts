@@ -10,7 +10,6 @@ import passport_facebook                        = require('passport-facebook');
 import passport_linkedin                        = require('passport-linkedin');
 import passport_local                           = require('passport-local');
 import log4js                                   = require('log4js');
-import OAuth                                    = require('oauth');
 import IntegrationMemberDelegate                = require('../delegates/IntegrationMemberDelegate');
 import UserDelegate                             = require('../delegates/UserDelegate');
 import UserOAuthDelegate                        = require('../delegates/UserOAuthDelegate');
@@ -189,27 +188,7 @@ class AuthenticationDelegate
             },
             function (accessToken, refreshToken, profile:any, done)
             {
-                /*var profileFields:string[] = ['id', 'first-name', 'last-name', 'email-address', 'headline',
-                    'industry', 'summary', 'positions', 'picture-urls::(original)', 'skills', 'educations', 'date-of-birth'];
-                var oauth = new OAuth.OAuth(
-                    'https://www.linkedin.com/uas/oauth/authenticate?oauth_token=',
-                    'https://api.linkedin.com/uas/oauth/accessToken',
-                    Config.get(Config.LINKEDIN_API_KEY),
-                    Config.get(Config.LINKEDIN_API_SECRET),
-                    '1.0A',
-                    null,
-                    'HMAC-SHA1'
-                );
-                oauth.get(
-                    'https://api.linkedin.com/v1/people/~:(first-name,last-name,headline,picture-url) ',
-                    accessToken, //test user token
-                    refreshToken, //test user secret
-                    function (e, data, res){
-                        if (e) console.error(e);
-                        console.log(require('util').inspect(data));
-                        done();
-                    });*/
-                /*profile = profile['_json'];
+                profile = profile['_json'];
 
                 var user:User = new User();
                 user.setEmail(profile.emailAddress);
@@ -259,7 +238,7 @@ class AuthenticationDelegate
                     function userStatusUpdated()
                     {
                         return MysqlDelegate.commit(new UserDelegate().recalculateStatus(user.getId()));
-                    });*/
+                    });
             }
         ));
     }

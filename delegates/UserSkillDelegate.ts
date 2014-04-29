@@ -12,6 +12,24 @@ class UserSkillDelegate extends BaseDaoDelegate
 
     private skillCodeDelegate = new SkillCodeDelegate();
 
+    /*create(data:any, transaction?:any):q.Promise<any>
+    {
+        // Check that phone number doesn't already exist
+        var self = this;
+        var superCreate = super.create.bind(this);
+
+        return self.find(data)
+            .then(
+            function handleUserPhoneSearched(UserPhone:UserPhone):any
+            {
+                if (Utils.isNullOrEmpty(UserPhone) || !UserPhone.isValid())
+                    return superCreate(data, transaction);
+                else
+                    return UserPhone;
+            }
+        );
+    }*/
+
     createUserSkill(userSkill:UserSkill, skillName:string, linkedInSkillCode:number, transaction?:any):q.Promise<any>
     {
         var self = this;
@@ -55,7 +73,7 @@ class UserSkillDelegate extends BaseDaoDelegate
             },
             function skillCodeError(error) //code exists
             {
-                return self.skillCodeDelegate.find({'lkin_code':skillCode.getLinkedinCode()})
+                return self.skillCodeDelegate.find({'linkedin_code':skillCode.getLinkedinCode()})
                     .then(
                     function skillFound(refSkill){
                         userSkill.setSkillId(refSkill.getId());
