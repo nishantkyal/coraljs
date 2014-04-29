@@ -14,9 +14,9 @@ import Utils                                        = require('../common/Utils')
  */
 class AbstractDao
 {
-    modelClass;
-    private tableName:string;
-    private logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
+    public modelClass;
+    public tableName:string;
+    public logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
 
     constructor(modelClass:typeof AbstractModel)
     {
@@ -260,7 +260,7 @@ class AbstractDao
     }
 
     /** Helper method to convert query objects to SQL fragments **/
-    private generateWhereStatements(criteria:Object):{where: string[]; values: any[]}
+    public generateWhereStatements(criteria:Object):{where: string[]; values: any[]}
     {
         var whereStatements = [], values = [];
         for (var key in criteria)

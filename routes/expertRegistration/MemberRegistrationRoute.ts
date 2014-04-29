@@ -183,7 +183,7 @@ class MemberRegistrationRoute
                 break;
         }
         q.all([
-            new UserProfileDelegate().fetchFromLinkedIn(userId, integrationId),
+            new UserProfileDelegate().fetchAllDetailsFromLinkedIn(userId, integrationId),
             self.integrationMemberDelegate.update({'user_id': userId, 'integration_id': integrationId}, {role: member.getRole()})
         ])
         .then( function profileCreated(...args){

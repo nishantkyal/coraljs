@@ -2,9 +2,11 @@
 import q                                                    = require('q');
 import BaseDaoDelegate                                      = require('./BaseDaoDelegate');
 import SkillCodeDelegate                                    = require('./SkillCodeDelegate');
+import MapProfileSkillDao                                   = require('../dao/MapProfileSkillDao');
 import UserSkillDao                                         = require('../dao/UserSkillDao');
 import UserSkill                                            = require('../models/UserSkill');
 import SkillCode                                            = require('../models/SkillCode');
+import MapProfileSkill                                      = require('../models/MapProfileSkill');
 
 class UserSkillDelegate extends BaseDaoDelegate
 {
@@ -12,25 +14,20 @@ class UserSkillDelegate extends BaseDaoDelegate
 
     private skillCodeDelegate = new SkillCodeDelegate();
 
-    /*create(data:any, transaction?:any):q.Promise<any>
+    createUserSkillWithMap(userSkill:UserSkill, profileId:number, transaction?:any):q.Promise<any>
     {
-        // Check that phone number doesn't already exist
         var self = this;
-        var superCreate = super.create.bind(this);
+        var mapProfileSkillDao = new MapProfileSkillDao();
+        return self.create(userSkill,transaction)
+            .then(function userSkillCreated(emp:UserSkill){
+                var mapProfileSkill:MapProfileSkill = new MapProfileSkill();
+                mapProfileSkill.setSkillId(emp.getId());
+                mapProfileSkill.setProfileId(profileId);
+                return mapProfileSkillDao.create(mapProfileSkill,transaction);
+            })
+    }
 
-        return self.find(data)
-            .then(
-            function handleUserPhoneSearched(UserPhone:UserPhone):any
-            {
-                if (Utils.isNullOrEmpty(UserPhone) || !UserPhone.isValid())
-                    return superCreate(data, transaction);
-                else
-                    return UserPhone;
-            }
-        );
-    }*/
-
-    createUserSkill(userSkill:UserSkill, skillName:string, linkedInSkillCode:number, transaction?:any):q.Promise<any>
+    createUserSkill(userSkill:UserSkill, skillName:string, linkedInSkillCode:number, profileId:number, transaction?:any):q.Promise<any>
     {
         var self = this;
 
@@ -43,7 +40,7 @@ class UserSkillDelegate extends BaseDaoDelegate
             function skillCodeCreated(createdSkillCode)
             {
                 userSkill.setSkillId(createdSkillCode.getId());
-                return self.create(userSkill, transaction)
+                return self.createUserSkillWithMap(userSkill, profileId, transaction)
             },
             function skillCodeError(error) //code exists
             {
@@ -51,7 +48,7 @@ class UserSkillDelegate extends BaseDaoDelegate
                     .then(
                         function skillFound(refSkill){
                             userSkill.setSkillId(refSkill.getId());
-                            return self.create(userSkill, transaction);
+                            return self.createUserSkillWithMap(userSkill, profileId, transaction);
                         }
                     )
             }
@@ -84,10 +81,10 @@ class UserSkillDelegate extends BaseDaoDelegate
         )
     }
 
-    getSkillName(userId:any, transaction?:any):q.Promise<any>
+    getSkillWithName(profileId:any, transaction?:any):q.Promise<any>
     {
         var skillDao:any = this.dao;
-        return skillDao.getSkillName(userId, transaction);
+        return skillDao.getSkillWithName(profileId, transaction);
     }
 }
 export = UserSkillDelegate

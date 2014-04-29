@@ -1,11 +1,13 @@
 import BaseModel                                      = require('./BaseModel');
 
-class RefSkillCode extends BaseModel
+class SkillCode extends BaseModel
 {
     static TABLE_NAME:string = 'skill_codes';
 
     static SKILL:string = 'skill';
     static LINKEDIN_CODE:string = 'linkedin_code';
+
+    static DEFAULT_FIELDS:string[] = [SkillCode.ID, SkillCode.SKILL, SkillCode.LINKEDIN_CODE];
 
     private skill:string;
     private linkedin_code:number;
@@ -18,6 +20,6 @@ class RefSkillCode extends BaseModel
     setSkill(val:string):void                       { this.skill = val; }
     setLinkedinCode(val:number):void                { this.linkedin_code = val; }
 }
-export = RefSkillCode
+export = SkillCode
 
 
