@@ -160,15 +160,19 @@ class CallFlowRoute
         transaction.setUserId(sessionData.getLoggedInUser().getId());
         transaction.setStatus(TransactionStatus.CREATED);
 
-        // 1. Look for user's phone numbers
-        // 2. Start a transaction
-        return q.all([
-            self.phoneCallDelegate.delete(sessionData.getCallId(), false),
-            self.transactionDelegate.delete(sessionData.getTransaction().getId(), false)
-        ])
+
+        var deleteTasks = [];
+        if (sessionData.getCall().getId())
+            deleteTasks.push(self.phoneCallDelegate.delete(sessionData.getCall().getId(), false));
+        if (sessionData.getTransaction().getId())
+            deleteTasks.push(self.transactionDelegate.delete(sessionData.getTransaction().getId(), false));
+
+        return q.all(deleteTasks)
             .then(
             function oldTransactionAndCallDeleted()
             {
+                // 1. Look for user's phone numbers
+                // 2. Start a transaction
                 return q.all([
                     self.userPhoneDelegate.search(userPhoneSearch)
                         .fail(

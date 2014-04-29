@@ -1,4 +1,6 @@
 $('select').selectpicker();
+$('#phoneNumberSelector').selectpicker($("#phoneNumberSelector").is(":visible") ? 'show' : 'hide');
+$('#phoneNumberSelector').selectpicker($("#phoneNumberSelector").is(":visible") ? 'show' : 'hide');
 
 $('#sendPhoneVerificationCode').click(function()
 {

@@ -78,7 +78,7 @@ class UserProfileDelegate extends BaseDaoDelegate
                     }
                 }
             );
-        })
+        });
 
         return deferred.promise;
     }
