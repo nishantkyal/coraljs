@@ -7,9 +7,11 @@ import url                                                  = require('url');
 import _                                                    = require('underscore');
 import RequestHandler                                       = require('../../middleware/RequestHandler');
 import OAuthProviderDelegate                                = require('../../delegates/OAuthProviderDelegate');
+import UserOAuthDelegate                                    = require('../../delegates/UserOAuthDelegate');
 import AuthenticationDelegate                               = require('../../delegates/AuthenticationDelegate');
 import UserDelegate                                         = require('../../delegates/UserDelegate');
 import IntegrationMemberDelegate                            = require('../../delegates/IntegrationMemberDelegate');
+import UserProfileDelegate                                  = require('../../delegates/UserProfileDelegate');
 import VerificationCodeCache                                = require('../../caches/VerificationCodeCache');
 import IntegrationDelegate                                  = require('../../delegates/IntegrationDelegate');
 import EmailDelegate                                        = require('../../delegates/EmailDelegate');
@@ -175,14 +177,19 @@ class MemberRegistrationRoute
                 redirectUrl = DashboardUrls.integrationMembers(integrationId);
                 break;
         }
-        //TODO set profile info here from linkedin
-        //then set status in user to profile published
-        // 1. Update role and redirect
-        // 2. Schedule the mobile verification reminder notification
-        self.integrationMemberDelegate.update({'user_id': userId, 'integration_id': integrationId}, {role: member.getRole()})
-            .finally(
-            function memberRoleCorrected() { res.redirect(redirectUrl); }
-        );
+        q.all([
+            new UserProfileDelegate().fetchFromLinkedIn(userId, integrationId),
+            self.integrationMemberDelegate.update({'user_id': userId, 'integration_id': integrationId}, {role: member.getRole()})
+        ])
+        .then( function profileCreated(...args){
+                //TODO[ankit]
+            //then set status in user to profile published
+        })
+        .finally(
+            function memberRoleCorrected() { res.redirect(redirectUrl);
+        })
+                // 1. Update role and redirect
+                // 2. Schedule the mobile verification reminder notification
     }
 
     private expertComplete(req:express.Request, res:express.Response)
