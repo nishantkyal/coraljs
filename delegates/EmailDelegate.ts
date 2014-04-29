@@ -22,6 +22,8 @@ import UserDelegate                                                 = require('.
 import IntegrationDelegate                                          = require('../delegates/IntegrationDelegate');
 import IntegrationMemberDelegate                                    = require('../delegates/IntegrationMemberDelegate');
 import VerificationCodeDelegate                                     = require('../delegates/VerificationCodeDelegate');
+import FileWatcherDelegate                                          = require('../delegates/FileWatcherDelegate');
+import PhoneCallDelegate                                            = require('../delegates/PhoneCallDelegate');
 import Utils                                                        = require('../common/Utils');
 import Config                                                       = require('../common/Config');
 import Formatter                                                    = require('../common/Formatter');
@@ -61,6 +63,7 @@ class EmailDelegate
     {
         var PhoneCallDelegate = require('../delegates/PhoneCallDelegate');
         this.phoneCallDelegate = new PhoneCallDelegate();
+        
         if (Utils.isNullOrEmpty(EmailDelegate.transport))
             EmailDelegate.transport = nodemailer.createTransport('SMTP', {
                 service: 'SendGrid',
@@ -74,46 +77,35 @@ class EmailDelegate
     /* Static constructor workaround */
     private static ctor = (() =>
     {
-        watch.createMonitor('/var/searchntalk/emailTemplates',
+        new FileWatcherDelegate(Config.get(Config.EMAIL_TEMPLATE_BASE_DIR), [new RegExp('\.html$')],
+            function initHandler(files)
             {
-                filter: function (file)
-                {
-                    return file.substring(file.lastIndexOf('.') + 1) === 'html';
-                }
+                _.each(files, function (fileName) { EmailDelegate.readFileAndCache(fileName); });
             },
-            function monitorCreated(monitor)
-            {
-                function readFileAndCache(filePath)
-                {
-                    var fileName = filePath.substring(filePath.lastIndexOf(path.sep) + 1);
-                    var extension = fileName.substring(fileName.lastIndexOf('.') + 1);
-                    if (extension != 'html') return;
-
-                    var fileNameWithoutExtension = fileName.substring(0, fileName.lastIndexOf('.'));
-                    fs.readFile(filePath, 'utf8', function (err, data)
-                    {
-                        if (data)
-                        {
-                            EmailDelegate.templateCache[fileNameWithoutExtension.toUpperCase()] =
-                            {
-                                'bodyTemplate': _.template(data),
-                                'subjectTemplate': _.template(cheerio.load(data)('title').text())
-                            };
-                            EmailDelegate.logger.debug('Email template updated: ' + fileNameWithoutExtension.toUpperCase());
-                        }
-                    });
-                }
-
-                _.each(monitor.files, function (data, fileName) { readFileAndCache(fileName); });
-
-                monitor.on("created", function (f, stat) { readFileAndCache(f); });
-                monitor.on("changed", function (f, curr, prev) { readFileAndCache(f); });
-                monitor.on("removed", function (f, stat)
-                {
-                    // TODO: Remove from template cache
-                });
-            });
+            EmailDelegate.readFileAndCache,
+            EmailDelegate.readFileAndCache);
     })();
+
+    private static readFileAndCache(filePath)
+    {
+        var fileName = filePath.substring(filePath.lastIndexOf(path.sep) + 1);
+        var extension = fileName.substring(fileName.lastIndexOf('.') + 1);
+        if (extension != 'html') return;
+
+        var fileNameWithoutExtension = fileName.substring(0, fileName.lastIndexOf('.'));
+        fs.readFile(filePath, 'utf8', function (err, data)
+        {
+            if (data)
+            {
+                EmailDelegate.templateCache[fileNameWithoutExtension.toUpperCase()] =
+                {
+                    'bodyTemplate': _.template(data),
+                    'subjectTemplate': _.template(cheerio.load(data)('title').text())
+                };
+                EmailDelegate.logger.debug('Email template updated: ' + fileNameWithoutExtension.toUpperCase());
+            }
+        });
+    }
 
     private composeAndSend(template:string, to:string, emailData:Object, from?:string, replyTo?:string):q.Promise<any>
     {
@@ -199,7 +191,8 @@ class EmailDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call,null, [IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall){
+            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall)
+            {
                 self.sendAgendaFailedEmailToUser(fetchedCall);
             });
 
@@ -215,7 +208,8 @@ class EmailDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER]).then(function (fetchedCall:PhoneCall)
+            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER])
+                .then(function (fetchedCall:PhoneCall)
             {
                 self.sendSchedulingEmailToExpert(fetchedCall, appointments, duration, caller);
             });
@@ -250,7 +244,7 @@ class EmailDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call,null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall)
+            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall)
             {
                 self.sendSchedulingCompleteEmail(fetchedCall, appointment);
             });
@@ -340,11 +334,12 @@ class EmailDelegate
     {
         var self = this;
         var invitationUrl = ExpertRegistrationUrls.index();
-        invitationUrl += '?';
-        invitationUrl += ApiConstants.INTEGRATION_ID + '=' + integrationId;
-        invitationUrl += '&';
-        invitationUrl += ApiConstants.CODE + '=' + invitationCode;
         invitationUrl = url.resolve(Config.get(Config.DASHBOARD_URI), invitationUrl);
+
+        var query = {};
+        query[ApiConstants.INTEGRATION_ID] = integrationId;
+        query[ApiConstants.CODE] = invitationCode;
+        invitationUrl = Utils.addQueryToUrl(invitationUrl, query);
 
         var integration = new IntegrationDelegate().getSync(integrationId)
         var emailData = {
@@ -369,11 +364,12 @@ class EmailDelegate
     sendMobileVerificationReminderEmail(integrationId:number, invitationCode:string, recipient:IntegrationMember):q.Promise<any>
     {
         var invitationUrl = ExpertRegistrationUrls.index();
-        invitationUrl += '?';
-        invitationUrl += ApiConstants.INTEGRATION_ID + '=' + integrationId;
-        invitationUrl += '&';
-        invitationUrl += ApiConstants.CODE + '=' + invitationCode;
         invitationUrl = url.resolve(Config.get(Config.DASHBOARD_URI), invitationUrl);
+
+        var query = {};
+        query[ApiConstants.INTEGRATION_ID] = integrationId;
+        query[ApiConstants.CODE] = invitationCode;
+        invitationUrl = Utils.addQueryToUrl(invitationUrl, query);
 
         var integration = new IntegrationDelegate().getSync(integrationId)
 
@@ -397,7 +393,7 @@ class EmailDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call,null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall)
+            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall)
             {
                 self.sendCallReminderEmail(fetchedCall);
             });
@@ -415,10 +411,7 @@ class EmailDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call).then(function (fetchedCall:PhoneCall)
-            {
-                self.sendCallFailureEmail(fetchedCall);
-            });
+            return self.phoneCallDelegate.get(call).then(self.sendCallFailureEmail);
 
         return null;
     }
@@ -426,10 +419,11 @@ class EmailDelegate
     sendAccountVerificationEmail(user:User, verificationCode:string):q.Promise<any>
     {
         var verificationUrl = url.resolve(Config.get(Config.DASHBOARD_URI), DashboardUrls.emailAccountVerification());
-        verificationUrl += '?';
-        verificationUrl += ApiConstants.CODE + '=' + verificationCode;
-        verificationUrl += '&';
-        verificationUrl += ApiConstants.EMAIL + '=' + user.getEmail();
+
+        var query = {};
+        query[ApiConstants.CODE] = verificationCode;
+        query[ApiConstants.EMAIL] = user.getEmail();
+        verificationUrl = Utils.addQueryToUrl(verificationUrl, query);
 
         var emailData = {
             code: verificationCode,

@@ -15,14 +15,13 @@ class UserPhoneDelegate extends BaseDaoDelegate
 
         return self.find(data)
             .then(
-            function handleUserPhoneSearched(UserPhone:UserPhone):any
+            function handleUserPhoneSearched(userPhone:UserPhone):any
             {
-                if (Utils.isNullOrEmpty(UserPhone) || !UserPhone.isValid())
+                if (Utils.isNullOrEmpty(userPhone) || !userPhone.isValid())
                     return superCreate(data, transaction);
                 else
-                    return UserPhone;
-            }
-        );
+                    return userPhone;
+            });
     }
 
     update(id:number, userPhone:UserPhone):q.Promise<any>

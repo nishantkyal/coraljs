@@ -96,9 +96,10 @@ class DashboardRoute
         app.post(Urls.memberProfile(), Middleware.allowSelf, this.memberProfileSave.bind(this));
     }
 
-    login(req:express.Request, res:express.Response)
+    login(req, res:express.Response)
     {
         var sessionData = new SessionData(req);
+        req.logout();
 
         var pageData = _.extend(sessionData.getData(), {
             messages: req.flash()
@@ -433,7 +434,7 @@ class DashboardRoute
             });
     }
 
-    private emailAccountVerification(req:express.Request, res:express.Response)
+    private emailAccountVerification(req, res:express.Response)
     {
         var self = this;
         var code:string = req.query[ApiConstants.CODE];
@@ -451,11 +452,12 @@ class DashboardRoute
             {
                 if (result)
                 {
-                    res.send(200, 'Account activated!');
+                    res.render(DashboardRoute.PAGE_ACCOUNT_VERIFICATION);
+                    req.logout();
                     return email;
                 }
                 else
-                    res.send(401, 'Account verification failed. Invalid code or email');
+                    res.send(500, 'Account verification failed. Invalid code or email');
             },
             function verificationFailed(error) { res.send(500); })
             .then(

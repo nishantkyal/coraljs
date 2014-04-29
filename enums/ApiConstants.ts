@@ -36,6 +36,7 @@ class ApiConstants
     static EMAIL:string = 'email';
     static CODE:string = 'code';
     static CODE_VERIFICATION:string = 'code_verification';
+    static WIDGET_ID:string = 'widgetId';
 
     /* Body constants */
     static COUPON:string = 'coupon';

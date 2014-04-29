@@ -46,6 +46,7 @@
         "validator"           : "*",
         "accounting"          : "*",
         "cheerio"             : "*",
-        "request"             : "*"
+        "request"             : "*",
+        "q-io"                : "*"
     }
 }

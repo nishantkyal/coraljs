@@ -149,10 +149,11 @@ class CallFlowRoute
         var phoneCall = new PhoneCall();
         phoneCall.setIntegrationMemberId(sessionData.getExpert().getId());
         phoneCall.setCallerUserId(req[ApiConstants.USER].id);
-        phoneCall.setCallerPhoneId(00);//TODO[alpha-calling] set caller phone Id correctly
         phoneCall.setDelay(0);
         phoneCall.setStatus(CallStatus.PLANNING);
         phoneCall.setDuration(sessionData.getDuration());
+        phoneCall.setPricePerMin(12);
+        phoneCall.setPriceCurrency(MoneyUnit.DOLLAR);
 
         var transaction = new Transaction();
         transaction.setUserId(sessionData.getLoggedInUser().getId());
@@ -161,22 +162,30 @@ class CallFlowRoute
         // 1. Look for user's phone numbers
         // 2. Start a transaction
         return q.all([
-            self.userPhoneDelegate.search(userPhoneSearch)
-                .fail(
-                function userPhoneFetchFailed(error)
-                {
-                    self.logger.error('User phone fetch error. Error: %s', error);
-                    return null;
-                }),
-            self.phoneCallDelegate.create(phoneCall)
-                .then(
-                function callCreated(call)
-                {
-                    sessionData.setCallId(call.getId());
-                    sessionData.setCall(call);
-                    return self.transactionDelegate.createPhoneCallTransaction(transaction, call);
-                })
+            self.phoneCallDelegate.delete(sessionData.getCallId(), false),
+            self.transactionDelegate.delete(sessionData.getTransaction().getId(), false)
         ])
+            .then(
+            function oldTransactionAndCallDeleted()
+            {
+                return q.all([
+                    self.userPhoneDelegate.search(userPhoneSearch)
+                        .fail(
+                        function userPhoneFetchFailed(error)
+                        {
+                            self.logger.error('User phone fetch error. Error: %s', error);
+                            return null;
+                        }),
+                    self.phoneCallDelegate.create(phoneCall)
+                        .then(
+                        function callCreated(call)
+                        {
+                            sessionData.setCallId(call.getId());
+                            sessionData.setCall(call);
+                            return self.transactionDelegate.createPhoneCallTransaction(transaction, call);
+                        })
+                ])
+            })
             .then(
             function renderPage(...result)
             {
@@ -214,10 +223,19 @@ class CallFlowRoute
     /* Validate everything, create a transaction (and phone call record) and redirect to payment */
     private checkout(req:express.Request, res:express.Response)
     {
+        // TODO: Verify that supplied phone number belongs to logged in user
         var self = this;
         var sessionData = new SessionData(req);
+        var userPhoneId:number = parseInt(req.body[ApiConstants.PHONE_NUMBER_ID]);
+        var call = sessionData.getCall();
+        call.setCallerPhoneId(userPhoneId);
 
-
+        self.phoneCallDelegate.update(sessionData.getCallId(), Utils.createSimpleObject(PhoneCall.CALLER_PHONE_ID, userPhoneId))
+            .then(
+            function phoneNumberUpdated()
+            {
+                // Redirect to payment gateway
+            });
     }
 
     /* Invoked when expert/caller clicks on accept appointment link in email */
@@ -367,7 +385,7 @@ class CallFlowRoute
 
                 var pageData = _.extend(sessionData.getData(), {
                     messages: req.flash(),
-                    call    :   call
+                    call: call
                 });
 
                 res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
@@ -381,7 +399,7 @@ class CallFlowRoute
         var self = this;
         var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
         var startTime:number[] = [parseInt(req.body[ApiConstants.START_TIME])];
-        
+
         self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_USER])
             .then(
             function callFetched(call:PhoneCall)

@@ -4,6 +4,7 @@ import accounting                                                   = require('a
 import MoneyUnit                                                    = require('../enums/MoneyUnit');
 import IntegrationMemberRole                                        = require('../enums/IntegrationMemberRole');
 import UserStatus                                                   = require('../enums/UserStatus');
+import Salutation                                                   = require('../enums/Salutation');
 import ExpertSchedule                                               = require('../models/ExpertSchedule');
 import User                                                         = require('../models/User');
 import Utils                                                        = require('../common/Utils');
@@ -46,9 +47,9 @@ class Formatter
         return IntegrationMemberRole[role];
     }
 
-    static formatName(firstName:string, lastName?:string, title?:string):string
+    static formatName(firstName:string, lastName?:string, title?:Salutation):string
     {
-        return [title, firstName, lastName].join(' ');
+        return [Salutation[title], firstName, lastName].join(' ');
     }
 
     static formatSchedule(schedule:ExpertSchedule):string
@@ -81,7 +82,7 @@ class Formatter
         return Formatter.formatName(user.getFirstName(), user.getLastName(), user.getTitle());
     }
 
-    static formatEmail(email:string, firstName?:string, lastName?:string, title?:string):string
+    static formatEmail(email:string, firstName?:string, lastName?:string, title?:Salutation):string
     {
         if (!Utils.isNullOrEmpty(firstName))
             return Formatter.formatName(firstName, lastName, title) + '<' + email+ '>';

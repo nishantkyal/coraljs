@@ -1,3 +1,4 @@
+///<reference path='../_references.d.ts'/>
 import mysql                                        = require('mysql');
 import q                                            = require('q');
 import _                                            = require('underscore');
@@ -27,7 +28,15 @@ class AbstractDao
             throw ('Invalid Model class specified for ' + Utils.getClassName(this));
     }
 
-    create(data:AbstractModel, transaction?:any):q.Promise<any>
+    /**
+     * Persist model
+     * Can persist one or more at one time if all models have same data to be inserted
+     * @param data
+     * @param transaction
+     */
+    create(data:Object[], transaction?:any):q.Promise<any>;
+    create(data:Object, transaction?:any):q.Promise<any>;
+    create(data:any, transaction?:any):q.Promise<any>
     {
         var self = this;
         var dataAsArray = [].concat(data);
@@ -65,7 +74,7 @@ class AbstractDao
             .then(
             function created():any
             {
-                // Since there were no errors we can just echo back the input as result (implied that these rows were created successfully)
+                // Since there were no errors we can just echo back the input as result (implying that these rows were created successfully)
                 return data;
             },
             function createFailure(error)
@@ -81,6 +90,11 @@ class AbstractDao
             });
     }
 
+    /**
+     * Get one or more rows by id
+     * @param id
+     * @param fields
+     */
     get(id:number[], fields?:string[]):q.Promise<any>;
     get(id:number, fields?:string[]):q.Promise<any>;
     get(id:any, fields?:string[]):q.Promise<any>
@@ -104,17 +118,24 @@ class AbstractDao
             },
             function objectFetchError(error)
             {
-                self.logger.error('Error while fetching %s, id: %s', self.tableName, id);
+                self.logger.error('GET failed table: %s, id: %s', self.tableName, id);
                 throw(error);
             });
     }
 
+    /**
+     * Search. Return all results
+     * @param searchQuery
+     * @param options
+     * @param fields
+     * @returns {"q".Promise<U>|"q".Promise<undefined>|"q".Promise<any>}
+     */
     search(searchQuery:Object, options?:Object, fields?:string[]):q.Promise<any>
     {
         var self = this;
-        var whereStatements:any[] = this.generateWhereStatements(searchQuery);
-        var wheres:string[] = whereStatements['where'];
-        var values:any[] = whereStatements['values'];
+        var whereStatements = this.generateWhereStatements(searchQuery);
+        var wheres = whereStatements.where;
+        var values = whereStatements.values;
         var selectColumns = !Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
 
         var queryString = 'SELECT ' + selectColumns + ' FROM `' + this.tableName + '` WHERE ' + wheres.join(' AND ');
@@ -132,12 +153,18 @@ class AbstractDao
             });
     }
 
+    /**
+     * Search. Return First result
+     * @param searchQuery
+     * @param fields
+     * @returns {"q".Promise<U>|"q".Promise<undefined>|"q".Promise<any|null>}
+     */
     find(searchQuery:Object, fields?:string[]):q.Promise<any>
     {
         var self = this;
-        var whereStatements:string[] = this.generateWhereStatements(searchQuery);
-        var wheres:string[] = whereStatements['where'];
-        var values:any[] = whereStatements['values'];
+        var whereStatements = this.generateWhereStatements(searchQuery);
+        var wheres = whereStatements.where;
+        var values = whereStatements.values;
         var selectColumns:string = !Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
 
         var queryString = 'SELECT ' + selectColumns + ' FROM `' + this.tableName + '` WHERE ' + wheres.join(' AND ') + ' LIMIT 1';
@@ -158,6 +185,12 @@ class AbstractDao
         );
     }
 
+    /**
+     * Update based on criteria or id
+     * @param criteria
+     * @param newValues
+     * @param transaction
+     */
     update(criteria:number, newValues:Object, transaction?:any):q.Promise<any>;
     update(criteria:Object, newValues:Object, transaction?:any):q.Promise<any>;
     update(criteria:any, newValues:any, transaction?:any):q.Promise<any>
@@ -175,9 +208,9 @@ class AbstractDao
         var values = _.values(newValues);
 
         // Compose criteria statements
-        var whereStatements:any[] = this.generateWhereStatements(criteria);
-        var wheres:any = whereStatements['where'];
-        values = values.concat(whereStatements['values']);
+        var whereStatements = this.generateWhereStatements(criteria);
+        var wheres = whereStatements.where;
+        values = values.concat(whereStatements.values);
 
         var query = 'UPDATE `' + this.tableName + '` SET ' + updates.join(",") + ' WHERE ' + wheres.join(" AND ");
             return MysqlDelegate.executeQuery(query, values, transaction)
@@ -197,6 +230,11 @@ class AbstractDao
         );
     }
 
+    /**
+     * Delete by criteria or id
+     * @param criteria
+     * @param transaction
+     */
     delete(criteria:number, transaction?:any):q.Promise<any>;
     delete(criteria:Object, transaction?:any):q.Promise<any>;
     delete(criteria:any, transaction?:any):q.Promise<any>
@@ -207,10 +245,12 @@ class AbstractDao
             criteria = {id: criteria};
 
         var whereStatements = this.generateWhereStatements(criteria);
-        var wheres = whereStatements['where'];
-        var values = whereStatements['values'];
+        var wheres = whereStatements.where;
+        var values = whereStatements.values;
 
-        return MysqlDelegate.executeQuery('DELETE FROM `' + this.tableName + '` WHERE ' + wheres.join(' AND '), values, transaction)
+        var query = 'DELETE FROM `' + this.tableName + '` WHERE ' + wheres.join(' AND ');
+
+        return MysqlDelegate.executeQuery(query, values, transaction)
             .fail(
             function deleteFailed(error)
             {
@@ -219,7 +259,8 @@ class AbstractDao
             });
     }
 
-    private generateWhereStatements(criteria:Object):any
+    /** Helper method to convert query objects to SQL fragments **/
+    private generateWhereStatements(criteria:Object):{where: string[]; values: any[]}
     {
         var whereStatements = [], values = [];
         for (var key in criteria)
@@ -260,9 +301,5 @@ class AbstractDao
 
         return {where: whereStatements, values: values};
     }
-}
-
-interface FetchOptions {
-    includeDeleted?:boolean
 }
 export = AbstractDao

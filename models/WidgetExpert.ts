@@ -1,0 +1,5 @@
+class WidgetExpert
+{
+
+}
+export = WidgetExpert

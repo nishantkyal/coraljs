@@ -14,6 +14,7 @@ class SessionData extends AbstractSessionData
     private static APPOINTMENTS:string      = 'appointments';
     private static DURATION:string          = 'duration';
     private static TRANSACTION:string       = 'transaction';
+    private static USER_PHONE_ID:string     = 'user_phone_id';
 
     /* Getters */
     getIdentifier():string              { return 'CallFlow'; }
@@ -24,6 +25,7 @@ class SessionData extends AbstractSessionData
     getAppointments():number[]          { return this.getData()[SessionData.APPOINTMENTS]; }
     getDuration():number                { return parseInt(this.getData()[SessionData.DURATION]); }
     getTransaction():Transaction        { return new Transaction(this.getData()[SessionData.TRANSACTION]); }
+    getUserPhoneId():number             { return parseInt(this.getData()[SessionData.USER_PHONE_ID]); }
 
     /* Setters */
     setCallId(val:number)               { this.set(SessionData.CALL_ID, val); }
@@ -33,6 +35,7 @@ class SessionData extends AbstractSessionData
     setAppointments(val:number[])       { this.set(SessionData.APPOINTMENTS, val); }
     setDuration(val:number)             { this.set(SessionData.DURATION, val); }
     setTransaction(val:Transaction)     { this.set(SessionData.TRANSACTION, val.toJson()); }
+    setUserPhoneId(val:number)          { this.set(SessionData.USER_PHONE_ID, val); }
 
 }
 export = SessionData

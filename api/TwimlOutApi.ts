@@ -62,13 +62,13 @@ class TwimlOutApi
                     pageData['phoneNumber'] = call.getExpertPhone().getCompleteNumber();
                     pageData['record'] = (call.getRecorded() == false) ? 'false' : 'true';
                     pageData['message'] = 'Please wait while we get ' + Formatter.formatName(call.getIntegrationMember().getUser().getFirstName(), call.getIntegrationMember().getUser().getLastName(), call.getIntegrationMember().getUser().getTitle()) + ' on the call';
-                    res.render('../delegates/calling/TwilioXMLJoin.jade', pageData);
+                    res.render('twilio/TwilioXMLJoin.jade', pageData);
                 })
                 .fail(function (error)
                 {
                     var pageData = {};
                     pageData['message'] = 'Internal Server Error';
-                    res.render('../delegates/calling/TwilioXMLSay.jade', pageData);
+                    res.render('twilio/TwilioXMLSay.jade', pageData);
                 })
         });
 
@@ -108,7 +108,7 @@ class TwimlOutApi
                     else
                         pageData['message'] = 'The expert is unreachable. We will retry in ' + Config.get("call.retry.gap") + ' minutes';
             }
-            res.render('../delegates/calling/TwilioXMLSay.jade', pageData);
+            res.render('twilio/TwilioXMLSay.jade', pageData);
 
             if (attemptCount == 0 && dialCallStatus != TwimlOutApi.COMPLETED && dialCallStatus != TwimlOutApi.BUSY)
                 console.log('Reattempt to be made');// TODO change this to rescheduling function

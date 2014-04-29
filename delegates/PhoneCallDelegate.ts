@@ -142,7 +142,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
             .fail(
             function callFailed(error)
             {
-                self.logger.error("Error in call triggering");
+                self.logger.error("Error in call triggering, error: %s", error);
             });
     }
 

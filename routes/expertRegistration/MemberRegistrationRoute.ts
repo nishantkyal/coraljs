@@ -49,7 +49,7 @@ class MemberRegistrationRoute
         app.post(Urls.register(), AuthenticationDelegate.register({failureRedirect: Urls.index(), failureFlash: true}), this.authenticationSuccess.bind(this));
         app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: Urls.index(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
         app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: Urls.index(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}), this.authenticationSuccess.bind(this));
-        app.post(Urls.authorizationDecision(), OAuthProviderDelegate.decision);
+        app.post(Urls.authorizationDecision(), OAuthProviderDelegate.decision, this.authorizationError.bind(this));
     }
 
     /* Render login/register page */
@@ -57,7 +57,6 @@ class MemberRegistrationRoute
     {
         var self = this;
         var sessionData = new SessionData(req);
-        sessionData.clear();
 
         var integrationId = parseInt(req.query[ApiConstants.INTEGRATION_ID] || sessionData.getIntegrationId());
         var integration = new IntegrationDelegate().getSync(integrationId);
@@ -141,6 +140,7 @@ class MemberRegistrationRoute
     private authorize(req:express.Request, res:express.Response)
     {
         var sessionData = new SessionData(req);
+        res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
 
         res.render('expertRegistration/authorize',
             {
@@ -148,6 +148,11 @@ class MemberRegistrationRoute
                 'user': sessionData.getLoggedInUser(),
                 'integration': sessionData.getIntegration()
             });
+    }
+
+    private authorizationError(req:express.Request, res:express.Response)
+    {
+
     }
 
     /*

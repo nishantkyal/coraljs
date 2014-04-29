@@ -1,7 +1,11 @@
-var MysqlDelegate = require('./delegates/MysqlDelegate');
-var AsyncTask = require('grunt-promise-q');
+function init(grunt) {
+    grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-cssmin');
+    grunt.loadNpmTasks('grunt-text-replace');
+    grunt.loadNpmTasks('grunt-promise-q');
 
-function gruntConfig(grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         clean: ['Coral.d.ts'],
@@ -84,21 +88,9 @@ function gruntConfig(grunt) {
         });
     });
 
-    grunt.registerMultiTask('apply-alter-scripts', function () {
-        MysqlDelegate.executeQuery('CREATE DATABASE `compare1`');
-    });
-
-    grunt.loadNpmTasks('grunt-contrib-concat');
-    grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-contrib-cssmin');
-    grunt.loadNpmTasks('grunt-text-replace');
-    grunt.loadNpmTasks('grunt-promise-q');
-
     grunt.registerTask('coral', ['clean', 'concat', 'replace', 'generate-index']);
     grunt.registerTask('default', ['concat:js', 'concat:css', 'cssmin:css']);
-    grunt.registerTask('generate-sql-alter', ['apply-alter-scripts', 'generate-index']);
 }
 
-module.exports = gruntConfig;
+module.exports = init;
 //# sourceMappingURL=Gruntfile.js.map
