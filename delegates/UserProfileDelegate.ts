@@ -3,7 +3,7 @@ import _                                        = require('underscore');
 import passport                                 = require('passport');
 import passport_linkedin                        = require('passport-linkedin');
 import q                                        = require('q');
-import OAuth                                    = require('oauth');
+import oauth                                    = require('oauth');
 import BaseDaoDelegate                          = require('./BaseDaoDelegate');
 import UserEmploymentDelegate                   = require('../delegates/UserEmploymentDelegate');
 import UserEducationDelegate                    = require('../delegates/UserEducationDelegate');
@@ -27,7 +27,6 @@ import Utils                                    = require('../common/Utils');
 
 class UserProfileDelegate extends BaseDaoDelegate
 {
-    static STRATEGY_LINKEDIN:string = 'linkedin';
     constructor() { super(new UserProfileDao()); }
 
     fetchFromLinkedIn(userId:number, integrationId:number, transaction?:any):q.Promise<any>
@@ -41,12 +40,15 @@ class UserProfileDelegate extends BaseDaoDelegate
             new IntegrationMemberDelegate().find({'user_id': userId, 'integration_id': integrationId})
         ])
             .then(
-            function dtailsFetched(...args)
+            function detailsFetched(...args)
             {
+                var deferred = q.defer();
+
                 var userOauth:UserOauth = args[0][0];
                 var integrationMember:IntegrationMember = args[0][1];
                 var integrationMemberId:number = integrationMember.getId();
-                var oauth = new OAuth.OAuth(
+
+                var oauth = new oauth.OAuth(
                     'https://www.linkedin.com/uas/oauth/authenticate?oauth_token=',
                     'https://api.linkedin.com/uas/oauth/accessToken',
                     Config.get(Config.LINKEDIN_API_KEY),
@@ -55,21 +57,22 @@ class UserProfileDelegate extends BaseDaoDelegate
                     null,
                     'HMAC-SHA1'
                 );
+
                 oauth.get(
-                    'https://api.linkedin.com/v1/people/~:(id,first-name,last-name,email-address,headline,industry,summary,positions,picture-urls::(original),skills,educations,date-of-birth)?format=json ',
+                    'https://api.linkedin.com/v1/people/~:(' + profileFields.join(',') + ')?format=json ',
                     userOauth.getAccessToken(), //test user token
                     userOauth.getRefreshToken(), //test user secret
-                    function (e, data, res){
-                        if (e)
-                            self.logger.error(e);
-                        else
+                    function (e, data, res)
+                    {
+                        if (!Utils.isNullOrEmpty(e))
                         {
                             var profile = JSON.parse(data);
                             var userProfile:UserProfile = new UserProfile();
                             userProfile.setShortDesc(profile.headline);
                             userProfile.setLongDesc(profile.summary);
                             userProfile.setIntegrationMemberId(integrationMemberId);
-                            return self.create(userProfile)
+
+                            self.create(userProfile)
                                 .then(
                                 function updateFieldsFromLinkedIn(userProfileCreated:UserProfile)
                                 {
@@ -152,8 +155,14 @@ class UserProfileDelegate extends BaseDaoDelegate
                                         );
 
                                     return q.all(updateProfileTasks);
-                                });
+                                })
+                                .then(deferred.resolve, deferred.reject);
 
+                        }
+                        else
+                        {
+                            self.logger.error('Linkedin profile fetch failed. Error: %s', e);
+                            deferred.reject(e);
                         }
                     });
             });
