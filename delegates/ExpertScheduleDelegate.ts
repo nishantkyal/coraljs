@@ -29,9 +29,17 @@ class ExpertScheduleDelegate
             function schedulesGenerated(...args)
             {
                 try {
-                    return _.reduce(args[0], function (a:any, b:any) {
+                    var allSchedules = _.reduce(args[0], function (a:any, b:any)
+                    {
                         return a.concat(b);
                     }, []);
+
+                    var sortedSchedules = _.sortBy(allSchedules, function(schedule:ExpertSchedule)
+                    {
+                        return schedule.getStartTime();
+                    });
+
+                    return sortedSchedules;
                 } catch (e) {
                     return null;
                 }

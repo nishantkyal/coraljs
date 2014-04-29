@@ -23,9 +23,6 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
 
     create(object:Object, transaction?:any):q.Promise<any>
     {
-        var integrationMember = new IntegrationMember(object);
-        integrationMember.setAuthCode(Utils.getRandomString(30));
-        var superCreate = super.create;
         var self = this;
 
         if (Utils.isNullOrEmpty(transaction))
@@ -53,12 +50,6 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
                 self.logger.error('Error occurred while creating new expert, error: %s', error);
                 throw(error);
             });
-    }
-
-    get(id:any, fields?:string[], flags:Array<IncludeFlag> = []):q.Promise<any>
-    {
-        fields = fields || ['id', 'role', 'integration_id', 'user_id'];
-        return super.get(id, fields, flags);
     }
 
     findValidAccessToken(accessToken:string, integrationMemberId?:string):q.Promise<any>
@@ -89,11 +80,6 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
         );
     }
 
-    updateById(id:number, integrationMember:IntegrationMember):q.Promise<any>
-    {
-        return this.update({'id': id}, integrationMember);
-    }
-
     findByEmail(email:string, integrationId?:number):q.Promise<IntegrationMember>
     {
         var query = 'SELECT im.* ' +
@@ -120,9 +106,6 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
             });
     }
 
-    constructor() { super(new IntegrationMemberDAO()); }
-
-
     getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
     {
         result = [].concat(result);
@@ -143,5 +126,7 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
         }
         return super.getIncludeHandler(include, result);
     }
+
+    constructor() { super(new IntegrationMemberDAO()); }
 }
 export = IntegrationMemberDelegate

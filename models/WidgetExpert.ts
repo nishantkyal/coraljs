@@ -1,5 +1,9 @@
+///<reference path='../_references.d.ts'/>
+import moment                                                   = require('moment');
+import _                                                        = require('underscore');
 import IntegrationMember                                        = require('../models/IntegrationMember');
 import User                                                     = require('../models/User');
+import ExpertSchedule                                           = require('../models/ExpertSchedule');
 import Salutation                                               = require('../enums/Salutation');
 import MoneyUnit                                                = require('../enums/MoneyUnit');
 import Utils                                                    = require('../common/Utils');
@@ -9,7 +13,8 @@ import Utils                                                    = require('../co
 */
 class WidgetExpert
 {
-    private id:number;                                              // Same as expert_id or integration_member_id
+    private expert_id:number;                                              // Same as expert_id or integration_member_id
+    private user_id:number;                                              // Same as expert_id or integration_member_id
     private title:Salutation;
     private first_name:string;
     private last_name:string;
@@ -30,24 +35,44 @@ class WidgetExpert
     {
         if (Utils.getObjectType(expert) == 'IntegrationMember')
         {
-            this.id = expert.getId();
+            var member:IntegrationMember = expert;
+            var user:User = member.getUser()[0];
 
-            var user:User = expert.getUser()[0];
+            this.expert_id = member.getId();
+            this.user_id = user.getId();
             this.title = user.getTitle();
             this.first_name = user.getFirstName();
             this.last_name = user.getLastName();
             this.location = user.getLocation();
             this.tz = user.getTimezone();
+
+            var nextAvailableSchedule:ExpertSchedule = _.find(member.getSchedule(), function(schedule:ExpertSchedule):boolean {
+                var scheduleEndTime = schedule.getStartTime() + schedule.getDuration();
+                return scheduleEndTime > moment().add({minutes: 10}).valueOf();
+            });
+
+            if (!Utils.isNullOrEmpty(nextAvailableSchedule))
+            {
+                this.next_slot_start_time = nextAvailableSchedule.getStartTime();
+                this.next_slot_duration = nextAvailableSchedule.getDuration();
+            }
         }
         else
         {
+            this.expert_id = expert.expert_id;
+            this.user_id = expert.user_id;
             this.title = expert.title;
+            this.first_name = expert.first_name;
+            this.last_name= expert.last_name;
+            this.location = expert.location;
+            this.tz = expert.tz;
+            this.next_slot_start_time = expert.next_slot_start_time;
+            this.next_slot_duration = expert.next_slot_duration;
         }
-
     }
 
     /* Getters */
-    getId():number                                                  { return this.id; }
+    getId():number                                                  { return this.expert_id; }
     getTitle():Salutation                                           { return this.title; }
     getFirstName():string                                           { return this.first_name; }
     getLastName():string                                            { return this.last_name; }

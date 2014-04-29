@@ -6,14 +6,20 @@ class ExpertSchedule extends BaseModel
     private start_time:number;
     private duration:number;
     private schedule_rule_id:number;
+    private price_per_min:number;
+    private price_unit:MoneyUnit;
 
-    public getScheduleRuleId():number           { return this.schedule_rule_id; }
-    public getStartTime():number        { return this.start_time; }
-    public getDuration():number         { return this.duration; }
+    getScheduleRuleId():number           { return this.schedule_rule_id; }
+    getStartTime():number        { return this.start_time; }
+    getDuration():number         { return this.duration; }
+    getPricePerMin():number { return this.price_per_min; }
+    getPriceUnit():MoneyUnit { return this.price_unit; }
 
-    public setScheduleRuleId(val:number)        { this.schedule_rule_id = val; }
-    public setStartTime(val:number)     { this.start_time = val; }
-    public setDuration(val:number)      { this.duration = val; }
+    setScheduleRuleId(val:number)        { this.schedule_rule_id = val; }
+    setStartTime(val:number)     { this.start_time = val; }
+    setDuration(val:number)      { this.duration = val; }
+    setPricePerMin(val:number):void { this.price_per_min = val; }
+    setPriceUnit(val:MoneyUnit):void { this.price_unit = val; }
 
     conflicts(schedule:ExpertSchedule):boolean
     {

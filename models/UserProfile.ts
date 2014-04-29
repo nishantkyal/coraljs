@@ -5,11 +5,11 @@ class UserProfile extends BaseModel
 {
     static TABLE_NAME:string = 'user_profile';
 
-    static INTEGRATION_MEMBER_ID:string = 'integration_member_id';
-    static LOCALE:string = 'locale';
-    static SHORT_DESC:string = 'short_desc';
-    static LONG_DESC:string = 'long_desc';
-    static STATUS:string = 'status';
+    static INTEGRATION_MEMBER_ID:string                 = 'integration_member_id';
+    static LOCALE:string                                = 'locale';
+    static SHORT_DESC:string                            = 'short_desc';
+    static LONG_DESC:string                             = 'long_desc';
+    static STATUS:string                                = 'status';
 
     private integration_member_id:number;
     private locale:string;
@@ -18,17 +18,17 @@ class UserProfile extends BaseModel
     private status:ProfileStatus;
 
     /* Getters */
-    getIntegrationMemberId():number { return this.integration_member_id; }
-    getLocale():string              { return this.locale; }
-    getShortDesc():string           { return this.short_desc; }
-    getLongDesc():string            { return this.long_desc; }
-    getStatus():ProfileStatus       { return this.status; }
+    getIntegrationMemberId():number                     { return this.integration_member_id; }
+    getLocale():string                                  { return this.locale; }
+    getShortDesc():string                               { return this.short_desc; }
+    getLongDesc():string                                { return this.long_desc; }
+    getStatus():ProfileStatus                           { return this.status; }
 
     /* Setters */
-    setIntegrationMemberId(val:number):void { this.integration_member_id = val; }
-    setLocale(val:string):void              { this.locale = val; }
-    setShortDesc(val:string):void           { this.short_desc = val; }
-    setLongDesc(val:string):void            { this.long_desc = val; }
-    setStatus(val:ProfileStatus):void       { this.status = val; }
+    setIntegrationMemberId(val:number):void             { this.integration_member_id = val; }
+    setLocale(val:string):void                          { this.locale = val; }
+    setShortDesc(val:string):void                       { this.short_desc = val; }
+    setLongDesc(val:string):void                        { this.long_desc = val; }
+    setStatus(val:ProfileStatus):void                   { this.status = val; }
 }
 export = UserProfile

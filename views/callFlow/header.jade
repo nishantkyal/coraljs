@@ -4,13 +4,14 @@ include ../scriptsAndStyles
 .container-fluid
     .row-fluid
         .col-md-2
-        .col-md-8
-            .col-md-2.col-xs-5
+        .col-md-8(style='padding-top: 10px;')
+            div(style='float: left; margin: 0 10px 5px 0')
                 img.img-polaroid(src='http://www.geovic.net/userfiles/image/Blank%20Profile(1).png', width=80, height=80)
-            .left
+            div(style='float: left;')
                 - var user = expert.user[0]
-                h3= formatName(user.first_name, user.last_name)
+                label(style='font-size: 1.2em;')= formatName(user.first_name, user.last_name)
                 label #{user.short_desc}
+            .clearfix
             hr
             block content
         .col-md-2
