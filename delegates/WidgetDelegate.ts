@@ -44,7 +44,6 @@ class WidgetDelegate extends BaseDaoDelegate
         var fileName = filePath.substring(filePath.lastIndexOf(path.sep) + 1);
         var extension = fileName.substring(fileName.lastIndexOf('.') + 1);
         var fileNameWithoutExtension = fileName.substring(0, fileName.lastIndexOf('.'));
-        var self = this;
 
         if (extension != 'html') return;
 
@@ -56,7 +55,7 @@ class WidgetDelegate extends BaseDaoDelegate
                 WidgetDelegate.widgetTemplateCache[template] = data;
                 WidgetDelegate.logger.debug('Widget template updated: ' + template);
 
-                var widgetDelegate = new WidgetDelegate();
+                /*var widgetDelegate = new WidgetDelegate();
                 widgetDelegate.search({template: template})
                     .then(
                     function widgetSearched(widgets:Widget[])
@@ -65,7 +64,7 @@ class WidgetDelegate extends BaseDaoDelegate
                         {
                             return widgetDelegate.computeAndCachePartialWidgetHtml(widget);
                         });
-                    });
+                    });*/
             }
         });
     }
@@ -86,7 +85,7 @@ class WidgetDelegate extends BaseDaoDelegate
             interpolate: /{%=([\s\S]+?)%}/g
         };
         var widgetTemplate = _.template(widgetPartialHtml);
-        var widgetHtml = widgetTemplate({experts: widgetExpert});
+        var widgetHtml = widgetTemplate({experts: [].concat(widgetExpert)});
 
         _.templateSettings = originalSettings;
 
@@ -118,7 +117,7 @@ class WidgetDelegate extends BaseDaoDelegate
      * e.g. Availability, Price
      * Settings are specified by pattern [[ ]], [{ }]
      * */
-    private renderWidgetRuntimeData(widgetPartialHtml:string, runtimeData:Object):string
+    /*private renderWidgetRuntimeData(widgetPartialHtml:string, runtimeData:Object):string
     {
         var originalSettings = _.templateSettings;
 
@@ -132,9 +131,9 @@ class WidgetDelegate extends BaseDaoDelegate
         _.templateSettings = originalSettings;
 
         return widgetHtml;
-    }
+    }*/
 
-    update(criteria:Object, newValues:any, transaction?:any):q.Promise<any>;
+    /*update(criteria:Object, newValues:any, transaction?:any):q.Promise<any>;
     update(criteria:number, newValues:any, transaction?:any):q.Promise<any>;
     update(criteria:any, newValues:any, transaction?:any):q.Promise<any>
     {
@@ -151,14 +150,14 @@ class WidgetDelegate extends BaseDaoDelegate
             {
                 return self.computeAndCachePartialWidgetHtml(widget);
             });
-    }
+    }*/
 
     /**
      * Compute widget html to be cached
      * May be called when widget settings are updated
      * Or, when experts referred to in expert_resource_id are updated
      */
-    computeAndCachePartialWidgetHtml(widget:number):q.Promise<any>;
+    /*computeAndCachePartialWidgetHtml(widget:number):q.Promise<any>;
     computeAndCachePartialWidgetHtml(widget:Widget):q.Promise<any>;
     computeAndCachePartialWidgetHtml(widget:any):q.Promise<any>
     {
@@ -183,7 +182,7 @@ class WidgetDelegate extends BaseDaoDelegate
                 .fail(
                 function widgetCachingFailed(error)
                 {
-                    self.logger.error('Widget html compute failed. Error: %s', JSON.stringify(error));
+                    self.logger.error('Widget html compute failed for %s. Error: %s', widget.getTemplate().toUpperCase(), JSON.stringify(error));
                     return fs_io.remove(Config.get(Config.WIDGET_PARTIALS_BASE_DIR) + path.sep + widget.getId());
                 });
         };
@@ -194,28 +193,27 @@ class WidgetDelegate extends BaseDaoDelegate
             return computeAndCache(widget);
 
         return null;
-    }
+    }*/
 
-    /* Render the partial widget html into final html to be sent to client*/
     render(widgetId:number):q.Promise<string>
     {
         var self = this;
-        var widgetPartialHtmlPath:string = Config.get(Config.WIDGET_PARTIALS_BASE_DIR) + path.sep + widgetId;
+        var widget;
 
-        return q.all([
-            fs_io.read(widgetPartialHtmlPath),
-            self.get(widgetId).then(
-                function widgetFetched(widget:Widget)
-                {
-                    return self.widgetExpertDelegate.get(widget.getExpertId())
-                })
-        ])
+        return this.get(widgetId)
             .then(
-            function partialHtmlRead(...args)
+            function widgetFetched(w:Widget)
             {
-                var partialHtml:string = args[0][0];
-                var expertData = args[0][1];
-                return self.renderWidgetRuntimeData(partialHtml, expertData);
+                widget = w;
+                return self.widgetExpertDelegate.get(widget.getExpertId());
+            })
+            .then(
+            function widgetExpertFetched(widgetExpert:WidgetExpert[])
+            {
+                var widgetBaseHtml = WidgetDelegate.widgetTemplateCache[widget.getTemplate().toUpperCase()];
+                var widgetHtmlWithExpertData = self.renderWidgetExpertData(widgetBaseHtml, widgetExpert)
+                var widgetHtmlWithSettingsAndExpertData = self.renderWidgetSettings(widgetHtmlWithExpertData, widget.getSettings());
+                return widgetHtmlWithSettingsAndExpertData;
             });
     }
 

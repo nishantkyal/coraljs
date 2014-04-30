@@ -13,8 +13,9 @@ block append content
             label.control-label(for='phone') Your Mobile Number
             .controls
                 select#phoneNumberSelector(style=userPhones ? '' : 'display: none;')
-                    - for phone in userPhones
-                        option(value=phone.id)= phone.phone
+                    - if (userPhones)
+                        - for phone in userPhones
+                            option(value=phone.id)= phone.phone
                     option(value=-1) Enter new number
                 .input-group#phoneNumberInput(style=userPhones ? 'display: none;' : '')
                     .input-group-btn

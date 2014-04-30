@@ -88,7 +88,7 @@ class ExpertApi
             var expertId = parseInt(req.params[ApiConstants.EXPERT_ID]);
             var integrationMember:IntegrationMember = req.body[ApiConstants.EXPERT];
 
-            integrationMemberDelegate.updateById(expertId, integrationMember)
+            integrationMemberDelegate.update(expertId, integrationMember)
                 .then(
                 function expertUpdated(result) { res.json(result); },
                 function expertUpdateFailed(error) { res.status(500).json(error); }

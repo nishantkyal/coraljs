@@ -14,8 +14,13 @@ block content
         .form-group
             label.control-label
                 | Convenient Times&nbsp;
-                a.fa.fa-question-circle(title='How this works')
+                .fa.fa-question-circle(title='How this works')
             .controls#appointmentPickers
+        .form-group
+            label.control-label
+                | Agenda&nbsp;
+                .fa.fa-question-circle(title='Please describe your agenda for the call')
+            textarea.form-control(name='agenda')
         .form-group
             input.btn.btn-primary.btn-lg(type='submit', value='NEXT')
 

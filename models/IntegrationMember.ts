@@ -46,8 +46,8 @@ class IntegrationMember extends BaseModel
     private integration:Integration;
     private user:User;
     private user_profile:UserProfile;
-    private schedule:Array<ExpertSchedule>;
-    private schedule_rule:Array<ExpertScheduleRule>;
+    private schedule:ExpertSchedule[];
+    private schedule_rule:ExpertScheduleRule[];
 
     /* Getters */
     getIntegrationId():number                           { return this.integration_id; }
@@ -64,8 +64,8 @@ class IntegrationMember extends BaseModel
     getIntegration():Integration                        { return this.integration; }
     getUser():User                                      { return this.user; }
     getUserProfile():UserProfile                        { return this.user_profile; }
-    getSchedule():Array<ExpertSchedule>                 { return this.schedule; }
-    getScheduleRule():Array<ExpertScheduleRule>         { return this.schedule_rule; }
+    getSchedule():ExpertSchedule[]                      { return this.schedule; }
+    getScheduleRule():ExpertScheduleRule[]              { return this.schedule_rule; }
 
     isValid():boolean {
         return !isNaN(this.getIntegrationId()) && !isNaN(this.getRole());
@@ -86,8 +86,8 @@ class IntegrationMember extends BaseModel
     setIntegration(val:Integration):void                { this.integration = val; }
     setUser(val:User):void                              { this.user = val; }
     setUserProfile(val:UserProfile):void                { this.user_profile = val; }
-    setSchedule(val:Array<ExpertSchedule>):void         { this.schedule = val; }
-    setScheduleRule(val:Array<ExpertScheduleRule>):void { this.schedule_rule = val; }
+    setSchedule(val:ExpertSchedule[]):void              { this.schedule = val; }
+    setScheduleRule(val:ExpertScheduleRule[]):void      { this.schedule_rule = val; }
 
 }
 export = IntegrationMember

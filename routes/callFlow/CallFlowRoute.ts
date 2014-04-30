@@ -23,6 +23,7 @@ import ExpertSchedule                                       = require('../../mod
 import Transaction                                          = require('../../models/Transaction');
 import Coupon                                               = require('../../models/Coupon');
 import UserPhone                                            = require('../../models/UserPhone');
+import IntegrationMember                                    = require('../../models/IntegrationMember');
 import CallStatus                                           = require('../../enums/CallStatus');
 import ApiConstants                                         = require('../../enums/ApiConstants');
 import IncludeFlag                                          = require('../../enums/IncludeFlag');
@@ -86,7 +87,7 @@ class CallFlowRoute
         var expertId = req.params[ApiConstants.EXPERT_ID];
         var sessionData = new SessionData(req);
 
-        this.integrationMemberDelegate.get(expertId, null, [IncludeFlag.INCLUDE_SCHEDULES, IncludeFlag.INCLUDE_USER])
+        this.integrationMemberDelegate.get(expertId, IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_SCHEDULES, IncludeFlag.INCLUDE_USER])
             .then(
             function handleExpertFound(expert)
             {
@@ -159,15 +160,19 @@ class CallFlowRoute
         transaction.setUserId(sessionData.getLoggedInUser().getId());
         transaction.setStatus(TransactionStatus.CREATED);
 
-        // 1. Look for user's phone numbers
-        // 2. Start a transaction
-        return q.all([
-            self.phoneCallDelegate.delete(sessionData.getCallId(), false),
-            self.transactionDelegate.delete(sessionData.getTransaction().getId(), false)
-        ])
+
+        var deleteTasks = [];
+        if (sessionData.getCall().getId())
+            deleteTasks.push(self.phoneCallDelegate.delete(sessionData.getCall().getId(), false));
+        if (sessionData.getTransaction().getId())
+            deleteTasks.push(self.transactionDelegate.delete(sessionData.getTransaction().getId(), false));
+
+        return q.all(deleteTasks)
             .then(
             function oldTransactionAndCallDeleted()
             {
+                // 1. Look for user's phone numbers
+                // 2. Start a transaction
                 return q.all([
                     self.userPhoneDelegate.search(userPhoneSearch)
                         .fail(
