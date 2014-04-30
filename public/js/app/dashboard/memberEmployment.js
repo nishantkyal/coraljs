@@ -2,6 +2,15 @@ $('.datepicker').datepicker({
     format: 'mm/yyyy'
 });
 
+$('#FetchFromLinkedIn').click(function(){
+    bootbox.confirm("Are you sure you want to replace the information on this page with information from LinkedIn?", function(result){
+        if(result)
+        {
+            console.log("yes");
+        }
+    });
+});
+
 $('#AddUserEmploymentModal form').validate({
     rules         : {
         title : { required: true}
@@ -32,7 +41,8 @@ $('#AddUserEmploymentModal form').validate({
                     summary         : $('form #summary').val(),
                     company         : $('form #company').val(),
                     is_current      : $('form #is_current').val()
-                }
+                },
+                profileId           : profileId
             },
             success: function()
             {
@@ -114,7 +124,8 @@ function handleDeleteClicked(event)
         url    : '/rest/user/employment/' + employmentId,
         type   : 'DELETE',
         data: {
-            id              : employmentId
+            id              : employmentId,
+            profileId           : profileId
         },
         success: function()
         {

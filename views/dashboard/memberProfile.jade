@@ -17,6 +17,8 @@ include ../scriptsAndStyles
                                 a(href="employment") Positions
                             li
                                 a(href="profileComplete") Full Profile
+            a#FetchFromLinkedIn
+                input.btn.btn-primary(type='submit', value='Fetch Profile Details From LinkedIn')
             .col-md-3
                 img.img.img-polaroid.img-responsive.col-md-12#profileImage(src=ApiUrlDelegate.userProfilePicture(loggedInUser.id))
                 form#fileUploadForm(action=ApiUrlDelegate.userProfilePicture(loggedInUser.id), method="post", enctype="multipart/form-data")
@@ -45,10 +47,10 @@ include ../scriptsAndStyles
                     hr
                     .form-group
                         label.control-label(for='short_desc') Summary
-                        input.form-control#short_desc(type='text', name='short_desc', value=loggedInUser.short_desc, autocomplete='off', data-toggle="tooltip", data-placement="bottom")
+                        input.form-control#short_desc(type='text', name='short_desc', value=userProfile.short_desc, autocomplete='off', data-toggle="tooltip", data-placement="bottom")
                     .form-group
                         label.control-label(for='long_desc') Description
-                        textarea.form-control#long_desc(name='long_desc', data-toggle="tooltip", data-placement="bottom") #{loggedInUser.long_desc}
+                        textarea.form-control#long_desc(name='long_desc', data-toggle="tooltip", data-placement="bottom") #{userProfile.long_desc}
                     .row
                         .form-group.col-md-6
                             label.control-label(for='industry') Industry
@@ -63,10 +65,10 @@ include ../scriptsAndStyles
                         label.control-label(for='revenue_share') Revenue Share
                         .form-control-static#revenue_share= formatMoney(member.revenue_share, member.revenue_share_unit)
                             | &nbsp;/ call
+                    hr
                     .form-group
                         label.control-label(for='password') Password
                         input.form-control#password(type='password', name='password', data-toggle="tooltip", data-placement="bottom")
-                    hr
                     .form-group
                         label.control-label(for='confirm_password') Confirm Password
                         input.form-control#confirm_password(type='password', name='confirm_password', data-toggle="tooltip", data-placement="bottom")
@@ -123,6 +125,7 @@ include ../scriptsAndStyles
 script.
     var memberId = '!{member.id}';
     var userSkill = JSON.parse( '!{JSON.stringify(userSkill)}' );
+    var userProfile = JSON.parse ( '!{JSON.stringify(userProfile)}' );
 script(src='/js/lib/bootstrap3-typeahead.js')
 script(src='/js/lib/bloodhound.js')
 script(src='/js/app/dashboard/memberProfile.js')

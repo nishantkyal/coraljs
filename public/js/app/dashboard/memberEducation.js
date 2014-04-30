@@ -29,6 +29,15 @@ $('.delete').click(function()
     $('#DeleteUserEducationModal .btn-primary').attr('data-id', memberEducationId);
 });
 
+$('#FetchFromLinkedIn').click(function(){
+    bootbox.confirm("Are you sure you want to replace the information on this page with information from LinkedIn?", function(result){
+        if(result)
+        {
+            console.log("yes");
+        }
+    });
+});
+
 $('#AddUserEducationModal form').validate({
     rules         : {
         school_name : { required: true},
@@ -61,7 +70,8 @@ $('#AddUserEducationModal form').validate({
                     field_of_study  : $('form #field_of_study').val(),
                     activities      : $('form #activities').val(),
                     notes           : $('form #description').val()
-                }
+                },
+                profileId           : profileId
             },
             success: function()
             {
@@ -120,7 +130,8 @@ function handleDeleteClicked(event)
         url    : '/rest/user/education/' + educationId,
         type   : 'DELETE',
         data: {
-                id              : educationId
+                id              : educationId,
+            profileId           : profileId
         },
         success: function()
         {

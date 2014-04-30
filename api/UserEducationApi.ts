@@ -3,6 +3,7 @@ import AccessControl                                        = require('../middle
 import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
 import UserEducationDelegate                                = require('../delegates/UserEducationDelegate');
 import ApiConstants                                         = require('../enums/ApiConstants');
+import UserEducation                                        = require('../models/UserEducation');
 
 class UserEducationApi
 {
@@ -19,29 +20,32 @@ class UserEducationApi
             self.userEducationDelegate.update({id: educationId}, education)
                 .then(
                 function userUpdated() { res.send(200); },
-                function userUpdateError() { res.send(500); }
+                function userUpdateError(error) { res.send(500); }
             );
         });
 
         app.put(ApiUrlDelegate.userEducation(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
         {
             var loggedInUser = req['user'];
-            var education = req.body[ApiConstants.USER_EDUCATION];
-            education.user_id = loggedInUser.id;
-            self.userEducationDelegate.create(education)
+            var education:UserEducation = req.body[ApiConstants.USER_EDUCATION];
+            var profileId = req.body[ApiConstants.USER_PROFILE_ID];
+
+            self.userEducationDelegate.createUserEducation(education, profileId)
                 .then(
                 function userUpdated() { res.send(200); },
-                function userUpdateError() { res.send(500); }
+                function userUpdateError(error) { res.send(500); }
             );
         });
 
         app.delete(ApiUrlDelegate.userEducationById(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
         {
             var educationId = parseInt(req.params[ApiConstants.EDUCATION_ID]);
-            self.userEducationDelegate.delete(educationId)
+            var profileId:number = parseInt(req.body[ApiConstants.USER_PROFILE_ID]);
+
+            self.userEducationDelegate.delete({id:educationId}) // if hard deleting then add profileId:profileId
                 .then(
                 function userUpdated() { res.send(200); },
-                function userUpdateError() { res.send(500); }
+                function userUpdateError(error) { res.send(500); }
             );
         });
     }

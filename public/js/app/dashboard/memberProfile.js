@@ -2,6 +2,25 @@ $('.datepicker').datepicker({
     format: 'dd/mm/yyyy'
 });
 
+$('#FetchFromLinkedIn').click(function(){
+    bootbox.confirm("Are you sure you want to replace the information on this page with information from LinkedIn?", function(result){
+        if(result)
+        {
+            $.ajax({
+                url : '/rest/user/profileFromLinkedIn/' + userProfile.id,
+                type: 'get',
+                data: {
+                    memberId:memberId
+                },
+                success: function()
+                {
+                    location.reload();
+                }
+            })
+        }
+    });
+});
+
 $('#profileForm').validate({
     rules         : {
         first_name: { required: true},
@@ -30,10 +49,13 @@ $('#profileForm').validate({
                     title           : $('form #title').val(),
                     first_name      : $('form #first_name').val(),
                     last_name       : $('form #last_name').val(),
-                    short_desc      : $('form #short_desc').val(),
-                    long_desc       : $('form #long_desc').val(),
                     industry        : $('form #industry').val(),
                     date_of_birth   : $('form #birthDate').val()
+                },
+                userProfile: {
+                    id              : userProfile.id,
+                    short_desc      : $('form #short_desc').val(),
+                    long_desc       : $('form #long_desc').val()
                 }
             },
             success: function()
@@ -197,9 +219,10 @@ $('#AddUserSkillModal form').validate({
             type: 'put',
             data: {
                 skill: {
-                    skill_lkin_code              :   skillLkinCode,
+                    skill_linkedin_code     :   skillLkinCode,
                     skill_name              :   updatedSkill
-                }
+                },
+                profileId: userProfile.id
             },
             success: function()
             {
@@ -261,7 +284,7 @@ $('#EditUserSkillModal form').validate({
             type: 'post',
             data: {
                 skill: {
-                    skill_lkin_code              :   skillLkinCode,
+                    skill_linkedin_code              :   skillLkinCode,
                     skill_name              :   updatedSkill
                 }
             },
@@ -286,7 +309,8 @@ function handleSkillDeleteClicked(event)
         url    : '/rest/user/skill/' + skillId,
         type   : 'DELETE',
         data: {
-            id              : skillId
+            id              : skillId,
+            profileId       : userProfile.id
         },
         success: function()
         {

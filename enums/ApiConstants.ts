@@ -41,7 +41,7 @@ class ApiConstants
     /* Body constants */
     static COUPON:string = 'coupon';
     static USER:string = 'user';
-    static USER_PROFILE:string = 'user';
+    static USER_PROFILE:string = 'userProfile';
     static USER_EDUCATION:string = 'education';
     static USER_EMPLOYMENT:string = 'employment';
     static USER_SKILL:string = 'skill';

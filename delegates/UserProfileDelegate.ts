@@ -9,7 +9,6 @@ import UserEmploymentDelegate                   = require('../delegates/UserEmpl
 import UserEducationDelegate                    = require('../delegates/UserEducationDelegate');
 import UserSkillDelegate                        = require('../delegates/UserSkillDelegate');
 import SkillCodeDelegate                        = require('../delegates/SkillCodeDelegate');
-import UserDelegate                             = require('../delegates/UserDelegate');
 import UserOAuthDelegate                        = require('../delegates/UserOAuthDelegate');
 import ImageDelegate                            = require('../delegates/ImageDelegate');
 import IntegrationMemberDelegate                = require('../delegates/IntegrationMemberDelegate');
@@ -47,14 +46,11 @@ class UserProfileDelegate extends BaseDaoDelegate
 
         q.all([
             new UserOAuthDelegate().find({'user_id':userId}),
-            new IntegrationMemberDelegate().find({'user_id': userId, 'integration_id': integrationId})
         ])
         .then(
         function detailsFetched(...args)
         {
             var userOauth:UserOauth = args[0][0];
-            var integrationMember:IntegrationMember = args[0][1];
-            var integrationMemberId:number = integrationMember.getId();
             var oauth = new OAuth.OAuth(
                 'https://www.linkedin.com/uas/oauth/authenticate?oauth_token=',
                 'https://api.linkedin.com/uas/oauth/accessToken',
@@ -156,6 +152,7 @@ class UserProfileDelegate extends BaseDaoDelegate
                         .then(
                         function imageFetched()
                         {
+                            var UserDelegate = require('../delegates/UserDelegate');
                             return new UserDelegate().processProfileImage(userId, tempProfilePicturePath);
                         })
                 }

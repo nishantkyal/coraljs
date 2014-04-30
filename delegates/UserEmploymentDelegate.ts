@@ -15,9 +15,9 @@ class UserEmploymentDelegate extends BaseDaoDelegate
         var self = this;
         var mapProfileEmploymentDao = new MapProfileEmploymentDao();
         return self.create(userEmployment,transaction)
-            .then(function userEmploymentCreated(emp:UserEmployment){
+            .then(function userEmploymentCreated(emp){
                 var mapProfileEmployment:MapProfileEmployment = new MapProfileEmployment();
-                mapProfileEmployment.setEmploymentId(emp.getId());
+                mapProfileEmployment.setEmploymentId(emp.id);
                 mapProfileEmployment.setProfileId(profileId);
                 return mapProfileEmploymentDao.create(mapProfileEmployment,transaction);
             })

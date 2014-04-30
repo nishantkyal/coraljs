@@ -15,9 +15,9 @@ class UserEducationDelegate extends BaseDaoDelegate
         var self = this;
         var mapProfileEducationDao = new MapProfileEducationDao();
         return self.create(userEducation,transaction)
-            .then(function userEducationCreated(emp:UserEducation){
+            .then(function userEducationCreated(edu){
                 var mapProfileEducation:MapProfileEducation = new MapProfileEducation();
-                mapProfileEducation.setEducationId(emp.getId());
+                mapProfileEducation.setEducationId(edu.id);
                 mapProfileEducation.setProfileId(profileId);
                 return mapProfileEducationDao.create(mapProfileEducation,transaction);
             })
