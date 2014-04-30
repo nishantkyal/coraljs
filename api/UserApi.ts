@@ -28,7 +28,6 @@ class UserApi
     constructor(app, secureApp)
     {
         var userDelegate = new UserDelegate();
-        var userOauthDelegate = new UserOAuthDelegate();
         var userProfileDelegate = new UserProfileDelegate();
 
         /* Create user */
