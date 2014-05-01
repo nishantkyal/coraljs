@@ -133,6 +133,7 @@ class UserDelegate extends BaseDaoDelegate
             .then(
             function userProfileFound(profile)
             {
+                //TODO[ankit] use status in user_profile to decide here
                 if (Utils.isNullOrEmpty(profile) || Utils.getObjectType(profile) != 'UserProfile')
                     throw(UserStatus.PROFILE_NOT_PUBLISHED);
                 else

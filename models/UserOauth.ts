@@ -15,6 +15,7 @@ class UserOauth extends BaseModel
     static ACCESS_TOKEN_EXPIRY:string = 'access_token_expiry';
     static REFRESH_TOKEN:string = 'refresh_token';
     static REFRESH_TOKEN_EXPIRY:string = 'refresh_token_expiry';
+    static EMAIL:string = 'email';
 
     private user_id:string;
     private provider_id:string;
@@ -23,8 +24,10 @@ class UserOauth extends BaseModel
     private access_token_expiry:string;
     private refresh_token:string;
     private refresh_token_expiry:string;
+    private email:string;
 
-    static DEFAULT_FIELDS:string[] = [UserOauth.USER_ID, UserOauth.PROVIDER_ID, UserOauth.OAUTH_USER_ID, UserOauth.ACCESS_TOKEN, UserOauth.ACCESS_TOKEN_EXPIRY, UserOauth.REFRESH_TOKEN, UserOauth.REFRESH_TOKEN_EXPIRY];
+    static DEFAULT_FIELDS:string[] = [UserOauth.USER_ID, UserOauth.PROVIDER_ID, UserOauth.OAUTH_USER_ID, UserOauth.ACCESS_TOKEN,
+        UserOauth.ACCESS_TOKEN_EXPIRY, UserOauth.REFRESH_TOKEN, UserOauth.REFRESH_TOKEN_EXPIRY, UserOauth.EMAIL];
 
     /* Getters */
     getUserId() { return this.user_id; }
@@ -34,6 +37,7 @@ class UserOauth extends BaseModel
     getAccessTokenExpiry() { return this.access_token_expiry; }
     getRefreshToken() { return this.refresh_token; }
     getRefreshTokenExpiry() { return this.refresh_token_expiry; }
+    getEmail() {return this.email; }
 
     isValid():boolean {
         return !Utils.isNullOrEmpty(this.getOauthUserId())
@@ -49,6 +53,7 @@ class UserOauth extends BaseModel
     setAccessTokenExpiry(val) { this.access_token_expiry = val; }
     setRefreshToken(val) { this.refresh_token = val; }
     setRefreshTokenExpiry(val) { this.refresh_token = val; }
+    setEmail(val:string) { this.email = val; }
 
 }
 export = UserOauth

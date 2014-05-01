@@ -142,7 +142,6 @@ class AuthenticationDelegate
                 var profile = profile['_json'];
 
                 var user:User = new User();
-                user.setEmail(profile.email);
                 user.setFirstName(profile.first_name);
                 user.setLastName(profile.last_name);
 
@@ -151,6 +150,7 @@ class AuthenticationDelegate
                 userOauth.setProviderId('FB');
                 userOauth.setAccessToken(accessToken);
                 userOauth.setRefreshToken(refreshToken);
+                userOauth.setEmail(profile.email);
 
                 new UserOAuthDelegate().addOrUpdateToken(userOauth, user)
                     .then(
@@ -191,7 +191,6 @@ class AuthenticationDelegate
                 profile = profile['_json'];
 
                 var user:User = new User();
-                user.setEmail(profile.emailAddress);
                 user.setFirstName(profile.firstName);
                 user.setLastName(profile.lastName);
                 if (!Utils.isNullOrEmpty(profile.dateOfBirth))
@@ -210,6 +209,7 @@ class AuthenticationDelegate
                 userOauth.setProviderId('LinkedIn');
                 userOauth.setAccessToken(accessToken);
                 userOauth.setRefreshToken(refreshToken);
+                userOauth.setEmail(profile.emailAddress);
 
                 return new UserOAuthDelegate().addOrUpdateToken(userOauth, user)
                     .then(

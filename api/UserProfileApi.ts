@@ -1,8 +1,10 @@
 ///<reference path='../_references.d.ts'/>
 import express                                              = require('express');
+import passport                                             = require('passport');
 import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
 import UserProfileDelegate                                  = require('../delegates/UserProfileDelegate');
 import IntegrationMemberDelegate                            = require('../delegates/IntegrationMemberDelegate');
+import AuthenticationDelegate                               = require('../delegates/AuthenticationDelegate');
 import AccessControl                                        = require('../middleware/AccessControl');
 import ApiConstants                                         = require('../enums/ApiConstants');
 import IntegrationMember                                    = require('../models/IntegrationMember');

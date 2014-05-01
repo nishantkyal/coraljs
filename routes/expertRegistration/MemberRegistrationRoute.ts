@@ -18,10 +18,12 @@ import EmailDelegate                                        = require('../../del
 import Integration                                          = require('../../models/Integration');
 import User                                                 = require('../../models/User');
 import IntegrationMember                                    = require('../../models/IntegrationMember');
+import UserProfile                                          = require('../../models/UserProfile');
 import ApiConstants                                         = require('../../enums/ApiConstants');
 import IntegrationType                                      = require('../../enums/IntegrationType');
 import IncludeFlag                                          = require('../../enums/IncludeFlag');
 import IntegrationMemberRole                                = require('../../enums/IntegrationMemberRole');
+import ProfileStatus                                        = require('../../enums/ProfileStatus');
 import Config                                               = require('../../common/Config');
 import Utils                                                = require('../../common/Utils');
 import DashboardUrls                                        = require('../../routes/dashboard/Urls');
@@ -35,6 +37,7 @@ class MemberRegistrationRoute
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private verificationCodeCache = new VerificationCodeCache();
     private emailDelegate = new EmailDelegate();
+    private userProfileDelegate = new UserProfileDelegate();
 
     constructor(app, secureApp)
     {
@@ -100,7 +103,7 @@ class MemberRegistrationRoute
                 var isLoggedIn = !Utils.isNullOrEmpty(sessionData.getLoggedInUser());
                 var isExpertLinkedToLoggedInUser = isLoggedIn && (isExpertValid && expert.getUserId() == sessionData.getLoggedInUser().getId());
 
-                if (isExpertValid && isExpertLinkedToLoggedInUser)
+                if (isExpertValid)
                 {
                     sessionData.setMember(expert);
                     res.redirect(Utils.addQueryToUrl(DashboardUrls.mobileVerification(), Utils.createSimpleObject(ApiConstants.CONTEXT, 'expertRegistration')));
@@ -182,13 +185,27 @@ class MemberRegistrationRoute
                 redirectUrl = DashboardUrls.integrationMembers(integrationId);
                 break;
         }
+
+        var profileId:number;
         q.all([
-            new UserProfileDelegate().fetchAllDetailsFromLinkedIn(userId, integrationId),
+            self.userProfileDelegate.create(new UserProfile()),
             self.integrationMemberDelegate.update({'user_id': userId, 'integration_id': integrationId}, {role: member.getRole()})
         ])
         .then( function profileCreated(...args){
-                //TODO[ankit]
-            //then set status in user to profile published
+            var userProfile:UserProfile = args[0][0];
+            profileId = userProfile.getId();
+            return self.userProfileDelegate.fetchAllDetailsFromLinkedIn(userId, integrationId, profileId)
+        })
+        .then(
+            function profileUpdated(){
+                var userProfile:UserProfile = new UserProfile();
+                userProfile.setStatus(ProfileStatus.PENDING_APPROVAL);
+                return self.userProfileDelegate.update({id:profileId},userProfile)
+            },
+            function profileUpdateError(error){
+                var userProfile:UserProfile = new UserProfile();
+                userProfile.setStatus(ProfileStatus.INCOMPLETE);
+                return self.userProfileDelegate.update({id:profileId},userProfile)
         })
         .finally(
             function memberRoleCorrected() { res.redirect(redirectUrl);

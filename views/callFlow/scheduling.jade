@@ -6,12 +6,11 @@ include ../scriptsAndStyles
         .col-md-8
             .row
                 .col-md-10
-                    form#appointment
-                        p You have choses the following appointment for call (Id: #{call.id})
-                        p #{formatDate(startTime)}
-                        p Do you want to confirm this appointment?
-                        button.btn.btn-default(onclick='handleRejectAppointment(event)') No
-                        button.btn.btn-primary(onclick='handleConfirmAppointment(event)') Yes
+                    p You have chosen the following appointment for call (Id: #{call.id})
+                    p #{formatDate(startTime)}
+                    p Do you want to confirm this appointment?
+                    button.btn.btn-default(onclick='handleRejectAppointment(event)') No
+                    button.btn.btn-primary(onclick='handleConfirmAppointment(event)') Yes
 script.
     var startTime = !{startTime};
     var call = JSON.parse( '!{JSON.stringify(call)}' );

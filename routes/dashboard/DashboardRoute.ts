@@ -84,7 +84,7 @@ class DashboardRoute
         // Pages
         app.get(Urls.index(), connect_ensure_login.ensureLoggedIn(), this.authSuccess.bind(this));
         app.get(Urls.login(), this.login.bind(this));
-        app.get(Urls.mobileVerification(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index()}), this.verifyMobile.bind(this));
+        app.get(Urls.mobileVerification(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index(), setReturnTo : true}), this.verifyMobile.bind(this));
         app.get(Urls.integrations(), connect_ensure_login.ensureLoggedIn(), this.integrations.bind(this));
         app.get(Urls.integrationCoupons(), connect_ensure_login.ensureLoggedIn(), this.coupons.bind(this));
         app.get(Urls.integrationMembers(), Middleware.allowOwnerOrAdmin, this.integrationUsers.bind(this));
@@ -104,12 +104,17 @@ class DashboardRoute
     login(req, res:express.Response)
     {
         var sessionData = new SessionData(req);
-        req.logout();
+
+        var isLoggedIn = !Utils.isNullOrEmpty(sessionData.getLoggedInUser());
+        if (isLoggedIn)
+        {
+            res.redirect(Urls.integrations());
+            return;
+        }
 
         var pageData = _.extend(sessionData.getData(), {
             messages: req.flash()
         });
-
         res.render(DashboardRoute.PAGE_LOGIN, pageData);
     }
 
@@ -152,8 +157,9 @@ class DashboardRoute
 
         if (req.session[ApiConstants.RETURN_TO])
         {
-            res.redirect(req.session[ApiConstants.RETURN_TO]);
+            var returnToUrl = req.session[ApiConstants.RETURN_TO];
             req.session[ApiConstants.RETURN_TO] = null;
+            res.redirect(returnToUrl);
             return;
         }
 
@@ -283,7 +289,7 @@ class DashboardRoute
         var sessionData = new SessionData(req);
 
         q.all([
-            self.integrationMemberDelegate.get(memberId),
+            self.integrationMemberDelegate.get(memberId, IntegrationMember.DASHBOARD_FIELDS),
             self.userProfileDelegate.find({'integration_member_id':memberId})
         ])
             .then(
@@ -340,7 +346,7 @@ class DashboardRoute
                 userProfile = tempUserProfile;
                 return q.all([
                         self.userSkillDelegate.getSkillWithName(userProfile.getId()),
-                        self.integrationMemberDelegate.get(memberId)
+                        self.integrationMemberDelegate.get(memberId, IntegrationMember.DASHBOARD_FIELDS)
                     ]);
             })
             .then(
@@ -388,7 +394,7 @@ class DashboardRoute
                 profileId = userProfile.getId();
                 return q.all([
                     self.userEducationDelegate.search({'profileId':userProfile.getId()}),
-                    self.integrationMemberDelegate.get(memberId)
+                    self.integrationMemberDelegate.get(memberId, IntegrationMember.DASHBOARD_FIELDS)
                 ])
             })
             .then(
@@ -422,7 +428,7 @@ class DashboardRoute
                 profileId = userProfile.getId();
                 return q.all([
                     self.userEmploymentDelegate.search({'profileId':userProfile.getId()}),
-                    self.integrationMemberDelegate.get(memberId)
+                    self.integrationMemberDelegate.get(memberId, IntegrationMember.DASHBOARD_FIELDS)
                 ])
             })
             .then(

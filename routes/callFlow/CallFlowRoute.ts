@@ -111,7 +111,7 @@ class CallFlowRoute
         var sessionData = new SessionData(req);
 
         // TODO: Validate duration
-        var duration:number = req.body[ApiConstants.DURATION];
+        var duration:number = parseInt(req.body[ApiConstants.DURATION]);
         sessionData.setDuration(duration);
 
         // TODO: Validate start times
@@ -405,11 +405,12 @@ class CallFlowRoute
         var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
         var startTime:number[] = [parseInt(req.body[ApiConstants.START_TIME])];
 
-        self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_USER])
+        self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER])
             .then(
             function callFetched(call:PhoneCall)
             {
                 self.notificationDelegate.sendCallReschedulingNotificationsToExpert(call, startTime);
+                res.send(200, 'Done');
             })
             .fail(function (error)
             {
