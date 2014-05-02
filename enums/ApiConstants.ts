@@ -7,7 +7,7 @@ class ApiConstants
     static FILTERS:string = 'filters';
     static INCLUDE:string = 'include';
     static ROLE:string = 'role';
-    static RETURN_TO:string = 'return_to';
+    static RETURN_TO:string = 'returnTo';
     static CONTEXT:string = 'context';
 
     /* Param constants */
@@ -45,7 +45,7 @@ class ApiConstants
     /* Body constants */
     static COUPON:string = 'coupon';
     static USER:string = 'user';
-    static USER_PROFILE:string = 'user';
+    static USER_PROFILE:string = 'userProfile';
     static USER_EDUCATION:string = 'education';
     static USER_EMPLOYMENT:string = 'employment';
     static USER_SKILL:string = 'skill';

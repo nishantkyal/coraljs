@@ -15,6 +15,10 @@ include ../scriptsAndStyles
                                 a(href="education") Education
                             li
                                 a(href="employment") Positions
+                            li
+                                a(href="profileComplete") Full Profile
+            a#FetchFromLinkedIn
+                input.btn.btn-primary(type='submit', value='Fetch Education Details From LinkedIn')
             .col-md-9
                 .form-group
                     label.control-label(for='education') Education Details
@@ -27,15 +31,15 @@ include ../scriptsAndStyles
                             br
                             if edu.degree
                                 small #{edu.degree}
-                            if edu.field_of_study
-                                small , #{edu.field_of_study}
+                                if edu.field_of_study
+                                    small , #{edu.field_of_study}
                                 br
                             if edu.start_year
                                 small #{edu.start_year}&nbsp
                             if edu.end_year
                                 small - #{edu.end_year}
                                 br
-                    br
+                            br
                     a.btn.btn-default.btn-xs#addEducationBtn(data-toggle='modal', href='#AddUserEducationModal') Add Education
 #AddUserEducationModal.modal.fade(style='display: none;')
     .modal-dialog
@@ -116,6 +120,7 @@ include ../scriptsAndStyles
                 button.btn.btn-default(data-dismiss='modal') No
                 button.btn.btn-primary(onclick='handleDeleteClicked(event)') Yes
 script.
-    var memberId = !{memberId};
+    var memberId = !{member.id};
+    var profileId = '!{profileId}';
     var userEducation = JSON.parse( '!{JSON.stringify(userEducation)}' );
 script(src='/js/app/dashboard/memberEducation.js')

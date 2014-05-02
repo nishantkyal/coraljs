@@ -47,7 +47,7 @@ class UserDelegate extends BaseDaoDelegate
         delete newValues[User.ID];
         delete newValues[User.EMAIL];
 
-        if (newValues.hasOwnProperty(User.PASSWORD))
+        if (newValues.hasOwnProperty(User.PASSWORD) && !Utils.isNullOrEmpty(newValues[User.PASSWORD]))
         {
             return this.find(criteria)
                 .then(
@@ -133,6 +133,7 @@ class UserDelegate extends BaseDaoDelegate
             .then(
             function userProfileFound(profile)
             {
+                //TODO[ankit] use status in user_profile to decide here
                 if (Utils.isNullOrEmpty(profile) || Utils.getObjectType(profile) != 'UserProfile')
                     throw(UserStatus.PROFILE_NOT_PUBLISHED);
                 else

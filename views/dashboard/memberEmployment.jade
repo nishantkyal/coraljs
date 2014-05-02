@@ -15,6 +15,10 @@ include ../scriptsAndStyles
                                 a(href="education") Education
                             li.active
                                 a(href="employment") Positions
+                            li
+                                a(href="profileComplete") Full Profile
+            a#FetchFromLinkedIn
+                input.btn.btn-primary(type='submit', value='Fetch Experience Details From LinkedIn')
             .col-md-9
                 .form-group
                     label.control-label(for='education') Positions Details
@@ -36,7 +40,7 @@ include ../scriptsAndStyles
                             if emp.summary
                                 small #{emp.summary}
                                 br
-                        br
+                            br
                     a.btn.btn-default.btn-xs#addEmploymentBtn(data-toggle='modal', href='#AddUserEmploymentModal') Add Position
 #AddUserEmploymentModal.modal.fade(style='display: none;')
     .modal-dialog
@@ -115,5 +119,6 @@ include ../scriptsAndStyles
                 button.btn.btn-primary(onclick='handleDeleteClicked(event)') Yes
 script.
     var memberId = '!{memberId}';
+    var profileId = '!{profileId}';
     var userEmployment = JSON.parse( '!{JSON.stringify(userEmployment)}' );
 script(src='/js/app/dashboard/memberEmployment.js')

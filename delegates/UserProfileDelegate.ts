@@ -9,7 +9,6 @@ import UserEmploymentDelegate                   = require('../delegates/UserEmpl
 import UserEducationDelegate                    = require('../delegates/UserEducationDelegate');
 import UserSkillDelegate                        = require('../delegates/UserSkillDelegate');
 import SkillCodeDelegate                        = require('../delegates/SkillCodeDelegate');
-import UserDelegate                             = require('../delegates/UserDelegate');
 import UserOAuthDelegate                        = require('../delegates/UserOAuthDelegate');
 import ImageDelegate                            = require('../delegates/ImageDelegate');
 import IntegrationMemberDelegate                = require('../delegates/IntegrationMemberDelegate');
@@ -47,14 +46,11 @@ class UserProfileDelegate extends BaseDaoDelegate
 
         q.all([
             new UserOAuthDelegate().find({'user_id':userId}),
-            new IntegrationMemberDelegate().find({'user_id': userId, 'integration_id': integrationId})
         ])
         .then(
         function detailsFetched(...args)
         {
             var userOauth:UserOauth = args[0][0];
-            var integrationMember:IntegrationMember = args[0][1];
-            var integrationMemberId:number = integrationMember.getId();
             var oauth = new OAuth.OAuth(
                 'https://www.linkedin.com/uas/oauth/authenticate?oauth_token=',
                 'https://api.linkedin.com/uas/oauth/accessToken',
@@ -107,6 +103,7 @@ class UserProfileDelegate extends BaseDaoDelegate
             })
             .fail( function EducationDetailsFetchedError(error){
                 self.logger.error(error);
+                throw(error);
             })
     }
 
@@ -137,6 +134,7 @@ class UserProfileDelegate extends BaseDaoDelegate
             })
             .fail( function EmploymentDetailsFetchedError(error){
                 self.logger.error(error);
+                throw(error);
             })
     }
 
@@ -156,12 +154,14 @@ class UserProfileDelegate extends BaseDaoDelegate
                         .then(
                         function imageFetched()
                         {
+                            var UserDelegate = require('../delegates/UserDelegate');
                             return new UserDelegate().processProfileImage(userId, tempProfilePicturePath);
                         })
                 }
             })
             .fail( function ImageDetailsFetchedError(error){
                 self.logger.error(error);
+                throw(error);
             })
     }
 
@@ -185,37 +185,43 @@ class UserProfileDelegate extends BaseDaoDelegate
             })
             .fail( function SkillDetailsFetchedError(error){
                 self.logger.error(error);
+                throw(error);
             })
     }
 
-    fetchAllDetailsFromLinkedIn(userId:number, integrationId:number, transaction?:any):q.Promise<any>
+    fetchBasicDetailsFromLinkedIn(userId:number, integrationId:number, profileId:number, transaction?:any):q.Promise<any>
     {
         var self = this;
-        return self.fetchSelectedFieldsFromLinkedIn(userId, integrationId, UserProfileDelegate.BASICFIELDS, transaction)
-            .then( function BasicDetailsFetched(profile){
+        return q.all([
+                self.fetchSelectedFieldsFromLinkedIn(userId, integrationId, UserProfileDelegate.BASICFIELDS, transaction),
                 new IntegrationMemberDelegate().find({'user_id': userId, 'integration_id': integrationId})
-                    .then( function IntegrationMemberFetched(integrationMember:IntegrationMember){
-                        var userProfile:UserProfile = new UserProfile();
-                        userProfile.setShortDesc(profile.headline);
-                        userProfile.setLongDesc(profile.summary);
-                        userProfile.setIntegrationMemberId(integrationMember.getId());
-                        return self.create(userProfile)
-                            .then(
-                            function updateFieldsFromLinkedIn(userProfileCreated:UserProfile)
-                            {
-                                var profileId:number = userProfileCreated.getId();
-                                return q.all([
-                                    self.fetchEducationDetailsFromLinkedIn(userId, integrationId, profileId, transaction),
-                                    self.fetchEmploymentDetailsFromLinkedIn(userId, integrationId, profileId, transaction),
-                                    self.fetchProfilePictureFromLinkedIn(userId, integrationId, profileId, transaction),
-                                    self.fetchSkillDetailsFromLinkedIn(userId, integrationId, profileId, transaction)
-                                ]);
-                            })
-                            .fail( function ProfileCreateError(error){
-                                self.logger.error(error);
-                            })
-                    })
+            ])
+            .then( function BasicDetailsFetched(...args){
+                var profile = args[0][0];
+                var integrationMember:IntegrationMember = args[0][1];
+
+                var userProfile:UserProfile = new UserProfile();
+                userProfile.setShortDesc(profile.headline);
+                userProfile.setLongDesc(profile.summary);
+                userProfile.setIntegrationMemberId(integrationMember.getId());
+                return self.update({id:profileId}, userProfile)
             })
+            .fail( function BasicDetailsFetchedError(error){
+                self.logger.error(error);
+                throw(error);
+            })
+    }
+
+    fetchAllDetailsFromLinkedIn(userId:number, integrationId:number, profileId:number, transaction?:any):q.Promise<any>
+    {
+        var self = this;
+        return q.all([
+            self.fetchBasicDetailsFromLinkedIn(userId, integrationId, profileId, transaction),
+            self.fetchEducationDetailsFromLinkedIn(userId, integrationId, profileId, transaction),
+            self.fetchEmploymentDetailsFromLinkedIn(userId, integrationId, profileId, transaction),
+            self.fetchProfilePictureFromLinkedIn(userId, integrationId, profileId, transaction),
+            self.fetchSkillDetailsFromLinkedIn(userId, integrationId, profileId, transaction)
+        ])
     }
 }
 export = UserProfileDelegate

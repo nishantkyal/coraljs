@@ -48,7 +48,9 @@ var helpers = {
 
     IndustryCodes: Utils.enumToNormalText(IndustryCode),
     Salutation: Utils.enumToNormalText(Salutation),
-    ItemType: Utils.enumToNormalText(ItemType)
+    ItemType: Utils.enumToNormalText(ItemType),
+    minYear: Config.get(Config.MINIMUM_YEAR),
+    currentYear: moment().format('YYYY')
 };
 
 // all environments

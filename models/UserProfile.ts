@@ -11,6 +11,8 @@ class UserProfile extends BaseModel
     static LONG_DESC:string                             = 'long_desc';
     static STATUS:string                                = 'status';
 
+    static DEFAULT_FIELDS:string[] = [UserProfile.ID,  UserProfile.INTEGRATION_MEMBER_ID, UserProfile.LOCALE, UserProfile.SHORT_DESC, UserProfile.LONG_DESC, UserProfile.STATUS];
+
     private integration_member_id:number;
     private locale:string;
     private short_desc:string;

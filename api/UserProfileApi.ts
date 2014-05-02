@@ -1,15 +1,34 @@
 ///<reference path='../_references.d.ts'/>
 import express                                              = require('express');
+import passport                                             = require('passport');
 import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
 import UserProfileDelegate                                  = require('../delegates/UserProfileDelegate');
+import IntegrationMemberDelegate                            = require('../delegates/IntegrationMemberDelegate');
+import AuthenticationDelegate                               = require('../delegates/AuthenticationDelegate');
 import AccessControl                                        = require('../middleware/AccessControl');
 import ApiConstants                                         = require('../enums/ApiConstants');
+import IntegrationMember                                    = require('../models/IntegrationMember');
 
 class UserProfileApi
 {
     constructor(app, secureApp)
     {
         var userProfileDelegate = new UserProfileDelegate();
+        var integrationMemberDelegate = new IntegrationMemberDelegate();
+
+        app.get(ApiUrlDelegate.userProfileFromLinkedIn(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
+        {
+            var profileId:number = parseInt(req.params[ApiConstants.USER_PROFILE_ID]);
+            var integrationMemberId:number = parseInt(req.query[ApiConstants.MEMBER_ID]);
+            integrationMemberDelegate.get(integrationMemberId)
+                .then( function(integrationMember:IntegrationMember){
+                    userProfileDelegate.fetchProfilePictureFromLinkedIn(integrationMember.getUserId(), integrationMember.getIntegrationId(), profileId)
+                        .then(
+                        function profileFetched(profile) { res.json(profile); },
+                        function profileFetchError(error) { res.status(500).send(error); }
+                    );
+                });
+        });
 
         app.get(ApiUrlDelegate.userProfileById(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
         {
