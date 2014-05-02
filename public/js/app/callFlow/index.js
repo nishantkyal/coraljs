@@ -131,7 +131,7 @@ function selectDate(selectedDate, dateElement)
         var maxSlotTime = schedule.start_time + schedule.duration - selectedDurationInMillis;
         while (slotTime < maxSlotTime) {
             $('.timeslot-widget ul').append('<li class="timeslot" data-slot="' + slotTime + '">' + moment(slotTime).format('hh:mm A') + '<span class="checkbox"></span></li>');
-            if (selectedTimeSlots.indexOf(schedule.start_time) != -1)
+            if (selectedTimeSlots.indexOf(slotTime) != -1)
                 $('.timeslot-widget ul li:last-child span').addClass('checked');
             slotTime += selectedDurationInMillis;
         }

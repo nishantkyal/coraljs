@@ -27,7 +27,7 @@ include header
                                 li(class=duration == 60 ? 'active' : '')
                                     a.well 60
                             p.floatright
-                                strong $1.00
+                                strong= formatMoney(expert.schedule[0].price_per_min, expert.schedule[0].price_unit)
                                 | /min
                 .schedule-options
                     .row.scheduler-header
@@ -129,7 +129,7 @@ include header
                                     .current-status.status-warning Not available at the moment
                                     .available-slot
                                         span.annotation Next available time:
-                                        span= formatDate(next_available_schedule.start_time, "DD MMM YYYY [at] HH:MM")
+                                        span= formatDate(next_available_schedule.start_time, "DD MMM YYYY [at] HH:MM a")
                         .row
                             .call-options
                                 .row
