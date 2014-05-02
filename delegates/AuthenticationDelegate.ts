@@ -77,6 +77,7 @@ class AuthenticationDelegate
                     function userRegistered(user)
                     {
                         req.logIn(user, next)
+                        req.flash('info', "We've sent you an email with verification link to verify your email address. You may do it later but your account will not become active until then.");
                         return new VerificationCodeDelegate().createAndSendEmailVerificationCode(user);
                     },
                     function registrationError(error)

@@ -52,7 +52,7 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
             });
     }
 
-    findValidAccessToken(accessToken:string, integrationMemberId?:string):q.Promise<any>
+    findValidAccessToken(accessToken:string, integrationMemberId?:string, role?:IntegrationMemberRole):q.Promise<any>
     {
         var accessTokenCache = new AccessTokenCache();
         var self = this;
@@ -61,7 +61,9 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
         {
             if (_.isArray(result)) result = result[0];
 
-            if (result && (!integrationMemberId || result['integration_member_id'] === integrationMemberId))
+            if (result
+                    && (!integrationMemberId || result['integration_member_id'] === integrationMemberId)
+                        && (!role || result['role'] === role))
                 return new IntegrationMember(result);
 
             return null;

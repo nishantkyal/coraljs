@@ -140,7 +140,8 @@ class DashboardRoute
 
                 var pageData = _.extend(sessionData.getData(), {
                     userPhones: numbers,
-                    context: context
+                    context: context,
+                    messages: req.flash()
                 });
                 res.render(DashboardRoute.PAGE_MOBILE_VERIFICATION, pageData);
             });

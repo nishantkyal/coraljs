@@ -14,7 +14,7 @@ class ExpertScheduleDelegate
     {
         var self = this;
         startTime = startTime || moment().valueOf();
-        endTime = endTime || moment(startTime).add({'weeks': 1}).valueOf();
+        endTime = endTime || moment(startTime).add({'days': 30}).valueOf();
 
         return new ExpertScheduleRuleDelegate().getRulesByIntegrationMemberId(expertId, startTime, endTime)
             .then(

@@ -39,35 +39,21 @@ import SessionData                                          = require('./Session
 class CallFlowRoute
 {
     private static INDEX:string = 'callFlow/index';
-    private static LOGIN:string = 'callFlow/login';
     private static PAYMENT:string = 'callFlow/payment';
-    private static SCHEDULING:string = 'callFlow/scheduling';
-    private static RESCHEDULING:string = 'callFlow/rescheduling';
-    private static RESCHEDULING_BY_USER:string = 'callFlow/reschedulingByUser';
 
     private logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private transactionDelegate = new TransactionDelegate();
-    private verificationCodeDelegate = new VerificationCodeDelegate();
     private phoneCallDelegate = new PhoneCallDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
-    private notificationDelegate = new NotificationDelegate();
 
     constructor(app, secureApp)
     {
         // Actual rendered pages
         app.get(Urls.callExpert(), this.index.bind(this));
-        app.post(Urls.callExpert(), this.scheduleSelected.bind(this));
-        app.get(Urls.login(), Middleware.requireExpertAndAppointments, this.authenticate.bind(this));
-        app.get(Urls.callPayment(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: Urls.login()}), Middleware.requireExpertAndAppointments, this.callPayment.bind(this));
-        app.post(Urls.applyCoupon(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: Urls.login()}), Middleware.requireExpertAndAppointments, this.applyCoupon.bind(this))
-        app.post(Urls.callPayment(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: Urls.login()}), Middleware.requireExpertAndAppointments, this.checkout.bind(this));
-
-        // Auth related routes
-        app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {successRedirect: Urls.callPayment(), failureRedirect: Urls.login(), failureFlash: true}));
-        app.post(Urls.register(), AuthenticationDelegate.register({failureRedirect: Urls.login()}), this.callPayment.bind(this));
-        app.get(Urls.fbLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {scope: ['email']}));
-        app.get(Urls.fbLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {failureRedirect: Urls.login(), scope: ['email'], successRedirect: Urls.callPayment()}));
+        app.get(Urls.callPayment(), Middleware.requireCallerAndCallDetails, this.callPayment.bind(this));
+        app.post(Urls.applyCoupon(), Middleware.requireCallerAndCallDetails, this.applyCoupon.bind(this))
+        app.post(Urls.callPayment(), connect_ensure_login.ensureLoggedIn(), Middleware.requireCallerAndCallDetails, this.checkout.bind(this));
     }
 
     /* Render index with expert schedules */
@@ -91,37 +77,6 @@ class CallFlowRoute
             },
             function handleExpertSearchFailed(error) { res.status(401).json('Error getting expert details for id: ' + expertId)}
         );
-    }
-
-    // Redirect to login page if not logged in
-    // Not using a middleware for this because login is not an absolute requirement to reach payment page
-    private scheduleSelected(req, res:express.Response)
-    {
-        var sessionData = new SessionData(req);
-
-        // TODO: Validate duration
-        var duration:number = req.body[ApiConstants.DURATION];
-        sessionData.setDuration(duration);
-
-        // TODO: Validate start times
-        var startTimes:number[] = req.body[ApiConstants.START_TIME];
-        sessionData.setAppointments(startTimes);
-
-        if (req.isAuthenticated())
-            res.redirect(Urls.callPayment());
-        else
-            res.redirect(Urls.login());
-    }
-
-    private authenticate(req:express.Request, res:express.Response)
-    {
-        var sessionData = new SessionData(req);
-
-        var pageData = _.extend(sessionData.getData(), {
-            messages: req.flash()
-        });
-
-        res.render(CallFlowRoute.LOGIN, pageData);
     }
 
     /* Validate request from caller and start a new transaction */

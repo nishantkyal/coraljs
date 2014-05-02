@@ -1,26 +1,35 @@
 ///<reference path='../_references.d.ts'/>
 import q                                                    = require('q');
-import BaseDaoDelegate                                      = require('./BaseDaoDelegate');
+import BaseDaoDelegate                                      = require('../delegates/BaseDaoDelegate');
+import MysqlDelegate                                        = require('../delegates/MysqlDelegate');
 import UserEmploymentDao                                    = require('../dao/UserEmploymentDao');
 import MapProfileEmploymentDao                              = require('../dao/MapProfileEmploymentDao');
 import UserEmployment                                       = require('../models/UserEmployment');
 import MapProfileEmployment                                 = require('../models/MapProfileEmployment');
+import Utils                                                = require('../common/Utils');
 
 class UserEmploymentDelegate extends BaseDaoDelegate
 {
     constructor() { super(new UserEmploymentDao()); }
+    private mapProfileEmploymentDao = new MapProfileEmploymentDao();
 
     createUserEmployment(userEmployment:UserEmployment, profileId:number, transaction?:any):q.Promise<any>
     {
         var self = this;
-        var mapProfileEmploymentDao = new MapProfileEmploymentDao();
-        return self.create(userEmployment,transaction)
-            .then(function userEmploymentCreated(emp:UserEmployment){
+
+        if (Utils.isNullOrEmpty(transaction))
+            return MysqlDelegate.executeInTransaction(self, arguments);
+
+        return self.create(userEmployment, transaction)
+            .then(
+            function userEmploymentCreated(emp:UserEmployment)
+            {
                 var mapProfileEmployment:MapProfileEmployment = new MapProfileEmployment();
                 mapProfileEmployment.setEmploymentId(emp.getId());
                 mapProfileEmployment.setProfileId(profileId);
-                return mapProfileEmploymentDao.create(mapProfileEmployment,transaction);
-            })
+
+                return self.mapProfileEmploymentDao.create(mapProfileEmployment, transaction);
+            });
     }
 }
 export = UserEmploymentDelegate

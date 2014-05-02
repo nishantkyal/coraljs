@@ -30,20 +30,17 @@ import IncludeFlag                                          = require('../../enu
 import MoneyUnit                                            = require('../../enums/MoneyUnit');
 import TransactionStatus                                    = require('../../enums/TransactionStatus');
 import Formatter                                            = require('../../common/Formatter');
-import DashboardUrls                                        = require('../../routes/dashboard/Urls');
 
 import Urls                                                 = require('./Urls');
 import SessionData                                          = require('./SessionData');
 import CallFlowUrls                                         = require('../callFlow/Urls');
+import DashboardUrls                                        = require('../../routes/dashboard/Urls');
 
 class CallSchedulingRoute
 {
-    private static INDEX:string = 'callFlow/index';
-    private static LOGIN:string = 'callFlow/login';
-    private static PAYMENT:string = 'callFlow/payment';
-    private static SCHEDULING:string = 'callFlow/scheduling';
-    private static RESCHEDULING:string = 'callFlow/rescheduling';
-    private static RESCHEDULING_BY_USER:string = 'callFlow/reschedulingByUser';
+    private static SCHEDULING:string = 'callScheduling/scheduling';
+    private static RESCHEDULING:string = 'callScheduling/rescheduling';
+    private static RESCHEDULING_BY_USER:string = 'callScheduling/reschedulingByUser';
 
     private logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
     private integrationMemberDelegate = new IntegrationMemberDelegate();
@@ -54,14 +51,14 @@ class CallSchedulingRoute
     constructor(app, secureApp)
     {
         // Actual rendered pages
-        app.get(Urls.scheduling(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: CallFlowUrls.login()}), this.scheduling.bind(this));
-        app.get(Urls.rescheduleByExpert(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: CallFlowUrls.login()}), this.reschedulingByExpert.bind(this));
-        app.get(Urls.rescheduleByUser(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: CallFlowUrls.login()}), this.reschedulingByUser.bind(this));
+        app.get(Urls.scheduling(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: DashboardUrls.login()}), this.scheduling.bind(this));
+        app.get(Urls.rescheduleByExpert(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: DashboardUrls.login()}), this.reschedulingByExpert.bind(this));
+        app.get(Urls.rescheduleByUser(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: DashboardUrls.login()}), this.reschedulingByUser.bind(this));
 
         app.post(Urls.scheduling(), this.scheduled.bind(this));
-        app.post(Urls.rescheduleByExpert(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: CallFlowUrls.login()}), this.appointmentSelectedByExpert.bind(this));
-        app.post(Urls.rescheduleByUser(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: CallFlowUrls.login()}), this.appointmentSelectedByUser.bind(this));
-        app.get(Urls.reject(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: CallFlowUrls.login()}), this.reject.bind(this));
+        app.post(Urls.rescheduleByExpert(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: DashboardUrls.login()}), this.appointmentSelectedByExpert.bind(this));
+        app.post(Urls.rescheduleByUser(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: DashboardUrls.login()}), this.appointmentSelectedByUser.bind(this));
+        app.get(Urls.reject(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: DashboardUrls.login()}), this.reject.bind(this));
     }
 
     /* Invoked when expert/caller clicks on accept appointment link in email */

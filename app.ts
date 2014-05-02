@@ -105,6 +105,11 @@ _.templateSettings = {
 };
 _.mixin(helpers);
 
+app.configure('production', function()
+{
+    app.enable('view cache');
+});
+
 app.set('port', Config.get(Config.DASHBOARD_HTTP_PORT));
 app.listen(app.get('port'), function ()
 {

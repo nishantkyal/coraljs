@@ -1,52 +1,182 @@
-title Expert Profile
-include ../scriptsAndStyles
-extends header
+- var user = expert.user[0];
 
-block content
-    form(method='post')
-        .form-group
-            label.control-label Duration
-            select.form-control#duration(name='duration')
-                option(value='15', selected=duration==15) 15 mins
-                option(value='30', selected=duration==30) 30 mins
-                option(value='45', selected=duration==45) 45 mins
-                option(value='60', selected=duration==60) 1 hour
-        .form-group
-            label.control-label
-                | Convenient Times&nbsp;
-                .fa.fa-question-circle(title='How this works')
-            .controls#appointmentPickers
-        .form-group
-            label.control-label
-                | Agenda&nbsp;
-                .fa.fa-question-circle(title='Please describe your agenda for the call')
-            textarea.form-control(name='agenda')
-        .form-group
-            input.btn.btn-primary.btn-lg(type='submit', value='NEXT')
-
-    #schedulePickerTemplate(style='display: none;')
-        select.dateSelect.form-control(data-width='auto')
-            option(value="-1") Pick a Date
-        select.timeSelect.form-control(name='startTime', data-width='auto')
-            option(value="-1") Pick a Time
-
-    #loginModal(style='display: none;')
-        .form-group
-            label.control-label Email
-            input.form-control(type='text')
-        .form-group
-            label.control-label Password
-            input.form-control(type='password')
-        .controls
-            a.btn.btn-primary Login
-            a.btn.btn-primary Login using FB
-            a.btn.btn-primary Create Acount
-
-    script.
-        var schedules = JSON.parse( '!{JSON.stringify(expert.schedule)}' );
-        var appointments;
-        try{
-            appointments = JSON.parse( '!{JSON.stringify(appointments)}' );
-        }
-        catch(e){}
-    script(src='/js/app/callFlow/index.js')
+include header
+.modal.fade#scheduler
+    .modal-dialog
+        .modal-content
+            .modal-header
+                button.close(type='button', data-dismiss='modal', aria-hidden='true') ×
+                h4.modal-title
+                    i.icon-scheduler
+                    | Select 3 time slots
+            .modal-body
+                .call-options
+                    .row
+                        .col-xs-12.col-sm-4.col-md-3.col-lg-3
+                            span.annotation
+                                | Duration
+                                em (mins):
+                        .col-xs-12.col-sm-8.col-md-9.col-lg-9
+                            ul.floatleft.nav.nav-pills.duration
+                                li(class=duration == 15 || !duration ? 'active' : '')
+                                    a.well 15
+                                li(class=duration == 30 ? 'active' : '')
+                                    a.well 30
+                                li(class=duration == 45 ? 'active' : '')
+                                    a.well 45
+                                li(class=duration == 60 ? 'active' : '')
+                                    a.well 60
+                            p.floatright
+                                strong $1.00
+                                | /min
+                .schedule-options
+                    .row.scheduler-header
+                        .col-xs-8
+                            .row#monthSelector
+                                .col-xs-2#prev «
+                                .col-xs-8#month April 2014
+                                .col-xs-2#next »
+                        .col-xs-4
+                            .row Time Slots
+                    .row.scheduler-widgets
+                        .col-xs-8
+                            .row
+                                .calendar-widget
+                                    table
+                                        thead
+                                            tr
+                                                th S
+                                                th M
+                                                th T
+                                                th W
+                                                th T
+                                                th F
+                                                th S
+                                        tbody
+                        .col-xs-4
+                            .row
+                                .timeslot-widget
+                                    ul
+                    .row.scheduled-slots
+                        ul
+                            li.timeslot.completed.row
+                                span.col-xs-4.heading Preferred Time:
+                                span.col-xs-4.slot No time slot selected
+                                span.col-xs-4.remove.hidden
+                                    a.remove-timeslot Remove
+                            li.timeslot.row
+                                span.col-xs-4.heading Alternative Time #1:
+                                span.col-xs-4.slot No time slot selected
+                                span.col-xs-4.remove.hidden
+                                    a.remove-timeslot Remove
+                            li.timeslot.row
+                                span.col-xs-4.heading Alternative Time #2:
+                                span.col-xs-4.slot No time slot selected
+                                span.col-xs-4.remove.hidden
+                                    a.remove-timeslot Remove
+            .modal-footer
+                .alert.alert-warning
+                    strong You have selected&nbsp;
+                    strong.num-slots no
+                    strong &nbsp;time slots so far.
+                    | &nbsp;Please select 3 slots in order to schedule a call.
+                .btn.btn-primary#schedule-done Done
+        // /.modal-content
+    // /.modal-dialog
+// /.modal
+// /.masthead
+.matter
+    .container
+        .row
+            .flowbar.col-xs-3.col-sm-3.col-md-12.col-lg-12
+                ul.nav.nav-pills.nav-justified.nav-stacked
+                    li.active
+                        a(href='')
+                            i.icon-schedule
+                            span.hidden-xs Schedule
+                    li.disabled
+                        a(href='')
+                            i.icon-pay
+                            span.hidden-xs Pay
+                    li.disabled
+                        a(href='')
+                            i.icon-talk
+                            span.hidden-xs Talk
+            // flowbar
+            .content.col-xs-9.col-sm-9.col-md-12.col-lg-12
+                .row
+                    .col-md-6
+                        .row.user-profile
+                            .status-icon.status-ok
+                                i.icon-searchntalk
+                            .info
+                                .user-displayname= formatName(user.first_name, user.last_name, user.title)
+                                .status-message accepting calls till 11.00am
+                            .hidden-xs.avatar
+                            .clearer
+                            .hidden-xs.profile
+                                p
+                                    | A freelance policy analyst since 1994, I specialize in policy for sustainability, planning and the urban environment in India, funding programmes, comparative research and good practice.
+                    .col-md-6
+                        .row
+                            .user-schedule-summary
+                                .current-status.status-ok Currently available
+                                .available-slot
+                                    span.annotation Next available time:
+                                    | 15 Apr 2014 at 20:30
+                        .row
+                            .call-options
+                                .row
+                                    .col-xs-12.col-sm-4.col-md-3.col-lg-3
+                                        span.annotation
+                                            | Duration
+                                            em (mins):
+                                    .col-xs-12.col-sm-8.col-md-9.col-lg-9
+                                        ul.floatleft.nav.nav-pills.duration
+                                            li(class=duration == 15 || !duration ? 'active' : '')
+                                                a.well 15
+                                            li(class=duration == 30 ? 'active' : '')
+                                                a.well 30
+                                            li(class=duration == 45 ? 'active' : '')
+                                                a.well 45
+                                            li(class=duration == 60 ? 'active' : '')
+                                                a.well 60
+                                        p.floatright
+                                            strong $1.00
+                                            | /min
+                        .row
+                            .call-inputs
+                                .row
+                                    h1
+                                        i.icon-phone
+                                        | Call Agenda
+                                .row
+                                    .input-group
+                                        input.form-control#agenda(type='text', placeholder='Enter an agenda for your call', value=agenda)
+                        .row
+                            .call-inputs
+                                .row
+                                    h1
+                                        i.icon-phone
+                                        | Caller Details
+                                .row
+                                    .input-group
+                                        span.input-group-addon @
+                                        input.form-control#caller-name(type='text', placeholder="Caller's name", value=caller_name)
+                                .row.not-first
+                                    .input-group
+                                        input.form-control#caller-phone(type='text', placeholder='10-digit phone number', value=caller-phone)
+                        .row
+                            .call-actions
+                                a.btn.btn-lg.btn-primary.first.col-xs-12.col-md-12.col-lg-12#call-now Call Now
+                                a.btn.btn-lg.btn-default.col-xs-12.col-md-12.col-lg-12#schedule Schedule
+include footer
+script.
+    var schedules = JSON.parse( '!{JSON.stringify(expert.schedule)}' );
+    var duration = parseInt('#{duration}');
+    var selectedTimeSlots = [];
+    try {
+        selectedTimeSlots = JSON.parse( '!{JSON.stringify(appointments)}' );
+    }
+    catch(e){}
+script(src='/js/app/callFlow/index.js')

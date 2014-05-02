@@ -55,9 +55,8 @@ class EmailDelegate
 
     private static templateCache:{[templateNameAndLocale:string]:{bodyTemplate:Function; subjectTemplate:Function}} = {};
     private static transport:nodemailer.Transport;
-    private phoneCallDelegate;
-    private userDelegate = new UserDelegate();
     private static logger:log4js.Logger = log4js.getLogger('EmailDelegate');
+    private phoneCallDelegate;
 
     constructor()
     {
@@ -77,11 +76,7 @@ class EmailDelegate
     /* Static constructor workaround */
     private static ctor = (() =>
     {
-        new FileWatcherDelegate(Config.get(Config.EMAIL_TEMPLATE_BASE_DIR), [new RegExp('\.html$')],
-            function initHandler(files)
-            {
-                _.each(files, function (fileName) { EmailDelegate.readFileAndCache(fileName); });
-            },
+        new FileWatcherDelegate(Config.get(Config.EMAIL_TEMPLATE_BASE_DIR), [new RegExp('\.html$')], null,
             EmailDelegate.readFileAndCache,
             EmailDelegate.readFileAndCache);
     })();

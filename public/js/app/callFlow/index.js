@@ -1,79 +1,191 @@
-$('#duration').selectpicker();
+/* Index schedules */
+schedules = schedules || [moment()];
+var timeSlotsByDate = _.groupBy(schedules, function(schedule) { return moment(schedule.start_time).format('DD-MM-YYYY') });
+setMonth(schedules[0].start_time);
 
-/* Render schedules */
-var dateGroups = {};
-_.each(schedules, function(schedule)
+/* Duration select - Event handler */
+$('.duration li').click(function(event)
 {
-    var scheduleDate = moment(schedule.start_time).format('DD-MM-YYYY');
-    dateGroups[scheduleDate] = [] || dateGroups[scheduleDate];
-    dateGroups[scheduleDate].push(schedule)
+    var selectedDurationIndex = $(event.currentTarget).parent().children().index($(event.currentTarget))
+    $('.duration li').removeClass('active');
+    $('.duration li:nth-child(' + (selectedDurationIndex + 1)+ ')').addClass('active');
+    duration = $('a', event.currentTarget).text();
 });
 
-_.each(_.keys(dateGroups), function(date)
+/* Date selection - Event handler */
+$('a.date-link').click(function handleDateSelected(event)
 {
-    $('.dateSelect').append('<option>' + date + '</option>');
+    var selectedDate = parseInt($(event.currentTarget).parent().attr('value'));
+    $('a.date-link').removeClass('active');
+    $(event.currentTarget).addClass('active');
+    selectDate(selectedDate, $(event.currentTarget));
 });
 
-// Initialize start times
-appointments = appointments || [null];
-while (appointments.length > 0)
+/* Time slot selection - Event handler */
+$(document).on('click', '.timeslot-widget ul li span', function handleTimeSlotSelected(event)
 {
-    var timestamp = appointments.shift();
-    if (parseInt(timestamp) != -1)
-        createSchedulePicker(timestamp);
-}
+    $(event.currentTarget).addClass('checked');
+    var selectedSlot = $(event.currentTarget).parent().data('slot');
+    var index = selectedTimeSlots.indexOf(selectedSlot);
+    if (index == -1)
+        selectedTimeSlots.push(selectedSlot);
+    else
+        selectedTimeSlots.splice(index, 1);
 
-function handleDateSelected(event)
+    updateSelectedTimeSlots();
+});
+
+/* Remove selected schedule event handler */
+$('.row.scheduled-slots li .col-xs-4.remove').click(function(event)
 {
-    updatePicker($(event.target));
- }
+    var removedSlotIndex = $('.row.scheduled-slots li .col-xs-4.remove').index($(event.currentTarget));
+    var removedSlot = selectedTimeSlots.splice(removedSlotIndex, 1);
+    updateSelectedTimeSlots();
 
-function updatePicker(dateSelect)
+    // Disable the checkbox if the removed slot is currently displayed
+    $('.timeslot-widget li[data-slot="' + removedSlot[0] + '"] span').removeClass('checked');
+});
+
+/* Schedule clicked - Event Handler */
+$('#schedule').click(function()
 {
-    var selectedDate = $(dateSelect).val();
-    var timeSelect = $(dateSelect).closest('.schedulePicker').find('select.timeSelect');
-    $(timeSelect).empty();
-    $(timeSelect).append('<option value="-1">Pick a time</option>');
+    var agenda = $('#agenda').val().trim();
+    var callerName = $('#caller-name').val().trim();
+    var callerPhone = $('#caller-phone').val().trim();
 
-    _.each(dateGroups[selectedDate], function(schedule)
+    if (agenda && callerName && callerPhone)
+        $('#scheduler').modal();
+
+});
+
+/* Schedule selected - Event Handler */
+$('#schedule-done').click(function()
+{
+    var agenda = $('#agenda').val().trim();
+    var callerName = $('#caller-name').val().trim();
+    var callerPhone = $('#caller-phone').val().trim();
+
+    $('<form action="/expert/call/payment" method="GET">' +
+        '<input type="hidden" name="agenda" value="' + agenda + '">' +
+        '<input type="hidden" name="duration" value="' + duration + '">' +
+        '<input type="hidden" name="name" value="' + callerName + '">' +
+        '<input type="hidden" name="phone" value="' + callerPhone + '">' +
+        _.map(selectedTimeSlots, function(slot) {
+            return '<input type="hidden" name="startTime" value="' + slot + '">';
+        }).join('') +
+        '</form>').submit();
+});
+
+/* Call now clicked - Event Handler */
+$('#call-now').click(function()
+{
+    var agenda = $('#agenda').val().trim();
+    var callerName = $('#caller-name').val().trim();
+    var callerPhone = $('#caller-phone').val().trim();
+
+    $('<form action="/expert/call/payment" method="GET">' +
+        '<input type="hidden" name="agenda" value="' + agenda + '">' +
+        '<input type="hidden" name="duration" value="' + duration + '">' +
+        '<input type="hidden" name="name" value="' + callerName + '">' +
+        '<input type="hidden" name="phone" value="' + callerPhone + '">' +
+        '<input type="hidden" name="call-now" value="true">' +
+        '</form>').submit();
+});
+
+/* Helper method to mark a data selected */
+function selectDate(selectedDate, dateElement)
+{
+    $('.timeslot-widget ul').empty();
+
+    $('a.date-link').removeClass('active');
+    if (dateElement)
+        $(dateElement).addClass('active');
+
+    _.each(timeSlotsByDate[moment(selectedDate).format('DD-MM-YYYY')], function(schedule)
     {
-        $(timeSelect).append('<option value="' + schedule.start_time + '">' + moment(schedule.start_time).format('hh:mm A') + '</option>');
-        $(timeSelect).selectpicker('refresh');
+        $('.timeslot-widget ul').append('<li class="timeslot" data-slot="' + schedule.start_time + '">' + moment(schedule.start_time).format('hh:mm A') + '<span class="checkbox"></span></li>');
+        if (selectedTimeSlots.indexOf(schedule.start_time) != -1)
+            $('.timeslot-widget ul li:last-child span').addClass('checked');
     });
-
 }
 
-function handleTimeSelected(event)
+/* Helper method to set displayed month in calendar */
+function setMonth(monthMoment)
 {
-    // Create a new picker if last element
-    var index = $('select.timeSelect').index($(event.currentTarget));
-    if (index == $('select.timeSelect').length - 2)
-        createSchedulePicker(null);
-}
+    var firstDateSelected = false;
+    var firstWeekdayOfMonth = moment(monthMoment).date(1).day();
+    var daysInMonth = moment().endOf("month").date();
 
-function createSchedulePicker(timestamp)
-{
-    $('#appointmentPickers').append($('#schedulePickerTemplate').clone().attr('id', null).addClass('schedulePicker'));
-
-    var lastSchedulePicker = $('#appointmentPickers .schedulePicker').last();
-    lastSchedulePicker.show();
-
-    $('.dateSelect', lastSchedulePicker).selectpicker();
-    $('.dateSelect', lastSchedulePicker).change(handleDateSelected);
-    $('.timeSelect', lastSchedulePicker).change(handleTimeSelected);
-
-    if (timestamp)
+    // Update dates and mark dates with available slots as active
+    $(".calendar-widget tbody").empty();
+    for (var row = 0; row < 6; row++)
     {
-        $('.dateSelect', lastSchedulePicker).val(moment(parseInt(timestamp)).format('DD-MM-YYYY'));
-        $('.dateSelect', lastSchedulePicker).selectpicker('refresh');
+        // Create row
+        $('.calendar-widget tbody').append('<tr/>');
+        var rowElement = $('.calendar-widget tbody tr:last-child');
 
-        updatePicker($('.dateSelect', lastSchedulePicker));
+        for (var col = 0; col < 7; col++)
+        {
+            var cell = row * 7 + col;
+            var dateIndex = cell - firstWeekdayOfMonth + 1;
 
-        $('.timeSelect', lastSchedulePicker).val(timestamp);
-        $('.timeSelect', lastSchedulePicker).selectpicker('refresh');
+            // Create date cell if i a valid date
+            if (dateIndex > 0 && dateIndex < daysInMonth)
+            {
+                var dayMoment = moment(monthMoment).date(dateIndex);
+
+                $(rowElement).append('<td value="' + dayMoment + '"><a class="date-link">' + dateIndex + '</a></td>');
+
+                // Display dot if has schedules
+                if (timeSlotsByDate.hasOwnProperty(dayMoment.format('DD-MM-YYYY')))
+                {
+                    $("td:last-child a", rowElement).append('<span class="marker status-ok">●</span>');
+
+                    // If this is first date of month with available slots, select it
+                    if (!firstDateSelected) {
+                        selectDate(dayMoment, $('td:last-child', rowElement));
+                        firstDateSelected = true;
+                    }
+                }
+            }
+            else
+                $(rowElement).append('<td/>');
+        }
+    }
+
+    $('#monthSelector #month').text(moment(monthMoment).format('MMM YYYY'));
+    updateSelectedTimeSlots();
+}
+
+/* Helper method to update the list of selected slots */
+function updateSelectedTimeSlots()
+{
+    selectedTimeSlots = selectedTimeSlots.splice(0, 3);
+    for (var i = 0; i < 3; i++)
+    {
+        var slotElement = $('.row.scheduled-slots li:nth-child(' + (i + 1)+ ')');
+        if (selectedTimeSlots[i])
+        {
+            $('.col-xs-4.slot', slotElement).text(moment(selectedTimeSlots[i]).format('DD MMM YYYY [at] hh:mm a'));
+            $('.col-xs-4.remove', slotElement).removeClass('hidden');
+        }
+        else
+        {
+            $('.col-xs-4.slot', slotElement).text('No time slot selected');
+            $('.col-xs-4.remove', slotElement).addClass('hidden');
+        }
+    }
+
+    if (selectedTimeSlots.length < 3)
+    {
+        $('.modal-footer #schedule-done').hide();
+        $('.modal-footer .alert.alert-warning').show();
+        $('.modal-footer .alert.alert-warning .num-slots').text(selectedTimeSlots.length);
     }
     else
-        $('.timeSelect', lastSchedulePicker).selectpicker();
-
-    return lastSchedulePicker;
+    {
+        $('.modal-footer #schedule-done').show();
+        $('.modal-footer .alert.alert-warning').hide();
+    }
 }
+
