@@ -13,7 +13,7 @@ class ExpertScheduleDelegate
     getSchedulesForExpert(expertId:number, startTime?:number, endTime?:number):q.Promise<any>
     {
         var self = this;
-        startTime = startTime || moment().valueOf();
+        startTime = startTime || moment().subtract({hours: 5}).valueOf();
         endTime = endTime || moment(startTime).add({'days': 30}).valueOf();
 
         return new ExpertScheduleRuleDelegate().getRulesByIntegrationMemberId(expertId, startTime, endTime)

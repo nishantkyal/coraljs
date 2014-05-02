@@ -51,9 +51,9 @@ class CallFlowRoute
     {
         // Actual rendered pages
         app.get(Urls.callExpert(), this.index.bind(this));
-        app.get(Urls.callPayment(), Middleware.requireCallerAndCallDetails, this.callPayment.bind(this));
+        app.post(Urls.callPayment(), Middleware.requireCallerAndCallDetails, this.callPayment.bind(this));
         app.post(Urls.applyCoupon(), Middleware.requireCallerAndCallDetails, this.applyCoupon.bind(this))
-        app.post(Urls.callPayment(), connect_ensure_login.ensureLoggedIn(), Middleware.requireCallerAndCallDetails, this.checkout.bind(this));
+        app.post(Urls.checkout(), connect_ensure_login.ensureLoggedIn(), Middleware.requireCallerAndCallDetails, this.checkout.bind(this));
     }
 
     /* Render index with expert schedules */
@@ -85,77 +85,40 @@ class CallFlowRoute
         var sessionData = new SessionData(req);
         var self = this;
 
-        var loggedInUserId = sessionData.getLoggedInUser().getId();
-
-        var userPhoneSearch = {};
-        userPhoneSearch[UserPhone.USER_ID] = loggedInUserId;
-        userPhoneSearch[UserPhone.VERIFIED] = true;
-
-        var phoneCall = new PhoneCall();
-        phoneCall.setIntegrationMemberId(sessionData.getExpert().getId());
-        phoneCall.setCallerUserId(req[ApiConstants.USER].id);
-        phoneCall.setDelay(0);
-        phoneCall.setStatus(CallStatus.PLANNING);
-        phoneCall.setDuration(sessionData.getDuration());
-        phoneCall.setPricePerMin(12);
-        phoneCall.setPriceCurrency(MoneyUnit.DOLLAR);
-
-        var transaction = new Transaction();
-        transaction.setUserId(sessionData.getLoggedInUser().getId());
-        transaction.setStatus(TransactionStatus.CREATED);
-
-
-        var deleteTasks = [];
-        if (sessionData.getCall().getId())
-            deleteTasks.push(self.phoneCallDelegate.delete(sessionData.getCall().getId(), false));
-        if (sessionData.getTransaction().getId())
-            deleteTasks.push(self.transactionDelegate.delete(sessionData.getTransaction().getId(), false));
-
-        return q.all(deleteTasks)
-            .then(
-            function oldTransactionAndCallDeleted()
-            {
-                // 1. Look for user's phone numbers
-                // 2. Start a transaction
-                return q.all([
-                    self.userPhoneDelegate.search(userPhoneSearch)
-                        .fail(
-                        function userPhoneFetchFailed(error)
-                        {
-                            self.logger.error('User phone fetch error. Error: %s', error);
-                            return null;
-                        }),
-                    self.phoneCallDelegate.create(phoneCall)
-                        .then(
-                        function callCreated(call)
-                        {
-                            sessionData.setCallId(call.getId());
-                            sessionData.setCall(call);
-                            return self.transactionDelegate.createPhoneCallTransaction(transaction, call);
-                        })
-                ])
-            })
-            .then(
-            function renderPage(...result)
-            {
-                var phoneNumbers = result[0][0];
-                var transaction:Transaction = result[0][1];
-
-                sessionData.setTransaction(transaction);
-
-                var pageData = _.extend(sessionData.getData(), {
-                    messages: req.flash(),
-                    userPhones: phoneNumbers,
-                    transaction: transaction
-                });
-
-                res.render(CallFlowRoute.PAYMENT, pageData);
-            },
-            function handleError(error)
-            {
-                self.logger.error('Failure on payment page. Error: %s', JSON.stringify(error));
-                res.send(500);
+        function renderPage(phoneNumbers)
+        {
+            var pageData = _.extend(sessionData.getData(), {
+                messages: req.flash(),
+                userPhones: phoneNumbers
             });
+
+            res.render(CallFlowRoute.PAYMENT, pageData);
+        };
+
+        if (req.isAuthenticated())
+        {
+            var loggedInUserId = sessionData.getLoggedInUser().getId();
+            var userPhoneSearch = {};
+            userPhoneSearch[UserPhone.USER_ID] = loggedInUserId;
+            userPhoneSearch[UserPhone.VERIFIED] = true;
+
+            self.userPhoneDelegate.search(userPhoneSearch)
+                .fail(
+                function userPhoneFetchFailed(error)
+                {
+                    self.logger.error('User phone fetch error. Error: %s', error);
+                    return null;
+                })
+                .then(renderPage)
+                .fail(
+                function handleError(error)
+                {
+                    self.logger.error('Failure on payment page. Error: %s', JSON.stringify(error));
+                    res.send(500);
+                });
+        }
+        else
+            renderPage(null);
     }
 
     /* Apply coupon and send back discount details */
@@ -172,6 +135,21 @@ class CallFlowRoute
     /* Validate everything, create a transaction (and phone call record) and redirect to payment */
     private checkout(req:express.Request, res:express.Response)
     {
+        var loggedInUserId = sessionData.getLoggedInUser().getId();
+
+        var phoneCall = new PhoneCall();
+        phoneCall.setIntegrationMemberId(sessionData.getExpert().getId());
+        phoneCall.setCallerUserId(req[ApiConstants.USER].id);
+        phoneCall.setDelay(0);
+        phoneCall.setStatus(CallStatus.PLANNING);
+        phoneCall.setDuration(sessionData.getDuration());
+        phoneCall.setPricePerMin(12);
+        phoneCall.setPriceCurrency(MoneyUnit.DOLLAR);
+
+        var transaction = new Transaction();
+        transaction.setUserId(loggedInUserId);
+        transaction.setStatus(TransactionStatus.CREATED);
+
         // TODO: Verify that supplied phone number belongs to logged in user
         var self = this;
         var sessionData = new SessionData(req);

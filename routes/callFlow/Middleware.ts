@@ -12,12 +12,12 @@ class Middleware
     {
         var sessionData = new SessionData(req);
         var expert = sessionData.getExpert();
-        var callerName:string = req.query[ApiConstants.NAME] || sessionData.getCallerName();
-        var callerPhone:string = req.query[ApiConstants.PHONE] || sessionData.getCallerName();
-        var agenda:string = req.query[ApiConstants.AGENDA] || sessionData.getAgenda();
-        var duration:number = req.query[ApiConstants.DURATION] || sessionData.getDuration();
-        var appointments = req.query[ApiConstants.START_TIME] || sessionData.getAppointments();
-        var isCallNow = req.query[ApiConstants.CALL_NOW];
+        var callerName:string = req.body[ApiConstants.NAME] || sessionData.getCallerName();
+        var callerPhone:string = req.body[ApiConstants.PHONE] || sessionData.getCallerName();
+        var agenda:string = req.body[ApiConstants.AGENDA] || sessionData.getAgenda();
+        var duration:number = req.body[ApiConstants.DURATION] || sessionData.getDuration();
+        var appointments = req.body[ApiConstants.START_TIME] || sessionData.getAppointments();
+        var isCallNow = req.body[ApiConstants.CALL_NOW];
 
         if (!Utils.isNullOrEmpty(appointments) && Utils.getObjectType(appointments) == 'Array')
             appointments = _.map(appointments, function(time:any) { return parseInt(time); });

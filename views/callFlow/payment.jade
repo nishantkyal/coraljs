@@ -1,70 +1,82 @@
-extends header
+- var user = expert.user[0];
 
-block append content
-    form(method='post')
-        .form-group
-            label.control-label(for='duration') Duration
-            .form-control-static#duration #{duration}
-        .form-group
-            label.control-label(for='appointments') Selected Time Slots
-            - for slot in appointments
-                .form-control-static#appointments #{formatDate(slot, 'ddd DD MMM YYYY, hh:mm a Z')}
-        .form-group
-            label.control-label(for='phone') Your Mobile Number
-            .controls
-                select#phoneNumberSelector(style=userPhones ? '' : 'display: none;')
-                    - if (userPhones)
-                        - for phone in userPhones
-                            option(value=phone.id)= phone.phone
-                    option(value=-1) Enter new number
-                .input-group#phoneNumberInput(style=userPhones ? 'display: none;' : '')
-                    .input-group-btn
-                        select.form-control.col-md-2#countryCode
-                            option(value='91') India (+91)
-                            option(value='1') USA (+1)
-                            option(value='65') Singapore (+65)
-                    input(type='tel').form-control#phoneNumber
-                    .input-group-btn
-                        a.btn.btn-success#sendPhoneVerificationCode Verify
-
-        .form-group
-            label.control-label(for='agenda') Agenda
-            .form-control-static
-        hr
-        h4 Summary
-        ul.list-group
-        - for line in transaction.transaction_line
-            .list-group-item
-                | #{ItemType[line.item_type]}
-                .pull-right
-                    | #{formatMoney(line.amount, line.amount_unit)}
-        .list-group-item#total
-            strong Total
-            .pull-right
-                strong Amount
-        .clearfix
-        .form-group
-            label.control-label(for='coupon') Coupon
-            .controls
-                .input-group
-                    input.form-control
-                    .input-group-btn
-                        button.btn.btn-success Apply
-        hr
-        .form-group
-            input.btn.btn-primary.btn-lg(type='submit', value='Make Payment')
-
-    #enterVerificationCodeModal.modal.fade(style='display: none;')
-        .modal-dialog
-            .modal-content
-                .modal-header
-                    .close(data-dismiss='modal', aria-hidden='true') x
-                    h4.modal-title Verify Phone
-                .modal-body
-                    | Please enter the verification code received on your mobile
-                    .form-group
-                            input(type='text').form-control#verificationCode
-                     .form-group
-                            a.btn.btn-primary.form-control#verifyCode Verify
-
-    script(src='/js/app/callFlow/payment.js')
+include header
+.matter
+    .container
+        .row
+            .flowbar.col-xs-3.col-sm-3.col-md-12.col-lg-12
+                ul.nav.nav-pills.nav-justified.nav-stacked
+                    li.completed
+                        a(href='')
+                            i.icon-schedule
+                            span.hidden-xs Schedule
+                    li.active
+                        a(href='')
+                            i.icon-pay
+                            span.hidden-xs Pay
+                    li.disabled
+                        a(href='')
+                            i.icon-talk
+                            span.hidden-xs Talk
+            // flowbar
+            .content.col-xs-9.col-sm-9.col-md-12.col-lg-12
+                .row.uneditables
+                    .col-md-6
+                        .row.user-profile
+                            .status-icon.status-ok
+                                i.icon-searchntalk
+                            .info
+                                .user-displayname= formatName(user.first_name, user.last_name, user.title)
+                                .status-message accepting calls till 11.00am
+                            .clearer
+                    .col-md-3
+                        .row
+                            .user-schedule-summary
+                                .current-status.status-ok Currently available
+                                .scheduled-slot
+                                    span.annotation Call scheduled for #{duration} mins (now):
+                                    | 13 Apr 2014 at
+                                    span.live-clock 11:13
+                    .col-md-3
+                        .row.step-reversal
+                            a.btn.btn-default(href='javascript: history.back();')
+                                | Back to Schedule
+                                i.icon-left-arrow
+                .row.editables
+                    .col-lg-12
+                        .row
+                            h1
+                                i.icon-bill
+                                | Payment Summary
+                        .row
+                            .hidden-xs.hidden-sm.col-md-6
+                            .col-md-6
+                                .row
+                                    .payment-summary
+                                        .table
+                                            .table-row
+                                                .table-cell.title Call duration: 15mins @ $1.00 / min
+                                                .table-cell.amount $ 15.00
+                                            .table-row
+                                                .table-cell.title Tax: @10%
+                                                .table-cell.amount $ 1.50
+                                            .table-row
+                                                .table-cell.title
+                                                .table-cell.amount
+                                            .table-row
+                                                .table-cell.title
+                                                    .input-group
+                                                        input.form-control(type='text', placeholder='Discount Coupon #')
+                                                .table-cell.amount
+                                                    a.btn.btn-default(href='error.html') Apply Coupon
+                                            .table-row.total
+                                                .table-cell.title Total
+                                                .table-cell.amount $ 16.50
+                .row
+                    .hidden-xs.hidden-sm.col-md-6
+                    .col-md-6
+                        .row
+                            .call-actions
+                                a.btn.btn-lg.btn-primary.first(href='payment-success.html') Proceed to Payment
+                // /.content
+include footer

@@ -6,5 +6,6 @@ class Urls
     static schedule():string { return ApiUrlDelegate.get('/expert/call/schedule'); }
     static applyCoupon():string { return ApiUrlDelegate.get('/expert/call/payment/coupon'); }
     static callPayment():string { return ApiUrlDelegate.get('/expert/call/payment'); }
+    static checkout():string { return ApiUrlDelegate.get('/expert/call/checkout'); }
 }
 export = Urls

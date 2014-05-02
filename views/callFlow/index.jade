@@ -111,8 +111,8 @@ include header
                                 i.icon-searchntalk
                             .info
                                 .user-displayname= formatName(user.first_name, user.last_name, user.title)
-                                .status-message accepting calls till 11.00am
                             .hidden-xs.avatar
+                                img(src=ApiUrlDelegate.userProfilePicture(user.id), width='100%', height='100%')
                             .clearer
                             .hidden-xs.profile
                                 p
@@ -120,10 +120,16 @@ include header
                     .col-md-6
                         .row
                             .user-schedule-summary
-                                .current-status.status-ok Currently available
-                                .available-slot
-                                    span.annotation Next available time:
-                                    | 15 Apr 2014 at 20:30
+                                - if (is_available)
+                                    .current-status.status-ok Currently available
+                                    .available-slot
+                                        | Accepting calls till&nbsp;
+                                        span= formatDate(next_available_schedule.start_time + next_available_schedule.duration, "HH:mm a")
+                                - else
+                                    .current-status.status-warning Not available at the moment
+                                    .available-slot
+                                        span.annotation Next available time:
+                                        span= formatDate(next_available_schedule.start_time, "DD MMM YYYY [at] HH:MM")
                         .row
                             .call-options
                                 .row
@@ -173,7 +179,7 @@ include header
 include footer
 script.
     var schedules = JSON.parse( '!{JSON.stringify(expert.schedule)}' );
-    var duration = parseInt('#{duration}');
+    var duration = parseInt('#{duration}') || 15;
     var selectedTimeSlots = [];
     try {
         selectedTimeSlots = JSON.parse( '!{JSON.stringify(appointments)}' );

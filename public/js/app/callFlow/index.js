@@ -8,8 +8,12 @@ $('.duration li').click(function(event)
 {
     var selectedDurationIndex = $(event.currentTarget).parent().children().index($(event.currentTarget))
     $('.duration li').removeClass('active');
-    $('.duration li:nth-child(' + (selectedDurationIndex + 1)+ ')').addClass('active');
+    $('.duration li:nth-child(' + (selectedDurationIndex + 1) + ')').addClass('active');
     duration = $('a', event.currentTarget).text();
+
+    var dateElement = $('a.date-link.active');
+    var selectedDate = parseInt($(dateElement).parent().attr('value'));
+    selectDate(selectedDate, dateElement);
 });
 
 /* Date selection - Event handler */
@@ -65,12 +69,13 @@ $('#schedule-done').click(function()
     var callerName = $('#caller-name').val().trim();
     var callerPhone = $('#caller-phone').val().trim();
 
-    $('<form action="/expert/call/payment" method="GET">' +
+    $('<form action="/expert/call/payment" method="POST">' +
         '<input type="hidden" name="agenda" value="' + agenda + '">' +
         '<input type="hidden" name="duration" value="' + duration + '">' +
         '<input type="hidden" name="name" value="' + callerName + '">' +
         '<input type="hidden" name="phone" value="' + callerPhone + '">' +
-        _.map(selectedTimeSlots, function(slot) {
+        _.map(selectedTimeSlots, function(slot)
+        {
             return '<input type="hidden" name="startTime" value="' + slot + '">';
         }).join('') +
         '</form>').submit();
@@ -83,7 +88,7 @@ $('#call-now').click(function()
     var callerName = $('#caller-name').val().trim();
     var callerPhone = $('#caller-phone').val().trim();
 
-    $('<form action="/expert/call/payment" method="GET">' +
+    $('<form action="/expert/call/payment" method="POST">' +
         '<input type="hidden" name="agenda" value="' + agenda + '">' +
         '<input type="hidden" name="duration" value="' + duration + '">' +
         '<input type="hidden" name="name" value="' + callerName + '">' +
@@ -103,9 +108,16 @@ function selectDate(selectedDate, dateElement)
 
     _.each(timeSlotsByDate[moment(selectedDate).format('DD-MM-YYYY')], function(schedule)
     {
-        $('.timeslot-widget ul').append('<li class="timeslot" data-slot="' + schedule.start_time + '">' + moment(schedule.start_time).format('hh:mm A') + '<span class="checkbox"></span></li>');
-        if (selectedTimeSlots.indexOf(schedule.start_time) != -1)
-            $('.timeslot-widget ul li:last-child span').addClass('checked');
+        var slotTime = schedule.start_time;
+        var selectedDurationInMillis = duration * 60 * 1000;
+        var maxSlotTime = schedule.start_time + schedule.duration - selectedDurationInMillis;
+        while (slotTime < maxSlotTime)
+        {
+            $('.timeslot-widget ul').append('<li class="timeslot" data-slot="' + slotTime + '">' + moment(slotTime).format('hh:mm A') + '<span class="checkbox"></span></li>');
+            if (selectedTimeSlots.indexOf(schedule.start_time) != -1)
+                $('.timeslot-widget ul li:last-child span').addClass('checked');
+            slotTime += selectedDurationInMillis;
+        }
     });
 }
 
@@ -118,27 +130,23 @@ function setMonth(monthMoment)
 
     // Update dates and mark dates with available slots as active
     $(".calendar-widget tbody").empty();
-    for (var row = 0; row < 6; row++)
-    {
+    for (var row = 0; row < 6; row++) {
         // Create row
         $('.calendar-widget tbody').append('<tr/>');
         var rowElement = $('.calendar-widget tbody tr:last-child');
 
-        for (var col = 0; col < 7; col++)
-        {
+        for (var col = 0; col < 7; col++) {
             var cell = row * 7 + col;
             var dateIndex = cell - firstWeekdayOfMonth + 1;
 
             // Create date cell if i a valid date
-            if (dateIndex > 0 && dateIndex < daysInMonth)
-            {
+            if (dateIndex > 0 && dateIndex < daysInMonth) {
                 var dayMoment = moment(monthMoment).date(dateIndex);
 
                 $(rowElement).append('<td value="' + dayMoment + '"><a class="date-link">' + dateIndex + '</a></td>');
 
                 // Display dot if has schedules
-                if (timeSlotsByDate.hasOwnProperty(dayMoment.format('DD-MM-YYYY')))
-                {
+                if (timeSlotsByDate.hasOwnProperty(dayMoment.format('DD-MM-YYYY'))) {
                     $("td:last-child a", rowElement).append('<span class="marker status-ok">●</span>');
 
                     // If this is first date of month with available slots, select it
@@ -161,29 +169,24 @@ function setMonth(monthMoment)
 function updateSelectedTimeSlots()
 {
     selectedTimeSlots = selectedTimeSlots.splice(0, 3);
-    for (var i = 0; i < 3; i++)
-    {
-        var slotElement = $('.row.scheduled-slots li:nth-child(' + (i + 1)+ ')');
-        if (selectedTimeSlots[i])
-        {
+    for (var i = 0; i < 3; i++) {
+        var slotElement = $('.row.scheduled-slots li:nth-child(' + (i + 1) + ')');
+        if (selectedTimeSlots[i]) {
             $('.col-xs-4.slot', slotElement).text(moment(selectedTimeSlots[i]).format('DD MMM YYYY [at] hh:mm a'));
             $('.col-xs-4.remove', slotElement).removeClass('hidden');
         }
-        else
-        {
+        else {
             $('.col-xs-4.slot', slotElement).text('No time slot selected');
             $('.col-xs-4.remove', slotElement).addClass('hidden');
         }
     }
 
-    if (selectedTimeSlots.length < 3)
-    {
+    if (selectedTimeSlots.length < 3) {
         $('.modal-footer #schedule-done').hide();
         $('.modal-footer .alert.alert-warning').show();
         $('.modal-footer .alert.alert-warning .num-slots').text(selectedTimeSlots.length);
     }
-    else
-    {
+    else {
         $('.modal-footer #schedule-done').show();
         $('.modal-footer .alert.alert-warning').hide();
     }
