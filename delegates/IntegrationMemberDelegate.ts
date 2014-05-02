@@ -1,21 +1,22 @@
 ///<reference path='../_references.d.ts'/>
-import _                                    = require('underscore');
-import q                                    = require('q');
-import Utils                                = require('../common/Utils');
-import BaseDaoDelegate                      = require('../delegates/BaseDaoDelegate');
-import MysqlDelegate                        = require('../delegates/MysqlDelegate');
-import ExpertScheduleDelegate               = require('../delegates/ExpertScheduleDelegate');
-import IntegrationDelegate                  = require('../delegates/IntegrationDelegate');
-import UserDelegate                         = require('../delegates/UserDelegate');
-import UserProfileDelegate                  = require('../delegates/UserProfileDelegate');
-import IntegrationMemberDAO                 = require ('../dao/IntegrationMemberDao');
-import IntegrationMemberRole                = require('../enums/IntegrationMemberRole');
-import IncludeFlag                          = require('../enums/IncludeFlag');
-import Integration                          = require('../models/Integration');
-import User                                 = require('../models/User');
-import IntegrationMember                    = require('../models/IntegrationMember');
-import AccessTokenCache                     = require('../caches/AccessTokenCache');
-import ExpertScheduleRuleDelegate           = require('../delegates/ExpertScheduleRuleDelegate');
+import _                                            = require('underscore');
+import q                                            = require('q');
+import moment                                       = require('moment');
+import Utils                                        = require('../common/Utils');
+import BaseDaoDelegate                              = require('../delegates/BaseDaoDelegate');
+import MysqlDelegate                                = require('../delegates/MysqlDelegate');
+import ExpertScheduleDelegate                       = require('../delegates/ExpertScheduleDelegate');
+import IntegrationDelegate                          = require('../delegates/IntegrationDelegate');
+import UserDelegate                                 = require('../delegates/UserDelegate');
+import UserProfileDelegate                          = require('../delegates/UserProfileDelegate');
+import IntegrationMemberDAO                         = require ('../dao/IntegrationMemberDao');
+import IntegrationMemberRole                        = require('../enums/IntegrationMemberRole');
+import IncludeFlag                                  = require('../enums/IncludeFlag');
+import Integration                                  = require('../models/Integration');
+import User                                         = require('../models/User');
+import IntegrationMember                            = require('../models/IntegrationMember');
+import AccessTokenCache                             = require('../caches/AccessTokenCache');
+import ExpertScheduleRuleDelegate                   = require('../delegates/ExpertScheduleRuleDelegate');
 
 class IntegrationMemberDelegate extends BaseDaoDelegate
 {
@@ -122,7 +123,11 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
             case IncludeFlag.INCLUDE_USER_PROFILE:
                 return new UserProfileDelegate().search({'user_id': _.uniq(_.pluck(result, IntegrationMember.USER_ID))});
             case IncludeFlag.INCLUDE_SCHEDULES:
-                return new ExpertScheduleDelegate().getSchedulesForExpert(result[0][IntegrationMember.ID]);
+                // Return schedules for next 4 months
+                var scheduleStartTime = moment().hours(0).valueOf();
+                var scheduleEndTime = moment().add({months: 4}).valueOf();
+
+                return new ExpertScheduleDelegate().getSchedulesForExpert(result[0][IntegrationMember.ID], scheduleStartTime, scheduleEndTime);
             case IncludeFlag.INCLUDE_SCHEDULE_RULES:
                 return new ExpertScheduleRuleDelegate().getRulesByIntegrationMemberId(result[0][IntegrationMember.ID]);
         }

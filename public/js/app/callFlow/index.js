@@ -16,13 +16,22 @@ $('.duration li').click(function(event)
     selectDate(selectedDate, dateElement);
 });
 
-/* Date selection - Event handler */
-$('a.date-link').click(function handleDateSelected(event)
+/* Prev month selected - Event Handler */
+$('#monthSelector #prev').click(function()
 {
-    var selectedDate = parseInt($(event.currentTarget).parent().attr('value'));
-    $('a.date-link').removeClass('active');
-    $(event.currentTarget).addClass('active');
-    selectDate(selectedDate, $(event.currentTarget));
+    var currentDate = moment($('#monthSelector #month').text(), "MMM YYYY");
+    var prevMonth = currentDate.subtract({months: 1});
+    $('#monthSelector #month').text(prevMonth.format("MMM YYYY"));
+    setMonth(prevMonth);
+});
+
+/* Next month selected - Event Handler */
+$('#monthSelector #next').click(function()
+{
+    var currentDate = moment($('#monthSelector #month').text(), "MMM YYYY");
+    var nextMonth = currentDate.add({months: 1});
+    $('#monthSelector #month').text(nextMonth.format("MMM YYYY"));
+    setMonth(nextMonth);
 });
 
 /* Time slot selection - Event handler */
@@ -37,6 +46,15 @@ $(document).on('click', '.timeslot-widget ul li span', function handleTimeSlotSe
         selectedTimeSlots.splice(index, 1);
 
     updateSelectedTimeSlots();
+});
+
+/* Date selection - Event handler */
+$(document).on('click', 'a.date-link', function handleDateSelected(event)
+{
+    var selectedDate = parseInt($(event.currentTarget).parent().attr('value'));
+    $('a.date-link').removeClass('active');
+    $(event.currentTarget).addClass('active');
+    selectDate(selectedDate, $(event.currentTarget));
 });
 
 /* Remove selected schedule event handler */
@@ -111,8 +129,7 @@ function selectDate(selectedDate, dateElement)
         var slotTime = schedule.start_time;
         var selectedDurationInMillis = duration * 60 * 1000;
         var maxSlotTime = schedule.start_time + schedule.duration - selectedDurationInMillis;
-        while (slotTime < maxSlotTime)
-        {
+        while (slotTime < maxSlotTime) {
             $('.timeslot-widget ul').append('<li class="timeslot" data-slot="' + slotTime + '">' + moment(slotTime).format('hh:mm A') + '<span class="checkbox"></span></li>');
             if (selectedTimeSlots.indexOf(schedule.start_time) != -1)
                 $('.timeslot-widget ul li:last-child span').addClass('checked');
@@ -191,4 +208,3 @@ function updateSelectedTimeSlots()
         $('.modal-footer .alert.alert-warning').hide();
     }
 }
-
