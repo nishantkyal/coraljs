@@ -85,6 +85,7 @@ class CallFlowRoute
         var sessionData = new SessionData(req);
         var self = this;
 
+        return self.transactionDelegate.createPhoneCallTransaction
         function renderPage(phoneNumbers)
         {
             var pageData = _.extend(sessionData.getData(), {

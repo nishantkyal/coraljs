@@ -148,7 +148,7 @@ include header
                                             li(class=duration == 60 ? 'active' : '')
                                                 a.well 60
                                         p.floatright
-                                            strong $1.00
+                                            strong= formatMoney(expert.schedule[0].price_per_min, expert.schedule[0].price_unit)
                                             | /min
                         .row
                             .call-inputs
