@@ -16,7 +16,7 @@ class UserProfileApi
         var userProfileDelegate = new UserProfileDelegate();
         var integrationMemberDelegate = new IntegrationMemberDelegate();
 
-        app.get(ApiUrlDelegate.userProfileFromLinkedIn(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_FETCH, {failureRedirect: '/',
+        app.post(ApiUrlDelegate.userProfileFromLinkedIn(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_FETCH, {failureRedirect: '/',
             failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}), function(req:express.Request, res:express.Response)
         {
             var profileId:number = parseInt(req.params[ApiConstants.USER_PROFILE_ID]);
@@ -24,6 +24,7 @@ class UserProfileApi
             var fetchProfile:boolean = req.query[ApiConstants.FETCH_PROFILE] == 'true' ? true :false;
             var fetchEducation:boolean = req.query[ApiConstants.FETCH_EDUCATION] == 'true' ? true :false;
             var fetchEmployment:boolean = req.query[ApiConstants.FETCH_EMPLOYMENT] == 'true' ? true :false;
+            res.send('OK');
 
             //TODO[ankit] - delete all previous entries - do it in transaction
 

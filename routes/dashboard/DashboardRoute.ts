@@ -94,6 +94,7 @@ class DashboardRoute
         app.get(Urls.memberProfileComplete(), this.memberProfileComplete.bind(this));
         app.get(Urls.memberEducation(), Middleware.allowSelf, this.memberEducation.bind(this));
         app.get(Urls.memberEmployment(), Middleware.allowSelf, this.memberEmployment.bind(this));
+
         app.get(Urls.logout(), this.logout.bind(this));
         app.get(Urls.paymentCallback(), this.paymentComplete.bind(this));
         app.get(Urls.emailAccountVerification(), this.emailAccountVerification.bind(this));
@@ -101,6 +102,7 @@ class DashboardRoute
         // Auth
         app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
         app.post(Urls.memberProfile(), Middleware.allowSelf, this.memberProfileSave.bind(this));
+        app.post(Urls.changePassword(), Middleware.allowSelf, this.changePassword.bind(this));
     }
 
     login(req, res:express.Response)
@@ -130,6 +132,19 @@ class DashboardRoute
         };
 
         res.render(DashboardRoute.PAGE_FORGOT_PASSWORD, pageData);
+    }
+
+    private changePassword(req:express.Request, res:express.Response)
+    {
+        var self = this;
+        var sessionData = new SessionData(req);
+        var password:string = req.body[ApiConstants.PASSWORD];
+
+        self.userDelegate.update({id:sessionData.getLoggedInUser().getId()},{password:password})
+            .then(
+                function passwordUpdated() { res.send({message:'Password Changed Successfully'}).status(200); },
+                function PasswordUpdateError(error) { res.send({message:'Password Change Failed'}).status(500); }
+            )
     }
 
     verifyMobile(req:express.Request, res:express.Response)
@@ -391,7 +406,8 @@ class DashboardRoute
                     'userProfile': userProfile,
                     'userEducation': userEducation,
                     'userEmployment': userEmployment,
-                    'userUrl': userUrl
+                    'userUrl': userUrl,
+                    messages: req.flash()
                 });
                 res.render(DashboardRoute.PAGE_PROFILE, pageData);
             },
@@ -408,6 +424,22 @@ class DashboardRoute
             this.userDelegate.update({id: sessionData.getLoggedInUser().getId()}, user),
             this.userProfileDelegate.update({id:userProfile.id},userProfile)
         ])
+            .then(
+            function userUpdated() { res.send(200); },
+            function userUpdateError(error) { res.send(500); }
+        );
+    }
+
+    profile(req:express.Request, res:express.Response)
+    {
+        var sessionData = new SessionData(req);
+        var user = req.body[ApiConstants.USER];
+        var userProfile = req.body[ApiConstants.USER_PROFILE];
+
+        q.all([
+                this.userDelegate.update({id: sessionData.getLoggedInUser().getId()}, user),
+                this.userProfileDelegate.update({id:userProfile.id},userProfile)
+            ])
             .then(
             function userUpdated() { res.send(200); },
             function userUpdateError(error) { res.send(500); }

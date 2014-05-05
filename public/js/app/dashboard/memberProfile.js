@@ -2,23 +2,62 @@ $('.datepicker').datepicker({
     format: 'dd/mm/yyyy'
 });
 
-$('#FetchFromLinkedInModal form').validate({
+$('#ChangePasswordModal form').validate({
+    rules         : {
+        password: { required: true},
+        confirm_password : { required: true, equalTo: "#ChangePasswordModal form #password"}
+    },
+    errorPlacement: function(error, element)
+    {
+        $(element).attr('title', error[0].innerHTML);
+        $(element).tooltip('show');
+    },
+    highlight     : function(element)
+    {
+        $(element).closest('.form-group').addClass('has-error');
+    },
+    unhighlight   : function(element)
+    {
+        $(element).closest('.form-group').removeClass('has-error');
+    },
     submitHandler : function()
     {
         $.ajax({
-            url : '/rest/user/profileFromLinkedIn/' + profileId,
-            type: 'get',
+            url : '/member/' + memberId + '/changePassword',
+            type: 'post',
             data: {
-                fetchProfile : $('#FetchFromLinkedInModal form #profile').is(":checked"),
-                fetchEducation : $('#FetchFromLinkedInModal form #education').is(":checked"),
-                fetchEmployment: $('#FetchFromLinkedInModal form #employment').is(":checked"),
-                memberId:memberId
+                pass: $('#ChangePasswordModal form #password').val()
             },
             success: function()
             {
-                location.reload();
+                bootbox.alert("Your password has been updated.", function(){
+                    location.reload();
+                });
+            },
+            error: function()
+            {
+                bootbox.alert("There was an error in changing password. Please try again later", function(){
+                    location.reload();
+                });
             }
         })
+    }
+});
+
+$('#FetchFromLinkedInModal form').validate({
+    submitHandler : function()
+    {
+        var url = '/rest/user/profileFromLinkedIn/' + profileId;
+        var data = {
+            fetchProfile : $('#FetchFromLinkedInModal form #profile').is(":checked"),
+            fetchEducation : $('#FetchFromLinkedInModal form #education').is(":checked"),
+            fetchEmployment: $('#FetchFromLinkedInModal form #employment').is(":checked"),
+            memberId:memberId
+        }
+        $.post(url,data)
+            .done(function(data){
+                location.reload();
+            });
     }
 });
 

@@ -172,6 +172,7 @@ class MemberRegistrationRoute
         var member = sessionData.getMember();
         var user:User;
         var profileId:number;
+        var integrationMemberId:number;
 
         var mobileVerificationUrl = Utils.addQueryToUrl(DashboardUrls.mobileVerification(), Utils.createSimpleObject(ApiConstants.CONTEXT, 'expertRegistration'));
         var redirectUrl = '';
@@ -194,23 +195,28 @@ class MemberRegistrationRoute
             self.userDelegate.get(userId),
             self.userProfileDelegate.create(new UserProfile()),
             self.integrationMemberDelegate.update({'user_id': userId, 'integration_id': integrationId}, {role: member.getRole()}),
+            self.integrationMemberDelegate.find({'user_id': userId, 'integration_id': integrationId})
         ])
         .then( function profileCreated(...args){
             var userProfile:UserProfile = args[0][1];
+            var integrationMember:IntegrationMember = args[0][3];
+            integrationMemberId = integrationMember.getId();
             user = args[0][0];
             profileId = userProfile.getId();
-            return self.userProfileDelegate.fetchAllDetailsFromLinkedIn(userId, integrationId, profileId)
+            return self.userProfileDelegate.fetchAllDetailsFromLinkedIn(userId, integrationId, profileId);
         })
         .then(
             function profileUpdated(){
                 var userProfile:UserProfile = new UserProfile();
-                userProfile.setStatus(ProfileStatus.PENDING_APPROVAL);
+                userProfile.setStatus(ProfileStatus.INCOMPLETE);
+                userProfile.setIntegrationMemberId(integrationMemberId);
                 return self.userProfileDelegate.update({id: profileId}, userProfile)
             },
             function profileUpdateError(error)
             {
                 var userProfile:UserProfile = new UserProfile();
                 userProfile.setStatus(ProfileStatus.INCOMPLETE);
+                userProfile.setIntegrationMemberId(integrationMemberId);
                 return self.userProfileDelegate.update({id:profileId},userProfile)
         })
         .then( function setDefaultProfile(){

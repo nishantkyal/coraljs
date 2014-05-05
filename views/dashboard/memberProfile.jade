@@ -3,6 +3,7 @@ include ../scriptsAndStyles
 .container-fluid
     .row-fluid
         .col-md-2
+            include ../errorMessage
         .col-md-8
             .navbar.navbar-default
                 .container
@@ -20,6 +21,7 @@ include ../scriptsAndStyles
                     input#selectFileSubmit(type='submit', style='display: none')
                     .text-center
                         a.btn.btn-default.btn-xs#selectFileBtn Upload
+                a.btn.btn-link(data-toggle='modal', href='#ChangePasswordModal') Change Password
             .col-md-9
                 label.control-label(for='skill') Profile Details of #{Salutation[user.title]} #{user.first_name} #{user.middle_name} #{user.last_name}
                 a.fa.fa-pencil.editSkill(data-id=profileId, data-toggle='modal', href='#EditUserProfileModal')
@@ -52,6 +54,23 @@ include ../scriptsAndStyles
                 include memberEducation
                 include memberEmployment
         .col-md-2
+#ChangePasswordModal.modal.fade(style='display: none;')
+    .modal-dialog
+        .modal-content
+            .modal-header
+                .close(data-dismiss='modal', aria-hidden='true') x
+                h4.modal-title Change Password
+            form
+                .modal-body
+                    .form-group
+                        label.control-label(for='short_desc') Password
+                        input.form-control#password(type='text', name='password', autocomplete='off', data-toggle="tooltip", data-placement="bottom")
+                    .form-group
+                        label.control-label(for='long_desc') Confirm Password
+                        input.form-control#confirm_password(type='text', name='confirmPassword', autocomplete='off', data-toggle="tooltip", data-placement="bottom")
+                .modal-footer
+                    button.btn.btn-default(data-dismiss='modal') Close
+                    input.btn.btn-primary(type='submit', value='OK')
 #FetchFromLinkedInModal.modal.fade(style='display: none;')
     .modal-dialog
         .modal-content
@@ -162,8 +181,6 @@ script.
     var userSkill = JSON.parse( '!{JSON.stringify(userSkill)}' );
     var userProfile = JSON.parse ( '!{JSON.stringify(userProfile)}' );
     var userProfile = JSON.parse ( '!{JSON.stringify(userProfile)}' );
-    var temp = JSON.parse ( '!{JSON.stringify(Salutation)}' );
-    var temp1 = JSON.parse ( '!{JSON.stringify(IndustryCodes)}' );
 script(src='/js/lib/bootstrap3-typeahead.js')
 script(src='/js/lib/bloodhound.js')
 script(src='/js/app/dashboard/memberProfile.js')
