@@ -39,6 +39,7 @@ import ApiConstants                                     = require('../../enums/A
 import SmsTemplate                                      = require('../../enums/SmsTemplate');
 import CallStatus                                       = require('../../enums/CallStatus');
 import IndustryCodes                                    = require('../../enums/IndustryCode');
+import ProfileStatus                                    = require('../../enums/ProfileStatus');
 import Utils                                            = require('../../common/Utils');
 import Formatter                                        = require('../../common/Formatter');
 import VerificationCodeCache                            = require('../../caches/VerificationCodeCache');
@@ -92,8 +93,6 @@ class DashboardRoute
         app.get(Urls.integrationMembers(), Middleware.allowOwnerOrAdmin, this.integrationUsers.bind(this));
         app.get(Urls.memberProfile(), Middleware.allowSelf, this.memberProfile.bind(this));
         app.get(Urls.memberProfileComplete(), this.memberProfileComplete.bind(this));
-        app.get(Urls.memberEducation(), Middleware.allowSelf, this.memberEducation.bind(this));
-        app.get(Urls.memberEmployment(), Middleware.allowSelf, this.memberEmployment.bind(this));
 
         app.get(Urls.logout(), this.logout.bind(this));
         app.get(Urls.paymentCallback(), this.paymentComplete.bind(this));
@@ -103,6 +102,7 @@ class DashboardRoute
         app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
         app.post(Urls.memberProfile(), Middleware.allowSelf, this.memberProfileSave.bind(this));
         app.post(Urls.changePassword(), Middleware.allowSelf, this.changePassword.bind(this));
+        app.post(Urls.changeProfileStatus(), Middleware.allowSelf, this.changeProfileStatus.bind(this));
     }
 
     login(req, res:express.Response)
@@ -424,94 +424,22 @@ class DashboardRoute
             this.userDelegate.update({id: sessionData.getLoggedInUser().getId()}, user),
             this.userProfileDelegate.update({id:userProfile.id},userProfile)
         ])
-            .then(
+        .then(
             function userUpdated() { res.send(200); },
             function userUpdateError(error) { res.send(500); }
         );
     }
 
-    profile(req:express.Request, res:express.Response)
+    changeProfileStatus(req:express.Request, res:express.Response)
     {
-        var sessionData = new SessionData(req);
-        var user = req.body[ApiConstants.USER];
-        var userProfile = req.body[ApiConstants.USER_PROFILE];
-
-        q.all([
-                this.userDelegate.update({id: sessionData.getLoggedInUser().getId()}, user),
-                this.userProfileDelegate.update({id:userProfile.id},userProfile)
-            ])
-            .then(
+        var profileId = req.body[ApiConstants.USER_PROFILE_ID];
+        var userProfile:UserProfile = new UserProfile();
+        userProfile.setStatus(ProfileStatus.PENDING_APPROVAL);
+        this.userProfileDelegate.update({id:profileId},userProfile)
+        .then(
             function userUpdated() { res.send(200); },
             function userUpdateError(error) { res.send(500); }
         );
-    }
-
-    memberEducation(req:express.Request, res:express.Response)
-    {
-        var self = this;
-        var sessionData = new SessionData(req);
-        var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
-        var profileId:number;
-
-        self.userProfileDelegate.find({'integration_member_id':memberId})
-            .then(
-            function userProfileFetched(userProfile:UserProfile){
-                profileId = userProfile.getId();
-                return q.all([
-                    self.userEducationDelegate.search({'profileId':userProfile.getId()}),
-                    self.integrationMemberDelegate.get(memberId, IntegrationMember.DASHBOARD_FIELDS)
-                ])
-            })
-            .then(
-            function memberDetailsFetched(...args)
-            {
-                var userEducation = args[0][0];
-                var member = args[0][1];
-
-                var pageData = _.extend(sessionData.getData(), {
-                    'member': member,
-                    'userEducation': userEducation,
-                    'profileId': profileId
-                });
-
-                res.render(DashboardRoute.PAGE_EDUCATION, pageData);
-            },
-            function userEducationFetchError(error) { res.send(500); }
-        )
-    }
-
-    memberEmployment(req:express.Request, res:express.Response)
-    {
-        var self = this;
-        var sessionData = new SessionData(req);
-        var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
-        var profileId:number;
-
-        self.userProfileDelegate.find({'integration_member_id':memberId})
-            .then(
-            function userProfileFetched(userProfile:UserProfile){
-                profileId = userProfile.getId();
-                return q.all([
-                    self.userEmploymentDelegate.search({'profileId':userProfile.getId()}),
-                    self.integrationMemberDelegate.get(memberId, IntegrationMember.DASHBOARD_FIELDS)
-                ])
-            })
-            .then(
-            function memberDetailsFetched(...args)
-            {
-                var userEmployment = args[0][0];
-                var member = args[0][1];
-
-                var pageData = _.extend(sessionData.getData(), {
-                    'member': member,
-                    'userEmployment': userEmployment,
-                    'profileId' :profileId
-                });
-
-                res.render(DashboardRoute.PAGE_EMPLOYMENT, pageData);
-            },
-            function memberDetailsFetchError(error) { res.send(500); }
-        )
     }
 
     logout(req, res)

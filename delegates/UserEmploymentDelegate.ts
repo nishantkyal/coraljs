@@ -17,8 +17,8 @@ class UserEmploymentDelegate extends BaseDaoDelegate
     {
         var self = this;
 
-        if (Utils.isNullOrEmpty(transaction))
-            return MysqlDelegate.executeInTransaction(self, arguments);
+        //if (Utils.isNullOrEmpty(transaction))
+          //  return MysqlDelegate.executeInTransaction(self, arguments);
 
         return self.create(userEmployment, transaction)
             .then(

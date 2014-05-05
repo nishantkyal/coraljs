@@ -44,20 +44,32 @@ $('#ChangePasswordModal form').validate({
     }
 });
 
-$('#FetchFromLinkedInModal form').validate({
-    submitHandler : function()
+$('#SendProfile').click(function(){
+    if(userProfile.status == 1)
+        bootbox.confirm("Are you sure you want to send your profile for approval?", function(result){
+            if(result)
+            {
+                $.ajax({
+                    url : '/member/' + memberId + '/changeProfileStatus',
+                    type: 'post',
+                    data: {profileId:userProfile.id},
+                    success: function()
+                    {
+                        location.reload();
+                    }
+                })
+            }
+        })
+    else
     {
-        var url = '/rest/user/profileFromLinkedIn/' + profileId;
-        var data = {
-            fetchProfile : $('#FetchFromLinkedInModal form #profile').is(":checked"),
-            fetchEducation : $('#FetchFromLinkedInModal form #education').is(":checked"),
-            fetchEmployment: $('#FetchFromLinkedInModal form #employment').is(":checked"),
-            memberId:memberId
-        }
-        $.post(url,data)
-            .done(function(data){
-                location.reload();
-            });
+        var text;
+        if (userProfile.status == 2)
+            text = "Profiel has already been sent to approval. In the mean time you can continue to make the changes."
+        else
+            text = "Profile has already been approved. "
+        bootbox.alert(text, function(){
+            location.reload();
+        });
     }
 });
 

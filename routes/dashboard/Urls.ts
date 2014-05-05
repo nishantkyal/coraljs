@@ -6,6 +6,7 @@ class Urls
     static login() { return ApiUrlDelegate.get('/login'); }
     static forgotPassword() { return ApiUrlDelegate.get('/forgotPassword'); }
     static changePassword(memberId?:number) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/changePassword', {memberId: memberId}); }
+    static changeProfileStatus(memberId?:number) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/changeProfileStatus', {memberId: memberId}); }
     static emailAccountVerification() { return ApiUrlDelegate.get('/email/verification'); }
     static mobileVerification():string { return ApiUrlDelegate.get('/phone/verification'); }
     static integrations() { return ApiUrlDelegate.get('/integrations'); }

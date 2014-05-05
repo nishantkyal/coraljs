@@ -21,6 +21,7 @@ include ../scriptsAndStyles
                     .text-center
                         a.btn.btn-default.btn-xs#selectFileBtn Upload
                 a.btn.btn-link(data-toggle='modal', href='#ChangePasswordModal') Change Password
+                a.btn.btn-link#SendProfile() Send Profile for Approval
             .col-md-9
                 label.control-label(for='skill') Profile Details of #{Salutation[user.title]} #{user.first_name} #{user.middle_name} #{user.last_name}
                 a.fa.fa-pencil.editSkill(data-id=profileId, data-toggle='modal', href='#EditUserProfileModal')
@@ -76,21 +77,29 @@ include ../scriptsAndStyles
             .modal-header
                 .close(data-dismiss='modal', aria-hidden='true') x
                 h4.modal-title Edit Profile
-            form
+            form(action=ApiUrlDelegate.userProfileFromLinkedIn(userProfile.id), method="post")
                 .modal-body
                     .row
                         .form-group.col-md-6
                             p.confirm
                                 label
-                                    input#profile(type="checkbox", name="profile")
-                                    | Fetch Profile Details
+                                    input#basic(type="checkbox", name="fetchBasic")
+                                    | Fetch Basic Details
                                 br
                                 label
-                                    input#education(type="checkbox", name="education")
+                                    input#profilePicture(type="checkbox", name="fetchProfilePicture")
+                                    | Fetch Profile Picture
+                                br
+                                label
+                                    input#skill(type="checkbox", name="fetchSkill")
+                                    | Fetch Skill Details
+                                br
+                                label
+                                    input#education(type="checkbox", name="fetchEducation")
                                     | Fetch Education Details
                                 br
                                 label
-                                    input#employment(type="checkbox", name="employment")
+                                    input#employment(type="checkbox", name="fetchEmployment")
                                     | Fetch Employment Details
                             div Please note the information on this page will be replaced with information from LinkedIn
                 .modal-footer

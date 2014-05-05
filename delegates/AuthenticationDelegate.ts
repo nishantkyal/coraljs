@@ -12,6 +12,7 @@ import passport_local                           = require('passport-local');
 import log4js                                   = require('log4js');
 import IntegrationMemberDelegate                = require('../delegates/IntegrationMemberDelegate');
 import UserDelegate                             = require('../delegates/UserDelegate');
+import UserProfileDelegate                      = require('../delegates/UserProfileDelegate');
 import UserOAuthDelegate                        = require('../delegates/UserOAuthDelegate');
 import MysqlDelegate                            = require('../delegates/MysqlDelegate');
 import EmailDelegate                            = require('../delegates/EmailDelegate');
@@ -187,7 +188,8 @@ class AuthenticationDelegate
         passport.use(strategyId, new passport_linkedin.Strategy({
                 consumerKey: Config.get(Config.LINKEDIN_API_KEY),
                 consumerSecret: Config.get(Config.LINKEDIN_API_SECRET),
-                callbackURL: callbackUrl
+                callbackURL: callbackUrl,
+                profileFields: UserProfileDelegate.BASICFIELDS
             },
             function (accessToken, refreshToken, profile:any, done)
             {
@@ -251,25 +253,12 @@ class AuthenticationDelegate
         passport.use(strategyId, new passport_linkedin.Strategy({
                 consumerKey: Config.get(Config.LINKEDIN_API_KEY),
                 consumerSecret: Config.get(Config.LINKEDIN_API_SECRET),
-                callbackURL: callbackUrl
+                callbackURL: callbackUrl,
+                profileFields: UserProfileDelegate.BASICFIELDS
             },
             function (accessToken, refreshToken, profile:any, done)
             {
                 profile = profile['_json'];
-
-                var user:User = new User();
-                user.setFirstName(profile.firstName);
-                user.setLastName(profile.lastName);
-                if (!Utils.isNullOrEmpty(profile.dateOfBirth))
-                {
-                    var dob:string = profile.dateOfBirth.day + '-' + profile.dateOfBirth.month + '-' + profile.dateOfBirth.year;
-                    user.setDateOfBirth(dob);
-                }
-                if (!Utils.isNullOrEmpty(profile.industry))
-                {
-                    var industry:string = profile.industry.toString().replace(/-|\/|\s/g, '_').toUpperCase();
-                    user.setIndustry(IndustryCodes[industry]);
-                }
 
                 var userOauth = new UserOauth();
                 userOauth.setOauthUserId(profile.id);
@@ -278,7 +267,7 @@ class AuthenticationDelegate
                 userOauth.setRefreshToken(refreshToken);
                 userOauth.setEmail(profile.emailAddress);
 
-                return new UserOAuthDelegate().addOrUpdateToken(userOauth, user)
+                return new UserOAuthDelegate().addOrUpdateToken(userOauth)
                     .then( function OAuthCreated(){ done();},
                     function OAuthCreateError(error){ done('Error');})
             }

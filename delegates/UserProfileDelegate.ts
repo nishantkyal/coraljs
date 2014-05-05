@@ -23,6 +23,7 @@ import UserOauth                                = require('../models/UserOauth')
 import IntegrationMember                        = require('../models/IntegrationMember');
 import Config                                   = require('../common/Config');
 import Utils                                    = require('../common/Utils');
+import IndustryCodes                            = require('../enums/IndustryCode');
 
 class UserProfileDelegate extends BaseDaoDelegate
 {
@@ -220,10 +221,28 @@ class UserProfileDelegate extends BaseDaoDelegate
                 var integrationMember:IntegrationMember = args[0][1];
 
                 var userProfile:UserProfile = new UserProfile();
-                userProfile.setShortDesc(profile.headline);
-                userProfile.setLongDesc(profile.summary);
+                userProfile.setShortDesc(profile.headline || '');
+                userProfile.setLongDesc(profile.summary|| '');
                 userProfile.setIntegrationMemberId(integrationMember.getId());
-                return self.update({id:profileId}, userProfile,transaction);
+
+                var user:User = new User();
+                user.setFirstName(profile.firstName);
+                user.setLastName(profile.lastName);
+                if (!Utils.isNullOrEmpty(profile.dateOfBirth))
+                {
+                    var dob:string = profile.dateOfBirth.day + '-' + profile.dateOfBirth.month + '-' + profile.dateOfBirth.year;
+                    user.setDateOfBirth(dob);
+                }
+                if (!Utils.isNullOrEmpty(profile.industry))
+                {
+                    var industry:string = profile.industry.toString().replace(/-|\/|\s/g, '_').toUpperCase();
+                    user.setIndustry(IndustryCodes[industry]);
+                }
+                var UserDelegate = require('../delegates/UserDelegate');
+                return q.all([
+                    self.update({id:profileId}, userProfile,transaction),
+                    new UserDelegate().update({id:userId}, user, transaction)
+                ]);
             })
             .fail(function BasicDetailsFetchedError(error)
             {
@@ -243,6 +262,63 @@ class UserProfileDelegate extends BaseDaoDelegate
             self.fetchProfilePictureFromLinkedIn(userId, integrationId, profileId, transaction),
             self.fetchSkillDetailsFromLinkedIn(userId, integrationId, profileId, transaction)
         ]);
+    }
+
+    fetchAndReplaceEducation(userId:number, integrationId:number, profileId:number, transaction?:any):q.Promise<any>
+    {
+        var self = this;
+        var userEducationDelegate = new UserEducationDelegate();
+        return userEducationDelegate.search({'profileId':profileId})
+            .then( function EducationFetched(userEducation:UserEducation[])
+            {
+                q.all([
+                    _.each(userEducation, function(edu){
+                        return userEducationDelegate.delete({id:edu.getId(),profileId:profileId},false,transaction)
+                    })
+                ])
+                .then( function deleted()
+                {
+                    self.fetchEducationDetailsFromLinkedIn(userId, integrationId, profileId, transaction);
+                })
+            })
+    }
+
+    fetchAndReplaceEmployment(userId:number, integrationId:number, profileId:number, transaction?:any):q.Promise<any>
+    {
+        var self = this;
+        var userEmploymentDelegate = new UserEmploymentDelegate();
+        return userEmploymentDelegate.search({'profileId':profileId})
+            .then( function EmploymentFetched(userEmployment:UserEmployment[])
+            {
+                q.all([
+                        _.each(userEmployment, function(emp){
+                            return userEmploymentDelegate.delete({id:emp.getId(),profileId:profileId},false,transaction)
+                        })
+                    ])
+                    .then( function deleted()
+                    {
+                        self.fetchEmploymentDetailsFromLinkedIn(userId, integrationId, profileId, transaction);
+                    })
+            })
+    }
+
+    fetchAndReplaceSkill(userId:number, integrationId:number, profileId:number, transaction?:any):q.Promise<any>
+    {
+        var self = this;
+        var userSkillDelegate = new UserSkillDelegate();
+        return userSkillDelegate.search({'profileId':profileId})
+            .then( function SkillFetched(userSkill:UserSkill[])
+            {
+                q.all([
+                        _.each(userSkill, function(skill){
+                            return userSkillDelegate.delete({id:skill.getId(),profileId:profileId},false,transaction)
+                        })
+                    ])
+                    .then( function deleted()
+                    {
+                        self.fetchSkillDetailsFromLinkedIn(userId, integrationId, profileId, transaction);
+                    })
+            })
     }
 }
 export = UserProfileDelegate

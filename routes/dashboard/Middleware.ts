@@ -48,12 +48,17 @@ class Middleware
         var memberId:number = parseInt(req.params[ApiConstants.MEMBER_ID]);
         var loggedInUser = sessionData.getLoggedInUser();
 
-        var isSelf = !Utils.isNullOrEmpty(_.findWhere(integrationMembers, {'id': memberId, 'user_id': loggedInUser.getId()}));
-
-        if (isSelf)
-            next();
-        else
+        if(Utils.isNullOrEmpty(loggedInUser))
             res.redirect('/login');
+        else
+        {
+            var isSelf = !Utils.isNullOrEmpty(_.findWhere(integrationMembers, {'id': memberId, 'user_id': loggedInUser.getId()}));
+
+            if (isSelf)
+                next();
+            else
+                res.redirect('/login');
+        }
     }
 }
 export = Middleware
