@@ -37,6 +37,9 @@ class ApiConstants
     static CODE:string = 'code';
     static CODE_VERIFICATION:string = 'code_verification';
     static WIDGET_ID:string = 'widgetId';
+    static FETCH_PROFILE:string = 'fetchProfile';
+    static FETCH_EDUCATION:string = 'fetchEducation';
+    static FETCH_EMPLOYMENT:string = 'fetchEmployment';
 
     /* Body constants */
     static COUPON:string = 'coupon';

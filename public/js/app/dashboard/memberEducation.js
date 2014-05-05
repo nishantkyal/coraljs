@@ -29,15 +29,6 @@ $('.delete').click(function()
     $('#DeleteUserEducationModal .btn-primary').attr('data-id', memberEducationId);
 });
 
-$('#FetchFromLinkedIn').click(function(){
-    bootbox.confirm("Are you sure you want to replace the information on this page with information from LinkedIn?", function(result){
-        if(result)
-        {
-            console.log("yes");
-        }
-    });
-});
-
 $('#AddUserEducationModal form').validate({
     rules         : {
         school_name : { required: true},
@@ -63,13 +54,13 @@ $('#AddUserEducationModal form').validate({
             type: 'put',
             data: {
                 education: {
-                    school_name     : $('form #school_name').val(),
-                    start_year      : $('form #start_year').val(),
-                    end_year        : $('form #end_year').val(),
-                    degree          : $('form #degree').val(),
-                    field_of_study  : $('form #field_of_study').val(),
-                    activities      : $('form #activities').val(),
-                    notes           : $('form #description').val()
+                    school_name     : $('#AddUserEducationModal form #school_name').val(),
+                    start_year      : $('#AddUserEducationModal form #start_year').val(),
+                    end_year        : $('#AddUserEducationModal form #end_year').val(),
+                    degree          : $('#AddUserEducationModal form #degree').val(),
+                    field_of_study  : $('#AddUserEducationModal form #field_of_study').val(),
+                    activities      : $('#AddUserEducationModal form #activities').val(),
+                    notes           : $('#AddUserEducationModal form #description').val()
                 },
                 profileId           : profileId
             },

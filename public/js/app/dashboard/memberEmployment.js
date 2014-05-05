@@ -2,15 +2,6 @@ $('.datepicker').datepicker({
     format: 'mm/yyyy'
 });
 
-$('#FetchFromLinkedIn').click(function(){
-    bootbox.confirm("Are you sure you want to replace the information on this page with information from LinkedIn?", function(result){
-        if(result)
-        {
-            console.log("yes");
-        }
-    });
-});
-
 $('#AddUserEmploymentModal form').validate({
     rules         : {
         title : { required: true}
@@ -35,12 +26,12 @@ $('#AddUserEmploymentModal form').validate({
             type: 'put',
             data: {
                 employment: {
-                    title           : $('form #title').val(),
-                    start_date      : $('form #start_date').val(),
-                    end_date        : $('form #end_date').val(),
-                    summary         : $('form #summary').val(),
-                    company         : $('form #company').val(),
-                    is_current      : $('form #is_current').val()
+                    title           : $('#AddUserEmploymentModal form #title').val(),
+                    start_date      : $('#AddUserEmploymentModal form #start_date').val(),
+                    end_date        : $('#AddUserEmploymentModal form #end_date').val(),
+                    summary         : $('#AddUserEmploymentModal form #summary').val(),
+                    company         : $('#AddUserEmploymentModal form #company').val(),
+                    is_current      : $('#AddUserEmploymentModal form #is_current').val()
                 },
                 profileId           : profileId
             },

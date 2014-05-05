@@ -16,18 +16,30 @@ class UserProfileApi
         var userProfileDelegate = new UserProfileDelegate();
         var integrationMemberDelegate = new IntegrationMemberDelegate();
 
-        app.get(ApiUrlDelegate.userProfileFromLinkedIn(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
+        app.get(ApiUrlDelegate.userProfileFromLinkedIn(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_FETCH, {failureRedirect: '/',
+            failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}), function(req:express.Request, res:express.Response)
         {
             var profileId:number = parseInt(req.params[ApiConstants.USER_PROFILE_ID]);
             var integrationMemberId:number = parseInt(req.query[ApiConstants.MEMBER_ID]);
-            integrationMemberDelegate.get(integrationMemberId)
+            var fetchProfile:boolean = req.query[ApiConstants.FETCH_PROFILE] == 'true' ? true :false;
+            var fetchEducation:boolean = req.query[ApiConstants.FETCH_EDUCATION] == 'true' ? true :false;
+            var fetchEmployment:boolean = req.query[ApiConstants.FETCH_EMPLOYMENT] == 'true' ? true :false;
+
+            //TODO[ankit] - delete all previous entries - do it in transaction
+
+            /*integrationMemberDelegate.get(integrationMemberId)
                 .then( function(integrationMember:IntegrationMember){
-                    userProfileDelegate.fetchProfilePictureFromLinkedIn(integrationMember.getUserId(), integrationMember.getIntegrationId(), profileId)
-                        .then(
-                        function profileFetched(profile) { res.json(profile); },
-                        function profileFetchError(error) { res.status(500).send(error); }
-                    );
-                });
+                    if(fetchProfile)
+                    {
+                        userProfileDelegate.fetchProfilePictureFromLinkedIn(integrationMember.getUserId(), integrationMember.getIntegrationId(), profileId)
+                    }
+                })
+                .fail(
+                    function profileFetchError(error) { res.status(500).send(error); })*/
+        });
+
+        app.get(ApiUrlDelegate.userProfileFromLinkedInCallback(), function(req:express.Request, res:express.Response){
+            res.send('OK');
         });
 
         app.get(ApiUrlDelegate.userProfileById(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)

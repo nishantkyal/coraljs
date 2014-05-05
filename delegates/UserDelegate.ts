@@ -128,7 +128,7 @@ class UserDelegate extends BaseDaoDelegate
                 if (Utils.isNullOrEmpty(phone))
                     throw(UserStatus.MOBILE_NOT_VERIFIED);
                 else
-                    return self.userProfileDelegate.find({user_id: user.getId()});
+                    return self.userProfileDelegate.find({user_id: user.getId()});//TODO[ankit] change this as it won't work anymore
             })
             .then(
             function userProfileFound(profile)

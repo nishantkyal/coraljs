@@ -2,26 +2,27 @@ $('.datepicker').datepicker({
     format: 'dd/mm/yyyy'
 });
 
-$('#FetchFromLinkedIn').click(function(){
-    bootbox.confirm("Are you sure you want to replace the information on this page with information from LinkedIn?", function(result){
-        if(result)
-        {
-            $.ajax({
-                url : '/rest/user/profileFromLinkedIn/' + userProfile.id,
-                type: 'get',
-                data: {
-                    memberId:memberId
-                },
-                success: function()
-                {
-                    location.reload();
-                }
-            })
-        }
-    });
+$('#FetchFromLinkedInModal form').validate({
+    submitHandler : function()
+    {
+        $.ajax({
+            url : '/rest/user/profileFromLinkedIn/' + profileId,
+            type: 'get',
+            data: {
+                fetchProfile : $('#FetchFromLinkedInModal form #profile').is(":checked"),
+                fetchEducation : $('#FetchFromLinkedInModal form #education').is(":checked"),
+                fetchEmployment: $('#FetchFromLinkedInModal form #employment').is(":checked"),
+                memberId:memberId
+            },
+            success: function()
+            {
+                location.reload();
+            }
+        })
+    }
 });
 
-$('#profileForm').validate({
+$('#EditUserProfileModal form').validate({
     rules         : {
         first_name: { required: true},
         last_name : { required: true}
@@ -46,16 +47,16 @@ $('#profileForm').validate({
             type: 'post',
             data: {
                 user: {
-                    title           : $('form #title').val(),
-                    first_name      : $('form #first_name').val(),
-                    last_name       : $('form #last_name').val(),
-                    industry        : $('form #industry').val(),
-                    date_of_birth   : $('form #birthDate').val()
+                    title           : $('#EditUserProfileModal form #title').val(),
+                    first_name      : $('#EditUserProfileModal form #first_name').val(),
+                    last_name       : $('#EditUserProfileModal form #last_name').val(),
+                    industry        : $('#EditUserProfileModal form #industry').val(),
+                    date_of_birth   : $('#EditUserProfileModal form #birthDate').val()
                 },
                 userProfile: {
                     id              : userProfile.id,
-                    short_desc      : $('form #short_desc').val(),
-                    long_desc       : $('form #long_desc').val()
+                    short_desc      : $('#EditUserProfileModal form #short_desc').val(),
+                    long_desc       : $('#EditUserProfileModal form #long_desc').val()
                 }
             },
             success: function()

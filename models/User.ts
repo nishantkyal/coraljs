@@ -25,7 +25,7 @@ class User extends BaseModel
     static TIMEZONE:string = 'timezone';
     static DEFAULT_PROFILE_ID:string = 'default_profile_id';
 
-    static DEFAULT_FIELDS:string[] = [User.ID, User.FIRST_NAME, User.LAST_NAME, User.EMAIL, User.INDUSTRY, User.LOCATION, User.STATUS, User.DATE_OF_BIRTH, User.DEFAULT_PROFILE_ID];
+    static DEFAULT_FIELDS:string[] = [User.ID, User.TITLE, User.FIRST_NAME, User.LAST_NAME, User.EMAIL, User.INDUSTRY, User.LOCATION, User.STATUS, User.DATE_OF_BIRTH, User.DEFAULT_PROFILE_ID];
 
     private title:Salutation;
     private first_name:string;

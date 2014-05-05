@@ -170,6 +170,7 @@ class MemberRegistrationRoute
         var integration = sessionData.getIntegration();
         var userId = sessionData.getLoggedInUser().getId();
         var member = sessionData.getMember();
+        var user:User;
 
         var mobileVerificationUrl = Utils.addQueryToUrl(DashboardUrls.mobileVerification(), Utils.createSimpleObject(ApiConstants.CONTEXT, 'expertRegistration'));
         var redirectUrl = '';
@@ -188,11 +189,13 @@ class MemberRegistrationRoute
 
         var profileId:number;
         q.all([
+            self.userDelegate.get(userId),
             self.userProfileDelegate.create(new UserProfile()),
-            self.integrationMemberDelegate.update({'user_id': userId, 'integration_id': integrationId}, {role: member.getRole()})
+            self.integrationMemberDelegate.update({'user_id': userId, 'integration_id': integrationId}, {role: member.getRole()}),
         ])
         .then( function profileCreated(...args){
-            var userProfile:UserProfile = args[0][0];
+            var userProfile:UserProfile = args[0][1];
+            user = args[0][0];
             profileId = userProfile.getId();
             return self.userProfileDelegate.fetchAllDetailsFromLinkedIn(userId, integrationId, profileId)
         })
@@ -206,6 +209,13 @@ class MemberRegistrationRoute
                 var userProfile:UserProfile = new UserProfile();
                 userProfile.setStatus(ProfileStatus.INCOMPLETE);
                 return self.userProfileDelegate.update({id:profileId},userProfile)
+        })
+        .then( function setDefaultProfile(){
+            if(Utils.isNullOrEmpty(user.getDefaultProfileId()))
+            {
+                user.setDefaultProfileId(profileId);
+                self.userDelegate.update({id:userId},user);
+            }
         })
         .finally(
             function memberRoleCorrected() { res.redirect(redirectUrl);

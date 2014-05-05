@@ -339,26 +339,44 @@ class DashboardRoute
         var user:any = req[ApiConstants.USER];
         var sessionData = new SessionData(req);
         var userProfile:UserProfile;
+        var member:IntegrationMember
 
-        self.userProfileDelegate.find({'integration_member_id':memberId})
-            .then(
-            function userProfileFetched(tempUserProfile:UserProfile){
-                userProfile = tempUserProfile;
-                return q.all([
-                        self.userSkillDelegate.getSkillWithName(userProfile.getId()),
-                        self.integrationMemberDelegate.get(memberId, IntegrationMember.DASHBOARD_FIELDS)
-                    ]);
+        q.all([
+            self.integrationMemberDelegate.get(memberId, IntegrationMember.DASHBOARD_FIELDS),
+            self.userProfileDelegate.find({'integration_member_id':memberId})
+        ])
+        .then(
+        function memberFetched(...args)
+        {
+            member = args[0][0];
+            userProfile = args[0][1];
+            var userId:number = member.getUserId();
+            return q.all([
+                    self.userDelegate.get(userId),
+                    self.userSkillDelegate.getSkillWithName(userProfile.getId()),
+                    self.userEducationDelegate.search({'profileId':userProfile.getId()}),
+                    self.userEmploymentDelegate.search({'profileId':userProfile.getId()}),
+                    self.userUrlDelegate.search({'profileId':userProfile.getId()})
+                ]);
             })
             .then(
             function memberDetailsFetched(...args)
             {
-                var skills = args[0][0];
-                var member = args[0][1];
+                var user = args[0][0];
+                var userSkill = args[0][1] || {};
+                var userEducation = args[0][2] || {};
+                var userEmployment = args[0][3] || {};
+                var userUrl = args[0][4] || {};
 
                 var pageData = _.extend(sessionData.getData(), {
+                    'profileId' : userProfile.getId(),
                     'member': member,
-                    'userSkill': skills,
-                    'userProfile': userProfile
+                    'user' : user,
+                    'userSkill': userSkill,
+                    'userProfile': userProfile,
+                    'userEducation': userEducation,
+                    'userEmployment': userEmployment,
+                    'userUrl': userUrl
                 });
                 res.render(DashboardRoute.PAGE_PROFILE, pageData);
             },

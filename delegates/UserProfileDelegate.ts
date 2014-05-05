@@ -97,7 +97,7 @@ class UserProfileDelegate extends BaseDaoDelegate
                         tempUserEducation.setStartYear(education.startDate ? education.startDate.year : null);
                         tempUserEducation.setEndYear(education.endDate ? education.endDate.year : null);
 
-                        return new UserEducationDelegate().createUserEducation(tempUserEducation,profileId);
+                        return new UserEducationDelegate().createUserEducation(tempUserEducation,profileId,transaction);
                     });
                 }
             })
@@ -128,7 +128,7 @@ class UserProfileDelegate extends BaseDaoDelegate
                         if (!position.isCurrent && !Utils.isNullOrEmpty(position.endDate))
                             tempUserEmployment.setEndDate((position.endDate.month || 12) + '-' + (position.endDate.year || null));
 
-                        return new UserEmploymentDelegate().createUserEmployment(tempUserEmployment,profileId);
+                        return new UserEmploymentDelegate().createUserEmployment(tempUserEmployment,profileId,transaction);
                     });
                 }
             })
@@ -173,13 +173,13 @@ class UserProfileDelegate extends BaseDaoDelegate
                 if (!Utils.isNullOrEmpty(profile.skills) && profile.skills._total > 0)
                     return _.map(profile.skills.values, function (skillObject:any)
                     {
-                        new SkillCodeDelegate().createSkillCodeFromLinkedIn(skillObject.skill.name)
+                        new SkillCodeDelegate().createSkillCodeFromLinkedIn(skillObject.skill.name,transaction)
                             .then(
                             function skillCodesCreated(createdSkillCodes:SkillCode)
                             {
                                 var userSkill = new UserSkill();
                                 userSkill.setSkillId(createdSkillCodes.getId())
-                                return new UserSkillDelegate().createUserSkillWithMap(userSkill, profileId);
+                                return new UserSkillDelegate().createUserSkillWithMap(userSkill, profileId,transaction);
                             })
                     });
             })
@@ -204,7 +204,7 @@ class UserProfileDelegate extends BaseDaoDelegate
                 userProfile.setShortDesc(profile.headline);
                 userProfile.setLongDesc(profile.summary);
                 userProfile.setIntegrationMemberId(integrationMember.getId());
-                return self.update({id:profileId}, userProfile)
+                return self.update({id:profileId}, userProfile,transaction);
             })
             .fail( function BasicDetailsFetchedError(error){
                 self.logger.error(error);

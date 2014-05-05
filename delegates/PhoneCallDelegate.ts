@@ -148,6 +148,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
 
     scheduleCall(call:PhoneCall)
     {
+        //TODO check whether the call has not been scheduled already as new call scheduled in next one hour are scheduled manually
         var scheduledTaskDelegate = new ScheduledTaskDelegate();
         scheduledTaskDelegate.scheduleAt(new TriggerPhoneCallTask(call.getId()), call.getStartTime());
 

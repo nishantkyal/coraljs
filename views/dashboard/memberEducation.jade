@@ -1,46 +1,24 @@
-include header
-include ../scriptsAndStyles
-.container-fluid
-    .row-fluid
-        .col-md-2
-        .col-md-8
-            .navbar.navbar-default
-                .container
-                    a.navbar-brand(href=DashboardUrls.integrationMembers(member.integration_id)) Back
-                    .collapse.navbar-collapse
-                        ul.nav.navbar-nav
-                            li
-                                a(href="profile") Profile
-                            li.active
-                                a(href="education") Education
-                            li
-                                a(href="employment") Positions
-                            li
-                                a(href="profileComplete") Full Profile
-            a#FetchFromLinkedIn
-                input.btn.btn-primary(type='submit', value='Fetch Education Details From LinkedIn')
-            .col-md-9
-                .form-group
-                    label.control-label(for='education') Education Details
-                    br
-                    if userEducation
-                        each edu in userEducation
-                            label.control-label(for='education') #{edu.school_name}&nbsp
-                            a.fa.fa-pencil.edit(data-id=edu.id, data-toggle='modal', href='#EditUserEducationModal')
-                            a.fa.fa-times.delete(data-id=edu.id, data-toggle='modal', href='#DeleteUserEducationModal')
-                            br
-                            if edu.degree
-                                small #{edu.degree}
-                                if edu.field_of_study
-                                    small , #{edu.field_of_study}
-                                br
-                            if edu.start_year
-                                small #{edu.start_year}&nbsp
-                            if edu.end_year
-                                small - #{edu.end_year}
-                                br
-                            br
-                    a.btn.btn-default.btn-xs#addEducationBtn(data-toggle='modal', href='#AddUserEducationModal') Add Education
+.form-group
+    label.control-label(for='education') Education Details
+    br
+    if userEducation
+        each edu in userEducation
+            label.control-label(for='education') #{edu.school_name}&nbsp
+            a.fa.fa-pencil.edit(data-id=edu.id, data-toggle='modal', href='#EditUserEducationModal')
+            a.fa.fa-times.delete(data-id=edu.id, data-toggle='modal', href='#DeleteUserEducationModal')
+            br
+            if edu.degree
+                small #{edu.degree}
+                if edu.field_of_study
+                    small , #{edu.field_of_study}
+                br
+            if edu.start_year
+                small #{edu.start_year}&nbsp
+            if edu.end_year
+                small - #{edu.end_year}
+                br
+            br
+    a.btn.btn-default.btn-xs#addEducationBtn(data-toggle='modal', href='#AddUserEducationModal') Add Education
 #AddUserEducationModal.modal.fade(style='display: none;')
     .modal-dialog
         .modal-content
