@@ -51,11 +51,3 @@ $("#registration-form").validate({
         $(element).closest('.form-group').removeClass('has-error');
     }
 });
-
-$('#loginLink,#registrationLink').click(
-    function() {
-        $('#login-form').parent().toggle();
-        $('#registration-form').parent().toggle();
-    }
-)
-
