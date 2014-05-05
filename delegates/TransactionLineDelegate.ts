@@ -1,5 +1,6 @@
 ///<reference path='../_references.d.ts'/>
 import q                                            = require('q');
+import _                                            = require('underscore');
 import MysqlDelegate                                = require('../delegates/MysqlDelegate');
 import BaseDaoDelegate                              = require('../delegates/BaseDaoDelegate');
 import PhoneCallDelegate                            = require('../delegates/PhoneCallDelegate');
@@ -16,8 +17,17 @@ class TransactionLineDelegate extends BaseDaoDelegate
 
     createPhoneCallTransactionLines(transactionId:number, call:PhoneCall, transaction?:any):q.Promise<any>
     {
+        var lines = this.getPhoneCallTransactionLines(call, transactionId);
         var self = this;
 
+        return q.all(_.map(lines, function (line)
+        {
+            return self.create(line, transaction);
+        }));
+    }
+
+    getPhoneCallTransactionLines(call:PhoneCall, transactionId?:number):TransactionLine[]
+    {
         var callPrice = call.getPricePerMin() * call.getDuration();
         var networkCharges = callPrice * Config.get(Config.CALL_NETWORK_CHARGES_PER_MIN_DOLLAR);
         var tax = 0;            // TODO: Calculate tax
@@ -25,7 +35,6 @@ class TransactionLineDelegate extends BaseDaoDelegate
         var phoneCallTransactionLine = new TransactionLine();
         phoneCallTransactionLine.setAmount(callPrice);
         phoneCallTransactionLine.setAmountUnit(call.getPriceCurrency());
-        phoneCallTransactionLine.setItemId(call.getId());
         phoneCallTransactionLine.setItemType(ItemType.PHONE_CALL);
         phoneCallTransactionLine.setTransactionType(TransactionType.PRODUCT);
         phoneCallTransactionLine.setTransactionId(transactionId);
@@ -44,11 +53,7 @@ class TransactionLineDelegate extends BaseDaoDelegate
         taxationTransactionLine.setTransactionType(TransactionType.TAX);
         taxationTransactionLine.setTransactionId(transactionId);
 
-        return q.all([
-            self.create(phoneCallTransactionLine, transaction),
-            self.create(networkChargesTransactionLine, transaction),
-            self.create(taxationTransactionLine, transaction)
-        ]);
+        return [phoneCallTransactionLine, networkChargesTransactionLine, taxationTransactionLine];
     }
 }
 export = TransactionLineDelegate

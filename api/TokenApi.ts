@@ -5,6 +5,7 @@ import AccessControl                                        = require('../middle
 import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
 import VerificationCodeDelegate                             = require('../delegates/VerificationCodeDelegate');
 import EmailDelegate                                        = require('../delegates/EmailDelegate');
+import UserDelegate                                         = require('../delegates/UserDelegate');
 import PhoneNumberDelegate                                  = require('../delegates/UserPhoneDelegate');
 import TemporaryTokenType                                   = require('../enums/TemporaryTokenType');
 import ApiConstants                                         = require('../enums/ApiConstants');
@@ -21,6 +22,7 @@ class TokenApi
     {
         var verificationCodeCache = new VerificationCodeCache();
         var verificationCodeDelegate = new VerificationCodeDelegate();
+        var userDelegate = new UserDelegate();
 
         /* Create mobile verification code */
         app.post(ApiUrlDelegate.mobileVerificationCode(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
@@ -101,6 +103,35 @@ class TokenApi
                 },
                 function tokenSearchError() { res.send(500); }
             );
+        });
+
+        /* Create and send password reset code */
+        app.post(ApiUrlDelegate.sendForgotPasswordCode(), function (req:express.Request, res:express.Response)
+        {
+            res.send(200);
+
+            var email:string = req.body[ApiConstants.EMAIL];
+
+            userDelegate.find({email: email})
+                .then(
+                function userFound(user:User)
+                {
+                    if (!Utils.isNullOrEmpty(user) && user.isValid())
+                        verificationCodeDelegate.createAndSendPasswordResetCode(email)
+                });
+        });
+
+        /* Use code to update password*/
+        app.post(ApiUrlDelegate.resetPassword(), function (req:express.Request, res:express.Response)
+        {
+            var code:string = req.body[ApiConstants.CODE];
+            var password:string = req.body[ApiConstants.PASSWORD];
+
+            verificationCodeDelegate.verifyCodeAndResetPassword(code, password)
+                .then(
+                function passwordUpdated() { res.send(200); },
+                function passwordUpdateError(error) { res.send(500); }
+            )
         });
 
     }

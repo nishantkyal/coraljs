@@ -1,5 +1,6 @@
 title Reselect the appointment
 include ../scriptsAndStyles
+extends ../callFlow/header
 
 block content
     form(method='post')
@@ -25,4 +26,4 @@ block content
             appointments = JSON.parse( '!{JSON.stringify(startTimes)}' );
         }
         catch(e){}
-    script(src='/js/app/callFlow/index.js')
+    script(src='/js/app/callScheduling/index.js')

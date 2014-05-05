@@ -1,17 +1,36 @@
 doctype html
-meta(name='viewport', content='width=device-width, initial-scale=1')
-include ../scriptsAndStyles
-.container-fluid
-    .row-fluid
-        .col-md-2
-        .col-md-8(style='padding-top: 10px;')
-            div(style='float: left; margin: 0 10px 5px 0')
-                img.img-polaroid(src='http://www.geovic.net/userfiles/image/Blank%20Profile(1).png', width=80, height=80)
-            div(style='float: left;')
-                - var user = expert.user[0]
-                label(style='font-size: 1.2em;')= formatName(user.first_name, user.last_name)
-                label #{user.short_desc}
-            .clearfix
-            hr
-            block content
-        .col-md-2
+head
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    title Search-n-Talk Template Error Messaging
+    link(href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic', rel='stylesheet', type='text/css')
+    // Bootstrap
+    link(href='/css/bootstrap.min.css', rel='stylesheet')
+    // Main Stylesheet
+    link(href='/css/main.css', rel='stylesheet')
+    // HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries
+    // WARNING: Respond.js doesn't work if you view the page via file://
+    //if lt IE 9
+      script(src='https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js')
+      script(src='https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js')
+    //if lt IE 9
+      script(src='https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js')
+      script(src='https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js')
+    //if lt IE 9
+      script(src='https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js')
+      script(src='https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js')
+    script(src='/js/lib/combined.js')
+.masthead(role='banner')
+    .container
+        .masthead-brand
+            a.logo.hidden-xs(href='#')
+            a.icon.visible-xs(href='#')
+        .masthead-controls
+            .masthead-control-field
+                .field-label
+                    | Language
+                .field-menu
+                    select(name='ui_language')
+                        option(value='en', selected='')
+                            | English

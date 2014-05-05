@@ -22,7 +22,8 @@ class FileWatcherDelegate
             function monitorCreated(monitor)
             {
                 monitor = monitor;
-                initHandler(_.keys(monitor.files));
+                if (!Utils.isNullOrEmpty(initHandler))
+                    initHandler(_.keys(monitor.files));
 
                 if (!Utils.isNullOrEmpty(createHandler))
                     monitor.on("created", createHandler);

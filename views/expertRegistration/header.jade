@@ -9,7 +9,7 @@ meta(name='viewport', content='width=device-width, initial-scale=1')
                 .col-md-7
                     h3
                         | #{integration.title}
-                        small &nbsp;Expert Registration
+                        small &nbsp;#{formatRole(member.role)} Registration
                 .col-md-5
                     p.pull-right
                         if (loggedInUser)

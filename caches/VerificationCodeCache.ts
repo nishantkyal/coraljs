@@ -33,24 +33,24 @@ class VerificationCodeCache
         return CacheHelper.del('ev-' + email);
     }
 
-    createPasswordResetCode(userId:number, code?:string):q.Promise<any>
+    createPasswordResetCode(email:string, code?:string):q.Promise<any>
     {
         code = code || Utils.getRandomString(20);
         var secondsInAnHr:number = 60 * 60;
-        return CacheHelper.set('pr-' + userId, code, secondsInAnHr)
+        return CacheHelper.set('pr-' + code, email, secondsInAnHr)
             .then(
             function codeCreated() { return code; }
         );
     }
 
-    searchPasswordResetCode(userId:number, code:string):q.Promise<any>
+    searchPasswordResetCode(code:string):q.Promise<any>
     {
-        return CacheHelper.get('pr-' + userId)
-            .then(
-            function tokenSearched(result)
-            {
-                return {isValid: result == code};
-            });
+        return CacheHelper.get('pr-' + code);
+    }
+
+    deletePasswordResetCode(code:string):q.Promise<any>
+    {
+        return CacheHelper.del('pr-' + code);
     }
 
     createInvitationCode(integrationId:number, member:IntegrationMember, code?:string):q.Promise<string>

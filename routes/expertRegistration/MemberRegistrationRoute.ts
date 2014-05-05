@@ -171,6 +171,7 @@ class MemberRegistrationRoute
         var userId = sessionData.getLoggedInUser().getId();
         var member = sessionData.getMember();
         var user:User;
+        var profileId:number;
 
         var mobileVerificationUrl = Utils.addQueryToUrl(DashboardUrls.mobileVerification(), Utils.createSimpleObject(ApiConstants.CONTEXT, 'expertRegistration'));
         var redirectUrl = '';
@@ -187,7 +188,8 @@ class MemberRegistrationRoute
                 break;
         }
 
-        var profileId:number;
+        // 1. Update role and redirect
+        // 2. Schedule the mobile verification reminder notification
         q.all([
             self.userDelegate.get(userId),
             self.userProfileDelegate.create(new UserProfile()),
@@ -203,9 +205,10 @@ class MemberRegistrationRoute
             function profileUpdated(){
                 var userProfile:UserProfile = new UserProfile();
                 userProfile.setStatus(ProfileStatus.PENDING_APPROVAL);
-                return self.userProfileDelegate.update({id:profileId},userProfile)
+                return self.userProfileDelegate.update({id: profileId}, userProfile)
             },
-            function profileUpdateError(error){
+            function profileUpdateError(error)
+            {
                 var userProfile:UserProfile = new UserProfile();
                 userProfile.setStatus(ProfileStatus.INCOMPLETE);
                 return self.userProfileDelegate.update({id:profileId},userProfile)

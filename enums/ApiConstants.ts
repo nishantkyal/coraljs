@@ -37,6 +37,10 @@ class ApiConstants
     static CODE:string = 'code';
     static CODE_VERIFICATION:string = 'code_verification';
     static WIDGET_ID:string = 'widgetId';
+    static NAME:string = 'name';
+    static PHONE:string = 'phone';
+    static AGENDA:string = 'agenda';
+    static CALL_NOW:string = 'call-now';
     static FETCH_PROFILE:string = 'fetchProfile';
     static FETCH_EDUCATION:string = 'fetchEducation';
     static FETCH_EMPLOYMENT:string = 'fetchEmployment';

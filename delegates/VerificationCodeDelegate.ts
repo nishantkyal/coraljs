@@ -25,13 +25,14 @@ class VerificationCodeDelegate
     private emailDelegate;
     private smsDelegate = new SmsDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
+    private userDelegate = new UserDelegate();
     private notificationDelegate;
 
     constructor()
     {
         var EmailDelegate = require('../delegates/EmailDelegate');
         this.emailDelegate = new EmailDelegate();
-        var NotificationDelegate  = require('../delegates/NotificationDelegate');
+        var NotificationDelegate = require('../delegates/NotificationDelegate');
         this.notificationDelegate = new NotificationDelegate();
     }
 
@@ -172,7 +173,8 @@ class VerificationCodeDelegate
     {
         var code:string = Utils.getRandomString(20);
         return this.verificationCodeCache.createAppointmentAcceptCode(call.getId(), code, startTimes)
-            .then(function(status){
+            .then(function (status)
+            {
                 return code;
             })
     }
@@ -205,6 +207,34 @@ class VerificationCodeDelegate
         return this.verificationCodeCache.deleteEmailVerificationCode(email);
     }
 
+    createAndSendPasswordResetCode(email:string):q.Promise<any>
+    {
+        var code:string = Utils.getRandomString(10);
+        var self = this;
 
+        return this.verificationCodeCache.createPasswordResetCode(email, code)
+            .then(
+            function codeCreated(code:string)
+            {
+                return self.notificationDelegate.sendPasswordResetNotification(email, code);
+            });
+    }
+
+    verifyCodeAndResetPassword(code:string, password:string):q.Promise<any>
+    {
+        var self = this;
+
+        return this.verificationCodeCache.searchPasswordResetCode(code)
+            .then(
+            function codeFound(email:string)
+            {
+                return self.userDelegate.update({email: email}, {password: password});
+            })
+            .then(
+            function passwordUpdated()
+            {
+                return self.verificationCodeCache.deletePasswordResetCode(code);
+            });
+    }
 }
 export = VerificationCodeDelegate

@@ -105,6 +105,8 @@ class ApiUrlDelegate
     static mobileVerificationCode():string { return this.get('/rest/code/mobile/verification'); }
     static expertInvitationCode():string { return this.get('/rest/code/expert/invitation'); }
     static expertInvitationCodeResend():string { return this.get('/rest/code/expert/invitation/resend'); }
+    static sendForgotPasswordCode():string { return this.get('/rest/code/password/forgot'); }
+    static resetPassword():string { return this.get('/rest/code/password/reset'); }
 
     /* URL pattern for widgets */
     static widget():string { return this.get('/rest/widget')}

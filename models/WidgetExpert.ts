@@ -48,7 +48,7 @@ class WidgetExpert
 
             var nextAvailableSchedule:ExpertSchedule = _.find(member.getSchedule(), function(schedule:ExpertSchedule):boolean {
                 var scheduleEndTime = schedule.getStartTime() + schedule.getDuration();
-                return scheduleEndTime > moment().add({minutes: 10}).valueOf();
+                return scheduleEndTime > moment().add({minutes: 15}).valueOf();
             });
 
             if (!Utils.isNullOrEmpty(nextAvailableSchedule))

@@ -38,6 +38,7 @@ import DashboardUrls                                                = require('.
  */
 class EmailDelegate
 {
+    private static EMAIL_PASSWORD_RESET:string = 'EMAIL_PASSWORD_RESET';
     private static EMAIL_EXPERT_INVITE:string = 'EMAIL_EXPERT_INVITE';
     private static EMAIL_EXPERT_WELCOME:string = 'EMAIL_EXPERT_WELCOME';
     private static EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION:string = 'EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION';
@@ -55,9 +56,8 @@ class EmailDelegate
 
     private static templateCache:{[templateNameAndLocale:string]:{bodyTemplate:Function; subjectTemplate:Function}} = {};
     private static transport:nodemailer.Transport;
-    private phoneCallDelegate;
-    private userDelegate = new UserDelegate();
     private static logger:log4js.Logger = log4js.getLogger('EmailDelegate');
+    private phoneCallDelegate;
 
     constructor()
     {
@@ -431,6 +431,21 @@ class EmailDelegate
         };
 
         return this.composeAndSend(EmailDelegate.EMAIL_ACCOUNT_VERIFICATION, user.getEmail(), emailData);
+    }
+
+    sendPasswordResetEmail(email:string, code:string):q.Promise<any>
+    {
+        var passwordResetUrl = url.resolve(Config.get(Config.DASHBOARD_URI), DashboardUrls.forgotPassword());
+
+        var query = {};
+        query[ApiConstants.CODE] = code;
+        passwordResetUrl = Utils.addQueryToUrl(passwordResetUrl, query);
+
+        var emailData = {
+            passwordResetUrl: passwordResetUrl
+        };
+
+        return this.composeAndSend(EmailDelegate.EMAIL_PASSWORD_RESET, email, emailData);
     }
 
 }

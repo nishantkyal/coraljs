@@ -4,6 +4,7 @@ import express                                              = require('express')
 import log4js                                               = require('log4js');
 import connect_ensure_login                                 = require('connect-ensure-login');
 import IntegrationMember                                    = require('../models/IntegrationMember');
+import User                                                 = require('../models/User');
 import IntegrationMemberDelegate                            = require('../delegates/IntegrationMemberDelegate');
 import IntegrationMemberRole                                = require('../enums/IntegrationMemberRole');
 import ApiConstants                                         = require('../enums/ApiConstants');
@@ -87,14 +88,29 @@ class AccessControl
     /* Helper method to get details of integration corresponding to token and member id */
     private static getMember(accessToken:string, integrationMemberId?:string, role?:IntegrationMemberRole):q.Promise<any>
     {
-        var search = {'access_token': accessToken};
-        if (integrationMemberId)
-            search[IntegrationMember.ID] = integrationMemberId;
-        if (role)
-            search[IntegrationMember.ROLE] = role;
-
-        return new IntegrationMemberDelegate().find(search);
+        return new IntegrationMemberDelegate().findValidAccessToken(accessToken, integrationMemberId, role);
     }
+
+    /*
+        Detect member from what is included in the url
+        e.g. from find member for phone call
+    */
+    private detectMember(req:express.Request):q.Promise<IntegrationMember>
+    {
+        return null;
+    }
+
+    /*
+        Detect user from what is included in the url
+        e.g. from find user for transaction
+    */
+    private detectUser(req:express.Request):q.Promise<User>
+    {
+        return null;
+    }
+
+
+
 
 }
 export = AccessControl

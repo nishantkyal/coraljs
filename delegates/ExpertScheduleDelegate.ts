@@ -14,7 +14,7 @@ class ExpertScheduleDelegate
     {
         var self = this;
         startTime = startTime || moment().valueOf();
-        endTime = endTime || moment(startTime).add({'weeks': 1}).valueOf();
+        endTime = endTime || moment(startTime).add({days: 30}).valueOf();
 
         return new ExpertScheduleRuleDelegate().getRulesByIntegrationMemberId(expertId, startTime, endTime)
             .then(
@@ -69,6 +69,8 @@ class ExpertScheduleDelegate
                         temp.setStartTime(moment(t).valueOf());
                         temp.setDuration(rule.getDuration());
                         temp.setScheduleRuleId(rule.getId());
+                        temp.setPricePerMin(rule.getPricePerMin());
+                        temp.setPriceUnit(rule.getPriceUnit());
                         schedules.push(temp);
                     }
                 } catch (e) {

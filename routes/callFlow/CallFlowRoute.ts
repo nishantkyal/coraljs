@@ -13,6 +13,7 @@ import IntegrationMemberDelegate                            = require('../../del
 import PhoneCallDelegate                                    = require('../../delegates/PhoneCallDelegate');
 import EmailDelegate                                        = require('../../delegates/EmailDelegate');
 import TransactionDelegate                                  = require('../../delegates/TransactionDelegate');
+import TransactionLineDelegate                              = require('../../delegates/TransactionLineDelegate');
 import VerificationCodeDelegate                             = require('../../delegates/VerificationCodeDelegate');
 import UserPhoneDelegate                                    = require('../../delegates/UserPhoneDelegate');
 import NotificationDelegate                                 = require('../../delegates/NotificationDelegate');
@@ -39,46 +40,22 @@ import SessionData                                          = require('./Session
 class CallFlowRoute
 {
     private static INDEX:string = 'callFlow/index';
-    private static LOGIN:string = 'callFlow/login';
     private static PAYMENT:string = 'callFlow/payment';
-    private static SCHEDULING:string = 'callFlow/scheduling';
-    private static RESCHEDULING:string = 'callFlow/rescheduling';
-    private static RESCHEDULING_BY_USER:string = 'callFlow/reschedulingByUser';
 
     private logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private transactionDelegate = new TransactionDelegate();
-    private verificationCodeDelegate = new VerificationCodeDelegate();
+    private transactionLineDelegate = new TransactionLineDelegate();
     private phoneCallDelegate = new PhoneCallDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
-    private notificationDelegate = new NotificationDelegate();
 
     constructor(app, secureApp)
     {
         // Actual rendered pages
         app.get(Urls.callExpert(), this.index.bind(this));
-        app.post(Urls.callExpert(), this.scheduleSelected.bind(this));
-        app.get(Urls.login(), Middleware.requireExpertAndAppointments, this.authenticate.bind(this));
-        app.get(Urls.callPayment(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: Urls.login()}), Middleware.requireExpertAndAppointments, this.callPayment.bind(this));
-        app.post(Urls.applyCoupon(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: Urls.login()}), Middleware.requireExpertAndAppointments, this.applyCoupon.bind(this))
-        app.post(Urls.callPayment(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: Urls.login()}), Middleware.requireExpertAndAppointments, this.checkout.bind(this));
-
-        app.get(Urls.scheduling(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: Urls.login()}), this.scheduling.bind(this));
-        app.post(Urls.scheduling(), this.scheduled.bind(this));
-
-        app.get(Urls.rescheduleByExpert(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: Urls.login()}), this.reschedulingByExpert.bind(this));
-        app.post(Urls.rescheduleByExpert(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: Urls.login()}), this.appointmentSelectedByExpert.bind(this));
-
-        app.get(Urls.rescheduleByUser(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: Urls.login()}), this.reschedulingByUser.bind(this));
-        app.post(Urls.rescheduleByUser(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: Urls.login()}), this.appointmentSelectedByUser.bind(this));
-
-        app.get(Urls.reject(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: Urls.login()}), this.reject.bind(this));
-
-        // Auth related routes
-        app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {successRedirect: Urls.callPayment(), failureRedirect: Urls.login(), failureFlash: true}));
-        app.post(Urls.register(), AuthenticationDelegate.register({failureRedirect: Urls.login()}), this.callPayment.bind(this));
-        app.get(Urls.fbLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {scope: ['email']}));
-        app.get(Urls.fbLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {failureRedirect: Urls.login(), scope: ['email'], successRedirect: Urls.callPayment()}));
+        app.post(Urls.callPayment(), Middleware.requireCallerAndCallDetails, this.callPayment.bind(this));
+        app.post(Urls.applyCoupon(), Middleware.requireCallerAndCallDetails, this.applyCoupon.bind(this))
+        app.post(Urls.checkout(), connect_ensure_login.ensureLoggedIn(), Middleware.requireCallerAndCallDetails, this.checkout.bind(this));
     }
 
     /* Render index with expert schedules */
@@ -104,114 +81,54 @@ class CallFlowRoute
         );
     }
 
-    // Redirect to login page if not logged in
-    // Not using a middleware for this because login is not an absolute requirement to reach payment page
-    private scheduleSelected(req, res:express.Response)
-    {
-        var sessionData = new SessionData(req);
-
-        // TODO: Validate duration
-        var duration:number = parseInt(req.body[ApiConstants.DURATION]);
-        sessionData.setDuration(duration);
-
-        // TODO: Validate start times
-        var startTimes:number[] = req.body[ApiConstants.START_TIME];
-        sessionData.setAppointments(startTimes);
-
-        if (req.isAuthenticated())
-            res.redirect(Urls.callPayment());
-        else
-            res.redirect(Urls.login());
-    }
-
-    private authenticate(req:express.Request, res:express.Response)
-    {
-        var sessionData = new SessionData(req);
-
-        var pageData = _.extend(sessionData.getData(), {
-            messages: req.flash()
-        });
-
-        res.render(CallFlowRoute.LOGIN, pageData);
-    }
-
     /* Validate request from caller and start a new transaction */
     private callPayment(req, res:express.Response)
     {
         var sessionData = new SessionData(req);
         var self = this;
 
-        var loggedInUserId = sessionData.getLoggedInUser().getId();
 
-        var userPhoneSearch = {};
-        userPhoneSearch[UserPhone.USER_ID] = loggedInUserId;
-        userPhoneSearch[UserPhone.VERIFIED] = true;
+        function renderPage(phoneNumbers)
+        {
+            var dummyPhoneCall = new PhoneCall();
+            var dummyTransactionLines = self.transactionLineDelegate.getPhoneCallTransactionLines(dummyPhoneCall);
+            _.sortBy(dummyTransactionLines, function() {
 
-        var phoneCall = new PhoneCall();
-        phoneCall.setIntegrationMemberId(sessionData.getExpert().getId());
-        phoneCall.setCallerUserId(req[ApiConstants.USER].id);
-        phoneCall.setDelay(0);
-        phoneCall.setStatus(CallStatus.PLANNING);
-        phoneCall.setDuration(sessionData.getDuration());
-        phoneCall.setPricePerMin(12);
-        phoneCall.setPriceCurrency(MoneyUnit.DOLLAR);
-
-        var transaction = new Transaction();
-        transaction.setUserId(sessionData.getLoggedInUser().getId());
-        transaction.setStatus(TransactionStatus.CREATED);
-
-
-        var deleteTasks = [];
-        if (sessionData.getCall().getId())
-            deleteTasks.push(self.phoneCallDelegate.delete(sessionData.getCall().getId(), false));
-        if (sessionData.getTransaction().getId())
-            deleteTasks.push(self.transactionDelegate.delete(sessionData.getTransaction().getId(), false));
-
-        return q.all(deleteTasks)
-            .then(
-            function oldTransactionAndCallDeleted()
-            {
-                // 1. Look for user's phone numbers
-                // 2. Start a transaction
-                return q.all([
-                    self.userPhoneDelegate.search(userPhoneSearch)
-                        .fail(
-                        function userPhoneFetchFailed(error)
-                        {
-                            self.logger.error('User phone fetch error. Error: %s', error);
-                            return null;
-                        }),
-                    self.phoneCallDelegate.create(phoneCall)
-                        .then(
-                        function callCreated(call)
-                        {
-                            sessionData.setCallId(call.getId());
-                            sessionData.setCall(call);
-                            return self.transactionDelegate.createPhoneCallTransaction(transaction, call);
-                        })
-                ])
-            })
-            .then(
-            function renderPage(...result)
-            {
-                var phoneNumbers = result[0][0];
-                var transaction:Transaction = result[0][1];
-
-                sessionData.setTransaction(transaction);
-
-                var pageData = _.extend(sessionData.getData(), {
-                    messages: req.flash(),
-                    userPhones: phoneNumbers,
-                    transaction: transaction
-                });
-
-                res.render(CallFlowRoute.PAYMENT, pageData);
-            },
-            function handleError(error)
-            {
-                self.logger.error('Failure on payment page. Error: %s', JSON.stringify(error));
-                res.send(500);
             });
+
+            var pageData = _.extend(sessionData.getData(), {
+                messages: req.flash(),
+                userPhones: phoneNumbers,
+                transactionLines: dummyTransactionLines
+            });
+
+            res.render(CallFlowRoute.PAYMENT, pageData);
+        };
+
+        if (req.isAuthenticated())
+        {
+            var loggedInUserId = sessionData.getLoggedInUser().getId();
+            var userPhoneSearch = {};
+            userPhoneSearch[UserPhone.USER_ID] = loggedInUserId;
+            userPhoneSearch[UserPhone.VERIFIED] = true;
+
+            self.userPhoneDelegate.search(userPhoneSearch)
+                .fail(
+                function userPhoneFetchFailed(error)
+                {
+                    self.logger.error('User phone fetch error. Error: %s', error);
+                    return null;
+                })
+                .then(renderPage)
+                .fail(
+                function handleError(error)
+                {
+                    self.logger.error('Failure on payment page. Error: %s', JSON.stringify(error));
+                    res.send(500);
+                });
+        }
+        else
+            renderPage(null);
     }
 
     /* Apply coupon and send back discount details */
@@ -228,6 +145,21 @@ class CallFlowRoute
     /* Validate everything, create a transaction (and phone call record) and redirect to payment */
     private checkout(req:express.Request, res:express.Response)
     {
+        var loggedInUserId = sessionData.getLoggedInUser().getId();
+
+        var phoneCall = new PhoneCall();
+        phoneCall.setIntegrationMemberId(sessionData.getExpert().getId());
+        phoneCall.setCallerUserId(req[ApiConstants.USER].id);
+        phoneCall.setDelay(0);
+        phoneCall.setStatus(CallStatus.PLANNING);
+        phoneCall.setDuration(sessionData.getDuration());
+        phoneCall.setPricePerMin(12);
+        phoneCall.setPriceCurrency(MoneyUnit.DOLLAR);
+
+        var transaction = new Transaction();
+        transaction.setUserId(loggedInUserId);
+        transaction.setStatus(TransactionStatus.CREATED);
+
         // TODO: Verify that supplied phone number belongs to logged in user
         var self = this;
         var sessionData = new SessionData(req);
@@ -242,201 +174,6 @@ class CallFlowRoute
                 // Redirect to payment gateway
             });
     }
-
-    /* Invoked when expert/caller clicks on accept appointment link in email */
-    private scheduling(req:express.Request, res:express.Response)
-    {
-        var self = this;
-        var startTime:number = parseInt(req.query[ApiConstants.START_TIME]);
-        var appointmentCode:string = req.query[ApiConstants.CODE];
-
-        this.verificationCodeDelegate.verifyAppointmentAcceptCode(appointmentCode)
-            .then(
-            function appointmentDetailsFetched(appointment)
-            {
-                if (!_.contains(appointment.startTimes, startTime.toString()))
-                    throw 'Invalid request. Please click on one of the links in the email';
-                else
-                {
-                    var callId:number = appointment.id;
-                    return self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_USER, IncludeFlag.INCLUDE_USER_PHONE, IncludeFlag.INCLUDE_EXPERT_PHONE]);
-                }
-            },
-            function appointDetailsFetchFailed(error)
-            {
-                res.send(401, 'Invalid code');
-            })
-            .then(
-            function callFetched(call)
-            {
-                var pageData = {
-                    call: call,
-                    startTime: startTime
-                };
-                res.render(CallFlowRoute.SCHEDULING, pageData);
-            })
-            .fail(function (error)
-            {
-                res.status(501);
-            })
-    }
-
-    private scheduled(req:express.Request, res:express.Response)
-    {
-        var self = this;
-        var startTime:number = parseInt(req.body[ApiConstants.START_TIME]);
-        var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
-
-        self.phoneCallDelegate.update(callId, {status: CallStatus.SCHEDULED, start_time: startTime})
-            .then(
-            function callUpdated()
-            {
-                return self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_USER]);
-            })
-            .then(
-            function callFetched(call:PhoneCall)
-            {
-                if (startTime - moment().valueOf() < Config.get(Config.PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS) * 1000)
-                {
-                    self.phoneCallDelegate.scheduleCall(call);
-                }
-                self.notificationDelegate.sendCallSchedulingCompleteNotifications(call, startTime);
-            })
-            .fail(function (error)
-            {
-                res.status(501);
-            })
-    }
-
-    private reschedulingByExpert(req:express.Request, res:express.Response)
-    {
-        var self = this;
-        var appointmentCode:string = req.query[ApiConstants.CODE];
-
-        this.verificationCodeDelegate.verifyAppointmentAcceptCode(appointmentCode)
-            .then(
-            function appointmentDetailsFetched(appointment)
-            {
-                var callId:number = appointment.id;
-                return self.phoneCallDelegate.get(callId);
-            },
-            function appointDetailsFetchFailed(error)
-            {
-                res.send(401, 'Invalid code');
-            })
-            .then(
-            function callFetched(call:PhoneCall)
-            {
-                var pageData = {
-                    call: call
-                };
-                res.render(CallFlowRoute.RESCHEDULING, pageData);
-            })
-            .fail(function (error)
-            {
-                res.status(501);
-            })
-    }
-
-    private appointmentSelectedByExpert(req:express.Request, res:express.Response)
-    {
-        var self = this;
-        var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
-        var startTime:number = parseInt(req.body[ApiConstants.START_TIME]);
-        self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_USER])
-            .then(
-            function callFetched(call:PhoneCall)
-            {
-                self.notificationDelegate.sendCallReschedulingNotificationsToUser(call, startTime);
-            })
-            .fail(function (error)
-            {
-                res.status(501);
-            })
-    }
-
-    private reschedulingByUser(req:express.Request, res:express.Response)
-    {
-        var self = this;
-        var appointmentCode:string = req.query[ApiConstants.CODE];
-        var expertId;
-        var call:PhoneCall;
-        var sessionData = new SessionData(req);
-
-        this.verificationCodeDelegate.verifyAppointmentAcceptCode(appointmentCode)
-            .then(
-            function appointmentDetailsFetched(appointment)
-            {
-                var callId:number = appointment.id;
-                return self.phoneCallDelegate.get(callId);
-            },
-            function appointDetailsFetchFailed(error)
-            {
-                res.send(401, 'Invalid code');
-            })
-            .then(
-            function callFetched(tempCall:PhoneCall)
-            {
-                expertId = tempCall.getIntegrationMemberId();
-                call = tempCall;
-                return self.integrationMemberDelegate.get(expertId, null, [IncludeFlag.INCLUDE_SCHEDULES, IncludeFlag.INCLUDE_USER]);
-            })
-            .then(
-            function handleExpertFound(expert)
-            {
-                sessionData.setExpert(expert);
-
-                var pageData = _.extend(sessionData.getData(), {
-                    messages: req.flash(),
-                    call: call
-                });
-
-                res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
-                res.render(CallFlowRoute.RESCHEDULING_BY_USER, pageData);
-            },
-            function handleExpertSearchFailed(error) { res.status(401).json('Error getting expert details for id: ' + expertId)});
-    }
-
-    private appointmentSelectedByUser(req:express.Request, res:express.Response)
-    {
-        var self = this;
-        var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
-        var startTime:number[] = [parseInt(req.body[ApiConstants.START_TIME])];
-
-        self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER])
-            .then(
-            function callFetched(call:PhoneCall)
-            {
-                self.notificationDelegate.sendCallReschedulingNotificationsToExpert(call, startTime);
-                res.send(200, 'Done');
-            })
-            .fail(function (error)
-            {
-                res.status(501);
-            })
-    }
-
-    private reject(req:express.Request, res:express.Response)
-    {
-        var self = this;
-        var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
-        self.phoneCallDelegate.update(callId, {status: CallStatus.AGENDA_DECLINED})
-            .then(
-            function callUpdated()
-            {
-                return self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_USER]);
-            })
-            .then(
-            function callFetched(call:PhoneCall)
-            {
-                self.notificationDelegate.sendCallAgendaFailedNotifications(call);
-            })
-            .fail(function (error)
-            {
-                res.status(501);
-            })
-    }
-
 }
 
 export = CallFlowRoute
