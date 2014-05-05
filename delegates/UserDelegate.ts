@@ -26,7 +26,6 @@ class UserDelegate extends BaseDaoDelegate
     private imageDelegate = new ImageDelegate();
     private userProfileDelegate = new UserProfileDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
-    private md5sum = crypto.createHash('md5');
 
     constructor() { super(new UserDAO()); }
 
@@ -43,7 +42,7 @@ class UserDelegate extends BaseDaoDelegate
     update(criteria:any, newValues:any, transaction?:any):q.Promise<any>
     {
         var self = this;
-        var superGet = super.get.bind(this);
+        var superUpdate = super.update.bind(this);
         delete newValues[User.ID];
         delete newValues[User.EMAIL];
 
@@ -53,8 +52,8 @@ class UserDelegate extends BaseDaoDelegate
                 .then(
                 function userFetched(user:User)
                 {
-                    user.setPassword(self.computePasswordHash(user.getEmail(), user.getPassword()));
-                    return superGet(user, transaction);
+                    user.setPassword(self.computePasswordHash(user.getEmail(), newValues[User.PASSWORD]));
+                    return superUpdate(criteria, user, transaction);
                 });
         }
 
@@ -148,7 +147,8 @@ class UserDelegate extends BaseDaoDelegate
 
     computePasswordHash(email:string, textPassword:string)
     {
-        return this.md5sum.update(email + ':' + textPassword).digest('hex');
+        var md5sum = crypto.createHash('md5');
+        return md5sum.update(email + ':' + textPassword).digest('hex');
     }
 
 }

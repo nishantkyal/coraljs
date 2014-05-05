@@ -38,6 +38,7 @@ import DashboardUrls                                                = require('.
  */
 class EmailDelegate
 {
+    private static EMAIL_PASSWORD_RESET:string = 'EMAIL_PASSWORD_RESET';
     private static EMAIL_EXPERT_INVITE:string = 'EMAIL_EXPERT_INVITE';
     private static EMAIL_EXPERT_WELCOME:string = 'EMAIL_EXPERT_WELCOME';
     private static EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION:string = 'EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION';
@@ -76,7 +77,11 @@ class EmailDelegate
     /* Static constructor workaround */
     private static ctor = (() =>
     {
-        new FileWatcherDelegate(Config.get(Config.EMAIL_TEMPLATE_BASE_DIR), [new RegExp('\.html$')], null,
+        new FileWatcherDelegate(Config.get(Config.EMAIL_TEMPLATE_BASE_DIR), [new RegExp('\.html$')],
+            function initHandler(files)
+            {
+                _.each(files, function (fileName) { EmailDelegate.readFileAndCache(fileName); });
+            },
             EmailDelegate.readFileAndCache,
             EmailDelegate.readFileAndCache);
     })();
@@ -426,6 +431,21 @@ class EmailDelegate
         };
 
         return this.composeAndSend(EmailDelegate.EMAIL_ACCOUNT_VERIFICATION, user.getEmail(), emailData);
+    }
+
+    sendPasswordResetEmail(email:string, code:string):q.Promise<any>
+    {
+        var passwordResetUrl = url.resolve(Config.get(Config.DASHBOARD_URI), DashboardUrls.forgotPassword());
+
+        var query = {};
+        query[ApiConstants.CODE] = code;
+        passwordResetUrl = Utils.addQueryToUrl(passwordResetUrl, query);
+
+        var emailData = {
+            passwordResetUrl: passwordResetUrl
+        };
+
+        return this.composeAndSend(EmailDelegate.EMAIL_PASSWORD_RESET, email, emailData);
     }
 
 }

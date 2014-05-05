@@ -106,5 +106,10 @@ class NotificationDelegate
     {
         return this.emailDelegate.sendAccountVerificationEmail(user, code);
     }
+
+    sendPasswordResetNotification(email:string, code:string):q.Promise<any>
+    {
+        return this.emailDelegate.sendPasswordResetEmail(email, code);
+    }
 }
 export = NotificationDelegate

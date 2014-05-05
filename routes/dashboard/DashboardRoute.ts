@@ -53,6 +53,7 @@ import SessionData                                      = require('./SessionData
 class DashboardRoute
 {
     private static PAGE_LOGIN:string = 'dashboard/login';
+    private static PAGE_FORGOT_PASSWORD:string = 'dashboard/forgotPassword';
     private static PAGE_MOBILE_VERIFICATION:string = 'dashboard/mobileVerification';
     private static PAGE_INTEGRATIONS:string = 'dashboard/integrations';
     private static PAGE_USERS:string = 'dashboard/integrationUsers';
@@ -84,6 +85,7 @@ class DashboardRoute
         // Pages
         app.get(Urls.index(), connect_ensure_login.ensureLoggedIn(), this.authSuccess.bind(this));
         app.get(Urls.login(), this.login.bind(this));
+        app.get(Urls.forgotPassword(), this.forgotPassword.bind(this));
         app.get(Urls.mobileVerification(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index(), setReturnTo : true}), this.verifyMobile.bind(this));
         app.get(Urls.integrations(), connect_ensure_login.ensureLoggedIn(), this.integrations.bind(this));
         app.get(Urls.integrationCoupons(), connect_ensure_login.ensureLoggedIn(), this.coupons.bind(this));
@@ -116,6 +118,18 @@ class DashboardRoute
             messages: req.flash()
         });
         res.render(DashboardRoute.PAGE_LOGIN, pageData);
+    }
+
+    private forgotPassword(req:express.Request, res:express.Response)
+    {
+        var code:string = req.query[ApiConstants.CODE];
+
+        var pageData = {
+            code: code,
+            messages: req.flash()
+        };
+
+        res.render(DashboardRoute.PAGE_FORGOT_PASSWORD, pageData);
     }
 
     verifyMobile(req:express.Request, res:express.Response)

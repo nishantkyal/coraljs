@@ -54,6 +54,11 @@ include header
                                 .row
                                     .payment-summary
                                         .table
+                                            - var callItemLine, networkChargesLine, taxationLine, discountLine
+                                            - for (var line in transactionLines)
+                                            - {
+                                            -       if (line[] ==
+                                            - }
                                             .table-row
                                                 .table-cell.title Call duration: 15mins @ $1.00 / min
                                                 .table-cell.amount $ 15.00

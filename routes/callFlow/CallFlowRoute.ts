@@ -13,6 +13,7 @@ import IntegrationMemberDelegate                            = require('../../del
 import PhoneCallDelegate                                    = require('../../delegates/PhoneCallDelegate');
 import EmailDelegate                                        = require('../../delegates/EmailDelegate');
 import TransactionDelegate                                  = require('../../delegates/TransactionDelegate');
+import TransactionLineDelegate                              = require('../../delegates/TransactionLineDelegate');
 import VerificationCodeDelegate                             = require('../../delegates/VerificationCodeDelegate');
 import UserPhoneDelegate                                    = require('../../delegates/UserPhoneDelegate');
 import NotificationDelegate                                 = require('../../delegates/NotificationDelegate');
@@ -44,6 +45,7 @@ class CallFlowRoute
     private logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private transactionDelegate = new TransactionDelegate();
+    private transactionLineDelegate = new TransactionLineDelegate();
     private phoneCallDelegate = new PhoneCallDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
 
@@ -85,12 +87,19 @@ class CallFlowRoute
         var sessionData = new SessionData(req);
         var self = this;
 
-        return self.transactionDelegate.createPhoneCallTransaction
+
         function renderPage(phoneNumbers)
         {
+            var dummyPhoneCall = new PhoneCall();
+            var dummyTransactionLines = self.transactionLineDelegate.getPhoneCallTransactionLines(dummyPhoneCall);
+            _.sortBy(dummyTransactionLines, function() {
+
+            });
+
             var pageData = _.extend(sessionData.getData(), {
                 messages: req.flash(),
-                userPhones: phoneNumbers
+                userPhones: phoneNumbers,
+                transactionLines: dummyTransactionLines
             });
 
             res.render(CallFlowRoute.PAYMENT, pageData);
