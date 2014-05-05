@@ -1,25 +1,29 @@
-.form-group
-    label.control-label(for='education') Positions Details
-    br
-    if userEmployment
-        each emp in userEmployment
-            label.control-label(for='position') #{emp.title}&nbsp
-            a.fa.fa-pencil.edit(data-id=emp.id, data-toggle='modal', href='#EditUserEmploymentModal')
-            a.fa.fa-times.delete(data-id=emp.id, data-toggle='modal', href='#DeleteUserEmploymentModal')
-            br
-            if emp.company
-                normal #{emp.company}
-                br
-            if emp.start_date
-                small #{emp.start_date}&nbsp
-            if emp.end_date
-                small - #{emp.end_date}
-                br
-            if emp.summary
-                small #{emp.summary}
-                br
-            br
-    a.btn.btn-default.btn-xs#addEmploymentBtn(data-toggle='modal', href='#AddUserEmploymentModal') Add Position
+div
+    button.btn.btn-default.btn-xs#addEmploymentBtn(data-toggle='modal', href='#AddUserEmploymentModal') Add Position
+    button.btn.btn-primary.btn-xs
+        i.fa.fa-linkedin-square
+        | &nbsp;Fetch from LinkedIn
+    .list-group
+        if userEmployment
+            each emp in userEmployment
+                .list-group-item
+                    label.control-label(for='position') #{emp.title}&nbsp
+                    a.fa.fa-pencil.edit(data-id=emp.id, data-toggle='modal', href='#EditUserEmploymentModal')
+                    a.fa.fa-times.delete(data-id=emp.id, data-toggle='modal', href='#DeleteUserEmploymentModal')
+                    br
+                    if emp.company
+                        normal #{emp.company}
+                        br
+                    if emp.start_date
+                        small #{emp.start_date}&nbsp
+                    if emp.end_date
+                        small - #{emp.end_date}
+                        br
+                    if emp.summary
+                        small #{emp.summary}
+                        br
+                    br
+
 #AddUserEmploymentModal.modal.fade(style='display: none;')
     .modal-dialog
         .modal-content

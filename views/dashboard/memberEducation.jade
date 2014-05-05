@@ -1,5 +1,10 @@
-.form-group
-    label.control-label(for='education') Education Details
+div
+    a.btn.btn-default.btn-xs#addEducationBtn(data-toggle='modal', href='#AddUserEducationModal') Add Education
+    button.btn.btn-primary.btn-xs
+        i.fa.fa-linkedin-square
+        | &nbsp;Fetch from LinkedIn
+
+    .form-group
     br
     if userEducation
         each edu in userEducation
@@ -18,7 +23,6 @@
                 small - #{edu.end_year}
                 br
             br
-    a.btn.btn-default.btn-xs#addEducationBtn(data-toggle='modal', href='#AddUserEducationModal') Add Education
 #AddUserEducationModal.modal.fade(style='display: none;')
     .modal-dialog
         .modal-content
@@ -98,7 +102,7 @@
                 button.btn.btn-default(data-dismiss='modal') No
                 button.btn.btn-primary(onclick='handleDeleteClicked(event)') Yes
 script.
-    var memberId = !{member.id};
+    var memberId = '!{member.id}';
     var profileId = '!{profileId}';
     var userEducation = JSON.parse( '!{JSON.stringify(userEducation)}' );
 script(src='/js/app/dashboard/memberEducation.js')
