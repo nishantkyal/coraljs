@@ -87,7 +87,7 @@ class DashboardRoute
         app.get(Urls.index(), connect_ensure_login.ensureLoggedIn(), this.authSuccess.bind(this));
         app.get(Urls.login(), this.login.bind(this));
         app.get(Urls.forgotPassword(), this.forgotPassword.bind(this));
-        app.get(Urls.mobileVerification(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index(), setReturnTo : true}), this.verifyMobile.bind(this));
+        app.get(Urls.mobileVerification(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index(), setReturnTo: true}), this.verifyMobile.bind(this));
         app.get(Urls.integrations(), connect_ensure_login.ensureLoggedIn(), this.integrations.bind(this));
         app.get(Urls.integrationCoupons(), connect_ensure_login.ensureLoggedIn(), this.coupons.bind(this));
         app.get(Urls.integrationMembers(), Middleware.allowOwnerOrAdmin, this.integrationUsers.bind(this));
@@ -112,7 +112,7 @@ class DashboardRoute
         var isLoggedIn = !Utils.isNullOrEmpty(sessionData.getLoggedInUser());
         if (isLoggedIn)
         {
-            res.redirect(Urls.integrations());
+            res.redirect(Urls.index());
             return;
         }
 
@@ -140,11 +140,11 @@ class DashboardRoute
         var sessionData = new SessionData(req);
         var password:string = req.body[ApiConstants.PASSWORD];
 
-        self.userDelegate.update({id:sessionData.getLoggedInUser().getId()},{password:password})
+        self.userDelegate.update({id: sessionData.getLoggedInUser().getId()}, {password: password})
             .then(
-                function passwordUpdated() { res.send({message:'Password Changed Successfully'}).status(200); },
-                function PasswordUpdateError(error) { res.send({message:'Password Change Failed'}).status(500); }
-            )
+            function passwordUpdated() { res.send({message: 'Password Changed Successfully'}).status(200); },
+            function PasswordUpdateError(error) { res.send({message: 'Password Change Failed'}).status(500); }
+        )
     }
 
     verifyMobile(req:express.Request, res:express.Response)
@@ -320,7 +320,7 @@ class DashboardRoute
 
         q.all([
             self.integrationMemberDelegate.get(memberId, IntegrationMember.DASHBOARD_FIELDS),
-            self.userProfileDelegate.find({'integration_member_id':memberId})
+            self.userProfileDelegate.find({'integration_member_id': memberId})
         ])
             .then(
             function memberFetched(...args)
@@ -331,9 +331,9 @@ class DashboardRoute
                 return q.all([
                     self.userDelegate.get(userId),
                     self.userSkillDelegate.getSkillWithName(userProfile.getId()),
-                    self.userEducationDelegate.search({'profileId':userProfile.getId()}),
-                    self.userEmploymentDelegate.search({'profileId':userProfile.getId()}),
-                    self.userUrlDelegate.search({'profileId':userProfile.getId()})
+                    self.userEducationDelegate.search({'profileId': userProfile.getId()}),
+                    self.userEmploymentDelegate.search({'profileId': userProfile.getId()}),
+                    self.userUrlDelegate.search({'profileId': userProfile.getId()})
                 ]);
             })
             .then(
@@ -366,28 +366,32 @@ class DashboardRoute
     {
         var self = this;
         var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
-        var user:any = req[ApiConstants.USER];
         var sessionData = new SessionData(req);
-        var userProfile:UserProfile;
-        var member:IntegrationMember
+        var userProfile:UserProfile = new UserProfile();
+        var member:IntegrationMember;
 
         q.all([
             self.integrationMemberDelegate.get(memberId, IntegrationMember.DASHBOARD_FIELDS),
-            self.userProfileDelegate.find({'integration_member_id':memberId})
+            self.userProfileDelegate.find({'integration_member_id': memberId})
         ])
-        .then(
-        function memberFetched(...args)
-        {
-            member = args[0][0];
-            userProfile = args[0][1];
-            var userId:number = member.getUserId();
-            return q.all([
-                    self.userDelegate.get(userId),
-                    self.userSkillDelegate.getSkillWithName(userProfile.getId()),
-                    self.userEducationDelegate.search({'profileId':userProfile.getId()}),
-                    self.userEmploymentDelegate.search({'profileId':userProfile.getId()}),
-                    self.userUrlDelegate.search({'profileId':userProfile.getId()})
-                ]);
+            .then(
+            function memberFetched(...args)
+            {
+                member = args[0][0];
+                var userId:number = member.getUserId();
+
+                userProfile = args[0][1] || userProfile;
+                var profileInfoTasks = [];
+
+                if (!Utils.isNullOrEmpty(userProfile) && userProfile.getId())
+                    profileInfoTasks = [
+                        self.userSkillDelegate.getSkillWithName(userProfile.getId()),
+                        self.userEducationDelegate.search({'profileId': userProfile.getId()}),
+                        self.userEmploymentDelegate.search({'profileId': userProfile.getId()}),
+                        self.userUrlDelegate.search({'profileId': userProfile.getId()})
+                    ];
+
+                return q.all([self.userDelegate.get(userId)].concat(profileInfoTasks));
             })
             .then(
             function memberDetailsFetched(...args)
@@ -397,17 +401,18 @@ class DashboardRoute
                 var userEducation = args[0][2] || {};
                 var userEmployment = args[0][3] || {};
                 var userUrl = args[0][4] || {};
+                var profileId = userProfile ? userProfile.getId() : null;
 
                 var pageData = _.extend(sessionData.getData(), {
-                    'profileId' : userProfile.getId(),
+                    'profileId': profileId,
                     'member': member,
-                    'user' : user,
+                    'user': user,
                     'userSkill': userSkill,
                     'userProfile': userProfile,
                     'userEducation': userEducation,
                     'userEmployment': userEmployment,
                     'userUrl': userUrl,
-                    messages: req.flash()
+                    'messages': req.flash()
                 });
                 res.render(DashboardRoute.PAGE_PROFILE, pageData);
             },
@@ -422,7 +427,7 @@ class DashboardRoute
 
         q.all([
             this.userDelegate.update({id: sessionData.getLoggedInUser().getId()}, user),
-            this.userProfileDelegate.update({id:userProfile.id},userProfile)
+            this.userProfileDelegate.update({id: userProfile.id}, userProfile)
         ])
         .then(
             function userUpdated() { res.send(200); },

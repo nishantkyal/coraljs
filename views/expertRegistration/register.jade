@@ -29,5 +29,6 @@ block content
                 .form-group
                     input(type='hidden', name='invitation_code', value=code)
                     input.btn-primary.btn(value='Register', type='submit')
+                    a.btn-primary.btn(href=MemberRegistrationUrls.linkedInLogin()) Login with LinkedIn
                     a.btn.btn-link(href=MemberRegistrationUrls.login()) Login
     script(src='/js/app/expertRegistration/authenticate.js')

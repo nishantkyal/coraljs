@@ -1,194 +1,233 @@
-include header
-include ../scriptsAndStyles
-.container-fluid
+extends header
+block content
     .row-fluid
-        .col-md-2
-            include ../errorMessage
-        .col-md-8
-            .navbar.navbar-default
-                .container
-                    a.navbar-brand(href=DashboardUrls.integrationMembers(member.integration_id)) Back
-                    .collapse.navbar-collapse
-                        ul.nav.navbar-nav
-                            li.active
-                                a(href="profile") Profile
-            a(data-id=profileId, data-toggle='modal', href= '#FetchFromLinkedInModal') Fetch Details From LinkedIn
-            .col-md-3
-                img.img.img-polaroid.img-responsive.col-md-12#profileImage(src=ApiUrlDelegate.userProfilePicture(loggedInUser.id))
-                form#fileUploadForm(action=ApiUrlDelegate.userProfilePicture(loggedInUser.id), method="post", enctype="multipart/form-data")
-                    input#selectFile(type='file', name='profile', style='display: none')
-                    input#selectFileSubmit(type='submit', style='display: none')
-                    .text-center
+        include ../errorMessage
+    .row-fluid
+        .col-md-3
+            img.img.img-polaroid.img-responsive.col-md-12#profileImage(src=ApiUrlDelegate.userProfilePicture(loggedInUser.id))
+            form#fileUploadForm(action=ApiUrlDelegate.userProfilePicture(loggedInUser.id), method="post", enctype="multipart/form-data")
+                input#selectFile(type='file', name='profile', style='display: none')
+                input#selectFileSubmit(type='submit', style='display: none')
+                .text-center
+                    div
                         a.btn.btn-default.btn-xs#selectFileBtn Upload
-                a.btn.btn-link(data-toggle='modal', href='#ChangePasswordModal') Change Password
-                a.btn.btn-link#SendProfile() Send Profile for Approval
-            .col-md-9
-                label.control-label(for='skill') Profile Details of #{Salutation[user.title]} #{user.first_name} #{user.middle_name} #{user.last_name}
-                a.fa.fa-pencil.editSkill(data-id=profileId, data-toggle='modal', href='#EditUserProfileModal')
-                    br
-                .form-group
-                    div #{userProfile.short_desc}
-                    label.control-label(for='industry') Industry
-                    normal  - #{IndustryCodes[user.industry]}
-                    br
-                    label.control-label(for='birth_day') Date of Birth
-                    normal  - #{user.date_of_birth}
-                    br
-                    label.control-label(for='long_desc') Description
-                    div #{userProfile.long_desc}
-                .form-group
-                    label.control-label(for='revenue_share') Revenue Share
-                    .form-control-static#revenue_share= formatMoney(member.revenue_share, member.revenue_share_unit)
-                        | &nbsp;/ call
-                .form-group
-                    label.control-label(for='skill') Skill Details
-                    br
-                    if userSkill
-                        each skill in userSkill
-                            normal #{skill.skill_name}&nbsp
-                            a.fa.fa-pencil.editSkill(data-id=skill.id, data-toggle='modal', href='#EditUserSkillModal')
-                            a.fa.fa-times.deleteSkill(data-id=skill.id, data-toggle='modal', href='#DeleteUserSkillModal')
-                            br
-                    br
-                    a.btn.btn-default.btn-xs#addSkillBtn(data-toggle='modal', href='#AddUserSkillModal') Add Skill
-                include memberEducation
-                include memberEmployment
-        .col-md-2
-#ChangePasswordModal.modal.fade(style='display: none;')
-    .modal-dialog
-        .modal-content
-            .modal-header
-                .close(data-dismiss='modal', aria-hidden='true') x
-                h4.modal-title Change Password
-            form
+                    div
+                        a.btn.btn-danger.btn-xs(data-toggle='modal', href='#ChangePasswordModal') Change Password
+                    div
+                        a.btn.btn-primary.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchFromLinkedInModal') Fetch Details From LinkedIn
+        .col-md-9
+            .row-fluid
+                .col-md-6
+                    .panel.panel-info
+                        .panel-heading
+                            | Basic Info
+                            .pull-right
+                                button.btn.btn-default.btn-xs(title='Fetch basic profile from LinkedIn')
+                                    span.fa.fa-linkedin
+                                button.btn.btn-default.btn-xs
+                                    span.fa.fa-pencil
+                        .panel-body
+                            .form
+                                .form-group
+                                    label.control-label Name
+                                    .pull-right
+                                        .form-control-static= formatName(user.first_name, user.last_name, user.title)
+                                .form-group
+                                    label.control-label Date of birth
+                                    .pull-right
+                                        .form-control-static= formatDate(user.date_of_birth)
+                                .form-group
+                                    label.control-label Summary
+                                    .form-control-static= user.short_desc
+                                .form-group
+                                    label.control-label Description
+                                    .pull-right
+                                        .form-control-static= user.long_desc
+                                .form-group
+                                    label.control-label Industry
+                                    .pull-right
+                                        .form-control-static= IndustryCodes[user.industry]
+                                .form-group
+                                    label.control-label Role
+                                    .pull-right
+                                        .form-control-static= formatRole(member.role)
+                                .form-group
+                                    label.control-label Revenue share
+                                    .pull-right
+                                        .form-control-static
+                                            span= formatMoney(member.revenue_share, member.revenue_share_unit)
+                                            | /call
+                .col-md-6
+                    .panel.panel-danger
+                        .panel-heading
+                            | Skills
+                            .pull-right
+                                button.btn.btn-default.btn-xs
+                                    span.fa.fa-pencil
+                        .panel-body
+                            button.btn.btn-default.btn-xs#addSkillBtn(data-toggle='modal', href='#AddUserSkillModal') Add Skill
+                            button.btn.btn-primary.btn-xs
+                                i.fa.fa-linkedin-square
+                                | &nbsp;Fetch from LinkedIn
+                    .panel.panel-success
+                        .panel-heading
+                            | Education
+                            .pull-right
+                                button.btn.btn-default.btn-xs
+                                    span.fa.fa-pencil
+                        .panel-body
+                            button.btn.btn-default.btn-xs#addEducationBtn(data-toggle='modal', href='#AddUserEducationModal') Add Education
+                            button.btn.btn-primary.btn-xs
+                                i.fa.fa-linkedin-square
+                                | &nbsp;Fetch from LinkedIn
+                        include memberEducation
+                    .panel.panel-warning
+                        .panel-heading
+                            | Work Experience
+                            .pull-right
+                                button.btn.btn-default.btn-xs
+                                    span.fa.fa-pencil
+                        ul.list-group
+                            li.list-group-item
+                                div
+                                    strong Chief Technical Officer
+                                    .pull-right
+                                        a.fa.fa-pencil-square.edit(data-toggle='modal', href='#EditUserEmploymentModal')
+                                        a.fa.fa-times-circle.delete(data-toggle='modal', href='#DeleteUserEmploymentModal')
+                                p Infollion Research
+                        .panel-body.editor
+                            button.btn.btn-default.btn-xs#addEmploymentBtn(data-toggle='modal', href='#AddUserEmploymentModal') Add Position
+                            button.btn.btn-primary.btn-xs
+                                i.fa.fa-linkedin-square
+                                | &nbsp;Fetch from LinkedIn
+                        include memberEmployment
+    #ChangePasswordModal.modal.fade(style='display: none;')
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    .close(data-dismiss='modal', aria-hidden='true') x
+                    h4.modal-title Change Password
+                form
+                    .modal-body
+                        .form-group
+                            label.control-label(for='short_desc') Password
+                            input.form-control#password(type='text', name='password', autocomplete='off', data-toggle="tooltip", data-placement="bottom")
+                        .form-group
+                            label.control-label(for='long_desc') Confirm Password
+                            input.form-control#confirm_password(type='text', name='confirmPassword', autocomplete='off', data-toggle="tooltip", data-placement="bottom")
+                    .modal-footer
+                        button.btn.btn-default(data-dismiss='modal') Close
+                        input.btn.btn-primary(type='submit', value='OK')
+    #FetchFromLinkedInModal.modal.fade(style='display: none;')
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    .close(data-dismiss='modal', aria-hidden='true') x
+                    h4.modal-title Edit Profile
+                form
+                    .modal-body
+                        .row
+                            .form-group.col-md-6
+                                p.confirm
+                                    label
+                                        input#profile(type="checkbox", name="profile")
+                                        | Fetch Profile Details
+                                    br
+                                    label
+                                        input#education(type="checkbox", name="education")
+                                        | Fetch Education Details
+                                    br
+                                    label
+                                        input#employment(type="checkbox", name="employment")
+                                        | Fetch Employment Details
+                                div Please note the information on this page will be replaced with information from LinkedIn
+                    .modal-footer
+                        button.btn.btn-default(data-dismiss='modal') Close
+                        input.btn.btn-primary(type='submit', value='OK')
+    #EditUserProfileModal.modal.fade(style='display: none;')
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    .close(data-dismiss='modal', aria-hidden='true') x
+                    h4.modal-title Edit Profile
+                form
+                    .modal-body
+                        .row
+                            .form-group.col-md-2
+                                label(for='title').control-label Title
+                                select#title(name='title', data-width='auto')
+                                    each key,option in Salutation
+                                        option(value="#{option}" selected = ('#{user.title}' == '#{option}')) #{key}
+                            .form-group.col-md-3
+                                label.control-label(for='first_name') First Name
+                                input.form-control#first_name(type='text', name='first_name', value=loggedInUser.first_name, data-toggle="tooltip", data-placement="bottom")
+                            .form-group.col-md-3
+                                label.control-label(for='middle_name') Middle Name
+                                input.form-control#middle_name(type='text', name='middle_name', value=loggedInUser.middle_name, data-toggle="tooltip", data-placement="bottom")
+                            .form-group.col-md-3
+                                label.control-label(for='last_name') Last Name
+                                input.form-control#last_name(type='text', name='last_name', value=loggedInUser.last_name, data-toggle="tooltip", data-placement="bottom")
+                        hr
+                        .form-group
+                            label.control-label(for='short_desc') Summary
+                            input.form-control#short_desc(type='text', name='short_desc', value=userProfile.short_desc, autocomplete='off', data-toggle="tooltip", data-placement="bottom")
+                        .form-group
+                            label.control-label(for='long_desc') Description
+                            textarea.form-control#long_desc(name='long_desc', data-toggle="tooltip", data-placement="bottom") #{userProfile.long_desc}
+                        .row
+                            .form-group.col-md-6
+                                label.control-label(for='industry') Industry
+                                select#industry(name='industry', data-width='auto')
+                                    each key,option in IndustryCodes
+                                        option(value="#{option}", selected = ('#{user.industry}' == '#{option}')) #{key}
+                            .form-group.col-md-3
+                                label.control-label(for='birth_day') Birthday
+                                input.form-control#birthDate(class="datepicker" value = '#{loggedInUser.date_of_birth}')
+                    .modal-footer
+                        button.btn.btn-default(data-dismiss='modal') Close
+                        input.btn.btn-primary(type='submit', value='Save')
+    #AddUserSkillModal.modal.fade(style='display: none;')
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    .close(data-dismiss='modal', aria-hidden='true') x
+                    h4.modal-title Add Skill
+                form#editForm
+                    .modal-body
+                        label.control-label(for='add_skill') Skill
+                        input.form-control#skill_name(class='typeahead', type='text', name='skill_name', data-toggle="tooltip", data-placement="bottom", data-provide="typeahead", autocomplete="off")
+                    .modal-footer
+                        button.btn.btn-default(data-dismiss='modal') Close
+                        input.btn.btn-primary(type='submit', value='Save')
+    #EditUserSkillModal.modal.fade(style='display: none;')
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    .close(data-dismiss='modal', aria-hidden='true') x
+                    h4.modal-title Edit Skill
+                form
+                    .modal-body
+                        label.control-label(for='edit_skill') Skill
+                        input.form-control#skill_name(class='typeahead', type= 'text', name='skill_name', data-toggle="tooltip", data-placement="bottom", data-provide="typeahead", autocomplete="off")
+                    .modal-footer
+                        button.btn.btn-default(data-dismiss='modal') Close
+                        input.btn.btn-primary(type='submit', value='Update')
+    #DeleteUserSkillModal.modal.fade(style='display: none;')
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    .close(data-dismiss='modal', aria-hidden='true') x
+                    h4.modal-title Delete Skill
                 .modal-body
-                    .form-group
-                        label.control-label(for='short_desc') Password
-                        input.form-control#password(type='text', name='password', autocomplete='off', data-toggle="tooltip", data-placement="bottom")
-                    .form-group
-                        label.control-label(for='long_desc') Confirm Password
-                        input.form-control#confirm_password(type='text', name='confirmPassword', autocomplete='off', data-toggle="tooltip", data-placement="bottom")
+                    label Are you sure you want to delete this information?
                 .modal-footer
-                    button.btn.btn-default(data-dismiss='modal') Close
-                    input.btn.btn-primary(type='submit', value='OK')
-#FetchFromLinkedInModal.modal.fade(style='display: none;')
-    .modal-dialog
-        .modal-content
-            .modal-header
-                .close(data-dismiss='modal', aria-hidden='true') x
-                h4.modal-title Edit Profile
-            form(action=ApiUrlDelegate.userProfileFromLinkedIn(userProfile.id), method="post")
-                .modal-body
-                    .row
-                        .form-group.col-md-6
-                            p.confirm
-                                label
-                                    input#basic(type="checkbox", name="fetchBasic")
-                                    | Fetch Basic Details
-                                br
-                                label
-                                    input#profilePicture(type="checkbox", name="fetchProfilePicture")
-                                    | Fetch Profile Picture
-                                br
-                                label
-                                    input#skill(type="checkbox", name="fetchSkill")
-                                    | Fetch Skill Details
-                                br
-                                label
-                                    input#education(type="checkbox", name="fetchEducation")
-                                    | Fetch Education Details
-                                br
-                                label
-                                    input#employment(type="checkbox", name="fetchEmployment")
-                                    | Fetch Employment Details
-                            div Please note the information on this page will be replaced with information from LinkedIn
-                .modal-footer
-                    button.btn.btn-default(data-dismiss='modal') Close
-                    input.btn.btn-primary(type='submit', value='OK')
-#EditUserProfileModal.modal.fade(style='display: none;')
-    .modal-dialog
-        .modal-content
-            .modal-header
-                .close(data-dismiss='modal', aria-hidden='true') x
-                h4.modal-title Edit Profile
-            form
-                .modal-body
-                    .row
-                        .form-group.col-md-2
-                            label(for='title').control-label Title
-                            select#title(name='title', data-width='auto')
-                                each key,option in Salutation
-                                    option(value="#{option}" selected = ('#{user.title}' == '#{option}')) #{key}
-                        .form-group.col-md-3
-                            label.control-label(for='first_name') First Name
-                            input.form-control#first_name(type='text', name='first_name', value=loggedInUser.first_name, data-toggle="tooltip", data-placement="bottom")
-                        .form-group.col-md-3
-                            label.control-label(for='middle_name') Middle Name
-                            input.form-control#middle_name(type='text', name='middle_name', value=loggedInUser.middle_name, data-toggle="tooltip", data-placement="bottom")
-                        .form-group.col-md-3
-                            label.control-label(for='last_name') Last Name
-                            input.form-control#last_name(type='text', name='last_name', value=loggedInUser.last_name, data-toggle="tooltip", data-placement="bottom")
-                    hr
-                    .form-group
-                        label.control-label(for='short_desc') Summary
-                        input.form-control#short_desc(type='text', name='short_desc', value=userProfile.short_desc, autocomplete='off', data-toggle="tooltip", data-placement="bottom")
-                    .form-group
-                        label.control-label(for='long_desc') Description
-                        textarea.form-control#long_desc(name='long_desc', data-toggle="tooltip", data-placement="bottom") #{userProfile.long_desc}
-                    .row
-                        .form-group.col-md-6
-                            label.control-label(for='industry') Industry
-                            select#industry(name='industry', data-width='auto')
-                                each key,option in IndustryCodes
-                                    option(value="#{option}", selected = ('#{user.industry}' == '#{option}')) #{key}
-                        .form-group.col-md-3
-                            label.control-label(for='birth_day') Birthday
-                            input.form-control#birthDate(class="datepicker" value = '#{loggedInUser.date_of_birth}')
-                .modal-footer
-                    button.btn.btn-default(data-dismiss='modal') Close
-                    input.btn.btn-primary(type='submit', value='Save')
-#AddUserSkillModal.modal.fade(style='display: none;')
-    .modal-dialog
-        .modal-content
-            .modal-header
-                .close(data-dismiss='modal', aria-hidden='true') x
-                h4.modal-title Add Skill
-            form#editForm
-                .modal-body
-                    label.control-label(for='add_skill') Skill
-                    input.form-control#skill_name(class='typeahead', type='text', name='skill_name', data-toggle="tooltip", data-placement="bottom", data-provide="typeahead", autocomplete="off")
-                .modal-footer
-                    button.btn.btn-default(data-dismiss='modal') Close
-                    input.btn.btn-primary(type='submit', value='Save')
-#EditUserSkillModal.modal.fade(style='display: none;')
-    .modal-dialog
-        .modal-content
-            .modal-header
-                .close(data-dismiss='modal', aria-hidden='true') x
-                h4.modal-title Edit Skill
-            form
-                .modal-body
-                    label.control-label(for='edit_skill') Skill
-                    input.form-control#skill_name(class='typeahead', type= 'text', name='skill_name', data-toggle="tooltip", data-placement="bottom", data-provide="typeahead", autocomplete="off")
-                .modal-footer
-                    button.btn.btn-default(data-dismiss='modal') Close
-                    input.btn.btn-primary(type='submit', value='Update')
-#DeleteUserSkillModal.modal.fade(style='display: none;')
-    .modal-dialog
-        .modal-content
-            .modal-header
-                .close(data-dismiss='modal', aria-hidden='true') x
-                h4.modal-title Delete Skill
-            .modal-body
-                label Are you sure you want to delete this information?
-            .modal-footer
-                button.btn.btn-default(data-dismiss='modal') No
-                button.btn.btn-primary(onclick='handleSkillDeleteClicked(event)') Yes
-script.
-    var memberId = '!{member.id}';
-    var userSkill = JSON.parse( '!{JSON.stringify(userSkill)}' );
-    var userProfile = JSON.parse ( '!{JSON.stringify(userProfile)}' );
-    var userProfile = JSON.parse ( '!{JSON.stringify(userProfile)}' );
-script(src='/js/lib/bootstrap3-typeahead.js')
-script(src='/js/lib/bloodhound.js')
-script(src='/js/app/dashboard/memberProfile.js')
+                    button.btn.btn-default(data-dismiss='modal') No
+                    button.btn.btn-primary(onclick='handleSkillDeleteClicked(event)') Yes
+    script.
+        var memberId = '!{member.id}';
+        var userSkill = JSON.parse( '!{JSON.stringify(userSkill)}' );
+        var userProfile = JSON.parse ( '!{JSON.stringify(userProfile)}' );
+        var userProfile = JSON.parse ( '!{JSON.stringify(userProfile)}' );
+    script(src='/js/lib/bootstrap3-typeahead.js')
+    script(src='/js/lib/bloodhound.js')
+    script(src='/js/app/dashboard/memberProfile.js')

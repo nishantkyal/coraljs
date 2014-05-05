@@ -109,7 +109,6 @@ class MemberRegistrationRoute
                 if (isExpertValid)
                 {
                     sessionData.setMember(expert);
-                    req.logIn(expert.getUser());
                     res.redirect(Utils.addQueryToUrl(DashboardUrls.mobileVerification(), Utils.createSimpleObject(ApiConstants.CONTEXT, 'expertRegistration')));
                 }
                 else

@@ -1,6 +1,7 @@
 ///<reference path='../../_references.d.ts'/>
 import _                                                            = require('underscore');
 import express                                                      = require('express');
+import connect_ensure_login                                         = require('connect-ensure-login');
 import IntegrationMemberRole                                        = require('../../enums/IntegrationMemberRole');
 import ApiConstants                                                 = require('../../enums/ApiConstants');
 import Utils                                                        = require('../../common/Utils');
@@ -22,7 +23,7 @@ class Middleware
         if (isAdmin || isOwner)
             next();
         else if (req.isAuthenticated())
-                res.redirect(Urls.integrations());
+            res.redirect(Urls.integrations());
         else
             res.redirect('/login');
     }
@@ -41,12 +42,15 @@ class Middleware
             res.redirect('/login');
     }
 
-    static allowSelf(req:express.Request, res:express.Response, next:Function)
-    {
-        var sessionData = new SessionData(req);
-        var integrationMembers = sessionData.getMembers();
-        var memberId:number = parseInt(req.params[ApiConstants.MEMBER_ID]);
-        var loggedInUser = sessionData.getLoggedInUser();
+    static allowSelf =
+        [
+            connect_ensure_login.ensureLoggedIn(),
+            function (req:express.Request, res:express.Response, next:Function)
+            {
+                var sessionData = new SessionData(req);
+                var integrationMembers = sessionData.getMembers();
+                var memberId:number = parseInt(req.params[ApiConstants.MEMBER_ID]);
+                var loggedInUser = sessionData.getLoggedInUser();
 
         if(Utils.isNullOrEmpty(loggedInUser))
             res.redirect('/login');

@@ -25,7 +25,7 @@ function init(grunt) {
                 dest: 'public/css/combined.css'
             },
             js: {
-                src: ['public/js/lib/jquery.js', 'public/js/lib/jquery.validate.js', 'public/js/lib/!(combined).js'],
+                src: ['public/js/lib/jquery.js', 'public/js/lib/jquery.validate.js', 'public/js/lib/!(combined).js', 'public/js/lib/!(combined).js'],
                 dest: 'public/js/lib/combined.js'
             }
         },
@@ -71,9 +71,6 @@ function init(grunt) {
                 src: 'public/css/combined.css',
                 dest: 'public/css/combined.min.css'
             }
-        },
-        'apply-alter-scripts': {
-            db: 'huha'
         }
     });
 
@@ -89,7 +86,7 @@ function init(grunt) {
     });
 
     grunt.registerTask('coral', ['clean', 'concat', 'replace', 'generate-index']);
-    grunt.registerTask('default', ['concat:js', 'concat:css', 'cssmin:css']);
+    grunt.registerTask('default', ['concat:js']);
 }
 
 module.exports = init;

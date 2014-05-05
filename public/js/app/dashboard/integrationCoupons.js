@@ -84,7 +84,7 @@ $('.save').click(function()
     $('#couponDetails #code').val(null);
     $('#couponDetails #expert_id').selectpicker('val', null);
     $('#couponDetails #expiry_time').val(null);
-    $('#couponDetails #num_used').text(null);
+    $('#couponDetails #num_used').text(0);
     $('#couponDetails #max_coupons').val(null);
     $('#couponDetails #discount_amount').val(null);
     $('#couponDetails #discount_unit').selectpicker('val', null);
@@ -92,4 +92,4 @@ $('.save').click(function()
 
 
 $('select').selectpicker();
-
+$('.datepicker').datepicker();

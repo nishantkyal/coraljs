@@ -26,6 +26,7 @@ import IndustryCode                                 = require('./enums/IndustryC
 import CountryName                                  = require('./enums/CountryName');
 import Salutation                                   = require('./enums/Salutation');
 import ItemType                                     = require('./enums/ItemType');
+import CouponType                                   = require('./enums/CouponType');
 import CallFlowUrls                                 = require('./routes/callFlow/Urls');
 import DashboardUrls                                = require('./routes/dashboard/Urls');
 import MemberRegistrationUrls                       = require('./routes/expertRegistration/Urls');
@@ -50,6 +51,7 @@ var helpers = {
 
     IndustryCodes: Utils.enumToNormalText(IndustryCode),
     Salutation: Utils.enumToNormalText(Salutation),
+    CouponType: Utils.enumToNormalText(CouponType),
     ItemType: Utils.enumToNormalText(ItemType),
     minYear: Config.get(Config.MINIMUM_YEAR),
     currentYear: moment().format('YYYY')
