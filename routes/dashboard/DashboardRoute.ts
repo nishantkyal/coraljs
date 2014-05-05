@@ -110,7 +110,7 @@ class DashboardRoute
         var isLoggedIn = !Utils.isNullOrEmpty(sessionData.getLoggedInUser());
         if (isLoggedIn)
         {
-            res.redirect(Urls.integrations());
+            res.redirect(Urls.index());
             return;
         }
 

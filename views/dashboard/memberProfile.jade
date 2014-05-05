@@ -65,14 +65,10 @@ block content
                                 button.btn.btn-default.btn-xs
                                     span.fa.fa-pencil
                         .panel-body
-                            if userSkill
-                                each skill in userSkill
-                                    normal #{skill.skill_name}&nbsp
-                                    a.fa.fa-pencil.editSkill(data-id=skill.id, data-toggle='modal', href='#EditUserSkillModal')
-                                    a.fa.fa-times.deleteSkill(data-id=skill.id, data-toggle='modal', href='#DeleteUserSkillModal')
-                                    br
-                            br
-                            a.btn.btn-default.btn-xs#addSkillBtn(data-toggle='modal', href='#AddUserSkillModal') Add Skill
+                            button.btn.btn-default.btn-xs#addSkillBtn(data-toggle='modal', href='#AddUserSkillModal') Add Skill
+                            button.btn.btn-primary.btn-xs
+                                i.fa.fa-linkedin-square
+                                | &nbsp;Fetch from LinkedIn
                     .panel.panel-success
                         .panel-heading
                             | Education
@@ -80,15 +76,31 @@ block content
                                 button.btn.btn-default.btn-xs
                                     span.fa.fa-pencil
                         .panel-body
-                            include memberEducation
+                            button.btn.btn-default.btn-xs#addEducationBtn(data-toggle='modal', href='#AddUserEducationModal') Add Education
+                            button.btn.btn-primary.btn-xs
+                                i.fa.fa-linkedin-square
+                                | &nbsp;Fetch from LinkedIn
+                        include memberEducation
                     .panel.panel-warning
                         .panel-heading
                             | Work Experience
                             .pull-right
                                 button.btn.btn-default.btn-xs
                                     span.fa.fa-pencil
-                        .panel-body
-                            include memberEmployment
+                        ul.list-group
+                            li.list-group-item
+                                div
+                                    strong Chief Technical Officer
+                                    .pull-right
+                                        a.fa.fa-pencil-square.edit(data-toggle='modal', href='#EditUserEmploymentModal')
+                                        a.fa.fa-times-circle.delete(data-toggle='modal', href='#DeleteUserEmploymentModal')
+                                p Infollion Research
+                        .panel-body.editor
+                            button.btn.btn-default.btn-xs#addEmploymentBtn(data-toggle='modal', href='#AddUserEmploymentModal') Add Position
+                            button.btn.btn-primary.btn-xs
+                                i.fa.fa-linkedin-square
+                                | &nbsp;Fetch from LinkedIn
+                        include memberEmployment
     #ChangePasswordModal.modal.fade(style='display: none;')
         .modal-dialog
             .modal-content

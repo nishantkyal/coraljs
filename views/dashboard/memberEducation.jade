@@ -1,28 +1,3 @@
-div
-    a.btn.btn-default.btn-xs#addEducationBtn(data-toggle='modal', href='#AddUserEducationModal') Add Education
-    button.btn.btn-primary.btn-xs
-        i.fa.fa-linkedin-square
-        | &nbsp;Fetch from LinkedIn
-
-    .form-group
-    br
-    if userEducation
-        each edu in userEducation
-            label.control-label(for='education') #{edu.school_name}&nbsp
-            a.fa.fa-pencil.edit(data-id=edu.id, data-toggle='modal', href='#EditUserEducationModal')
-            a.fa.fa-times.delete(data-id=edu.id, data-toggle='modal', href='#DeleteUserEducationModal')
-            br
-            if edu.degree
-                small #{edu.degree}
-                if edu.field_of_study
-                    small , #{edu.field_of_study}
-                br
-            if edu.start_year
-                small #{edu.start_year}&nbsp
-            if edu.end_year
-                small - #{edu.end_year}
-                br
-            br
 #AddUserEducationModal.modal.fade(style='display: none;')
     .modal-dialog
         .modal-content
@@ -31,28 +6,32 @@ div
                 h4.modal-title Add Education Details
             form#editForm
                 .modal-body
-                    label.control-label(for='school_name') School
-                    input.form-control#school_name(type='text', name='school_name', data-toggle="tooltip", data-placement="bottom")
-                    label.control-label(for='dates_attended') Dates Attended
-                    br
-                    select#start_year(name='start_year', data-width='auto')
-                        - for( var i = currentYear; i>=minYear; i--){
-                            option(value="#{i}" selected = (currentYear == '#{i}')) #{i}
-                        -}
-                    label.control-label(for='dates_attended') &nbsp-&nbsp
-                    select#end_year(name='end_year', data-width='auto')
-                        - for( var i=currentYear; i>=minYear; i--){
-                            option(value="#{i}" selected = (currentYear == '#{i}')) #{i}
-                        -}
-                    br
-                    label.control-label(for='degree') Degree
-                    input.form-control#degree(type='text', name='degree', data-toggle="tooltip", data-placement="bottom")
-                    label.control-label(for='field_of_study') Field of Study
-                    input.form-control#field_of_study(type='text', name='field_of_study', data-toggle="tooltip", data-placement="bottom")
-                    label.control-label(for='activities') Activities and Socities
-                    textarea.form-control#activities(type='text', name='activities' , data-toggle="tooltip", data-placement="bottom")
-                    label.control-label(for='description') Description
-                    textarea.form-control#description(type='text', name='description', data-toggle="tooltip", data-placement="bottom")
+                    .form-group
+                        label.control-label(for='school_name') School
+                        input.form-control#school_name(type='text', name='school_name', data-toggle="tooltip", data-placement="bottom")
+                    .form-group
+                        label.control-label(for='dates_attended') Dates Attended
+                        .controls
+                            select#start_year(name='start_year', data-width='auto')
+                                - for (var i = currentYear; i >= minYear; i--){
+                                    option(value="#{i}" selected = (currentYear == '#{i}')) #{i}
+                                -}
+                            select#end_year(name='end_year', data-width='auto')
+                                - for( var i=currentYear; i>=minYear; i--){
+                                    option(value="#{i}" selected = (currentYear == '#{i}')) #{i}
+                                -}
+                    .form-group
+                        label.control-label(for='degree') Degree
+                        input.form-control#degree(type='text', name='degree', data-toggle="tooltip", data-placement="bottom")
+                    .form-group
+                        label.control-label(for='field_of_study') Field of Study
+                        input.form-control#field_of_study(type='text', name='field_of_study', data-toggle="tooltip", data-placement="bottom")
+                    .form-group
+                        label.control-label(for='activities') Activities and Socities
+                        textarea.form-control#activities(type='text', name='activities' , data-toggle="tooltip", data-placement="bottom")
+                    .form-group
+                        label.control-label(for='description') Description
+                        textarea.form-control#description(type='text', name='description', data-toggle="tooltip", data-placement="bottom")
                 .modal-footer
                     button.btn.btn-default(data-dismiss='modal') Close
                     input.btn.btn-primary(type='submit', value='Save')

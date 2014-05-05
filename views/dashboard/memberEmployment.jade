@@ -1,29 +1,3 @@
-div
-    button.btn.btn-default.btn-xs#addEmploymentBtn(data-toggle='modal', href='#AddUserEmploymentModal') Add Position
-    button.btn.btn-primary.btn-xs
-        i.fa.fa-linkedin-square
-        | &nbsp;Fetch from LinkedIn
-    .list-group
-        if userEmployment
-            each emp in userEmployment
-                .list-group-item
-                    label.control-label(for='position') #{emp.title}&nbsp
-                    a.fa.fa-pencil.edit(data-id=emp.id, data-toggle='modal', href='#EditUserEmploymentModal')
-                    a.fa.fa-times.delete(data-id=emp.id, data-toggle='modal', href='#DeleteUserEmploymentModal')
-                    br
-                    if emp.company
-                        normal #{emp.company}
-                        br
-                    if emp.start_date
-                        small #{emp.start_date}&nbsp
-                    if emp.end_date
-                        small - #{emp.end_date}
-                        br
-                    if emp.summary
-                        small #{emp.summary}
-                        br
-                    br
-
 #AddUserEmploymentModal.modal.fade(style='display: none;')
     .modal-dialog
         .modal-content
@@ -32,27 +6,29 @@ div
                 h4.modal-title Add Position Details
             form#addForm
                 .modal-body
-                    label.control-label(for='title') Title
-                    input.form-control#title(type='text', name='title', data-toggle="tooltip", data-placement="bottom")
-                    label.control-label(for='company') Company
-                    input.form-control#company(type='text', name='company', data-toggle="tooltip", data-placement="bottom")
-                    label.control-label(for='dates_attended') Time Period
-                    br
-                    .row
-                        .form-group.col-md-2
-                            input.form-control#start_date(class="datepicker")
-                        .form-group.col-md-1
-                            normal -
-                        .form-group.col-md-2
-                            input.form-control#end_date(class="datepicker")
-                    br
-                    label.control-label(for='summary') Summary
-                    textarea.form-control#summary(type='text', name='summary', data-toggle="tooltip", data-placement="bottom")
-                    br
-                    label.control-label(for='is_current') Is Current? &nbsp&nbsp
-                    select#is_current(name='is_current', data-width='auto')
-                        option(value="1" selected = (currentYear == '#{i}')) Yes
-                        option(value="0" selected = (currentYear == '#{i}')) No
+                    .form-group
+                        label.control-label(for='title') Title
+                        input.form-control#title(type='text', name='title', data-toggle="tooltip", data-placement="bottom")
+                    .form-group
+                        label.control-label(for='company') Company
+                        input.form-control#company(type='text', name='company', data-toggle="tooltip", data-placement="bottom")
+                    .form-group
+                        label.control-label(for='dates_attended') Time Period
+                        .row
+                            .col-md-4
+                                input.form-control.col-md-1#start_date(class="datepicker", placeholder='Starting date')
+                            .col-md-1
+                                | to
+                            .col-md-4
+                                input.form-control.col-md-1#end_date(class="datepicker", placeholder='End date')
+                    .form-group
+                        label.control-label(for='summary') Summary
+                        textarea.form-control#summary(type='text', name='summary', data-toggle="tooltip", data-placement="bottom")
+                    .form-group
+                        label.control-label(for='is_current') Is Current? &nbsp&nbsp
+                        select#is_current(name='is_current', data-width='auto')
+                            option(value="1" selected = (currentYear == '#{i}')) Yes
+                            option(value="0" selected = (currentYear == '#{i}')) No
                 .modal-footer
                     button.btn.btn-default(data-dismiss='modal') Close
                     input.btn.btn-primary(type='submit', value='Update')
