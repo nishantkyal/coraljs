@@ -204,7 +204,7 @@ class MemberRegistrationRoute
 
             case IntegrationMemberRole.Admin:
             case IntegrationMemberRole.Owner:
-                redirectUrl = DashboardUrls.integrationMembers(integrationId);
+                redirectUrl = DashboardUrls.index();
                 break;
         }
 
