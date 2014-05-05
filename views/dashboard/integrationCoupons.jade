@@ -28,17 +28,18 @@ block content
                     th.col-md-1 Discount
 
             tbody
-                each coupon in coupons
-                    - expert = coupon['expert'] ? coupon['expert'][0] : null
-                    - user = expert && expert['user'] ? expert['user'][0] : null
-                    tr(style='cursor: pointer;', data-id=coupon.id, data-toggle='modal', href='#couponDetails')
-                        td(style='text-transform: uppercase;')= coupon.code
-                        td= expert && coupon.expert_id == expert.id && expert.user_id == user.id ? formatName(user.first_name, user.last_name, user.title) : 'All'
-                        td= coupon.expiry_time != null ? formatDate(coupon.expiry_time) : 'Never'
-                        td #{coupon.num_used} / #{coupon.max_coupons || '∞'}
-                        td= formatMoney(coupon.discount_amount, coupon.discount_unit)
-                            br
-                            small #{coupon.waive_network_charges ? 'Network charges also waived' : ''}
+                if coupons
+                    each coupon in coupons
+                        - expert = coupon['expert'] ? coupon['expert'][0] : null
+                        - user = expert && expert['user'] ? expert['user'][0] : null
+                        tr(style='cursor: pointer;', data-id=coupon.id, data-toggle='modal', href='#couponDetails')
+                            td(style='text-transform: uppercase;')= coupon.code
+                            td= expert && coupon.expert_id == expert.id && expert.user_id == user.id ? formatName(user.first_name, user.last_name, user.title) : 'All'
+                            td= coupon.expiry_time != null ? formatDate(coupon.expiry_time) : 'Never'
+                            td #{coupon.num_used} / #{coupon.max_coupons || '∞'}
+                            td= formatMoney(coupon.discount_amount, coupon.discount_unit)
+                                br
+                                small #{coupon.waive_network_charges ? 'Network charges also waived' : ''}
     else
             .text-center
                 label No coupons created yet
@@ -98,5 +99,5 @@ block content
     include footer
     script.
         var integrationId = '!{integration.id}';
-
+        var coupons = JSON.parse('!{JSON.stringify(coupons)}');
     script(src='/js/app/dashboard/integrationCoupons.js')

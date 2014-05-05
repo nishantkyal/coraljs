@@ -44,7 +44,7 @@ $('form').validate({
                 coupon: {
                     integration_id       : integrationId,
                     code                 : $('form #code').val(),
-                    expiry_time          : $('form #expiry_time').val(),
+                    expiry_time          : moment($('form #expiry').val(), "DD/MM/YYYY").valueOf(),
                     discount_amount      : $('form #discount_amount').val(),
                     discount_unit        : $('form #discount_unit').val(),
                     max_coupons          : $('form #max_coupons').val(),
@@ -70,7 +70,7 @@ $('tr').click(function(event)
 
     $('#couponDetails #code').val(coupon.code);
     $('#couponDetails #expert_id').selectpicker('val', coupon.expert_id);
-    $('#couponDetails #expiry_time').val(coupon.expiry_time);
+    $('#couponDetails #expiry').val(moment(coupon.expiry_time).format('DD/MM/YYYY'));
     $('#couponDetails #num_used').text(coupon.num_used);
     $('#couponDetails #max_coupons').val(coupon.max_coupons);
     $('#couponDetails #discount_amount').val(coupon.discount_amount);
@@ -83,7 +83,7 @@ $('.save').click(function()
 {
     $('#couponDetails #code').val(null);
     $('#couponDetails #expert_id').selectpicker('val', null);
-    $('#couponDetails #expiry_time').val(null);
+    $('#couponDetails #expiry').val(null);
     $('#couponDetails #num_used').text(0);
     $('#couponDetails #max_coupons').val(null);
     $('#couponDetails #discount_amount').val(null);
