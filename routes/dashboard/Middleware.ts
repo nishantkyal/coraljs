@@ -46,8 +46,9 @@ class Middleware
         var sessionData = new SessionData(req);
         var integrationMembers = sessionData.getMembers();
         var memberId:number = parseInt(req.params[ApiConstants.MEMBER_ID]);
+        var loggedInUser = sessionData.getLoggedInUser();
 
-        var isSelf = !Utils.isNullOrEmpty(_.findWhere(integrationMembers, {'id': memberId}));
+        var isSelf = !Utils.isNullOrEmpty(_.findWhere(integrationMembers, {'id': memberId, 'user_id': loggedInUser.getId()}));
 
         if (isSelf)
             next();
