@@ -17,3 +17,8 @@
 .panel-body button + button {
     margin-left: 5px;
 }
+
+.datepicker
+{
+    z-index:1151 !important;
+}

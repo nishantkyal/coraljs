@@ -68,13 +68,13 @@ block content
                         .row
                             .form-group.col-md-4
                                 label.control-label(for='expiry_time') Expires On
-                                input.form-control#expiry(type='text', name='expiry_time', data-toggle="tooltip", data-placement="bottom")
+                                input.form-control.datepicker#expiry(type='text', name='expiry_time', data-toggle="tooltip", data-placement="bottom")
                             .form-group.col-md-4
                                 label.control-label(for='max_coupons') Total coupons
                                 input.form-control(type='text', name='max_coupons', placeholder='0 = unlimited', data-toggle="tooltip", data-placement="bottom")#max_coupons
                             .form-group.col-md-4
                                 label.control-label(for='num_used', data-toggle="tooltip", data-placement="bottom") Coupons Used
-                                .form-control-static#num_used -
+                                .form-control-static#num_used 0
                         hr
                         .row
                             .form-group.col-md-6
@@ -98,6 +98,5 @@ block content
     include footer
     script.
         var integrationId = '!{integration.id}';
-        var coupons = !{coupons};
 
     script(src='/js/app/dashboard/integrationCoupons.js')
