@@ -174,7 +174,7 @@ class MemberRegistrationRoute
         var mobileVerificationUrl = Utils.addQueryToUrl(DashboardUrls.mobileVerification(), Utils.createSimpleObject(ApiConstants.CONTEXT, 'expertRegistration'));
         var redirectUrl = '';
 
-        switch(parseInt(member.getRole().toString()))
+        switch (parseInt(member.getRole().toString()))
         {
             case IntegrationMemberRole.Expert:
                 redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? mobileVerificationUrl : integration.getRedirectUrl();
@@ -191,27 +191,33 @@ class MemberRegistrationRoute
             self.userProfileDelegate.create(new UserProfile()),
             self.integrationMemberDelegate.update({'user_id': userId, 'integration_id': integrationId}, {role: member.getRole()})
         ])
-        .then( function profileCreated(...args){
-            var userProfile:UserProfile = args[0][0];
-            profileId = userProfile.getId();
-            return self.userProfileDelegate.fetchAllDetailsFromLinkedIn(userId, integrationId, profileId)
-        })
-        .then(
-            function profileUpdated(){
+            .then(
+            function profileCreated(...args)
+            {
+                var userProfile:UserProfile = args[0][0];
+                profileId = userProfile.getId();
+                return self.userProfileDelegate.fetchAllDetailsFromLinkedIn(userId, integrationId, profileId)
+            })
+            .then(
+            function profileUpdated()
+            {
                 var userProfile:UserProfile = new UserProfile();
                 userProfile.setStatus(ProfileStatus.PENDING_APPROVAL);
-                return self.userProfileDelegate.update({id:profileId},userProfile)
+                return self.userProfileDelegate.update({id: profileId}, userProfile)
             },
-            function profileUpdateError(error){
+            function profileUpdateError(error)
+            {
                 var userProfile:UserProfile = new UserProfile();
                 userProfile.setStatus(ProfileStatus.INCOMPLETE);
-                return self.userProfileDelegate.update({id:profileId},userProfile)
-        })
-        .finally(
-            function memberRoleCorrected() { res.redirect(redirectUrl);
-        })
-                // 1. Update role and redirect
-                // 2. Schedule the mobile verification reminder notification
+                return self.userProfileDelegate.update({id: profileId}, userProfile)
+            })
+            .finally(
+            function memberRoleCorrected()
+            {
+                res.redirect(redirectUrl);
+            })
+        // 1. Update role and redirect
+        // 2. Schedule the mobile verification reminder notification
     }
 
     private expertComplete(req:express.Request, res:express.Response)

@@ -27,7 +27,7 @@ import Utils                                    = require('../common/Utils');
 class UserProfileDelegate extends BaseDaoDelegate
 {
     static STRATEGY_LINKEDIN:string = 'linkedin';
-    static BASICFIELDS:string[] = ['id', 'first-name', 'last-name', 'email-address', 'headline','industry', 'summary','date-of-birth'];
+    static BASICFIELDS:string[] = ['id', 'first-name', 'last-name', 'email-address', 'headline', 'industry', 'summary', 'date-of-birth'];
     static EDUCATIONFIELDS:string[] = ['educations'];
     static POSITIONFIELDS:string[] = ['positions'];
     static SKILLFIELDS:string[] = ['skills'];
@@ -38,43 +38,47 @@ class UserProfileDelegate extends BaseDaoDelegate
     fetchSelectedFieldsFromLinkedIn(userId:number, integrationId:number, profileFields:string[], transaction?:any):q.Promise<any>
     {
         var deferred = q.defer();
-        var fields:string = '';
-        _.each(profileFields, function (profileField){
-            fields += profileField + ',';
-        })
-        fields = fields.substr(0, fields.length-1); // remove the last ','
+        var fields:string = profileFields.join(',');
 
-        q.all([
-            new UserOAuthDelegate().find({'user_id':userId}),
-        ])
-        .then(
-        function detailsFetched(...args)
-        {
-            var userOauth:UserOauth = args[0][0];
-            var oauth = new OAuth.OAuth(
-                'https://www.linkedin.com/uas/oauth/authenticate?oauth_token=',
-                'https://api.linkedin.com/uas/oauth/accessToken',
-                Config.get(Config.LINKEDIN_API_KEY),
-                Config.get(Config.LINKEDIN_API_SECRET),
-                '1.0A',
-                null,
-                'HMAC-SHA1'
-            );
-            oauth.get(
-                'https://api.linkedin.com/v1/people/~:(' + fields + ')?format=json ',
-                userOauth.getAccessToken(), //test user token
-                userOauth.getRefreshToken(), //test user secret
-                function (e, data, res){
-                    if (e)
-                        deferred.reject(e);
-                    else
-                    {
-                        var profile = JSON.parse(data);
-                        deferred.resolve(profile);
-                    }
+        new UserOAuthDelegate().find({'user_id': userId})
+            .then(
+            function detailsFetched(userOauth:UserOauth)
+            {
+                if (Utils.isNullOrEmpty(userOauth))
+                {
+                    deferred.reject('No oauth entry found');
+                    return;
                 }
-            );
-        });
+
+                var oauth = new OAuth.OAuth(
+                    'https://www.linkedin.com/uas/oauth/authenticate?oauth_token=',
+                    'https://api.linkedin.com/uas/oauth/accessToken',
+                    Config.get(Config.LINKEDIN_API_KEY),
+                    Config.get(Config.LINKEDIN_API_SECRET),
+                    '1.0A',
+                    null,
+                    'HMAC-SHA1'
+                );
+                oauth.get(
+                        'https://api.linkedin.com/v1/people/~:(' + fields + ')?format=json ',
+                    userOauth.getAccessToken(), //test user token
+                    userOauth.getRefreshToken(), //test user secret
+                    function (e, data, res)
+                    {
+                        if (e)
+                            deferred.reject(e);
+                        else
+                        {
+                            var profile = JSON.parse(data);
+                            deferred.resolve(profile);
+                        }
+                    }
+                );
+            },
+            function detailsFetchError(error)
+            {
+                deferred.reject(error);
+            });
 
         return deferred.promise;
     }
@@ -82,8 +86,10 @@ class UserProfileDelegate extends BaseDaoDelegate
     fetchEducationDetailsFromLinkedIn(userId:number, integrationId:number, profileId:number, transaction?:any):q.Promise<any>
     {
         var self = this;
+
         return self.fetchSelectedFieldsFromLinkedIn(userId, integrationId, UserProfileDelegate.EDUCATIONFIELDS, transaction)
-            .then( function EducationDetailsFetched(profile){
+            .then(function EducationDetailsFetched(profile)
+            {
                 if (!Utils.isNullOrEmpty(profile.educations) && profile.educations._total > 0)
                 {
                     return _.map(profile.educations.values, function (education:any)
@@ -97,11 +103,12 @@ class UserProfileDelegate extends BaseDaoDelegate
                         tempUserEducation.setStartYear(education.startDate ? education.startDate.year : null);
                         tempUserEducation.setEndYear(education.endDate ? education.endDate.year : null);
 
-                        return new UserEducationDelegate().createUserEducation(tempUserEducation,profileId);
+                        return new UserEducationDelegate().createUserEducation(tempUserEducation, profileId);
                     });
                 }
             })
-            .fail( function EducationDetailsFetchedError(error){
+            .fail(function EducationDetailsFetchedError(error)
+            {
                 self.logger.error(error);
                 throw(error);
             })
@@ -110,8 +117,10 @@ class UserProfileDelegate extends BaseDaoDelegate
     fetchEmploymentDetailsFromLinkedIn(userId:number, integrationId:number, profileId:number, transaction?:any):q.Promise<any>
     {
         var self = this;
+
         return self.fetchSelectedFieldsFromLinkedIn(userId, integrationId, UserProfileDelegate.POSITIONFIELDS, transaction)
-            .then( function EmploymentDetailsFetched(profile){
+            .then(function EmploymentDetailsFetched(profile)
+            {
                 if (!Utils.isNullOrEmpty(profile.positions) && profile.positions._total > 0)
                 {
                     return _.map(profile.positions.values, function (position:any)
@@ -128,11 +137,12 @@ class UserProfileDelegate extends BaseDaoDelegate
                         if (!position.isCurrent && !Utils.isNullOrEmpty(position.endDate))
                             tempUserEmployment.setEndDate((position.endDate.month || 12) + '-' + (position.endDate.year || null));
 
-                        return new UserEmploymentDelegate().createUserEmployment(tempUserEmployment,profileId);
+                        return new UserEmploymentDelegate().createUserEmployment(tempUserEmployment, profileId);
                     });
                 }
             })
-            .fail( function EmploymentDetailsFetchedError(error){
+            .fail(function EmploymentDetailsFetchedError(error)
+            {
                 self.logger.error(error);
                 throw(error);
             })
@@ -141,8 +151,10 @@ class UserProfileDelegate extends BaseDaoDelegate
     fetchProfilePictureFromLinkedIn(userId:number, integrationId:number, profileId:number, transaction?:any):q.Promise<any>
     {
         var self = this;
+
         return self.fetchSelectedFieldsFromLinkedIn(userId, integrationId, UserProfileDelegate.IMAGEFIELDS, transaction)
-            .then( function ImageDetailsFetched(profile){
+            .then(function ImageDetailsFetched(profile)
+            {
                 var profilePictureUrl;
                 if (profile.pictureUrls && profile.pictureUrls.values.length > 0)
                     profilePictureUrl = profile.pictureUrls.values[0];
@@ -159,7 +171,8 @@ class UserProfileDelegate extends BaseDaoDelegate
                         })
                 }
             })
-            .fail( function ImageDetailsFetchedError(error){
+            .fail(function ImageDetailsFetchedError(error)
+            {
                 self.logger.error(error);
                 throw(error);
             })
@@ -168,8 +181,11 @@ class UserProfileDelegate extends BaseDaoDelegate
     fetchSkillDetailsFromLinkedIn(userId:number, integrationId:number, profileId:number, transaction?:any):q.Promise<any>
     {
         var self = this;
+
         return self.fetchSelectedFieldsFromLinkedIn(userId, integrationId, UserProfileDelegate.SKILLFIELDS, transaction)
-            .then( function SkillDetailsFetched(profile){
+            .then(
+            function SkillDetailsFetched(profile)
+            {
                 if (!Utils.isNullOrEmpty(profile.skills) && profile.skills._total > 0)
                     return _.map(profile.skills.values, function (skillObject:any)
                     {
@@ -183,7 +199,8 @@ class UserProfileDelegate extends BaseDaoDelegate
                             })
                     });
             })
-            .fail( function SkillDetailsFetchedError(error){
+            .fail(function SkillDetailsFetchedError(error)
+            {
                 self.logger.error(error);
                 throw(error);
             })
@@ -192,11 +209,13 @@ class UserProfileDelegate extends BaseDaoDelegate
     fetchBasicDetailsFromLinkedIn(userId:number, integrationId:number, profileId:number, transaction?:any):q.Promise<any>
     {
         var self = this;
+
         return q.all([
-                self.fetchSelectedFieldsFromLinkedIn(userId, integrationId, UserProfileDelegate.BASICFIELDS, transaction),
-                new IntegrationMemberDelegate().find({'user_id': userId, 'integration_id': integrationId})
-            ])
-            .then( function BasicDetailsFetched(...args){
+            self.fetchSelectedFieldsFromLinkedIn(userId, integrationId, UserProfileDelegate.BASICFIELDS, transaction),
+            new IntegrationMemberDelegate().find({'user_id': userId, 'integration_id': integrationId})
+        ])
+            .then(function BasicDetailsFetched(...args)
+            {
                 var profile = args[0][0];
                 var integrationMember:IntegrationMember = args[0][1];
 
@@ -204,9 +223,10 @@ class UserProfileDelegate extends BaseDaoDelegate
                 userProfile.setShortDesc(profile.headline);
                 userProfile.setLongDesc(profile.summary);
                 userProfile.setIntegrationMemberId(integrationMember.getId());
-                return self.update({id:profileId}, userProfile)
+                return self.update({id: profileId}, userProfile)
             })
-            .fail( function BasicDetailsFetchedError(error){
+            .fail(function BasicDetailsFetchedError(error)
+            {
                 self.logger.error(error);
                 throw(error);
             })
@@ -215,13 +235,14 @@ class UserProfileDelegate extends BaseDaoDelegate
     fetchAllDetailsFromLinkedIn(userId:number, integrationId:number, profileId:number, transaction?:any):q.Promise<any>
     {
         var self = this;
+
         return q.all([
             self.fetchBasicDetailsFromLinkedIn(userId, integrationId, profileId, transaction),
             self.fetchEducationDetailsFromLinkedIn(userId, integrationId, profileId, transaction),
             self.fetchEmploymentDetailsFromLinkedIn(userId, integrationId, profileId, transaction),
             self.fetchProfilePictureFromLinkedIn(userId, integrationId, profileId, transaction),
             self.fetchSkillDetailsFromLinkedIn(userId, integrationId, profileId, transaction)
-        ])
+        ]);
     }
 }
 export = UserProfileDelegate

@@ -48,7 +48,7 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
             .fail(
             function expertCreateFailed(error)
             {
-                self.logger.error('Error occurred while creating new expert, error: %s', error);
+                self.logger.error('Error occurred while creating new expert, error: %s', JSON.stringify(error));
                 throw(error);
             });
     }
