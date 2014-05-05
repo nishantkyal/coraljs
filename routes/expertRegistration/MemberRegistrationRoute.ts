@@ -170,6 +170,7 @@ class MemberRegistrationRoute
         var integration = sessionData.getIntegration();
         var userId = sessionData.getLoggedInUser().getId();
         var member = sessionData.getMember();
+        var profileId:number;
 
         var mobileVerificationUrl = Utils.addQueryToUrl(DashboardUrls.mobileVerification(), Utils.createSimpleObject(ApiConstants.CONTEXT, 'expertRegistration'));
         var redirectUrl = '';
@@ -186,7 +187,8 @@ class MemberRegistrationRoute
                 break;
         }
 
-        var profileId:number;
+        // 1. Update role and redirect
+        // 2. Schedule the mobile verification reminder notification
         q.all([
             self.userProfileDelegate.create(new UserProfile()),
             self.integrationMemberDelegate.update({'user_id': userId, 'integration_id': integrationId}, {role: member.getRole()})
@@ -215,9 +217,7 @@ class MemberRegistrationRoute
             function memberRoleCorrected()
             {
                 res.redirect(redirectUrl);
-            })
-        // 1. Update role and redirect
-        // 2. Schedule the mobile verification reminder notification
+            });
     }
 
     private expertComplete(req:express.Request, res:express.Response)
