@@ -176,7 +176,7 @@ class MemberRegistrationRoute
 
     private authorizationError(req:express.Request, res:express.Response)
     {
-
+        res.send(500);
     }
 
     /*
