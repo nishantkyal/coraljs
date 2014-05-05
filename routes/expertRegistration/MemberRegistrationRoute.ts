@@ -30,6 +30,7 @@ import DashboardUrls                                        = require('../../rou
 
 import Urls                                                 = require('./Urls');
 import SessionData                                          = require('./SessionData');
+import Middleware                                           = require('./Middleware');
 
 class MemberRegistrationRoute
 {
@@ -42,21 +43,23 @@ class MemberRegistrationRoute
     constructor(app, secureApp)
     {
         // Pages
-        app.get(Urls.index(), this.authenticate.bind(this));
+        app.get(Urls.index(), this.index.bind(this));
+        app.get(Urls.login(), Middleware.requireInvitationCode, this.login.bind(this));
+        app.get(Urls.register(), Middleware.requireInvitationCode, this.register.bind(this));
         app.get(Urls.authorization(), OAuthProviderDelegate.authorization, this.authorize.bind(this));
         app.get(Urls.authorizationRedirect(), this.authorizationRedirect.bind(this));
         app.get(Urls.complete(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index()}), this.expertComplete.bind(this));
 
         // Auth
-        app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.index(), failureFlash: true}), this.authenticationSuccess.bind(this));
-        app.post(Urls.register(), AuthenticationDelegate.register({failureRedirect: Urls.index(), failureFlash: true}), this.authenticationSuccess.bind(this));
-        app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: Urls.index(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
-        app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: Urls.index(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}), this.authenticationSuccess.bind(this));
+        app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authenticationSuccess.bind(this));
+        app.post(Urls.register(), AuthenticationDelegate.register({failureRedirect: Urls.register(), failureFlash: true}), this.authenticationSuccess.bind(this));
+        app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: Urls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
+        app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: Urls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}), this.authenticationSuccess.bind(this));
         app.post(Urls.authorizationDecision(), OAuthProviderDelegate.decision, this.authorizationError.bind(this));
     }
 
     /* Render login/register page */
-    private authenticate(req, res:express.Response):void
+    private index(req, res:express.Response):void
     {
         var self = this;
         var sessionData = new SessionData(req);
@@ -106,6 +109,7 @@ class MemberRegistrationRoute
                 if (isExpertValid)
                 {
                     sessionData.setMember(expert);
+                    req.logIn(expert.getUser());
                     res.redirect(Utils.addQueryToUrl(DashboardUrls.mobileVerification(), Utils.createSimpleObject(ApiConstants.CONTEXT, 'expertRegistration')));
                 }
                 else
@@ -113,19 +117,37 @@ class MemberRegistrationRoute
                     var member = new IntegrationMember(invitedMember);
                     sessionData.setMember(member);
                     res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
-
                     req.logout();
-
-                    var pageData = _.extend(sessionData.getData(), {
-                        messages: req.flash(),
-                        context: 'expertRegistration'
-                    });
-                    res.render('expertRegistration/authenticate', pageData);
+                    res.redirect(Urls.register());
                 }
             })
             .fail(
             function handleError(error) { res.send(500, error); }
         );
+    }
+
+    private login(req:express.Request, res:express.Response)
+    {
+        var sessionData = new SessionData(req);
+
+        var pageData = _.extend(sessionData.getData(), {
+            messages: req.flash(),
+            context: 'expertRegistration'
+        });
+
+        res.render('expertRegistration/login', pageData);
+    }
+
+    private register(req:express.Request, res:express.Response)
+    {
+        var sessionData = new SessionData(req);
+
+        var pageData = _.extend(sessionData.getData(), {
+            messages: req.flash(),
+            context: 'expertRegistration'
+        });
+
+        res.render('expertRegistration/register', pageData);
     }
 
     /* Handle authentication success -> Redirect to authorization */
@@ -145,17 +167,16 @@ class MemberRegistrationRoute
         var sessionData = new SessionData(req);
         res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
 
-        res.render('expertRegistration/authorize',
-            {
-                'transactionID': req['oauth2']['transactionID'],
-                'user': sessionData.getLoggedInUser(),
-                'integration': sessionData.getIntegration()
-            });
+        var pageData = _.extend(sessionData.getData(), {
+            'transactionID': req['oauth2']['transactionID']
+        });
+
+        res.render('expertRegistration/authorize', pageData);
     }
 
     private authorizationError(req:express.Request, res:express.Response)
     {
-
+        res.send(500);
     }
 
     /*
@@ -185,7 +206,7 @@ class MemberRegistrationRoute
 
             case IntegrationMemberRole.Admin:
             case IntegrationMemberRole.Owner:
-                redirectUrl = DashboardUrls.integrationMembers(integrationId);
+                redirectUrl = DashboardUrls.index();
                 break;
         }
 

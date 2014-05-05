@@ -28,6 +28,7 @@ import Salutation                                   = require('./enums/Salutatio
 import ItemType                                     = require('./enums/ItemType');
 import CallFlowUrls                                 = require('./routes/callFlow/Urls');
 import DashboardUrls                                = require('./routes/dashboard/Urls');
+import MemberRegistrationUrls                       = require('./routes/expertRegistration/Urls');
 
 log4js.configure('/var/searchntalk/config/log4js.json');
 
@@ -44,6 +45,7 @@ var helpers = {
     ApiUrlDelegate: ApiUrlDelegate,
     CallFlowUrls: CallFlowUrls,
     DashboardUrls: DashboardUrls,
+    MemberRegistrationUrls: MemberRegistrationUrls,
     Config: Config,
 
     IndustryCodes: Utils.enumToNormalText(IndustryCode),

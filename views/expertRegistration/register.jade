@@ -9,23 +9,8 @@ block content
             strong #{integration.title}
         em.small Note: We've pre-filled some of the fields based on the invitation for your convenience
     .row-fluid
-        div(style='display: none;')
-            form#login-form(role='form', action='/expert/login', method='POST')
-                .form-group
-                    label(for='username') Email
-                    input.form-control#username(name='username', type='email', data-toggle="tooltip", data-placement="bottom", value=member.user.email)
-                .form-group
-                    label(for='login_password') Password
-                    input.form-control#login_password(name='password', type='password', data-toggle="tooltip", data-placement="bottom")
-                .form-group
-                    .controls
-                        input.btn-primary.btn(value='Login', type='submit')
-                        .btn.btn-link#registrationLink Create an account
-            form(role='form', action='/expert/login/linkedin')
-                .form-group
-                    input.btn-primary.btn(value='Login with LinkedIn', type='submit')
         div
-            form#registration-form(action='/expert/register', method='POST')
+            form#registration-form(method='POST')
                 .form-group
                     label(for='email') Email
                     input.form-control#email(name='email', type='email', data-toggle="tooltip", data-placement="bottom", value=member.user.email, autocomplete='off')
@@ -44,5 +29,5 @@ block content
                 .form-group
                     input(type='hidden', name='invitation_code', value=code)
                     input.btn-primary.btn(value='Register', type='submit')
-                    .btn.btn-link#loginLink Login
+                    a.btn.btn-link(href=MemberRegistrationUrls.login()) Login
     script(src='/js/app/expertRegistration/authenticate.js')

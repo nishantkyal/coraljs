@@ -16,7 +16,6 @@ include ../scriptsAndStyles
             .col-md-3
                 img.img.img-polaroid.img-responsive.col-md-12#profileImage(src=ApiUrlDelegate.userProfilePicture(loggedInUser.id))
                 form#fileUploadForm(action=ApiUrlDelegate.userProfilePicture(loggedInUser.id), method="post", enctype="multipart/form-data")
-                    input(type='hidden', name='huha', value='juja')
                     input#selectFile(type='file', name='profile', style='display: none')
                     input#selectFileSubmit(type='submit', style='display: none')
                     .text-center

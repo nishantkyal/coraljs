@@ -1,0 +1,28 @@
+extends header
+
+block content
+    title Search N Talk - Expert Registration - Login
+    include ../errorMessage
+    .row-fluid
+        p.h4
+            | Welcome to expert network of&nbsp;
+            strong #{integration.title}
+        em.small Note: We've pre-filled some of the fields based on the invitation for your convenience
+    .row-fluid
+        div
+            form#login-form(role='form', method='POST')
+                .form-group
+                    label(for='username') Email
+                    input.form-control#username(name='username', type='email', data-toggle="tooltip", data-placement="bottom", value=member.user.email)
+                .form-group
+                    label(for='login_password') Password
+                    input.form-control#login_password(name='password', type='password', data-toggle="tooltip", data-placement="bottom")
+                .form-group
+                    .controls
+                        input.btn-primary.btn(value='Login', type='submit')
+                        a.btn.btn-link(href=DashboardUrls.forgotPassword()) Forgot password?
+                        a.btn.btn-link(href=MemberRegistrationUrls.register()) Create an account
+            form(role='form', action='/expert/login/linkedin')
+                .form-group
+                    input.btn-primary.btn(value='Login with LinkedIn', type='submit')
+    script(src='/js/app/expertRegistration/authenticate.js')
