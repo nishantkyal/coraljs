@@ -22,7 +22,5 @@ block content
                         input.btn-primary.btn(value='Login', type='submit')
                         a.btn.btn-link(href=DashboardUrls.forgotPassword()) Forgot password?
                         a.btn.btn-link(href=MemberRegistrationUrls.register()) Create an account
-            form(role='form', action='/expert/login/linkedin')
-                .form-group
-                    input.btn-primary.btn(value='Login with LinkedIn', type='submit')
+            a.btn-primary.btn(href=MemberRegistrationUrls.linkedInLogin()) Login with LinkedIn
     script(src='/js/app/expertRegistration/authenticate.js')
