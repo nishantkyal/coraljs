@@ -35,7 +35,7 @@ block content
                         tr(style='cursor: pointer;', data-id=coupon.id, data-toggle='modal', href='#couponDetails')
                             td(style='text-transform: uppercase;')= coupon.code
                             td= expert && coupon.expert_id == expert.id && expert.user_id == user.id ? formatName(user.first_name, user.last_name, user.title) : 'All'
-                            td= coupon.expiry_time != null ? formatDate(coupon.expiry_time) : 'Never'
+                            td= coupon.expiry_time != null ? formatDate(coupon.expiry_time, "ddd, DD MMM YYYY") : 'Never'
                             td #{coupon.num_used} / #{coupon.max_coupons || '∞'}
                             td= formatMoney(coupon.discount_amount, coupon.discount_unit)
                                 br

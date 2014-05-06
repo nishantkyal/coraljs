@@ -1,20 +1,7 @@
 $('form').validate({
     rules         : {
         code: {
-            required: true,
-            remote  : {
-                url     : '/rest/coupon/validation',
-                type    : 'get',
-                dataType: 'json',
-                data    : {
-                    coupon: {
-                        code: function()
-                        {
-                            return $('form #code').val()
-                        }
-                    }
-                }
-            }
+            required: true
         }
     },
     errorPlacement: function(error, element)
@@ -44,7 +31,7 @@ $('form').validate({
                 coupon: {
                     integration_id       : integrationId,
                     code                 : $('form #code').val(),
-                    expiry_time          : moment($('form #expiry').val(), "DD/MM/YYYY").valueOf(),
+                    expiry_time          : $('form #expiry').val() ? moment($('form #expiry').val(), "DD/MM/YYYY").valueOf() : null,
                     discount_amount      : $('form #discount_amount').val(),
                     discount_unit        : $('form #discount_unit').val(),
                     max_coupons          : $('form #max_coupons').val(),
@@ -70,7 +57,7 @@ $('tr').click(function(event)
 
     $('#couponDetails #code').val(coupon.code);
     $('#couponDetails #expert_id').selectpicker('val', coupon.expert_id);
-    $('#couponDetails #expiry').val(moment(coupon.expiry_time).format('DD/MM/YYYY'));
+    $('#couponDetails .datepicker').datepicker('update', coupon.expiry_time ? moment(coupon.expiry_time).toDate() : '');
     $('#couponDetails #num_used').text(coupon.num_used);
     $('#couponDetails #max_coupons').val(coupon.max_coupons);
     $('#couponDetails #discount_amount').val(coupon.discount_amount);
@@ -92,4 +79,7 @@ $('.save').click(function()
 
 
 $('select').selectpicker();
-$('.datepicker').datepicker();
+$('.datepicker').datepicker({
+    format: 'dd/mm/yyyy',
+    startDate: moment().subtract({days: 1}).toDate()
+});
