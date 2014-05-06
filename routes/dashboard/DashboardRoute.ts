@@ -381,7 +381,7 @@ class DashboardRoute
             this.userDelegate.update({id: sessionData.getLoggedInUser().getId()}, user),
             this.userProfileDelegate.update({id: userProfile.id}, userProfile)
         ])
-        .then(
+            .then(
             function userUpdated() { res.send(200); },
             function userUpdateError(error) { res.send(500); }
         );
@@ -392,8 +392,8 @@ class DashboardRoute
         var profileId = req.body[ApiConstants.USER_PROFILE_ID];
         var userProfile:UserProfile = new UserProfile();
         userProfile.setStatus(ProfileStatus.PENDING_APPROVAL);
-        this.userProfileDelegate.update({id:profileId},userProfile)
-        .then(
+        this.userProfileDelegate.update({id: profileId}, userProfile)
+            .then(
             function userUpdated() { res.send(200); },
             function userUpdateError(error) { res.send(500); }
         );
@@ -415,16 +415,16 @@ class DashboardRoute
         // 1. Update status to scheduling
         // 2. Send scheduling notification to expert
         /*this.phoneCallDelegate.update(callId, {status: CallStatus.SCHEDULING})
-            .then(
-            function callUpdated()
-            {
-                return self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER]);
-            })
-            .then(
-            function callFetched(call:PhoneCall)
-            {
-                return self.notificationDelegate.sendCallSchedulingNotifications(call, callFlowSessionData.getAppointments(), callFlowSessionData.getDuration(), callFlowSessionData.getLoggedInUser());
-            });*/
+         .then(
+         function callUpdated()
+         {
+         return self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER]);
+         })
+         .then(
+         function callFetched(call:PhoneCall)
+         {
+         return self.notificationDelegate.sendCallSchedulingNotifications(call, callFlowSessionData.getAppointments(), callFlowSessionData.getDuration(), callFlowSessionData.getLoggedInUser());
+         });*/
     }
 
     private emailAccountVerification(req, res:express.Response)
@@ -474,56 +474,50 @@ class DashboardRoute
         var memberId:number = req.session[ApiConstants.MEMBER_ID];
 
         self.userProfileDelegate.get(profileId)
-            .then( function profileFetched(userProfile:UserProfile)
+            .then(
+            function profileFetched(userProfile:UserProfile)
             {
-                self.integrationMemberDelegate.get(userProfile.getIntegrationMemberId())
-                    .then( function(integrationMember:IntegrationMember){
+                return self.integrationMemberDelegate.get(userProfile.getIntegrationMemberId())
+                    .then(
+                    function (integrationMember:IntegrationMember)
+                    {
                         var fetchTasks = [];
                         var integration_id:number = integrationMember.getIntegrationId();
                         var userId:number = integrationMember.getUserId();
 
-                        if(fetchFields[ApiConstants.FETCH_PROFILE_PICTURE])
-                        {
-                            fetchTasks.push(self.userProfileDelegate.fetchProfilePictureFromLinkedIn(userId,integration_id, profileId));
-                        }
-                        if(fetchFields[ApiConstants.FETCH_BASIC])
-                        {
+                        if (fetchFields[ApiConstants.FETCH_PROFILE_PICTURE])
+                            fetchTasks.push(self.userProfileDelegate.fetchProfilePictureFromLinkedIn(userId, integration_id, profileId));
+
+                        if (fetchFields[ApiConstants.FETCH_BASIC])
                             fetchTasks.push(self.userProfileDelegate.fetchBasicDetailsFromLinkedIn(userId, integration_id, profileId));
-                        }
-                        if(fetchFields[ApiConstants.FETCH_EDUCATION])
-                        {
+
+                        if (fetchFields[ApiConstants.FETCH_EDUCATION])
                             fetchTasks.push(self.userProfileDelegate.fetchAndReplaceEducation(userId, integration_id, profileId));
-                        }
-                        if(fetchFields[ApiConstants.FETCH_EMPLOYMENT])
-                        {
+
+                        if (fetchFields[ApiConstants.FETCH_EMPLOYMENT])
                             fetchTasks.push(self.userProfileDelegate.fetchAndReplaceEmployment(userId, integration_id, profileId));
-                        }
-                        if(fetchFields[ApiConstants.FETCH_SKILL])
-                        {
+
+                        if (fetchFields[ApiConstants.FETCH_SKILL])
                             fetchTasks.push(self.userProfileDelegate.fetchAndReplaceSkill(userId, integration_id, profileId));
-                        }
-                        q.all(fetchTasks)
-                            .then(
-                            function profileFetched(){ res.redirect(Urls.memberProfileEdit(memberId)); },
-                            function fetchError(error){ res.send(500); }
-                        )
+
+                        return q.all(fetchTasks);
                     })
-            }),
-            function profileFetchError(error)
-            {
-                res.status(500).send(error);
-            }
+            })
+            .then(
+            function profileFetched() { res.redirect(Urls.memberProfileEdit(memberId)); },
+            function fetchError(error) { res.send(500); }
+        );
     }
 
     private putLinkedInFieldsInSession(req:express.Request, res:express.Response, next:Function)
     {
         var profileId:number = parseInt(req.params[ApiConstants.USER_PROFILE_ID]);
-        var fetchBasic:boolean = req.query[ApiConstants.FETCH_BASIC] == 'on' ? true :false;
-        var fetchEducation:boolean = req.query[ApiConstants.FETCH_EDUCATION] == 'on' ? true :false;
-        var fetchEmployment:boolean = req.query[ApiConstants.FETCH_EMPLOYMENT] == 'on' ? true :false;
-        var fetchProfilePicture:boolean = req.query[ApiConstants.FETCH_PROFILE_PICTURE] == 'on' ? true :false;
-        var fetchSkill:boolean = req.query[ApiConstants.FETCH_SKILL] == 'on' ? true :false;
-        req.session[ApiConstants.LINKEDIN_FETCH_FIELDS] = {fetchBasic:fetchBasic,fetchEducation:fetchEducation, fetchEmployment:fetchEmployment, fetchProfilePicture:fetchProfilePicture, fetchSkill:fetchSkill};
+        var fetchBasic:boolean = req.query[ApiConstants.FETCH_BASIC] == 'on' ? true : false;
+        var fetchEducation:boolean = req.query[ApiConstants.FETCH_EDUCATION] == 'on' ? true : false;
+        var fetchEmployment:boolean = req.query[ApiConstants.FETCH_EMPLOYMENT] == 'on' ? true : false;
+        var fetchProfilePicture:boolean = req.query[ApiConstants.FETCH_PROFILE_PICTURE] == 'on' ? true : false;
+        var fetchSkill:boolean = req.query[ApiConstants.FETCH_SKILL] == 'on' ? true : false;
+        req.session[ApiConstants.LINKEDIN_FETCH_FIELDS] = {fetchBasic: fetchBasic, fetchEducation: fetchEducation, fetchEmployment: fetchEmployment, fetchProfilePicture: fetchProfilePicture, fetchSkill: fetchSkill};
         req.session[ApiConstants.USER_PROFILE_ID] = profileId;
         req.session[ApiConstants.MEMBER_ID] = parseInt(req.query[ApiConstants.MEMBER_ID]);
         next();

@@ -77,10 +77,10 @@ block content
                                         a.fa.fa-pencil-square.editUserSkill(data-id=skill.id, data-toggle='modal', href='#EditUserSkillModal')
                                         a.fa.fa-times-circle.deleteUserSkill(data-id=skill.id, data-toggle='modal', href='#DeleteUserSkillModal')
                         .panel-body.editor
-                            button.btn.btn-default.btn-xs#addSkillBtn(data-toggle='modal', href='#AddUserSkillModal') Add Skill
-                            a.btn.btn-default.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchSkillFromLinkedInModal')
+                            a.btn.btn-primary.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchSkillFromLinkedInModal')
                                 i.fa.fa-linkedin-square
                                 | &nbsp;Fetch from LinkedIn
+                            button.btn.btn-default.btn-xs#addSkillBtn(data-toggle='modal', href='#AddUserSkillModal') Add Skill
                     .panel.panel-success
                         .panel-heading
                             | Education
@@ -104,10 +104,10 @@ block content
                                                  if edu.end_year
                                                      small - #{edu.end_year}
                         .panel-body
-                            button.btn.btn-default.btn-xs#addEducationBtn(data-toggle='modal', href='#AddUserEducationModal') Add Education
-                            a.btn.btn-default.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchEducationFromLinkedInModal')
+                            a.btn.btn-primary.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchEducationFromLinkedInModal')
                                 i.fa.fa-linkedin-square
                                 | &nbsp;Fetch from LinkedIn
+                            button.btn.btn-default.btn-xs#addEducationBtn(data-toggle='modal', href='#AddUserEducationModal') Add Education
                         include memberEducation
                     .panel.panel-warning
                         .panel-heading
@@ -133,10 +133,10 @@ block content
                                             if emp.summary
                                                 small #{emp.summary}
                         .panel-body.editor
-                            button.btn.btn-default.btn-xs#addEmploymentBtn(data-toggle='modal', href='#AddUserEmploymentModal') Add Position
-                            a.btn.btn-default.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchEmploymentFromLinkedInModal')
+                            a.btn.btn-primary.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchEmploymentFromLinkedInModal')
                                 i.fa.fa-linkedin-square
                                 | &nbsp;Fetch from LinkedIn
+                            button.btn.btn-default.btn-xs#addEmploymentBtn(data-toggle='modal', href='#AddUserEmploymentModal') Add Position
                         include memberEmployment
     #ChangePasswordModal.modal.fade(style='display: none;')
         .modal-dialog

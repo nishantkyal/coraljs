@@ -55,7 +55,8 @@ class AuthenticationDelegate
         /* Linkedin login */
         AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN, url.resolve(Config.get(Config.DASHBOARD_URI), '/login/linkedin/callback'));
         AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, url.resolve(Config.get(Config.DASHBOARD_URI), ExpertRegistrationUrls.linkedInLoginCallback()));
-        AuthenticationDelegate.configureLinkedInStrategyForFetching(AuthenticationDelegate.STRATEGY_LINKEDIN_FETCH,url.resolve(Config.get(Config.DASHBOARD_URI), DashBoardUrls.userProfileFromLinkedInCallback() ));
+        AuthenticationDelegate.configureLinkedInStrategyForFetching(AuthenticationDelegate.STRATEGY_LINKEDIN_FETCH, url.resolve(Config.get(Config.DASHBOARD_URI), DashBoardUrls.userProfileFromLinkedInCallback()));
+
         // Serialize-Deserialize user
         passport.serializeUser(function (user, done) { done(null, user); });
         passport.deserializeUser(function (obj, done) { done(null, obj); });
@@ -269,8 +270,8 @@ class AuthenticationDelegate
                 userOauth.setEmail(profile.emailAddress);
 
                 return new UserOAuthDelegate().addOrUpdateToken(userOauth)
-                    .then( function OAuthCreated(){ done();},
-                    function OAuthCreateError(error){ done('Error');})
+                    .then(function OAuthCreated() { done();},
+                    function OAuthCreateError(error) { done('Error');})
             }
         ));
     }
