@@ -69,27 +69,33 @@ class UserApi
         });
 
         /* Profile image */
-        app.post(ApiUrlDelegate.userProfilePicture(), connect_ensure_login.ensureLoggedIn(), express.bodyParser({uploadDir: Config.get(Config.PROFILE_IMAGE_PATH)}), function(req:express.Request, res:express.Response)
+        app.post(ApiUrlDelegate.userProfilePicture(), connect_ensure_login.ensureLoggedIn(), express.bodyParser({uploadDir: Config.get(Config.PROFILE_IMAGE_PATH)}), function (req:express.Request, res:express.Response)
         {
             var uploadedFile = req.files['image'];
             var userId = parseInt(req.params[ApiConstants.USER_ID]);
 
             userDelegate.processProfileImage(userId, uploadedFile.path)
                 .then(
-                    function uploadComplete() {
-                        res.json({url: ApiUrlDelegate.userProfilePicture(userId)});
-                    },
-                    function uploadError(error) { res.send(500); }
-                );
+                function uploadComplete()
+                {
+                    res.json({url: ApiUrlDelegate.userProfilePicture(userId)});
+                },
+                function uploadError(error) { res.send(500); }
+            );
         });
 
-        app.get(ApiUrlDelegate.userProfilePicture(), function(req:express.Request, res)
+        app.get(ApiUrlDelegate.userProfilePicture(), function (req:express.Request, res)
         {
             var userId = req.params[ApiConstants.USER_ID];
             if (fs.existsSync(Config.get(Config.PROFILE_IMAGE_PATH) + userId))
                 res.sendfile(userId, {root: Config.get(Config.PROFILE_IMAGE_PATH)});
             else
                 res.redirect('/img/no_photo-icon.gif');
+        });
+
+        app.get(ApiUrlDelegate.userAuthentication(), function (req, res:express.Response)
+        {
+            res.send(req.isAuthenticated());
         });
 
     }

@@ -1,11 +1,13 @@
 ///<reference path='../../_references.d.ts'/>
 import connect_ensure_login                                 = require('connect-ensure-login');
+import url                                                  = require('url');
 import q                                                    = require('q');
 import _                                                    = require('underscore');
 import moment                                               = require('moment');
 import express                                              = require('express');
 import passport                                             = require('passport');
 import log4js                                               = require('log4js');
+import crypto                                               = require('crypto');
 import RequestHandler                                       = require('../../middleware/RequestHandler');
 import AuthenticationDelegate                               = require('../../delegates/AuthenticationDelegate');
 import IntegrationDelegate                                  = require('../../delegates/IntegrationDelegate');
@@ -17,20 +19,21 @@ import TransactionLineDelegate                              = require('../../del
 import VerificationCodeDelegate                             = require('../../delegates/VerificationCodeDelegate');
 import UserPhoneDelegate                                    = require('../../delegates/UserPhoneDelegate');
 import NotificationDelegate                                 = require('../../delegates/NotificationDelegate');
-import Utils                                                = require('../../common/Utils');
-import Config                                               = require('../../common/Config');
 import PhoneCall                                            = require('../../models/PhoneCall');
 import ExpertSchedule                                       = require('../../models/ExpertSchedule');
 import Transaction                                          = require('../../models/Transaction');
 import Coupon                                               = require('../../models/Coupon');
 import UserPhone                                            = require('../../models/UserPhone');
 import IntegrationMember                                    = require('../../models/IntegrationMember');
+import TransactionLine                                      = require('../../models/TransactionLine');
 import CallStatus                                           = require('../../enums/CallStatus');
 import ApiConstants                                         = require('../../enums/ApiConstants');
 import IncludeFlag                                          = require('../../enums/IncludeFlag');
 import MoneyUnit                                            = require('../../enums/MoneyUnit');
 import TransactionStatus                                    = require('../../enums/TransactionStatus');
 import Formatter                                            = require('../../common/Formatter');
+import Utils                                                = require('../../common/Utils');
+import Config                                               = require('../../common/Config');
 import DashboardUrls                                        = require('../../routes/dashboard/Urls');
 
 import Urls                                                 = require('./Urls');
@@ -86,15 +89,17 @@ class CallFlowRoute
     {
         var sessionData = new SessionData(req);
         var self = this;
-
+        var expert = sessionData.getExpert();
 
         function renderPage(phoneNumbers)
         {
             var dummyPhoneCall = new PhoneCall();
-            var dummyTransactionLines = self.transactionLineDelegate.getPhoneCallTransactionLines(dummyPhoneCall);
-            _.sortBy(dummyTransactionLines, function() {
+            dummyPhoneCall.setDuration(sessionData.getDuration());
+            dummyPhoneCall.setPricePerMin(expert.getSchedule()[0][ExpertSchedule.PRICE_PER_MIN]);
+            dummyPhoneCall.setPriceCurrency(expert.getSchedule()[0][ExpertSchedule.PRICE_UNIT]);
 
-            });
+            var dummyTransactionLines = self.transactionLineDelegate.getPhoneCallTransactionLines(dummyPhoneCall);
+            _.sortBy(dummyTransactionLines, function () { return TransactionLine.TRANSACTION_TYPE });
 
             var pageData = _.extend(sessionData.getData(), {
                 messages: req.flash(),
@@ -145,7 +150,17 @@ class CallFlowRoute
     /* Validate everything, create a transaction (and phone call record) and redirect to payment */
     private checkout(req:express.Request, res:express.Response)
     {
+        var sessionData = new SessionData(req);
         var loggedInUserId = sessionData.getLoggedInUser().getId();
+        var expert = sessionData.getExpert();
+
+        // TODO: Verify that supplied phone number belongs to logged in user
+        var self = this;
+        var sessionData = new SessionData(req);
+
+        var callerPhone = new UserPhone();
+        callerPhone.setPhone(sessionData.getCallerPhone());
+        callerPhone.setUserId(sessionData.getLoggedInUser().getId());
 
         var phoneCall = new PhoneCall();
         phoneCall.setIntegrationMemberId(sessionData.getExpert().getId());
@@ -153,25 +168,60 @@ class CallFlowRoute
         phoneCall.setDelay(0);
         phoneCall.setStatus(CallStatus.PLANNING);
         phoneCall.setDuration(sessionData.getDuration());
-        phoneCall.setPricePerMin(12);
-        phoneCall.setPriceCurrency(MoneyUnit.DOLLAR);
+        phoneCall.setPricePerMin(expert.getSchedule()[0][ExpertSchedule.PRICE_PER_MIN]);
+        phoneCall.setPriceCurrency(expert.getSchedule()[0][ExpertSchedule.PRICE_UNIT]);
 
         var transaction = new Transaction();
         transaction.setUserId(loggedInUserId);
         transaction.setStatus(TransactionStatus.CREATED);
 
-        // TODO: Verify that supplied phone number belongs to logged in user
-        var self = this;
-        var sessionData = new SessionData(req);
-        var userPhoneId:number = parseInt(req.body[ApiConstants.PHONE_NUMBER_ID]);
-        var call = sessionData.getCall();
-        call.setCallerPhoneId(userPhoneId);
-
-        self.phoneCallDelegate.update(sessionData.getCallId(), Utils.createSimpleObject(PhoneCall.CALLER_PHONE_ID, userPhoneId))
+        self.userPhoneDelegate.create(callerPhone)
             .then(
-            function phoneNumberUpdated()
+            function phoneCreated(phone:UserPhone)
             {
-                // Redirect to payment gateway
+                phoneCall.setCallerPhoneId(phone.getId());
+                return self.phoneCallDelegate.create(phoneCall);
+            })
+            .then(
+            function phoneCallCreated(c:PhoneCall)
+            {
+                return self.transactionDelegate.createPhoneCallTransaction(transaction, c);
+            })
+            .then(
+            function transactionCreated(transaction)
+            {
+                return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, transaction.getId()));
+            })
+            .then(
+            function transactionLinesFetched(lines:TransactionLine[])
+            {
+                // Redirect to payzippy
+                var data = {
+                    buyer_email_address: sessionData.getLoggedInUser().getEmail(),
+                    buyer_unique_id: sessionData.getLoggedInUser().getId(),
+                    callback_url: url.resolve(Config.get(Config.DASHBOARD_URI), DashboardUrls.paymentCallback()),
+                    currency: "INR",
+                    hash_method: 'MD5',
+                    is_user_logged_in: true,
+                    merchant_id: Config.get(Config.PAY_ZIPPY_MERCHANT_ID),
+                    merchant_key_id: Config.get(Config.PAY_ZIPPY_MERCHANT_KEY_ID),
+                    merchant_transaction_id: transaction.getId(),
+                    payment_method: null,
+                    transaction_amount: _.reduce(_.pluck(lines, TransactionLine.AMOUNT), function(memo:number, num:number){ return memo + num; }, 0) * 100,
+                    transaction_type: 'sale',
+                    ui_mode: 'redirect'
+                };
+
+                var concatString = _.values(data).concat(Config.get(Config.PAY_ZIPPY_SECRET_KEY)).join('|');
+                var md5sum = crypto.createHash('md5');
+                var hash:string = md5sum.update(concatString).digest('hex');
+
+                data['hash'] = hash;
+
+                var payZippyUrl:string = Config.get(Config.PAY_ZIPPY_CHARGING_URI);
+                payZippyUrl = Utils.addQueryToUrl(payZippyUrl, data);
+
+                res.redirect(payZippyUrl);
             });
     }
 }

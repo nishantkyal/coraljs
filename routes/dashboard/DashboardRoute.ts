@@ -406,13 +406,12 @@ class DashboardRoute
     private paymentComplete(req:express.Request, res:express.Response)
     {
         var self = this;
-        var callFlowSessionData = new CallFlowSessionData(req);
-        var callId = callFlowSessionData.getCallId();
+        var transactionId:number = req.query['merchant_transaction_id'];
 
         // If it's a call
         // 1. Update status to scheduling
         // 2. Send scheduling notification to expert
-        this.phoneCallDelegate.update(callId, {status: CallStatus.SCHEDULING})
+        /*this.phoneCallDelegate.update(callId, {status: CallStatus.SCHEDULING})
             .then(
             function callUpdated()
             {
@@ -422,7 +421,7 @@ class DashboardRoute
             function callFetched(call:PhoneCall)
             {
                 return self.notificationDelegate.sendCallSchedulingNotifications(call, callFlowSessionData.getAppointments(), callFlowSessionData.getDuration(), callFlowSessionData.getLoggedInUser());
-            });
+            });*/
     }
 
     private emailAccountVerification(req, res:express.Response)

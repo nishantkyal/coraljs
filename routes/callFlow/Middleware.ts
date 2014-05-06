@@ -17,7 +17,7 @@ class Middleware
         var agenda:string = req.body[ApiConstants.AGENDA] || sessionData.getAgenda();
         var duration:number = req.body[ApiConstants.DURATION] || sessionData.getDuration();
         var appointments = req.body[ApiConstants.START_TIME] || sessionData.getAppointments();
-        var isCallNow = req.body[ApiConstants.CALL_NOW];
+        var isCallNow = req.body[ApiConstants.CALL_NOW] || sessionData.getCallNow();
 
         if (!Utils.isNullOrEmpty(appointments) && Utils.getObjectType(appointments) == 'Array')
             appointments = _.map(appointments, function(time:any) { return parseInt(time); });
@@ -27,6 +27,7 @@ class Middleware
         sessionData.setAgenda(agenda);
         sessionData.setDuration(duration);
         sessionData.setAppointments(appointments);
+        sessionData.setCallNow(isCallNow);
 
         if (!Utils.isNullOrEmpty(callerName) && !Utils.isNullOrEmpty(callerPhone)
                 && !Utils.isNullOrEmpty(agenda) && !Utils.isNullOrEmpty(duration)

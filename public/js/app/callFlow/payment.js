@@ -57,3 +57,14 @@ $("#verifyCode").click(function()
         }
     })
 });
+
+$('form').validate({
+    rules: {
+        'login': {
+            remote: {
+                url: '/rest/user/authentication',
+                method: 'GET'
+            }
+        }
+    }
+});

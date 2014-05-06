@@ -54,20 +54,19 @@ include header
                                 .row
                                     .payment-summary
                                         .table
-                                            - var callItemLine, networkChargesLine, taxationLine, discountLine
-                                            - for (var line in transactionLines)
-                                            - {
-                                            -       if (line[] ==
-                                            - }
-                                            .table-row
-                                                .table-cell.title Call duration: 15mins @ $1.00 / min
-                                                .table-cell.amount $ 15.00
-                                            .table-row
-                                                .table-cell.title Tax: @10%
-                                                .table-cell.amount $ 1.50
-                                            .table-row
-                                                .table-cell.title
-                                                .table-cell.amount
+                                            - var total = 0, currency
+                                            each line in transactionLines
+                                                - total += line.amount
+                                                - currency = line.amount_unit
+                                                .table-row
+                                                    case line.transaction_type
+                                                        when 1
+                                                            .table-cell.title Call duration: #{duration} mins @ #{formatMoney(expert.schedule[0].price_per_min, expert.schedule[0].price_unit)} / min
+                                                        when 2
+                                                            .table-cell.title Network charges
+                                                        when 3
+                                                            .table-cell.title Tax @#{Config.get(Config.CALL_TAX_PERCENT)}%
+                                                    .table-cell.amount= formatMoney(line.amount, line.amount_unit)
                                             .table-row
                                                 .table-cell.title
                                                     .input-group
@@ -76,12 +75,38 @@ include header
                                                     a.btn.btn-default(href='error.html') Apply Coupon
                                             .table-row.total
                                                 .table-cell.title Total
-                                                .table-cell.amount $ 16.50
+                                                .table-cell.amount= formatMoney(total, currency)
                 .row
                     .hidden-xs.hidden-sm.col-md-6
                     .col-md-6
                         .row
                             .call-actions
-                                a.btn.btn-lg.btn-primary.first(href='payment-success.html') Proceed to Payment
+                                form(action=CallFlowUrls.checkout(), method='POST')
+                                    input#login(type='hidden')
+                                    input.btn.btn-lg.btn-primary.first(type='submit') Proceed to Payment
                 // /.content
+.modal.fade
+    .modal-dialog
+        .modal-content
+            .modal-header
+                button.close(type='button', data-dismiss='modal', aria-hidden='true') ×
+                h4.modal-title
+                    i.icon-scheduler
+                    | Login to Search-n-Talk
+            .modal-body
+                form.form.col-md-12.center-block
+                    .form-group
+                        input.form-control.input-lg(type='text', placeholder='Email')
+                    .form-group
+                        input.form-control.input-lg(type='password', placeholder='Password')
+                    .form-group
+                        a.btn.btn-primary.btn-lg.btn-block(href='payment.html') Login
+                    span.pull-right
+                        a(href='#') Register
+                    span
+                        a(href='#') Continue without logging in?
+            .modal-footer
+        // /.modal-content
+    // /.modal-dialog
+
 include footer

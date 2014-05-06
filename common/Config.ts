@@ -52,6 +52,13 @@ class Config
     static MINIMUM_YEAR:string                          = 'minimum.year';
 
     static CALL_NETWORK_CHARGES_PER_MIN_DOLLAR:string   = 'call.network_charges_per_min.dollar';
+    static CALL_TAX_PERCENT:string                      = 'call.tax.percent';
+
+    static PAY_ZIPPY_CHARGING_URI:string                = "pay_zippy.charging.uri";
+    static PAY_ZIPPY_MERCHANT_ID:string                 = "pay_zippy.merchant_id";
+    static PAY_ZIPPY_MERCHANT_KEY_ID:string             = "pay_zippy.merchant_key_id";
+    static PAY_ZIPPY_SECRET_KEY:string                  = "pay_zippy.secret_key";
+
 
     /* Static constructor workaround */
     private static ctor = (() =>
