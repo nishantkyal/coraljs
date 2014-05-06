@@ -88,10 +88,9 @@ class DashboardRoute
         app.get(Urls.forgotPassword(), this.forgotPassword.bind(this));
         app.get(Urls.mobileVerification(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index(), setReturnTo: true}), this.verifyMobile.bind(this));
         app.get(Urls.integrations(), connect_ensure_login.ensureLoggedIn(), this.integrations.bind(this));
-        app.get(Urls.integrationCoupons(), connect_ensure_login.ensureLoggedIn(), this.coupons.bind(this));
+        app.get(Urls.integrationCoupons(), Middleware.allowOwnerOrAdmin, this.coupons.bind(this));
         app.get(Urls.integrationMembers(), Middleware.allowOwnerOrAdmin, this.integrationUsers.bind(this));
-        app.get(Urls.memberProfile(), Middleware.allowSelf, this.memberProfile.bind(this));
-        app.get(Urls.memberProfileComplete(), this.memberProfileComplete.bind(this));
+        app.get(Urls.memberProfileEdit(), Middleware.allowMeOrAdmin, this.editMemberProfile.bind(this));
 
         app.get(Urls.logout(), this.logout.bind(this));
         app.get(Urls.paymentCallback(), this.paymentComplete.bind(this));
@@ -103,9 +102,9 @@ class DashboardRoute
 
         // Auth
         app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
-        app.post(Urls.memberProfile(), Middleware.allowSelf, this.memberProfileSave.bind(this));
-        app.post(Urls.changePassword(), Middleware.allowSelf, this.changePassword.bind(this));
-        app.post(Urls.changeProfileStatus(), Middleware.allowSelf, this.changeProfileStatus.bind(this));
+        app.post(Urls.memberProfile(), Middleware.allowOnlyMe, this.memberProfileSave.bind(this));
+        app.post(Urls.changePassword(), Middleware.allowOnlyMe, this.changePassword.bind(this));
+        app.post(Urls.changeProfileStatus(), Middleware.allowOnlyMe, this.changeProfileStatus.bind(this));
     }
 
     private login(req, res:express.Response)
@@ -231,34 +230,13 @@ class DashboardRoute
     private integrations(req:express.Request, res:express.Response)
     {
         var sessionData = new SessionData(req);
+        sessionData.setIntegration(null);
 
         var pageData = _.extend(sessionData.getData(), {
             selectedTab: 'integrations'
         });
 
         res.render(DashboardRoute.PAGE_INTEGRATIONS, pageData);
-    }
-
-    private coupons(req:express.Request, res:express.Response)
-    {
-        var sessionData = new SessionData(req);
-
-        var integrationId = parseInt(req.params[ApiConstants.INTEGRATION_ID]);
-        var integration = this.integrationDelegate.getSync(integrationId);
-
-        this.couponDelegate.search({integration_id: integrationId}, Coupon.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_EXPERT])
-            .then(
-            function couponsFetched(coupons:Coupon[])
-            {
-                var pageData = _.extend(sessionData.getData(), {
-                    'coupons': coupons,
-                    'integration': integration
-                });
-
-                res.render(DashboardRoute.PAGE_COUPONS, pageData);
-            },
-            function couponFetchError(error) { res.send(500); }
-        )
     }
 
     private integrationUsers(req:express.Request, res:express.Response)
@@ -268,7 +246,7 @@ class DashboardRoute
 
         var integrationId = parseInt(req.params[ApiConstants.INTEGRATION_ID]);
         var integration = this.integrationDelegate.getSync(integrationId);
-        sessionData.setIntegrationId(integrationId);
+        sessionData.setIntegration(integration);
 
         // Fetch all users for integration
         q.all([
@@ -305,8 +283,7 @@ class DashboardRoute
                 members = members.concat(_.map(invitedMembers, function (invited) { return new IntegrationMember(invited); }));
 
                 var pageData = _.extend(sessionData.getData(), {
-                    'members': members,
-                    'integration': integration
+                    'members': members
                 });
 
                 res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
@@ -315,57 +292,29 @@ class DashboardRoute
             function usersFetchError(error) { res.send(500, error); });
     }
 
-    private memberProfileComplete(req:express.Request, res:express.Response)
+    private coupons(req:express.Request, res:express.Response)
     {
-        var self = this;
-        var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
         var sessionData = new SessionData(req);
 
-        q.all([
-            self.integrationMemberDelegate.get(memberId, IntegrationMember.DASHBOARD_FIELDS),
-            self.userProfileDelegate.find({'integration_member_id': memberId})
-        ])
-            .then(
-            function memberFetched(...args)
-            {
-                var member:IntegrationMember = args[0][0];
-                var userProfile:UserProfile = args[0][1];
-                var userId = member.getUserId();
-                return q.all([
-                    self.userDelegate.get(userId),
-                    self.userSkillDelegate.getSkillWithName(userProfile.getId()),
-                    self.userEducationDelegate.search({'profileId': userProfile.getId()}),
-                    self.userEmploymentDelegate.search({'profileId': userProfile.getId()}),
-                    self.userUrlDelegate.search({'profileId': userProfile.getId()})
-                ]);
-            })
-            .then(
-            function (...args)
-            {
-                var user = args[0][0];
-                var userSkill = args[0][1];
-                var userEducation = args[0][2];
-                var userEmployment = args[0][3]
-                var userUrl = args[0][4];
+        var integrationId = parseInt(req.params[ApiConstants.INTEGRATION_ID]);
+        var integration = this.integrationDelegate.getSync(integrationId);
+        sessionData.setIntegration(integration);
 
+        this.couponDelegate.search({integration_id: integrationId}, Coupon.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_EXPERT])
+            .then(
+            function couponsFetched(coupons:Coupon[])
+            {
                 var pageData = _.extend(sessionData.getData(), {
-                    'user': user,
-                    'userSkill': userSkill,
-                    'userEducation': userEducation,
-                    'userEmployment': userEmployment,
-                    'userUrl': userUrl
+                    'coupons': coupons
                 });
 
-                res.render(DashboardRoute.PAGE_PROFILE_COMPLETE, pageData);
-            })
-            .fail(
-            function (error)
-            {
-                res.send(500);
-            });
+                res.render(DashboardRoute.PAGE_COUPONS, pageData);
+            },
+            function couponFetchError(error) { res.send(500); }
+        )
     }
 
-    private memberProfile(req:express.Request, res:express.Response)
+    private editMemberProfile(req:express.Request, res:express.Response)
     {
         var self = this;
         var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);

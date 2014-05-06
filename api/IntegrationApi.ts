@@ -1,5 +1,6 @@
 ///<reference path='../_references.d.ts'/>
 import express                                      = require('express');
+import connect_ensure_login                         = require('connect-ensure-login');
 import ApiConstants                                 = require('../enums/ApiConstants');
 import ApiUrlDelegate                               = require('../delegates/ApiUrlDelegate');
 import IntegrationDelegate                          = require('../delegates/IntegrationDelegate');
@@ -27,7 +28,7 @@ class IntegrationApi
          * Create integration
          * Allow only searchntalk.com admin
          */
-        app.put(ApiUrlDelegate.integration(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        app.put(ApiUrlDelegate.integration(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
         {
             var integration = req.body[ApiConstants.INTEGRATION];
 
@@ -95,7 +96,7 @@ class IntegrationApi
         });
 
         /* Search integrations */
-        app.get(ApiUrlDelegate.integration(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        app.get(ApiUrlDelegate.integration(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
         {
             var userId:number = parseInt(req.query[ApiConstants.USER_ID]);
 

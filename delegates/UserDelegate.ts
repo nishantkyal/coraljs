@@ -128,7 +128,7 @@ class UserDelegate extends BaseDaoDelegate
                 if (Utils.isNullOrEmpty(phone))
                     throw(UserStatus.MOBILE_NOT_VERIFIED);
                 else
-                    return self.userProfileDelegate.get({id: user.getDefaultProfileId()});
+                    return self.userProfileDelegate.get(user.getDefaultProfileId());
             })
             .then(
             function userProfileFound(profile:UserProfile)

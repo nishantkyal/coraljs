@@ -5,7 +5,7 @@ include header
     .row-fluid
         .col-md-2
         .col-md-8
-            h4 Your Integrations
+            h4 Your Networks
             .list-group
                 each member in members
                     a.list-group-item(href=member.role == 3 ? DashboardUrls.memberProfile(member.id) : DashboardUrls.integrationMembers(member.integration_id)) #{member.integration.title}

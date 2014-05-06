@@ -1,20 +1,3 @@
-$('.save').click(function()
-{
-    var memberId = $(this).data('id');
-    var selectedMember = _.findWhere(members, {id: memberId});
-
-    if (selectedMember) {
-        var user = selectedMember.user;
-        $('#editUserModal .btn-primary').attr('data-id', selectedMember.id);
-        $('#editUserModal [name="first_name"]').val(user.first_name);
-        $('#editUserModal [name="last_name"]').val(user.last_name);
-        $('#editUserModal [name="revenue_share"]').val(selectedMember.revenue_share);
-        $('#editUserModal #revenueShareUnit').selectpicker('val', selectedMember.revenue_share_unit);
-        $('#editUserModal #role').val(selectedMember.role);
-        $('#editUserModal #role').selectpicker('render');
-    }
-});
-
 function handleDeleteClicked(event)
 {
     var memberId = $(event.currentTarget).attr('data-id');
@@ -24,53 +7,6 @@ function handleDeleteClicked(event)
         success: function()
         {
             location.reload();
-        }
-    });
-};
-
-function handleSaveClicked(event)
-{
-    var memberId = parseInt($(event.currentTarget).attr('data-id'));
-    var selectedMember = _.findWhere(members, {id: memberId});
-
-    var expert = {
-        'revenue_share_unit': $('#editUserModal #revenueShareUnit').val(),
-        'revenue_share'     : $('#editUserModal [name="revenue_share"]').val(),
-        'role'              : $('#editUserModal #role').val()
-    };
-
-    var user = {
-        'first_name': $('#editUserModal [name="first_name"]').val(),
-        'last_name' : $('#editUserModal [name="last_name"]').val()
-    };
-
-    $.ajax({
-        url     : "/rest/expert/" + memberId,
-        type    : 'post',
-        data    : {'expert': expert},
-        dataType: 'json',
-        success : function(data)
-        {
-            $.ajax({
-                url     : '/rest/user/' + selectedMember.user_id,
-                type    : 'post',
-                data    : {'user': user},
-                dataType: 'json',
-                success : function(data)
-                {
-                    location.reload();
-                },
-                error   : function()
-                {
-                    bootbox.hideAll();
-                    bootbox.alert('An error occurred while updating user details');
-                }
-            });
-        },
-        error   : function()
-        {
-            bootbox.hideAll();
-            bootbox.alert('An error occurred while updating user details');
         }
     });
 };

@@ -16,7 +16,7 @@ block content
                     div
                         a.btn.btn-primary.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchFromLinkedInModal') Fetch Details From LinkedIn
                     div
-                        a.btn.btn-link(href=DashboardUrls.memberProfileComplete(member.id), target="_blank") View My Public Profile
+                        a.btn.btn-link(href=DashboardUrls.memberProfile(member.id), target="_blank") View My Public Profile
                     div
                         a.btn.btn-link(href=CallFlowUrls.callExpert(member.id), target="_blank") Call Me Link
                     if userProfile.status == 1
@@ -90,28 +90,9 @@ block content
                             .pull-right
                                 button.btn.btn-default.btn-xs
                                     span.fa.fa-pencil
-                        ul.list-group
-                            li.list-group-item
-                                if userEducation
-                                        each edu in userEducation
-                                            div
-                                                string #{edu.school_name}
-                                                .pull-right
-                                                    a.fa.fa-pencil-square.editUserEducation(data-id=edu.id, data-toggle='modal', href='#EditUserEducationModal')
-                                                    a.fa.fa-times-circle.deleteUserEducation(data-id=edu.id, data-toggle='modal', href='#DeleteUserEducationModal')
-                                            div
-                                                if edu.degree
-                                                    small #{edu.degree}
-                                                    if edu.field_of_study
-                                                        small , #{edu.field_of_study}
-                                            div
-                                                if edu.start_year
-                                                    small #{edu.start_year}&nbsp
-                                                if edu.end_year
-                                                    small - #{edu.end_year}
-                        .panel-body.editor
+                        .panel-body
                             button.btn.btn-default.btn-xs#addEducationBtn(data-toggle='modal', href='#AddUserEducationModal') Add Education
-                            a.btn.btn-default.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchEducationFromLinkedInModal')
+                            button.btn.btn-primary.btn-xs
                                 i.fa.fa-linkedin-square
                                 | &nbsp;Fetch from LinkedIn
                         include memberEducation
@@ -141,9 +122,10 @@ block content
                                         div
                                             if emp.summary
                                                 small #{emp.summary}
+                                p Infollion Research
                         .panel-body.editor
                             button.btn.btn-default.btn-xs#addEmploymentBtn(data-toggle='modal', href='#AddUserEmploymentModal') Add Position
-                            a.btn.btn-default.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchEmploymentFromLinkedInModal')
+                            button.btn.btn-primary.btn-xs
                                 i.fa.fa-linkedin-square
                                 | &nbsp;Fetch from LinkedIn
                         include memberEmployment
@@ -169,34 +151,31 @@ block content
             .modal-content
                 .modal-header
                     .close(data-dismiss='modal', aria-hidden='true') x
-                    h4.modal-title Edit Profile
-                form(action=DashboardUrls.userProfileFromLinkedIn(userProfile.id), method="get")
+                    h4.modal-title Fetch Profile Details from LinkedIn
+                form.form(method='GET', action=ApiUrlDelegate.userProfileFromLinkedIn(userProfile.id))
                     .modal-body
-                        .row
-                            .form-group.col-md-9
-                                p.confirm
-                                    div
-                                        label
-                                            input#basic(type="checkbox", name="fetchBasic")
-                                            | Fetch Basic Details
-                                    div
-                                        label
-                                            input#profilePicture(type="checkbox", name="fetchProfilePicture")
-                                            | Fetch Profile Picture
-                                    div
-                                        label
-                                            input#skill(type="checkbox", name="fetchSkill")
-                                            | Fetch Skill Details
-                                    div
-                                        label
-                                            input#education(type="checkbox", name="fetchEducation")
-                                            | Fetch Education Details
-                                    div
-                                        label
-                                            input#employment(type="checkbox", name="fetchEmployment")
-                                            input#basic(type="hidden", name="memberId", value = '#{member.id}')
-                                            | Fetch Employment Details
-                                div Please note the information on this page will be replaced with information from LinkedIn
+                        .checkbox
+                            label
+                                input(type="checkbox", name="fetchBasic")
+                                | Fetch Basic Details
+                        .checkbox
+                            label
+                                input(type="checkbox", name="fetchProfilePicture")
+                                | Fetch Profile Picture
+                        .checkbox
+                            label
+                                input(type="checkbox", name="fetchSkill")
+                                | Fetch Skill Details
+                        .checkbox
+                            label
+                                input(type="checkbox", name="fetchEducation")
+                                | Fetch Education Details
+                        .checkbox
+                            label
+                                input(type="checkbox", name="fetchEmployment")
+                                input#basic(type="hidden", name="memberId", value = '#{member.id}')
+                                | Fetch Employment Details
+                        em Please note that information in your profile will be replaced with information from LinkedIn
                     .modal-footer
                         button.btn.btn-default(data-dismiss='modal') Close
                         input.btn.btn-primary(type='submit', value='OK')

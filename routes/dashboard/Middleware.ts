@@ -25,10 +25,8 @@ class Middleware
 
                 if (isAdmin || isOwner)
                     next();
-                else if (req.isAuthenticated())
-                    res.redirect(Urls.index());
                 else
-                    res.redirect(Urls.login());
+                    res.send(401);
             }];
 
     static allowExpert =
@@ -45,10 +43,10 @@ class Middleware
                 if (isValidExpert)
                     next();
                 else
-                    res.redirect(Urls.login());
+                    res.send(401);
             }];
 
-    static allowSelf =
+    static allowOnlyMe =
         [
             connect_ensure_login.ensureLoggedIn(),
             function (req:express.Request, res:express.Response, next:Function)
@@ -63,7 +61,28 @@ class Middleware
                 if (isSelf)
                     next();
                 else
-                    res.redirect(Urls.login());
+                    res.send(401);
+            }];
+
+    static allowMeOrAdmin=
+        [
+            connect_ensure_login.ensureLoggedIn(),
+            function (req:express.Request, res:express.Response, next:Function)
+            {
+                var sessionData = new SessionData(req);
+                var integrationMembers = sessionData.getMembers();
+                var memberId:number = parseInt(req.params[ApiConstants.MEMBER_ID]);
+                var loggedInUser = sessionData.getLoggedInUser();
+                var integrationId:number = sessionData.getIntegration().getId();
+
+                var isSelf = !Utils.isNullOrEmpty(_.findWhere(integrationMembers, {'id': memberId, 'user_id': loggedInUser.getId()}));
+                var isAdmin = !Utils.isNullOrEmpty(_.findWhere(integrationMembers, {'integration_id': integrationId, 'role': IntegrationMemberRole.Admin}));
+                var isOwner = !Utils.isNullOrEmpty(_.findWhere(integrationMembers, {'integration_id': integrationId, 'role': IntegrationMemberRole.Owner}));
+
+                if (isSelf || isAdmin || isOwner)
+                    next();
+                else
+                    res.send(401);
             }];
 }
 export = Middleware

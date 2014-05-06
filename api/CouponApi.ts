@@ -1,5 +1,6 @@
 ///<reference path='../_references.d.ts'/>
 import express                                              = require('express');
+import connect_ensure_login                                 = require('connect-ensure-login');
 import ApiConstants                                         = require('../enums/ApiConstants');
 import CouponDelegate                                       = require('../delegates/CouponDelegate');
 import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
@@ -15,7 +16,7 @@ class CouponApi
     {
         var self = this;
 
-        app.get(ApiUrlDelegate.coupon(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
+        app.get(ApiUrlDelegate.coupon(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
         {
             var coupon = req.body[ApiConstants.COUPON];
 
@@ -26,7 +27,7 @@ class CouponApi
             );
         });
 
-        app.get(ApiUrlDelegate.couponById(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
+        app.get(ApiUrlDelegate.couponById(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
         {
             var couponId:number = parseInt(req.params[ApiConstants.COUPON_ID]);
 
@@ -37,7 +38,7 @@ class CouponApi
             );
         });
 
-        app.put(ApiUrlDelegate.coupon(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
+        app.put(ApiUrlDelegate.coupon(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
         {
             var coupon = req.body[ApiConstants.COUPON];
 
@@ -48,7 +49,7 @@ class CouponApi
             );
         });
 
-        app.post(ApiUrlDelegate.couponById(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
+        app.post(ApiUrlDelegate.couponById(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
         {
             var couponId:number = parseInt(req.params[ApiConstants.COUPON_ID]);
             var coupon = req.body[ApiConstants.COUPON];
@@ -60,7 +61,7 @@ class CouponApi
             );
         });
 
-        app.delete(ApiUrlDelegate.couponById(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
+        app.delete(ApiUrlDelegate.couponById(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
         {
             var couponId:number = parseInt(req.params[ApiConstants.COUPON_ID]);
 
@@ -72,7 +73,7 @@ class CouponApi
         });
 
         /* Used by front end to check duplicate coupon codes */
-        app.get(ApiUrlDelegate.couponValidation(), AccessControl.allowDashboard, function(req: express.Request, res: express.Response)
+        app.get(ApiUrlDelegate.couponValidation(), connect_ensure_login.ensureLoggedIn(), function(req: express.Request, res: express.Response)
         {
             var coupon = req.body[ApiConstants.COUPON];
 
