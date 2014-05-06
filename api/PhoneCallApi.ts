@@ -1,11 +1,12 @@
-var json2xml                = require('json2xml');
-import express              = require('express');
-import ApiConstants         = require('../enums/ApiConstants');
-import ApiUrlDelegate       = require('../delegates/ApiUrlDelegate');
-import PhoneCallDelegate    = require('../delegates/PhoneCallDelegate');
-import AccessControl        = require('../middleware/AccessControl');
-import RequestHandler      = require('../middleware/RequestHandler');
-import PhoneCall            = require('../models/PhoneCall');
+import json2xml                                             = require('json2xml');
+import express                                              = require('express');
+import connect_ensure_login                                 = require('connect-ensure-login');
+import ApiConstants                                         = require('../enums/ApiConstants');
+import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
+import PhoneCallDelegate                                    = require('../delegates/PhoneCallDelegate');
+import AccessControl                                        = require('../middleware/AccessControl');
+import RequestHandler                                       = require('../middleware/RequestHandler');
+import PhoneCall                                            = require('../models/PhoneCall');
 
 /*
  * API calls for managing phone calls
@@ -16,7 +17,7 @@ class PhoneCallApi
     {
         var phoneCallDelegate = new PhoneCallDelegate();
 
-        app.put(ApiUrlDelegate.phoneCall(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        app.put(ApiUrlDelegate.phoneCall(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
         {
             var phoneCall:PhoneCall = req.body[ApiConstants.PHONE_CALL];
 
@@ -27,7 +28,7 @@ class PhoneCallApi
                 )
         });
 
-        app.post(ApiUrlDelegate.phoneCallById(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        app.post(ApiUrlDelegate.phoneCallById(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
         {
             var phoneCallId:number = req.params[ApiConstants.PHONE_CALL_ID];
             var phoneCall:PhoneCall = req.body[ApiConstants.PHONE_CALL];
@@ -39,7 +40,7 @@ class PhoneCallApi
                 )
         });
 
-        app.post(ApiUrlDelegate.phoneCallReschedule(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        app.post(ApiUrlDelegate.phoneCallReschedule(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
         {
             var phoneCallId:number = req.params[ApiConstants.PHONE_CALL_ID];
 
@@ -50,12 +51,12 @@ class PhoneCallApi
 
         });
 
-        app.post(ApiUrlDelegate.phoneCallCancel(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        app.post(ApiUrlDelegate.phoneCallCancel(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
         {
 
         });
 
-        app.get(ApiUrlDelegate.phoneCallById(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        app.get(ApiUrlDelegate.phoneCallById(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
         {
             var phoneCallId:number = req.params[ApiConstants.PHONE_CALL_ID];
 
@@ -66,7 +67,7 @@ class PhoneCallApi
                 )
         });
 
-        app.get(ApiUrlDelegate.phoneCall(), RequestHandler.requireFilters, AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        app.get(ApiUrlDelegate.phoneCall(), RequestHandler.requireFilters, connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
         {
             var filters = req.body[ApiConstants.FILTERS];
 

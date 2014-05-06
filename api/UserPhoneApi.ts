@@ -1,9 +1,10 @@
-import express              = require('express');
-import ApiConstants         = require('../enums/ApiConstants');
-import AccessControl        = require('../middleware/AccessControl');
-import ApiUrlDelegate       = require('../delegates/ApiUrlDelegate');
-import UserPhoneDelegate    = require('../delegates/UserPhoneDelegate');
-import UserPhone            = require('../models/UserPhone');
+import express                                              = require('express');
+import connect_ensure_login                                 = require('connect-ensure-login');
+import ApiConstants                                         = require('../enums/ApiConstants');
+import AccessControl                                        = require('../middleware/AccessControl');
+import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
+import UserPhoneDelegate                                    = require('../delegates/UserPhoneDelegate');
+import UserPhone                                            = require('../models/UserPhone');
 
 /**
  * API calls for managing settings to IntegrationMembers who are experts
@@ -16,7 +17,7 @@ class UserPhoneApi
         var userPhoneDelegate = new UserPhoneDelegate();
 
         /* Add phone number */
-        app.put(ApiUrlDelegate.UserPhone(), AccessControl.allowDashboard, function(req:express.Request, res:express.Response)
+        app.put(ApiUrlDelegate.UserPhone(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
         {
             var UserPhone:UserPhone = req.body[ApiConstants.PHONE_NUMBER];
 

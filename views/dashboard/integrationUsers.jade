@@ -7,7 +7,7 @@ include ../scriptsAndStyles
         .col-md-8
             .navbar.navbar-default
                 .container
-                    a.navbar-brand(href=DashboardUrls.integrations()) Back
+                    a.navbar-brand(href=DashboardUrls.index()) Back
                     .collapse.navbar-collapse
                         ul.nav.navbar-nav
                             li.active
@@ -44,7 +44,7 @@ include ../scriptsAndStyles
                                     a.btn.btn-xs.btn-default.sendAgain(data-emailid=member.user.email) Send Again
                             td(style='text-align: center;')
                                 if (member.id != undefined && (member.deleted == null || member.deleted == 0))
-                                    a.fa.fa-pencil.save(data-id=member.id, data-toggle='modal', href=(member.user.id == loggedInUser.id ? DashboardUrls.memberProfile(member.id) : '#editUserModal'))
+                                    a.fa.fa-pencil.save(href=DashboardUrls.memberProfileEdit(member.id))
         .col-md-2
 
 #inviteUserModal.modal.fade(style='display: none;')
@@ -77,38 +77,6 @@ include ../scriptsAndStyles
                 .modal-footer
                     button.btn.btn-default(data-dismiss='modal') Close
                     input.btn.btn-primary(type='submit', value='Send Invite')
-
-#editUserModal.modal.fade(style='display: none;')
-    .modal-dialog
-        .modal-content
-            .modal-header
-                .close(data-dismiss='modal', aria-hidden='true') x
-                h4.modal-title Edit User
-            .modal-body
-                form
-                    .form-group
-                        label.control-label(for='firstName') First Name
-                        input.form-control(type='text', placeholder='First Name', name='first_name')
-                    .form-group
-                        label.control-label(for='lastName') Last Name
-                        input.form-control(type='text', placeholder='Last Name', name='last_name')
-                    .form-group
-                        label.control-label(for='revenueShare') Revenue Share
-                        .input-group
-                            input.form-control#revenueShare(type='text', name='revenue_share')
-                            .input-group-btn
-                                select.selectpicker#revenueShareUnit(data-width='auto', name='revenue_share_unit')
-                                    option(value='1') $
-                                    option(value='2') Rs.
-                                    option(value='3') %
-                    .form-group
-                        label.control-label(for='role') Role
-                        select.selectpicker.form-control#role
-                            option(value='2') Admin
-                            option(value='3') Expert
-            .modal-footer
-                        button.btn.btn-default(data-dismiss='modal') Close
-                        button.btn.btn-primary(onclick='handleSaveClicked(event)') Save
 
 #delUserModal.modal.fade(style='display: none;')
     .modal-dialog

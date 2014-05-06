@@ -1,6 +1,7 @@
 ///<reference path='../_references.d.ts'/>
 import express                                              = require('express');
 import log4js                                               = require('log4js');
+import connect_ensure_login                                 = require('connect-ensure-login');
 import AccessControl                                        = require('../middleware/AccessControl');
 import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
 import VerificationCodeDelegate                             = require('../delegates/VerificationCodeDelegate');
@@ -25,7 +26,7 @@ class TokenApi
         var userDelegate = new UserDelegate();
 
         /* Create mobile verification code */
-        app.post(ApiUrlDelegate.mobileVerificationCode(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        app.post(ApiUrlDelegate.mobileVerificationCode(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
         {
             var phoneNumber:UserPhone = req.body[ApiConstants.PHONE_NUMBER];
             phoneNumber.setUserId(req['user'].id);
@@ -38,7 +39,7 @@ class TokenApi
         });
 
         /* Verify mobile number code */
-        app.get(ApiUrlDelegate.mobileVerificationCode(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        app.get(ApiUrlDelegate.mobileVerificationCode(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
         {
             var code:string = req.query[ApiConstants.CODE];
             var phoneNumber:UserPhone = new UserPhone(req.query[ApiConstants.PHONE_NUMBER]);
@@ -59,7 +60,7 @@ class TokenApi
         });
 
         /* Create and send expert invitation code */
-        app.post(ApiUrlDelegate.expertInvitationCode(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        app.post(ApiUrlDelegate.expertInvitationCode(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
         {
             var sender:User = new User(req['user']);
             var member:IntegrationMember = req.body[ApiConstants.INTEGRATION_MEMBER];
@@ -73,7 +74,7 @@ class TokenApi
         });
 
         /* Create and send expert invitation code */
-        app.post(ApiUrlDelegate.expertInvitationCodeResend(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        app.post(ApiUrlDelegate.expertInvitationCodeResend(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
         {
             var sender:User = new User(req['user']);
             var member:IntegrationMember = req.body[ApiConstants.INTEGRATION_MEMBER];
@@ -87,7 +88,7 @@ class TokenApi
         });
 
         /* Verify expert invitation code */
-        app.get(ApiUrlDelegate.expertInvitationCode(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        app.get(ApiUrlDelegate.expertInvitationCode(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
         {
             var integrationId:number = parseInt(req.query[ApiConstants.INTEGRATION_ID]);
             var code:string = req.query[ApiConstants.CODE];

@@ -1,17 +1,18 @@
 ///<reference path='../_references.d.ts'/>
-import q                                = require('q');
-import express                          = require('express');
-import _                                = require('underscore');
-import ApiConstants                     = require('../enums/ApiConstants');
-import AccessControl                    = require('../middleware/AccessControl');
-import ApiUrlDelegate                   = require('../delegates/ApiUrlDelegate');
-import IntegrationDelegate              = require('../delegates/IntegrationDelegate');
-import IntegrationMemberDelegate        = require('../delegates/IntegrationMemberDelegate');
-import UserDelegate                     = require('../delegates/UserDelegate');
-import IntegrationMember                = require('../models/IntegrationMember');
-import User                             = require('../models/User');
-import IntegrationMemberRole            = require('../enums/IntegrationMemberRole');
-import IncludeFlag                      = require('../enums/IncludeFlag');
+import q                                                    = require('q');
+import express                                              = require('express');
+import _                                                    = require('underscore');
+import connect_ensure_login                                 = require('connect-ensure-login');
+import ApiConstants                                         = require('../enums/ApiConstants');
+import AccessControl                                        = require('../middleware/AccessControl');
+import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
+import IntegrationDelegate                                  = require('../delegates/IntegrationDelegate');
+import IntegrationMemberDelegate                            = require('../delegates/IntegrationMemberDelegate');
+import UserDelegate                                         = require('../delegates/UserDelegate');
+import IntegrationMember                                    = require('../models/IntegrationMember');
+import User                                                 = require('../models/User');
+import IntegrationMemberRole                                = require('../enums/IntegrationMemberRole');
+import IncludeFlag                                          = require('../enums/IncludeFlag');
 
 /*
  * API calls for managing settings to IntegrationMembers who are experts
@@ -24,7 +25,7 @@ class ExpertApi
         var integrationMemberDelegate = new IntegrationMemberDelegate();
 
         /* Search expert */
-        app.get(ApiUrlDelegate.expert(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        app.get(ApiUrlDelegate.expert(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
         {
             var searchCriteria:Object = req.body;
             var includes:IncludeFlag[] = [].concat(req.query[ApiConstants.INCLUDE]);
@@ -50,7 +51,7 @@ class ExpertApi
         });
 
         /* Convert user to expert for integrationId */
-        app.put(ApiUrlDelegate.expert(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        app.put(ApiUrlDelegate.expert(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
         {
             var integrationMember:IntegrationMember = new IntegrationMember();
             integrationMember.setIntegrationId(req.body[ApiConstants.INTEGRATION_ID]);
@@ -83,7 +84,7 @@ class ExpertApi
          * Update expert's details (revenue share, enabled/disabled status)
          * Allow owner or admin
          */
-        app.post(ApiUrlDelegate.expertById(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        app.post(ApiUrlDelegate.expertById(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
         {
             var expertId = parseInt(req.params[ApiConstants.EXPERT_ID]);
             var integrationMember:IntegrationMember = req.body[ApiConstants.EXPERT];

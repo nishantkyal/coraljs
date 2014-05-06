@@ -3,6 +3,7 @@ import q                                    = require('q');
 import fs                                   = require('fs');
 import express                              = require('express');
 import _                                    = require('underscore');
+import connect_ensure_login                 = require('connect-ensure-login');
 import ApiConstants                         = require('../enums/ApiConstants');
 import ApiUrlDelegate                       = require('../delegates/ApiUrlDelegate');
 import UserDelegate                         = require('../delegates/UserDelegate');
@@ -46,7 +47,7 @@ class UserApi
         });
 
         /* Update settings */
-        app.post(ApiUrlDelegate.userById(), AccessControl.allowDashboard, function (req:express.Request, res:express.Response)
+        app.post(ApiUrlDelegate.userById(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
         {
             var userId:string = req.params[ApiConstants.USER_ID];
             var user:User = req.body[ApiConstants.USER];
@@ -68,7 +69,7 @@ class UserApi
         });
 
         /* Profile image */
-        app.post(ApiUrlDelegate.userProfilePicture(), AccessControl.allowDashboard, express.bodyParser({uploadDir: Config.get(Config.PROFILE_IMAGE_PATH)}), function(req:express.Request, res:express.Response)
+        app.post(ApiUrlDelegate.userProfilePicture(), connect_ensure_login.ensureLoggedIn(), express.bodyParser({uploadDir: Config.get(Config.PROFILE_IMAGE_PATH)}), function(req:express.Request, res:express.Response)
         {
             var uploadedFile = req.files['image'];
             var userId = parseInt(req.params[ApiConstants.USER_ID]);

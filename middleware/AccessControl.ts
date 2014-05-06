@@ -22,6 +22,7 @@ class AccessControl
     {
         var accessToken = req.query[ApiConstants.TOKEN];
         var integrationMemberId = req.params[ApiConstants.MEMBER_ID];
+
         AccessControl.getMember(accessToken, integrationMemberId)
             .then(
             function handleMemberFetched(integrationMember)
@@ -80,10 +81,6 @@ class AccessControl
             }
         )
     }
-
-    static allowDashboard = [
-        connect_ensure_login.ensureLoggedIn()
-    ];
 
     /* Helper method to get details of integration corresponding to token and member id */
     private static getMember(accessToken:string, integrationMemberId?:string, role?:IntegrationMemberRole):q.Promise<any>
