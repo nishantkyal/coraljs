@@ -29,7 +29,7 @@ class AbstractMappingDao extends AbstractDao
         var selectColumns = !Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
 
         var queryString = 'SELECT ' + selectColumns + ' FROM `' + this.tableName + '` INNER JOIN `' + mappingTableName
-            + '` ON '+ joinOn + ' WHERE ' + wheres.join(' AND ') ;
+            + '` ON '+ joinOn + ' WHERE ' + wheres.join(' AND ') + ' AND (deleted IS NULL OR deleted = 0)';
 
         return MysqlDelegate.executeQuery(queryString, values)
             .then(

@@ -1,10 +1,12 @@
 ///<reference path='../_references.d.ts'/>
 import q                                                    = require('q');
 import BaseDaoDelegate                                      = require('./BaseDaoDelegate');
-import UserUrlDao                                    = require('../dao/UserUrlDao');
-import MapProfileUrlDao                              = require('../dao/MapProfileUrlDao');
-import UserUrl                                       = require('../models/UserUrl');
-import MapProfileUrl                                 = require('../models/MapProfileUrl');
+import UserUrlDao                                           = require('../dao/UserUrlDao');
+import MapProfileUrlDao                                     = require('../dao/MapProfileUrlDao');
+import UserUrl                                              = require('../models/UserUrl');
+import MapProfileUrl                                        = require('../models/MapProfileUrl');
+import MysqlDelegate                                        = require('../delegates/MysqlDelegate');
+import Utils                                                = require('../common/Utils');
 
 class UserUrlDelegate extends BaseDaoDelegate
 {
@@ -14,6 +16,10 @@ class UserUrlDelegate extends BaseDaoDelegate
     {
         var self = this;
         var mapProfileUrlDao = new MapProfileUrlDao();
+
+        if (Utils.isNullOrEmpty(transaction))
+            return MysqlDelegate.executeInTransaction(self, arguments);
+
         return self.create(userUrl,transaction)
             .then(function userUrlCreated(emp:UserUrl){
                 var mapProfileUrl:MapProfileUrl = new MapProfileUrl();

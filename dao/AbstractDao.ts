@@ -138,7 +138,7 @@ class AbstractDao
         var values = whereStatements.values;
         var selectColumns = !Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
 
-        var queryString = 'SELECT ' + selectColumns + ' FROM `' + this.tableName + '` WHERE ' + wheres.join(' AND ');
+        var queryString = 'SELECT ' + selectColumns + ' FROM `' + this.tableName + '` WHERE ' + wheres.join(' AND ') + ' AND (deleted IS NULL OR deleted = 0)';
 
         return MysqlDelegate.executeQuery(queryString, values)
             .then(
@@ -167,7 +167,7 @@ class AbstractDao
         var values = whereStatements.values;
         var selectColumns:string = !Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
 
-        var queryString = 'SELECT ' + selectColumns + ' FROM `' + this.tableName + '` WHERE ' + wheres.join(' AND ') + ' LIMIT 1';
+        var queryString = 'SELECT ' + selectColumns + ' FROM `' + this.tableName + '` WHERE ' + wheres.join(' AND ') + ' AND (deleted IS NULL OR deleted = 0)' + ' LIMIT 1';
 
         return MysqlDelegate.executeQuery(queryString, values)
             .then(

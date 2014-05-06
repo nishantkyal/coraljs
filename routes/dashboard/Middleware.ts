@@ -73,11 +73,10 @@ class Middleware
                 var integrationMembers = sessionData.getMembers();
                 var memberId:number = parseInt(req.params[ApiConstants.MEMBER_ID]);
                 var loggedInUser = sessionData.getLoggedInUser();
-                var integrationId:number = sessionData.getIntegration().getId();
 
                 var isSelf = !Utils.isNullOrEmpty(_.findWhere(integrationMembers, {'id': memberId, 'user_id': loggedInUser.getId()}));
-                var isAdmin = !Utils.isNullOrEmpty(_.findWhere(integrationMembers, {'integration_id': integrationId, 'role': IntegrationMemberRole.Admin}));
-                var isOwner = !Utils.isNullOrEmpty(_.findWhere(integrationMembers, {'integration_id': integrationId, 'role': IntegrationMemberRole.Owner}));
+                var isAdmin = !Utils.isNullOrEmpty(_.findWhere(integrationMembers, {'id': memberId, 'role': IntegrationMemberRole.Admin}));
+                var isOwner = !Utils.isNullOrEmpty(_.findWhere(integrationMembers, {'id': memberId, 'role': IntegrationMemberRole.Owner}));
 
                 if (isSelf || isAdmin || isOwner)
                     next();

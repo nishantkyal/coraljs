@@ -6,7 +6,6 @@ import connect_ensure_login                             = require('connect-ensur
 import express                                          = require('express');
 import log4js                                           = require('log4js');
 import accounting                                       = require('accounting');
-import ApiUrlDelegate                                   = require('../../delegates/ApiUrlDelegate');
 import AuthenticationDelegate                           = require('../../delegates/AuthenticationDelegate');
 import UserDelegate                                     = require('../../delegates/UserDelegate');
 import IntegrationDelegate                              = require('../../delegates/IntegrationDelegate');
@@ -21,8 +20,8 @@ import UserEducationDelegate                            = require('../../delegat
 import UserSkillDelegate                                = require('../../delegates/UserSkillDelegate');
 import UserEmploymentDelegate                           = require('../../delegates/UserEmploymentDelegate');
 import RefSkillCodeDelegate                             = require('../../delegates/SkillCodeDelegate');
-import VerificationCodeDelegate                         = require('../../delegates/VerificationCodeDelegate');
 import UserProfileDelegate                              = require('../../delegates/UserProfileDelegate');
+import VerificationCodeDelegate                         = require('../../delegates/VerificationCodeDelegate');
 import UserUrlDelegate                                  = require('../../delegates/UserUrlDelegate');
 import MoneyUnit                                        = require('../../enums/MoneyUnit');
 import IncludeFlag                                      = require('../../enums/IncludeFlag');
@@ -96,6 +95,10 @@ class DashboardRoute
         app.get(Urls.logout(), this.logout.bind(this));
         app.get(Urls.paymentCallback(), this.paymentComplete.bind(this));
         app.get(Urls.emailAccountVerification(), this.emailAccountVerification.bind(this));
+
+        app.get(Urls.userProfileFromLinkedIn(), this.putLinkedInFieldsInSession.bind(this), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_FETCH, {failureRedirect: '/',
+            failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
+        app.get(Urls.userProfileFromLinkedInCallback(), this.linkedInCallBack.bind(this));
 
         // Auth
         app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
@@ -460,6 +463,70 @@ class DashboardRoute
             {
                 return self.verificationCodeDelegate.deleteAccountVerificationCode(email);
             });
+    }
+
+    private linkedInCallBack(req:express.Request, res:express.Response)
+    {
+        var self = this;
+
+        var fetchFields = req.session[ApiConstants.LINKEDIN_FETCH_FIELDS];
+        var profileId:number = req.session[ApiConstants.USER_PROFILE_ID];
+        var memberId:number = req.session[ApiConstants.MEMBER_ID];
+
+        self.userProfileDelegate.get(profileId)
+            .then( function profileFetched(userProfile:UserProfile)
+            {
+                self.integrationMemberDelegate.get(userProfile.getIntegrationMemberId())
+                    .then( function(integrationMember:IntegrationMember){
+                        var fetchTasks = [];
+                        var integration_id:number = integrationMember.getIntegrationId();
+                        var userId:number = integrationMember.getUserId();
+
+                        if(fetchFields[ApiConstants.FETCH_PROFILE_PICTURE])
+                        {
+                            fetchTasks.push(self.userProfileDelegate.fetchProfilePictureFromLinkedIn(userId,integration_id, profileId));
+                        }
+                        if(fetchFields[ApiConstants.FETCH_BASIC])
+                        {
+                            fetchTasks.push(self.userProfileDelegate.fetchBasicDetailsFromLinkedIn(userId, integration_id, profileId));
+                        }
+                        if(fetchFields[ApiConstants.FETCH_EDUCATION])
+                        {
+                            fetchTasks.push(self.userProfileDelegate.fetchAndReplaceEducation(userId, integration_id, profileId));
+                        }
+                        if(fetchFields[ApiConstants.FETCH_EMPLOYMENT])
+                        {
+                            fetchTasks.push(self.userProfileDelegate.fetchAndReplaceEmployment(userId, integration_id, profileId));
+                        }
+                        if(fetchFields[ApiConstants.FETCH_SKILL])
+                        {
+                            fetchTasks.push(self.userProfileDelegate.fetchAndReplaceSkill(userId, integration_id, profileId));
+                        }
+                        q.all(fetchTasks)
+                            .then(
+                            function profileFetched(){ res.redirect(Urls.memberProfileEdit(memberId)); },
+                            function fetchError(error){ res.send(500); }
+                        )
+                    })
+            }),
+            function profileFetchError(error)
+            {
+                res.status(500).send(error);
+            }
+    }
+
+    private putLinkedInFieldsInSession(req:express.Request, res:express.Response, next:Function)
+    {
+        var profileId:number = parseInt(req.params[ApiConstants.USER_PROFILE_ID]);
+        var fetchBasic:boolean = req.query[ApiConstants.FETCH_BASIC] == 'on' ? true :false;
+        var fetchEducation:boolean = req.query[ApiConstants.FETCH_EDUCATION] == 'on' ? true :false;
+        var fetchEmployment:boolean = req.query[ApiConstants.FETCH_EMPLOYMENT] == 'on' ? true :false;
+        var fetchProfilePicture:boolean = req.query[ApiConstants.FETCH_PROFILE_PICTURE] == 'on' ? true :false;
+        var fetchSkill:boolean = req.query[ApiConstants.FETCH_SKILL] == 'on' ? true :false;
+        req.session[ApiConstants.LINKEDIN_FETCH_FIELDS] = {fetchBasic:fetchBasic,fetchEducation:fetchEducation, fetchEmployment:fetchEmployment, fetchProfilePicture:fetchProfilePicture, fetchSkill:fetchSkill};
+        req.session[ApiConstants.USER_PROFILE_ID] = profileId;
+        req.session[ApiConstants.MEMBER_ID] = parseInt(req.query[ApiConstants.MEMBER_ID]);
+        next();
     }
 }
 

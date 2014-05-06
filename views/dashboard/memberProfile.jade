@@ -19,6 +19,9 @@ block content
                         a.btn.btn-link(href=DashboardUrls.memberProfile(member.id), target="_blank") View My Public Profile
                     div
                         a.btn.btn-link(href=CallFlowUrls.callExpert(member.id), target="_blank") Call Me Link
+                    if userProfile.status == 1
+                        div
+                            a.btn.btn-link#SendProfile() Send Profile for Approval
         .col-md-9
             .row-fluid
                 .col-md-6
@@ -26,10 +29,10 @@ block content
                         .panel-heading
                             | Basic Info
                             .pull-right
-                                button.btn.btn-default.btn-xs(title='Fetch basic profile from LinkedIn')
-                                    span.fa.fa-linkedin
-                                button.btn.btn-default.btn-xs
+                                button.btn.btn-default.btn-xs(data-id=profileId, data-toggle='modal', href='#EditUserProfileModal')
                                     span.fa.fa-pencil
+                                a.btn.btn-default.btn-xs(title='Fetch basic profile from LinkedIn', data-id=profileId, data-toggle='modal', href= '#FetchBasicFromLinkedInModal')
+                                    span.fa.fa-linkedin
                         .panel-body
                             .form
                                 .form-group
@@ -39,14 +42,14 @@ block content
                                 .form-group
                                     label.control-label Date of birth
                                     .pull-right
-                                        .form-control-static= formatDate(user.date_of_birth)
+                                        .form-control-static= formatDate(user.date_of_birth,'DD/MM/YYYY')
                                 .form-group
                                     label.control-label Summary
-                                    .form-control-static= user.short_desc
+                                    .form-control-static= userProfile.short_desc
                                 .form-group
                                     label.control-label Description
                                     .pull-right
-                                        .form-control-static= user.long_desc
+                                        .form-control-static= userProfile.long_desc
                                 .form-group
                                     label.control-label Industry
                                     .pull-right
@@ -65,35 +68,50 @@ block content
                     .panel.panel-danger
                         .panel-heading
                             | Skills
-                            .pull-right
-                                button.btn.btn-default.btn-xs
-                                    span.fa.fa-pencil
                         .panel-body
                             if userSkill
                                 each skill in userSkill
+                                    div
                                     normal #{skill.skill_name}&nbsp
-                            button.btn.btn-primary.btn-xs
+                                    .pull-right
+                                        a.fa.fa-pencil-square.editUserSkill(data-id=skill.id, data-toggle='modal', href='#EditUserSkillModal')
+                                        a.fa.fa-times-circle.deleteUserSkill(data-id=skill.id, data-toggle='modal', href='#DeleteUserSkillModal')
+                        .panel-body.editor
+                            button.btn.btn-default.btn-xs#addSkillBtn(data-toggle='modal', href='#AddUserSkillModal') Add Skill
+                            a.btn.btn-default.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchSkillFromLinkedInModal')
                                 i.fa.fa-linkedin-square
                                 | &nbsp;Fetch from LinkedIn
-                            button.btn.btn-default.btn-xs#addSkillBtn(data-toggle='modal', href='#AddUserSkillModal') Add Skill
                     .panel.panel-success
                         .panel-heading
                             | Education
-                            .pull-right
-                                button.btn.btn-default.btn-xs
-                                    span.fa.fa-pencil
+                        ul.list-group
+                             li.list-group-item
+                                 if userEducation
+                                         each edu in userEducation
+                                             div
+                                                 string #{edu.school_name}
+                                                 .pull-right
+                                                     a.fa.fa-pencil-square.editUserEducation(data-id=edu.id, data-toggle='modal', href='#EditUserEducationModal')
+                                                     a.fa.fa-times-circle.deleteUserEducation(data-id=edu.id, data-toggle='modal', href='#DeleteUserEducationModal')
+                                             div
+                                                 if edu.degree
+                                                     small #{edu.degree}
+                                                     if edu.field_of_study
+                                                         small , #{edu.field_of_study}
+                                             div
+                                                 if edu.start_year
+                                                     small #{edu.start_year}&nbsp
+                                                 if edu.end_year
+                                                     small - #{edu.end_year}
                         .panel-body
-                            button.btn.btn-primary.btn-xs
+                            button.btn.btn-default.btn-xs#addEducationBtn(data-toggle='modal', href='#AddUserEducationModal') Add Education
+                            a.btn.btn-default.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchEducationFromLinkedInModal')
                                 i.fa.fa-linkedin-square
                                 | &nbsp;Fetch from LinkedIn
-                            button.btn.btn-default.btn-xs#addEducationBtn(data-toggle='modal', href='#AddUserEducationModal') Add Education
                         include memberEducation
                     .panel.panel-warning
                         .panel-heading
                             | Work Experience
-                            .pull-right
-                                button.btn.btn-default.btn-xs
-                                    span.fa.fa-pencil
                         ul.list-group
                             li.list-group-item
                                 if userEmployment
@@ -101,8 +119,8 @@ block content
                                         div
                                             strong #{emp.title}
                                             .pull-right
-                                                a.fa.fa-pencil-square.edit(data-toggle='modal', href='#EditUserEmploymentModal')
-                                                a.fa.fa-times-circle.delete(data-toggle='modal', href='#DeleteUserEmploymentModal')
+                                                a.fa.fa-pencil-square.editUserEmployment(data-id=emp.id, data-toggle='modal', href='#EditUserEmploymentModal')
+                                                a.fa.fa-times-circle.deleteUserEmployment(data-id=emp.id, data-toggle='modal', href='#DeleteUserEmploymentModal')
                                         div
                                             if emp.company
                                                 normal #{emp.company}
@@ -114,12 +132,11 @@ block content
                                         div
                                             if emp.summary
                                                 small #{emp.summary}
-                                p Infollion Research
                         .panel-body.editor
-                            button.btn.btn-primary.btn-xs
+                            button.btn.btn-default.btn-xs#addEmploymentBtn(data-toggle='modal', href='#AddUserEmploymentModal') Add Position
+                            a.btn.btn-default.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchEmploymentFromLinkedInModal')
                                 i.fa.fa-linkedin-square
                                 | &nbsp;Fetch from LinkedIn
-                            button.btn.btn-default.btn-xs#addEmploymentBtn(data-toggle='modal', href='#AddUserEmploymentModal') Add Position
                         include memberEmployment
     #ChangePasswordModal.modal.fade(style='display: none;')
         .modal-dialog
@@ -144,7 +161,7 @@ block content
                 .modal-header
                     .close(data-dismiss='modal', aria-hidden='true') x
                     h4.modal-title Fetch Profile Details from LinkedIn
-                form.form(method='POST', action=ApiUrlDelegate.userProfileFromLinkedIn(userProfile.id))
+                form.form(method='GET', action=DashboardUrls.userProfileFromLinkedIn(userProfile.id))
                     .modal-body
                         .checkbox
                             label
@@ -165,8 +182,77 @@ block content
                         .checkbox
                             label
                                 input(type="checkbox", name="fetchEmployment")
+                                input#basic(type="hidden", name="memberId", value = '#{member.id}')
                                 | Fetch Employment Details
                         em Please note that information in your profile will be replaced with information from LinkedIn
+                    .modal-footer
+                        button.btn.btn-default(data-dismiss='modal') Close
+                        input.btn.btn-primary(type='submit', value='OK')
+    #FetchBasicFromLinkedInModal.modal.fade(style='display: none;')
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    .close(data-dismiss='modal', aria-hidden='true') x
+                    h4.modal-title Edit Profile
+                form(action=DashboardUrls.userProfileFromLinkedIn(userProfile.id), method="get")
+                    .modal-body
+                        .row
+                            .form-group.col-md-9
+                                input#basic(type="hidden", name="fetchBasic", value = 'on')
+                                input#basic(type="hidden", name="memberId", value = '#{member.id}')
+                                p.confirm
+                                    | Are you sure you want to replace the current information with information from LinkedIn?
+                    .modal-footer
+                        button.btn.btn-default(data-dismiss='modal') Close
+                        input.btn.btn-primary(type='submit', value='OK')
+    #FetchSkillFromLinkedInModal.modal.fade(style='display: none;')
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    .close(data-dismiss='modal', aria-hidden='true') x
+                    h4.modal-title Edit Skill
+                form(action=DashboardUrls.userProfileFromLinkedIn(userProfile.id), method="get")
+                    .modal-body
+                        .row
+                            .form-group.col-md-9
+                                input#skill(type="hidden", name="fetchSkill", value = 'on')
+                                input#basic(type="hidden", name="memberId", value = '#{member.id}')
+                                p.confirm
+                                    | Are you sure you want to replace the current information with information from LinkedIn?
+                    .modal-footer
+                        button.btn.btn-default(data-dismiss='modal') Close
+                        input.btn.btn-primary(type='submit', value='OK')
+    #FetchEducationFromLinkedInModal.modal.fade(style='display: none;')
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    .close(data-dismiss='modal', aria-hidden='true') x
+                    h4.modal-title Edit Education
+                form(action=DashboardUrls.userProfileFromLinkedIn(userProfile.id), method="get")
+                    .modal-body
+                        .row
+                            .form-group.col-md-9
+                                input#education(type="hidden", name="fetchEducation", value = 'on')
+                                input#basic(type="hidden", name="memberId", value = '#{member.id}')
+                                p.confirm
+                                    | Are you sure you want to replace the current information with information from LinkedIn?
+                    .modal-footer
+                        button.btn.btn-default(data-dismiss='modal') Close
+                        input.btn.btn-primary(type='submit', value='OK')
+    #FetchEmploymentFromLinkedInModal.modal.fade(style='display: none;')
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    .close(data-dismiss='modal', aria-hidden='true') x
+                    h4.modal-title Edit Employment
+                form(action=DashboardUrls.userProfileFromLinkedIn(userProfile.id), method="get")
+                    .modal-body
+                        .row
+                            .form-group.col-md-9
+                                input#employment(type="hidden", name="fetchEmployment", value = 'on')
+                                input#basic(type="hidden", name="memberId", value = '#{member.id}')
+                                p.confirm
+                                    | Are you sure you want to replace the current information with information from LinkedIn?
                     .modal-footer
                         button.btn.btn-default(data-dismiss='modal') Close
                         input.btn.btn-primary(type='submit', value='OK')

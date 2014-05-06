@@ -16,5 +16,7 @@ class Urls
     static memberProfileEdit(memberId?:number) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/profile/edit', {memberId: memberId}); }
     static logout() { return ApiUrlDelegate.get('/logout'); }
     static paymentCallback() { return ApiUrlDelegate.get('/payment/complete'); }
+    static userProfileFromLinkedIn(profileId?:number):string { return ApiUrlDelegate.get('/member/profileFromLinkedIn/:profileId(\\d+)', {profileId: profileId}); }
+    static userProfileFromLinkedInCallback():string { return ApiUrlDelegate.get('/member/profileFromLinkedInCallback'); }
 }
 export = Urls;
