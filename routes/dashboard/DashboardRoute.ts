@@ -105,7 +105,7 @@ class DashboardRoute
         app.post(Urls.changeProfileStatus(), Middleware.allowSelf, this.changeProfileStatus.bind(this));
     }
 
-    login(req, res:express.Response)
+    private login(req, res:express.Response)
     {
         var sessionData = new SessionData(req);
 
@@ -147,7 +147,7 @@ class DashboardRoute
         )
     }
 
-    verifyMobile(req:express.Request, res:express.Response)
+    private verifyMobile(req:express.Request, res:express.Response)
     {
         this.userPhoneDelegate.getByUserId(req[ApiConstants.USER].id)
             .then(
@@ -181,7 +181,7 @@ class DashboardRoute
             });
     }
 
-    authSuccess(req, res:express.Response)
+    private authSuccess(req, res:express.Response)
     {
         var sessionData = new SessionData(req);
 
@@ -225,7 +225,7 @@ class DashboardRoute
         );
     }
 
-    integrations(req:express.Request, res:express.Response)
+    private integrations(req:express.Request, res:express.Response)
     {
         var sessionData = new SessionData(req);
 
@@ -312,7 +312,7 @@ class DashboardRoute
             function usersFetchError(error) { res.send(500, error); });
     }
 
-    memberProfileComplete(req:express.Request, res:express.Response)
+    private memberProfileComplete(req:express.Request, res:express.Response)
     {
         var self = this;
         var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
@@ -362,7 +362,7 @@ class DashboardRoute
             });
     }
 
-    memberProfile(req:express.Request, res:express.Response)
+    private memberProfile(req:express.Request, res:express.Response)
     {
         var self = this;
         var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
@@ -419,7 +419,7 @@ class DashboardRoute
             function memberDetailsFetchError(error) { res.send(500); });
     }
 
-    memberProfileSave(req:express.Request, res:express.Response)
+    private memberProfileSave(req:express.Request, res:express.Response)
     {
         var sessionData = new SessionData(req);
         var user = req.body[ApiConstants.USER];
@@ -447,7 +447,7 @@ class DashboardRoute
         );
     }
 
-    logout(req, res)
+    private logout(req, res)
     {
         req.logout();
         res.redirect(Urls.index());

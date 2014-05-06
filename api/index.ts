@@ -44,5 +44,4 @@ function init(app, secureApp?)
     new UserSkillApi(app, secureApp);
     new WidgetApi(app, secureApp);
 }
-
 export = init
