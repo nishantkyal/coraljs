@@ -65,6 +65,9 @@ block content
                                 button.btn.btn-default.btn-xs
                                     span.fa.fa-pencil
                         .panel-body
+                            if userSkill
+                                each skill in userSkill
+                                    normal #{skill.skill_name}&nbsp
                             button.btn.btn-default.btn-xs#addSkillBtn(data-toggle='modal', href='#AddUserSkillModal') Add Skill
                             button.btn.btn-primary.btn-xs
                                 i.fa.fa-linkedin-square
@@ -89,11 +92,24 @@ block content
                                     span.fa.fa-pencil
                         ul.list-group
                             li.list-group-item
-                                div
-                                    strong Chief Technical Officer
-                                    .pull-right
-                                        a.fa.fa-pencil-square.edit(data-toggle='modal', href='#EditUserEmploymentModal')
-                                        a.fa.fa-times-circle.delete(data-toggle='modal', href='#DeleteUserEmploymentModal')
+                                if userEmployment
+                                    each emp in userEmployment
+                                        div
+                                            strong #{emp.title}
+                                            .pull-right
+                                                a.fa.fa-pencil-square.edit(data-toggle='modal', href='#EditUserEmploymentModal')
+                                                a.fa.fa-times-circle.delete(data-toggle='modal', href='#DeleteUserEmploymentModal')
+                                        div
+                                            if emp.company
+                                                normal #{emp.company}
+                                        div
+                                            if emp.start_date
+                                                small #{emp.start_date}&nbsp
+                                            if emp.end_date
+                                                small - #{emp.end_date}
+                                        div
+                                            if emp.summary
+                                                small #{emp.summary}
                                 p Infollion Research
                         .panel-body.editor
                             button.btn.btn-default.btn-xs#addEmploymentBtn(data-toggle='modal', href='#AddUserEmploymentModal') Add Position
@@ -130,15 +146,23 @@ block content
                             .form-group.col-md-6
                                 p.confirm
                                     label
-                                        input#profile(type="checkbox", name="profile")
-                                        | Fetch Profile Details
+                                    input#basic(type="checkbox", name="fetchBasic")
+                                    | Fetch Basic Details
                                     br
                                     label
-                                        input#education(type="checkbox", name="education")
+                                        input#profilePicture(type="checkbox", name="fetchProfilePicture")
+                                        | Fetch Profile Picture
+                                    br
+                                    label
+                                        input#skill(type="checkbox", name="fetchSkill")
+                                        | Fetch Skill Details
+                                    br
+                                    label
+                                        input#education(type="checkbox", name="fetchEducation")
                                         | Fetch Education Details
                                     br
                                     label
-                                        input#employment(type="checkbox", name="employment")
+                                        input#employment(type="checkbox", name="fetchEmployment")
                                         | Fetch Employment Details
                                 div Please note the information on this page will be replaced with information from LinkedIn
                     .modal-footer
@@ -226,7 +250,6 @@ block content
     script.
         var memberId = '!{member.id}';
         var userSkill = JSON.parse( '!{JSON.stringify(userSkill)}' );
-        var userProfile = JSON.parse ( '!{JSON.stringify(userProfile)}' );
         var userProfile = JSON.parse ( '!{JSON.stringify(userProfile)}' );
     script(src='/js/lib/bootstrap3-typeahead.js')
     script(src='/js/lib/bloodhound.js')
