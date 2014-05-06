@@ -92,7 +92,6 @@ class DashboardRoute
         app.get(Urls.integrationCoupons(), connect_ensure_login.ensureLoggedIn(), this.coupons.bind(this));
         app.get(Urls.integrationMembers(), Middleware.allowOwnerOrAdmin, this.integrationUsers.bind(this));
         app.get(Urls.memberProfile(), Middleware.allowSelf, this.memberProfile.bind(this));
-        app.get(Urls.memberProfileComplete(), this.memberProfileComplete.bind(this));
 
         app.get(Urls.logout(), this.logout.bind(this));
         app.get(Urls.paymentCallback(), this.paymentComplete.bind(this));
@@ -310,56 +309,6 @@ class DashboardRoute
                 res.render(DashboardRoute.PAGE_USERS, pageData);
             },
             function usersFetchError(error) { res.send(500, error); });
-    }
-
-    private memberProfileComplete(req:express.Request, res:express.Response)
-    {
-        var self = this;
-        var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
-        var sessionData = new SessionData(req);
-
-        q.all([
-            self.integrationMemberDelegate.get(memberId, IntegrationMember.DASHBOARD_FIELDS),
-            self.userProfileDelegate.find({'integration_member_id': memberId})
-        ])
-            .then(
-            function memberFetched(...args)
-            {
-                var member:IntegrationMember = args[0][0];
-                var userProfile:UserProfile = args[0][1];
-                var userId = member.getUserId();
-                return q.all([
-                    self.userDelegate.get(userId),
-                    self.userSkillDelegate.getSkillWithName(userProfile.getId()),
-                    self.userEducationDelegate.search({'profileId': userProfile.getId()}),
-                    self.userEmploymentDelegate.search({'profileId': userProfile.getId()}),
-                    self.userUrlDelegate.search({'profileId': userProfile.getId()})
-                ]);
-            })
-            .then(
-            function (...args)
-            {
-                var user = args[0][0];
-                var userSkill = args[0][1];
-                var userEducation = args[0][2];
-                var userEmployment = args[0][3]
-                var userUrl = args[0][4];
-
-                var pageData = _.extend(sessionData.getData(), {
-                    'user': user,
-                    'userSkill': userSkill,
-                    'userEducation': userEducation,
-                    'userEmployment': userEmployment,
-                    'userUrl': userUrl
-                });
-
-                res.render(DashboardRoute.PAGE_PROFILE_COMPLETE, pageData);
-            })
-            .fail(
-            function (error)
-            {
-                res.send(500);
-            });
     }
 
     private memberProfile(req:express.Request, res:express.Response)
