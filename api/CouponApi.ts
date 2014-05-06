@@ -84,7 +84,7 @@ class CouponApi
                         if (Utils.isNullOrEmpty(c))
                             res.send(true);
                         else
-                            res.send('Coupon code exists');
+                            res.send(409, 'Coupon code exists');
                     },
                     function couponFindFailed(error) { res.send(true); }
                 )

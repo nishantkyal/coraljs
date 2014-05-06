@@ -10,37 +10,43 @@ import SessionData                                                  = require('.
 
 class Middleware
 {
-    static allowOwnerOrAdmin(req, res:express.Response, next:Function)
-    {
-        var sessionData = new SessionData(req);
+    static allowOwnerOrAdmin =
+        [
+            connect_ensure_login.ensureLoggedIn(),
+            function (req, res:express.Response, next:Function)
+            {
+                var sessionData = new SessionData(req);
 
-        var integrationMembers = sessionData.getMembers();
-        var integrationId:number = parseInt(req.params[ApiConstants.INTEGRATION_ID]);
+                var integrationMembers = sessionData.getMembers();
+                var integrationId:number = parseInt(req.params[ApiConstants.INTEGRATION_ID]);
 
-        var isAdmin = !Utils.isNullOrEmpty(_.findWhere(integrationMembers, {'integration_id': integrationId, 'role': IntegrationMemberRole.Admin}));
-        var isOwner = !Utils.isNullOrEmpty(_.findWhere(integrationMembers, {'integration_id': integrationId, 'role': IntegrationMemberRole.Owner}));
+                var isAdmin = !Utils.isNullOrEmpty(_.findWhere(integrationMembers, {'integration_id': integrationId, 'role': IntegrationMemberRole.Admin}));
+                var isOwner = !Utils.isNullOrEmpty(_.findWhere(integrationMembers, {'integration_id': integrationId, 'role': IntegrationMemberRole.Owner}));
 
-        if (isAdmin || isOwner)
-            next();
-        else if (req.isAuthenticated())
-            res.redirect(Urls.integrations());
-        else
-            res.redirect('/login');
-    }
+                if (isAdmin || isOwner)
+                    next();
+                else if (req.isAuthenticated())
+                    res.redirect(Urls.index());
+                else
+                    res.redirect(Urls.login());
+            }];
 
-    static allowExpert(req:express.Request, res:express.Response, next:Function)
-    {
-        var sessionData = new SessionData(req);
-        var integrationMembers = sessionData.getMembers();
-        var expertId:number = parseInt(req.params[ApiConstants.EXPERT_ID]);
+    static allowExpert =
+        [
+            connect_ensure_login.ensureLoggedIn(),
+            function (req:express.Request, res:express.Response, next:Function)
+            {
+                var sessionData = new SessionData(req);
+                var integrationMembers = sessionData.getMembers();
+                var expertId:number = parseInt(req.params[ApiConstants.EXPERT_ID]);
 
-        var isValidExpert = !Utils.isNullOrEmpty(_.findWhere(integrationMembers, {'id': expertId, 'role': IntegrationMemberRole.Expert}));
+                var isValidExpert = !Utils.isNullOrEmpty(_.findWhere(integrationMembers, {'id': expertId, 'role': IntegrationMemberRole.Expert}));
 
-        if (isValidExpert)
-            next();
-        else
-            res.redirect('/login');
-    }
+                if (isValidExpert)
+                    next();
+                else
+                    res.redirect(Urls.login());
+            }];
 
     static allowSelf =
         [
@@ -57,7 +63,7 @@ class Middleware
                 if (isSelf)
                     next();
                 else
-                    res.redirect('/login');
+                    res.redirect(Urls.login());
             }];
 }
 export = Middleware
