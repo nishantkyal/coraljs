@@ -74,8 +74,6 @@ class ApiUrlDelegate
     /* URL patterns for user profile */
     static userProfile():string { return this.get('/rest/user/profile'); }
     static userProfileById(profileId?:number):string { return this.get('/rest/user/profile/:profileId(\\d+)', {profileId: profileId}); }
-    static userProfileFromLinkedIn(profileId?:number):string { return this.get('/rest/user/profileFromLinkedIn/:profileId(\\d+)', {profileId: profileId}); }
-    static userProfileFromLinkedInCallback():string { return this.get('/rest/user/profileFromLinkedInCallback'); }
 
     static userEducation() { return this.get('/rest/user/education'); }
     static userEducationById(educationId?:number) { return this.get('/rest/user/education/:educationId(\\d+)', { educationId:educationId }); }

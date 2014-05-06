@@ -7,6 +7,8 @@ import UserSkillDao                                         = require('../dao/Us
 import UserSkill                                            = require('../models/UserSkill');
 import SkillCode                                            = require('../models/SkillCode');
 import MapProfileSkill                                      = require('../models/MapProfileSkill');
+import MysqlDelegate                                        = require('../delegates/MysqlDelegate');
+import Utils                                                = require('../common/Utils');
 
 class UserSkillDelegate extends BaseDaoDelegate
 {
@@ -18,6 +20,10 @@ class UserSkillDelegate extends BaseDaoDelegate
     {
         var self = this;
         var mapProfileSkillDao = new MapProfileSkillDao();
+
+        if (Utils.isNullOrEmpty(transaction))
+            return MysqlDelegate.executeInTransaction(self, arguments);
+
         return self.create(userSkill,transaction)
             .then(function userSkillCreated(emp:UserSkill){
                 var mapProfileSkill:MapProfileSkill = new MapProfileSkill();
@@ -35,7 +41,10 @@ class UserSkillDelegate extends BaseDaoDelegate
         skillCode.setLinkedinCode(linkedInSkillCode);
         skillCode.setSkill(skillName);
 
-        return self.skillCodeDelegate.create(skillCode)
+        if (Utils.isNullOrEmpty(transaction))
+            return MysqlDelegate.executeInTransaction(self, arguments);
+
+        return self.skillCodeDelegate.create(skillCode,transaction)
             .then(
             function skillCodeCreated(createdSkillCode)
             {
@@ -62,7 +71,10 @@ class UserSkillDelegate extends BaseDaoDelegate
         skillCode.setLinkedinCode(linkedInSkillCode);
         skillCode.setSkill(skillName);
 
-        return self.skillCodeDelegate.create(skillCode)
+        if (Utils.isNullOrEmpty(transaction))
+            return MysqlDelegate.executeInTransaction(self, arguments);
+
+        return self.skillCodeDelegate.create(skillCode,transaction)
             .then(
             function skillCodeCreated(skillCode){
                 userSkill.setSkillId(skillCode.getId());

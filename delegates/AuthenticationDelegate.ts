@@ -27,6 +27,7 @@ import ApiConstants                             = require('../enums/ApiConstants
 import IndustryCodes                            = require('../enums/IndustryCode');
 import UserStatus                               = require('../enums/UserStatus');
 import ExpertRegistrationUrls                   = require('../routes/expertRegistration/Urls')
+import DashBoardUrls                            = require('../routes/dashboard/Urls')
 
 class AuthenticationDelegate
 {
@@ -54,7 +55,7 @@ class AuthenticationDelegate
         /* Linkedin login */
         AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN, url.resolve(Config.get(Config.DASHBOARD_URI), '/login/linkedin/callback'));
         AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, url.resolve(Config.get(Config.DASHBOARD_URI), ExpertRegistrationUrls.linkedInLoginCallback()));
-        AuthenticationDelegate.configureLinkedInStrategyForFetching(AuthenticationDelegate.STRATEGY_LINKEDIN_FETCH,url.resolve(Config.get(Config.DASHBOARD_URI), ApiUrlDelegate.userProfileFromLinkedInCallback() ));
+        AuthenticationDelegate.configureLinkedInStrategyForFetching(AuthenticationDelegate.STRATEGY_LINKEDIN_FETCH,url.resolve(Config.get(Config.DASHBOARD_URI), DashBoardUrls.userProfileFromLinkedInCallback() ));
         // Serialize-Deserialize user
         passport.serializeUser(function (user, done) { done(null, user); });
         passport.deserializeUser(function (obj, done) { done(null, obj); });

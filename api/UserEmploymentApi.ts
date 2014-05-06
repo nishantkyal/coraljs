@@ -20,7 +20,7 @@ class UserEmploymentApi
             self.userEmploymentDelegate.update({id: employmentId}, employment)
                 .then(
                 function userUpdated() { res.send(200); },
-                function userUpdateError() { res.send(500); }
+                function userUpdateError(error) { res.send(500); }
             );
         });
 
@@ -34,7 +34,7 @@ class UserEmploymentApi
             self.userEmploymentDelegate.createUserEmployment(employment,profileId)
                 .then(
                 function userUpdated() { res.send(200); },
-                function userUpdateError() { res.send(500); }
+                function userUpdateError(error) { res.send(500); }
             );
         });
 
@@ -46,7 +46,7 @@ class UserEmploymentApi
             self.userEmploymentDelegate.delete(employmentId) // if hard deleting then add profileId:profileId
                 .then(
                 function userUpdated() { res.send(200); },
-                function userUpdateError() { res.send(500); }
+                function userUpdateError(error) { res.send(500); }
             );
         });
     }

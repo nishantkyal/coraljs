@@ -60,17 +60,6 @@ $('#SendProfile').click(function(){
                 })
             }
         })
-    else
-    {
-        var text;
-        if (userProfile.status == 2)
-            text = "Profiel has already been sent to approval. In the mean time you can continue to make the changes."
-        else
-            text = "Profile has already been approved. "
-        bootbox.alert(text, function(){
-            location.reload();
-        });
-    }
 });
 
 $('#EditUserProfileModal form').validate({
@@ -284,7 +273,7 @@ $('#AddUserSkillModal form').validate({
     }
 });
 
-$('.editSkill').click(function()
+$('.editUserSkill').click(function()
 {
     var selectedUserSkill;
     var userSkillId = $(this).data('id');
@@ -348,7 +337,7 @@ $('#EditUserSkillModal form').validate({
     }
 });
 
-$('.deleteSkill').click(function()
+$('.deleteUserSkill').click(function()
 {
     var skillId = $(this).data('id');
     $('#DeleteUserSkillModal .btn-primary').attr('data-id', skillId);

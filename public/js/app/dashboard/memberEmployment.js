@@ -43,7 +43,7 @@ $('#AddUserEmploymentModal form').validate({
     }
 });
 
-$('.edit').click(function()
+$('.editUserEmployment').click(function()
 {
     var selectedUserEmployment;
     var userEmploymentId = $(this).data('id');
@@ -102,13 +102,13 @@ $('#EditUserEmploymentModal form').validate({
     }
 });
 
-$('.delete').click(function()
+$('.deleteUserEmployment').click(function()
 {
     var memberEmploymentId = $(this).data('id');
     $('#DeleteUserEmploymentModal .btn-primary').attr('data-id', memberEmploymentId);
 });
 
-function handleDeleteClicked(event)
+function handleEmploymentDeleteClicked(event)
 {
     var employmentId = $(event.currentTarget).attr('data-id');
     $.ajax({

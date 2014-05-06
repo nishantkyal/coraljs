@@ -17,15 +17,15 @@ class UserEmploymentDelegate extends BaseDaoDelegate
     {
         var self = this;
 
-        //if (Utils.isNullOrEmpty(transaction))
-          //  return MysqlDelegate.executeInTransaction(self, arguments);
+        if (Utils.isNullOrEmpty(transaction))
+            return MysqlDelegate.executeInTransaction(self, arguments);
 
         return self.create(userEmployment, transaction)
             .then(
-            function userEmploymentCreated(emp:UserEmployment)
+            function userEmploymentCreated(emp)
             {
                 var mapProfileEmployment:MapProfileEmployment = new MapProfileEmployment();
-                mapProfileEmployment.setEmploymentId(emp.getId());
+                mapProfileEmployment.setEmploymentId(emp.id);
                 mapProfileEmployment.setProfileId(profileId);
 
                 return self.mapProfileEmploymentDao.create(mapProfileEmployment, transaction);

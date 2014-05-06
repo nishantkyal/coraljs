@@ -15,6 +15,7 @@ import UserProfile                                                      = requir
 import IncludeFlag                                                      = require('../enums/IncludeFlag');
 import ImageSize                                                        = require('../enums/ImageSize');
 import UserStatus                                                       = require('../enums/UserStatus');
+import ProfileStatus                                                    = require('../enums/ProfileStatus');
 import Config                                                           = require('../common/Config');
 import Utils                                                            = require('../common/Utils');
 
@@ -127,13 +128,14 @@ class UserDelegate extends BaseDaoDelegate
                 if (Utils.isNullOrEmpty(phone))
                     throw(UserStatus.MOBILE_NOT_VERIFIED);
                 else
-                    return self.userProfileDelegate.find({user_id: user.getId()});//TODO[ankit] change this as it won't work anymore
+                    return self.userProfileDelegate.get({id: user.getDefaultProfileId()});
             })
             .then(
-            function userProfileFound(profile)
+            function userProfileFound(profile:UserProfile)
             {
-                //TODO[ankit] use status in user_profile to decide here
                 if (Utils.isNullOrEmpty(profile) || Utils.getObjectType(profile) != 'UserProfile')
+                    throw(UserStatus.PROFILE_NOT_PUBLISHED);
+                else if(profile.getStatus() == ProfileStatus.INCOMPLETE || profile.getStatus() == ProfileStatus.PENDING_APPROVAL)
                     throw(UserStatus.PROFILE_NOT_PUBLISHED);
                 else
                     throw(UserStatus.ACTIVE);

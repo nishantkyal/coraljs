@@ -4,7 +4,7 @@ $.validator.addMethod("greaterThanStartYear",
         return value > params;
     },'EndYear Must be greater then Start Year');
 
-$('.edit').click(function()
+$('.editUserEducation').click(function()
 {
     var selectedUserEducation;
     var userEducationId = $(this).data('id');
@@ -23,7 +23,7 @@ $('.edit').click(function()
     }
 });
 
-$('.delete').click(function()
+$('.deleteUserEducation').click(function()
 {
     var memberEducationId = $(this).data('id');
     $('#DeleteUserEducationModal .btn-primary').attr('data-id', memberEducationId);
@@ -114,7 +114,7 @@ $('#EditUserEducationModal form').validate({
     }
 });
 
-function handleDeleteClicked(event)
+function handleEducationDeleteClicked(event)
 {
     var educationId = $(event.currentTarget).attr('data-id');
     $.ajax({
