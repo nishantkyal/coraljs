@@ -72,10 +72,10 @@ block content
                             if userSkill
                                 each skill in userSkill
                                     normal #{skill.skill_name}&nbsp
-                            button.btn.btn-default.btn-xs#addSkillBtn(data-toggle='modal', href='#AddUserSkillModal') Add Skill
                             button.btn.btn-primary.btn-xs
                                 i.fa.fa-linkedin-square
                                 | &nbsp;Fetch from LinkedIn
+                            button.btn.btn-default.btn-xs#addSkillBtn(data-toggle='modal', href='#AddUserSkillModal') Add Skill
                     .panel.panel-success
                         .panel-heading
                             | Education
@@ -83,10 +83,10 @@ block content
                                 button.btn.btn-default.btn-xs
                                     span.fa.fa-pencil
                         .panel-body
-                            button.btn.btn-default.btn-xs#addEducationBtn(data-toggle='modal', href='#AddUserEducationModal') Add Education
                             button.btn.btn-primary.btn-xs
                                 i.fa.fa-linkedin-square
                                 | &nbsp;Fetch from LinkedIn
+                            button.btn.btn-default.btn-xs#addEducationBtn(data-toggle='modal', href='#AddUserEducationModal') Add Education
                         include memberEducation
                     .panel.panel-warning
                         .panel-heading
@@ -116,10 +116,10 @@ block content
                                                 small #{emp.summary}
                                 p Infollion Research
                         .panel-body.editor
-                            button.btn.btn-default.btn-xs#addEmploymentBtn(data-toggle='modal', href='#AddUserEmploymentModal') Add Position
                             button.btn.btn-primary.btn-xs
                                 i.fa.fa-linkedin-square
                                 | &nbsp;Fetch from LinkedIn
+                            button.btn.btn-default.btn-xs#addEmploymentBtn(data-toggle='modal', href='#AddUserEmploymentModal') Add Position
                         include memberEmployment
     #ChangePasswordModal.modal.fade(style='display: none;')
         .modal-dialog
@@ -143,32 +143,30 @@ block content
             .modal-content
                 .modal-header
                     .close(data-dismiss='modal', aria-hidden='true') x
-                    h4.modal-title Edit Profile
-                form
+                    h4.modal-title Fetch Profile Details from LinkedIn
+                form.form(method='POST', action=ApiUrlDelegate.userProfileFromLinkedIn(userProfile.id))
                     .modal-body
-                        .row
-                            .form-group.col-md-6
-                                p.confirm
-                                    label
-                                    input#basic(type="checkbox", name="fetchBasic")
-                                    | Fetch Basic Details
-                                    br
-                                    label
-                                        input#profilePicture(type="checkbox", name="fetchProfilePicture")
-                                        | Fetch Profile Picture
-                                    br
-                                    label
-                                        input#skill(type="checkbox", name="fetchSkill")
-                                        | Fetch Skill Details
-                                    br
-                                    label
-                                        input#education(type="checkbox", name="fetchEducation")
-                                        | Fetch Education Details
-                                    br
-                                    label
-                                        input#employment(type="checkbox", name="fetchEmployment")
-                                        | Fetch Employment Details
-                                div Please note the information on this page will be replaced with information from LinkedIn
+                        .checkbox
+                            label
+                                input(type="checkbox", name="fetchBasic")
+                                | Fetch Basic Details
+                        .checkbox
+                            label
+                                input(type="checkbox", name="fetchProfilePicture")
+                                | Fetch Profile Picture
+                        .checkbox
+                            label
+                                input(type="checkbox", name="fetchSkill")
+                                | Fetch Skill Details
+                        .checkbox
+                            label
+                                input(type="checkbox", name="fetchEducation")
+                                | Fetch Education Details
+                        .checkbox
+                            label
+                                input(type="checkbox", name="fetchEmployment")
+                                | Fetch Employment Details
+                        em Please note that information in your profile will be replaced with information from LinkedIn
                     .modal-footer
                         button.btn.btn-default(data-dismiss='modal') Close
                         input.btn.btn-primary(type='submit', value='OK')

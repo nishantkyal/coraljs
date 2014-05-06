@@ -1,6 +1,7 @@
 ///<reference path='../_references.d.ts'/>
 import BaseModel                                        = require('./BaseModel');
 import ProfileStatus                                    = require('../enums/ProfileStatus');
+
 class UserProfile extends BaseModel
 {
     static TABLE_NAME:string = 'user_profile';
