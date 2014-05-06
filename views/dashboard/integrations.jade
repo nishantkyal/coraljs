@@ -8,5 +8,5 @@ include header
             h4 Your Networks
             .list-group
                 each member in members
-                    a.list-group-item(href=member.role == 3 ? DashboardUrls.memberProfile(member.id) : DashboardUrls.integrationMembers(member.integration_id)) #{member.integration.title}
+                    a.list-group-item(href=member.role == 3 ? DashboardUrls.memberProfileEdit(member.id) : DashboardUrls.integrationMembers(member.integration_id)) #{member.integration.title}
         .col-md-2

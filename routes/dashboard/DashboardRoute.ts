@@ -505,7 +505,7 @@ class DashboardRoute
                         }
                         q.all(fetchTasks)
                             .then(
-                            function profileFetched(){ res.redirect(Urls.memberProfile(memberId)); },
+                            function profileFetched(){ res.redirect(Urls.memberProfileEdit(memberId)); },
                             function fetchError(error){ res.send(500); }
                         )
                     })

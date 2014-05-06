@@ -68,9 +68,6 @@ block content
                     .panel.panel-danger
                         .panel-heading
                             | Skills
-                            .pull-right
-                                button.btn.btn-default.btn-xs
-                                    span.fa.fa-pencil
                         .panel-body
                             if userSkill
                                 each skill in userSkill
@@ -87,21 +84,34 @@ block content
                     .panel.panel-success
                         .panel-heading
                             | Education
-                            .pull-right
-                                button.btn.btn-default.btn-xs
-                                    span.fa.fa-pencil
+                        ul.list-group
+                             li.list-group-item
+                                 if userEducation
+                                         each edu in userEducation
+                                             div
+                                                 string #{edu.school_name}
+                                                 .pull-right
+                                                     a.fa.fa-pencil-square.editUserEducation(data-id=edu.id, data-toggle='modal', href='#EditUserEducationModal')
+                                                     a.fa.fa-times-circle.deleteUserEducation(data-id=edu.id, data-toggle='modal', href='#DeleteUserEducationModal')
+                                             div
+                                                 if edu.degree
+                                                     small #{edu.degree}
+                                                     if edu.field_of_study
+                                                         small , #{edu.field_of_study}
+                                             div
+                                                 if edu.start_year
+                                                     small #{edu.start_year}&nbsp
+                                                 if edu.end_year
+                                                     small - #{edu.end_year}
                         .panel-body
                             button.btn.btn-default.btn-xs#addEducationBtn(data-toggle='modal', href='#AddUserEducationModal') Add Education
-                            button.btn.btn-primary.btn-xs
+                            a.btn.btn-default.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchEducationFromLinkedInModal')
                                 i.fa.fa-linkedin-square
                                 | &nbsp;Fetch from LinkedIn
                         include memberEducation
                     .panel.panel-warning
                         .panel-heading
                             | Work Experience
-                            .pull-right
-                                button.btn.btn-default.btn-xs
-                                    span.fa.fa-pencil
                         ul.list-group
                             li.list-group-item
                                 if userEmployment
@@ -122,10 +132,9 @@ block content
                                         div
                                             if emp.summary
                                                 small #{emp.summary}
-                                p Infollion Research
                         .panel-body.editor
                             button.btn.btn-default.btn-xs#addEmploymentBtn(data-toggle='modal', href='#AddUserEmploymentModal') Add Position
-                            button.btn.btn-primary.btn-xs
+                            a.btn.btn-default.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchEmploymentFromLinkedInModal')
                                 i.fa.fa-linkedin-square
                                 | &nbsp;Fetch from LinkedIn
                         include memberEmployment
@@ -152,7 +161,7 @@ block content
                 .modal-header
                     .close(data-dismiss='modal', aria-hidden='true') x
                     h4.modal-title Fetch Profile Details from LinkedIn
-                form.form(method='GET', action=ApiUrlDelegate.userProfileFromLinkedIn(userProfile.id))
+                form.form(method='GET', action=DashboardUrls.userProfileFromLinkedIn(userProfile.id))
                     .modal-body
                         .checkbox
                             label
