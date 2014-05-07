@@ -8,6 +8,7 @@ import BaseDaoDelegate                          = require('./BaseDaoDelegate');
 import UserEmploymentDelegate                   = require('../delegates/UserEmploymentDelegate');
 import UserEducationDelegate                    = require('../delegates/UserEducationDelegate');
 import UserSkillDelegate                        = require('../delegates/UserSkillDelegate');
+import UserUrlDelegate                          = require('../delegates/UserUrlDelegate');
 import SkillCodeDelegate                        = require('../delegates/SkillCodeDelegate');
 import UserOAuthDelegate                        = require('../delegates/UserOAuthDelegate');
 import ImageDelegate                            = require('../delegates/ImageDelegate');
@@ -18,6 +19,7 @@ import UserProfile                              = require('../models/UserProfile
 import UserSkill                                = require('../models/UserSkill');
 import UserEmployment                           = require('../models/UserEmployment');
 import UserEducation                            = require('../models/UserEducation');
+import UserUrl                                  = require('../models/UserUrl');
 import SkillCode                                = require('../models/SkillCode');
 import User                                     = require('../models/User');
 import UserOauth                                = require('../models/UserOauth');
@@ -26,6 +28,7 @@ import Config                                   = require('../common/Config');
 import Utils                                    = require('../common/Utils');
 import IndustryCodes                            = require('../enums/IndustryCode');
 import IncludeFlag                              = require('../enums/IncludeFlag');
+import ProfileStatus                            = require('../enums/ProfileStatus');
 
 class UserProfileDelegate extends BaseDaoDelegate
 {
@@ -61,7 +64,7 @@ class UserProfileDelegate extends BaseDaoDelegate
                     'HMAC-SHA1'
                 );
                 oauth.get(
-                        'https://api.linkedin.com/v1/people/~:(' + fields + ')?format=json ',
+                    'https://api.linkedin.com/v1/people/~:(' + fields + ')?format=json ',
                     userOauth.getAccessToken(),
                     userOauth.getRefreshToken(),
                     function (e, data, res)
@@ -221,9 +224,9 @@ class UserProfileDelegate extends BaseDaoDelegate
             return MysqlDelegate.executeInTransaction(self, arguments);
 
         return q.all([
-            self.fetchSelectedFieldsFromLinkedIn(userId, integrationId, UserProfileDelegate.BASICFIELDS, transaction),
-            new IntegrationMemberDelegate().find({'user_id': userId, 'integration_id': integrationId})
-        ])
+                self.fetchSelectedFieldsFromLinkedIn(userId, integrationId, UserProfileDelegate.BASICFIELDS, transaction),
+                new IntegrationMemberDelegate().find({'user_id': userId, 'integration_id': integrationId})
+            ])
             .then(function BasicDetailsFetched(...args)
             {
                 var profile = args[0][0];
@@ -288,11 +291,11 @@ class UserProfileDelegate extends BaseDaoDelegate
             .then(function EducationFetched(userEducation:UserEducation[])
             {
                 q.all([
-                    _.each(userEducation, function (edu)
-                    {
-                        return userEducationDelegate.delete({id: edu.getId(), profileId: profileId}, false, transaction)
-                    })
-                ])
+                        _.each(userEducation, function (edu)
+                        {
+                            return userEducationDelegate.delete({id: edu.getId(), profileId: profileId}, false, transaction)
+                        })
+                    ])
                     .then(function deleted()
                     {
                         self.fetchEducationDetailsFromLinkedIn(userId, integrationId, profileId, transaction);
@@ -304,7 +307,7 @@ class UserProfileDelegate extends BaseDaoDelegate
     {
         var self = this;
         var userEmploymentDelegate = new UserEmploymentDelegate();
-        
+
         if (Utils.isNullOrEmpty(transaction))
             return MysqlDelegate.executeInTransaction(self, arguments);
 
@@ -312,11 +315,11 @@ class UserProfileDelegate extends BaseDaoDelegate
             .then(function EmploymentFetched(userEmployment:UserEmployment[])
             {
                 q.all([
-                    _.each(userEmployment, function (emp)
-                    {
-                        return userEmploymentDelegate.delete({id: emp.getId(), profileId: profileId}, false, transaction)
-                    })
-                ])
+                        _.each(userEmployment, function (emp)
+                        {
+                            return userEmploymentDelegate.delete({id: emp.getId(), profileId: profileId}, false, transaction)
+                        })
+                    ])
                     .then(function deleted()
                     {
                         return self.fetchEmploymentDetailsFromLinkedIn(userId, integrationId, profileId, transaction);
@@ -330,22 +333,82 @@ class UserProfileDelegate extends BaseDaoDelegate
 
         if (Utils.isNullOrEmpty(transaction))
             return MysqlDelegate.executeInTransaction(self, arguments);
-        
+
         var userSkillDelegate = new UserSkillDelegate();
         return userSkillDelegate.search({'profileId': profileId})
             .then(function SkillFetched(userSkill:UserSkill[])
             {
                 q.all([
-                    _.each(userSkill, function (skill)
-                    {
-                        return userSkillDelegate.delete({id: skill.getId(), profileId: profileId}, false, transaction)
-                    })
-                ])
+                        _.each(userSkill, function (skill)
+                        {
+                            return userSkillDelegate.delete({id: skill.getId(), profileId: profileId}, false, transaction)
+                        })
+                    ])
                     .then(function deleted()
                     {
                         return self.fetchSkillDetailsFromLinkedIn(userId, integrationId, profileId, transaction);
                     })
             })
     }
+
+    publishProfile(profileId:number, userId:number, transaction?:any):q.Promise<any>
+    {
+        var self = this;
+
+        if (Utils.isNullOrEmpty(transaction))
+            return MysqlDelegate.executeInTransaction(self, arguments);
+
+        var userProfile:UserProfile = new UserProfile();
+        userProfile.setStatus(ProfileStatus.APPROVED);
+
+        return self.update({id: profileId}, userProfile, transaction)
+            .then(
+            function userUpdated()
+            {
+                var UserDelegate = require('../delegates/UserDelegate');
+                return new UserDelegate().recalculateStatus(userId, transaction)
+            }
+        )
+    }
+
+    copyProfile(profileId:number, newProfileId:number, transaction?:any):q.Promise<any>
+    {
+        var self = this;
+
+        if (Utils.isNullOrEmpty(transaction))
+            return MysqlDelegate.executeInTransaction(self, arguments);
+
+        return q.all([
+            new UserProfileDelegate().get(profileId),
+            new UserSkillDelegate().getSkillWithName(profileId),
+            new UserEducationDelegate().search({'profileId': profileId}),
+            new UserEmploymentDelegate().search({'profileId': profileId}),
+            new UserUrlDelegate().search({'profileId': profileId})
+        ])
+            .then( function detailsFetched(...args){
+                var userProfile = args[0][0];
+                var userSkills = args[0][1] || [];
+                var userEducations = args[0][2] || [];
+                var userEmployments = args[0][3] || [];
+                var userUrls = args[0][4] || [];
+                var createTasks = [];
+                createTasks.push(new UserProfileDelegate().update({id:newProfileId}, userProfile,transaction));
+                createTasks.push(_.each(userSkills,  function (skill:UserSkill){
+                    return new UserSkillDelegate().createUserSkillWithMap(skill, newProfileId,transaction);
+                }));
+                createTasks.push(_.each(userEducations,  function (edu:UserEducation){
+                    return new UserEducationDelegate().createUserEducation(edu,newProfileId,transaction);
+                }));
+                createTasks.push(_.each(userEmployments, function (emp:UserEmployment){
+                    return new UserEmploymentDelegate().createUserEmployment(emp, newProfileId, transaction);
+                }));
+                createTasks.push(_.each(userUrls, function(url:UserUrl){
+                    return new UserUrlDelegate().createUserUrl(url, newProfileId, transaction);
+                }));
+                return q.all(createTasks);
+            })
+
+    }
+
 }
 export = UserProfileDelegate

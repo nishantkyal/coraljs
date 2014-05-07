@@ -12,7 +12,7 @@ import Utils                                        = require('../common/Utils')
 
 class AbstractMappingDao extends AbstractDao
 {
-    search(searchQuery:Object, options?:Object, fields?:string[]):q.Promise<any>
+    search(searchQuery:Object, options?:Object, fields?:string[], transaction?:any):q.Promise<any>
     {
         var self = this;
 
@@ -31,7 +31,7 @@ class AbstractMappingDao extends AbstractDao
         var queryString = 'SELECT ' + selectColumns + ' FROM `' + this.tableName + '` INNER JOIN `' + mappingTableName
             + '` ON '+ joinOn + ' WHERE ' + wheres.join(' AND ') + ' AND (deleted IS NULL OR deleted = 0)';
 
-        return MysqlDelegate.executeQuery(queryString, values)
+        return MysqlDelegate.executeQuery(queryString, values, transaction)
             .then(
             function handleSearchResults(results:any[]):any
             {
