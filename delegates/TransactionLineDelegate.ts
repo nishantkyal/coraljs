@@ -35,6 +35,7 @@ class TransactionLineDelegate extends BaseDaoDelegate
         var phoneCallTransactionLine = new TransactionLine();
         phoneCallTransactionLine.setAmount(callPrice);
         phoneCallTransactionLine.setAmountUnit(call.getPriceCurrency());
+        phoneCallTransactionLine.setItemId(call.getId());
         phoneCallTransactionLine.setItemType(ItemType.PHONE_CALL);
         phoneCallTransactionLine.setTransactionType(TransactionType.PRODUCT);
         phoneCallTransactionLine.setTransactionId(transactionId);

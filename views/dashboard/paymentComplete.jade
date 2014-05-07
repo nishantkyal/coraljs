@@ -1,0 +1,59 @@
+include ../callFlow/header
+// /.masthead
+.matter
+    .container
+        .row
+            .flowbar.col-xs-3.col-sm-3.col-md-12.col-lg-12
+                ul.nav.nav-pills.nav-justified.nav-stacked
+                    li.completed
+                        a(href='')
+                            i.icon-schedule
+                            span.hidden-xs Schedule
+                    li.completed
+                        a(href='')
+                            i.icon-pay
+                            span.hidden-xs Pay
+                    li.active
+                        a(href='')
+                            i.icon-talk
+                            span.hidden-xs Talk
+            // flowbar
+            .content.col-xs-9.col-sm-9.col-md-12.col-lg-12
+                .row.uneditables
+                    .col-md-6
+                        .row.user-profile
+                            .status-icon.status-ok
+                                i.icon-searchntalk
+                            .info
+                                .user-displayname Leonard Sheldon
+                                .status-message accepting calls till 11.00am
+                            .clearer
+                    .col-md-3
+                        .row
+                            .user-schedule-summary
+                                .current-status.status-ok Currently available
+                                .scheduled-slot
+                                    span.annotation Call scheduled for 15 mins:
+                                    | 13 Apr 2014 at
+                                    span.live-clock 10:30
+                                .scheduled-slot
+                                    span.annotation Total Cost:
+                                    | $16.50
+                            .user-call-summary
+                                .agenda
+                                    span.annotation Agenda:
+                                    | To discuss the impact of the new government on social policy issues.
+                    .col-md-3
+                        .row.step-reversal
+                            a.btn.btn-danger(href='index.html')
+                                | Cancel Call
+                                i.icon-cancel
+                .row.messaging
+                    .alert.alert-success
+                        strong Payment Success!
+                        | Your call has been scheduled as per your request. A link to your call page has also been sent to your email address / cellphone via SMS.
+                        br
+                        br
+                        | You may use this page to manage this call.
+            // /.content
+include ../callFlow/footer

@@ -164,7 +164,7 @@ class EmailDelegate
         }
         catch (err)
         {
-            EmailDelegate.logger.error("Couldn't generate email body for (template %s, data: %s), Error: %s", template, emailData, err);
+            EmailDelegate.logger.error("Couldn't generate email body for (template %s, data: %s), Error: %s", template, JSON.stringify(emailData), JSON.stringify(err));
             throw(err);
         }
     }
