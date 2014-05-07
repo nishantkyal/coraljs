@@ -32,7 +32,7 @@ class UserDelegate extends BaseDaoDelegate
 
     create(object:any, transaction?:any):q.Promise<any>
     {
-        if (object.hasOwnProperty(User.PASSWORD))
+        if (!Utils.isNullOrEmpty(object) && object.hasOwnProperty(User.PASSWORD))
             object[User.PASSWORD] = this.computePasswordHash(object[User.EMAIL], object[User.PASSWORD]);
 
         return super.create(object, transaction);

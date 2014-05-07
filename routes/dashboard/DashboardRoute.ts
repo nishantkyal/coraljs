@@ -97,9 +97,11 @@ class DashboardRoute
         app.get(Urls.paymentCallback(), this.paymentComplete.bind(this));
         app.get(Urls.emailAccountVerification(), this.emailAccountVerification.bind(this));
 
-        app.get(Urls.userProfileFromLinkedIn(), this.putLinkedInFieldsInSession.bind(this), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_FETCH, {failureRedirect: '/',
+        // Fetch profile details from linkedin
+        app.get(Urls.userProfileFromLinkedIn(), this.putLinkedInFieldsInSession.bind(this), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_FETCH, {failureRedirect: Urls.index(),
             failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
-        app.get(Urls.userProfileFromLinkedInCallback(), this.linkedInCallBack.bind(this));
+        app.get(Urls.userProfileFromLinkedInCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_FETCH, {failureRedirect: Urls.index(),
+            failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}), this.linkedInCallBack.bind(this));
 
         // Auth
         app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
@@ -107,6 +109,9 @@ class DashboardRoute
         app.post(Urls.changePassword(), Middleware.allowOnlyMe, this.changePassword.bind(this));
         app.post(Urls.changeProfileStatus(), Middleware.allowOnlyMe, this.changeProfileStatus.bind(this));
         app.post(Urls.publishProfile(), Middleware.allowOwnerOrAdmin, this.publishProfile.bind(this));
+
+        app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
+        app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
     }
 
     private login(req, res:express.Response)
@@ -363,7 +368,7 @@ class DashboardRoute
                     'profileId': profileId,
                     'member': member,
                     'user': user,
-                    'userSkill': userSkill,
+                    'userSkill': _.sortBy(userSkill, function(skill) { return skill['skill_name'].length; }),
                     'userProfile': userProfile,
                     'userEducation': userEducation,
                     'userEmployment': userEmployment,

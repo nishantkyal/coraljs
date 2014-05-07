@@ -56,6 +56,7 @@ class CallFlowRoute
     {
         // Actual rendered pages
         app.get(Urls.callExpert(), this.index.bind(this));
+        app.get(Urls.callPayment(), Middleware.requireCallerAndCallDetails, this.callPaymentPage.bind(this));
         app.post(Urls.callPayment(), Middleware.requireCallerAndCallDetails, this.callPayment.bind(this));
         app.post(Urls.applyCoupon(), Middleware.requireCallerAndCallDetails, this.applyCoupon.bind(this))
         app.post(Urls.checkout(), connect_ensure_login.ensureLoggedIn(), Middleware.requireCallerAndCallDetails, this.checkout.bind(this));
@@ -84,8 +85,15 @@ class CallFlowRoute
         );
     }
 
-    /* Validate request from caller and start a new transaction */
+    /* Redirect to convert post to get
+    * Note: We're doing a POST so that user selected params don't appear in url*/
     private callPayment(req, res:express.Response)
+    {
+        res.redirect(Urls.callPayment());
+    }
+
+    /* Validate request from caller and start a new transaction */
+    private callPaymentPage(req, res:express.Response)
     {
         var sessionData = new SessionData(req);
         var self = this;

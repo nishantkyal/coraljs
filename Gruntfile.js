@@ -20,7 +20,7 @@ function init(grunt) {
             },
             css: {
                 src: [
-                    'public/css/!(combined).css*'
+                    'public/css/!(combined|main).css*'
                 ],
                 dest: 'public/css/combined.css'
             },
@@ -86,7 +86,7 @@ function init(grunt) {
     });
 
     grunt.registerTask('coral', ['clean', 'concat', 'replace', 'generate-index']);
-    grunt.registerTask('default', ['concat:js']);
+    grunt.registerTask('default', ['concat:js', 'concat:css', 'cssmin:css']);
 }
 
 module.exports = init;

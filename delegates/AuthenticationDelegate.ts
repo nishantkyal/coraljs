@@ -27,7 +27,7 @@ import ApiConstants                             = require('../enums/ApiConstants
 import IndustryCodes                            = require('../enums/IndustryCode');
 import UserStatus                               = require('../enums/UserStatus');
 import ExpertRegistrationUrls                   = require('../routes/expertRegistration/Urls')
-import DashBoardUrls                            = require('../routes/dashboard/Urls')
+import DashboardUrls                            = require('../routes/dashboard/Urls')
 
 class AuthenticationDelegate
 {
@@ -53,9 +53,9 @@ class AuthenticationDelegate
         AuthenticationDelegate.configureFacebookStrategy(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, url.resolve(Config.get(Config.DASHBOARD_URI), '/call/login/fb/callback'));
 
         /* Linkedin login */
-        AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN, url.resolve(Config.get(Config.DASHBOARD_URI), '/login/linkedin/callback'));
+        AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN, url.resolve(Config.get(Config.DASHBOARD_URI), DashboardUrls.linkedInLoginCallback()));
         AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, url.resolve(Config.get(Config.DASHBOARD_URI), ExpertRegistrationUrls.linkedInLoginCallback()));
-        AuthenticationDelegate.configureLinkedInStrategyForFetching(AuthenticationDelegate.STRATEGY_LINKEDIN_FETCH, url.resolve(Config.get(Config.DASHBOARD_URI), DashBoardUrls.userProfileFromLinkedInCallback()));
+        AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN_FETCH, url.resolve(Config.get(Config.DASHBOARD_URI), DashboardUrls.userProfileFromLinkedInCallback()));
 
         // Serialize-Deserialize user
         passport.serializeUser(function (user, done) { done(null, user); });
@@ -197,26 +197,15 @@ class AuthenticationDelegate
             {
                 profile = profile['_json'];
 
-                var user:User = new User();
-                user.setFirstName(profile.firstName);
-                user.setLastName(profile.lastName);
-                if (!Utils.isNullOrEmpty(profile.dateOfBirth))
-                {
-                    var dob:string = profile.dateOfBirth.day + '-' + profile.dateOfBirth.month + '-' + profile.dateOfBirth.year;
-                    user.setDateOfBirth(dob);
-                }
-                if (!Utils.isNullOrEmpty(profile.industry))
-                {
-                    var industry:string = profile.industry.toString().replace(/-|\/|\s/g, '_').toUpperCase();
-                    user.setIndustry(IndustryCodes[industry]);
-                }
-
                 var userOauth = new UserOauth();
                 userOauth.setOauthUserId(profile.id);
                 userOauth.setProviderId('LinkedIn');
                 userOauth.setAccessToken(accessToken);
                 userOauth.setRefreshToken(refreshToken);
                 userOauth.setEmail(profile.emailAddress);
+
+                var user = new User();
+                user.setEmail(profile.emailAddress);
 
                 return new UserOAuthDelegate().addOrUpdateToken(userOauth, user)
                     .then(
@@ -227,9 +216,7 @@ class AuthenticationDelegate
                     .then(
                     function userFetched(createdUser:User):any
                     {
-                        user.setId(createdUser.getId());
-
-                        if (createdUser.isValid())
+                        if (!Utils.isNullOrEmpty(createdUser) && createdUser.isValid())
                             done(null, createdUser)
                         else
                             done('Login failed');
@@ -240,38 +227,7 @@ class AuthenticationDelegate
                     {
                         AuthenticationDelegate.logger.error('An error occurred while logging in using linkedin. Error: %s', error);
                         done(error);
-                    })
-                    .finally(
-                    function userStatusUpdated()
-                    {
-                        return MysqlDelegate.commit(new UserDelegate().recalculateStatus(user.getId()));
                     });
-            }
-        ));
-    }
-
-    private static configureLinkedInStrategyForFetching(strategyId:string, callbackUrl:string)
-    {
-        passport.use(strategyId, new passport_linkedin.Strategy({
-                consumerKey: Config.get(Config.LINKEDIN_API_KEY),
-                consumerSecret: Config.get(Config.LINKEDIN_API_SECRET),
-                callbackURL: callbackUrl,
-                profileFields: UserProfileDelegate.BASICFIELDS
-            },
-            function (accessToken, refreshToken, profile:any, done)
-            {
-                profile = profile['_json'];
-
-                var userOauth = new UserOauth();
-                userOauth.setOauthUserId(profile.id);
-                userOauth.setProviderId('LinkedIn');
-                userOauth.setAccessToken(accessToken);
-                userOauth.setRefreshToken(refreshToken);
-                userOauth.setEmail(profile.emailAddress);
-
-                return new UserOAuthDelegate().addOrUpdateToken(userOauth)
-                    .then(function OAuthCreated() { done();},
-                    function OAuthCreateError(error) { done('Error');})
             }
         ));
     }
