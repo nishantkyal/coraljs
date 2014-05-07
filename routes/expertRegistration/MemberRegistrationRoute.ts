@@ -256,7 +256,7 @@ class MemberRegistrationRoute
         var self = this;
 
         q.all([
-            self.verificationCodeCache.deleteInvitationCode(req.session[ApiConstants.CODE], req.session[ApiConstants.INTEGRATION_ID]),
+            self.verificationCodeCache.deleteInvitationCode(sessionData.getInvitationCode(), sessionData.getIntegrationId()),
             self.integrationMemberDelegate.find({'user_id': userId, 'integration_id': integrationId}, null, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
         ])
             .then(
