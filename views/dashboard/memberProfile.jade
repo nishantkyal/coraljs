@@ -87,22 +87,22 @@ block content
                         ul.list-group
                              li.list-group-item
                                  if userEducation
-                                         each edu in userEducation
-                                             div
-                                                 string #{edu.school_name}
-                                                 .pull-right
-                                                     a.fa.fa-pencil-square.editUserEducation(data-id=edu.id, data-toggle='modal', href='#EditUserEducationModal')
-                                                     a.fa.fa-times-circle.deleteUserEducation(data-id=edu.id, data-toggle='modal', href='#DeleteUserEducationModal')
-                                             div
-                                                 if edu.degree
-                                                     small #{edu.degree}
-                                                     if edu.field_of_study
-                                                         small , #{edu.field_of_study}
-                                             div
-                                                 if edu.start_year
-                                                     small #{edu.start_year}&nbsp
-                                                 if edu.end_year
-                                                     small - #{edu.end_year}
+                                     each edu in userEducation
+                                         div
+                                             strong #{edu.school_name}
+                                             .pull-right
+                                                 a.fa.fa-pencil-square.editUserEducation(data-id=edu.id, data-toggle='modal', href='#EditUserEducationModal')
+                                                 a.fa.fa-times-circle.deleteUserEducation(data-id=edu.id, data-toggle='modal', href='#DeleteUserEducationModal')
+                                         div
+                                             if edu.degree
+                                                 small #{edu.degree}
+                                                 if edu.field_of_study
+                                                     small , #{edu.field_of_study}
+                                         div
+                                             if edu.start_year
+                                                 small #{edu.start_year}&nbsp
+                                             if edu.end_year
+                                                 small - #{edu.end_year}
                         .panel-body
                             a.btn.btn-primary.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchEducationFromLinkedInModal')
                                 i.fa.fa-linkedin-square

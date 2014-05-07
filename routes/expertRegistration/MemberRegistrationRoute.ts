@@ -197,7 +197,7 @@ class MemberRegistrationRoute
         var mobileVerificationUrl = Utils.addQueryToUrl(DashboardUrls.mobileVerification(), Utils.createSimpleObject(ApiConstants.CONTEXT, 'expertRegistration'));
         var redirectUrl = '';
 
-        switch(parseInt(member.getRole().toString()))
+        switch (parseInt(member.getRole().toString()))
         {
             case IntegrationMemberRole.Expert:
                 redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? mobileVerificationUrl : integration.getRedirectUrl();
@@ -217,40 +217,35 @@ class MemberRegistrationRoute
             self.integrationMemberDelegate.update({'user_id': userId, 'integration_id': integrationId}, {role: member.getRole()}),
             self.integrationMemberDelegate.find({'user_id': userId, 'integration_id': integrationId})
         ])
-        .then( function profileCreated(...args){
-            var userProfile:UserProfile = args[0][1];
-            var integrationMember:IntegrationMember = args[0][3];
-            integrationMemberId = integrationMember.getId();
-            user = args[0][0];
-            profileId = userProfile.getId();
-            return self.userProfileDelegate.fetchAllDetailsFromLinkedIn(userId, integrationId, profileId);
-        })
-        .then(
-            function profileUpdated(){
-                var userProfile:UserProfile = new UserProfile();
-                userProfile.setStatus(ProfileStatus.INCOMPLETE);
-                userProfile.setIntegrationMemberId(integrationMemberId);
-                return self.userProfileDelegate.update({id: profileId}, userProfile)
-            },
-            function profileUpdateError(error)
+            .then(
+            function profileCreated(...args)
+            {
+                var userProfile:UserProfile = args[0][1];
+                var integrationMember:IntegrationMember = args[0][3];
+                integrationMemberId = integrationMember.getId();
+                user = args[0][0];
+                profileId = userProfile.getId();
+                return self.userProfileDelegate.fetchAllDetailsFromLinkedIn(userId, integrationId, profileId);
+            })
+            .finally(
+            function profileUpdated()
             {
                 var userProfile:UserProfile = new UserProfile();
                 userProfile.setStatus(ProfileStatus.INCOMPLETE);
                 userProfile.setIntegrationMemberId(integrationMemberId);
-                return self.userProfileDelegate.update({id:profileId},userProfile)
-        })
-        .then( function setDefaultProfile(){
-            if(Utils.isNullOrEmpty(user.getDefaultProfileId()))
+                return self.userProfileDelegate.update({id: profileId}, userProfile);
+            })
+            .then(
+            function setDefaultProfile()
             {
                 user.setDefaultProfileId(profileId);
-                self.userDelegate.update({id:userId},user);
-            }
-        })
-        .finally(
-            function memberRoleCorrected() { res.redirect(redirectUrl);
-        })
-                // 1. Update role and redirect
-                // 2. Schedule the mobile verification reminder notification
+                return self.userDelegate.update({id: userId}, user);
+            })
+            .finally(
+            function memberRoleCorrected()
+            {
+                res.redirect(redirectUrl);
+            });
     }
 
     private expertComplete(req:express.Request, res:express.Response)

@@ -23,7 +23,7 @@ class UserOAuthDelegate extends BaseDaoDelegate
     /* Add or update an OAuth token
      * Created new user if can't update
      */
-    addOrUpdateToken(userOAuth:UserOAuth, user?:User, transaction?:any):q.Promise<any>
+    addOrUpdateToken(userOAuth:UserOAuth, user:User, transaction?:any):q.Promise<any>
     {
         var self = this;
         var args = arguments;

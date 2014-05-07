@@ -4,6 +4,8 @@ class Urls
 {
     static index() { return ApiUrlDelegate.get('/'); }
     static login() { return ApiUrlDelegate.get('/login'); }
+    static linkedInLogin() { return ApiUrlDelegate.get('/login/linkedin'); }
+    static linkedInLoginCallback() { return ApiUrlDelegate.get('/login/linkedin/callback'); }
     static forgotPassword() { return ApiUrlDelegate.get('/forgotPassword'); }
     static changePassword(memberId?:number) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/changePassword', {memberId: memberId}); }
     static changeProfileStatus(memberId?:number) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/changeProfileStatus', {memberId: memberId}); }
