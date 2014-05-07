@@ -96,7 +96,7 @@ class UserProfileDelegate extends BaseDaoDelegate
             {
                 if (!Utils.isNullOrEmpty(profile.educations) && profile.educations._total > 0)
                 {
-                    return _.map(profile.educations.values, function (education:any)
+                    return q.all(_.map(profile.educations.values, function (education:any)
                     {
                         var tempUserEducation:UserEducation = new UserEducation();
                         tempUserEducation.setSchoolName(education.schoolName);
@@ -108,7 +108,7 @@ class UserProfileDelegate extends BaseDaoDelegate
                         tempUserEducation.setEndYear(education.endDate ? education.endDate.year : null);
 
                         return new UserEducationDelegate().createUserEducation(tempUserEducation, profileId, transaction);
-                    });
+                    }));
                 }
             })
             .fail(function EducationDetailsFetchedError(error)
@@ -130,7 +130,7 @@ class UserProfileDelegate extends BaseDaoDelegate
             {
                 if (!Utils.isNullOrEmpty(profile.positions) && profile.positions._total > 0)
                 {
-                    return _.map(profile.positions.values, function (position:any)
+                    return q.all(_.map(profile.positions.values, function (position:any)
                     {
                         var tempUserEmployment:UserEmployment = new UserEmployment();
                         tempUserEmployment.setIsCurrent(position.isCurrent);
@@ -145,7 +145,7 @@ class UserProfileDelegate extends BaseDaoDelegate
                             tempUserEmployment.setEndDate((position.endDate.month || 12) + '-' + (position.endDate.year || null));
 
                         return new UserEmploymentDelegate().createUserEmployment(tempUserEmployment, profileId, transaction);
-                    });
+                    }));
                 }
             })
             .fail(function EmploymentDetailsFetchedError(error)
@@ -197,7 +197,7 @@ class UserProfileDelegate extends BaseDaoDelegate
             function SkillDetailsFetched(profile)
             {
                 if (!Utils.isNullOrEmpty(profile.skills) && profile.skills._total > 0)
-                    return _.map(profile.skills.values, function (skillObject:any)
+                    var tasks = _.map(profile.skills.values, function (skillObject:any)
                     {
                         return new SkillCodeDelegate().createSkillCodeFromLinkedIn(skillObject.skill.name, transaction)
                             .then(
@@ -208,6 +208,7 @@ class UserProfileDelegate extends BaseDaoDelegate
                                 return new UserSkillDelegate().createUserSkillWithMap(userSkill, profileId, transaction);
                             })
                     });
+                    return q.all(tasks);
             })
             .fail(function SkillDetailsFetchedError(error)
             {
@@ -290,7 +291,7 @@ class UserProfileDelegate extends BaseDaoDelegate
         return userEducationDelegate.search({'profileId': profileId})
             .then(function EducationFetched(userEducation:UserEducation[])
             {
-                q.all([
+                return q.all([
                         _.each(userEducation, function (edu)
                         {
                             return userEducationDelegate.delete({id: edu.getId(), profileId: profileId}, false, transaction)
@@ -298,7 +299,7 @@ class UserProfileDelegate extends BaseDaoDelegate
                     ])
                     .then(function deleted()
                     {
-                        self.fetchEducationDetailsFromLinkedIn(userId, integrationId, profileId, transaction);
+                        return self.fetchEducationDetailsFromLinkedIn(userId, integrationId, profileId, transaction);
                     })
             })
     }
@@ -314,7 +315,7 @@ class UserProfileDelegate extends BaseDaoDelegate
         return userEmploymentDelegate.search({'profileId': profileId})
             .then(function EmploymentFetched(userEmployment:UserEmployment[])
             {
-                q.all([
+                return q.all([
                         _.each(userEmployment, function (emp)
                         {
                             return userEmploymentDelegate.delete({id: emp.getId(), profileId: profileId}, false, transaction)
@@ -338,7 +339,7 @@ class UserProfileDelegate extends BaseDaoDelegate
         return userSkillDelegate.search({'profileId': profileId})
             .then(function SkillFetched(userSkill:UserSkill[])
             {
-                q.all([
+                return q.all([
                         _.each(userSkill, function (skill)
                         {
                             return userSkillDelegate.delete({id: skill.getId(), profileId: profileId}, false, transaction)

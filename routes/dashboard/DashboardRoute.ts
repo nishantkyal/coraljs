@@ -564,33 +564,33 @@ class DashboardRoute
             function profileFetched(userProfile:UserProfile)
             {
                 return self.integrationMemberDelegate.get(userProfile.getIntegrationMemberId())
-                    .then(
-                    function (integrationMember:IntegrationMember)
-                    {
-                        var fetchTasks = [];
-                        var integration_id:number = integrationMember.getIntegrationId();
-                        var userId:number = integrationMember.getUserId();
-
-                        if (fetchFields[ApiConstants.FETCH_PROFILE_PICTURE])
-                            fetchTasks.push(self.userProfileDelegate.fetchProfilePictureFromLinkedIn(userId, integration_id, profileId));
-
-                        if (fetchFields[ApiConstants.FETCH_BASIC])
-                            fetchTasks.push(self.userProfileDelegate.fetchBasicDetailsFromLinkedIn(userId, integration_id, profileId));
-
-                        if (fetchFields[ApiConstants.FETCH_EDUCATION])
-                            fetchTasks.push(self.userProfileDelegate.fetchAndReplaceEducation(userId, integration_id, profileId));
-
-                        if (fetchFields[ApiConstants.FETCH_EMPLOYMENT])
-                            fetchTasks.push(self.userProfileDelegate.fetchAndReplaceEmployment(userId, integration_id, profileId));
-
-                        if (fetchFields[ApiConstants.FETCH_SKILL])
-                            fetchTasks.push(self.userProfileDelegate.fetchAndReplaceSkill(userId, integration_id, profileId));
-
-                        return q.all(fetchTasks);
-                    })
             })
             .then(
-            function profileFetched() { res.redirect(Urls.memberProfile(memberId)); },
+            function (integrationMember:IntegrationMember)
+            {
+                var fetchTasks = [];
+                var integration_id:number = integrationMember.getIntegrationId();
+                var userId:number = integrationMember.getUserId();
+
+                if (fetchFields[ApiConstants.FETCH_PROFILE_PICTURE])
+                    fetchTasks.push(self.userProfileDelegate.fetchProfilePictureFromLinkedIn(userId, integration_id, profileId));
+
+                if (fetchFields[ApiConstants.FETCH_BASIC])
+                    fetchTasks.push(self.userProfileDelegate.fetchBasicDetailsFromLinkedIn(userId, integration_id, profileId));
+
+                if (fetchFields[ApiConstants.FETCH_EDUCATION])
+                    fetchTasks.push(self.userProfileDelegate.fetchAndReplaceEducation(userId, integration_id, profileId));
+
+                if (fetchFields[ApiConstants.FETCH_EMPLOYMENT])
+                    fetchTasks.push(self.userProfileDelegate.fetchAndReplaceEmployment(userId, integration_id, profileId));
+
+                if (fetchFields[ApiConstants.FETCH_SKILL])
+                    fetchTasks.push(self.userProfileDelegate.fetchAndReplaceSkill(userId, integration_id, profileId));
+
+                return q.all(fetchTasks);
+            })
+            .then(
+            function profileFetched(...args) { res.redirect(Urls.memberProfile(memberId)); },
             function fetchError(error) { res.send(500); }
         );
     }
