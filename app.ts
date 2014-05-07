@@ -104,14 +104,6 @@ app.use(passport.session({}));
 app.use(connect_flash());
 
 /* Error Pages */
-app.use(function(err, req, res, next){
-    // we may use properties of the error object
-    // here and next(err) appropriately, or if
-    // we possibly recovered from the error, simply next().
-    res.status(err.status || 500);
-    res.render('500', { error: err });
-});
-
 app.use(function(req, res, next){
     res.status(404);
 
@@ -129,6 +121,14 @@ app.use(function(req, res, next){
 
     // default to plain-text. send()
     res.type('txt').send('Not found');
+});
+
+app.use(function(err, req, res, next){
+    // we may use properties of the error object
+    // here and next(err) appropriately, or if
+    // we possibly recovered from the error, simply next().
+    res.status(err.status || 500);
+    res.render('500', { error: err });
 });
 
 // APIs and Route endpoints
