@@ -191,9 +191,10 @@ class AuthenticationDelegate
                 consumerKey: Config.get(Config.LINKEDIN_API_KEY),
                 consumerSecret: Config.get(Config.LINKEDIN_API_SECRET),
                 callbackURL: callbackUrl,
-                profileFields: UserProfileDelegate.BASICFIELDS
+                profileFields: UserProfileDelegate.BASICFIELDS,
+                passReqToCallback: true
             },
-            function (accessToken, refreshToken, profile:any, done)
+            function (req, accessToken, refreshToken, profile:any, done)
             {
                 profile = profile['_json'];
 
@@ -203,6 +204,11 @@ class AuthenticationDelegate
                 userOauth.setAccessToken(accessToken);
                 userOauth.setRefreshToken(refreshToken);
                 userOauth.setEmail(profile.emailAddress);
+
+                if(req.user)
+                {
+                    userOauth.setUserId(req.user.id);
+                }
 
                 var user = new User();
                 user.setEmail(profile.emailAddress);
