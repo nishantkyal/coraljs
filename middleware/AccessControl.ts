@@ -49,12 +49,12 @@ class AccessControl
                 if (!Utils.isNullOrEmpty(integrationMember))
                     next();
                 else
-                    res.status(401).json('Unauthorized');
+                    res.send(401);
             },
             function roleFetchError(error)
             {
                 AccessControl.logger.error('Error fetching role for accessToken: ' + accessToken + ', ' + error);
-                res.status(500).json("Couldn't authenticate request");
+                res.send(500);
             }
         )
     }
@@ -70,12 +70,12 @@ class AccessControl
                 if (!Utils.isNullOrEmpty(integrationMember))
                     next();
                 else
-                    res.status(401).json('Unauthorized');
+                    res.send(401);
             },
             function roleFetchError(error)
             {
                 AccessControl.logger.error('Error fetching role for accessToken: ' + accessToken + ', ' + error);
-                res.status(500).json("Couldn't authenticate request");
+                res.send(500);
             }
         )
     }
@@ -91,12 +91,12 @@ class AccessControl
                 if (!Utils.isNullOrEmpty(integrationMember))
                     next();
                 else
-                    res.status(401).json('Unauthorized');
+                    res.send(401);
             },
             function roleFetchError(error)
             {
                 AccessControl.logger.error('Error fetching role for accessToken: ' + accessToken + ', ' + error);
-                res.status(500).json("Couldn't authenticate request");
+                res.send(500);
             }
         )
     }
