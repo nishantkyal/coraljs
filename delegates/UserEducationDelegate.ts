@@ -25,12 +25,13 @@ class UserEducationDelegate extends BaseDaoDelegate
             return MysqlDelegate.executeInTransaction(self, arguments);
 
         return self.create(userEducation,transaction)
-            .then(function userEducationCreated(edu){
+            .then(
+            function userEducationCreated(edu){
                 var mapProfileEducation:MapProfileEducation = new MapProfileEducation();
                 mapProfileEducation.setEducationId(edu.id);
                 mapProfileEducation.setProfileId(profileId);
                 return mapProfileEducationDao.create(mapProfileEducation,transaction);
-            })
+            });
     }
 
     getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>

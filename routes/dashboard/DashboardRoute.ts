@@ -364,7 +364,7 @@ class DashboardRoute
                     'profileId': profileId,
                     'member': member,
                     'user': user,
-                    'userSkill': userSkill,
+                    'userSkill': _.sortBy(userSkill, function(skill) { return skill['skill_name'].length; }),
                     'userProfile': userProfile,
                     'userEducation': userEducation,
                     'userEmployment': userEmployment,

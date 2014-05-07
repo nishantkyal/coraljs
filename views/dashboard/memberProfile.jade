@@ -70,12 +70,9 @@ block content
                             | Skills
                         .panel-body
                             if userSkill
+                                ul#tag-cloud
                                 each skill in userSkill
-                                    div
-                                    normal #{skill.skill_name}&nbsp
-                                    .pull-right
-                                        a.fa.fa-pencil-square.editUserSkill(data-id=skill.id, data-toggle='modal', href='#EditUserSkillModal')
-                                        a.fa.fa-times-circle.deleteUserSkill(data-id=skill.id, data-toggle='modal', href='#DeleteUserSkillModal')
+                                    li.tag-cloud= skill.skill_name
                         .panel-body.editor
                             a.btn.btn-primary.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchSkillFromLinkedInModal')
                                 i.fa.fa-linkedin-square
