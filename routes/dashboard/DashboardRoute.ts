@@ -22,6 +22,7 @@ import UserEmploymentDelegate                           = require('../../delegat
 import RefSkillCodeDelegate                             = require('../../delegates/SkillCodeDelegate');
 import UserProfileDelegate                              = require('../../delegates/UserProfileDelegate');
 import VerificationCodeDelegate                         = require('../../delegates/VerificationCodeDelegate');
+import MysqlDelegate                                    = require('../../delegates/MysqlDelegate');
 import UserUrlDelegate                                  = require('../../delegates/UserUrlDelegate');
 import TransactionDelegate                              = require('../../delegates/TransactionDelegate');
 import TransactionLineDelegate                          = require('../../delegates/TransactionLineDelegate');
@@ -99,7 +100,7 @@ class DashboardRoute
         app.get(Urls.integrations(), connect_ensure_login.ensureLoggedIn(), this.integrations.bind(this));
         app.get(Urls.integrationCoupons(), Middleware.allowOwnerOrAdmin, this.coupons.bind(this));
         app.get(Urls.integrationMembers(), Middleware.allowOwnerOrAdmin, this.integrationUsers.bind(this));
-        app.get(Urls.memberProfileEdit(), Middleware.allowMeOrAdmin, this.editMemberProfile.bind(this));
+        app.get(Urls.memberProfile(), this.editMemberProfile.bind(this));
 
         app.get(Urls.logout(), this.logout.bind(this));
         app.post(Urls.paymentCallback(), this.paymentComplete.bind(this));
@@ -117,6 +118,7 @@ class DashboardRoute
         app.post(Urls.memberProfile(), Middleware.allowOnlyMe, this.memberProfileSave.bind(this));
         app.post(Urls.changePassword(), Middleware.allowOnlyMe, this.changePassword.bind(this));
         app.post(Urls.changeProfileStatus(), Middleware.allowOnlyMe, this.changeProfileStatus.bind(this));
+        app.post(Urls.publishProfile(), Middleware.allowOwnerOrAdmin, this.publishProfile.bind(this));
 
         app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
         app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
@@ -372,7 +374,8 @@ class DashboardRoute
                         self.userSkillDelegate.getSkillWithName(userProfile.getId()),
                         self.userEducationDelegate.search({'profileId': userProfile.getId()}),
                         self.userEmploymentDelegate.search({'profileId': userProfile.getId()}),
-                        self.userUrlDelegate.search({'profileId': userProfile.getId()})
+                        self.userUrlDelegate.search({'profileId': userProfile.getId()}),
+                        Middleware.isSelfOrAdminOrOwner(req)
                     ];
 
                 return q.all([self.userDelegate.get(userId)].concat(profileInfoTasks));
@@ -381,10 +384,11 @@ class DashboardRoute
             function memberDetailsFetched(...args)
             {
                 var user = args[0][0];
-                var userSkill = args[0][1] || {};
-                var userEducation = args[0][2] || {};
-                var userEmployment = args[0][3] || {};
-                var userUrl = args[0][4] || {};
+                var userSkill = args[0][1] || [];
+                var userEducation = args[0][2] || [];
+                var userEmployment = args[0][3] || [];
+                var userUrl = args[0][4] || [];
+                var isEditable = args[0][5] || false;
                 var profileId = userProfile ? userProfile.getId() : null;
 
                 var pageData = _.extend(sessionData.getData(), {
@@ -396,7 +400,8 @@ class DashboardRoute
                     'userEducation': userEducation,
                     'userEmployment': userEmployment,
                     'userUrl': userUrl,
-                    'messages': req.flash()
+                    'messages': req.flash(),
+                    'isEditable' : isEditable
                 });
                 res.render(DashboardRoute.PAGE_PROFILE, pageData);
             },
@@ -421,14 +426,36 @@ class DashboardRoute
 
     changeProfileStatus(req:express.Request, res:express.Response)
     {
-        var profileId = req.body[ApiConstants.USER_PROFILE_ID];
+        var self = this;
+
+        var profileId:number = parseInt(req.body[ApiConstants.USER_PROFILE_ID]);
         var userProfile:UserProfile = new UserProfile();
+        var memberId:number = parseInt(req.params[ApiConstants.MEMBER_ID]);
+
         userProfile.setStatus(ProfileStatus.PENDING_APPROVAL);
         this.userProfileDelegate.update({id: profileId}, userProfile)
             .then(
-            function userUpdated() { res.send(200); },
-            function userUpdateError(error) { res.send(500); }
-        );
+                function userUpdated()
+                {
+                    self.notificationDelegate.sendProfilePendingApprovalEmail(memberId)
+                        .then(
+                        function emailSent() { res.send(200);  }
+                        )
+                }
+            )
+            .fail(function userUpdateError(error) { res.send(500); })
+    }
+
+    publishProfile(req:express.Request, res:express.Response, transaction?:any)
+    {
+        var profileId:number = parseInt(req.body[ApiConstants.USER_PROFILE_ID]);
+        var userId:number = parseInt(req.body[ApiConstants.USER_ID]);
+
+        this.userProfileDelegate.publishProfile(profileId, userId)
+            .then(
+                function profilePublished()         { res.send(200); },
+                function profilePublishError(error) { res.send(500); }
+            )
     }
 
     /* Logout and redirect to login page */
@@ -563,7 +590,7 @@ class DashboardRoute
                     })
             })
             .then(
-            function profileFetched() { res.redirect(Urls.memberProfileEdit(memberId)); },
+            function profileFetched() { res.redirect(Urls.memberProfile(memberId)); },
             function fetchError(error) { res.send(500); }
         );
     }

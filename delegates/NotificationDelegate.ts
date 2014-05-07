@@ -111,5 +111,10 @@ class NotificationDelegate
     {
         return this.emailDelegate.sendPasswordResetEmail(email, code);
     }
+
+    sendProfilePendingApprovalEmail(memberId:number):q.Promise<any>
+    {
+        return this.emailDelegate.sendProfilePendingApprovalEmail(memberId);
+    }
 }
 export = NotificationDelegate

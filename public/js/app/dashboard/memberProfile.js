@@ -62,6 +62,23 @@ $('#SendProfile').click(function(){
         })
 });
 
+$('#publishProfile').click(function(){
+        bootbox.confirm("Are you sure you want to publish this profile?", function(result){
+            if(result)
+            {
+                $.ajax({
+                    url : '/member/' + memberId + '/publishProfile',
+                    type: 'post',
+                    data: {profileId:userProfile.id, userId:user.id},
+                    success: function()
+                    {
+                        location.reload();
+                    }
+                })
+            }
+        })
+});
+
 $('#EditUserProfileModal form').validate({
     rules         : {
         first_name: { required: true},

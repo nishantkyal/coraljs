@@ -95,15 +95,15 @@ class AbstractDao
      * @param id
      * @param fields
      */
-    get(id:number[], fields?:string[]):q.Promise<any>;
-    get(id:number, fields?:string[]):q.Promise<any>;
-    get(id:any, fields?:string[]):q.Promise<any>
+    get(id:number[], fields?:string[], transaction?:any):q.Promise<any>;
+    get(id:number, fields?:string[], transaction?:any):q.Promise<any>;
+    get(id:any, fields?:string[], transaction?:any):q.Promise<any>
     {
         var self = this;
         if (Utils.getObjectType(id) == 'Array')
-            return this.search({id: id}, fields);
+            return this.search({id: id}, fields,null,transaction);
         else
-            return this.find({id: id}, fields)
+            return this.find({id: id}, fields,transaction)
             .then(
             function objectFetched(result:any)
             {
@@ -130,7 +130,7 @@ class AbstractDao
      * @param fields
      * @returns {"q".Promise<U>|"q".Promise<undefined>|"q".Promise<any>}
      */
-    search(searchQuery:Object, options?:Object, fields?:string[]):q.Promise<any>
+    search(searchQuery:Object, options?:Object, fields?:string[], transaction?:any):q.Promise<any>
     {
         var self = this;
         var whereStatements = this.generateWhereStatements(searchQuery);
@@ -140,7 +140,7 @@ class AbstractDao
 
         var queryString = 'SELECT ' + selectColumns + ' FROM `' + this.tableName + '` WHERE ' + wheres.join(' AND ') + ' AND (deleted IS NULL OR deleted = 0)';
 
-        return MysqlDelegate.executeQuery(queryString, values)
+        return MysqlDelegate.executeQuery(queryString, values, transaction)
             .then(
             function handleSearchResults(results:any[]):any
             {
@@ -159,7 +159,7 @@ class AbstractDao
      * @param fields
      * @returns {"q".Promise<U>|"q".Promise<undefined>|"q".Promise<any|null>}
      */
-    find(searchQuery:Object, fields?:string[]):q.Promise<any>
+    find(searchQuery:Object, fields?:string[], transaction?:any):q.Promise<any>
     {
         var self = this;
         var whereStatements = this.generateWhereStatements(searchQuery);
@@ -169,7 +169,7 @@ class AbstractDao
 
         var queryString = 'SELECT ' + selectColumns + ' FROM `' + this.tableName + '` WHERE ' + wheres.join(' AND ') + ' AND (deleted IS NULL OR deleted = 0)' + ' LIMIT 1';
 
-        return MysqlDelegate.executeQuery(queryString, values)
+        return MysqlDelegate.executeQuery(queryString, values, transaction)
             .then(
             function handleSearchResults(result) {
                 if (result.length == 1)

@@ -44,7 +44,7 @@ include ../scriptsAndStyles
                                     a.btn.btn-xs.btn-default.sendAgain(data-emailid=member.user.email) Send Again
                             td(style='text-align: center;')
                                 if (member.id != undefined && (member.deleted == null || member.deleted == 0))
-                                    a.fa.fa-pencil.save(href=DashboardUrls.memberProfileEdit(member.id))
+                                    a.fa.fa-pencil.save(href=DashboardUrls.memberProfile(member.id))
         .col-md-2
 
 #inviteUserModal.modal.fade(style='display: none;')

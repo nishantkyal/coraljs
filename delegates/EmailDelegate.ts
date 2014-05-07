@@ -17,6 +17,7 @@ import PhoneCall                                                    = require('.
 import ApiConstants                                                 = require('../enums/ApiConstants');
 import CallStatus                                                   = require('../enums/CallStatus');
 import IncludeFlag                                                  = require('../enums/IncludeFlag');
+import IntegrationMemberRole                                        = require('../enums/IntegrationMemberRole');
 import ApiUrlDelegate                                               = require('../delegates/ApiUrlDelegate');
 import UserDelegate                                                 = require('../delegates/UserDelegate');
 import IntegrationDelegate                                          = require('../delegates/IntegrationDelegate');
@@ -51,6 +52,7 @@ class EmailDelegate
     private static EMAIL_USER_SCHEDULED:string = 'EMAIL_USER_SCHEDULED';
     private static EMAIL_USER_AGENDA_FAIL:string = 'EMAIL_USER_AGENDA_FAIL';
     private static EMAIL_USER_RESCHEDULE:string = 'EMAIL_USER_RESCHEDULE';
+    private static EMAIL_PROFILE_PENDING_APPROVAL:string = 'EMAIL_PROFILE_PENDING_APPROVAL';
     // TODO: Implement this
     private static EMAIL_USER_ACCOUNT_INCOMPLETE_REMINDER:string = 'EMAIL_USER_ACCOUNT_INCOMPLETE_REMINDER';
 
@@ -58,6 +60,8 @@ class EmailDelegate
     private static transport:nodemailer.Transport;
     private static logger:log4js.Logger = log4js.getLogger('EmailDelegate');
     private phoneCallDelegate;
+    private integrationMemberDelegate = new IntegrationMemberDelegate();
+    private userDelegate = new UserDelegate();
 
     constructor()
     {
@@ -446,6 +450,40 @@ class EmailDelegate
         };
 
         return this.composeAndSend(EmailDelegate.EMAIL_PASSWORD_RESET, email, emailData);
+    }
+
+    sendProfilePendingApprovalEmail(memberId:number):q.Promise<any>
+    {
+        var self = this;
+        var integrationId:number;
+        var user:User;
+
+        return self.integrationMemberDelegate.get(memberId)
+            .then( function memberFetched(integrationMember:IntegrationMember)
+            {
+                integrationId = integrationMember.getIntegrationId();
+                return q.all([
+                    self.integrationMemberDelegate.find({integration_id:integrationId, 'role':IntegrationMemberRole.Owner}),
+                    self.userDelegate.get(integrationMember.getUserId())
+                ])
+            })
+            .then( function ownerFetched(...args)
+            {
+                var owner:IntegrationMember = args[0][0];
+                user = args[0][1];
+                return self.userDelegate.get(owner.getUserId())
+            })
+            .then( function ownerUserFetched(ownerUser:User)
+            {
+                var integration = new IntegrationDelegate().getSync(integrationId);
+                var email = ownerUser.getEmail();
+                var emailData = {
+                    expert :user,
+                    integration:integration,
+                    memberId:memberId
+                };
+                return self.composeAndSend(EmailDelegate.EMAIL_PROFILE_PENDING_APPROVAL, 'ankit.agarwal@infollion.com', emailData);
+            })
     }
 
 }

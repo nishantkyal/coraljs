@@ -66,7 +66,8 @@ class Formatter
     static formatDate(m:any, format:string = 'DD/MM/YYYY hh:mm:ss a'):string
     {
         if (Utils.getObjectType(m) == 'String')
-            m = parseInt(m);
+            if(m.search(/^[0-9]+$/) != -1)
+                m = parseInt(m);
         return moment(m).format(format).toString();
     }
 

@@ -19,7 +19,7 @@ class BaseDaoDelegate
         this.dao = dao;
     }
 
-    get(id:any, fields?:string[], includes:IncludeFlag[] = []):q.Promise<any>
+    get(id:any, fields?:string[], includes:IncludeFlag[] = [], transaction?:any):q.Promise<any>
     {
         fields = fields || this.dao.modelClass.DEFAULT_FIELDS;
 
@@ -36,7 +36,7 @@ class BaseDaoDelegate
         // 1. Get the queried object
         // 2. Parse flags and add handlers to a queue
         // 3. When queue is complete, concat all results to queried object and return
-        return this.dao.get(id, fields)
+        return this.dao.get(id, fields, transaction)
             .then(
             function processIncludes(result):any
             {
@@ -68,14 +68,14 @@ class BaseDaoDelegate
         return null;
     }
 
-    find(search:Object, fields?:string[], includes:IncludeFlag[] = []):q.Promise<any>
+    find(search:Object, fields?:string[], includes:IncludeFlag[] = [], transaction?:any):q.Promise<any>
     {
         var self = this;
         var rawResult;
 
         fields = fields || this.dao.modelClass.DEFAULT_FIELDS;
 
-        return this.dao.find(search, fields)
+        return this.dao.find(search, fields, transaction)
             .then(
             function processIncludes(result)
             {
@@ -115,14 +115,14 @@ class BaseDaoDelegate
      * Perform search based on seacrh query
      * Also fetch joint fields
      */
-    search(search:Object, fields?:string[], includes:IncludeFlag[] = []):q.Promise<any>
+    search(search:Object, fields?:string[], includes:IncludeFlag[] = [], transaction?:any):q.Promise<any>
     {
         var self = this;
         var rawResult;
 
         fields = fields || this.dao.modelClass.DEFAULT_FIELDS;
 
-        return this.dao.search(search, fields)
+        return this.dao.search(search, fields, transaction)
             .then(
             function processIncludes(result):any
             {
