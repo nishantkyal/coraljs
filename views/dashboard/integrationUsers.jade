@@ -16,14 +16,14 @@ block content
                 i.icon-plus.icon-white
                 | &nbsp;Invite Member
     .clearfix
-    table.table-bordered.table#users
+    table.table-bordered.table.sortable#users
         thead
             tr
-                th Name
-                th.col-md-3 Revenue Share / Call
-                th.col-md-1 Role
-                th.col-md-1 Status
-                th.col-md-1 Actions
+                th(data-defaultsort="desc") Name
+                th.col-md-3(data-firstsort="desc") Revenue Share / Call
+                th.col-md-1(data-firstsort="desc") Role
+                th.col-md-1(data-firstsort="desc") Status
+                th.col-md-1(data-defaultsort="disabled") Actions
         tbody
         each member in members
             if (member.user.status != 'Registered')
@@ -92,3 +92,5 @@ block content
         var integrationId = '!{integration.id}';
 
     script(src='/js/app/dashboard/integrationUsers.js')
+    script(src='/js/lib/bootstrap-sortable.js')
+    link(rel='stylesheet', href='/css/bootstrap-sortable.css')
