@@ -4,8 +4,9 @@ $('.datepicker').datepicker({
 
 $('#ChangePasswordModal form').validate({
     rules         : {
+        oldPassword: {required: true },
         password: { required: true},
-        confirm_password : { required: true, equalTo: "#ChangePasswordModal form #password"}
+        confirm_password : { required: true, equalTo: "#password"}
     },
     errorPlacement: function(error, element)
     {
@@ -26,17 +27,18 @@ $('#ChangePasswordModal form').validate({
             url : '/member/' + memberId + '/changePassword',
             type: 'post',
             data: {
+                oldPass: $('#ChangePasswordModal form #oldPassword').val(),
                 pass: $('#ChangePasswordModal form #password').val()
             },
-            success: function()
+            success: function(res)
             {
-                bootbox.alert("Your password has been updated.", function(){
+                bootbox.alert(res, function(){
                     location.reload();
                 });
             },
-            error: function()
+            error: function(error)
             {
-                bootbox.alert("There was an error in changing password. Please try again later", function(){
+                bootbox.alert(error.responseText, function(){
                     location.reload();
                 });
             }

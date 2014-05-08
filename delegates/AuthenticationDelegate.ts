@@ -205,13 +205,8 @@ class AuthenticationDelegate
                 userOauth.setRefreshToken(refreshToken);
                 userOauth.setEmail(profile.emailAddress);
 
-                if(req.user)
-                {
-                    userOauth.setUserId(req.user.id);
-                }
-
                 var user = new User();
-                user.setEmail(profile.emailAddress);
+                user.setEmail(profile.emailAddress); //setting email id for new user, if user exists then this will be discarded
 
                 return new UserOAuthDelegate().addOrUpdateToken(userOauth, user)
                     .then(
@@ -222,8 +217,20 @@ class AuthenticationDelegate
                     .then(
                     function userFetched(createdUser:User):any
                     {
+                        var userId:number
+                        //check whether user is logged in or not
+                        //if user is logged in then check whether user_id in created user (i.e. new user created or existing one returned by oauthDelegate)
+                        //is same as loggedInUser. If not then give error as same oauth is associated with different account.
+                        if(req.user)
+                        {
+                            userId = req.user.id;
+                        }
+
                         if (!Utils.isNullOrEmpty(createdUser) && createdUser.isValid())
-                            done(null, createdUser)
+                            if(Utils.isNullOrEmpty(userId) || (createdUser.getId() == userId))
+                                done(null, createdUser)
+                            else
+                                done('Login Failed as the same LinkedIn account has been used with different Id.');
                         else
                             done('Login failed');
 

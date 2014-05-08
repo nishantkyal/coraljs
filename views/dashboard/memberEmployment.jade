@@ -78,5 +78,6 @@
 script.
     var memberId = '!{memberId}';
     var profileId = '!{profileId}';
-    var userEmployment = JSON.parse( '!{JSON.stringify(userEmployment)}' );
+    var userEmployment = JSON.parse( '!{JSON.stringify(escapeObject(userEmployment))}' );
+    var unEscapeObject = !{unEscapeObject};
 script(src='/js/app/dashboard/memberEmployment.js')

@@ -83,5 +83,6 @@
 script.
     var memberId = '!{member.id}';
     var profileId = '!{profileId}';
-    var userEducation = JSON.parse( '!{JSON.stringify(userEducation)}' );
+    var userEducation = JSON.parse( '!{JSON.stringify(escapeObject(userEducation))}' );
+    var unEscapeObject = !{unEscapeObject};
 script(src='/js/app/dashboard/memberEducation.js')

@@ -50,6 +50,8 @@ var helpers = {
     DashboardUrls: DashboardUrls,
     MemberRegistrationUrls: MemberRegistrationUrls,
     Config: Config,
+    escapeObject:Utils.escapeObject,
+    unEscapeObject:Utils.unEscapeObject,
 
     IndustryCodes: Utils.enumToNormalText(IndustryCode),
     Salutation: Utils.enumToNormalText(Salutation),
