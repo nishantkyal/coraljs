@@ -63,6 +63,7 @@ class AccessControl
     {
         var accessToken = req.query[ApiConstants.TOKEN];
         var integrationMemberId = req.params[ApiConstants.MEMBER_ID] || req.params[ApiConstants.EXPERT_ID];
+
         AccessControl.getMember(accessToken, integrationMemberId)
             .then(
             function handleMemberFetched(integrationMember)
@@ -84,6 +85,7 @@ class AccessControl
     {
         var accessToken = req.query[ApiConstants.TOKEN];
         var integrationMemberId = req.params[ApiConstants.EXPERT_ID];
+
         AccessControl.getMember(accessToken, integrationMemberId)
             .then(
             function handleMemberFetched(integrationMember)

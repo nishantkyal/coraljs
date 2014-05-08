@@ -107,18 +107,8 @@ class RequestHandler
     {
         return function (req:express.Request, res:express.Response, next:Function)
         {
-            // Process arguments and parse them
-            var arguments = middleware.arguments;
-
-            middleware.apply(this, middleware.arguments)
-                .then(
-                function operationSuccess(result)
-                {
-                    res.json(result);
-                    next();
-                },
-                function operationFailed(error) { res.send(500, error); }
-            );
+            // Pass on the promise
+            next(middleware.apply(this, middleware.arguments));
         };
     }
 

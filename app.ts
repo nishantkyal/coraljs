@@ -60,10 +60,12 @@ var helpers = {
     currentYear: moment().format('YYYY')
 };
 
-// all environments
-app.use(express.compress());
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+/* Underscore settings and helpers */
+_.templateSettings = {
+    evaluate: /\{\[([\s\S]+?)\]\}/g,
+    interpolate: /\{\{([\s\S]+?)\}\}/g
+};
+_.mixin(helpers);
 
 app.use(
     function (req:express.Request, res, next)
@@ -79,6 +81,11 @@ app.use(
         next();
     }
 )
+
+// all environments
+app.use(express.compress());
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'jade');
 
 var oneDay = 86400000;
 app.use(express.static(path.join(__dirname, 'public'), {maxAge: oneDay}));
@@ -102,6 +109,11 @@ app.use(express.session({
 app.use(passport.initialize());
 app.use(passport.session({}));
 app.use(connect_flash());
+
+
+// APIs and Route endpoints
+api(app);
+routes(app);
 
 /* Error Pages */
 app.use(function(req, res, next){
@@ -131,16 +143,6 @@ app.use(function(err, req, res, next){
     res.render('500', { error: err });
 });
 
-// APIs and Route endpoints
-api(app);
-routes(app);
-
-// Underscore template pattern
-_.templateSettings = {
-    evaluate: /\{\[([\s\S]+?)\]\}/g,
-    interpolate: /\{\{([\s\S]+?)\}\}/g
-};
-_.mixin(helpers);
 
 app.configure('production', function()
 {

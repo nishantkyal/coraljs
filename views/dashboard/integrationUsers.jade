@@ -1,99 +1,94 @@
 title User Management - #{integration.title}
-include header
-include ../scriptsAndStyles
-.container-fluid
+extends header
+block content
+    .navbar.navbar-default
+        .container
+            a.navbar-brand(href=DashboardUrls.index()) Back
+            .collapse.navbar-collapse
+                ul.nav.navbar-nav
+                    li.active
+                        a(href=DashboardUrls.integrationMembers(integration.id)) Members
+                    li
+                        a(href=DashboardUrls.integrationCoupons(integration.id)) Coupons
     .row-fluid
-        .col-md-2
-        .col-md-8
-            .navbar.navbar-default
-                .container
-                    a.navbar-brand(href=DashboardUrls.index()) Back
-                    .collapse.navbar-collapse
-                        ul.nav.navbar-nav
-                            li.active
-                                a(href=DashboardUrls.integrationMembers(integration.id)) Members
-                            li
-                                a(href=DashboardUrls.integrationCoupons(integration.id)) Coupons
-            .row-fluid
-                .pull-right
-                    .btn-primary.btn.save(data-toggle='modal', href='#inviteUserModal')
-                        i.icon-plus.icon-white
-                        | &nbsp;Invite Member
-            .clearfix
-            table.table-bordered.table#users
-                thead
-                    tr
-                        th Name
-                        th.col-md-3 Revenue Share / Call
-                        th.col-md-1 Role
-                        th.col-md-1 Status
-                        th.col-md-1 Actions
-                tbody
-                each member in members
-                    if (member.user.status != 'Registered')
-                        tr(class=((member.deleted == null || member.deleted == 0) ? (member.id != undefined ? '' : 'active') : 'danger'))
-                            td
-                                label= formatName(member.user.first_name, member.user.last_name)
-                                br
-                                small #{member.user.email}
-                            td= formatMoney(member.revenue_share, member.revenue_share_unit)
-                            td= formatRole(member.role)
-                            td
-                                | #{member.user.status ? formatUserStatus(member.user.status) : 'Pending'}
-                                if (!member.user.status)
-                                    a.btn.btn-xs.btn-default.sendAgain(data-emailid=member.user.email) Send Again
-                            td(style='text-align: center;')
-                                if (member.id != undefined && (member.deleted == null || member.deleted == 0))
-                                    a.fa.fa-pencil.save(href=DashboardUrls.memberProfile(member.id))
-        .col-md-2
+        .pull-right
+            .btn-primary.btn.save(data-toggle='modal', href='#inviteUserModal')
+                i.icon-plus.icon-white
+                | &nbsp;Invite Member
+    .clearfix
+    table.table-bordered.table#users
+        thead
+            tr
+                th Name
+                th.col-md-3 Revenue Share / Call
+                th.col-md-1 Role
+                th.col-md-1 Status
+                th.col-md-1 Actions
+        tbody
+        each member in members
+            if (member.user.status != 'Registered')
+                tr(class=((member.deleted == null || member.deleted == 0) ? (member.id != undefined ? '' : 'active') : 'danger'))
+                    td
+                        label= formatName(member.user.first_name, member.user.last_name)
+                        br
+                        small #{member.user.email}
+                    td= formatMoney(member.revenue_share, member.revenue_share_unit)
+                    td= formatRole(member.role)
+                    td
+                        | #{member.user.status ? formatUserStatus(member.user.status) : 'Pending'}
+                        if (!member.user.status)
+                            a.btn.btn-xs.btn-default.sendAgain(data-emailid=member.user.email) Send Again
+                    td(style='text-align: center;')
+                        if (member.id != undefined && (member.deleted == null || member.deleted == 0))
+                            a.fa.fa-pencil.save(href=DashboardUrls.memberProfile(member.id))
 
-#inviteUserModal.modal.fade(style='display: none;')
-    .modal-dialog
-        .modal-content
-            .modal-header
-                .close(data-dismiss='modal', aria-hidden='true') x
-                h4.modal-title Invite Member
-            form
+    #inviteUserModal.modal.fade(style='display: none;')
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    .close(data-dismiss='modal', aria-hidden='true') x
+                    h4.modal-title Invite Member
+                form
+                    .modal-body
+                        .form-group
+                            label.control-label(for='email') Email
+                            input.form-control(type='text', placeholder='Email', name='email')
+                        .form-group
+                            label.control-label(for='title') Title
+                            select.form-control
+                                - for title,id in Salutation
+                                    option(value=id)= title
+                        .form-group
+                            label.control-label(for='firstName') First Name
+                            input.form-control(type='text', placeholder='First Name', name='first_name')
+                        .form-group
+                            label.control-label(for='lastName') Last Name
+                            input.form-control(type='text', placeholder='Last Name', name='last_name')
+                        .form-group
+                            label.control-label(for='role') Role
+                            select.selectpicker.form-control#role(name='role')
+                                option(value='2') Admin
+                                option(value='3') Expert
+                    .modal-footer
+                        button.btn.btn-default(data-dismiss='modal') Close
+                        input.btn.btn-primary(type='submit', value='Send Invite')
+
+    #delUserModal.modal.fade(style='display: none;')
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    .close(data-dismiss='modal', aria-hidden='true') x
+                    h4.modal-title Delete User
                 .modal-body
-                    .form-group
-                        label.control-label(for='email') Email
-                        input.form-control(type='text', placeholder='Email', name='email')
-                    .form-group
-                        label.control-label(for='title') Title
-                        select.form-control
-                            - for title,id in Salutation
-                                option(value=id)= title
-                    .form-group
-                        label.control-label(for='firstName') First Name
-                        input.form-control(type='text', placeholder='First Name', name='first_name')
-                    .form-group
-                        label.control-label(for='lastName') Last Name
-                        input.form-control(type='text', placeholder='Last Name', name='last_name')
-                    .form-group
-                        label.control-label(for='role') Role
-                        select.selectpicker.form-control#role(name='role')
-                            option(value='2') Admin
-                            option(value='3') Expert
+                    label We'll disable the user's public profile (Hide from public and disable receiving calls)
+                    label You can enable the user back later, Continue?
                 .modal-footer
                     button.btn.btn-default(data-dismiss='modal') Close
-                    input.btn.btn-primary(type='submit', value='Send Invite')
+                    button.btn.btn-primary(onclick='handleDeleteClicked(event)') Yes, Disable
+    include footer
 
-#delUserModal.modal.fade(style='display: none;')
-    .modal-dialog
-        .modal-content
-            .modal-header
-                .close(data-dismiss='modal', aria-hidden='true') x
-                h4.modal-title Delete User
-            .modal-body
-                label We'll disable the user's public profile (Hide from public and disable receiving calls)
-                label You can enable the user back later, Continue?
-            .modal-footer
-                button.btn.btn-default(data-dismiss='modal') Close
-                button.btn.btn-primary(onclick='handleDeleteClicked(event)') Yes, Disable
-include footer
+    script.
+        var members = JSON.parse( '!{JSON.stringify(members)}' );
+        var integrationId = '!{integration.id}';
 
-script.
-    var members = JSON.parse( '!{JSON.stringify(members)}' );
-    var integrationId = '!{integration.id}';
-
-script(src='/js/app/dashboard/integrationUsers.js')
+    script(src='/js/app/dashboard/integrationUsers.js')
