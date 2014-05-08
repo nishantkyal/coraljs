@@ -24,8 +24,12 @@ import UserProfileDelegate                              = require('../../delegat
 import VerificationCodeDelegate                         = require('../../delegates/VerificationCodeDelegate');
 import MysqlDelegate                                    = require('../../delegates/MysqlDelegate');
 import UserUrlDelegate                                  = require('../../delegates/UserUrlDelegate');
+import TransactionDelegate                              = require('../../delegates/TransactionDelegate');
+import TransactionLineDelegate                          = require('../../delegates/TransactionLineDelegate');
 import MoneyUnit                                        = require('../../enums/MoneyUnit');
 import IncludeFlag                                      = require('../../enums/IncludeFlag');
+import TransactionType                                  = require('../../enums/TransactionType');
+import ItemType                                         = require('../../enums/ItemType');
 import User                                             = require('../../models/User');
 import IntegrationMember                                = require('../../models/IntegrationMember');
 import Integration                                      = require('../../models/Integration');
@@ -34,6 +38,7 @@ import Coupon                                           = require('../../models/
 import UserPhone                                        = require('../../models/UserPhone');
 import PhoneCall                                        = require('../../models/PhoneCall');
 import UserProfile                                      = require('../../models/UserProfile');
+import TransactionLine                                  = require('../../models/TransactionLine');
 import IntegrationMemberRole                            = require('../../enums/IntegrationMemberRole');
 import ApiConstants                                     = require('../../enums/ApiConstants');
 import SmsTemplate                                      = require('../../enums/SmsTemplate');
@@ -42,8 +47,9 @@ import IndustryCodes                                    = require('../../enums/I
 import ProfileStatus                                    = require('../../enums/ProfileStatus');
 import Utils                                            = require('../../common/Utils');
 import Formatter                                        = require('../../common/Formatter');
+import Config                                           = require('../../common/Config');
 import VerificationCodeCache                            = require('../../caches/VerificationCodeCache');
-
+import PayZippyProvider                                 = require('../../providers/PayZippyProvider');
 import CallFlowSessionData                              = require('../../routes/callFlow/SessionData');
 import ExpertRegistrationSessionData                    = require('../../routes/expertRegistration/SessionData');
 
@@ -65,6 +71,7 @@ class DashboardRoute
     private static PAGE_SKILL:string = 'dashboard/memberSkill';
     private static PAGE_EMPLOYMENT:string = 'dashboard/memberEmployment';
     private static PAGE_ACCOUNT_VERIFICATION:string = 'dashboard/accountVerification';
+    private static PAGE_PAYMENT_COMPLETE:string = 'dashboard/paymentComplete';
 
     private integrationDelegate = new IntegrationDelegate();
     private integrationMemberDelegate = new IntegrationMemberDelegate();
@@ -80,6 +87,8 @@ class DashboardRoute
     private verificationCodeDelegate = new VerificationCodeDelegate();
     private userProfileDelegate = new UserProfileDelegate();
     private userUrlDelegate = new UserUrlDelegate();
+    private transactionDelegate = new TransactionDelegate();
+    private transactionLineDelegate = new TransactionLineDelegate();
 
     constructor(app, secureApp)
     {
@@ -94,6 +103,7 @@ class DashboardRoute
         app.get(Urls.memberProfile(), this.editMemberProfile.bind(this));
 
         app.get(Urls.logout(), this.logout.bind(this));
+        app.post(Urls.paymentCallback(), this.paymentComplete.bind(this));
         app.get(Urls.paymentCallback(), this.paymentComplete.bind(this));
         app.get(Urls.emailAccountVerification(), this.emailAccountVerification.bind(this));
 
@@ -114,6 +124,7 @@ class DashboardRoute
         app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
     }
 
+    /* Login page */
     private login(req, res:express.Response)
     {
         var sessionData = new SessionData(req);
@@ -131,6 +142,7 @@ class DashboardRoute
         res.render(DashboardRoute.PAGE_LOGIN, pageData);
     }
 
+    /* Forgot Password page */
     private forgotPassword(req:express.Request, res:express.Response)
     {
         var code:string = req.query[ApiConstants.CODE];
@@ -162,6 +174,10 @@ class DashboardRoute
             )
     }
 
+    /**
+     * Mobile Verification page
+     * The page has a contextual header so it can be used in multiple places
+     */
     private verifyMobile(req:express.Request, res:express.Response)
     {
         this.userPhoneDelegate.getByUserId(req[ApiConstants.USER].id)
@@ -196,10 +212,16 @@ class DashboardRoute
             });
     }
 
+    /**
+     * Authentication Success page
+     * Renders integrations page by default after fetching all network member entries for the user
+     * Returns to returnTo, if set in session
+     */
     private authSuccess(req, res:express.Response)
     {
         var sessionData = new SessionData(req);
 
+        // Return if specified
         if (req.session[ApiConstants.RETURN_TO])
         {
             var returnToUrl = req.session[ApiConstants.RETURN_TO];
@@ -208,6 +230,10 @@ class DashboardRoute
             return;
         }
 
+        // 1. Fetch member entries for user
+        // 2. If multiple entries, show integrations list
+        // 3. If single entry and I'm owner, show members page
+        // 4. Else redirect to memberProfile
         this.integrationMemberDelegate.search({user_id: sessionData.getLoggedInUser().getId()}, null, [IncludeFlag.INCLUDE_INTEGRATION, IncludeFlag.INCLUDE_USER])
             .then(
             function integrationsFetched(integrationMembers)
@@ -240,18 +266,16 @@ class DashboardRoute
         );
     }
 
+    /* Integrations List page */
     private integrations(req:express.Request, res:express.Response)
     {
         var sessionData = new SessionData(req);
         sessionData.setIntegration(null);
-
-        var pageData = _.extend(sessionData.getData(), {
-            selectedTab: 'integrations'
-        });
-
+        var pageData = sessionData.getData();
         res.render(DashboardRoute.PAGE_INTEGRATIONS, pageData);
     }
 
+    /* Integration Members page */
     private integrationUsers(req:express.Request, res:express.Response)
     {
         var sessionData = new SessionData(req);
@@ -261,7 +285,9 @@ class DashboardRoute
         var integration = this.integrationDelegate.getSync(integrationId);
         sessionData.setIntegration(integration);
 
-        // Fetch all users for integration
+        // 1. Fetch all users for integration
+        // 2. Fetch all invited members for integration
+        // 3. Merge the two lists
         q.all([
             self.integrationMemberDelegate.search({integration_id: integrationId}, IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER]),
             self.verificationCodeCache.getInvitationCodes(integrationId)
@@ -281,7 +307,6 @@ class DashboardRoute
 
                 // Mark members who have an expert entry as well as an invited entry as inactive
                 // since this means they haven't completed the registration process
-
                 _.each(invitedMembers, function (invitedMember)
                 {
                     var expertEntry = _.find(members, function (member:IntegrationMember)
@@ -305,6 +330,7 @@ class DashboardRoute
             function usersFetchError(error) { res.send(500, error); });
     }
 
+    /* Integration Coupons page */
     private coupons(req:express.Request, res:express.Response)
     {
         var sessionData = new SessionData(req);
@@ -327,6 +353,7 @@ class DashboardRoute
         )
     }
 
+    /* Member Profile page */
     private editMemberProfile(req:express.Request, res:express.Response)
     {
         var self = this;
@@ -374,7 +401,7 @@ class DashboardRoute
                     'profileId': profileId,
                     'member': member,
                     'user': user,
-                    'userSkill': _.sortBy(userSkill, function(skill) { return skill['skill_name'].length; }),
+                    'userSkill': _.sortBy(userSkill, function (skill) { return skill['skill_name'].length; }),
                     'userProfile': userProfile,
                     'userEducation': userEducation,
                     'userEmployment': userEmployment,
@@ -437,6 +464,7 @@ class DashboardRoute
             )
     }
 
+    /* Logout and redirect to login page */
     private logout(req, res)
     {
         req.logout();
@@ -447,22 +475,48 @@ class DashboardRoute
     private paymentComplete(req:express.Request, res:express.Response)
     {
         var self = this;
-        var transactionId:number = req.query['merchant_transaction_id'];
+        var response = req.body;
+        var sessionData = new SessionData(req);
+        var callFlowSessionData = new CallFlowSessionData(req);
+        var payZippyProvider = new PayZippyProvider();
+        var lines:TransactionLine[];
 
-        // If it's a call
-        // 1. Update status to scheduling
-        // 2. Send scheduling notification to expert
-        /*this.phoneCallDelegate.update(callId, {status: CallStatus.SCHEDULING})
-         .then(
-         function callUpdated()
-         {
-         return self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER]);
-         })
-         .then(
-         function callFetched(call:PhoneCall)
-         {
-         return self.notificationDelegate.sendCallSchedulingNotifications(call, callFlowSessionData.getAppointments(), callFlowSessionData.getDuration(), callFlowSessionData.getLoggedInUser());
-         });*/
+        // 1. Fetch transaction lines for the successful transaction
+        // 2. Update transaction status
+        // 3. Take next actions based on products in the transaction
+        var transactionId = payZippyProvider.getTransactionId(response);
+
+        self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, transactionId))
+            .then(
+            function transactionLinesFetched(result:TransactionLine[])
+            {
+                lines = result;
+
+                // Assumption: We only have one call on the transaction
+                var callId = _.findWhere(lines, {item_type: ItemType.PHONE_CALL}).getItemId();
+                return self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER]);
+            })
+            .then(
+            function callFetched(call:PhoneCall)
+            {
+                var pageData = _.extend(sessionData.getData(), {
+                    transactionLines: lines,
+                    call: call,
+                    appointments: callFlowSessionData.getAppointments()
+                });
+
+                res.render(DashboardRoute.PAGE_PAYMENT_COMPLETE, pageData);
+
+                // 1. Update call status
+                // 2. Send notifications
+                return q.all([
+                    self.phoneCallDelegate.update(call.getId(), {status: CallStatus.SCHEDULING}),
+                    self.notificationDelegate.sendCallSchedulingNotifications(call.getId(), callFlowSessionData.getAppointments(), call.getDuration(), sessionData.getLoggedInUser())
+                ]);
+            })
+            .fail(
+            function handleError(error) { res.send(500, error); }
+        );
     }
 
     private emailAccountVerification(req, res:express.Response)

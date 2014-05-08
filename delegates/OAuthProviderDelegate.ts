@@ -4,14 +4,15 @@ import oauth2orize                                                  = require('o
 import log4js                                                       = require('log4js');
 import IntegrationDelegate                                          = require('../delegates/IntegrationDelegate');
 import IntegrationMemberDelegate                                    = require('../delegates/IntegrationMemberDelegate');
+import NotificationDelegate                                         = require('../delegates/NotificationDelegate');
 import Integration                                                  = require('../models/Integration');
 import IntegrationMember                                            = require('../models/IntegrationMember');
 import IntegrationMemberRole                                        = require('../enums/IntegrationMemberRole');
 import IntegrationType                                              = require('../enums/IntegrationType');
 import Utils                                                        = require('../common/Utils');
 
-/*
- Delegate class to handle OAuth provider functionality
+/**
+ * Delegate class to handle OAuth provider functionality
  */
 class OAuthProviderDelegate
 {
@@ -78,18 +79,28 @@ class OAuthProviderDelegate
             OAuthProviderDelegate.logger.debug('Creating expert for user id: %s, integration id: %s', user.id, integration.id);
 
             var integrationMemberDelegate = new IntegrationMemberDelegate();
+            var notificationDelegate = new NotificationDelegate();
 
             integrationMemberDelegate.create(expert)
-                .fail(
+                .then(
+                function existingExpertFetched(expert:IntegrationMember)
+                {
+                    return notificationDelegate.sendExpertRegistrationCompleteNotification(expert)
+                        .then(
+                        function notificationSent() { return expert; },
+                        function notificationSendError() { return expert; }
+                    );
+                },
                 function expertCreateError(error):any
                 {
                     if (error.code == 'ER_DUP_ENTRY')
                         return integrationMemberDelegate.find({integration_id: expert.getIntegrationId(), user_id: expert.getUserId()}, [IntegrationMember.AUTH_CODE]);
                 })
                 .then(
-                function existingExpertFetched(expert:IntegrationMember) { done(null, expert.getAuthCode()); },
-                function(error) { done(error); }
-            );
+                function (expert:IntegrationMember)
+                {
+                    done(null, expert.getAuthCode());
+                });
         }));
 
         OAuthProviderDelegate.server.exchange(oauth2orize.exchange.code(function (integration, code, redirectURI, done):any

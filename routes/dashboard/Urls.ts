@@ -15,7 +15,7 @@ class Urls
     static integrations() { return ApiUrlDelegate.get('/integrations'); }
     static integrationCoupons(integrationId?:number) { return ApiUrlDelegate.get('/integration/:integrationId(\\d+)/coupons', {integrationId: integrationId}); }
     static integrationMembers(integrationId?:number) { return ApiUrlDelegate.get('/integration/:integrationId(\\d+)/members', {integrationId: integrationId}); }
-    static memberProfile(memberId?:number) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/profile', {memberId: memberId}); }
+    static memberProfile(memberId?:number, baseUrl?:string) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/profile', {memberId: memberId}, baseUrl); }
     static logout() { return ApiUrlDelegate.get('/logout'); }
     static paymentCallback() { return ApiUrlDelegate.get('/payment/complete'); }
     static userProfileFromLinkedIn(profileId?:number):string { return ApiUrlDelegate.get('/member/profileFromLinkedIn/:profileId(\\d+)', {profileId: profileId}); }

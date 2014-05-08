@@ -1,13 +1,11 @@
 ///<reference path='../../_references.d.ts'/>
 import connect_ensure_login                                 = require('connect-ensure-login');
-import url                                                  = require('url');
 import q                                                    = require('q');
 import _                                                    = require('underscore');
 import moment                                               = require('moment');
 import express                                              = require('express');
 import passport                                             = require('passport');
 import log4js                                               = require('log4js');
-import crypto                                               = require('crypto');
 import RequestHandler                                       = require('../../middleware/RequestHandler');
 import AuthenticationDelegate                               = require('../../delegates/AuthenticationDelegate');
 import IntegrationDelegate                                  = require('../../delegates/IntegrationDelegate');
@@ -35,6 +33,7 @@ import Formatter                                            = require('../../com
 import Utils                                                = require('../../common/Utils');
 import Config                                               = require('../../common/Config');
 import DashboardUrls                                        = require('../../routes/dashboard/Urls');
+import PayZippyProvider                                     = require('../../providers/PayZippyProvider');
 
 import Urls                                                 = require('./Urls');
 import Middleware                                           = require('./Middleware');
@@ -203,33 +202,8 @@ class CallFlowRoute
             .then(
             function transactionLinesFetched(lines:TransactionLine[])
             {
-                // Redirect to payzippy
-                var data = {
-                    buyer_email_address: sessionData.getLoggedInUser().getEmail(),
-                    buyer_unique_id: sessionData.getLoggedInUser().getId(),
-                    callback_url: url.resolve(Config.get(Config.DASHBOARD_URI), DashboardUrls.paymentCallback()),
-                    currency: "INR",
-                    hash_method: 'MD5',
-                    is_user_logged_in: true,
-                    merchant_id: Config.get(Config.PAY_ZIPPY_MERCHANT_ID),
-                    merchant_key_id: Config.get(Config.PAY_ZIPPY_MERCHANT_KEY_ID),
-                    merchant_transaction_id: transaction.getId(),
-                    payment_method: null,
-                    transaction_amount: _.reduce(_.pluck(lines, TransactionLine.AMOUNT), function(memo:number, num:number){ return memo + num; }, 0) * 100,
-                    transaction_type: 'sale',
-                    ui_mode: 'redirect'
-                };
-
-                var concatString = _.values(data).concat(Config.get(Config.PAY_ZIPPY_SECRET_KEY)).join('|');
-                var md5sum = crypto.createHash('md5');
-                var hash:string = md5sum.update(concatString).digest('hex');
-
-                data['hash'] = hash;
-
-                var payZippyUrl:string = Config.get(Config.PAY_ZIPPY_CHARGING_URI);
-                payZippyUrl = Utils.addQueryToUrl(payZippyUrl, data);
-
-                res.redirect(payZippyUrl);
+                var payZippyProvider = new PayZippyProvider();
+                res.redirect(payZippyProvider.getPaymentUrl(transaction, lines, sessionData.getLoggedInUser()));
             });
     }
 }

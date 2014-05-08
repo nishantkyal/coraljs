@@ -188,9 +188,9 @@ class MemberRegistrationRoute
         var sessionData = new SessionData(req);
         var integrationId = sessionData.getIntegrationId();
         var integration = sessionData.getIntegration();
-        var userId = sessionData.getLoggedInUser().getId();
         var member = sessionData.getMember();
-        var user:User;
+        var user:User = sessionData.getLoggedInUser();
+        var userId:number = user.getId();
         var profileId:number;
         var integrationMemberId:number;
 
@@ -211,19 +211,19 @@ class MemberRegistrationRoute
 
         // 1. Update role and redirect
         // 2. Schedule the mobile verification reminder notification
+        // 3. Delete invitation code
         q.all([
-            self.userDelegate.get(userId),
             self.userProfileDelegate.create(new UserProfile()),
-            self.integrationMemberDelegate.update({'user_id': userId, 'integration_id': integrationId}, {role: member.getRole()}),
-            self.integrationMemberDelegate.find({'user_id': userId, 'integration_id': integrationId})
+            self.integrationMemberDelegate.find({'user_id': userId, 'integration_id': integrationId}),
+            self.verificationCodeCache.deleteInvitationCode(sessionData.getInvitationCode(), sessionData.getIntegrationId()),
+            self.integrationMemberDelegate.update({'user_id': userId, 'integration_id': integrationId}, {role: member.getRole()})
         ])
             .then(
             function profileCreated(...args)
             {
-                var userProfile:UserProfile = args[0][1];
-                var integrationMember:IntegrationMember = args[0][3];
+                var userProfile:UserProfile = args[0][0];
+                var integrationMember:IntegrationMember = args[0][1];
                 integrationMemberId = integrationMember.getId();
-                user = args[0][0];
                 profileId = userProfile.getId();
                 return self.userProfileDelegate.fetchAllDetailsFromLinkedIn(userId, integrationId, profileId);
             })
@@ -255,10 +255,7 @@ class MemberRegistrationRoute
         var userId = sessionData.getLoggedInUser().getId();
         var self = this;
 
-        q.all([
-            self.verificationCodeCache.deleteInvitationCode(req.session[ApiConstants.CODE], req.session[ApiConstants.INTEGRATION_ID]),
-            self.integrationMemberDelegate.find({'user_id': userId, 'integration_id': integrationId}, null, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
-        ])
+        self.integrationMemberDelegate.find({'user_id': userId, 'integration_id': integrationId}, null, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
             .then(
             function scheduleRulesFetched(...args)
             {
@@ -270,11 +267,7 @@ class MemberRegistrationRoute
                 });
                 res.render('expertRegistration/complete', pageData);
             },
-            function scheduleRulesFetchError(error)
-            {
-                // TODO: Debug why we can't send 500 error here
-                res.send(500);
-            });
+            function scheduleRulesFetchError(error) { res.send(500); });
     }
 }
 export = MemberRegistrationRoute

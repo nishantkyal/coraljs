@@ -62,10 +62,12 @@ var helpers = {
     currentYear: moment().format('YYYY')
 };
 
-// all environments
-app.use(express.compress());
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+/* Underscore settings and helpers */
+_.templateSettings = {
+    evaluate: /\{\[([\s\S]+?)\]\}/g,
+    interpolate: /\{\{([\s\S]+?)\}\}/g
+};
+_.mixin(helpers);
 
 app.use(
     function (req:express.Request, res, next)
@@ -81,6 +83,11 @@ app.use(
         next();
     }
 )
+
+// all environments
+app.use(express.compress());
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'jade');
 
 var oneDay = 86400000;
 app.use(express.static(path.join(__dirname, 'public'), {maxAge: oneDay}));
@@ -105,16 +112,39 @@ app.use(passport.initialize());
 app.use(passport.session({}));
 app.use(connect_flash());
 
+
 // APIs and Route endpoints
 api(app);
 routes(app);
 
-// Underscore template pattern
-_.templateSettings = {
-    evaluate: /\{\[([\s\S]+?)\]\}/g,
-    interpolate: /\{\{([\s\S]+?)\}\}/g
-};
-_.mixin(helpers);
+/* Error Pages */
+app.use(function(req, res, next){
+    res.status(404);
+
+    // respond with html page
+    if (req.accepts('html')) {
+        res.render('404', { url: req.url });
+        return;
+    }
+
+    // respond with json
+    if (req.accepts('json')) {
+        res.send({ error: 'Not found' });
+        return;
+    }
+
+    // default to plain-text. send()
+    res.type('txt').send('Not found');
+});
+
+app.use(function(err, req, res, next){
+    // we may use properties of the error object
+    // here and next(err) appropriately, or if
+    // we possibly recovered from the error, simply next().
+    res.status(err.status || 500);
+    res.render('500', { error: err });
+});
+
 
 app.configure('production', function()
 {

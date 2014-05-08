@@ -3,6 +3,7 @@ import q                                                    = require('q');
 import EmailDelegate                                        = require('../delegates/EmailDelegate');
 import SMSDelegate                                          = require('../delegates/SMSDelegate');
 import PhoneCall                                            = require('../models/PhoneCall');
+import IntegrationMember                                    = require('../models/IntegrationMember');
 import CallFragment                                         = require('../models/CallFragment');
 import User                                                 = require('../models/User');
 import Utils                                                = require('../common/Utils');
@@ -115,6 +116,15 @@ class NotificationDelegate
     sendProfilePendingApprovalEmail(memberId:number):q.Promise<any>
     {
         return this.emailDelegate.sendProfilePendingApprovalEmail(memberId);
+    }
+
+    sendExpertRegistrationCompleteNotification(expert:IntegrationMember):q.Promise<any>
+    {
+        var self = this;
+
+        return q.all([
+            self.emailDelegate.sendExpertRegistrationCompleteEmail(expert)
+        ]);
     }
 }
 export = NotificationDelegate

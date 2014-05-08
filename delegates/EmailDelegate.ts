@@ -30,6 +30,7 @@ import Config                                                       = require('.
 import Formatter                                                    = require('../common/Formatter');
 import ExpertRegistrationUrls                                       = require('../routes/expertRegistration/Urls');
 import DashboardUrls                                                = require('../routes/dashboard/Urls');
+import CallFlowUrls                                                 = require('../routes/callFlow/Urls');
 
 /*
  Delegate class for managing email
@@ -53,6 +54,8 @@ class EmailDelegate
     private static EMAIL_USER_AGENDA_FAIL:string = 'EMAIL_USER_AGENDA_FAIL';
     private static EMAIL_USER_RESCHEDULE:string = 'EMAIL_USER_RESCHEDULE';
     private static EMAIL_PROFILE_PENDING_APPROVAL:string = 'EMAIL_PROFILE_PENDING_APPROVAL';
+    private static EMAIL_EXPERT_REGISTRATION_SUCCESS:string = 'EMAIL_EXPERT_REGISTRATION_SUCCESS';
+
     // TODO: Implement this
     private static EMAIL_USER_ACCOUNT_INCOMPLETE_REMINDER:string = 'EMAIL_USER_ACCOUNT_INCOMPLETE_REMINDER';
 
@@ -67,7 +70,7 @@ class EmailDelegate
     {
         var PhoneCallDelegate = require('../delegates/PhoneCallDelegate');
         this.phoneCallDelegate = new PhoneCallDelegate();
-        
+
         if (Utils.isNullOrEmpty(EmailDelegate.transport))
             EmailDelegate.transport = nodemailer.createTransport('SMTP', {
                 service: 'SendGrid',
@@ -168,7 +171,7 @@ class EmailDelegate
         }
         catch (err)
         {
-            EmailDelegate.logger.error("Couldn't generate email body for (template %s, data: %s), Error: %s", template, emailData, err);
+            EmailDelegate.logger.error("Couldn't generate email body for (template %s, data: %s), Error: %s", template, JSON.stringify(emailData), JSON.stringify(err));
             throw(err);
         }
     }
@@ -214,9 +217,9 @@ class EmailDelegate
         if (Utils.getObjectType(call) == 'Number')
             return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER])
                 .then(function (fetchedCall:PhoneCall)
-            {
-                self.sendSchedulingEmailToExpert(fetchedCall, appointments, duration, caller);
-            });
+                {
+                    self.sendSchedulingEmailToExpert(fetchedCall, appointments, duration, caller);
+                });
 
         var expert:IntegrationMember = call.getIntegrationMember();
         var integration = new IntegrationDelegate().getSync(expert.getIntegrationId());
@@ -224,7 +227,7 @@ class EmailDelegate
         var VerificationCodeDelegate:any = require('../delegates/VerificationCodeDelegate');
         var verificationCodeDelegate = new VerificationCodeDelegate();
 
-        return verificationCodeDelegate.createAppointmentAcceptCode(call,appointments)
+        return verificationCodeDelegate.createAppointmentAcceptCode(call, appointments)
             .then(
             function invitationAcceptCodeCreated(code:string)
             {
@@ -276,7 +279,7 @@ class EmailDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call,null, [IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall)
+            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall)
             {
                 self.sendReschedulingEmailToUser(fetchedCall, appointment);
             });
@@ -290,7 +293,7 @@ class EmailDelegate
                 var emailData = {
                     call: call,
                     acceptCode: code,
-                    appointment:appointment
+                    appointment: appointment
                 };
 
                 return q.all([
@@ -315,7 +318,7 @@ class EmailDelegate
         var VerificationCodeDelegate:any = require('../delegates/VerificationCodeDelegate');
         var verificationCodeDelegate = new VerificationCodeDelegate();
 
-        return verificationCodeDelegate.createAppointmentAcceptCode(call,appointments)
+        return verificationCodeDelegate.createAppointmentAcceptCode(call, appointments)
             .then(
             function invitationAcceptCodeCreated(code:string)
             {
@@ -325,7 +328,7 @@ class EmailDelegate
                     call: call,
                     acceptCode: code,
                     integration: integration,
-                    appointments:appointments
+                    appointments: appointments
                 };
 
                 return q.all([
@@ -459,31 +462,52 @@ class EmailDelegate
         var user:User;
 
         return self.integrationMemberDelegate.get(memberId)
-            .then( function memberFetched(integrationMember:IntegrationMember)
+            .then(function memberFetched(integrationMember:IntegrationMember)
             {
                 integrationId = integrationMember.getIntegrationId();
                 return q.all([
-                    self.integrationMemberDelegate.find({integration_id:integrationId, 'role':IntegrationMemberRole.Owner}),
+                    self.integrationMemberDelegate.find({integration_id: integrationId, 'role': IntegrationMemberRole.Owner}),
                     self.userDelegate.get(integrationMember.getUserId())
                 ])
             })
-            .then( function ownerFetched(...args)
+            .then(function ownerFetched(...args)
             {
                 var owner:IntegrationMember = args[0][0];
                 user = args[0][1];
                 return self.userDelegate.get(owner.getUserId())
             })
-            .then( function ownerUserFetched(ownerUser:User)
+            .then(function ownerUserFetched(ownerUser:User)
             {
                 var integration = new IntegrationDelegate().getSync(integrationId);
-                var email = ownerUser.getEmail();
                 var emailData = {
-                    expert :user,
-                    integration:integration,
-                    memberId:memberId
+                    expert: user,
+                    integration: integration,
+                    memberId: memberId
                 };
                 return self.composeAndSend(EmailDelegate.EMAIL_PROFILE_PENDING_APPROVAL, 'ankit.agarwal@infollion.com', emailData);
             })
+    }
+
+    sendExpertRegistrationCompleteEmail(expert:IntegrationMember):q.Promise<any>
+    {
+        var self = this;
+        var integration = new IntegrationDelegate().getSync(expert.getIntegrationId());
+        var profileUrl = DashboardUrls.memberProfile(expert.getId(), Config.get(Config.DASHBOARD_URI));
+        var callHandleUrl = CallFlowUrls.callExpert(expert.getId(), Config.get(Config.DASHBOARD_URI));
+
+        var emailData = {
+            profileUrl: profileUrl,
+            callHandle: callHandleUrl,
+            integration: integration,
+            expert: expert
+        };
+
+        return this.integrationMemberDelegate.get(expert.getId(), null, [IncludeFlag.INCLUDE_USER])
+            .then(
+            function expertUserFetched(expertUser:IntegrationMember)
+            {
+                return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_REGISTRATION_SUCCESS, expertUser.getUser()[0].getEmail(), emailData);
+            });
     }
 
 }
