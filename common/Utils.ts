@@ -167,5 +167,61 @@ class Utils
         urlObj.query = _.extend(urlObj.query || {}, query);
         return url.format(urlObj);
     }
+
+    static escapeObject(Obj:Object):Object;
+    static escapeObject(Obj:Object[]):Object[];
+    static escapeObject(obj:any):any
+    {
+        var dataAsArray = [].concat(obj);
+        var escapedData = _.map(dataAsArray, function(data){
+            for(var key in data)
+            {
+                var value = data[key];
+                if( Utils.getObjectType(value) == 'String')
+                {
+                    value = value.replace(/"/g, '&quot;')
+                        .replace(/'/g, '&squot;')
+                        .replace(/\\/g,'&bslash')
+                        .replace(/\n/g,'&endl;')
+                        .replace(/\t/g,'&tab;');
+                    data[key] = value;
+                }
+            }
+            return data;
+        })
+
+        if(escapedData.length == 1)
+            return escapedData[0];
+        else
+            return escapedData;
+    }
+
+    static unEscapeObject(Obj:Object):Object;
+    static unEscapeObject(Obj:Object[]):Object[];
+    static unEscapeObject(obj:any):any
+    {
+        var dataAsArray = [].concat(obj);
+        var escapedData = _.map(dataAsArray, function(data){
+            for(var key in data)
+            {
+                var value = data[key];
+                if( typeof value == 'string')
+                {
+                    value = value.replace(/&quot;/g, '"')
+                        .replace(/&squot;/g, '\'')
+                        .replace(/&bslash/g,'\\')
+                        .replace(/&endl;/g,'\n')
+                        .replace(/&tab;/g,'\t');
+                    data[key] = value;
+                }
+            }
+            return data;
+        })
+
+        if(escapedData.length == 1)
+            return escapedData[0];
+        else
+            return escapedData;
+    }
 }
 export = Utils

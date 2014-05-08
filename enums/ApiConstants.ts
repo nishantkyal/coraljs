@@ -25,6 +25,7 @@ class ApiConstants
     static PROFILE_TYPE:string                          = 'profileType';
     static USERNAME:string                              = 'login';
     static PASSWORD:string                              = 'pass';
+    static OLD_PASSWORD:string                          = 'oldPass';
     static PHONE_NUMBER_ID:string                       = 'phoneNumberId';
     static PHONE_CALL_ID:string                         = 'callId';
     static SCHEDULE_ID:string                           = 'scheduleId';

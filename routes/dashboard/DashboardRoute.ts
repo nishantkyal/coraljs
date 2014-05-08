@@ -148,12 +148,18 @@ class DashboardRoute
         var self = this;
         var sessionData = new SessionData(req);
         var password:string = req.body[ApiConstants.PASSWORD];
+        var oldPassword:string = req.body[ApiConstants.OLD_PASSWORD];
+        var user = sessionData.getLoggedInUser();
 
-        self.userDelegate.update({id: sessionData.getLoggedInUser().getId()}, {password: password})
-            .then(
-            function passwordUpdated() { res.send({message: 'Password Changed Successfully'}).status(200); },
-            function PasswordUpdateError(error) { res.send({message: 'Password Change Failed'}).status(500); }
-        )
+        var hashedPassword:string = self.userDelegate.computePasswordHash(user.getEmail(), oldPassword);
+        if (hashedPassword != user.getPassword())
+            res.send('Error in changing password. Old Password did not match').status(412);
+        else
+            self.userDelegate.update({id: sessionData.getLoggedInUser().getId()}, {password: password})
+                .then(
+                function passwordUpdated() { res.send('Password Changed Successfully').status(200); },
+                function PasswordUpdateError(error) { res.send('Password Change Failed. Internal Server Error').status(500); }
+            )
     }
 
     private verifyMobile(req:express.Request, res:express.Response)

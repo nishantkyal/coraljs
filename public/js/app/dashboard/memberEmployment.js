@@ -1,5 +1,5 @@
 $('.datepicker').datepicker({
-    format: 'mm/yyyy'
+    format: 'mm-yyyy'
 });
 
 $('#AddUserEmploymentModal form').validate({
@@ -51,6 +51,7 @@ $('.editUserEmployment').click(function()
         if(userEmployment[i].id == userEmploymentId)
             selectedUserEmployment = userEmployment[i];
     if (selectedUserEmployment) {
+        selectedUserEmployment = unEscapeObject(selectedUserEmployment);
         $('#EditUserEmploymentModal .btn-primary').attr('data-id', selectedUserEmployment.id);
         $('#EditUserEmploymentModal [name="title"]').val(selectedUserEmployment.title);
         $('#EditUserEmploymentModal [name="summary"]').val(selectedUserEmployment.summary);

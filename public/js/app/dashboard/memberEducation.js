@@ -12,6 +12,7 @@ $('.editUserEducation').click(function()
         if(userEducation[i].id == userEducationId)
             selectedUserEducation = userEducation[i];
     if (selectedUserEducation) {
+        selectedUserEducation = unEscapeObject(selectedUserEducation);
         $('#EditUserEducationModal .btn-primary').attr('data-id', selectedUserEducation.id);
         $('#EditUserEducationModal [name="school_name"]').val(selectedUserEducation.school_name);
         $('#EditUserEducationModal [name="field_of_study"]').val(selectedUserEducation.field_of_study);

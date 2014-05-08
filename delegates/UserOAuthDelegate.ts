@@ -30,9 +30,9 @@ class UserOAuthDelegate extends BaseDaoDelegate
 
         // 1. Try updating the token
         // 2. If it fails for uniqueness constraint, create a new user and add token to it
+        //Oauth cannot exists without user while vice versa can be true. So if Oauth exists then user exists
+        //and this function set that userId on Oauth
         var searchObject = {oauth_user_id: userOAuth.getOauthUserId(), provider_id: userOAuth.getProviderId()};
-        if(!Utils.isNullOrEmpty(userOAuth.getUserId))
-            searchObject['user_id'] = userOAuth.getUserId();
 
         return this.dao.search(searchObject, {'fields': ['id', 'user_id']})
             .then(
@@ -66,8 +66,7 @@ class UserOAuthDelegate extends BaseDaoDelegate
                         .then(
                         function userCreatedOrFetched(user:User):any
                         {
-                            if(Utils.isNullOrEmpty(userOAuth.getUserId))
-                                userOAuth.setUserId(user.getId());
+                            userOAuth.setUserId(user.getId());
                             return self.create(userOAuth, transaction);
                         })
                         .then(

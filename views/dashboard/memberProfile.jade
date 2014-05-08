@@ -161,11 +161,14 @@ block content
                     form
                         .modal-body
                             .form-group
+                                label.control-label(for='short_desc') Old Password
+                                input.form-control#oldPassword(type='password', name='oldPassword', autocomplete='off', data-toggle="tooltip", data-placement="bottom")
+                            .form-group
                                 label.control-label(for='short_desc') Password
-                                input.form-control#password(type='text', name='password', autocomplete='off', data-toggle="tooltip", data-placement="bottom")
+                                input.form-control#password(type='password', name='password', autocomplete='off', data-toggle="tooltip", data-placement="bottom")
                             .form-group
                                 label.control-label(for='long_desc') Confirm Password
-                                input.form-control#confirm_password(type='text', name='confirmPassword', autocomplete='off', data-toggle="tooltip", data-placement="bottom")
+                                input.form-control#confirm_password(type='password', name='confirmPassword', autocomplete='off', data-toggle="tooltip", data-placement="bottom")
                         .modal-footer
                             button.btn.btn-default(data-dismiss='modal') Close
                             input.btn.btn-primary(type='submit', value='OK')
