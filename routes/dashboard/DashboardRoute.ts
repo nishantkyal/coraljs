@@ -361,6 +361,7 @@ class DashboardRoute
         var sessionData = new SessionData(req);
         var userProfile:UserProfile = new UserProfile();
         var member:IntegrationMember;
+        var loggedInUser = sessionData.getLoggedInUser();
 
         q.all([
             self.integrationMemberDelegate.get(memberId, IntegrationMember.DASHBOARD_FIELDS),
@@ -381,7 +382,8 @@ class DashboardRoute
                         self.userEducationDelegate.search({'profileId': userProfile.getId()}),
                         self.userEmploymentDelegate.search({'profileId': userProfile.getId()}),
                         self.userUrlDelegate.search({'profileId': userProfile.getId()}),
-                        Middleware.isSelfOrAdminOrOwner(req)
+                        Middleware.isSelf(loggedInUser, memberId),
+                        Middleware.isAdminOrOwner(loggedInUser, memberId)
                     ];
 
                 return q.all([self.userDelegate.get(userId)].concat(profileInfoTasks));
@@ -394,7 +396,7 @@ class DashboardRoute
                 var userEducation = args[0][2] || [];
                 var userEmployment = args[0][3] || [];
                 var userUrl = args[0][4] || [];
-                var isEditable = args[0][5] || false;
+                var isEditable = args[0][5] || args[0][6] || false;
                 var profileId = userProfile ? userProfile.getId() : null;
 
                 var pageData = _.extend(sessionData.getData(), {

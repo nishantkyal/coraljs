@@ -71,9 +71,17 @@ class Middleware
             connect_ensure_login.ensureLoggedIn(),
             function (req:express.Request, res:express.Response, next:Function)
             {
-                Middleware.isSelfOrAdminOrOwner(req)
-                    .then( function checked(result){
-                        if(result)
+                var memberId:number = parseInt(req.params[ApiConstants.MEMBER_ID]);
+                var loggedInUser = new SessionData(req).getLoggedInUser();
+
+                q.all([
+                    Middleware.isSelf(loggedInUser, memberId),
+                    Middleware.isAdminOrOwner(loggedInUser, memberId)
+                ])
+                    .then( function checked(...args){
+                        var isSelf = args[0][0];
+                        var isOwnerOrAdmin = args[0][1]
+                        if(isOwnerOrAdmin || isSelf)
                             next();
                         else
                             res.send(401);
@@ -81,11 +89,22 @@ class Middleware
                     .fail (function(error){ res.send(500) })
             }];
 
-    static isSelfOrAdminOrOwner(req:express.Request):q.Promise<any>
+    static isSelf(loggedInUser:any, memberId:number):q.Promise<any>
     {
-        var sessionData = new SessionData(req);
-        var memberId:number = parseInt(req.params[ApiConstants.MEMBER_ID]);
-        var loggedInUser = sessionData.getLoggedInUser();
+        var integrationMemberDelegate = new IntegrationMemberDelegate();
+
+        return integrationMemberDelegate.get(memberId)
+            .then(function detailsFetched(integrationMember)
+            {
+                if(Utils.isNullOrEmpty(loggedInUser))
+                    return false;
+                else
+                    return  (integrationMember.getUserId() == loggedInUser.getId())
+            })
+    }
+
+    static isAdminOrOwner(loggedInUser:any, memberId:number):q.Promise<any>
+    {
         var integrationMember;
 
         var integrationMemberDelegate = new IntegrationMemberDelegate();
@@ -93,24 +112,20 @@ class Middleware
         return integrationMemberDelegate.get(memberId)
             .then(function detailsFetched(tempIntegrationMember)
             {
+                if(Utils.isNullOrEmpty(loggedInUser))
+                    return false;
+
                 integrationMember = tempIntegrationMember;
-                return q.all([
-                        integrationMemberDelegate.search({'integration_id':integrationMember.getIntegrationId(),'role': IntegrationMemberRole.Owner}),
-                        integrationMemberDelegate.search({'integration_id':integrationMember.getIntegrationId(),'role': IntegrationMemberRole.Admin})
-                    ])
+                return integrationMemberDelegate.search({'integration_id':integrationMember.getIntegrationId(),'user_id': loggedInUser.getId()})
                     .then(
                     function ownerFetched(...args)
                     {
-                        var owners = args[0][0] || [];
-                        var admins = args[0][1] || [];
+                        var members = [].concat(args[0][0]);
 
-                        var loggedInUserId = loggedInUser ? loggedInUser.getId() : null;
+                        var isAdmin = !Utils.isNullOrEmpty(_.findWhere(members, {'role': IntegrationMemberRole.Admin}));
+                        var isOwner = !Utils.isNullOrEmpty(_.findWhere(members, {'role': IntegrationMemberRole.Owner}));
 
-                        var isSelf = (integrationMember.getUserId() == loggedInUserId);
-                        var isAdmin = !Utils.isNullOrEmpty(_.findWhere(admins, {'user_id': loggedInUserId}));
-                        var isOwner = !Utils.isNullOrEmpty(_.findWhere(owners, {'user_id': loggedInUserId}));
-
-                        return (isSelf || isAdmin || isOwner)
+                        return (isAdmin || isOwner)
                     })
             })
     }
