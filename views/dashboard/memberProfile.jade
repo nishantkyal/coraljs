@@ -19,7 +19,9 @@ block content
                         div
                             a.btn.btn-link(href=DashboardUrls.memberProfile(member.id), target="_blank") View My Public Profile
                     div
-                        a.btn.btn-link(href=CallFlowUrls.callExpert(member.id), target="_blank") Call Me
+                        a.btn.btn-success(href=CallFlowUrls.callExpert(member.id), target="_blank")
+                            span.glyphicon.glyphicon-earphone(style='margin-right: 8px')
+                            | Call Now
                     if userProfile.status == 1 && isEditable
                         div
                             a.btn.btn-link#SendProfile() Send Profile for Approval
@@ -74,18 +76,21 @@ block content
                     .panel.panel-danger
                         .panel-heading
                             | Skills
-                        ul.list-group
-                            li.list-group-item
-                                if userSkill
+                        if userSkill.length != 0
+                            ul.list-group
+                                li.list-group-item
                                     each skill in userSkill
                                         div
-                                        normal #{skill.skill_name}&nbsp
-                                        if isEditable
-                                            .pull-right
-                                                a.fa.fa-pencil-square.editUserSkill(data-id=skill.id, data-toggle='modal', href='#EditUserSkillModal')
-                                                a.fa.fa-times-circle.deleteUserSkill(data-id=skill.id, data-toggle='modal', href='#DeleteUserSkillModal')
+                                            normal #{skill.skill_name}&nbsp
+                                            if isEditable
+                                                .pull-right
+                                                    a.fa.fa-pencil-square.editUserSkill(data-id=skill.id, data-toggle='modal', href='#EditUserSkillModal')
+                                                    a.fa.fa-times-circle.deleteUserSkill(data-id=skill.id, data-toggle='modal', href='#DeleteUserSkillModal')
+                        else
+                            .panel-body
+                                | No skills added yet
                         if isEditable
-                            .panel-body.editor
+                            .panel-body
                                 a.btn.btn-primary.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchSkillFromLinkedInModal')
                                     i.fa.fa-linkedin-square
                                     | &nbsp;Fetch from LinkedIn
@@ -93,9 +98,9 @@ block content
                     .panel.panel-success
                         .panel-heading
                             | Education
-                        ul.list-group
-                             li.list-group-item
-                                 if userEducation
+                        if userEducation.length != 0
+                            ul.list-group
+                                 li.list-group-item
                                      each edu in userEducation
                                          div
                                              string #{edu.school_name}
@@ -113,8 +118,11 @@ block content
                                                  small #{edu.start_year}&nbsp
                                              if edu.end_year
                                                  small - #{edu.end_year}
+                        else
+                            .panel-body
+                                | No schools added yet
                         if isEditable
-                            .panel-body.editor
+                            .panel-body
                                 a.btn.btn-primary.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchEducationFromLinkedInModal')
                                     i.fa.fa-linkedin-square
                                     | &nbsp;Fetch from LinkedIn
@@ -123,9 +131,9 @@ block content
                     .panel.panel-warning
                         .panel-heading
                             | Work Experience
-                        ul.list-group
-                            li.list-group-item
-                                if userEmployment
+                        if userEmployment.length != 0
+                            ul.list-group
+                                li.list-group-item
                                     each emp in userEmployment
                                         div
                                             strong #{emp.title}
@@ -144,8 +152,11 @@ block content
                                         div
                                             if emp.summary
                                                 small #{emp.summary}
+                        else
+                            .panel-body
+                                | No workplaces added yet
                         if isEditable
-                            .panel-body.editor
+                            .panel-body
                                 a.btn.btn-primary.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchEmploymentFromLinkedInModal')
                                     i.fa.fa-linkedin-square
                                     | &nbsp;Fetch from LinkedIn

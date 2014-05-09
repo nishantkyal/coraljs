@@ -1,3 +1,5 @@
+- var user = expert.user[0];
+
 include ../callFlow/header
 // /.masthead
 .matter
@@ -19,13 +21,25 @@ include ../callFlow/header
                             span.hidden-xs Talk
             // flowbar
             .content.col-xs-9.col-sm-9.col-md-12.col-lg-12
+                .row.messaging
+                    if error
+                        .alert.alert-danger
+                            strong Payment Failed!
+                            | #{error}
+                    else
+                        .alert.alert-success
+                            strong Payment Success!
+                            | Your call has been scheduled as per your request. A link to your call page has also been sent to your email address / cellphone via SMS.
+                            br
+                            br
+                            | You may use this page to manage this call.
                 .row.uneditables
                     .col-md-6
                         .row.user-profile
                             .status-icon.status-ok
                                 i.icon-searchntalk
                             .info
-                                .user-displayname Leonard Sheldon
+                                .user-displayname= formatName(user.first_name, user.last_name, user.title)
                                 .status-message accepting calls till 11.00am
                             .clearer
                     .col-md-3
@@ -48,12 +62,5 @@ include ../callFlow/header
                             a.btn.btn-danger(href='index.html')
                                 | Cancel Call
                                 i.icon-cancel
-                .row.messaging
-                    .alert.alert-success
-                        strong Payment Success!
-                        | Your call has been scheduled as per your request. A link to your call page has also been sent to your email address / cellphone via SMS.
-                        br
-                        br
-                        | You may use this page to manage this call.
             // /.content
 include ../callFlow/footer

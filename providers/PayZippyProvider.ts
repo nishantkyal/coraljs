@@ -1,15 +1,47 @@
+import log4js                                               = require('log4js');
+import express                                              = require('express');
+import q                                                    = require('q');
 import _                                                    = require('underscore');
 import url                                                  = require('url');
 import crypto                                               = require('crypto');
 import Transaction                                          = require('../models/Transaction');
 import User                                                 = require('../models/User');
 import TransactionLine                                      = require('../models/TransactionLine');
+import Payment                                              = require('../models/Payment');
 import Config                                               = require('../common/Config');
 import Utils                                                = require('../common/Utils');
 import DashboardUrls                                        = require('../routes/dashboard/Urls');
+import TransactionDelegate                                  = require('../delegates/TransactionDelegate');
+import PaymentDelegate                                      = require('../delegates/PaymentDelegate');
+import TransactionStatus                                    = require('../enums/TransactionStatus');
+import PaymentGateway                                       = require('../enums/PaymentGateway');
 
 class PayZippyProvider
 {
+    private logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
+    private transactionDelegate = new TransactionDelegate();
+    private paymentDelegate = new PaymentDelegate();
+
+    private static MERHANT_TRANSACTION_ID:string            = 'merchant_transaction_id';
+    private static PAYZIPPY_TRANSACTION_ID:string           = 'payzippy_transaction_id';
+    private static TRANSACTION_STATUS:string                = 'transaction_status';
+    private static TRANSACTION_AMOUNT:string                = 'transaction_amount';
+    private static TRANSACTION_CURRENCY:string              = 'transaction_currency';
+    private static TRANSACTION_RESPONSE_CODE:string         = 'transaction_response_code';
+    private static TRANSACTION_RESPONSE_MESSAGE:string      = 'transaction_response_message';
+    private static FRAUD_ACTION:string                      = 'fraud_action';
+    private static FRAUD_DETAILS:string                     = 'fraud_details';
+
+    private static FRAUD_ACTION_ACCEPT:string               = 'Accept';
+    private static FRAUD_ACTION_REJECT:string               = 'Reject';
+    private static FRAUD_ACTION_REVIEW:string               = 'Review';
+    private static FRAUD_ACTION_NO_ACTION:string            = 'No Action';
+
+    private static TRANSACTION_STATUS_SUCCESS:string        = 'SUCCESS';
+    private static TRANSACTION_STATUS_FAILED:string         = 'FAILED';
+    private static TRANSACTION_STATUS_PENDING:string        = 'PENDING';
+
+
     getPaymentUrl(transaction:Transaction, lines:TransactionLine[], user:User):string
     {
         var data = {
@@ -40,9 +72,12 @@ class PayZippyProvider
         return payZippyUrl;
     }
 
-    getTransactionId(response:Object):number
+    handleResponse(req:express.Request):q.Promise<number>
     {
+        var self = this;
+        var response = req.body;
         var hash = response['hash'];
+        var transactionStatus:TransactionStatus = TransactionStatus.PAYMENT_SUCCESS;
         delete response['hash'];
 
         var sortedKeys:string[] = _.keys(response).sort();
@@ -52,7 +87,36 @@ class PayZippyProvider
         var md5sum = crypto.createHash('md5');
         var computedHash:string = md5sum.update(concatString).digest('hex');
 
-        return (computedHash == hash) ? response['merchant_transaction_id'] : null;
+
+        if (computedHash != hash)
+            return null
+
+        if (response[PayZippyProvider.TRANSACTION_STATUS] != PayZippyProvider.TRANSACTION_STATUS_SUCCESS)
+            transactionStatus = TransactionStatus.PAYMENT_FAILED;
+
+        // Mark the transaction id as success and send back transactionId
+        var transactionId = parseInt(response[PayZippyProvider.MERHANT_TRANSACTION_ID]);
+        var paymentTransactionId = response[PayZippyProvider.PAYZIPPY_TRANSACTION_ID];
+
+        var payment = new Payment();
+        payment.setAmount(response[PayZippyProvider.TRANSACTION_AMOUNT]);
+        payment.setGatewayId(PaymentGateway.PAYZIPPY);
+        payment.setGatewayResponseCode(response[PayZippyProvider.TRANSACTION_RESPONSE_CODE]);
+        payment.setGatewayTransactionId(paymentTransactionId)
+
+        return self.paymentDelegate.create(payment)
+            .then(
+            function paymentCreated(createdPayment:Payment)
+            {
+                return self.transactionDelegate.update(transactionId, {payment_id: createdPayment.getId(), status: transactionStatus});
+            })
+            .then(
+            function statusUpdated()
+            {
+                if (transactionStatus == TransactionStatus.PAYMENT_SUCCESS)
+                    return transactionId;
+                throw(response[PayZippyProvider.TRANSACTION_RESPONSE_MESSAGE]);
+            });
     }
 }
 export = PayZippyProvider

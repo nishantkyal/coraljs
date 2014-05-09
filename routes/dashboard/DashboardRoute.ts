@@ -409,7 +409,7 @@ class DashboardRoute
                     'userEmployment': userEmployment,
                     'userUrl': userUrl,
                     'messages': req.flash(),
-                    'isEditable' : isEditable
+                    'isEditable': isEditable
                 });
                 res.render(DashboardRoute.PAGE_PROFILE, pageData);
             },
@@ -443,14 +443,14 @@ class DashboardRoute
         userProfile.setStatus(ProfileStatus.PENDING_APPROVAL);
         this.userProfileDelegate.update({id: profileId}, userProfile)
             .then(
-                function userUpdated()
-                {
-                    self.notificationDelegate.sendProfilePendingApprovalEmail(memberId)
-                        .then(
-                        function emailSent() { res.send(200);  }
-                        )
-                }
-            )
+            function userUpdated()
+            {
+                self.notificationDelegate.sendProfilePendingApprovalEmail(memberId)
+                    .then(
+                    function emailSent() { res.send(200); }
+                )
+            }
+        )
             .fail(function userUpdateError(error) { res.send(500); })
     }
 
@@ -461,9 +461,9 @@ class DashboardRoute
 
         this.userProfileDelegate.publishProfile(profileId, userId)
             .then(
-                function profilePublished()         { res.send(200); },
-                function profilePublishError(error) { res.send(500); }
-            )
+            function profilePublished() { res.send(200); },
+            function profilePublishError(error) { res.send(500); }
+        )
     }
 
     /* Logout and redirect to login page */
@@ -486,9 +486,12 @@ class DashboardRoute
         // 1. Fetch transaction lines for the successful transaction
         // 2. Update transaction status
         // 3. Take next actions based on products in the transaction
-        var transactionId = payZippyProvider.getTransactionId(response);
-
-        self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, transactionId))
+        payZippyProvider.handleResponse(req)
+            .then(
+            function responseProcessed(transactionId:number)
+            {
+                return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, transactionId))
+            })
             .then(
             function transactionLinesFetched(result:TransactionLine[])
             {
@@ -501,7 +504,7 @@ class DashboardRoute
             .then(
             function callFetched(call:PhoneCall)
             {
-                var pageData = _.extend(sessionData.getData(), {
+                var pageData = _.extend(callFlowSessionData.getData(), {
                     transactionLines: lines,
                     call: call,
                     appointments: callFlowSessionData.getAppointments()
@@ -517,8 +520,13 @@ class DashboardRoute
                 ]);
             })
             .fail(
-            function handleError(error) { res.send(500, error); }
-        );
+            function handleError(error)
+            {
+                var pageData = _.extend(callFlowSessionData.getData(), {
+                    error: error
+                });
+                res.render(DashboardRoute.PAGE_PAYMENT_COMPLETE, pageData);
+            });
     }
 
     private emailAccountVerification(req, res:express.Response)
