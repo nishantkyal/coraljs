@@ -7,6 +7,7 @@ import express                                              = require('express')
 import passport                                             = require('passport');
 import log4js                                               = require('log4js');
 import RequestHandler                                       = require('../../middleware/RequestHandler');
+import MysqlDelegate                                        = require('../../delegates/MysqlDelegate');
 import AuthenticationDelegate                               = require('../../delegates/AuthenticationDelegate');
 import IntegrationDelegate                                  = require('../../delegates/IntegrationDelegate');
 import IntegrationMemberDelegate                            = require('../../delegates/IntegrationMemberDelegate');
@@ -57,8 +58,12 @@ class CallFlowRoute
         app.get(Urls.callExpert(), this.index.bind(this));
         app.get(Urls.callPayment(), Middleware.requireCallerAndCallDetails, this.callPaymentPage.bind(this));
         app.post(Urls.callPayment(), Middleware.requireCallerAndCallDetails, this.callPayment.bind(this));
-        app.post(Urls.applyCoupon(), Middleware.requireCallerAndCallDetails, this.applyCoupon.bind(this))
-        app.post(Urls.checkout(), connect_ensure_login.ensureLoggedIn(), Middleware.requireCallerAndCallDetails, this.checkout.bind(this));
+        app.post(Urls.applyCoupon(), Middleware.requireTransaction, this.applyCoupon.bind(this))
+        app.post(Urls.checkout(), connect_ensure_login.ensureLoggedIn(), Middleware.requireTransaction, this.checkout.bind(this));
+
+        // Auth
+        app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN), this.handleLoginJustBeforeCheckout.bind(this));
+        app.post(Urls.register(), AuthenticationDelegate.register, this.handleLoginJustBeforeCheckout.bind(this));
     }
 
     /* Render index with expert schedules */
@@ -85,7 +90,7 @@ class CallFlowRoute
     }
 
     /* Redirect to convert post to get
-    * Note: We're doing a POST so that user selected params don't appear in url*/
+     * Note: We're doing a POST so that user selected params don't appear in url*/
     private callPayment(req, res:express.Response)
     {
         res.redirect(Urls.callPayment());
@@ -97,50 +102,74 @@ class CallFlowRoute
         var sessionData = new SessionData(req);
         var self = this;
         var expert = sessionData.getExpert();
+        var loggedInUserId = req.isAuthenticated() ? sessionData.getLoggedInUser().getId() : null;
+        var tasks = [];
 
-        function renderPage(phoneNumbers)
+        // Create transaction if doesn't exist and send back transaction lines
+        if (sessionData.getTransaction())
+            tasks.push(self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, sessionData.getTransaction().getId())));
+        else
         {
-            var dummyPhoneCall = new PhoneCall();
-            dummyPhoneCall.setDuration(sessionData.getDuration());
-            dummyPhoneCall.setPricePerMin(expert.getSchedule()[0][ExpertSchedule.PRICE_PER_MIN]);
-            dummyPhoneCall.setPriceCurrency(expert.getSchedule()[0][ExpertSchedule.PRICE_UNIT]);
+            var phoneCall = new PhoneCall();
+            phoneCall.setIntegrationMemberId(sessionData.getExpert().getId());
+            phoneCall.setDelay(0);
+            phoneCall.setStatus(CallStatus.PLANNING);
+            phoneCall.setDuration(sessionData.getDuration());
+            phoneCall.setPricePerMin(expert.getSchedule()[0][ExpertSchedule.PRICE_PER_MIN]);
+            phoneCall.setPriceCurrency(expert.getSchedule()[0][ExpertSchedule.PRICE_UNIT]);
+            phoneCall.setCallerUserId(loggedInUserId);
 
-            var dummyTransactionLines = self.transactionLineDelegate.getPhoneCallTransactionLines(dummyPhoneCall);
-            _.sortBy(dummyTransactionLines, function () { return TransactionLine.TRANSACTION_TYPE });
+            var transaction = new Transaction();
+            transaction.setUserId(loggedInUserId);
+            transaction.setStatus(TransactionStatus.CREATED);
 
-            var pageData = _.extend(sessionData.getData(), {
-                messages: req.flash(),
-                userPhones: phoneNumbers,
-                transactionLines: dummyTransactionLines
-            });
+            tasks.push(self.phoneCallDelegate.create(phoneCall)
+                .then(
+                function phoneCallCreated(createdCall:PhoneCall)
+                {
+                    sessionData.setCall(createdCall);
+                    return self.transactionDelegate.createPhoneCallTransaction(transaction, createdCall);
+                })
+                .then(
+                function transactionCreated(createdTransaction:Transaction)
+                {
+                    sessionData.setTransaction(createdTransaction);
+                    return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, createdTransaction.getId()))
+                }));
+        }
 
-            res.render(CallFlowRoute.PAYMENT, pageData);
-        };
-
+        // If logged in, fetch associated phone numbers
         if (req.isAuthenticated())
         {
-            var loggedInUserId = sessionData.getLoggedInUser().getId();
             var userPhoneSearch = {};
             userPhoneSearch[UserPhone.USER_ID] = loggedInUserId;
             userPhoneSearch[UserPhone.VERIFIED] = true;
 
-            self.userPhoneDelegate.search(userPhoneSearch)
+            tasks.push(self.userPhoneDelegate.search(userPhoneSearch)
                 .fail(
                 function userPhoneFetchFailed(error)
                 {
                     self.logger.error('User phone fetch error. Error: %s', error);
                     return null;
-                })
-                .then(renderPage)
-                .fail(
-                function handleError(error)
-                {
-                    self.logger.error('Failure on payment page. Error: %s', JSON.stringify(error));
-                    res.send(500);
-                });
+                }));
         }
-        else
-            renderPage(null);
+
+        // Execute all tasks and render
+        q.all(tasks)
+            .then(
+            function allDone(...args)
+            {
+                var lines = args[0][0];
+                var phoneNumbers = args[0][1];
+
+                var pageData = _.extend(sessionData.getData(), {
+                    messages: req.flash(),
+                    userPhones: phoneNumbers,
+                    transactionLines: lines
+                });
+
+                res.render(CallFlowRoute.PAYMENT, pageData);
+            });
     }
 
     /* Apply coupon and send back discount details */
@@ -149,61 +178,70 @@ class CallFlowRoute
         var self = this;
         var couponCode:string = req.query[ApiConstants.CODE];
         var sessionData:SessionData = new SessionData(req);
-        var expert = sessionData.getExpert();
+        var transaction = sessionData.getTransaction();
 
-
+        self.transactionDelegate.applyCoupon(transaction.getId(), couponCode)
+            .then(
+            function couponApplied()
+            {
+                return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, transaction.getId()))
+            })
+            .then(
+            function transactionLinesFetched(lines:TransactionLine[]) { res.send(lines); },
+            function couponApplyFailed(error) { res.send(500, error); }
+        );
     }
 
-    /* Validate everything, create a transaction (and phone call record) and redirect to payment */
-    private checkout(req:express.Request, res:express.Response)
+    /* Handle user login just before checkout */
+    private handleLoginJustBeforeCheckout(req:express.Request, res:express.Response)
     {
-        var sessionData = new SessionData(req);
-        var loggedInUserId = sessionData.getLoggedInUser().getId();
-        var expert = sessionData.getExpert();
-
-        // TODO: Verify that supplied phone number belongs to logged in user
         var self = this;
         var sessionData = new SessionData(req);
+
+        // 1. Create user phone entry for phone number in session
+        // 2. Update user id in transaction and call entries
+
+        var dbTransaction;
+        var transaction = sessionData.getTransaction();
+        var call = sessionData.getCall();
+
+        MysqlDelegate.beginTransaction()
+            .then(
+            function transactionStarted(t)
+            {
+                dbTransaction = t;
+
+                return q.all([
+                    self.phoneCallDelegate.update(call.getId(), Utils.createSimpleObject(PhoneCall.CALLER_USER_ID, sessionData.getLoggedInUser().getId()), dbTransaction),
+                    self.transactionDelegate.update(transaction.getId(), Utils.createSimpleObject(Transaction.USER_ID, sessionData.getLoggedInUser().getId()), dbTransaction)
+                ]);
+            })
+            .then(
+            function userIdUpdated()
+            {
+                return MysqlDelegate.commit(dbTransaction);
+            });
+    }
+
+    /* Redirect to gateway for payment */
+    private checkout(req:express.Request, res:express.Response)
+    {
+        var self = this;
+        var sessionData = new SessionData(req);
+        var transaction = sessionData.getTransaction();
 
         var callerPhone = new UserPhone();
         callerPhone.setPhone(sessionData.getCallerPhone());
         callerPhone.setUserId(sessionData.getLoggedInUser().getId());
 
-        var phoneCall = new PhoneCall();
-        phoneCall.setIntegrationMemberId(sessionData.getExpert().getId());
-        phoneCall.setCallerUserId(req[ApiConstants.USER].id);
-        phoneCall.setDelay(0);
-        phoneCall.setStatus(CallStatus.PLANNING);
-        phoneCall.setDuration(sessionData.getDuration());
-        phoneCall.setPricePerMin(expert.getSchedule()[0][ExpertSchedule.PRICE_PER_MIN]);
-        phoneCall.setPriceCurrency(expert.getSchedule()[0][ExpertSchedule.PRICE_UNIT]);
-
-        var transaction = new Transaction();
-        transaction.setUserId(loggedInUserId);
-        transaction.setStatus(TransactionStatus.CREATED);
-
-        self.userPhoneDelegate.create(callerPhone)
-            .then(
-            function phoneCreated(phone:UserPhone)
-            {
-                phoneCall.setCallerPhoneId(phone.getId());
-                return self.phoneCallDelegate.create(phoneCall);
-            })
-            .then(
-            function phoneCallCreated(c:PhoneCall)
-            {
-                return self.transactionDelegate.createPhoneCallTransaction(transaction, c);
-            })
-            .then(
-            function transactionCreated(transaction)
-            {
-                return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, transaction.getId()));
-            })
+        self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, transaction.getId()))
             .then(
             function transactionLinesFetched(lines:TransactionLine[])
             {
                 var payZippyProvider = new PayZippyProvider();
-                res.redirect(payZippyProvider.getPaymentUrl(transaction, lines, sessionData.getLoggedInUser()));
+                var amount:number = _.reduce(_.pluck(lines, TransactionLine.AMOUNT), function (memo:number, num:number) { return memo + num; }, 0) * 100
+
+                res.redirect(payZippyProvider.getPaymentUrl(transaction, amount, sessionData.getLoggedInUser()));
             });
     }
 }

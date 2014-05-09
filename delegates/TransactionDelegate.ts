@@ -61,7 +61,7 @@ class TransactionDelegate extends BaseDaoDelegate
 
         return q.all([
             self.couponDelegate.findCoupon(code, Coupon.DASHBOARD_FIELDS),
-            self.transactionLineDelegate.find({transaction_id: transactionId})
+            self.transactionLineDelegate.search({transaction_id: transactionId})
         ])
             .then(
             function couponFetched(...result)
@@ -121,7 +121,7 @@ class TransactionDelegate extends BaseDaoDelegate
                 var discount:number = (discountUnit == MoneyUnit.PERCENT) ? discountableTotalAmount * (1 - discountAmount / 100) : discountableTotalAmount - discountAmount;
                 discount = Math.max(0, discount);
 
-                // Create discount transaction line and update transaction total
+                // Create discount transaction line and increment coupons used counter
                 return q.all([
                     self.couponDelegate.markUsed(code, dbTransaction),
                     self.transactionLineDelegate.create(null, dbTransaction)

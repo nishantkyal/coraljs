@@ -1,4 +1,4 @@
-///<reference path='../../_references.d.ts'/>
+import express                                              = require('express');
 import _                                                    = require('underscore');
 import ApiConstants                                         = require('../../enums/ApiConstants');
 import Utils                                                = require('../../common/Utils');
@@ -42,7 +42,26 @@ class Middleware
         }
         else
         {
-            res.composeAndSend(400, "This is strange, how did you land up here without selecting an expert");
+            res.send(400, "This is strange, how did you land up here without selecting an expert");
+        }
+    }
+
+    static requireTransaction(req:express.Request, res:express.Response, next:Function)
+    {
+        var sessionData = new SessionData(req);
+        var expert = sessionData.getExpert();
+
+        if (!Utils.isNullOrEmpty(sessionData.getTransaction()))
+        {
+            next();
+        }
+        else if (!Utils.isNullOrEmpty(expert))
+        {
+            res.redirect(Urls.callExpert(expert.getId()));
+        }
+        else
+        {
+            res.send(400, "This is strange, how did you land up here without selecting an expert");
         }
     }
 

@@ -85,7 +85,7 @@ include header
                                     input#login(type='hidden')
                                     input.btn.btn-lg.btn-primary.first(type='submit') Proceed to Payment
                 // /.content
-.modal.fade
+.modal.fade#login-modal
     .modal-dialog
         .modal-content
             .modal-header
@@ -106,7 +106,6 @@ include header
                     span
                         a(href='#') Continue without logging in?
             .modal-footer
-        // /.modal-content
-    // /.modal-dialog
 
+script(src='/js/app/callFlow/payment.js')
 include footer
