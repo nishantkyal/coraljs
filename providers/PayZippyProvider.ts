@@ -42,7 +42,7 @@ class PayZippyProvider
     private static TRANSACTION_STATUS_PENDING:string        = 'PENDING';
 
 
-    getPaymentUrl(transaction:Transaction, lines:TransactionLine[], user:User):string
+    getPaymentUrl(transaction:Transaction, amount:number, user:User):string
     {
         var data = {
             buyer_email_address: user.getEmail(),
@@ -55,7 +55,7 @@ class PayZippyProvider
             merchant_key_id: Config.get(Config.PAY_ZIPPY_MERCHANT_KEY_ID),
             merchant_transaction_id: transaction.getId(),
             payment_method: null,
-            transaction_amount: _.reduce(_.pluck(lines, TransactionLine.AMOUNT), function(memo:number, num:number){ return memo + num; }, 0) * 100,
+            transaction_amount: amount,
             transaction_type: 'sale',
             ui_mode: 'redirect'
         };
@@ -87,14 +87,13 @@ class PayZippyProvider
         var md5sum = crypto.createHash('md5');
         var computedHash:string = md5sum.update(concatString).digest('hex');
 
-
         if (computedHash != hash)
             return null
 
         if (response[PayZippyProvider.TRANSACTION_STATUS] != PayZippyProvider.TRANSACTION_STATUS_SUCCESS)
             transactionStatus = TransactionStatus.PAYMENT_FAILED;
 
-        // Mark the transaction id as success and send back transactionId
+        // Mark the transaction id as success and send it back
         var transactionId = parseInt(response[PayZippyProvider.MERHANT_TRANSACTION_ID]);
         var paymentTransactionId = response[PayZippyProvider.PAYZIPPY_TRANSACTION_ID];
 

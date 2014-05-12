@@ -29,12 +29,10 @@ table.sortable span.reversed {
     margin-top: -7px;
 }
 
-    table.sortable span.reversed.up {
-        border-color: #ccc transparent transparent transparent;
-        margin-top: -2px;
-    }
-
-
+table.sortable span.reversed.up {
+    border-color: #ccc transparent transparent transparent;
+    margin-top: -2px;
+}
 
 table.sortable span.az:before {
     content: "a .. z";

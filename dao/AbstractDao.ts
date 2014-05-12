@@ -274,16 +274,23 @@ class AbstractDao
                     break;
                 case 'Object':
                     var operator = query['operator'];
-                    var statement = key + ' ' + query['operator'] + ' ?';
+                    var statement;
 
-                    if (operator.toLowerCase() === 'between')
+                    if (operator && operator.toLowerCase() === 'between')
                     {
-                        statement += ' AND ?';
+                        statement = key + ' ' + operator + ' ? AND ?';
                         values.push(query['value'][0]);
                         values.push(query['value'][1]);
                     }
-                    else
+                    else if (query['value'])
+                    {
+                        statement = key + ' ' + operator + ' ?';
                         values.push(query['value']);
+                    }
+                    else if (query['raw'])
+                    {
+                        statement = key + ' ' + query['raw'];
+                    }
 
                     whereStatements.push(statement);
                     break;

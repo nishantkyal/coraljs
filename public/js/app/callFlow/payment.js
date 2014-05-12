@@ -59,12 +59,32 @@ $("#verifyCode").click(function()
 });
 
 $('form').validate({
-    rules: {
-        'login': {
-            remote: {
-                url: '/rest/user/authentication',
-                method: 'GET'
+    submitHandler: function(form)
+    {
+        $.ajax({
+            url: '/rest/user/authentication',
+            type: 'GET',
+            success: function(data, textStatus, jqXHR)
+            {
+                // If not logged in, stop event propagation and show modal
+                if (!data)
+                    $('#login-modal').modal('show');
+                else
+                    form.submit();
             }
-        }
+        })
     }
+});
+
+$('#applyCoupon').click(function()
+{
+    var code = $('#couponCode').val();
+    $.ajax({
+        url: '/'
+    })
+});
+
+$('#register-button').click(function()
+{
+
 });

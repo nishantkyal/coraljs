@@ -1,6 +1,7 @@
 ///<reference path='../_references.d.ts'/>
 import _                                                    = require('underscore');
 import q                                                    = require('q');
+import moment                                               = require('moment');
 import BaseDaoDelegate                                      = require('../delegates/BaseDaoDelegate');
 import UserDelegate                                         = require('../delegates/UserDelegate');
 import IntegrationMemberDelegate                            = require('../delegates/IntegrationMemberDelegate');
@@ -17,6 +18,17 @@ class CouponDelegate extends BaseDaoDelegate
 
     constructor() { super(new CouponDao()); }
 
+    create(object:Object, transaction?:any):q.Promise<any>
+    {
+        if (Utils.isNullOrEmpty(object[Coupon.EXPIRY_TIME]))
+            object[Coupon.EXPIRY_TIME] = moment().year(2050).month(12).date(31).valueOf();
+
+        if (Utils.isNullOrEmpty(object[Coupon.MAX_COUPONS]))
+            object[Coupon.MAX_COUPONS] = 99999999;
+
+        return super.create(object, transaction);
+    }
+
     findCoupon(code:string, fields?:string[], includeExpiredAndExhausted:boolean = false):q.Promise<Coupon>
     {
         var search = {};
@@ -25,8 +37,7 @@ class CouponDelegate extends BaseDaoDelegate
         if (!includeExpiredAndExhausted)
         {
             search[Coupon.NUM_USED] = {
-                operator: '<',
-                value: Coupon.MAX_COUPONS
+                raw: ' < ' + Coupon.MAX_COUPONS
             };
 
             search[Coupon.EXPIRY_TIME] = {

@@ -12,6 +12,8 @@ class Transaction extends BaseModel
     static STATUS:string                                    = 'status';
     static TRANSACTION_LINE:string                          = 'transaction_line';
 
+    static DEFAULT_FIELDS:string[] = [Transaction.ID, Transaction.USER_ID, Transaction.PAYMENT_ID, Transaction.STATUS];
+
     private user_id:number;
     private payment_id:number;
     private status:TransactionStatus;

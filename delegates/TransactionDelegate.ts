@@ -59,35 +59,43 @@ class TransactionDelegate extends BaseDaoDelegate
         var self = this;
         var args = arguments;
 
-        return q.all([
-            self.couponDelegate.findCoupon(code, Coupon.DASHBOARD_FIELDS),
-            self.transactionLineDelegate.find({transaction_id: transactionId})
-        ])
+        if (Utils.isNullOrEmpty(dbTransaction))
+            return MysqlDelegate.executeInTransaction(self, args);
+
+        // Check that discount has not already been applied to this transaction
+        var discountLineSearch = {};
+        discountLineSearch[TransactionLine.TRANSACTION_TYPE] = TransactionType.DISCOUNT;
+        discountLineSearch[TransactionLine.TRANSACTION_ID] = transactionId;
+
+        return self.transactionLineDelegate.find(discountLineSearch)
             .then(
-            function couponFetched(...result)
+            function discountLinesFetched(lines:TransactionLine[])
+            {
+                if (lines.length == 0)
+                    return q.all([
+                        self.couponDelegate.findCoupon(code, Coupon.DASHBOARD_FIELDS),
+                        self.transactionLineDelegate.search({transaction_id: transactionId})
+                    ]);
+                else
+                    throw('Only one discount allowed at a time');
+            })
+            .then(
+            function couponFetched(...result):any
             {
                 var coupon = result[0][0];
                 var transactionLines = result[0][1];
 
-                if (!Utils.isNullOrEmpty(coupon))
+                if (Utils.isNullOrEmpty(coupon))
                     throw('Invalid or expired coupon');
 
                 // TODO: Check if coupon applies to selected expert
-                var expertResourceId = coupon.getExpertId();
-
-                if (Utils.isNullOrEmpty(dbTransaction))
-                    return MysqlDelegate.executeInTransaction(self, args)
-                        .then(
-                        function operationCompleted()
-                        {
-                            return self.get(transactionId, null, [IncludeFlag.INCLUDE_TRANSACTION_LINE]);
-                        });
+                //var expertResourceId = coupon.getExpertId();
 
                 var discountUnit = coupon.getDiscountUnit();
                 var discountAmount = coupon.getDiscountAmount();
                 var couponType = coupon.getCouponType();
 
-                var discountableLines = _.map(transactionLines, function (transactionLine:TransactionLine)
+                var discountableLines = _.filter(transactionLines, function (transactionLine:TransactionLine)
                 {
                     if (discountUnit != MoneyUnit.PERCENT && transactionLine.getAmountUnit() != discountUnit)
                         return false;
@@ -118,19 +126,27 @@ class TransactionDelegate extends BaseDaoDelegate
 
                 var discountableAmounts = _.pluck(discountableLines, TransactionLine.AMOUNT);
                 var discountableTotalAmount = _.reduce(discountableAmounts, function (sum:number, n:number) { return sum += n; })
-                var discount:number = (discountUnit == MoneyUnit.PERCENT) ? discountableTotalAmount * (1 - discountAmount / 100) : discountableTotalAmount - discountAmount;
+                var discount:number = (discountUnit == MoneyUnit.PERCENT) ? discountableTotalAmount * discountAmount / 100 : discountAmount;
                 discount = Math.max(0, discount);
 
-                // Create discount transaction line and update transaction total
+                var discountLine = new TransactionLine();
+                discountLine.setTransactionId(transactionId);
+                discountLine.setTransactionType(TransactionType.DISCOUNT);
+                discountLine.setItemId(coupon.getId());
+                discountLine.setItemType(ItemType.SERVICE_TAX);
+                discountLine.setAmount(-discount);
+                discountLine.setAmountUnit(discountUnit);
+
+                // Create discount transaction line and increment coupons used counter
                 return q.all([
                     self.couponDelegate.markUsed(code, dbTransaction),
-                    self.transactionLineDelegate.create(null, dbTransaction)
+                    self.transactionLineDelegate.create(discountLine, dbTransaction)
                 ]);
             },
             function couponFetchFailed(error)
             {
                 self.logger.error('Error while applying coupon: %s. Error: %s', code, error);
-                throw('Apply coupon failed');
+                throw(error);
             });
     }
 
@@ -168,7 +184,7 @@ class TransactionDelegate extends BaseDaoDelegate
         var self = this;
         result = [].concat(result);
 
-        switch(include)
+        switch (include)
         {
             case IncludeFlag.INCLUDE_TRANSACTION_LINE:
                 return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, _.pluck(result, Transaction.ID)));

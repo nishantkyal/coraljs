@@ -78,15 +78,16 @@ class Middleware
                     Middleware.isSelf(loggedInUser, memberId),
                     Middleware.isAdminOrOwner(loggedInUser, memberId)
                 ])
-                    .then( function checked(...args){
+                    .then(function checked(...args)
+                    {
                         var isSelf = args[0][0];
                         var isOwnerOrAdmin = args[0][1]
-                        if(isOwnerOrAdmin || isSelf)
+                        if (isOwnerOrAdmin || isSelf)
                             next();
                         else
                             res.send(401);
                     })
-                    .fail (function(error){ res.send(500) })
+                    .fail(function (error) { res.send(500) })
             }];
 
     static isSelf(loggedInUser:any, memberId:number):q.Promise<any>
@@ -96,7 +97,7 @@ class Middleware
         return integrationMemberDelegate.get(memberId)
             .then(function detailsFetched(integrationMember)
             {
-                if(Utils.isNullOrEmpty(loggedInUser))
+                if (Utils.isNullOrEmpty(loggedInUser))
                     return false;
                 else
                     return  (integrationMember.getUserId() == loggedInUser.getId())
@@ -106,17 +107,18 @@ class Middleware
     static isAdminOrOwner(loggedInUser:any, memberId:number):q.Promise<any>
     {
         var integrationMember;
-
         var integrationMemberDelegate = new IntegrationMemberDelegate();
 
         return integrationMemberDelegate.get(memberId)
-            .then(function detailsFetched(tempIntegrationMember)
+            .then(
+            function detailsFetched(tempIntegrationMember):any
             {
-                if(Utils.isNullOrEmpty(loggedInUser))
+                if (Utils.isNullOrEmpty(loggedInUser))
                     return false;
 
                 integrationMember = tempIntegrationMember;
-                return integrationMemberDelegate.search({'integration_id':integrationMember.getIntegrationId(),'user_id': loggedInUser.getId()})
+
+                return integrationMemberDelegate.search({'integration_id': integrationMember.getIntegrationId(), 'user_id': loggedInUser.getId()})
                     .then(
                     function ownerFetched(...args)
                     {
@@ -127,7 +129,7 @@ class Middleware
 
                         return (isAdmin || isOwner)
                     })
-            })
+            });
     }
 }
 export = Middleware
