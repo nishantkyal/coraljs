@@ -17,7 +17,6 @@ import PhoneCall                                                        = requir
 import User                                                             = require('../models/User');
 import UserPhone                                                        = require('../models/UserPhone');
 import IntegrationMember                                                = require('../models/IntegrationMember');
-import CustomPromiseScheduledTask                                       = require('../models/tasks/CustomPromiseScheduledTask');
 import TriggerPhoneCallTask                                             = require('../models/tasks/TriggerPhoneCallTask');
 import UnscheduledCallsCache                                            = require('../caches/UnscheduledCallsCache');
 import PhoneCallCache                                                   = require('../caches/PhoneCallCache');
@@ -152,12 +151,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
         var scheduledTaskDelegate = new ScheduledTaskDelegate();
         scheduledTaskDelegate.scheduleAt(new TriggerPhoneCallTask(call.getId()), call.getStartTime());
 
-        var reminderNotificationTask = new CustomPromiseScheduledTask();
-        reminderNotificationTask.setFunction(new NotificationDelegate().sendCallReminderNotification);
-        reminderNotificationTask.setArgs([call.getId()]);
-        scheduledTaskDelegate.scheduleAt(reminderNotificationTask, call.getStartTime() - parseInt(Config.get(Config.CALL_REMINDER_LEAD_TIME_SECS)) * 1000);
     }
-
     constructor() { super(new PhoneCallDao()); }
 }
 export = PhoneCallDelegate
