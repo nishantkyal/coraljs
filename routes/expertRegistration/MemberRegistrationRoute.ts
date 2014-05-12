@@ -37,7 +37,6 @@ class MemberRegistrationRoute
     private userDelegate = new UserDelegate();
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private verificationCodeCache = new VerificationCodeCache();
-    private emailDelegate = new EmailDelegate();
     private userProfileDelegate = new UserProfileDelegate();
 
     constructor(app, secureApp)
@@ -81,44 +80,20 @@ class MemberRegistrationRoute
         sessionData.setIntegrationId(integrationId);
         sessionData.setIntegration(integration);
 
+        // 1. Validate invitation code
+        // 2. Authenticate
         this.verificationCodeCache.searchInvitationCode(invitationCode, integrationId)
             .then(
             function verified(result):any
             {
                 invitedMember = new IntegrationMember(result);
-                var invitedMemberEmail = invitedMember.getUser()[User.EMAIL];
-                return self.integrationMemberDelegate.findByEmail(invitedMemberEmail, integrationId)
-            },
+                sessionData.setMember(invitedMember);
+                res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
+                req.logout();
+                res.redirect(Urls.register());            },
             function verificationFailed()
             {
                 throw("The invitation is either invalid or has expired");
-            })
-            .then(
-            function expertFound(expert:IntegrationMember)
-            {
-                // Continue to mobile verification if
-                // 1. Expert already exists
-                // 2. Expert is linked to logged in user (if user is logged in)
-                // Else
-                // 1. Destroy session
-                // 2. Display login page
-                var isExpertValid = !Utils.isNullOrEmpty(expert) && expert.isValid();
-                var isLoggedIn = !Utils.isNullOrEmpty(sessionData.getLoggedInUser());
-                var isExpertLinkedToLoggedInUser = isLoggedIn && (isExpertValid && expert.getUserId() == sessionData.getLoggedInUser().getId());
-
-                if (isExpertValid)
-                {
-                    sessionData.setMember(expert);
-                    res.redirect(Utils.addQueryToUrl(DashboardUrls.mobileVerification(), Utils.createSimpleObject(ApiConstants.CONTEXT, 'expertRegistration')));
-                }
-                else
-                {
-                    var member = new IntegrationMember(invitedMember);
-                    sessionData.setMember(member);
-                    res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
-                    req.logout();
-                    res.redirect(Urls.register());
-                }
             })
             .fail(
             function handleError(error) { res.send(500, error); }
