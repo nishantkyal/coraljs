@@ -75,3 +75,16 @@ $('form').validate({
         })
     }
 });
+
+$('#applyCoupon').click(function()
+{
+    var code = $('#couponCode').val();
+    $.ajax({
+        url: '/'
+    })
+});
+
+$('#register-button').click(function()
+{
+
+});

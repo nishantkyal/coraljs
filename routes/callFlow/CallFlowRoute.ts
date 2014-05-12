@@ -106,7 +106,7 @@ class CallFlowRoute
         var tasks = [];
 
         // Create transaction if doesn't exist and send back transaction lines
-        if (sessionData.getTransaction())
+        if (sessionData.getTransaction() && sessionData.getTransaction().isValid())
             tasks.push(self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, sessionData.getTransaction().getId())));
         else
         {
@@ -169,26 +169,26 @@ class CallFlowRoute
                 });
 
                 res.render(CallFlowRoute.PAYMENT, pageData);
-            });
+            },
+            function handleError(error) { res.send(500); });
     }
 
     /* Apply coupon and send back discount details */
     private applyCoupon(req:express.Request, res:express.Response)
     {
         var self = this;
-        var couponCode:string = req.query[ApiConstants.CODE];
+        var couponCode:string = req.body[ApiConstants.CODE];
         var sessionData:SessionData = new SessionData(req);
         var transaction = sessionData.getTransaction();
 
         self.transactionDelegate.applyCoupon(transaction.getId(), couponCode)
             .then(
-            function couponApplied()
+            function transactionLinesFetched() { res.redirect(Urls.callPayment()); },
+            function couponApplyFailed(error)
             {
-                return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, transaction.getId()))
-            })
-            .then(
-            function transactionLinesFetched(lines:TransactionLine[]) { res.send(lines); },
-            function couponApplyFailed(error) { res.send(500, error); }
+                req.flash('error', error);
+                res.redirect(Urls.callPayment());
+            }
         );
     }
 

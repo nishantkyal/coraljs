@@ -53,6 +53,10 @@ include header
                             .col-md-6
                                 .row
                                     .payment-summary
+                                        if messages && messages.error
+                                            .alert.alert-danger
+                                                strong Sorry!&nbsp;
+                                                | #{messages.error}
                                         .table
                                             - var total = 0, currency
                                             each line in transactionLines
@@ -66,13 +70,15 @@ include header
                                                             .table-cell.title Network charges
                                                         when 3
                                                             .table-cell.title Tax @#{Config.get(Config.CALL_TAX_PERCENT)}%
+                                                        when 4
+                                                            .table-cell.title Discount
                                                     .table-cell.amount= formatMoney(line.amount, line.amount_unit)
-                                            .table-row
+                                            form.table-row(action='/expert/call/payment/coupon', method='post')
                                                 .table-cell.title
                                                     .input-group
-                                                        input.form-control(type='text', placeholder='Discount Coupon #')
+                                                        input.form-control(type='text', name='code', placeholder='Discount Coupon #')
                                                 .table-cell.amount
-                                                    a.btn.btn-default(href='error.html') Apply Coupon
+                                                    input.btn.btn-default(type='submit', value='Apply Coupon')
                                             .table-row.total
                                                 .table-cell.title Total
                                                 .table-cell.amount= formatMoney(total, currency)
@@ -92,19 +98,30 @@ include header
                 button.close(type='button', data-dismiss='modal', aria-hidden='true') ×
                 h4.modal-title
                     i.icon-scheduler
-                    | Login to Search-n-Talk
+                    | Login to SearchNTalk.com
             .modal-body
                 form.form.col-md-12.center-block
                     .form-group
-                        input.form-control.input-lg(type='text', placeholder='Email')
+                        input.form-control.input-lg(type='text', placeholder='Email', name='username')
+                    .form-group(style='display: none;')
+                        .input-group
+                            .input-group-btn
+                                select
+                            input.form-control.input-lg(type='text', placeholder='First Name', name='first_name')
+                            span.input-group-btn(style="width:0px;")
+                            input.form-control.input-lg(type='text', placeholder='Middle Name', name='middle_name')
+                            span.input-group-btn(style="width:0px;")
+                            input.form-control.input-lg(type='text', placeholder='Last Name', name='last_name')
                     .form-group
-                        input.form-control.input-lg(type='password', placeholder='Password')
+                        input.form-control.input-lg(type='password', placeholder='Password', name='password')
+                    .form-group(style='display: none;')
+                        input.form-control.input-lg(type='password', placeholder='Confirm Password')
                     .form-group
-                        a.btn.btn-primary.btn-lg.btn-block(href='payment.html') Login
+                        a.btn.btn-primary.btn-lg.btn-block#login-button Login
+                        a.btn.btn-primary.btn-lg.btn-block#register-button(style='display: none;') Register
                     span.pull-right
                         a(href='#') Register
-                    span
-                        a(href='#') Continue without logging in?
+                        a(href='#', style='display: none;') Login
             .modal-footer
 
 script(src='/js/app/callFlow/payment.js')
