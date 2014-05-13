@@ -1,4 +1,4 @@
-///<reference path='../_references.d.ts'/>
+import validator                                                        = require('validator');
 import q                                                                = require('q');
 import _                                                                = require('underscore');
 import fs                                                               = require('fs');
@@ -120,7 +120,7 @@ class UserDelegate extends BaseDaoDelegate
             function userFound(u)
             {
                 user = u;
-                return self.userPhoneDelegate.find({user_id: user.getId(), verified: true},null,null,transaction);
+                return self.userPhoneDelegate.find({user_id: user.getId(), verified: true}, null, null, transaction);
             })
             .then(
             function phoneFound(phone)
@@ -128,14 +128,14 @@ class UserDelegate extends BaseDaoDelegate
                 if (Utils.isNullOrEmpty(phone))
                     throw(UserStatus.MOBILE_NOT_VERIFIED);
                 else
-                    return self.userProfileDelegate.get(user.getDefaultProfileId(),null,null,transaction);
+                    return self.userProfileDelegate.get(user.getDefaultProfileId(), null, null, transaction);
             })
             .then(
             function userProfileFound(profile:UserProfile)
             {
                 if (Utils.isNullOrEmpty(profile) || Utils.getObjectType(profile) != 'UserProfile')
                     throw(UserStatus.PROFILE_NOT_PUBLISHED);
-                else if(profile.getStatus() == ProfileStatus.INCOMPLETE || profile.getStatus() == ProfileStatus.PENDING_APPROVAL)
+                else if (profile.getStatus() == ProfileStatus.INCOMPLETE || profile.getStatus() == ProfileStatus.PENDING_APPROVAL)
                     throw(UserStatus.PROFILE_NOT_PUBLISHED);
                 else
                     throw(UserStatus.ACTIVE);

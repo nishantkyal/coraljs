@@ -66,10 +66,6 @@ class DashboardRoute
     private static PAGE_USERS:string = 'dashboard/integrationUsers';
     private static PAGE_COUPONS:string = 'dashboard/integrationCoupons';
     private static PAGE_PROFILE:string = 'dashboard/memberProfile';
-    private static PAGE_PROFILE_COMPLETE:string = 'dashboard/memberProfileComplete';
-    private static PAGE_EDUCATION:string = 'dashboard/memberEducation';
-    private static PAGE_SKILL:string = 'dashboard/memberSkill';
-    private static PAGE_EMPLOYMENT:string = 'dashboard/memberEmployment';
     private static PAGE_ACCOUNT_VERIFICATION:string = 'dashboard/accountVerification';
     private static PAGE_PAYMENT_COMPLETE:string = 'dashboard/paymentComplete';
 
@@ -87,7 +83,6 @@ class DashboardRoute
     private verificationCodeDelegate = new VerificationCodeDelegate();
     private userProfileDelegate = new UserProfileDelegate();
     private userUrlDelegate = new UserUrlDelegate();
-    private transactionDelegate = new TransactionDelegate();
     private transactionLineDelegate = new TransactionLineDelegate();
 
     constructor(app, secureApp)

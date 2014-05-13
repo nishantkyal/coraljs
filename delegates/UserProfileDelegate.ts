@@ -32,12 +32,11 @@ import ProfileStatus                            = require('../enums/ProfileStatu
 
 class UserProfileDelegate extends BaseDaoDelegate
 {
-    static STRATEGY_LINKEDIN:string = 'linkedin';
-    static BASICFIELDS:string[] = ['id', 'first-name', 'last-name', 'email-address', 'headline', 'industry', 'summary', 'date-of-birth'];
-    static EDUCATIONFIELDS:string[] = ['educations'];
-    static POSITIONFIELDS:string[] = ['positions'];
-    static SKILLFIELDS:string[] = ['skills'];
-    static IMAGEFIELDS:string[] = ['picture-urls::(original)'];
+    static BASIC_FIELDS:string[] = ['id', 'first-name', 'last-name', 'email-address', 'headline', 'industry', 'summary', 'date-of-birth'];
+    static EDUCATION_FIELDS:string[] = ['educations'];
+    static POSITION_FIELDS:string[] = ['positions'];
+    static SKILL_FIELDS:string[] = ['skills'];
+    static IMAGE_FIELDS:string[] = ['picture-urls::(original)'];
 
     constructor() { super(new UserProfileDao()); }
 
@@ -91,7 +90,7 @@ class UserProfileDelegate extends BaseDaoDelegate
         if (Utils.isNullOrEmpty(transaction))
             return MysqlDelegate.executeInTransaction(self, arguments);
 
-        return self.fetchSelectedFieldsFromLinkedIn(userId, integrationId, UserProfileDelegate.EDUCATIONFIELDS, transaction)
+        return self.fetchSelectedFieldsFromLinkedIn(userId, integrationId, UserProfileDelegate.EDUCATION_FIELDS, transaction)
             .then(function EducationDetailsFetched(profile)
             {
                 if (!Utils.isNullOrEmpty(profile.educations) && profile.educations._total > 0)
@@ -125,7 +124,7 @@ class UserProfileDelegate extends BaseDaoDelegate
         if (Utils.isNullOrEmpty(transaction))
             return MysqlDelegate.executeInTransaction(self, arguments);
 
-        return self.fetchSelectedFieldsFromLinkedIn(userId, integrationId, UserProfileDelegate.POSITIONFIELDS, transaction)
+        return self.fetchSelectedFieldsFromLinkedIn(userId, integrationId, UserProfileDelegate.POSITION_FIELDS, transaction)
             .then(function EmploymentDetailsFetched(profile)
             {
                 if (!Utils.isNullOrEmpty(profile.positions) && profile.positions._total > 0)
@@ -159,7 +158,7 @@ class UserProfileDelegate extends BaseDaoDelegate
     {
         var self = this;
 
-        return self.fetchSelectedFieldsFromLinkedIn(userId, integrationId, UserProfileDelegate.IMAGEFIELDS, transaction)
+        return self.fetchSelectedFieldsFromLinkedIn(userId, integrationId, UserProfileDelegate.IMAGE_FIELDS, transaction)
             .then(function ImageDetailsFetched(profile)
             {
                 var profilePictureUrl;
@@ -192,7 +191,7 @@ class UserProfileDelegate extends BaseDaoDelegate
         if (Utils.isNullOrEmpty(transaction))
             return MysqlDelegate.executeInTransaction(self, arguments);
 
-        return self.fetchSelectedFieldsFromLinkedIn(userId, integrationId, UserProfileDelegate.SKILLFIELDS, transaction)
+        return self.fetchSelectedFieldsFromLinkedIn(userId, integrationId, UserProfileDelegate.SKILL_FIELDS, transaction)
             .then(
             function SkillDetailsFetched(profile)
             {
@@ -225,7 +224,7 @@ class UserProfileDelegate extends BaseDaoDelegate
             return MysqlDelegate.executeInTransaction(self, arguments);
 
         return q.all([
-                self.fetchSelectedFieldsFromLinkedIn(userId, integrationId, UserProfileDelegate.BASICFIELDS, transaction),
+                self.fetchSelectedFieldsFromLinkedIn(userId, integrationId, UserProfileDelegate.BASIC_FIELDS, transaction),
                 new IntegrationMemberDelegate().find({'user_id': userId, 'integration_id': integrationId})
             ])
             .then(function BasicDetailsFetched(...args)

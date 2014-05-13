@@ -191,7 +191,7 @@ class AuthenticationDelegate
                 consumerKey: Config.get(Config.LINKEDIN_API_KEY),
                 consumerSecret: Config.get(Config.LINKEDIN_API_SECRET),
                 callbackURL: callbackUrl,
-                profileFields: UserProfileDelegate.BASICFIELDS,
+                profileFields: UserProfileDelegate.BASIC_FIELDS,
                 passReqToCallback: true
             },
             function (req, accessToken, refreshToken, profile:any, done)

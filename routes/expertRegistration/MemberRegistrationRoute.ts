@@ -34,9 +34,14 @@ import Middleware                                           = require('./Middlew
 
 class MemberRegistrationRoute
 {
-    private userDelegate = new UserDelegate();
+    private static PAGE_LOGIN:string                        = 'memberRegistration/login';
+    private static PAGE_REGISTER:string                     = 'memberRegistration/register';
+    private static PAGE_AUTHORIZE:string                    = 'memberRegistration/authorize';
+    private static PAGE_COMPLETE:string                     = 'memberRegistration/complete';
+
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private verificationCodeCache = new VerificationCodeCache();
+    private userDelegate = new UserDelegate();
     private userProfileDelegate = new UserProfileDelegate();
 
     constructor(app, secureApp)
@@ -60,7 +65,6 @@ class MemberRegistrationRoute
     /* Render login/register page */
     private index(req, res:express.Response):void
     {
-        var self = this;
         var sessionData = new SessionData(req);
 
         var integrationId = parseInt(req.query[ApiConstants.INTEGRATION_ID] || sessionData.getIntegrationId());
@@ -90,7 +94,8 @@ class MemberRegistrationRoute
                 sessionData.setMember(invitedMember);
                 res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
                 req.logout();
-                res.redirect(Urls.register());            },
+                res.redirect(Urls.register());
+            },
             function verificationFailed()
             {
                 throw("The invitation is either invalid or has expired");
@@ -105,11 +110,10 @@ class MemberRegistrationRoute
         var sessionData = new SessionData(req);
 
         var pageData = _.extend(sessionData.getData(), {
-            messages: req.flash(),
-            context: 'expertRegistration'
+            messages: req.flash()
         });
 
-        res.render('expertRegistration/login', pageData);
+        res.render(MemberRegistrationRoute.PAGE_LOGIN, pageData);
     }
 
     private register(req:express.Request, res:express.Response)
@@ -117,11 +121,10 @@ class MemberRegistrationRoute
         var sessionData = new SessionData(req);
 
         var pageData = _.extend(sessionData.getData(), {
-            messages: req.flash(),
-            context: 'expertRegistration'
+            messages: req.flash()
         });
 
-        res.render('expertRegistration/register', pageData);
+        res.render(MemberRegistrationRoute.PAGE_REGISTER, pageData);
     }
 
     /* Handle authentication success -> Redirect to authorization */
@@ -145,7 +148,7 @@ class MemberRegistrationRoute
             'transactionID': req['oauth2']['transactionID']
         });
 
-        res.render('expertRegistration/authorize', pageData);
+        res.render(MemberRegistrationRoute.PAGE_AUTHORIZE, pageData);
     }
 
     private authorizationError(req:express.Request, res:express.Response)
@@ -172,15 +175,18 @@ class MemberRegistrationRoute
         var mobileVerificationUrl = Utils.addQueryToUrl(DashboardUrls.mobileVerification(), Utils.createSimpleObject(ApiConstants.CONTEXT, 'expertRegistration'));
         var redirectUrl = '';
 
+        // Redirect new expert to mobile verification
+        // Others to registration complete page
         switch (parseInt(member.getRole().toString()))
         {
             case IntegrationMemberRole.Expert:
                 redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? mobileVerificationUrl : integration.getRedirectUrl();
                 break;
 
+            default:
             case IntegrationMemberRole.Admin:
             case IntegrationMemberRole.Owner:
-                redirectUrl = DashboardUrls.index();
+                redirectUrl = Urls.complete();
                 break;
         }
 
@@ -223,6 +229,7 @@ class MemberRegistrationRoute
             });
     }
 
+    /* Registration Complete - Page */
     private expertComplete(req:express.Request, res:express.Response)
     {
         var sessionData = new SessionData(req);
@@ -232,15 +239,14 @@ class MemberRegistrationRoute
 
         self.integrationMemberDelegate.find({'user_id': userId, 'integration_id': integrationId}, null, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
             .then(
-            function scheduleRulesFetched(...args)
+            function scheduleRulesFetched(member:IntegrationMember)
             {
-                var member = new IntegrationMember(args[0][1]);
                 var pageData = _.extend(sessionData.getData(), {
                     "SearchNTalkUri": Config.get(Config.DASHBOARD_URI),
                     "schedule_rules": member[IncludeFlag.INCLUDE_SCHEDULE_RULES],
                     member: member
                 });
-                res.render('expertRegistration/complete', pageData);
+                res.render(MemberRegistrationRoute.PAGE_COMPLETE, pageData);
             },
             function scheduleRulesFetchError(error) { res.send(500); });
     }
