@@ -119,6 +119,7 @@ class CallSchedulingRoute
                 if (startTime - moment().valueOf() < Config.get(Config.PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS) * 1000)
                 {
                     self.phoneCallDelegate.scheduleCall(call);
+                    self.notificationDelegate.scheduleCallNotification(call);
                 }
                 self.notificationDelegate.sendCallSchedulingCompleteNotifications(call, startTime);
             })

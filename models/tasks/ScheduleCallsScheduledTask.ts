@@ -4,7 +4,6 @@ import _                                                        = require('under
 import moment                                                   = require('moment');
 import log4js                                                   = require('log4js');
 import AbstractScheduledTask                                    = require('./AbstractScheduledTask');
-import CustomPromiseScheduledTask                               = require('./CustomPromiseScheduledTask');
 import ScheduledTaskDelegate                                    = require('../../delegates/ScheduledTaskDelegate');
 import PhoneCallDelegate                                        = require('../../delegates/PhoneCallDelegate');
 import NotificationDelegate                                     = require('../../delegates/NotificationDelegate');
@@ -21,6 +20,7 @@ class ScheduleCallsScheduledTask extends AbstractScheduledTask
         var scheduledTaskDelegate = new ScheduledTaskDelegate();
         var phoneCallDelegate = new PhoneCallDelegate();
         var phoneCallCache = new PhoneCallCache();
+        var notificationDelegate = new NotificationDelegate();
         var self = this;
 
         // Add tasks for
@@ -34,7 +34,7 @@ class ScheduleCallsScheduledTask extends AbstractScheduledTask
                 return q.all(_.map(calls, function (call:PhoneCall)
                 {
                     phoneCallDelegate.scheduleCall(call);
-
+                    notificationDelegate.scheduleCallNotification(call);
                     return phoneCallCache.addCall(call);
                 }));
             },
