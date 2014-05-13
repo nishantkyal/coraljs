@@ -378,3 +378,14 @@ function handleSkillDeleteClicked(event)
         }
     });
 };
+
+$('#fetchSkill,#fetchEmployment,#fetchEducation,#fetchBasic').click(function(event)
+{
+   bootbox.confirm('Are you sure you want to replace the current information with information from LinkedIn?', function(result)
+   {
+      if (result)
+      {
+          location.href = '/member/profileFromLinkedIn/' + userProfile.id + '?memberId' + memberId + '&' + $(event.currentTarget).attr('id')+ '=on';
+      }
+   });
+});

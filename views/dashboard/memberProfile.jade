@@ -4,24 +4,33 @@ block content
         include ../errorMessage
     .row-fluid
         .col-md-3
-            img.img.img-polaroid.img-responsive.col-md-12#profileImage(src=ApiUrlDelegate.userProfilePicture(user.id))
-            form#fileUploadForm(action=ApiUrlDelegate.userProfilePicture(user.id), method="post", enctype="multipart/form-data")
-                input#selectFile(type='file', name='profile', style='display: none')
-                input#selectFileSubmit(type='submit', style='display: none')
-                .text-center
-                    if isEditable
-                        div
-                            a.btn.btn-default.btn-xs#selectFileBtn Upload
-                        div
-                            a.btn.btn-danger.btn-xs(data-toggle='modal', href='#ChangePasswordModal') Change Password
-                        div
-                            a.btn.btn-primary.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchFromLinkedInModal') Fetch Details From LinkedIn
-                        div
-                            a.btn.btn-link(href=DashboardUrls.memberProfile(member.id), target="_blank") View My Public Profile
+            #profileimageUpload
+                img.img.img-polaroid.img-responsive.col-md-12#profileImage(src=ApiUrlDelegate.userProfilePicture(user.id))
+                if isEditable
+                    .text-center
+                        a.btn.btn-default.btn-xs#selectFileBtn Upload
+                    form#fileUploadForm(action=ApiUrlDelegate.userProfilePicture(user.id), method="post", enctype="multipart/form-data")
+                        input#selectFile(type='file', name='profile', style='display: none')
+                        input#selectFileSubmit(type='submit', style='display: none')
+            hr
+            .text-center
+                a.btn.btn-success(href=CallFlowUrls.callExpert(member.id), target="_blank")
+                    span.glyphicon.glyphicon-earphone(style='margin-right: 8px')
+                    | Call Now
+            hr
+            .panel.panel-info
+                .panel-heading
+                    | Account settings
+                .panel-body.text-center
                     div
-                        a.btn.btn-success(href=CallFlowUrls.callExpert(member.id), target="_blank")
-                            span.glyphicon.glyphicon-earphone(style='margin-right: 8px')
-                            | Call Now
+                        a.btn.btn-danger.btn-xs(data-toggle='modal', href='#ChangePasswordModal') Change Password
+                    div
+                        a.btn.btn-primary.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchFromLinkedInModal')
+                            i.fa.fa-linkedin-square
+                            | &nbsp;Import From LinkedIn
+                    div
+                        a.btn.btn-link(href=DashboardUrls.memberProfile(member.id), target="_blank") View My Public Profile
+                    div
                     if userProfile.status == 1 && isEditable
                         div
                             a.btn.btn-link#SendProfile() Send Profile for Approval
@@ -39,7 +48,7 @@ block content
                                 .pull-right
                                     button.btn.btn-default.btn-xs(data-id=profileId, data-toggle='modal', href='#EditUserProfileModal')
                                         span.fa.fa-pencil
-                                    a.btn.btn-default.btn-xs(title='Fetch basic profile from LinkedIn', data-id=profileId, data-toggle='modal', href= '#FetchBasicFromLinkedInModal')
+                                    a.btn.btn-default.btn-xs#fetchBasic(title='Import basic profile from LinkedIn', data-id=profileId, data-toggle='modal')
                                         span.fa.fa-linkedin
                         .panel-body
                             .form
@@ -50,7 +59,7 @@ block content
                                 .form-group
                                     label.control-label Date of birth
                                     .pull-right
-                                        .form-control-static= formatDate(user.date_of_birth,'DD/MM/YYYY')
+                                        .form-control-static= formatDate(user.date_of_birth,'DD/MM/YYYY') || 'Not specified'
                                 .form-group
                                     label.control-label Summary
                                     .form-control-static= userProfile.short_desc
@@ -91,9 +100,9 @@ block content
                                 | No skills added yet
                         if isEditable
                             .panel-body
-                                a.btn.btn-primary.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchSkillFromLinkedInModal')
+                                a.btn.btn-primary.btn-xs#fetchSkill(data-id=profileId, data-toggle='modal', href= '#FetchSkillFromLinkedInModal')
                                     i.fa.fa-linkedin-square
-                                    | &nbsp;Fetch from LinkedIn
+                                    | &nbsp;Import from LinkedIn
                                 button.btn.btn-default.btn-xs#addSkillBtn(data-toggle='modal', href='#AddUserSkillModal') Add Skill
                     .panel.panel-success
                         .panel-heading
@@ -123,9 +132,9 @@ block content
                                 | No schools added yet
                         if isEditable
                             .panel-body
-                                a.btn.btn-primary.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchEducationFromLinkedInModal')
+                                a.btn.btn-primary.btn-xs#fetchEducation(data-id=profileId, data-toggle='modal', href= '#FetchEducationFromLinkedInModal')
                                     i.fa.fa-linkedin-square
-                                    | &nbsp;Fetch from LinkedIn
+                                    | &nbsp;Import from LinkedIn
                                 button.btn.btn-default.btn-xs#addEducationBtn(data-toggle='modal', href='#AddUserEducationModal') Add Education
                             include memberEducation
                     .panel.panel-warning
@@ -157,9 +166,9 @@ block content
                                 | No workplaces added yet
                         if isEditable
                             .panel-body
-                                a.btn.btn-primary.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchEmploymentFromLinkedInModal')
+                                a.btn.btn-primary.btn-xs#fetchEmployment(data-id=profileId, data-toggle='modal')
                                     i.fa.fa-linkedin-square
-                                    | &nbsp;Fetch from LinkedIn
+                                    | &nbsp;Import from LinkedIn
                                 button.btn.btn-default.btn-xs#addEmploymentBtn(data-toggle='modal', href='#AddUserEmploymentModal') Add Position
                             include memberEmployment
     if isEditable
@@ -213,74 +222,6 @@ block content
                                     input#basic(type="hidden", name="memberId", value = '#{member.id}')
                                     | Fetch Employment Details
                             em Please note that information in your profile will be replaced with information from LinkedIn
-                        .modal-footer
-                            button.btn.btn-default(data-dismiss='modal') Close
-                            input.btn.btn-primary(type='submit', value='OK')
-        #FetchBasicFromLinkedInModal.modal.fade(style='display: none;')
-            .modal-dialog
-                .modal-content
-                    .modal-header
-                        .close(data-dismiss='modal', aria-hidden='true') x
-                        h4.modal-title Edit Profile
-                    form(action=DashboardUrls.userProfileFromLinkedIn(userProfile.id), method="get")
-                        .modal-body
-                            .row
-                                .form-group.col-md-9
-                                    input#basic(type="hidden", name="fetchBasic", value = 'on')
-                                    input#basic(type="hidden", name="memberId", value = '#{member.id}')
-                                    p.confirm
-                                        | Are you sure you want to replace the current information with information from LinkedIn?
-                        .modal-footer
-                            button.btn.btn-default(data-dismiss='modal') Close
-                            input.btn.btn-primary(type='submit', value='OK')
-        #FetchSkillFromLinkedInModal.modal.fade(style='display: none;')
-            .modal-dialog
-                .modal-content
-                    .modal-header
-                        .close(data-dismiss='modal', aria-hidden='true') x
-                        h4.modal-title Edit Skill
-                    form(action=DashboardUrls.userProfileFromLinkedIn(userProfile.id), method="get")
-                        .modal-body
-                            .row
-                                .form-group.col-md-9
-                                    input#skill(type="hidden", name="fetchSkill", value = 'on')
-                                    input#basic(type="hidden", name="memberId", value = '#{member.id}')
-                                    p.confirm
-                                        | Are you sure you want to replace the current information with information from LinkedIn?
-                        .modal-footer
-                            button.btn.btn-default(data-dismiss='modal') Close
-                            input.btn.btn-primary(type='submit', value='OK')
-        #FetchEducationFromLinkedInModal.modal.fade(style='display: none;')
-            .modal-dialog
-                .modal-content
-                    .modal-header
-                        .close(data-dismiss='modal', aria-hidden='true') x
-                        h4.modal-title Edit Education
-                    form(action=DashboardUrls.userProfileFromLinkedIn(userProfile.id), method="get")
-                        .modal-body
-                            .row
-                                .form-group.col-md-9
-                                    input#education(type="hidden", name="fetchEducation", value = 'on')
-                                    input#basic(type="hidden", name="memberId", value = '#{member.id}')
-                                    p.confirm
-                                        | Are you sure you want to replace the current information with information from LinkedIn?
-                        .modal-footer
-                            button.btn.btn-default(data-dismiss='modal') Close
-                            input.btn.btn-primary(type='submit', value='OK')
-        #FetchEmploymentFromLinkedInModal.modal.fade(style='display: none;')
-            .modal-dialog
-                .modal-content
-                    .modal-header
-                        .close(data-dismiss='modal', aria-hidden='true') x
-                        h4.modal-title Edit Employment
-                    form(action=DashboardUrls.userProfileFromLinkedIn(userProfile.id), method="get")
-                        .modal-body
-                            .row
-                                .form-group.col-md-9
-                                    input#employment(type="hidden", name="fetchEmployment", value = 'on')
-                                    input#basic(type="hidden", name="memberId", value = '#{member.id}')
-                                    p.confirm
-                                        | Are you sure you want to replace the current information with information from LinkedIn?
                         .modal-footer
                             button.btn.btn-default(data-dismiss='modal') Close
                             input.btn.btn-primary(type='submit', value='OK')

@@ -230,7 +230,7 @@ class AuthenticationDelegate
                             if(Utils.isNullOrEmpty(userId) || (createdUser.getId() == userId))
                                 done(null, createdUser)
                             else
-                                done('Login Failed as the same LinkedIn account has been used with different Id.');
+                                done('This LinkedIn account is already associated with another SearchNTalk.com account.');
                         else
                             done('Login failed');
 

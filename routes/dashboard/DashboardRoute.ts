@@ -110,9 +110,9 @@ class DashboardRoute
 
         // Auth
         app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
-        app.post(Urls.memberProfile(), Middleware.allowOnlyMe, this.memberProfileSave.bind(this));
-        app.post(Urls.changePassword(), Middleware.allowOnlyMe, this.changePassword.bind(this));
-        app.post(Urls.changeProfileStatus(), Middleware.allowOnlyMe, this.changeProfileStatus.bind(this));
+        app.post(Urls.memberProfile(), Middleware.allowMeOrAdmin, this.memberProfileSave.bind(this));
+        app.post(Urls.changePassword(), Middleware.allowMeOrAdmin, this.changePassword.bind(this));
+        app.post(Urls.changeProfileStatus(), Middleware.allowMeOrAdmin, this.changeProfileStatus.bind(this));
         app.post(Urls.publishProfile(), Middleware.allowOwnerOrAdmin, this.publishProfile.bind(this));
 
         app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
