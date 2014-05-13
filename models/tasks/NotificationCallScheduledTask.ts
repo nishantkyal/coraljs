@@ -1,3 +1,4 @@
+import _                                                        = require('underscore');
 import q                                                        = require('q');
 import AbstractScheduledTask                                    = require('./AbstractScheduledTask');
 import PhoneCallDelegate                                        = require('../../delegates/PhoneCallDelegate');
@@ -26,9 +27,9 @@ class NotificationCallScheduledTask extends AbstractScheduledTask
             && !Utils.isNullOrEmpty(this.callId);
     }
 
-    toJson()
+    toJson():Object
     {
-
+        return _.extend(super.toJson(),{callId:this.callId});
     }
 }
 export = NotificationCallScheduledTask

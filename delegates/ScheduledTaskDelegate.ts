@@ -7,8 +7,10 @@ import Utils                                                    = require('../co
 import Config                                                   = require('../common/Config');
 import PhoneCallDelegate                                        = require('../delegates/PhoneCallDelegate');
 import SMSDelegate                                              = require('../delegates/SMSDelegate');
+import NotificationDelegate                                     = require('../delegates/NotificationDelegate');
 import PhoneCall                                                = require('../models/PhoneCall');
 import AbstractScheduledTask                                    = require('../models/tasks/AbstractScheduledTask');
+import TriggerPhoneCallTask                                     = require('../models/tasks/TriggerPhoneCallTask');
 import ScheduledTaskType                                        = require('../enums/ScheduledTaskType');
 import PhoneCallCache                                           = require('../caches/PhoneCallCache');
 import CacheHelper                                              = require('../caches/CacheHelper');
@@ -23,13 +25,16 @@ class ScheduledTaskDelegate
 {
     logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
     private static tasks:{[id:number]: TimeoutAndTask} = {};
+    private phoneCallDelegate = new PhoneCallDelegate();
+    private notificationDelegate = new NotificationDelegate();
 
     /* Schedule task at specified time */
     scheduleAt(task:AbstractScheduledTask, timestamp:number):number
     {
         var self = this;
         var currentTime = moment().valueOf();
-        return self.scheduleAfter(task, (timestamp - currentTime) * 1000);
+        task.setStartTime(timestamp);
+        return self.scheduleAfter(task, (timestamp - currentTime));
     }
 
     /* Schedule task after an interval */
@@ -57,7 +62,7 @@ class ScheduledTaskDelegate
         ScheduledTaskDelegate.tasks[taskId] = {task: task, timeout: timeout};
 
         // TODO: Make sync to redis work
-        //self.syncToRedis();
+        self.syncToRedis();
 
         return taskId;
     }
@@ -93,29 +98,52 @@ class ScheduledTaskDelegate
 
     private syncToRedis():q.Promise<any>
     {
-        return CacheHelper.set('ScheduledTasks', ScheduledTaskDelegate.tasks)
+        var self = this;
+        var tasksSaveArray = [];
+        var tasksKeys =  _.keys(ScheduledTaskDelegate.tasks);
+       _.each(tasksKeys, function(key){
+            tasksSaveArray.push(ScheduledTaskDelegate.tasks[key].task.toJson());
+        });
+        return CacheHelper.set('ScheduledTasks', tasksSaveArray, null, true)
             .then(
             function tasksSynced(result)
             {
-
+                self.logger.log("scheduled tasks synced to Redis");
             },
             function tasksSyncError(error)
             {
-
+                self.logger.log("Error in Syncing Scheduled Tasks to Redis");
             });
     }
 
-    private syncFromRedis():q.Promise<any>
+    syncFromRedis():q.Promise<any>
     {
+        var self = this;
+
         return CacheHelper.get('ScheduledTasks')
             .then(
-            function tasksFetched(result)
+            function tasksFetched(results)
             {
+                _.each(results, function(result:any){
+                    switch(result[AbstractScheduledTask.TASKTYPE])
+                    {
+                        case ScheduledTaskType.CALL:
+                            self.phoneCallDelegate.scheduleCall(result[TriggerPhoneCallTask.CALL_ID])
+                            self.logger.log("call fetched from redis and scheduled");break;
+                        case ScheduledTaskType.CALL_REMINDER_NOTIFICATION:
+                            self.notificationDelegate.scheduleCallNotification(result[TriggerPhoneCallTask.CALL_ID]);
+                            self.logger.log("call Reminder fetched from redis and scheduled");break;
+                        case ScheduledTaskType.EMAIL_MOBILE_VERIFICATION_REMINDER:
+                            self.logger.log("Email fetched from redis and scheduled");break;
+                        case ScheduledTaskType.SMS:
+                            self.logger.log("Sms fetched from redis and scheduled");break;
+                    }
+                });
 
             },
             function tasksFetchError(error)
             {
-
+                self.logger.log("Error in Syncing Scheduled Tasks From Redis");
             });
     }
 

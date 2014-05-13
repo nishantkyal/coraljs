@@ -154,5 +154,6 @@ app.configure('production', function()
 app.set('port', Config.get(Config.DASHBOARD_HTTP_PORT));
 app.listen(app.get('port'), function ()
 {
+    new ScheduledTaskDelegate().syncFromRedis();
     console.log("SearchNTalk started on port %d in %s mode", app.get('port'), app.settings.env);
 });

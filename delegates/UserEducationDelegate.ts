@@ -7,14 +7,18 @@ import MapProfileEducationDao                               = require('../dao/Ma
 import UserEducation                                        = require('../models/UserEducation');
 import MapProfileEducation                                  = require('../models/MapProfileEducation');
 import Utils                                                = require('../common/Utils');
-import IntegrationMemberDelegate                            = require('../delegates/IntegrationMemberDelegate');
 import IncludeFlag                                          = require('../enums/IncludeFlag');
 
 class UserEducationDelegate extends BaseDaoDelegate
 {
-    constructor() { super(new UserEducationDao()); }
+    private integrationMemberDelegate;
 
-    private integrationMemberDelegate = new IntegrationMemberDelegate();
+    constructor()
+    {
+        super(new UserEducationDao());
+        var IntegrationMemberDelegate = require('../delegates/IntegrationMemberDelegate');
+        this.integrationMemberDelegate = new IntegrationMemberDelegate();
+    }
 
     createUserEducation(userEducation:UserEducation, profileId:number, transaction?:any):q.Promise<any>
     {

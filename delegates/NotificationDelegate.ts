@@ -3,18 +3,20 @@ import q                                                    = require('q');
 import Config                                               = require('../common/Config');
 import EmailDelegate                                        = require('../delegates/EmailDelegate');
 import SMSDelegate                                          = require('../delegates/SMSDelegate');
-import ScheduledTaskDelegate                                = require('../delegates/ScheduledTaskDelegate');
+import PhoneCallDelegate                                    = require('../delegates/PhoneCallDelegate');
 import PhoneCall                                            = require('../models/PhoneCall');
 import IntegrationMember                                    = require('../models/IntegrationMember');
 import CallFragment                                         = require('../models/CallFragment');
 import User                                                 = require('../models/User');
 import NotificationCallScheduledTask                        = require('../models/tasks/NotificationCallScheduledTask');
 import Utils                                                = require('../common/Utils');
+import IncludeFlag                                          = require('../enums/IncludeFlag');
 
 class NotificationDelegate
 {
     private smsDelegate = new SMSDelegate();
     private emailDelegate = new EmailDelegate();
+    private phoneCallDelegate =  new PhoneCallDelegate();
 
     sendCallSchedulingNotifications(call:number, appointments:number[], duration:number, caller:User):q.Promise<any>;
     sendCallSchedulingNotifications(call:PhoneCall, appointments:number[], duration:number, caller:User):q.Promise<any>;
@@ -130,8 +132,20 @@ class NotificationDelegate
         ]);
     }
 
-    scheduleCallNotification(call:PhoneCall)
+    scheduleCallNotification(call:PhoneCall);
+    scheduleCallNotification(call:number);
+    scheduleCallNotification(call:any)
     {
+        var self = this;
+
+        if (Utils.getObjectType(call) == 'Number')
+            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_USER])
+                .then(function (fetchedCall:PhoneCall)
+                {
+                    self.scheduleCallNotification(fetchedCall);
+                });
+
+        var ScheduledTaskDelegate = require('../delegates/ScheduledTaskDelegate');
         var scheduledTaskDelegate = new ScheduledTaskDelegate();
         scheduledTaskDelegate.scheduleAt(new NotificationCallScheduledTask(call.getId()), call.getStartTime() - parseInt(Config.get(Config.CALL_REMINDER_LEAD_TIME_SECS)) * 1000);
     }

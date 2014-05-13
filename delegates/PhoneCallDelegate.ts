@@ -8,7 +8,6 @@ import BaseDaoDelegate                                                  = requir
 import IntegrationMemberDelegate                                        = require('../delegates/IntegrationMemberDelegate');
 import UserPhoneDelegate                                                = require('../delegates/UserPhoneDelegate');
 import UserDelegate                                                     = require('../delegates/UserDelegate');
-import ScheduledTaskDelegate                                            = require('../delegates/ScheduledTaskDelegate');
 import NotificationDelegate                                             = require('../delegates/NotificationDelegate');
 import CallStatus                                                       = require('../enums/CallStatus');
 import IncludeFlag                                                      = require('../enums/IncludeFlag');
@@ -145,9 +144,21 @@ class PhoneCallDelegate extends BaseDaoDelegate
             });
     }
 
-    scheduleCall(call:PhoneCall)
+    scheduleCall(call:number);
+    scheduleCall(call:PhoneCall);
+    scheduleCall(call:any)
     {
-        //TODO check whether the call has not been scheduled already as new call scheduled in next one hour are scheduled manually
+        var self = this;
+
+        if (Utils.getObjectType(call) == 'Number')
+            return self.get(call, null, [IncludeFlag.INCLUDE_USER])
+                .then(function (fetchedCall:PhoneCall)
+                {
+                    self.scheduleCall(fetchedCall);
+                });
+
+        //TODO[ankit] check whether the call has not been scheduled already as new call scheduled in next one hour are scheduled manually
+        var ScheduledTaskDelegate = require('../delegates/ScheduledTaskDelegate');
         var scheduledTaskDelegate = new ScheduledTaskDelegate();
         scheduledTaskDelegate.scheduleAt(new TriggerPhoneCallTask(call.getId()), call.getStartTime());
 
