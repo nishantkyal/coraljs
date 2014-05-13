@@ -32,7 +32,6 @@ function init(app, secureApp?)
     new PaymentApi(app, secureApp);
     new PayoutDetailApi(app, secureApp);
     new PhoneCallApi(app, secureApp);
-    new ScheduledTaskApi(app,  secureApp);
     new UserPhoneApi(app, secureApp);
     new TokenApi(app, secureApp);
     new TransactionApi(app, secureApp);

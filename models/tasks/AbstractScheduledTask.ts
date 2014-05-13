@@ -30,5 +30,10 @@ class AbstractScheduledTask
         return !Utils.isNullOrEmpty(this.getTaskType())
                     && !Utils.isNullOrEmpty(this.getStartTime());
     }
+
+    toJson()
+    {
+
+    }
 }
 export = AbstractScheduledTask
