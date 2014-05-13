@@ -408,7 +408,10 @@ class DashboardRoute
                 });
                 res.render(DashboardRoute.PAGE_PROFILE, pageData);
             },
-            function memberDetailsFetchError(error) { res.send(500); });
+            function memberDetailsFetchError(error)
+            {
+                res.render('500', {error: error});
+            });
     }
 
     private memberProfileSave(req:express.Request, res:express.Response)
@@ -601,8 +604,14 @@ class DashboardRoute
                 return q.all(fetchTasks);
             })
             .then(
-            function profileFetched(...args) { res.redirect(Urls.memberProfile(memberId)); },
-            function fetchError(error) { res.send(500); }
+            function profileFetched(...args)
+            {
+                res.redirect(Urls.memberProfile(memberId));
+            },
+            function fetchError(error)
+            {
+                res.send(500);
+            }
         );
     }
 

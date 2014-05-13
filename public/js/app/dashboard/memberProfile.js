@@ -389,3 +389,5 @@ $('#fetchSkill,#fetchEmployment,#fetchEducation,#fetchBasic').click(function(eve
       }
    });
 });
+
+$('#deleteUserSkill').click(handleSkillDeleteClicked);

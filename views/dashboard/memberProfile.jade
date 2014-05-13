@@ -94,7 +94,7 @@ block content
                                             if isEditable
                                                 .pull-right
                                                     a.fa.fa-pencil-square.editUserSkill(data-id=skill.id, data-toggle='modal', href='#EditUserSkillModal')
-                                                    a.fa.fa-times-circle.deleteUserSkill(data-id=skill.id, data-toggle='modal', href='#DeleteUserSkillModal')
+                                                    a.fa.fa-times-circle.deleteUserSkill#deleteUserSkill(data-id=skill.id, data-toggle='modal')
                         else
                             .panel-body
                                 | No skills added yet
@@ -293,17 +293,6 @@ block content
                         .modal-footer
                             button.btn.btn-default(data-dismiss='modal') Close
                             input.btn.btn-primary(type='submit', value='Update')
-        #DeleteUserSkillModal.modal.fade(style='display: none;')
-            .modal-dialog
-                .modal-content
-                    .modal-header
-                        .close(data-dismiss='modal', aria-hidden='true') x
-                        h4.modal-title Delete Skill
-                    .modal-body
-                        label Are you sure you want to delete this information?
-                    .modal-footer
-                        button.btn.btn-default(data-dismiss='modal') No
-                        button.btn.btn-primary(onclick='handleSkillDeleteClicked(event)') Yes
         script.
             var memberId = '!{member.id}';
             var user = JSON.parse( '!{JSON.stringify(user)}' );
