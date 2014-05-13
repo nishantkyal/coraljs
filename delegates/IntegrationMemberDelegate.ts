@@ -1,4 +1,3 @@
-///<reference path='../_references.d.ts'/>
 import _                                            = require('underscore');
 import q                                            = require('q');
 import moment                                       = require('moment');
@@ -7,13 +6,13 @@ import BaseDaoDelegate                              = require('../delegates/Base
 import MysqlDelegate                                = require('../delegates/MysqlDelegate');
 import ExpertScheduleDelegate                       = require('../delegates/ExpertScheduleDelegate');
 import IntegrationDelegate                          = require('../delegates/IntegrationDelegate');
-import UserDelegate                                 = require('../delegates/UserDelegate');
-import UserProfileDelegate                          = require('../delegates/UserProfileDelegate');
 import IntegrationMemberDAO                         = require ('../dao/IntegrationMemberDao');
 import IntegrationMemberRole                        = require('../enums/IntegrationMemberRole');
 import IncludeFlag                                  = require('../enums/IncludeFlag');
+import ProfileStatus                                = require('../enums/ProfileStatus');
 import Integration                                  = require('../models/Integration');
 import User                                         = require('../models/User');
+import UserProfile                                  = require('../models/UserProfile');
 import IntegrationMember                            = require('../models/IntegrationMember');
 import AccessTokenCache                             = require('../caches/AccessTokenCache');
 import ExpertScheduleRuleDelegate                   = require('../delegates/ExpertScheduleRuleDelegate');
@@ -21,31 +20,57 @@ import ExpertScheduleRuleDelegate                   = require('../delegates/Expe
 class IntegrationMemberDelegate extends BaseDaoDelegate
 {
     private expertScheduleRuleDelegate = new ExpertScheduleRuleDelegate();
+    private expertScheduleDelegate = new ExpertScheduleDelegate();
+    private integrationDelegate = new IntegrationDelegate();
+    private userDelegate;
+    private userProfileDelegate;
 
-    create(object:Object, transaction?:any):q.Promise<any>
+    constructor()
+    {
+        super(new IntegrationMemberDAO());
+
+        var UserProfileDelegate:any = require('../delegates/UserProfileDelegate');
+        this.userProfileDelegate = new UserProfileDelegate();
+
+        var UserDelegate:any = require('../delegates/UserDelegate');
+        this.userDelegate = new UserDelegate();
+    }
+
+    create(object:Object, dbTransaction?:any):q.Promise<any>
     {
         var self = this;
-
-        if (Utils.isNullOrEmpty(transaction))
-            return MysqlDelegate.executeInTransaction(self, arguments);
-
         var integrationMember = new IntegrationMember(object);
         integrationMember.setAuthCode(Utils.getRandomString(30));
 
-        return super.create(integrationMember, transaction)
+        if (Utils.isNullOrEmpty(dbTransaction))
+            return MysqlDelegate.executeInTransaction(self, arguments);
+
+
+        // 1. Create member
+        // 2. Create default schedule rules
+        // 3. Create default profile
+        // 4. Try to fetch profile details from linkedin
+        return super.create(integrationMember, dbTransaction)
             .then(
             function expertCreated(expert:IntegrationMember)
             {
                 integrationMember.setId(expert.getId());
-                return self.expertScheduleRuleDelegate.createDefaultRules(expert.getId(), transaction);
+
+                var userProfile:UserProfile = new UserProfile();
+                userProfile.setStatus(ProfileStatus.INCOMPLETE);
+                userProfile.setIntegrationMemberId(integrationMember.getId());
+
+                return q.all([
+                    self.userProfileDelegate.create(userProfile, dbTransaction),
+                    self.expertScheduleRuleDelegate.createDefaultRules(expert.getId(), dbTransaction)
+                ]);
             })
             .then(
-            function rulesCreated()
+            function defaultRulesAndProfileCreated(...args):any
             {
-                self.logger.debug('Default schedule rules created');
+                self.logger.debug('Default rules and profile created');
                 return integrationMember;
-            })
-            .fail(
+            },
             function expertCreateFailed(error)
             {
                 self.logger.error('Error occurred while creating new expert, error: %s', JSON.stringify(error));
@@ -63,8 +88,8 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
             if (_.isArray(result)) result = result[0];
 
             if (result
-                    && (!integrationMemberId || result['integration_member_id'] === integrationMemberId)
-                        && (!role || result['role'] === role))
+                && (!integrationMemberId || result['integration_member_id'] === integrationMemberId)
+                && (!role || result['role'] === role))
                 return new IntegrationMember(result);
 
             return null;
@@ -111,29 +136,28 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
 
     getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
     {
+        var self = this;
         result = [].concat(result);
 
         switch (include)
         {
             case IncludeFlag.INCLUDE_INTEGRATION:
-                return new IntegrationDelegate().get(_.uniq(_.pluck(result, IntegrationMember.INTEGRATION_ID)));
+                return self.integrationDelegate.get(_.uniq(_.pluck(result, IntegrationMember.INTEGRATION_ID)));
             case IncludeFlag.INCLUDE_USER:
-                var UserDelegate:any = require('./UserDelegate');
-                return new UserDelegate().get(_.uniq(_.pluck(result, IntegrationMember.USER_ID)));
+                return self.userDelegate.get(_.uniq(_.pluck(result, IntegrationMember.USER_ID)));
             case IncludeFlag.INCLUDE_USER_PROFILE:
-                return new UserProfileDelegate().search({'user_id': _.uniq(_.pluck(result, IntegrationMember.USER_ID))});
+                return self.userProfileDelegate.search({'user_id': _.uniq(_.pluck(result, IntegrationMember.USER_ID))});
             case IncludeFlag.INCLUDE_SCHEDULES:
                 // Return schedules for next 4 months
                 var scheduleStartTime = moment().hours(0).valueOf();
                 var scheduleEndTime = moment().add({months: 4}).valueOf();
 
-                return new ExpertScheduleDelegate().getSchedulesForExpert(result[0][IntegrationMember.ID], scheduleStartTime, scheduleEndTime);
+                return self.expertScheduleDelegate.getSchedulesForExpert(result[0][IntegrationMember.ID], scheduleStartTime, scheduleEndTime);
             case IncludeFlag.INCLUDE_SCHEDULE_RULES:
-                return new ExpertScheduleRuleDelegate().getRulesByIntegrationMemberId(result[0][IntegrationMember.ID]);
+                return self.expertScheduleRuleDelegate.getRulesByIntegrationMemberId(result[0][IntegrationMember.ID]);
         }
         return super.getIncludeHandler(include, result);
     }
 
-    constructor() { super(new IntegrationMemberDAO()); }
 }
 export = IntegrationMemberDelegate

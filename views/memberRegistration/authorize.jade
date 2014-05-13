@@ -6,7 +6,7 @@ include ../scriptsAndStyles
             .col-md-8
                 p By registering as an expert for #{integration.title}, you also agree to <a href='#'>SearchNTalk.com Terms and Conditions</a>
                 p You will receive requests for scheduling phone calls from people who are seeking your expert advice.
-                form(action="/expert/authorization/decision", method="post")
+                form(action=MemberRegistrationUrls.authorizationDecision(), method="post")
                     input(name="transaction_id", type="hidden", value="#{transactionID}")
                     .controls
                         input.btn-primary.btn(type="submit" value="Yes, Continue" id="allow")
