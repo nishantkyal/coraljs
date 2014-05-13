@@ -31,9 +31,9 @@ class AbstractScheduledTask
                     && !Utils.isNullOrEmpty(this.getStartTime());
     }
 
-    toJson()
+    toJson():Object
     {
-
+        return {id: this.id, type: this.taskType};
     }
 }
 export = AbstractScheduledTask

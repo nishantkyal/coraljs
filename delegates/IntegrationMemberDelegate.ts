@@ -47,9 +47,7 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
 
 
         // 1. Create member
-        // 2. Create default schedule rules
-        // 3. Create default profile
-        // 4. Try to fetch profile details from linkedin
+        // 2. Create default schedule rules and profile
         return super.create(integrationMember, dbTransaction)
             .then(
             function expertCreated(expert:IntegrationMember)

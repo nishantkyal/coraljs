@@ -26,9 +26,5 @@ class TriggerPhoneCallTask extends AbstractScheduledTask
             && !Utils.isNullOrEmpty(this.callId);
     }
 
-    toJson()
-    {
-
-    }
 }
 export = TriggerPhoneCallTask

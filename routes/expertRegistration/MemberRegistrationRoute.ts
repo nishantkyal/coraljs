@@ -34,10 +34,10 @@ import Middleware                                           = require('./Middlew
 
 class MemberRegistrationRoute
 {
-    private static PAGE_LOGIN:string                        = 'memberRegistration/login';
-    private static PAGE_REGISTER:string                     = 'memberRegistration/register';
-    private static PAGE_AUTHORIZE:string                    = 'memberRegistration/authorize';
-    private static PAGE_COMPLETE:string                     = 'memberRegistration/complete';
+    private static PAGE_LOGIN:string = 'memberRegistration/login';
+    private static PAGE_REGISTER:string = 'memberRegistration/register';
+    private static PAGE_AUTHORIZE:string = 'memberRegistration/authorize';
+    private static PAGE_COMPLETE:string = 'memberRegistration/complete';
 
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private verificationCodeCache = new VerificationCodeCache();
@@ -50,7 +50,7 @@ class MemberRegistrationRoute
         app.get(Urls.index(), this.index.bind(this));
         app.get(Urls.login(), Middleware.requireInvitationCode, this.login.bind(this));
         app.get(Urls.register(), Middleware.requireInvitationCode, this.register.bind(this));
-        app.get(Urls.authorization(), OAuthProviderDelegate.authorization, this.authorize.bind(this));
+        app.get(Urls.authorization(), Middleware.ensureNotAlreadyRegistered, OAuthProviderDelegate.authorization, this.authorize.bind(this));
         app.get(Urls.authorizationRedirect(), this.authorizationRedirect.bind(this));
         app.get(Urls.complete(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index()}), this.expertComplete.bind(this));
 
@@ -59,7 +59,7 @@ class MemberRegistrationRoute
         app.post(Urls.register(), AuthenticationDelegate.register({failureRedirect: Urls.register(), failureFlash: true}), this.authenticationSuccess.bind(this));
         app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: Urls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
         app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: Urls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}), this.authenticationSuccess.bind(this));
-        app.post(Urls.authorizationDecision(), OAuthProviderDelegate.decision, this.authorizationError.bind(this));
+        app.post(Urls.authorizationDecision(), OAuthProviderDelegate.decision);
     }
 
     /* Render login/register page */
@@ -101,7 +101,7 @@ class MemberRegistrationRoute
                 throw("The invitation is either invalid or has expired");
             })
             .fail(
-            function handleError(error) { res.send(500, error); }
+            function handleError(error) { res.render('500', {error: error}); }
         );
     }
 
@@ -149,11 +149,6 @@ class MemberRegistrationRoute
         });
 
         res.render(MemberRegistrationRoute.PAGE_AUTHORIZE, pageData);
-    }
-
-    private authorizationError(req:express.Request, res:express.Response)
-    {
-        res.send(500);
     }
 
     /*
