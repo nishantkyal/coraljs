@@ -25,5 +25,10 @@ class NotificationCallScheduledTask extends AbstractScheduledTask
         return super.isValid()
             && !Utils.isNullOrEmpty(this.callId);
     }
+
+    toJson():Object
+    {
+        return _.extend(super.toJson(),{callId:this.callId});
+    }
 }
 export = NotificationCallScheduledTask

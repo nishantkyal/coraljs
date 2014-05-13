@@ -10,11 +10,12 @@ class ScheduledTaskApi
         app.get(ApiUrlDelegate.scheduleTask(), function(req:express.Request, res:express.Response)
         {
             var tasks = new ScheduleTaskDelegate().getAll();
-            var tasksJson;
-            _.each(tasks,  function (task){
-                tasksJson = task.toJson();
+            var tasksArray = [];
+            _.each(tasks,  function (task:any){
+                delete task.task['logger'];
+                tasksArray.push(task.task);
             })
-            res.json(tasksJson);
+            res.send(JSON.stringify(tasksArray)).status(200);
         });
     }
 }

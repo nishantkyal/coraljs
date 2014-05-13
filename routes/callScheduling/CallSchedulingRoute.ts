@@ -114,8 +114,6 @@ class CallSchedulingRoute
             .then(
             function callFetched(call:PhoneCall)
             {
-                //If call is scheduled within one hour then schedule it manually as scheduler might have already run for this hour
-                //TODO[alpha-calling] double scheduling can occur..
                 if (startTime - moment().valueOf() < Config.get(Config.PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS) * 1000)
                 {
                     self.phoneCallDelegate.scheduleCall(call);
@@ -123,9 +121,12 @@ class CallSchedulingRoute
                 }
                 self.notificationDelegate.sendCallSchedulingCompleteNotifications(call, startTime);
             })
+            .then(function scheduled(){
+                res.send(200);
+            })
             .fail(function (error)
             {
-                res.status(501);
+                res.send(501);
             })
     }
 

@@ -6,6 +6,10 @@ import Utils                                    = require('../../common/Utils');
 
 class AbstractScheduledTask
 {
+    static ID:string = 'id';
+    static STARTTIME:string = 'startTime';
+    static TASKTYPE:string = 'taskType';
+
     private id:number;
     private startTime:number;
     private taskType:ScheduledTaskType;
@@ -33,7 +37,7 @@ class AbstractScheduledTask
 
     toJson():Object
     {
-        return {id: this.id, type: this.taskType};
+        return {id:this.id, taskType:this.taskType}
     }
 }
 export = AbstractScheduledTask
