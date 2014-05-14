@@ -72,7 +72,8 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
                     .fail(
                     function linkedInFetchFailed(error)
                     {
-                        self.logger.debug('LinkedIn profile fetch failed for user id: %s, error: %s', integrationMember.getUser().getId(), JSON.stringify(error));
+                        self.logger.debug('LinkedIn profile fetch failed for user id: %s, error: %s', integrationMember.getUserId(), JSON.stringify(error));
+                        return integrationMember;
                     });
             })
             .then(
