@@ -17,7 +17,12 @@ import TransactionDelegate                                  = require('../../del
 import TransactionLineDelegate                              = require('../../delegates/TransactionLineDelegate');
 import VerificationCodeDelegate                             = require('../../delegates/VerificationCodeDelegate');
 import UserPhoneDelegate                                    = require('../../delegates/UserPhoneDelegate');
+import UserProfileDelegate                                  = require('../../delegates/UserProfileDelegate');
 import NotificationDelegate                                 = require('../../delegates/NotificationDelegate');
+import UserDelegate                                         = require('../../delegates/UserDelegate');
+import UserEducationDelegate                                = require('../../delegates/UserEducationDelegate');
+import UserSkillDelegate                                    = require('../../delegates/UserSkillDelegate');
+import UserEmploymentDelegate                               = require('../../delegates/UserEmploymentDelegate');
 import PhoneCall                                            = require('../../models/PhoneCall');
 import ExpertSchedule                                       = require('../../models/ExpertSchedule');
 import Transaction                                          = require('../../models/Transaction');
@@ -25,10 +30,12 @@ import Coupon                                               = require('../../mod
 import UserPhone                                            = require('../../models/UserPhone');
 import IntegrationMember                                    = require('../../models/IntegrationMember');
 import TransactionLine                                      = require('../../models/TransactionLine');
+import UserProfile                                          = require('../../models/UserProfile');
 import CallStatus                                           = require('../../enums/CallStatus');
 import ApiConstants                                         = require('../../enums/ApiConstants');
 import IncludeFlag                                          = require('../../enums/IncludeFlag');
 import MoneyUnit                                            = require('../../enums/MoneyUnit');
+import UserStatus                                           = require('../../enums/UserStatus');
 import TransactionStatus                                    = require('../../enums/TransactionStatus');
 import Formatter                                            = require('../../common/Formatter');
 import Utils                                                = require('../../common/Utils');
@@ -51,6 +58,11 @@ class CallFlowRoute
     private transactionLineDelegate = new TransactionLineDelegate();
     private phoneCallDelegate = new PhoneCallDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
+    private userProfileDelegate = new UserProfileDelegate();
+    private userDelegate = new UserDelegate();
+    private userEmploymentDelegate = new UserEmploymentDelegate();
+    private userSkillDelegate = new UserSkillDelegate();
+    private userEducationDelegate = new UserEducationDelegate();
 
     constructor(app, secureApp)
     {
@@ -67,16 +79,41 @@ class CallFlowRoute
     }
 
     /* Render index with expert schedules */
+    // Validate that the expert has completed his profile and account is active
     private index(req:express.Request, res:express.Response)
     {
+        var self = this;
         var expertId = req.params[ApiConstants.EXPERT_ID];
         var sessionData = new SessionData(req);
 
         this.integrationMemberDelegate.get(expertId, IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_SCHEDULES, IncludeFlag.INCLUDE_USER])
             .then(
-            function handleExpertFound(expert)
+            function expertFetched(expert:IntegrationMember)
             {
+                var user = expert.getUser()[0];
+
+                if (user.getStatus() != UserStatus.ACTIVE)
+                {
+                    var errorMessage = Formatter.formatName(user.getFirstName(), user.getLastName(), user.getTitle()) + '\'s account has not been setup completely. Please visit us again later.'
+                    res.render('500', {error: errorMessage});
+                    return;
+                }
+
                 sessionData.setExpert(expert);
+                return self.userProfileDelegate.find({'integration_member_id': expert.getId()});
+            },
+            function handleExpertSearchFailed(error)
+            {
+                res.render('500', 'No such expert exists!');
+            })
+            .then(
+            function userProfileFetched(userProfile:UserProfile)
+            {
+                return q.all([
+                    self.userSkillDelegate.getSkillWithName(userProfile.getId()),
+                    self.userEducationDelegate.search({'profileId': userProfile.getId()}),
+                    self.userEmploymentDelegate.search({'profileId': userProfile.getId()})
+                ]);
 
                 var pageData = _.extend(sessionData.getData(), {
                     messages: req.flash()
@@ -85,8 +122,10 @@ class CallFlowRoute
                 res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
                 res.render(CallFlowRoute.INDEX, pageData);
             },
-            function handleExpertSearchFailed(error) { res.status(401).json('Error getting expert details for id: ' + expertId)}
-        );
+            function handleExpertSearchFailed(error)
+            {
+                res.render('500', {error: JSON.stringify(error)})
+            });
     }
 
     /* Redirect to convert post to get
