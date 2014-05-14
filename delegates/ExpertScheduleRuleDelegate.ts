@@ -57,14 +57,14 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
         weekdaysRule.setTitle('Weekdays');
         weekdaysRule.setRepeatStart(moment().valueOf());
         weekdaysRule.setCronRule('0 0 11 * * 1-5');
-        weekdaysRule.setDuration(8 * 3600);
+        weekdaysRule.setDuration(8 * 3600 * 1000);
         weekdaysRule.setIntegrationMemberId(expertId);
 
         var weekendRule = new ExpertScheduleRule();
         weekendRule.setTitle('Weekend');
         weekendRule.setRepeatStart(moment().valueOf());
         weekendRule.setCronRule('0 0 2 * * 0,6');
-        weekendRule.setDuration(3 * 3600);
+        weekendRule.setDuration(3 * 3600 * 1000);
         weekendRule.setIntegrationMemberId(expertId);
 
         return q.all([

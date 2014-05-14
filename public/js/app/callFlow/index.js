@@ -124,7 +124,8 @@ function selectDate(selectedDate, dateElement)
     if (dateElement)
         $(dateElement).addClass('active');
 
-    _.each(timeSlotsByDate[moment(selectedDate).format('DD-MM-YYYY')], function(schedule)
+    var schedulesForSelectedDate = timeSlotsByDate[moment(selectedDate).format('DD-MM-YYYY')];
+    _.each(schedulesForSelectedDate, function(schedule)
     {
         var slotTime = schedule.start_time;
         var selectedDurationInMillis = duration * 60 * 1000;

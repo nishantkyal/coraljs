@@ -545,8 +545,8 @@ class DashboardRoute
             {
                 if (result)
                 {
-                    res.render(DashboardRoute.PAGE_ACCOUNT_VERIFICATION);
                     req.logout();
+                    res.render(DashboardRoute.PAGE_ACCOUNT_VERIFICATION);
                     return email;
                 }
                 else

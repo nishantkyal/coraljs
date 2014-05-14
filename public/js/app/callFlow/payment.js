@@ -58,7 +58,7 @@ $("#verifyCode").click(function()
     })
 });
 
-$('form').validate({
+$('form#couponForm').validate({
     submitHandler: function(form)
     {
         $.ajax({

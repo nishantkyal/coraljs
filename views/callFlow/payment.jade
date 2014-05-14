@@ -27,16 +27,20 @@ include header
                                 i.icon-searchntalk
                             .info
                                 .user-displayname= formatName(user.first_name, user.last_name, user.title)
-                                .status-message accepting calls till 11.00am
                             .clearer
                     .col-md-3
                         .row
                             .user-schedule-summary
-                                .current-status.status-ok Currently available
-                                .scheduled-slot
-                                    span.annotation Call scheduled for #{duration} mins (now):
-                                    | 13 Apr 2014 at
-                                    span.live-clock 11:13
+                                if (is_available)
+                                    .current-status.status-ok Currently available
+                                    .scheduled-slot
+                                        | Accepting calls till&nbsp;
+                                        span= formatDate(next_available_schedule.start_time + next_available_schedule.duration, "HH:mm a")
+                                else
+                                    .current-status.status-warning Not available at the moment
+                                    .scheduled-slot
+                                        span.annotation Next available time:
+                                        span= formatDate(next_available_schedule.start_time, "DD MMM YYYY [at] HH:MM a")
                     .col-md-3
                         .row.step-reversal
                             a.btn.btn-default(href='javascript: history.back();')
@@ -73,7 +77,7 @@ include header
                                                         when 4
                                                             .table-cell.title Discount
                                                     .table-cell.amount= formatMoney(line.amount, line.amount_unit)
-                                            form.table-row(action='/expert/call/payment/coupon', method='post')
+                                            form.table-row#couponForm(action='/expert/call/payment/coupon', method='post')
                                                 .table-cell.title
                                                     .input-group
                                                         input.form-control(type='text', name='code', placeholder='Discount Coupon #')

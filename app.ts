@@ -30,6 +30,7 @@ import ItemType                                     = require('./enums/ItemType'
 import CouponType                                   = require('./enums/CouponType');
 import TransactionType                              = require('./enums/TransactionType');
 import CallFlowUrls                                 = require('./routes/callFlow/Urls');
+import CallSchedulingUrls                           = require('./routes/callScheduling/Urls');
 import DashboardUrls                                = require('./routes/dashboard/Urls');
 import MemberRegistrationUrls                       = require('./routes/expertRegistration/Urls');
 
@@ -45,10 +46,13 @@ var helpers = {
     formatSchedule: Formatter.formatSchedule,
     formatDate: Formatter.formatDate,
     formatUserStatus:Formatter.formatUserStatus,
+
     ApiUrlDelegate: ApiUrlDelegate,
     CallFlowUrls: CallFlowUrls,
+    CallSchedulingUrls: CallSchedulingUrls,
     DashboardUrls: DashboardUrls,
     MemberRegistrationUrls: MemberRegistrationUrls,
+
     Config: Config,
     escapeObject:Utils.escapeObject,
     unEscapeObject:Utils.unEscapeObject,
