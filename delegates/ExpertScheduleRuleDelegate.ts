@@ -18,7 +18,7 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
 {
     constructor() { super(new ExpertScheduleRuleDao()); }
 
-    create(newScheduleRule:any, transaction?:any):q.Promise<any>
+    create(newScheduleRule:any, transaction?:Object):q.Promise<any>
     {
         var self = this;
         var createProxy = super.create;
@@ -46,7 +46,7 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
             });
     }
 
-    createDefaultRules(expertId:number, transaction?:any):q.Promise<any>
+    createDefaultRules(expertId:number, transaction?:Object):q.Promise<any>
     {
         if (Utils.isNullOrEmpty(transaction))
             return MysqlDelegate.executeInTransaction(this, arguments);
@@ -78,9 +78,8 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
         );
     }
 
-    update(criteria:Object, updatedScheduleRule:ExpertScheduleRule, transaction?:any):q.Promise<any>
+    update(criteria:Object, updatedScheduleRule:ExpertScheduleRule, transaction?:Object):q.Promise<any>
     {
-        var transaction = null;
         var ruleId = updatedScheduleRule.getId();
         var updateProxy = super.update;
 
@@ -119,20 +118,18 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
             });
     }
 
-    getRulesByIntegrationMemberId(integrationMemberId:number, startTime?:number, endTime?:number, transaction?:any):q.Promise<any>
+    getRulesByIntegrationMemberId(integrationMemberId:number, startTime?:number, endTime?:number, transaction?:Object):q.Promise<any>
     {
         var expertScheduleRuleDao:any = this.dao;
         return expertScheduleRuleDao.getRulesByIntegrationMemberId(integrationMemberId, startTime, endTime, transaction);
     }
 
-    delete(scheduleRuleId:number, transaction?:any):q.Promise<any>
+    delete(scheduleRuleId:number, transaction?:Object):q.Promise<any>
     {
-        var transaction = null;
-
         if (Utils.isNullOrEmpty(transaction))
             return MysqlDelegate.executeInTransaction(this, arguments);
 
-        return super.delete(scheduleRuleId, true, transaction)
+        return super.delete(scheduleRuleId, transaction, true)
             .then(
             function ruleDeleted()
             {

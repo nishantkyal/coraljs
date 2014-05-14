@@ -27,7 +27,7 @@ class TransactionDelegate extends BaseDaoDelegate
 
     constructor() { super(new TransactionDAO()); }
 
-    createPhoneCallTransaction(object:any, phonecall:PhoneCall, dbTransaction?:any):q.Promise<any>
+    createPhoneCallTransaction(object:any, phonecall:PhoneCall, dbTransaction?:Object):q.Promise<any>
     {
         var self = this;
         var transaction;
@@ -54,7 +54,7 @@ class TransactionDelegate extends BaseDaoDelegate
             });
     }
 
-    applyCoupon(transactionId:number, code:string, dbTransaction?:any):q.Promise<any>
+    applyCoupon(transactionId:number, code:string, dbTransaction?:Object):q.Promise<any>
     {
         var self = this;
         var args = arguments;
@@ -151,7 +151,7 @@ class TransactionDelegate extends BaseDaoDelegate
     }
 
     /* Mark transaction as expired if user operation times out */
-    markExpired(transactionId:number, dbTransaction?:any):q.Promise<any>
+    markExpired(transactionId:number, dbTransaction?:Object):q.Promise<any>
     {
         var self = this;
 

@@ -18,7 +18,7 @@ class CouponDelegate extends BaseDaoDelegate
 
     constructor() { super(new CouponDao()); }
 
-    create(object:Object, transaction?:any):q.Promise<any>
+    create(object:Object, transaction?:Object):q.Promise<any>
     {
         if (Utils.isNullOrEmpty(object[Coupon.EXPIRY_TIME]))
             object[Coupon.EXPIRY_TIME] = moment().year(2050).month(12).date(31).valueOf();
@@ -49,11 +49,11 @@ class CouponDelegate extends BaseDaoDelegate
         return this.find(search, fields);
     }
 
-    markUsed(criteria:number[], transaction?:any):q.Promise<any>;
-    markUsed(criteria:string[], transaction?:any):q.Promise<any>;
-    markUsed(criteria:number, transaction?:any):q.Promise<any>;
-    markUsed(criteria:string, transaction?:any):q.Promise<any>;
-    markUsed(criteria:any, transaction?:any):q.Promise<any>
+    markUsed(criteria:number[], transaction?:Object):q.Promise<any>;
+    markUsed(criteria:string[], transaction?:Object):q.Promise<any>;
+    markUsed(criteria:number, transaction?:Object):q.Promise<any>;
+    markUsed(criteria:string, transaction?:Object):q.Promise<any>;
+    markUsed(criteria:any, transaction?:Object):q.Promise<any>
     {
         var self = this;
         criteria = [].concat(criteria);
@@ -63,11 +63,11 @@ class CouponDelegate extends BaseDaoDelegate
         return self.update(criteria, Utils.createSimpleObject(Coupon.NUM_USED, Coupon.NUM_USED + ' + 1'), transaction);
     }
 
-    markRemoved(criteria:number[], transaction?:any):q.Promise<any>;
-    markRemoved(criteria:string[], transaction?:any):q.Promise<any>;
-    markRemoved(criteria:number, transaction?:any):q.Promise<any>;
-    markRemoved(criteria:string, transaction?:any):q.Promise<any>;
-    markRemoved(criteria:any, transaction?:any):q.Promise<any>
+    markRemoved(criteria:number[], transaction?:Object):q.Promise<any>;
+    markRemoved(criteria:string[], transaction?:Object):q.Promise<any>;
+    markRemoved(criteria:number, transaction?:Object):q.Promise<any>;
+    markRemoved(criteria:string, transaction?:Object):q.Promise<any>;
+    markRemoved(criteria:any, transaction?:Object):q.Promise<any>
     {
         var self = this;
         criteria = [].concat(criteria);

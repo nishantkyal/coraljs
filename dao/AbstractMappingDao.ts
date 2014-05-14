@@ -12,7 +12,7 @@ import Utils                                        = require('../common/Utils')
 
 class AbstractMappingDao extends AbstractDao
 {
-    search(searchQuery:Object, options?:Object, fields?:string[], transaction?:any):q.Promise<any>
+    search(searchQuery:Object, options?:Object, fields?:string[], transaction?:Object):q.Promise<any>
     {
         var self = this;
 
@@ -44,7 +44,7 @@ class AbstractMappingDao extends AbstractDao
             });
     }
 
-    delete(criteria:any, transaction?:any):q.Promise<any>
+    delete(criteria:any, transaction?:Object):q.Promise<any>
     {
         var self = this;
 

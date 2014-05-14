@@ -65,7 +65,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
             });
     }
 
-    create(object:any, transaction?:any):q.Promise<any>
+    create(object:any, transaction?:Object):q.Promise<any>
     {
         //TODO[alpha-calling] remoce the comment
         //if (object[PhoneCall.STATUS] == CallStatus.PLANNING)
@@ -80,9 +80,9 @@ class PhoneCallDelegate extends BaseDaoDelegate
         return super.search(search);
     }
 
-    update(criteria:Object, newValues:Object, transaction?:any):q.Promise<any>;
-    update(criteria:number, newValues:Object, transaction?:any):q.Promise<any>;
-    update(criteria:any, newValues:Object, transaction?:any):q.Promise<any>
+    update(criteria:Object, newValues:Object, transaction?:Object):q.Promise<any>;
+    update(criteria:number, newValues:Object, transaction?:Object):q.Promise<any>;
+    update(criteria:any, newValues:Object, transaction?:Object):q.Promise<any>
     {
         var newStatus = newValues.hasOwnProperty(PhoneCall.STATUS) ? newValues[PhoneCall.STATUS] : null;
 

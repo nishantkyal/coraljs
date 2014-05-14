@@ -186,37 +186,12 @@ class MemberRegistrationRoute
         }
 
         // 1. Update role and redirect
-        // 2. Schedule the mobile verification reminder notification
-        // 3. Delete invitation code
+        // 2. Delete invitation code
+        //TODO: Schedule the mobile verification reminder notification
         q.all([
-            self.userProfileDelegate.create(new UserProfile()),
-            self.integrationMemberDelegate.find({'user_id': userId, 'integration_id': integrationId}),
             self.verificationCodeCache.deleteInvitationCode(sessionData.getInvitationCode(), sessionData.getIntegrationId()),
             self.integrationMemberDelegate.update({'user_id': userId, 'integration_id': integrationId}, {role: member.getRole()})
         ])
-            .then(
-            function profileCreated(...args)
-            {
-                var userProfile:UserProfile = args[0][0];
-                var integrationMember:IntegrationMember = args[0][1];
-                integrationMemberId = integrationMember.getId();
-                profileId = userProfile.getId();
-                return self.userProfileDelegate.fetchAllDetailsFromLinkedIn(userId, integrationId, profileId);
-            })
-            .finally(
-            function profileUpdated()
-            {
-                var userProfile:UserProfile = new UserProfile();
-                userProfile.setStatus(ProfileStatus.INCOMPLETE);
-                userProfile.setIntegrationMemberId(integrationMemberId);
-                return self.userProfileDelegate.update({id: profileId}, userProfile);
-            })
-            .then(
-            function setDefaultProfile()
-            {
-                user.setDefaultProfileId(profileId);
-                return self.userDelegate.update({id: userId}, user);
-            })
             .finally(
             function memberRoleCorrected()
             {

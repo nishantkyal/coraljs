@@ -11,7 +11,7 @@ class ExpertScheduleRuleDao extends AbstractDao
 {
     constructor() { super(ExpertScheduleRule); }
 
-    getRulesByIntegrationMemberId(integrationMemberId:number, startTime?:number, endTime?:number, transaction?:any):q.Promise<any>
+    getRulesByIntegrationMemberId(integrationMemberId:number, startTime?:number, endTime?:number, transaction?:Object):q.Promise<any>
     {
         if (Utils.isNullOrEmpty(startTime) || Utils.isNullOrEmpty(endTime))
             return this.search({'integration_member_id': integrationMemberId});

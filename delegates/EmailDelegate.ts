@@ -497,7 +497,7 @@ class EmailDelegate
 
         var emailData = {
             profileUrl: profileUrl,
-            callHandle: callHandleUrl,
+            callHandleUrl: callHandleUrl,
             integration: integration,
             expert: expert
         };

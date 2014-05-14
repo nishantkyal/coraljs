@@ -8,7 +8,7 @@ class UserSkillDao extends AbstractMappingDao
 {
     constructor() { super(UserSkill); }
 
-    getSkillWithName(profileId:number,transaction?:any):q.Promise<any>
+    getSkillWithName(profileId:number,transaction?:Object):q.Promise<any>
     {
         var query = 'SELECT user_skill.id, skill_codes.skill as skill_name FROM user_skill INNER join skill_codes ' +
             'ON user_skill.skill_id = skill_codes.id AND user_skill.id'  +' IN (SELECT skill_id FROM map_profile_skill where profile_id = ' + profileId +')' +

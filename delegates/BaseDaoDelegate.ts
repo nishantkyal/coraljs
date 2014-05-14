@@ -19,7 +19,7 @@ class BaseDaoDelegate
         this.dao = dao;
     }
 
-    get(id:any, fields?:string[], includes:IncludeFlag[] = [], transaction?:any):q.Promise<any>
+    get(id:any, fields?:string[], includes:IncludeFlag[] = [], transaction?:Object):q.Promise<any>
     {
         fields = fields || this.dao.modelClass.DEFAULT_FIELDS;
 
@@ -68,7 +68,7 @@ class BaseDaoDelegate
         return null;
     }
 
-    find(search:Object, fields?:string[], includes:IncludeFlag[] = [], transaction?:any):q.Promise<any>
+    find(search:Object, fields?:string[], includes:IncludeFlag[] = [], transaction?:Object):q.Promise<any>
     {
         var self = this;
         var rawResult;
@@ -115,7 +115,7 @@ class BaseDaoDelegate
      * Perform search based on seacrh query
      * Also fetch joint fields
      */
-    search(search:Object, fields?:string[], includes:IncludeFlag[] = [], transaction?:any):q.Promise<any>
+    search(search:Object, fields?:string[], includes:IncludeFlag[] = [], transaction?:Object):q.Promise<any>
     {
         var self = this;
         var rawResult;
@@ -161,9 +161,9 @@ class BaseDaoDelegate
             });
     }
 
-    create(object:Object, transaction?:any):q.Promise<any>;
-    create(object:Object[], transaction?:any):q.Promise<any>;
-    create(object:any, transaction?:any):q.Promise<any>
+    create(object:Object, transaction?:Object):q.Promise<any>;
+    create(object:Object[], transaction?:Object):q.Promise<any>;
+    create(object:any, transaction?:Object):q.Promise<any>
     {
         if (Utils.isNullOrEmpty(object))
             throw ('Invalid data. Trying to create object with null data');
@@ -184,9 +184,9 @@ class BaseDaoDelegate
         return this.dao.create(newObject, transaction);
     }
 
-    update(criteria:Object, newValues:any, transaction?:any):q.Promise<any>;
-    update(criteria:number, newValues:any, transaction?:any):q.Promise<any>;
-    update(criteria:any, newValues:any, transaction?:any):q.Promise<any>
+    update(criteria:Object, newValues:any, transaction?:Object):q.Promise<any>;
+    update(criteria:number, newValues:any, transaction?:Object):q.Promise<any>;
+    update(criteria:any, newValues:any, transaction?:Object):q.Promise<any>
     {
         // Compose update statement based on newValues
         newValues[BaseModel.UPDATED] = new Date().getTime();
@@ -196,9 +196,9 @@ class BaseDaoDelegate
         return this.dao.update(criteria, newValues, transaction);
     }
 
-    delete(criteria:number, softDelete?:boolean, transaction?:any):q.Promise<any>;
-    delete(criteria:Object, softDelete?:boolean, transaction?:any):q.Promise<any>;
-    delete(criteria:any, softDelete:boolean = true, transaction?:any):q.Promise<any>
+    delete(criteria:number, transaction?:Object, softDelete?:boolean):q.Promise<any>;
+    delete(criteria:Object, transaction?:Object, softDelete?:boolean):q.Promise<any>;
+    delete(criteria:any, transaction?:Object, softDelete:boolean = true):q.Promise<any>
     {
         if (softDelete)
             return this.dao.update(criteria, {'deleted': moment().valueOf()}, transaction);

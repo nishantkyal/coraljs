@@ -1,6 +1,7 @@
 ///<reference path='../_references.d.ts'/>
 import BaseModel                                        = require('./BaseModel');
 import ProfileStatus                                    = require('../enums/ProfileStatus');
+import IntegrationMember                                = require('../models/IntegrationMember');
 
 class UserProfile extends BaseModel
 {

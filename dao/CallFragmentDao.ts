@@ -12,7 +12,7 @@ class CallFragmentDao extends AbstractDao
 {
     constructor() { super(CallFragment) }
 
-    getTotalDuration(callId:number, transaction?:any):q.Promise<any>
+    getTotalDuration(callId:number, transaction?:Object):q.Promise<any>
     {
         var query = 'SELECT SUM(duration) as totalDuration FROM ' +  this.modelClass.TABLE_NAME
                     + ' WHERE call_id = ' + callId

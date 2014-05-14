@@ -452,7 +452,7 @@ class DashboardRoute
             .fail(function userUpdateError(error) { res.send(500); })
     }
 
-    publishProfile(req:express.Request, res:express.Response, transaction?:any)
+    publishProfile(req:express.Request, res:express.Response, transaction?:Object)
     {
         var profileId:number = parseInt(req.body[ApiConstants.USER_PROFILE_ID]);
         var userId:number = parseInt(req.body[ApiConstants.USER_ID]);

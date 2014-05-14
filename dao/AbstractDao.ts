@@ -34,9 +34,9 @@ class AbstractDao
      * @param data
      * @param transaction
      */
-    create(data:Object[], transaction?:any):q.Promise<any>;
-    create(data:Object, transaction?:any):q.Promise<any>;
-    create(data:any, transaction?:any):q.Promise<any>
+    create(data:Object[], transaction?:Object):q.Promise<any>;
+    create(data:Object, transaction?:Object):q.Promise<any>;
+    create(data:any, transaction?:Object):q.Promise<any>
     {
         var self = this;
         var dataAsArray = [].concat(data);
@@ -95,13 +95,13 @@ class AbstractDao
      * @param id
      * @param fields
      */
-    get(id:number[], fields?:string[], transaction?:any):q.Promise<any>;
-    get(id:number, fields?:string[], transaction?:any):q.Promise<any>;
-    get(id:any, fields?:string[], transaction?:any):q.Promise<any>
+    get(id:number[], fields?:string[], transaction?:Object):q.Promise<any>;
+    get(id:number, fields?:string[], transaction?:Object):q.Promise<any>;
+    get(id:any, fields?:string[], transaction?:Object):q.Promise<any>
     {
         var self = this;
         if (Utils.getObjectType(id) == 'Array')
-            return this.search({id: id}, fields,null,transaction);
+            return this.search({id: id}, fields, transaction);
         else
             return this.find({id: id}, fields,transaction)
             .then(
@@ -130,7 +130,7 @@ class AbstractDao
      * @param fields
      * @returns {"q".Promise<U>|"q".Promise<undefined>|"q".Promise<any>}
      */
-    search(searchQuery:Object, options?:Object, fields?:string[], transaction?:any):q.Promise<any>
+    search(searchQuery:Object, fields?:string[], transaction?:Object):q.Promise<any>
     {
         var self = this;
         var whereStatements = this.generateWhereStatements(searchQuery);
@@ -159,7 +159,7 @@ class AbstractDao
      * @param fields
      * @returns {"q".Promise<U>|"q".Promise<undefined>|"q".Promise<any|null>}
      */
-    find(searchQuery:Object, fields?:string[], transaction?:any):q.Promise<any>
+    find(searchQuery:Object, fields?:string[], transaction?:Object):q.Promise<any>
     {
         var self = this;
         var whereStatements = this.generateWhereStatements(searchQuery);
@@ -191,9 +191,9 @@ class AbstractDao
      * @param newValues
      * @param transaction
      */
-    update(criteria:number, newValues:Object, transaction?:any):q.Promise<any>;
-    update(criteria:Object, newValues:Object, transaction?:any):q.Promise<any>;
-    update(criteria:any, newValues:any, transaction?:any):q.Promise<any>
+    update(criteria:number, newValues:Object, transaction?:Object):q.Promise<any>;
+    update(criteria:Object, newValues:Object, transaction?:Object):q.Promise<any>;
+    update(criteria:any, newValues:any, transaction?:Object):q.Promise<any>
     {
         var self = this;
 
@@ -235,9 +235,9 @@ class AbstractDao
      * @param criteria
      * @param transaction
      */
-    delete(criteria:number, transaction?:any):q.Promise<any>;
-    delete(criteria:Object, transaction?:any):q.Promise<any>;
-    delete(criteria:any, transaction?:any):q.Promise<any>
+    delete(criteria:number, transaction?:Object):q.Promise<any>;
+    delete(criteria:Object, transaction?:Object):q.Promise<any>;
+    delete(criteria:any, transaction?:Object):q.Promise<any>
     {
         var self = this;
 

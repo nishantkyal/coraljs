@@ -12,7 +12,7 @@ class UserUrlDelegate extends BaseDaoDelegate
 {
     constructor() { super(new UserUrlDao()); }
 
-    createUserUrl(userUrl:UserUrl, profileId:number, transaction?:any):q.Promise<any>
+    createUserUrl(userUrl:UserUrl, profileId:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
         var mapProfileUrlDao = new MapProfileUrlDao();
