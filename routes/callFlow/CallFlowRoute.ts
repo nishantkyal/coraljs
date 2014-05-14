@@ -85,10 +85,11 @@ class CallFlowRoute
         var self = this;
         var expertId = req.params[ApiConstants.EXPERT_ID];
         var sessionData = new SessionData(req);
+        var userProfile;
 
         this.integrationMemberDelegate.get(expertId, IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_SCHEDULES, IncludeFlag.INCLUDE_USER])
             .then(
-            function expertFetched(expert:IntegrationMember)
+            function expertFetched(expert:IntegrationMember):any
             {
                 var user = expert.getUser()[0];
 
@@ -96,7 +97,7 @@ class CallFlowRoute
                 {
                     var errorMessage = Formatter.formatName(user.getFirstName(), user.getLastName(), user.getTitle()) + '\'s account has not been setup completely. Please visit us again later.'
                     res.render('500', {error: errorMessage});
-                    return;
+                    return null;
                 }
 
                 sessionData.setExpert(expert);
@@ -107,15 +108,28 @@ class CallFlowRoute
                 res.render('500', 'No such expert exists!');
             })
             .then(
-            function userProfileFetched(userProfile:UserProfile)
+            function userProfileFetched(fetchedProfile:UserProfile):any
             {
+                userProfile = fetchedProfile;
+
                 return q.all([
                     self.userSkillDelegate.getSkillWithName(userProfile.getId()),
                     self.userEducationDelegate.search({'profileId': userProfile.getId()}),
                     self.userEmploymentDelegate.search({'profileId': userProfile.getId()})
                 ]);
+            })
+            .then(
+            function profileDetailsFetched(...args)
+            {
+                var userSkill = args[0][1] || [];
+                var userEducation = args[0][2] || [];
+                var userEmployment = args[0][3] || [];
 
                 var pageData = _.extend(sessionData.getData(), {
+                    userSkill: _.sortBy(userSkill, function (skill) { return skill['skill_name'].length; }),
+                    userProfile: userProfile,
+                    userEducation: userEducation,
+                    userEmployment: userEmployment,
                     messages: req.flash()
                 });
 
