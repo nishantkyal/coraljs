@@ -1,0 +1,23 @@
+extends header
+block content
+    .clearfix
+    table.table-bordered.table.sortable#users
+        thead
+            tr
+                th.col-md-1(data-defaultsort="desc") Call Id
+                th.col-md-3(data-firstsort="desc") Agenda
+                th.col-md-2(data-firstsort="desc") Start Time
+                th.col-md-1(data-firstsort="desc") Duration
+                th.col-md-1(data-firstsort="desc") Status
+                th.col-md-2(data-firstsort="desc") Revenue
+        tbody
+        each call in calls
+            tr
+                td= call.id
+                td= call.agenda ? call.agenda : '-'
+                td= call.start_time ? formatDate(call.start_time) : '-'
+                td= call.duration
+                td= formatCallStatus(call.status)
+                td= formatMoney(call.price_per_min, call.price_currency)
+    script(src='/js/lib/bootstrap-sortable.js')
+    link(rel='stylesheet', href='/css/bootstrap-sortable.css')

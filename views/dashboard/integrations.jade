@@ -9,4 +9,7 @@ include header
             .list-group
                 each member in members
                     a.list-group-item(href=member.role == 3 ? DashboardUrls.memberProfile(member.id) : DashboardUrls.integrationMembers(member.integration_id)) #{member.integration.title}
+                    if member.role == 3
+                        a.list-group-item(href=DashboardUrls.callDetails(member.id)) View Call Details
+                        a.list-group-item(href=DashboardUrls.revenueDetails(member.id)) View Revenue Details
         .col-md-2

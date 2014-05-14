@@ -37,7 +37,7 @@ class AbstractScheduledTask
 
     toJson():Object
     {
-        return {id:this.id, taskType:this.taskType}
+        return {id:this.id, taskType:this.taskType, startTime:this.startTime}
     }
 }
 export = AbstractScheduledTask

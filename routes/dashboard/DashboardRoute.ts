@@ -68,6 +68,7 @@ class DashboardRoute
     private static PAGE_PROFILE:string = 'dashboard/memberProfile';
     private static PAGE_ACCOUNT_VERIFICATION:string = 'dashboard/accountVerification';
     private static PAGE_PAYMENT_COMPLETE:string = 'dashboard/paymentComplete';
+    private static PAGE_CALL_DETAILS:string = 'dashboard/callDetails'
 
     private integrationDelegate = new IntegrationDelegate();
     private integrationMemberDelegate = new IntegrationMemberDelegate();
@@ -96,6 +97,8 @@ class DashboardRoute
         app.get(Urls.integrationCoupons(), Middleware.allowOwnerOrAdmin, this.coupons.bind(this));
         app.get(Urls.integrationMembers(), Middleware.allowOwnerOrAdmin, this.integrationUsers.bind(this));
         app.get(Urls.memberProfile(), this.editMemberProfile.bind(this));
+        app.get(Urls.callDetails(), this.callDetails.bind(this));
+        app.get(Urls.revenueDetails(), this.revenueDetails.bind(this));
 
         app.get(Urls.logout(), this.logout.bind(this));
         app.post(Urls.paymentCallback(), this.paymentComplete.bind(this));
@@ -461,6 +464,27 @@ class DashboardRoute
         )
     }
 
+    callDetails(req:express.Request, res:express.Response)
+    {
+        var self = this;
+        var memberId:number = parseInt(req.params[ApiConstants.MEMBER_ID]);
+        var sessionData = new SessionData(req);
+
+        self.phoneCallDelegate.search({'integration_member_id':memberId})
+        .then(
+        function callDetailsFetched(calls){
+            var pageData = _.extend(sessionData.getData(), {
+                calls:calls
+            });
+            res.render(DashboardRoute.PAGE_CALL_DETAILS, pageData);
+        })
+        .fail( function CallDetailsFetchError(error){ res.send(500); })
+    }
+
+    revenueDetails(req:express.Request, res:express.Response)
+    {
+        res.send(200);
+    }
     /* Logout and redirect to login page */
     private logout(req, res)
     {

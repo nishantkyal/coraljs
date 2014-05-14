@@ -4,6 +4,7 @@ import accounting                                                   = require('a
 import MoneyUnit                                                    = require('../enums/MoneyUnit');
 import IntegrationMemberRole                                        = require('../enums/IntegrationMemberRole');
 import UserStatus                                                   = require('../enums/UserStatus');
+import CallStatus                                                   = require('../enums/CallStatus');
 import Salutation                                                   = require('../enums/Salutation');
 import ExpertSchedule                                               = require('../models/ExpertSchedule');
 import User                                                         = require('../models/User');
@@ -74,6 +75,11 @@ class Formatter
     static formatUserStatus(status:UserStatus):string
     {
         return Utils.enumToNormalText(UserStatus)[status];
+    }
+
+    static formatCallStatus(status:CallStatus):string
+    {
+        return Utils.enumToNormalText(CallStatus)[status];
     }
 
     static formatUserName(user:User, includeEmail:boolean = false):string
