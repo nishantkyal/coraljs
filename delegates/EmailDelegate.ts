@@ -484,7 +484,7 @@ class EmailDelegate
                     integration: integration,
                     memberId: memberId
                 };
-                return self.composeAndSend(EmailDelegate.EMAIL_PROFILE_PENDING_APPROVAL, 'ankit.agarwal@infollion.com', emailData);
+                return self.composeAndSend(EmailDelegate.EMAIL_PROFILE_PENDING_APPROVAL, ownerUser.getEmail(), emailData);
             })
     }
 

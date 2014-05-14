@@ -66,6 +66,9 @@ class Formatter
     static formatDate(m:number):string;
     static formatDate(m:any, format:string = 'DD/MM/YYYY hh:mm:ss a'):string
     {
+        if (Utils.isNullOrEmpty(m))
+            return m;
+
         if (Utils.getObjectType(m) == 'String')
             if(m.search(/^[0-9]+$/) != -1)
                 m = parseInt(m);

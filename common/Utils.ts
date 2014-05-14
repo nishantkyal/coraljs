@@ -196,10 +196,12 @@ class Utils
             return escapedData;
     }
 
-    static unEscapeObject(Obj:Object):Object;
-    static unEscapeObject(Obj:Object[]):Object[];
+    static unEscapeObject(obj:Object):Object;
+    static unEscapeObject(obj:Object[]):Object[];
     static unEscapeObject(obj:any):any
     {
+        var isArray = Utils.getObjectType(obj) == 'Array';
+
         var dataAsArray = [].concat(obj);
         var escapedData = _.map(dataAsArray, function(data){
             for(var key in data)
@@ -218,7 +220,7 @@ class Utils
             return data;
         })
 
-        if(escapedData.length == 1)
+        if (isArray)
             return escapedData[0];
         else
             return escapedData;

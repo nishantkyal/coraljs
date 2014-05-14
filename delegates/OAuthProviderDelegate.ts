@@ -83,7 +83,7 @@ class OAuthProviderDelegate
 
             integrationMemberDelegate.create(expert)
                 .then(
-                function existingExpertFetched(expert:IntegrationMember)
+                function existingCreated(expert:IntegrationMember)
                 {
                     return notificationDelegate.sendExpertRegistrationCompleteNotification(expert)
                         .then(
@@ -95,6 +95,7 @@ class OAuthProviderDelegate
                 {
                     if (error.code == 'ER_DUP_ENTRY')
                         return integrationMemberDelegate.find({integration_id: expert.getIntegrationId(), user_id: expert.getUserId()}, [IntegrationMember.AUTH_CODE]);
+                    throw(error);
                 })
                 .then(
                 function (expert:IntegrationMember)
