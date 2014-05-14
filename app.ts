@@ -48,6 +48,7 @@ var helpers =
     formatSchedule: Formatter.formatSchedule,
     formatDate: Formatter.formatDate,
     formatUserStatus:Formatter.formatUserStatus,
+    formatCallStatus:Formatter.formatCallStatus,
 
     ApiUrlDelegate: ApiUrlDelegate,
     CallFlowUrls: CallFlowUrls,

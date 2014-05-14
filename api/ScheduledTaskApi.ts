@@ -2,6 +2,7 @@ import _                                                    = require('underscor
 import express                                              = require('express');
 import ScheduleTaskDelegate                                 = require('../delegates/ScheduledTaskDelegate')
 import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
+import PrintTimestampTask                                       = require('../models/tasks/PrintTimestampTask');
 
 class ScheduledTaskApi
 {
@@ -15,8 +16,16 @@ class ScheduledTaskApi
                 delete task.task['logger'];
                 tasksArray.push(task.task);
             })
-            res.send(JSON.stringify(tasksArray)).status(200);
+            res.json(tasksArray).status(200);
         });
+
+        app.post(ApiUrlDelegate.scheduleTask(), function(req:express.Request, res:express.Response)
+        {
+            var task:any = req.body['task'];
+            new ScheduleTaskDelegate().scheduleAt(new PrintTimestampTask(task.startTime), task.startTime);
+            res.send(200);
+        });
+
     }
 }
 export = ScheduledTaskApi
