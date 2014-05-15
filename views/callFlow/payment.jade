@@ -43,7 +43,7 @@ include header
                                         span= formatDate(next_available_schedule.start_time, "DD MMM YYYY [at] HH:MM a")
                     .col-md-3
                         .row.step-reversal
-                            a.btn.btn-default(href='javascript: history.back();')
+                            a.btn.btn-default(href=CallFlowUrls.callExpert(expert.id))
                                 | Back to Schedule
                                 i.icon-left-arrow
                 .row.editables

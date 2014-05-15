@@ -80,7 +80,6 @@ $('form#couponForm,form#checkout').submit(function(event)
                 } else {
                     $(event.currentTarget).submit();
                 }
-
             }
         });
     }
@@ -97,7 +96,7 @@ $('#applyCoupon').click(function()
 $('#login-button').click(function()
 {
     $.ajax({
-        url        : '/login',
+        url        : '/expert/call/login',
         type       : 'post',
         dataType   : 'json',
         contentType: 'application/json',

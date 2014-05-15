@@ -269,17 +269,30 @@ class CallFlowRoute
             {
                 dbTransaction = t;
 
+                return self.userPhoneDelegate.create(userPhone);
+            })
+            .then(
+            function phoneNumberCreated(createdUserPhone:UserPhone)
+            {
+                var callUpdates = {};
+                callUpdates[PhoneCall.CALLER_USER_ID] = sessionData.getLoggedInUser().getId();
+                callUpdates[PhoneCall.CALLER_PHONE_ID] = createdUserPhone.getId();
+
                 return q.all([
-                    self.userPhoneDelegate.create(userPhone),
-                    self.phoneCallDelegate.update(call.getId(), Utils.createSimpleObject(PhoneCall.CALLER_USER_ID, sessionData.getLoggedInUser().getId()), dbTransaction),
+                    self.phoneCallDelegate.update(call.getId(), callUpdates, dbTransaction),
                     self.transactionDelegate.update(transaction.getId(), Utils.createSimpleObject(Transaction.USER_ID, sessionData.getLoggedInUser().getId()), dbTransaction)
                 ]);
+
             })
             .then(
             function userIdUpdated()
             {
                 return MysqlDelegate.commit(dbTransaction);
-            });
+            })
+            .then(
+            function userLoginSuccess() { res.send(200, {status: 'OK'}); },
+            function userLoginFailed() { res.send(500); }
+        );
     }
 
     /* Redirect to gateway for payment */
@@ -288,10 +301,6 @@ class CallFlowRoute
         var self = this;
         var sessionData = new SessionData(req);
         var transaction = sessionData.getTransaction();
-
-        var callerPhone = new UserPhone();
-        callerPhone.setPhone(sessionData.getCallerPhone());
-        callerPhone.setUserId(sessionData.getLoggedInUser().getId());
 
         self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, transaction.getId()))
             .then(
