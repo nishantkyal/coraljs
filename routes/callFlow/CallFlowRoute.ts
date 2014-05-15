@@ -268,21 +268,12 @@ class CallFlowRoute
             function transactionStarted(t)
             {
                 dbTransaction = t;
-
-                return self.userPhoneDelegate.create(userPhone);
-            })
-            .then(
-            function phoneNumberCreated(createdUserPhone:UserPhone)
-            {
-                var callUpdates = {};
-                callUpdates[PhoneCall.CALLER_USER_ID] = sessionData.getLoggedInUser().getId();
-                callUpdates[PhoneCall.CALLER_PHONE_ID] = createdUserPhone.getId();
+                var userId = sessionData.getLoggedInUser().getId();
 
                 return q.all([
-                    self.phoneCallDelegate.update(call.getId(), callUpdates, dbTransaction),
-                    self.transactionDelegate.update(transaction.getId(), Utils.createSimpleObject(Transaction.USER_ID, sessionData.getLoggedInUser().getId()), dbTransaction)
+                    self.phoneCallDelegate.update(call.getId(), Utils.createSimpleObject(PhoneCall.CALLER_USER_ID, userId), dbTransaction),
+                    self.transactionDelegate.update(transaction.getId(), Utils.createSimpleObject(Transaction.USER_ID, userId), dbTransaction)
                 ]);
-
             })
             .then(
             function userIdUpdated()
@@ -301,11 +292,26 @@ class CallFlowRoute
         var self = this;
         var sessionData = new SessionData(req);
         var transaction = sessionData.getTransaction();
+        var call = sessionData.getCall();
 
-        self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, transaction.getId()))
+        var userPhone = new UserPhone();
+        userPhone.setPhone(sessionData.getCallerPhone());
+        userPhone.setUserId(sessionData.getLoggedInUser().getId());
+        userPhone.setType(PhoneType.MOBILE);
+
+        q.all([
+            self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, transaction.getId())),
+            self.userPhoneDelegate.create(userPhone)
+                .then(
+                function phoneNumberCreated(createdPhone)
+                {
+                    return self.phoneCallDelegate.update(call.getId(), Utils.createSimpleObject(PhoneCall.CALLER_PHONE_ID, createdPhone.getId()));
+                })
+        ])
             .then(
-            function transactionLinesFetched(lines:TransactionLine[])
+            function transactionLinesFetched(...args)
             {
+                var lines:TransactionLine[] = args[0][0];
                 var payZippyProvider = new PayZippyProvider();
                 var amount:number = _.reduce(_.pluck(lines, TransactionLine.AMOUNT), function (memo:number, num:number) { return memo + num; }, 0) * 100
 
