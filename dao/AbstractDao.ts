@@ -179,7 +179,7 @@ class AbstractDao
             },
             function findError(error)
             {
-                self.logger.error('FIND failed for table: %s, criteria: %s, error: %s', self.tableName, searchQuery, JSON.stringify(error));
+                self.logger.error('FIND failed for table: %s, criteria: %s, error: %s', self.tableName, JSON.stringify(searchQuery), JSON.stringify(error));
                 throw(error);
             }
         );
