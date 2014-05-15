@@ -36,6 +36,7 @@ import ApiConstants                                         = require('../../enu
 import IncludeFlag                                          = require('../../enums/IncludeFlag');
 import MoneyUnit                                            = require('../../enums/MoneyUnit');
 import UserStatus                                           = require('../../enums/UserStatus');
+import PhoneType                                            = require('../../enums/PhoneType');
 import TransactionStatus                                    = require('../../enums/TransactionStatus');
 import Formatter                                            = require('../../common/Formatter');
 import Utils                                                = require('../../common/Utils');
@@ -96,8 +97,7 @@ class CallFlowRoute
                 if (user.getStatus() != UserStatus.ACTIVE)
                 {
                     var errorMessage = Formatter.formatName(user.getFirstName(), user.getLastName(), user.getTitle()) + '\'s account has not been setup completely. Please visit us again later.'
-                    res.render('500', {error: errorMessage});
-                    return null;
+                    throw (errorMessage);
                 }
 
                 sessionData.setExpert(expert);
@@ -138,7 +138,7 @@ class CallFlowRoute
             },
             function handleExpertSearchFailed(error)
             {
-                res.render('500', {error: JSON.stringify(error)})
+                res.render('500', {error: JSON.stringify(error)});
             });
     }
 
@@ -258,6 +258,11 @@ class CallFlowRoute
         var transaction = sessionData.getTransaction();
         var call = sessionData.getCall();
 
+        var userPhone = new UserPhone();
+        userPhone.setPhone(sessionData.getCallerPhone());
+        userPhone.setUserId(sessionData.getLoggedInUser().getId());
+        userPhone.setType(PhoneType.MOBILE);
+
         MysqlDelegate.beginTransaction()
             .then(
             function transactionStarted(t)
@@ -265,6 +270,7 @@ class CallFlowRoute
                 dbTransaction = t;
 
                 return q.all([
+                    self.userPhoneDelegate.create(userPhone),
                     self.phoneCallDelegate.update(call.getId(), Utils.createSimpleObject(PhoneCall.CALLER_USER_ID, sessionData.getLoggedInUser().getId()), dbTransaction),
                     self.transactionDelegate.update(transaction.getId(), Utils.createSimpleObject(Transaction.USER_ID, sessionData.getLoggedInUser().getId()), dbTransaction)
                 ]);

@@ -45,7 +45,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
         PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.AGENDA_DECLINED] = [CallStatus.SCHEDULING];
     })();
 
-    get(id:any, fields?:string[], includes:IncludeFlag[] = []):q.Promise<any>
+    get(id:any, fields?:string[], includes:IncludeFlag[] = [], transaction?:Object):q.Promise<any>
     {
         var superGet = super.get;
         var self = this;
@@ -57,7 +57,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
                 if (!Utils.isNullOrEmpty(result))
                     return new PhoneCall(result);
                 else
-                    return superGet.call(self, id, fields, includes);
+                    return superGet.call(self, id, fields, includes, transaction);
             },
             function callFetchError()
             {

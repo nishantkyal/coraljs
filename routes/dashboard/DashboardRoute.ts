@@ -219,6 +219,12 @@ class DashboardRoute
     {
         var sessionData = new SessionData(req);
 
+        if (req.get('content-type') == 'application/json')
+        {
+            res.send(200, {status: 'OK'});
+            return null;
+        }
+
         // Return if specified
         if (req.session[ApiConstants.RETURN_TO])
         {
@@ -499,7 +505,6 @@ class DashboardRoute
     private paymentComplete(req:express.Request, res:express.Response)
     {
         var self = this;
-        var response = req.body;
         var sessionData = new SessionData(req);
         var callFlowSessionData = new CallFlowSessionData(req);
         var payZippyProvider = new PayZippyProvider();

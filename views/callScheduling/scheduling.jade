@@ -12,6 +12,6 @@ include ../scriptsAndStyles
                     button.btn.btn-default(onclick='handleRejectAppointment(event)') No
                     button.btn.btn-primary(onclick='handleConfirmAppointment(event)') Yes
 script.
-    var startTime = !{startTime};
+    var startTime = parseInt('!{startTime}');
     var call = JSON.parse( '!{JSON.stringify(call)}' );
 script(src='/js/app/callScheduling/scheduling.js')

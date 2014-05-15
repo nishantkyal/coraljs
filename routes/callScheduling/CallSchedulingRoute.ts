@@ -72,7 +72,7 @@ class CallSchedulingRoute
             .then(
             function appointmentDetailsFetched(appointment)
             {
-                if (!_.contains(appointment.startTimes, startTime.toString()))
+                if (!_.contains(appointment.startTimes, startTime))
                     throw 'Invalid request. Please click on one of the links in the email';
                 else
                 {
@@ -95,7 +95,7 @@ class CallSchedulingRoute
             })
             .fail(function (error)
             {
-                res.status(501);
+                res.render('500', {error: error});
             })
     }
 

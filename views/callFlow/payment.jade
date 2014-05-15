@@ -91,7 +91,7 @@ include header
                     .col-md-6
                         .row
                             .call-actions
-                                form(action=CallFlowUrls.checkout(), method='POST')
+                                form#checkout(action=CallFlowUrls.checkout(), method='POST')
                                     input#login(type='hidden')
                                     input.btn.btn-lg.btn-primary.first(type='submit') Proceed to Payment
                 // /.content
@@ -104,7 +104,7 @@ include header
                     i.icon-scheduler
                     | Login to SearchNTalk.com
             .modal-body
-                form.form.col-md-12.center-block
+                form#authentication.form.col-md-12.center-block
                     .form-group
                         input.form-control.input-lg(type='text', placeholder='Email', name='username')
                     .form-group(style='display: none;')
