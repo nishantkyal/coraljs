@@ -17,27 +17,28 @@ block content
                 a.btn.btn-success(href=CallFlowUrls.callExpert(member.id), target="_blank")
                     span.glyphicon.glyphicon-earphone(style='margin-right: 8px')
                     | Call Now
-            hr
-            .panel.panel-info
-                .panel-heading
-                    | Account settings
-                .panel-body.text-center
-                    div
-                        a.btn.btn-danger.btn-xs(data-toggle='modal', href='#ChangePasswordModal') Change Password
-                    div
-                        a.btn.btn-primary.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchFromLinkedInModal')
-                            i.fa.fa-linkedin-square
-                            | &nbsp;Import From LinkedIn
-                    div
-                        a.btn.btn-link(href=DashboardUrls.memberProfile(member.id), target="_blank") View My Public Profile
-                    div
-                    if userProfile.status == 1 && isEditable
+            if isEditable
+                hr
+                .panel.panel-info
+                    .panel-heading
+                        | Account settings
+                    .panel-body.text-center
                         div
-                            a.btn.btn-link#SendProfile() Send Profile for Approval
-                    if members && members.length > 0 && isEditable
-                        if (members[0].role == 1 || members[0].role == 2) && userProfile.status == 2
+                            a.btn.btn-danger.btn-xs(data-toggle='modal', href='#ChangePasswordModal') Change Password
+                        div
+                            a.btn.btn-primary.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchFromLinkedInModal')
+                                i.fa.fa-linkedin-square
+                                | &nbsp;Import From LinkedIn
+                        div
+                            a.btn.btn-link(href=DashboardUrls.memberProfile(member.id) + '?mode=public', target="_blank") View My Public Profile
+                        div
+                        if userProfile.status == 1
                             div
-                                a.btn.btn-link#publishProfile() Publish Profile
+                                a.btn.btn-link#SendProfile() Send Profile for Approval
+                        if members && members.length > 0
+                            if (members[0].role == 1 || members[0].role == 2) && userProfile.status == 2
+                                div
+                                    a.btn.btn-link#publishProfile() Publish Profile
         .col-md-9
             .row-fluid
                 .col-md-6

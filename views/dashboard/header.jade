@@ -15,8 +15,28 @@ meta(name='viewport', content='width=device-width, initial-scale=1')
                         if (loggedInUser)
                             | Hey, #{loggedInUser.first_name}
                             a.btn.btn-link(href='/logout') Logout
+                        else
+                            a.btn.btn-primary.btn-xs#loginInHeader(data-toggle='modal', href='#headerLoginModal') Login
             hr
             if integration
                 h4 #{integration.title}
             block content
         .col-md-2
+#headerLoginModal.modal.fade(style='display: none;')
+    .modal-dialog
+        .modal-content
+            .modal-header
+                .close(data-dismiss='modal', aria-hidden='true') x
+                h4.modal-title Login
+            form
+                .modal-body
+                    .form-group
+                        label.control-label(for='username') Email
+                        input.form-control#username(type='text', placeholder='Email', name='username', data-toggle="tooltip", data-placement="bottom")
+                    .form-group
+                        label.control-label(for='password') Password
+                        input.form-control#password(type='password', name='password', placeholder='Password', data-toggle="tooltip", data-placement="bottom")
+                .modal-footer
+                    button.btn.btn-default(data-dismiss='modal') Close
+                    input.btn.btn-primary(type='submit', value='OK')
+script(src='/js/app/dashboard/headerLogin.js')

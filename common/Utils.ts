@@ -173,11 +173,13 @@ class Utils
     static escapeObject(obj:any):any
     {
         var dataAsArray = [].concat(obj);
+        var isArray = Object.prototype.toString.call(obj) =='[object Array]' ? true : false;
+
         var escapedData = _.map(dataAsArray, function(data){
             for(var key in data)
             {
                 var value = data[key];
-                if( Utils.getObjectType(value) == 'String')
+                if( typeof value == 'string')
                 {
                     value = value.replace(/"/g, '&quot;')
                         .replace(/'/g, '&squot;')
@@ -190,19 +192,19 @@ class Utils
             return data;
         })
 
-        if(escapedData.length == 1)
-            return escapedData[0];
-        else
+        if(isArray)
             return escapedData;
+        else
+            return escapedData[0];
     }
 
     static unEscapeObject(obj:Object):Object;
     static unEscapeObject(obj:Object[]):Object[];
     static unEscapeObject(obj:any):any
     {
-        var isArray = Utils.getObjectType(obj) == 'Array';
-
         var dataAsArray = [].concat(obj);
+        var isArray = Object.prototype.toString.call(obj) =='[object Array]' ? true : false;
+
         var escapedData = _.map(dataAsArray, function(data){
             for(var key in data)
             {
@@ -220,10 +222,10 @@ class Utils
             return data;
         })
 
-        if (isArray)
-            return escapedData[0];
-        else
+        if(isArray)
             return escapedData;
+        else
+            return escapedData[0];
     }
 }
 export = Utils
