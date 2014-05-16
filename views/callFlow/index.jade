@@ -135,7 +135,7 @@ include header
                                 .row
                                     .col-xs-12.col-sm-4.col-md-3.col-lg-3
                                         span.annotation
-                                            | Duration
+                                            | Duration&nbsp;
                                             em (mins):
                                     .col-xs-12.col-sm-8.col-md-9.col-lg-9
                                         ul.floatleft.nav.nav-pills.duration
@@ -158,26 +158,30 @@ include header
                                         | Call Agenda
                                 .row
                                     .input-group
-                                        input.form-control#agenda(type='text', placeholder='Enter an agenda for your call', value=agenda)
+                                            textarea.form-control#agenda(type='text', placeholder='Please provide your agenda and questions for the expert. Please be as descriptive as possible.')= agenda
                         .row
                             .call-inputs
                                 .row
                                     h1
                                         i.icon-phone
-                                        | Caller Details
-                                .row
+                                        | Your Phone
+                                .row.not-first
                                     .input-group
-                                        span.input-group-addon @
-                                        input.form-control#caller-name(type='text', placeholder="Caller's name", value=caller_name)
+                                        input.form-control#caller-phone(type='text', placeholder='10-digit phone number', value=caller_phone)
+                        .row
+                            .call-inputs
+                                .row
+                                    h1
+                                        i.icon-phone
+                                        | Time Slots
                                 .row.not-first
                                     .input-group
                                         input.form-control#caller-phone(type='text', placeholder='10-digit phone number', value=caller_phone)
                         .row
                             .call-actions
-                                if (is_available)
+                                a.btn.btn-lg.btn-default.col-xs-12.col-md-12.col-lg-12#schedule Choose Time Slots
+                                //if (is_available)
                                     a.btn.btn-lg.btn-primary.first.col-xs-12.col-md-12.col-lg-12#call-now Call Now
-                                else
-                                    a.btn.btn-lg.btn-default.col-xs-12.col-md-12.col-lg-12#schedule Schedule
 include footer
 script.
     var schedules = JSON.parse( '!{JSON.stringify(expert.schedule)}' );

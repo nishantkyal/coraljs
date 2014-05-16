@@ -252,11 +252,12 @@ class CallFlowRoute
 
         // Check that we've a valid call for scheduling
         var isCallValid = !Utils.isNullOrEmpty(call.getAgenda())
-            && !Utils.isNullOrEmpty(call.getCallerUserId())
-            && !Utils.isNullOrEmpty(sessionData.getAppointments())
-        if (isCallValid)
+                            && !Utils.isNullOrEmpty(call.getCallerUserId())
+                                && !Utils.isNullOrEmpty(sessionData.getAppointments())
+
+        if (!isCallValid)
         {
-            res.render('500', 'An error occurred while scheduling your call. Please try again.')
+            res.render('500', {error: 'An error occurred while scheduling your call. Please try again.'});
             return null;
         }
 

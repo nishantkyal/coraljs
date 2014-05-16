@@ -213,7 +213,8 @@ class AbstractDao
         values = values.concat(whereStatements.values);
 
         var query = 'UPDATE `' + this.tableName + '` SET ' + updates.join(",") + ' WHERE ' + wheres.join(" AND ");
-            return MysqlDelegate.executeQuery(query, values, transaction)
+
+        return MysqlDelegate.executeQuery(query, values, transaction)
             .then(
             function updateComplete(result:mysql.OkPacket):any
             {
@@ -226,8 +227,7 @@ class AbstractDao
             {
                 self.logger.error('UPDATE failed, error: %s', JSON.stringify(error));
                 throw(error);
-            }
-        );
+            });
     }
 
     /**
