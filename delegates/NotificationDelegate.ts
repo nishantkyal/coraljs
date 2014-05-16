@@ -125,7 +125,10 @@ class NotificationDelegate
 
     sendProfileApprovedNotification(memberId:number):q.Promise<any>
     {
-        return this.emailDelegate.sendProfileApprovedEmail(memberId);
+        return q.all([
+            this.emailDelegate.sendProfileApprovedEmail(memberId),
+            this.smsDelegate.sendRegistrationAndProfileCompleteSMS(memberId)
+        ]);
     }
 
     sendExpertRegistrationCompleteNotification(expert:IntegrationMember):q.Promise<any>

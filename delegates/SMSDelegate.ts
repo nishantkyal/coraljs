@@ -8,6 +8,7 @@ import ISmsProvider                                                 = require('.
 import BaseDaoDelegate                                              = require('../delegates/BaseDaoDelegate');
 import LocalizationDelegate                                         = require('../delegates/LocalizationDelegate');
 import UserPhoneDelegate                                            = require('../delegates/UserPhoneDelegate');
+import IntegrationMemberDelegate                                    = require('../delegates/IntegrationMemberDelegate');
 import SMS                                                          = require('../models/SMS');
 import CallFragment                                                 = require('../models/CallFragment');
 import User                                                         = require('../models/User');
@@ -26,12 +27,38 @@ class SMSDelegate
     private logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
     private smsProvider:ISmsProvider = new SmsProviderFactory().getProvider();
     private phoneCallDelegate;
+    private integrationMemberDelegate = new IntegrationMemberDelegate();
+    private userPhoneDelagate =  new UserPhoneDelegate();
 
     constructor()
     {
         var PhoneCallDelegate = require('../delegates/PhoneCallDelegate');
         this.phoneCallDelegate = new PhoneCallDelegate();
     }
+
+    sendRegistrationAndProfileCompleteSMS(memberId:number):q.Promise<any>
+    {
+        var self = this;
+
+        return self.integrationMemberDelegate.get(memberId)
+            .then(function memberFetched(integrationMember:IntegrationMember)
+            {
+                return self.userPhoneDelagate.find({used_id:integrationMember.getUserId()})
+            })
+            .then( function expertPhone(phone:UserPhone){
+                var smsTemplate = _.template(LocalizationDelegate.get('sms.expert.complete'));
+                var smsMessage:string = smsTemplate();
+
+                if (phone.getType() == PhoneType.MOBILE)
+                    return self.smsProvider.sendSMS(phone.getCompleteNumber(), smsMessage);
+            })
+            .fail(
+            function (error)
+            {
+                self.logger.debug("Error in sending reminder SMS, error: %s", error);
+            });
+    }
+
 
     sendReminderSMS(call:number):q.Promise<any>;
     sendReminderSMS(call:PhoneCall):q.Promise<any>;
@@ -59,6 +86,7 @@ class SMSDelegate
                 self.logger.debug("Error in sending reminder SMS, error: %s", error);
             });
     }
+
 
     sendStatusSMS(callFragment:CallFragment, attemptCount:number):q.Promise<any>
     {
