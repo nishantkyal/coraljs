@@ -4,6 +4,7 @@ class Urls
 {
     static index() { return ApiUrlDelegate.get('/'); }
     static login() { return ApiUrlDelegate.get('/login'); }
+    static register() { return ApiUrlDelegate.get('/register'); }
     static linkedInLogin() { return ApiUrlDelegate.get('/login/linkedin'); }
     static linkedInLoginCallback() { return ApiUrlDelegate.get('/login/linkedin/callback'); }
     static forgotPassword() { return ApiUrlDelegate.get('/forgotPassword'); }

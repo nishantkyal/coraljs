@@ -73,10 +73,6 @@ class CallFlowRoute
         app.post(Urls.callPayment(), Middleware.requireCallerAndCallDetails, this.callPayment.bind(this));
         app.post(Urls.applyCoupon(), Middleware.requireTransaction, this.applyCoupon.bind(this))
         app.post(Urls.checkout(), connect_ensure_login.ensureLoggedIn(), Middleware.requireTransaction, this.checkout.bind(this));
-
-        // Auth
-        app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN), this.handleLoginJustBeforeCheckout.bind(this));
-        app.post(Urls.register(), AuthenticationDelegate.register, this.handleLoginJustBeforeCheckout.bind(this));
     }
 
     /* Render index with expert schedules */
@@ -245,77 +241,78 @@ class CallFlowRoute
         );
     }
 
-    /* Handle user login just before checkout */
-    private handleLoginJustBeforeCheckout(req:express.Request, res:express.Response)
+    /* Redirect to gateway for payment */
+    private checkout(req, res:express.Response)
     {
         var self = this;
         var sessionData = new SessionData(req);
-
-        // 1. Create user phone entry for phone number in session
-        // 2. Update user id in transaction and call entries
-
-        var dbTransaction;
         var transaction = sessionData.getTransaction();
         var call = sessionData.getCall();
+        var dbTransaction:Object;
+
+        // Check that we've a valid call for scheduling
+        var isCallValid = !Utils.isNullOrEmpty(call.getAgenda())
+            && !Utils.isNullOrEmpty(call.getCallerUserId())
+            && !Utils.isNullOrEmpty(sessionData.getAppointments())
+        if (isCallValid)
+        {
+            res.render('500', 'An error occurred while scheduling your call. Please try again.')
+            return null;
+        }
 
         var userPhone = new UserPhone();
         userPhone.setPhone(sessionData.getCallerPhone());
         userPhone.setUserId(sessionData.getLoggedInUser().getId());
         userPhone.setType(PhoneType.MOBILE);
 
+        // 1. Begin sql transaction
+        // 2. Create phone number entry
+        // 3. Associate logged in user with call and transaction
+        // 4. Associate phone number with call
+        // 5. Redirect to checkout
         MysqlDelegate.beginTransaction()
             .then(
             function transactionStarted(t)
             {
                 dbTransaction = t;
+                return self.userPhoneDelegate.create(userPhone, dbTransaction);
+            })
+            .then(
+            function phoneNumberCreated(createdPhone:UserPhone)
+            {
                 var userId = sessionData.getLoggedInUser().getId();
 
+                var phoneCallUpdates = {};
+                phoneCallUpdates[PhoneCall.CALLER_PHONE_ID] = createdPhone.getId();
+                phoneCallUpdates[PhoneCall.CALLER_USER_ID] = userId;
+
                 return q.all([
-                    self.phoneCallDelegate.update(call.getId(), Utils.createSimpleObject(PhoneCall.CALLER_USER_ID, userId), dbTransaction),
+                    self.phoneCallDelegate.update(call.getId(), phoneCallUpdates, dbTransaction),
                     self.transactionDelegate.update(transaction.getId(), Utils.createSimpleObject(Transaction.USER_ID, userId), dbTransaction)
                 ]);
             })
             .then(
-            function userIdUpdated()
+            function transactionAndCallUpdated()
             {
                 return MysqlDelegate.commit(dbTransaction);
             })
             .then(
-            function userLoginSuccess() { res.send(200, {status: 'OK'}); },
-            function userLoginFailed() { res.send(500); }
-        );
-    }
-
-    /* Redirect to gateway for payment */
-    private checkout(req:express.Request, res:express.Response)
-    {
-        var self = this;
-        var sessionData = new SessionData(req);
-        var transaction = sessionData.getTransaction();
-        var call = sessionData.getCall();
-
-        var userPhone = new UserPhone();
-        userPhone.setPhone(sessionData.getCallerPhone());
-        userPhone.setUserId(sessionData.getLoggedInUser().getId());
-        userPhone.setType(PhoneType.MOBILE);
-
-        q.all([
-            self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, transaction.getId())),
-            self.userPhoneDelegate.create(userPhone)
-                .then(
-                function phoneNumberCreated(createdPhone)
-                {
-                    return self.phoneCallDelegate.update(call.getId(), Utils.createSimpleObject(PhoneCall.CALLER_PHONE_ID, createdPhone.getId()));
-                })
-        ])
-            .then(
-            function transactionLinesFetched(...args)
+            function transactionCommitted()
             {
-                var lines:TransactionLine[] = args[0][0];
+                return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, transaction.getId()), null, null, dbTransaction);
+            })
+            .then(
+            function transactionLinesFetched(lines:TransactionLine[])
+            {
                 var payZippyProvider = new PayZippyProvider();
                 var amount:number = _.reduce(_.pluck(lines, TransactionLine.AMOUNT), function (memo:number, num:number) { return memo + num; }, 0) * 100
 
                 res.redirect(payZippyProvider.getPaymentUrl(transaction, amount, sessionData.getLoggedInUser()));
+            },
+            function handleError(error)
+            {
+                req.flash({error: JSON.stringify(error)});
+                res.redirect(Urls.callPayment());
             });
     }
 }

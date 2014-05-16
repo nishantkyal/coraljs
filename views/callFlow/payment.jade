@@ -104,10 +104,11 @@ include header
                     i.icon-scheduler
                     | Login to SearchNTalk.com
             .modal-body
+                .alert.alert-danger(style='display: none;') Login Failed
                 form#authentication.form.col-md-12.center-block
                     .form-group
                         input.form-control.input-lg(type='text', placeholder='Email', name='username')
-                    .form-group(style='display: none;')
+                    .form-group.register
                         .input-group
                             .input-group-btn
                                 select
@@ -118,14 +119,14 @@ include header
                             input.form-control.input-lg(type='text', placeholder='Last Name', name='last_name')
                     .form-group
                         input.form-control.input-lg(type='password', placeholder='Password', name='password')
-                    .form-group(style='display: none;')
+                    .form-group.register
                         input.form-control.input-lg(type='password', placeholder='Confirm Password')
                     .form-group
-                        a.btn.btn-primary.btn-lg.btn-block#login-button Login
-                        a.btn.btn-primary.btn-lg.btn-block#register-button(style='display: none;') Register
+                        a.btn.btn-primary.btn-lg.btn-block#login-button.login Login
+                        a.btn.btn-primary.btn-lg.btn-block#register-button.register Register
                     span.pull-right
-                        a(href='#') Register
-                        a(href='#', style='display: none;') Login
+                        a#register-link.login Register
+                        a#login-link.register Login
             .modal-footer
 
 script(src='/js/app/callFlow/payment.js')
