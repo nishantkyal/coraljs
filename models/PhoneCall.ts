@@ -102,8 +102,10 @@ class PhoneCall extends BaseModel
 
     isValid():boolean
     {
-        return (!Utils.isNullOrEmpty(this.getIntegrationMemberId())
-                    && !Utils.isNullOrEmpty(this.getDuration()));
+        return !Utils.isNullOrEmpty(this.getIntegrationMemberId())
+                    && !Utils.isNullOrEmpty(this.getDuration())
+                        && !Utils.isNullOrEmpty(this.getCallerPhoneId())
+                            && !Utils.isNullOrEmpty(this.getCallerUserId());
     }
 }
 export = PhoneCall

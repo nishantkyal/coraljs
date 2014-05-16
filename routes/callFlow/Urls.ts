@@ -7,8 +7,6 @@ class Urls
     static applyCoupon():string { return '/expert/call/payment/coupon'; }
     static callPayment():string { return '/expert/call/payment'; }
     static checkout():string { return '/expert/call/checkout'; }
-    static login():string { return '/expert/call/login'; }
-    static register():string { return '/expert/call/register'; }
 
 }
 export = Urls

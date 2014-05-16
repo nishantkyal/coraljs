@@ -60,12 +60,12 @@ $("#verifyCode").click(function()
     })
 });
 
+// Make user login before applying coupon or checking out
 var loginContext;
 
 $('form#couponForm,form#checkout').submit(function(event)
 {
-    if (!loginContext || loginContext != $(event.currentTarget).attr('id'))
-    {
+    if (!loginContext || loginContext != $(event.currentTarget).attr('id')) {
         loginContext = $(event.currentTarget).attr('id');
         event.preventDefault();
 
@@ -77,7 +77,8 @@ $('form#couponForm,form#checkout').submit(function(event)
                 // If not logged in, stop event propagation and show modal
                 if (!data) {
                     $('#login-modal').modal('show');
-                } else {
+                }
+                else {
                     $(event.currentTarget).submit();
                 }
             }
@@ -85,18 +86,11 @@ $('form#couponForm,form#checkout').submit(function(event)
     }
 });
 
-$('#applyCoupon').click(function()
-{
-    var code = $('#couponCode').val();
-    $.ajax({
-        url: '/'
-    })
-});
-
+/* Login handler */
 $('#login-button').click(function()
 {
     $.ajax({
-        url        : '/expert/call/login',
+        url        : '/login',
         type       : 'post',
         dataType   : 'json',
         contentType: 'application/json',
@@ -110,9 +104,46 @@ $('#login-button').click(function()
             if (loginContext)
                 $('form#' + loginContext).submit();
         },
-        error      : function()
+        error      : function(jqXhr, textStatus, response)
         {
-
+            $('#login-modal .alert').show();
+            $('#login-modal .alert').text('Login Failed');
         }
     })
+});
+
+/* Registration handler */
+$('#register-button').click(function()
+{
+    $.ajax({
+        url        : '/register',
+        type       : 'post',
+        dataType   : 'json',
+        contentType: 'application/json',
+        async      : false,
+        data       : JSON.stringify({
+            email      : $('#authentication input[name="username"]').val(),
+            password   : $('#authentication input[name="password"]').val(),
+            first_name : $('#authentication input[name="first_name"]').val(),
+            last_name  : $('#authentication input[name="last_name"]').val(),
+            middle_name: $('#authentication input[name="middle_name"]').val()
+        }),
+        success    : function()
+        {
+            if (loginContext)
+                $('form#' + loginContext).submit();
+        },
+        error      : function(jqXhr, textStatus, response)
+        {
+            $('#login-modal .alert').show();
+            $('#login-modal .alert').text('Registration Failed');
+        }
+    })
+});
+
+/* Switch login/register UI */
+$('#register-link,#login-link').click(function(event)
+{
+    $('.register').toggle($(event.currentTarget).attr('id') == 'register-link');
+    $('.login').toggle($(event.currentTarget).attr('id') == 'login-link');
 });
