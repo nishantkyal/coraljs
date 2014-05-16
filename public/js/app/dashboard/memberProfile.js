@@ -1,3 +1,8 @@
+$(function() {
+    $('#AddUserSkillModal form #spinningWheel').hide();
+    $('#EditUserSkillModal form #spinningWheel').hide();
+});
+
 $('.datepicker').datepicker({
     format: 'dd/mm/yyyy'
 });
@@ -211,10 +216,11 @@ function submitForm(event, data)
     });
 }
 
-var skillSet;
+var skillSet = [];
 var fetchedSkill = new Bloodhound({
     datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
     queryTokenizer: Bloodhound.tokenizers.whitespace,
+    limit:10,
     remote: {
         url     : 'http://www.linkedin.com/ta/skill?query=',
         replace: function(url, query) {
@@ -225,6 +231,8 @@ var fetchedSkill = new Bloodhound({
             method: 'get'
         },
         filter: function(response) {
+            $('#AddUserSkillModal form #spinningWheel').hide();
+            $('#EditUserSkillModal form #spinningWheel').hide();
             skillSet =  $.map(response.resultList, function (skill){
                 return {
                     value: skill.displayName,
@@ -232,7 +240,7 @@ var fetchedSkill = new Bloodhound({
                 };
             });
             var skillString = $.map(skillSet,  function(skill){
-                return skill.value;
+                return skill.value
             });
             return skillString;
         }
@@ -241,10 +249,26 @@ var fetchedSkill = new Bloodhound({
 
 fetchedSkill.initialize();
 
+var count = 0;
+$('#AddUserSkillModal .typeahead').keypress(function(event)
+{
+    if(event.key == 'Backspace')
+    {
+        if(count > 0)
+            count--;
+    }
+    else
+        count++;
+    if(count>0)
+        $('#AddUserSkillModal form #spinningWheel').show();
+    else
+        $('#AddUserSkillModal form #spinningWheel').hide();
+});
+
 $('#AddUserSkillModal .typeahead').typeahead(
     {
         items: 'all',
-        name: 'skills',
+        name: 'skillName',
         source : fetchedSkill.ttAdapter()
     }
 );
@@ -290,6 +314,22 @@ $('#AddUserSkillModal form').validate({
             }
         })
     }
+});
+
+var countEditSkill = 0;
+$('#EditUserSkillModal .typeahead').keypress(function(event)
+{
+    if(event.key == 'Backspace')
+    {
+        if(countEditSkill > 0)
+            countEditSkill--;
+    }
+    else
+        countEditSkill++;
+    if(countEditSkill>0)
+        $('#EditUserSkillModal form #spinningWheel').show();
+    else
+        $('#EditUserSkillModal form #spinningWheel').hide();
 });
 
 $('.editUserSkill').click(function()
