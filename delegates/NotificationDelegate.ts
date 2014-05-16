@@ -118,9 +118,14 @@ class NotificationDelegate
         return this.emailDelegate.sendPasswordResetEmail(email, code);
     }
 
-    sendProfilePendingApprovalEmail(memberId:number):q.Promise<any>
+    sendProfilePendingApprovalNotification(memberId:number):q.Promise<any>
     {
         return this.emailDelegate.sendProfilePendingApprovalEmail(memberId);
+    }
+
+    sendProfileApprovedNotification(memberId:number):q.Promise<any>
+    {
+        return this.emailDelegate.sendProfileApprovedEmail(memberId);
     }
 
     sendExpertRegistrationCompleteNotification(expert:IntegrationMember):q.Promise<any>

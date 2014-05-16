@@ -17,27 +17,28 @@ block content
                 a.btn.btn-success(href=CallFlowUrls.callExpert(member.id), target="_blank")
                     span.glyphicon.glyphicon-earphone(style='margin-right: 8px')
                     | Call Now
-            hr
-            .panel.panel-info
-                .panel-heading
-                    | Account settings
-                .panel-body.text-center
-                    div
-                        a.btn.btn-danger.btn-xs(data-toggle='modal', href='#ChangePasswordModal') Change Password
-                    div
-                        a.btn.btn-primary.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchFromLinkedInModal')
-                            i.fa.fa-linkedin-square
-                            | &nbsp;Import From LinkedIn
-                    div
-                        a.btn.btn-link(href=DashboardUrls.memberProfile(member.id), target="_blank") View My Public Profile
-                    div
-                    if userProfile.status == 1 && isEditable
+            if isEditable
+                hr
+                .panel.panel-info
+                    .panel-heading
+                        | Account settings
+                    .panel-body.text-center
                         div
-                            a.btn.btn-link#SendProfile() Send Profile for Approval
-                    if members && members.length > 0 && isEditable
-                        if (members[0].role == 1 || members[0].role == 2) && userProfile.status == 2
+                            a.btn.btn-danger.btn-xs(data-toggle='modal', href='#ChangePasswordModal') Change Password
+                        div
+                            a.btn.btn-primary.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchFromLinkedInModal')
+                                i.fa.fa-linkedin-square
+                                | &nbsp;Import From LinkedIn
+                        div
+                            a.btn.btn-link(href=DashboardUrls.memberProfile(member.id) + '?mode=public', target="_blank") View My Public Profile
+                        div
+                        if userProfile.status == 1
                             div
-                                a.btn.btn-link#publishProfile() Publish Profile
+                                a.btn.btn-link#SendProfile() Send Profile for Approval
+                        if members && members.length > 0
+                            if (members[0].role == 1 || members[0].role == 2) && userProfile.status == 2
+                                div
+                                    a.btn.btn-link#publishProfile() Publish Profile
         .col-md-9
             .row-fluid
                 .col-md-6
@@ -275,8 +276,14 @@ block content
                         h4.modal-title Add Skill
                     form#editForm
                         .modal-body
-                            label.control-label(for='add_skill') Skill
-                            input.form-control#skill_name(class='typeahead', type='text', name='skill_name', data-toggle="tooltip", data-placement="bottom", data-provide="typeahead", autocomplete="off")
+                            .row
+                                .form-group.col-md-10
+                                    label.control-label(for='add_skill') Skill
+                            .row
+                                .form-group.col-md-10
+                                    input.form-control#skill_name(class='typeahead', type='text', name='skill_name', data-toggle="tooltip", data-placement="bottom", data-provide="typeahead", autocomplete="off")
+                                .form-group.col-md-2
+                                    img.pull-right#spinningWheel(alt="Loading", src="../../images/spinning_wheel.gif", class = " input form-control", height="42" ,width="42")
                         .modal-footer
                             button.btn.btn-default(data-dismiss='modal') Close
                             input.btn.btn-primary(type='submit', value='Save')
@@ -288,8 +295,14 @@ block content
                         h4.modal-title Edit Skill
                     form
                         .modal-body
-                            label.control-label(for='edit_skill') Skill
-                            input.form-control#skill_name(class='typeahead', type= 'text', name='skill_name', data-toggle="tooltip", data-placement="bottom", data-provide="typeahead", autocomplete="off")
+                            .row
+                                .form-group.col-md-10
+                                    label.control-label(for='edit_skill') Skill
+                            .row
+                                .form-group.col-md-10
+                                    input.form-control#skill_name(class='typeahead', type= 'text', name='skill_name', data-toggle="tooltip", data-placement="bottom", data-provide="typeahead", autocomplete="off")
+                                .form-group.col-md-2
+                                    img.pull-right#spinningWheel(alt="Loading", src="../../images/spinning_wheel.gif", class = " input form-control", height="42" ,width="42" , border="none")
                         .modal-footer
                             button.btn.btn-default(data-dismiss='modal') Close
                             input.btn.btn-primary(type='submit', value='Update')

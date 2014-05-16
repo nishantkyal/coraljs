@@ -97,8 +97,8 @@ class DashboardRoute
         app.get(Urls.integrationCoupons(), Middleware.allowOwnerOrAdmin, this.coupons.bind(this));
         app.get(Urls.integrationMembers(), Middleware.allowOwnerOrAdmin, this.integrationUsers.bind(this));
         app.get(Urls.memberProfile(), this.editMemberProfile.bind(this));
-        app.get(Urls.callDetails(), this.callDetails.bind(this));
-        app.get(Urls.revenueDetails(), this.revenueDetails.bind(this));
+        app.get(Urls.callDetails(), Middleware.allowMeOrAdmin,this.callDetails.bind(this));
+        app.get(Urls.revenueDetails(), Middleware.allowMeOrAdmin,this.revenueDetails.bind(this));
 
         app.get(Urls.logout(), this.logout.bind(this));
         app.post(Urls.paymentCallback(), this.paymentComplete.bind(this));
@@ -218,6 +218,12 @@ class DashboardRoute
      */
     private authSuccess(req, res:express.Response)
     {
+        if(req.body[ApiConstants.LOGIN_FROM_HEADER])
+        {
+            res.send(200);
+            return;
+        }
+
         var sessionData = new SessionData(req);
 
         if (req.get('content-type') == 'application/json')
@@ -363,6 +369,7 @@ class DashboardRoute
     {
         var self = this;
         var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
+        var mode = req.query[ApiConstants.MODE]
         var sessionData = new SessionData(req);
         var userProfile:UserProfile = new UserProfile();
         var member:IntegrationMember;
@@ -402,6 +409,10 @@ class DashboardRoute
                 var userEmployment = args[0][3] || [];
                 var userUrl = args[0][4] || [];
                 var isEditable = args[0][5] || args[0][6] || false;
+
+                if(mode == ApiConstants.PUBLIC_MODE)
+                    isEditable = false;
+                
                 var profileId = userProfile ? userProfile.getId() : null;
 
                 var pageData = _.extend(sessionData.getData(), {
@@ -453,7 +464,7 @@ class DashboardRoute
             .then(
             function userUpdated()
             {
-                self.notificationDelegate.sendProfilePendingApprovalEmail(memberId)
+                self.notificationDelegate.sendProfilePendingApprovalNotification(memberId)
                     .then(
                     function emailSent() { res.send(200); }
                 )
@@ -466,8 +477,12 @@ class DashboardRoute
     {
         var profileId:number = parseInt(req.body[ApiConstants.USER_PROFILE_ID]);
         var userId:number = parseInt(req.body[ApiConstants.USER_ID]);
+        var memberId:number = parseInt(req.params[ApiConstants.MEMBER_ID]);
 
-        this.userProfileDelegate.publishProfile(profileId, userId)
+        q.all([
+            this.userProfileDelegate.publishProfile(profileId, userId),
+            this.notificationDelegate.sendProfileApprovedNotification(memberId)
+        ])
             .then(
             function profilePublished() { res.send(200); },
             function profilePublishError(error) { res.send(500); }

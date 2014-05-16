@@ -54,6 +54,7 @@ class EmailDelegate
     private static EMAIL_USER_AGENDA_FAIL:string = 'EMAIL_USER_AGENDA_FAIL';
     private static EMAIL_USER_RESCHEDULE:string = 'EMAIL_USER_RESCHEDULE';
     private static EMAIL_PROFILE_PENDING_APPROVAL:string = 'EMAIL_PROFILE_PENDING_APPROVAL';
+    private static EMAIL_PROFILE_APPROVED:string = 'EMAIL_PROFILE_APPROVED';
     private static EMAIL_EXPERT_REGISTRATION_SUCCESS:string = 'EMAIL_EXPERT_REGISTRATION_SUCCESS';
 
     // TODO: Implement this
@@ -485,6 +486,25 @@ class EmailDelegate
                     memberId: memberId
                 };
                 return self.composeAndSend(EmailDelegate.EMAIL_PROFILE_PENDING_APPROVAL, ownerUser.getEmail(), emailData);
+            })
+    }
+
+    sendProfileApprovedEmail(memberId:number):q.Promise<any>
+    {
+        var self = this;
+        var profileUrl = DashboardUrls.memberProfile(memberId, Config.get(Config.DASHBOARD_URI));
+        var callHandleUrl = CallFlowUrls.callExpert(memberId, Config.get(Config.DASHBOARD_URI));
+
+        return self.integrationMemberDelegate.get(memberId,null,[IncludeFlag.INCLUDE_USER])
+            .then(function memberFetched(integrationMember:IntegrationMember)
+            {
+                var integration = new IntegrationDelegate().getSync(integrationMember.getIntegrationId());
+                var emailData = {
+                    profileUrl: profileUrl,
+                    callHandleUrl: callHandleUrl,
+                    integration: integration
+                };
+                return self.composeAndSend(EmailDelegate.EMAIL_PROFILE_APPROVED, integrationMember.getUser()[0].getEmail(), emailData);
             })
     }
 

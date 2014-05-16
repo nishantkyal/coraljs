@@ -9,6 +9,7 @@ class ApiConstants
     static ROLE:string                                  = 'role';
     static RETURN_TO:string                             = 'returnTo';
     static CONTEXT:string                               = 'context';
+    static LOGIN_FROM_HEADER:string                     = 'loginFromHeader';
 
     /* Param constants */
     static COUPON_ID:string                             = 'couponId';
@@ -71,6 +72,10 @@ class ApiConstants
     static TRANSACTION:string                           = 'transaction';
     static PAGE_DATE:string                             = 'pageData';
     static WIDGET:string                                = 'widget';
+
+    // Query Constants
+    static MODE:string                                  = 'mode';
+    static PUBLIC_MODE:string                           = 'public';
 
 }
 export = ApiConstants
