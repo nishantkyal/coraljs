@@ -8,72 +8,77 @@ block content
         | We've&nbsp;
         strong sent you an email&nbsp;
         | with all the information you'll need :)
-    hr
-    h4 Your Public Profile
-    | We've created a profile page for you. Please take a moment to view it.&nbsp;
-    a.btn.btn-primary(href=DashboardUrls.memberProfile(member.id), target='_blank') Take me to my profile page
-    if schedule_rules
+    if member.role == IntegrationMemberRole.EXPERT
         hr
-        h4 Your Availability Schedule
-        | We'll schedule calls for you based on settings below. You may update these settings now or later by visiting <a href='#{SearchNTalkUri}'>#{SearchNTalkUri}</a>
-        form
-            each rule in schedule_rules
-                .form-group
-                    label(for='schedules') #{rule.title}
-                    .controls
-                        .row#schedules
-                            .col-md-3
-                                .input-group
-                                    .input-group-btn
-                                        select.form-control
-                                            option 1
-                                            option 2
-                                            option 3
-                                            option 4
-                                            option 5
-                                            option 6
-                                            option 7
-                                            option 8
-                                            option 9
-                                            option 10
-                                            option 11
-                                            option 12
-                                    select.form-control.col-md-1
-                                        option 00
-                                        option 15
-                                        option 30
-                                        option 45
-                                    .input-group-btn
-                                        select.form-control
-                                            option AM
-                                            option PM
-                            .col-md-1.text-center
-                                | to
-                            .col-md-3
-                                .input-group
-                                    .input-group-btn
-                                        select.form-control
-                                            option 1
-                                            option 2
-                                            option 3
-                                            option 4
-                                            option 5
-                                            option 6
-                                            option 7
-                                            option 8
-                                            option 9
-                                            option 10
-                                            option 11
-                                            option 12
-                                    select.form-control.col-md-1
-                                        option 00
-                                        option 15
-                                        option 30
-                                        option 45
-                                    .input-group-btn
-                                        select.form-control.btn-small
-                                            option AM
-                                            option PM
-        .form-group
-            input.form-control.btn.btn-primary(type='submit', value='Save')
+        h4 Your Public Profile
+        | We've created a profile page for you. Please take a moment to view it.&nbsp;
+        a.btn.btn-primary(href=DashboardUrls.memberProfile(member.id), target='_blank') Take me to my profile page
+        if schedule_rules
+            hr
+            h4 Your Availability Schedule
+            | We'll schedule calls for you based on settings below. You may update these settings now or later by visiting <a href='#{SearchNTalkUri}'>#{SearchNTalkUri}</a>
+            form
+                each rule in schedule_rules
+                    .form-group
+                        label(for='schedules') #{rule.title}
+                        .controls
+                            .row#schedules
+                                .col-md-3
+                                    .input-group
+                                        .input-group-btn
+                                            select.form-control
+                                                option 1
+                                                option 2
+                                                option 3
+                                                option 4
+                                                option 5
+                                                option 6
+                                                option 7
+                                                option 8
+                                                option 9
+                                                option 10
+                                                option 11
+                                                option 12
+                                        select.form-control.col-md-1
+                                            option 00
+                                            option 15
+                                            option 30
+                                            option 45
+                                        .input-group-btn
+                                            select.form-control
+                                                option AM
+                                                option PM
+                                .col-md-1.text-center
+                                    | to
+                                .col-md-3
+                                    .input-group
+                                        .input-group-btn
+                                            select.form-control
+                                                option 1
+                                                option 2
+                                                option 3
+                                                option 4
+                                                option 5
+                                                option 6
+                                                option 7
+                                                option 8
+                                                option 9
+                                                option 10
+                                                option 11
+                                                option 12
+                                        select.form-control.col-md-1
+                                            option 00
+                                            option 15
+                                            option 30
+                                            option 45
+                                        .input-group-btn
+                                            select.form-control.btn-small
+                                                option AM
+                                                option PM
+            .form-group
+                input.form-control.btn.btn-primary(type='submit', value='Save')
+    else
+        div
+            a.btn.btn-primary(href=Config.get(Config.DASHBOARD_URI)) Go to Account Settings
+            a.btn.btn-danger(href="javascript: window.close()") Close this window
     script(src='/js/app/expertRegistration/complete.js')

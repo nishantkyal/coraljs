@@ -1,5 +1,5 @@
 - var user = expert.user[0];
-
+title ST-#{formatName(user.first_name, user.last_name, user.title)}
 include header
 .modal.fade#scheduler
     .modal-dialog
@@ -120,12 +120,12 @@ include header
                     .col-md-6
                         .row
                             .user-schedule-summary
-                                - if (is_available)
+                                if (is_available)
                                     .current-status.status-ok Currently available
                                     .available-slot
                                         | Accepting calls till&nbsp;
                                         span= formatDate(next_available_schedule.start_time + next_available_schedule.duration, "HH:mm a")
-                                - else
+                                else
                                     .current-status.status-warning Not available at the moment
                                     .available-slot
                                         span.annotation Next available time:
@@ -174,8 +174,10 @@ include header
                                         input.form-control#caller-phone(type='text', placeholder='10-digit phone number', value=caller_phone)
                         .row
                             .call-actions
-                                a.btn.btn-lg.btn-primary.first.col-xs-12.col-md-12.col-lg-12#call-now Call Now
-                                a.btn.btn-lg.btn-default.col-xs-12.col-md-12.col-lg-12#schedule Schedule
+                                if (is_available)
+                                    a.btn.btn-lg.btn-primary.first.col-xs-12.col-md-12.col-lg-12#call-now Call Now
+                                else
+                                    a.btn.btn-lg.btn-default.col-xs-12.col-md-12.col-lg-12#schedule Schedule
 include footer
 script.
     var schedules = JSON.parse( '!{JSON.stringify(expert.schedule)}' );

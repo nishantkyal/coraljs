@@ -5,18 +5,20 @@ $('#phoneNumberSelector').selectpicker($("#phoneNumberSelector").is(":visible") 
 $('#sendPhoneVerificationCode').click(function()
 {
     $.ajax({
-        url     : '/rest/code/mobile/verification',
-        type    : 'post',
-        data    : {
+        url    : '/rest/code/mobile/verification',
+        type   : 'post',
+        data   : {
             phoneNumber: {
                 phone       : $('#phoneNumber').val(),
                 country_code: $('#countryCode').val()
             }
         },
-        success: function() {
+        success: function()
+        {
             $('#enterVerificationCodeModal').modal('show');
         },
-        error: function(jqXHR, textStatus, errorThrown) {
+        error  : function(jqXHR, textStatus, errorThrown)
+        {
             bootbox.alert(jqXHR.responseText);
         }
     })
@@ -24,11 +26,10 @@ $('#sendPhoneVerificationCode').click(function()
 
 $('#phoneNumberSelector').change(function(event)
 {
-   if ($(event.currentTarget).val() == "-1")
-   {
-       $('#phoneNumberSelector').selectpicker('hide');
-       $('#phoneNumberInput').show();
-   }
+    if ($(event.currentTarget).val() == "-1") {
+        $('#phoneNumberSelector').selectpicker('hide');
+        $('#phoneNumberInput').show();
+    }
 });
 
 $("#verifyCode").click(function()
@@ -38,7 +39,7 @@ $("#verifyCode").click(function()
         type    : 'get',
         dataType: 'json',
         data    : {
-            code: $('#enterVerificationCodeModal #verificationCode').val(),
+            code       : $('#enterVerificationCodeModal #verificationCode').val(),
             phoneNumber: {
                 phone       : $('#phoneNumber').val(),
                 country_code: $('#countryCode').val()
@@ -52,27 +53,35 @@ $("#verifyCode").click(function()
             $('#phoneNumberInput').hide();
             $("#enterVerificationCodeModal").modal('hide');
         },
-        error: function(jqXHR, textStatus, errorThrown) {
+        error   : function(jqXHR, textStatus, errorThrown)
+        {
             bootbox.alert(jqXHR.responseText);
         }
     })
 });
 
-$('form').validate({
-    submitHandler: function(form)
+var loginContext;
+
+$('form#couponForm,form#checkout').submit(function(event)
+{
+    if (!loginContext || loginContext != $(event.currentTarget).attr('id'))
     {
+        loginContext = $(event.currentTarget).attr('id');
+        event.preventDefault();
+
         $.ajax({
-            url: '/rest/user/authentication',
-            type: 'GET',
+            url    : '/rest/user/authentication',
+            type   : 'GET',
             success: function(data, textStatus, jqXHR)
             {
                 // If not logged in, stop event propagation and show modal
-                if (!data)
+                if (!data) {
                     $('#login-modal').modal('show');
-                else
-                    form.submit();
+                } else {
+                    $(event.currentTarget).submit();
+                }
             }
-        })
+        });
     }
 });
 
@@ -84,7 +93,26 @@ $('#applyCoupon').click(function()
     })
 });
 
-$('#register-button').click(function()
+$('#login-button').click(function()
 {
+    $.ajax({
+        url        : '/expert/call/login',
+        type       : 'post',
+        dataType   : 'json',
+        contentType: 'application/json',
+        async      : false,
+        data       : JSON.stringify({
+            username: $('#authentication input[name="username"]').val(),
+            password: $('#authentication input[name="password"]').val()
+        }),
+        success    : function()
+        {
+            if (loginContext)
+                $('form#' + loginContext).submit();
+        },
+        error      : function()
+        {
 
+        }
+    })
 });

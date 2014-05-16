@@ -13,7 +13,7 @@ class UserEmploymentDelegate extends BaseDaoDelegate
     constructor() { super(new UserEmploymentDao()); }
     private mapProfileEmploymentDao = new MapProfileEmploymentDao();
 
-    createUserEmployment(userEmployment:UserEmployment, profileId:number, transaction?:any):q.Promise<any>
+    createUserEmployment(userEmployment:UserEmployment, profileId:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
 

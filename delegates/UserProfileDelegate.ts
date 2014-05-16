@@ -40,7 +40,7 @@ class UserProfileDelegate extends BaseDaoDelegate
 
     constructor() { super(new UserProfileDao()); }
 
-    fetchSelectedFieldsFromLinkedIn(userId:number, integrationId:number, profileFields:string[], transaction?:any):q.Promise<any>
+    fetchSelectedFieldsFromLinkedIn(userId:number, profileFields:string[]):q.Promise<any>
     {
         var fields:string = profileFields.join(',');
 
@@ -63,7 +63,7 @@ class UserProfileDelegate extends BaseDaoDelegate
                     'HMAC-SHA1'
                 );
                 oauth.get(
-                    'https://api.linkedin.com/v1/people/~:(' + fields + ')?format=json ',
+                        'https://api.linkedin.com/v1/people/~:(' + fields + ')?format=json ',
                     userOauth.getAccessToken(),
                     userOauth.getRefreshToken(),
                     function (e, data, res)
@@ -83,15 +83,16 @@ class UserProfileDelegate extends BaseDaoDelegate
 
     }
 
-    fetchEducationDetailsFromLinkedIn(userId:number, integrationId:number, profileId:number, transaction?:any):q.Promise<any>
+    fetchEducationDetailsFromLinkedIn(userId:number, integrationId:number, profileId:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
 
         if (Utils.isNullOrEmpty(transaction))
             return MysqlDelegate.executeInTransaction(self, arguments);
 
-        return self.fetchSelectedFieldsFromLinkedIn(userId, integrationId, UserProfileDelegate.EDUCATION_FIELDS, transaction)
-            .then(function EducationDetailsFetched(profile)
+        return self.fetchSelectedFieldsFromLinkedIn(userId, UserProfileDelegate.EDUCATION_FIELDS)
+            .then(
+            function educationDetailsFetched(profile)
             {
                 if (!Utils.isNullOrEmpty(profile.educations) && profile.educations._total > 0)
                 {
@@ -110,22 +111,24 @@ class UserProfileDelegate extends BaseDaoDelegate
                     }));
                 }
             })
-            .fail(function EducationDetailsFetchedError(error)
+            .fail(
+            function educationDetailsFetchedError(error)
             {
                 self.logger.error(error);
                 throw(error);
             })
     }
 
-    fetchEmploymentDetailsFromLinkedIn(userId:number, integrationId:number, profileId:number, transaction?:any):q.Promise<any>
+    fetchEmploymentDetailsFromLinkedIn(userId:number, integrationId:number, profileId:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
 
         if (Utils.isNullOrEmpty(transaction))
             return MysqlDelegate.executeInTransaction(self, arguments);
 
-        return self.fetchSelectedFieldsFromLinkedIn(userId, integrationId, UserProfileDelegate.POSITION_FIELDS, transaction)
-            .then(function EmploymentDetailsFetched(profile)
+        return self.fetchSelectedFieldsFromLinkedIn(userId, UserProfileDelegate.POSITION_FIELDS)
+            .then(
+            function employmentDetailsFetched(profile)
             {
                 if (!Utils.isNullOrEmpty(profile.positions) && profile.positions._total > 0)
                 {
@@ -147,19 +150,21 @@ class UserProfileDelegate extends BaseDaoDelegate
                     }));
                 }
             })
-            .fail(function EmploymentDetailsFetchedError(error)
+            .fail(
+            function employmentDetailsFetchedError(error)
             {
                 self.logger.error(error);
                 throw(error);
             })
     }
 
-    fetchProfilePictureFromLinkedIn(userId:number, integrationId:number, profileId:number, transaction?:any):q.Promise<any>
+    fetchProfilePictureFromLinkedIn(userId:number, integrationId:number, profileId:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
 
-        return self.fetchSelectedFieldsFromLinkedIn(userId, integrationId, UserProfileDelegate.IMAGE_FIELDS, transaction)
-            .then(function ImageDetailsFetched(profile)
+        return self.fetchSelectedFieldsFromLinkedIn(userId, UserProfileDelegate.IMAGE_FIELDS)
+            .then(
+            function imageDetailsFetched(profile)
             {
                 var profilePictureUrl;
                 if (profile.pictureUrls && profile.pictureUrls.values.length > 0)
@@ -177,23 +182,24 @@ class UserProfileDelegate extends BaseDaoDelegate
                         })
                 }
             })
-            .fail(function ImageDetailsFetchedError(error)
+            .fail(
+            function imageDetailsFetchedError(error)
             {
                 self.logger.error(error);
                 throw(error);
             })
     }
 
-    fetchSkillDetailsFromLinkedIn(userId:number, integrationId:number, profileId:number, transaction?:any):q.Promise<any>
+    fetchSkillDetailsFromLinkedIn(userId:number, integrationId:number, profileId:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
 
         if (Utils.isNullOrEmpty(transaction))
             return MysqlDelegate.executeInTransaction(self, arguments);
 
-        return self.fetchSelectedFieldsFromLinkedIn(userId, integrationId, UserProfileDelegate.SKILL_FIELDS, transaction)
+        return self.fetchSelectedFieldsFromLinkedIn(userId, UserProfileDelegate.SKILL_FIELDS)
             .then(
-            function SkillDetailsFetched(profile)
+            function skillDetailsFetched(profile)
             {
                 if (!Utils.isNullOrEmpty(profile.skills) && profile.skills._total > 0)
                     var tasks = _.map(profile.skills.values, function (skillObject:any)
@@ -207,16 +213,17 @@ class UserProfileDelegate extends BaseDaoDelegate
                                 return new UserSkillDelegate().createUserSkillWithMap(userSkill, profileId, transaction);
                             })
                     });
-                    return q.all(tasks);
+                return q.all(tasks);
             })
-            .fail(function SkillDetailsFetchedError(error)
+            .fail(
+            function skillDetailsFetchedError(error)
             {
                 self.logger.error(error);
                 throw(error);
             })
     }
 
-    fetchBasicDetailsFromLinkedIn(userId:number, integrationId:number, profileId:number, transaction?:any):q.Promise<any>
+    fetchBasicDetailsFromLinkedIn(userId:number, integrationId:number, profileId:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
 
@@ -224,10 +231,11 @@ class UserProfileDelegate extends BaseDaoDelegate
             return MysqlDelegate.executeInTransaction(self, arguments);
 
         return q.all([
-                self.fetchSelectedFieldsFromLinkedIn(userId, integrationId, UserProfileDelegate.BASIC_FIELDS, transaction),
-                new IntegrationMemberDelegate().find({'user_id': userId, 'integration_id': integrationId})
-            ])
-            .then(function BasicDetailsFetched(...args)
+            self.fetchSelectedFieldsFromLinkedIn(userId, UserProfileDelegate.BASIC_FIELDS),
+            new IntegrationMemberDelegate().find({'user_id': userId, 'integration_id': integrationId}, null, null, transaction)
+        ])
+            .then(
+            function basicDetailsFetched(...args)
             {
                 var profile = args[0][0];
                 var integrationMember:IntegrationMember = args[0][1];
@@ -256,14 +264,15 @@ class UserProfileDelegate extends BaseDaoDelegate
                     new UserDelegate().update({id: userId}, user, transaction)
                 ]);
             })
-            .fail(function BasicDetailsFetchedError(error)
+            .fail(
+            function basicDetailsFetchError(error)
             {
                 self.logger.error(error);
                 throw(error);
             })
     }
 
-    fetchAllDetailsFromLinkedIn(userId:number, integrationId:number, profileId:number, transaction?:any):q.Promise<any>
+    fetchAllDetailsFromLinkedIn(userId:number, integrationId:number, profileId:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
 
@@ -279,7 +288,7 @@ class UserProfileDelegate extends BaseDaoDelegate
         ]);
     }
 
-    fetchAndReplaceEducation(userId:number, integrationId:number, profileId:number, transaction?:any):q.Promise<any>
+    fetchAndReplaceEducation(userId:number, integrationId:number, profileId:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
         var userEducationDelegate = new UserEducationDelegate();
@@ -288,22 +297,20 @@ class UserProfileDelegate extends BaseDaoDelegate
             return MysqlDelegate.executeInTransaction(self, arguments);
 
         return userEducationDelegate.search({'profileId': profileId})
-            .then(function EducationFetched(userEducation:UserEducation[])
+            .then(
+            function educationFetched(userEducation:UserEducation[])
             {
-                return q.all([
-                        _.each(userEducation, function (edu)
-                        {
-                            return userEducationDelegate.delete({id: edu.getId(), profileId: profileId}, false, transaction)
-                        })
-                    ])
-                    .then(function deleted()
-                    {
-                        return self.fetchEducationDetailsFromLinkedIn(userId, integrationId, profileId, transaction);
-                    })
+                //TODO: Check if this can be done in one statement using the IN clause of SQL
+                return userEducationDelegate.delete({id: _.pluck(userEducation, UserEducation.ID), profileId: profileId}, transaction, false);
+            })
+            .then(
+            function deleted()
+            {
+                return self.fetchEducationDetailsFromLinkedIn(userId, integrationId, profileId, transaction);
             })
     }
 
-    fetchAndReplaceEmployment(userId:number, integrationId:number, profileId:number, transaction?:any):q.Promise<any>
+    fetchAndReplaceEmployment(userId:number, integrationId:number, profileId:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
         var userEmploymentDelegate = new UserEmploymentDelegate();
@@ -312,22 +319,19 @@ class UserProfileDelegate extends BaseDaoDelegate
             return MysqlDelegate.executeInTransaction(self, arguments);
 
         return userEmploymentDelegate.search({'profileId': profileId})
-            .then(function EmploymentFetched(userEmployment:UserEmployment[])
+            .then(
+            function EmploymentFetched(userEmployment:UserEmployment[])
             {
-                return q.all([
-                        _.each(userEmployment, function (emp)
-                        {
-                            return userEmploymentDelegate.delete({id: emp.getId(), profileId: profileId}, false, transaction)
-                        })
-                    ])
-                    .then(function deleted()
-                    {
-                        return self.fetchEmploymentDetailsFromLinkedIn(userId, integrationId, profileId, transaction);
-                    })
+                return userEmploymentDelegate.delete({id: _.pluck(userEmployment, UserEmployment.ID), profileId: profileId}, transaction, false);
             })
+            .then(
+            function deleted()
+            {
+                return self.fetchEmploymentDetailsFromLinkedIn(userId, integrationId, profileId, transaction);
+            });
     }
 
-    fetchAndReplaceSkill(userId:number, integrationId:number, profileId:number, transaction?:any):q.Promise<any>
+    fetchAndReplaceSkill(userId:number, integrationId:number, profileId:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
 
@@ -336,22 +340,19 @@ class UserProfileDelegate extends BaseDaoDelegate
 
         var userSkillDelegate = new UserSkillDelegate();
         return userSkillDelegate.search({'profileId': profileId})
-            .then(function SkillFetched(userSkill:UserSkill[])
+            .then(
+            function SkillFetched(userSkills:UserSkill[])
             {
-                return q.all([
-                        _.each(userSkill, function (skill)
-                        {
-                            return userSkillDelegate.delete({id: skill.getId(), profileId: profileId}, false, transaction)
-                        })
-                    ])
-                    .then(function deleted()
-                    {
-                        return self.fetchSkillDetailsFromLinkedIn(userId, integrationId, profileId, transaction);
-                    })
+                return userSkillDelegate.delete({id: _.pluck(userSkills, UserSkill.ID), profileId: profileId}, transaction, false);
             })
+            .then(
+            function deleted()
+            {
+                return self.fetchSkillDetailsFromLinkedIn(userId, integrationId, profileId, transaction);
+            });
     }
 
-    publishProfile(profileId:number, userId:number, transaction?:any):q.Promise<any>
+    publishProfile(profileId:number, userId:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
 
@@ -366,12 +367,12 @@ class UserProfileDelegate extends BaseDaoDelegate
             function userUpdated()
             {
                 var UserDelegate = require('../delegates/UserDelegate');
-                return new UserDelegate().recalculateStatus(userId, transaction)
+                return new UserDelegate().recalculateStatus(userId, transaction);
             }
         )
     }
 
-    copyProfile(profileId:number, newProfileId:number, transaction?:any):q.Promise<any>
+    copyProfile(profileId:number, newProfileId:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
 
@@ -385,29 +386,64 @@ class UserProfileDelegate extends BaseDaoDelegate
             new UserEmploymentDelegate().search({'profileId': profileId}),
             new UserUrlDelegate().search({'profileId': profileId})
         ])
-            .then( function detailsFetched(...args){
+            .then(
+            function detailsFetched(...args)
+            {
                 var userProfile = args[0][0];
                 var userSkills = args[0][1] || [];
                 var userEducations = args[0][2] || [];
                 var userEmployments = args[0][3] || [];
                 var userUrls = args[0][4] || [];
+
                 var createTasks = [];
-                createTasks.push(new UserProfileDelegate().update({id:newProfileId}, userProfile,transaction));
-                createTasks.push(_.each(userSkills,  function (skill:UserSkill){
-                    return new UserSkillDelegate().createUserSkillWithMap(skill, newProfileId,transaction);
+                createTasks.push(new UserProfileDelegate().update({id: newProfileId}, userProfile, transaction));
+                createTasks.push(_.each(userSkills, function (skill:UserSkill)
+                {
+                    return new UserSkillDelegate().createUserSkillWithMap(skill, newProfileId, transaction);
                 }));
-                createTasks.push(_.each(userEducations,  function (edu:UserEducation){
-                    return new UserEducationDelegate().createUserEducation(edu,newProfileId,transaction);
+                createTasks.push(_.each(userEducations, function (edu:UserEducation)
+                {
+                    return new UserEducationDelegate().createUserEducation(edu, newProfileId, transaction);
                 }));
-                createTasks.push(_.each(userEmployments, function (emp:UserEmployment){
+                createTasks.push(_.each(userEmployments, function (emp:UserEmployment)
+                {
                     return new UserEmploymentDelegate().createUserEmployment(emp, newProfileId, transaction);
                 }));
-                createTasks.push(_.each(userUrls, function(url:UserUrl){
+                createTasks.push(_.each(userUrls, function (url:UserUrl)
+                {
                     return new UserUrlDelegate().createUserUrl(url, newProfileId, transaction);
                 }));
+
                 return q.all(createTasks);
             })
 
+    }
+
+    create(object:any, transaction?:Object):q.Promise<any>
+    {
+        if (Utils.isNullOrEmpty(transaction))
+            return MysqlDelegate.executeInTransaction(this, arguments);
+
+        var createdProfile:UserProfile;
+
+        return super.create(object, transaction)
+            .then(
+            function profileCreated(userProfile:UserProfile)
+            {
+                createdProfile = userProfile;
+                return new IntegrationMemberDelegate().get(userProfile.getIntegrationMemberId(), null, null, transaction);
+            })
+            .then(
+            function memberFetched(member:IntegrationMember)
+            {
+                var UserDelegate = require('../delegates/UserDelegate');
+                return new UserDelegate().update(member.getUserId(), Utils.createSimpleObject(User.DEFAULT_PROFILE_ID, createdProfile.getId()), transaction)
+            })
+            .then(
+            function userDefaultProfileUpdated()
+            {
+                return createdProfile;
+            });
     }
 
 }

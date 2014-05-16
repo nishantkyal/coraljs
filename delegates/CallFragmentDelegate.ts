@@ -15,7 +15,7 @@ class CallFragmentDelegate extends BaseDaoDelegate
 
     constructor() { super(new CallFragmentDao()); }
 
-    getTotalDuration(callId:number, transaction?:any):q.Promise<any>
+    getTotalDuration(callId:number, transaction?:Object):q.Promise<any>
     {
         var callFragmentDao:any = this.dao;
         return callFragmentDao.getTotalDuration(callId, transaction);

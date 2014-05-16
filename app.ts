@@ -28,8 +28,10 @@ import CountryName                                  = require('./enums/CountryNa
 import Salutation                                   = require('./enums/Salutation');
 import ItemType                                     = require('./enums/ItemType');
 import CouponType                                   = require('./enums/CouponType');
+import IntegrationMemberRole                        = require('./enums/IntegrationMemberRole');
 import TransactionType                              = require('./enums/TransactionType');
 import CallFlowUrls                                 = require('./routes/callFlow/Urls');
+import CallSchedulingUrls                           = require('./routes/callScheduling/Urls');
 import DashboardUrls                                = require('./routes/dashboard/Urls');
 import MemberRegistrationUrls                       = require('./routes/expertRegistration/Urls');
 
@@ -38,7 +40,8 @@ log4js.configure('/var/searchntalk/config/log4js.json');
 var app:express.Application = express();
 
 // View helpers
-var helpers = {
+var helpers =
+{
     formatMoney: Formatter.formatMoney,
     formatRole: Formatter.formatRole,
     formatName: Formatter.formatName,
@@ -46,10 +49,13 @@ var helpers = {
     formatDate: Formatter.formatDate,
     formatUserStatus:Formatter.formatUserStatus,
     formatCallStatus:Formatter.formatCallStatus,
+
     ApiUrlDelegate: ApiUrlDelegate,
     CallFlowUrls: CallFlowUrls,
+    CallSchedulingUrls: CallSchedulingUrls,
     DashboardUrls: DashboardUrls,
     MemberRegistrationUrls: MemberRegistrationUrls,
+
     Config: Config,
     escapeObject:Utils.escapeObject,
     unEscapeObject:Utils.unEscapeObject,
@@ -59,6 +65,8 @@ var helpers = {
     CouponType: Utils.enumToNormalText(CouponType),
     ItemType: Utils.enumToNormalText(ItemType),
     TransactionType: Utils.enumToNormalText(TransactionType),
+    IntegrationMemberRole: Utils.enumToNormalText(IntegrationMemberRole),
+
     minYear: Config.get(Config.MINIMUM_YEAR),
     currentYear: moment().format('YYYY')
 };

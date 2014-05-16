@@ -53,7 +53,7 @@ class PayZippyProvider
             is_user_logged_in: true,
             merchant_id: Config.get(Config.PAY_ZIPPY_MERCHANT_ID),
             merchant_key_id: Config.get(Config.PAY_ZIPPY_MERCHANT_KEY_ID),
-            merchant_transaction_id: transaction.getId(),
+            merchant_transaction_id: transaction.getId() + '-' + Utils.getRandomInt(999, 9999),
             payment_method: null,
             transaction_amount: amount,
             transaction_type: 'sale',
@@ -94,14 +94,14 @@ class PayZippyProvider
             transactionStatus = TransactionStatus.PAYMENT_FAILED;
 
         // Mark the transaction id as success and send it back
-        var transactionId = parseInt(response[PayZippyProvider.MERHANT_TRANSACTION_ID]);
+        var transactionId = parseInt(response[PayZippyProvider.MERHANT_TRANSACTION_ID].split('-')[0]);
         var paymentTransactionId = response[PayZippyProvider.PAYZIPPY_TRANSACTION_ID];
 
         var payment = new Payment();
         payment.setAmount(response[PayZippyProvider.TRANSACTION_AMOUNT]);
         payment.setGatewayId(PaymentGateway.PAYZIPPY);
         payment.setGatewayResponseCode(response[PayZippyProvider.TRANSACTION_RESPONSE_CODE]);
-        payment.setGatewayTransactionId(paymentTransactionId)
+        payment.setGatewayTransactionId(paymentTransactionId);
 
         return self.paymentDelegate.create(payment)
             .then(

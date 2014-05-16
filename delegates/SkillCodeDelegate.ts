@@ -37,7 +37,7 @@ class SkillCodeDelegate extends BaseDaoDelegate
         return deferred.promise;
     }
 
-    createSkillCodeFromLinkedIn(skillName:string, transaction?:any):q.Promise<any>
+    createSkillCodeFromLinkedIn(skillName:string, transaction?:Object):q.Promise<any>
     {
         var self = this;
         var skillNames = [].concat(skillName);

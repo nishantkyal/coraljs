@@ -30,7 +30,7 @@ class UserDelegate extends BaseDaoDelegate
 
     constructor() { super(new UserDAO()); }
 
-    create(object:any, transaction?:any):q.Promise<any>
+    create(object:any, transaction?:Object):q.Promise<any>
     {
         if (!Utils.isNullOrEmpty(object) && object.hasOwnProperty(User.PASSWORD))
             object[User.PASSWORD] = this.computePasswordHash(object[User.EMAIL], object[User.PASSWORD]);
@@ -38,9 +38,9 @@ class UserDelegate extends BaseDaoDelegate
         return super.create(object, transaction);
     }
 
-    update(criteria:Object, newValues:any, transaction?:any):q.Promise<any>;
-    update(criteria:number, newValues:any, transaction?:any):q.Promise<any>;
-    update(criteria:any, newValues:any, transaction?:any):q.Promise<any>
+    update(criteria:Object, newValues:any, transaction?:Object):q.Promise<any>;
+    update(criteria:number, newValues:any, transaction?:Object):q.Promise<any>;
+    update(criteria:any, newValues:any, transaction?:Object):q.Promise<any>
     {
         var self = this;
         var superUpdate = super.update.bind(this);
@@ -107,7 +107,7 @@ class UserDelegate extends BaseDaoDelegate
 
     recalculateStatus(criteria:number):q.Promise<any>;
     recalculateStatus(criteria:Object):q.Promise<any>;
-    recalculateStatus(criteria:any, transaction?:any):q.Promise<any>
+    recalculateStatus(criteria:any, transaction?:Object):q.Promise<any>
     {
         var self = this;
         var user:User;

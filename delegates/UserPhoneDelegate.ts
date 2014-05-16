@@ -7,7 +7,7 @@ import Utils                            = require('../common/Utils');
 
 class UserPhoneDelegate extends BaseDaoDelegate
 {
-    create(data:any, transaction?:any):q.Promise<any>
+    create(data:any, transaction?:Object):q.Promise<any>
     {
         // Check that phone number doesn't already exist
         var self = this;

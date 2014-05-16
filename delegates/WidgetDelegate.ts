@@ -133,9 +133,9 @@ class WidgetDelegate extends BaseDaoDelegate
         return widgetHtml;
     }*/
 
-    /*update(criteria:Object, newValues:any, transaction?:any):q.Promise<any>;
-    update(criteria:number, newValues:any, transaction?:any):q.Promise<any>;
-    update(criteria:any, newValues:any, transaction?:any):q.Promise<any>
+    /*update(criteria:Object, newValues:any, transaction?:Object):q.Promise<any>;
+    update(criteria:number, newValues:any, transaction?:Object):q.Promise<any>;
+    update(criteria:any, newValues:any, transaction?:Object):q.Promise<any>
     {
         var self = this;
 

@@ -15,7 +15,7 @@ class TransactionLineDelegate extends BaseDaoDelegate
 {
     constructor() { super(new TransactionLineDao()); }
 
-    createPhoneCallTransactionLines(transactionId:number, call:PhoneCall, transaction?:any):q.Promise<any>
+    createPhoneCallTransactionLines(transactionId:number, call:PhoneCall, transaction?:Object):q.Promise<any>
     {
         var lines = this.getPhoneCallTransactionLines(call, transactionId);
         var self = this;

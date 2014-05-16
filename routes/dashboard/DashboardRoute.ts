@@ -225,6 +225,12 @@ class DashboardRoute
 
         var sessionData = new SessionData(req);
 
+        if (req.get('content-type') == 'application/json')
+        {
+            res.send(200, {status: 'OK'});
+            return null;
+        }
+
         // Return if specified
         if (req.session[ApiConstants.RETURN_TO])
         {
@@ -466,7 +472,7 @@ class DashboardRoute
             .fail(function userUpdateError(error) { res.send(500); })
     }
 
-    publishProfile(req:express.Request, res:express.Response, transaction?:any)
+    publishProfile(req:express.Request, res:express.Response, transaction?:Object)
     {
         var profileId:number = parseInt(req.body[ApiConstants.USER_PROFILE_ID]);
         var userId:number = parseInt(req.body[ApiConstants.USER_ID]);
@@ -514,7 +520,6 @@ class DashboardRoute
     private paymentComplete(req:express.Request, res:express.Response)
     {
         var self = this;
-        var response = req.body;
         var sessionData = new SessionData(req);
         var callFlowSessionData = new CallFlowSessionData(req);
         var payZippyProvider = new PayZippyProvider();
@@ -584,8 +589,8 @@ class DashboardRoute
             {
                 if (result)
                 {
-                    res.render(DashboardRoute.PAGE_ACCOUNT_VERIFICATION);
                     req.logout();
+                    res.render(DashboardRoute.PAGE_ACCOUNT_VERIFICATION);
                     return email;
                 }
                 else

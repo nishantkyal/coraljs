@@ -43,7 +43,7 @@ class IntegrationDelegate extends BaseDaoDelegate
             });
     }
 
-    createByUser(object:any, user?:User, transaction?:any):q.Promise<any>
+    createByUser(object:any, user?:User, transaction?:Object):q.Promise<any>
     {
         if (Utils.isNullOrEmpty(transaction))
             return MysqlDelegate.executeInTransaction(this, arguments);

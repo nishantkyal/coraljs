@@ -3,7 +3,7 @@ import q                                            = require('q');
 import UserAuthDAO                                  = require('../dao/UserOAuthDao');
 import BaseDaoDelegate                              = require('./BaseDaoDelegate');
 import MysqlDelegate                                = require('../delegates/MysqlDelegate');
-import UserOAuth                                    = require('../models/UserOauth');
+import UserOauth                                    = require('../models/UserOauth');
 import User                                         = require('../models/User');
 import Utils                                        = require('../common/Utils');
 
@@ -23,7 +23,7 @@ class UserOAuthDelegate extends BaseDaoDelegate
     /* Add or update an OAuth token
      * Created new user if can't update
      */
-    addOrUpdateToken(userOAuth:UserOAuth, user:User, transaction?:any):q.Promise<any>
+    addOrUpdateToken(userOAuth:UserOauth, user:User, transaction?:Object):q.Promise<any>
     {
         var self = this;
         var args = arguments;
@@ -34,13 +34,13 @@ class UserOAuthDelegate extends BaseDaoDelegate
         //and this function set that userId on Oauth
         var searchObject = {oauth_user_id: userOAuth.getOauthUserId(), provider_id: userOAuth.getProviderId()};
 
-        return this.dao.search(searchObject, {'fields': ['id', 'user_id']})
+        return this.dao.search(searchObject, [UserOauth.ID, UserOauth.USER_ID], transaction)
             .then(
             function oauthSearchCompleted(existingTokens)
             {
                 if (existingTokens.length != 0)
                 {
-                    var token = new UserOAuth(existingTokens[0]);
+                    var token = new UserOauth(existingTokens[0]);
                     var oauthId:number = token.getId();
                     userOAuth.setUserId(token.getUserId());
                     return self.update(oauthId, userOAuth)
@@ -70,7 +70,7 @@ class UserOAuthDelegate extends BaseDaoDelegate
                             return self.create(userOAuth, transaction);
                         })
                         .then(
-                        function oauthCreated(oauth:UserOAuth)
+                        function oauthCreated(oauth:UserOauth)
                         {
                             userOAuth.setId(oauth.getId());
                             return userOAuth;
@@ -80,7 +80,7 @@ class UserOAuthDelegate extends BaseDaoDelegate
 
     }
 
-    update(id:number, oauth:UserOAuth):q.Promise<any>
+    update(id:number, oauth:UserOauth):q.Promise<any>
     {
         // Can't update user id for a token
         oauth.setUserId(null);

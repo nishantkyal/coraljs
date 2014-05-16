@@ -16,7 +16,7 @@ class UserSkillDelegate extends BaseDaoDelegate
 
     private skillCodeDelegate = new SkillCodeDelegate();
 
-    createUserSkillWithMap(userSkill:UserSkill, profileId:number, transaction?:any):q.Promise<any>
+    createUserSkillWithMap(userSkill:UserSkill, profileId:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
         var mapProfileSkillDao = new MapProfileSkillDao();
@@ -33,7 +33,7 @@ class UserSkillDelegate extends BaseDaoDelegate
             })
     }
 
-    createUserSkill(userSkill:UserSkill, skillName:string, linkedInSkillCode:number, profileId:number, transaction?:any):q.Promise<any>
+    createUserSkill(userSkill:UserSkill, skillName:string, linkedInSkillCode:number, profileId:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
 
@@ -64,7 +64,7 @@ class UserSkillDelegate extends BaseDaoDelegate
         );
     }
 
-    updateUserSkill(userSkill:UserSkill, skillName:string, linkedInSkillCode:number, transaction?:any):q.Promise<any>
+    updateUserSkill(userSkill:UserSkill, skillName:string, linkedInSkillCode:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
         var skillCode:SkillCode = new SkillCode();
@@ -93,7 +93,7 @@ class UserSkillDelegate extends BaseDaoDelegate
         )
     }
 
-    getSkillWithName(profileId:any, transaction?:any):q.Promise<any>
+    getSkillWithName(profileId:any, transaction?:Object):q.Promise<any>
     {
         var skillDao:any = this.dao;
         return skillDao.getSkillWithName(profileId, transaction);

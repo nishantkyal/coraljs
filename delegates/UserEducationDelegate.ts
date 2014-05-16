@@ -20,7 +20,7 @@ class UserEducationDelegate extends BaseDaoDelegate
         this.integrationMemberDelegate = new IntegrationMemberDelegate();
     }
 
-    createUserEducation(userEducation:UserEducation, profileId:number, transaction?:any):q.Promise<any>
+    createUserEducation(userEducation:UserEducation, profileId:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
         var mapProfileEducationDao = new MapProfileEducationDao();

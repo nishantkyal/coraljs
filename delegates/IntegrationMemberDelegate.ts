@@ -36,18 +36,17 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
         this.userDelegate = new UserDelegate();
     }
 
-    create(object:Object, dbTransaction?:any):q.Promise<any>
+    create(object:Object, dbTransaction?:Object):q.Promise<any>
     {
         var self = this;
         var integrationMember = new IntegrationMember(object);
         integrationMember.setAuthCode(Utils.getRandomString(30));
 
-        if (Utils.isNullOrEmpty(dbTransaction))
-            return MysqlDelegate.executeInTransaction(self, arguments);
-
-
         // 1. Create member
         // 2. Create default schedule rules and profile
+        // 3. Try fetching details from linkedin
+        // Note: Not doing all this in transaction since it's a pretty long operation and lock wait times out
+        //      Steps 2 and 3 are performed in their own transactions anyway
         return super.create(integrationMember, dbTransaction)
             .then(
             function expertCreated(expert:IntegrationMember)
@@ -59,20 +58,28 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
                 userProfile.setIntegrationMemberId(integrationMember.getId());
 
                 return q.all([
-                    self.userProfileDelegate.create(userProfile, dbTransaction),
-                    self.expertScheduleRuleDelegate.createDefaultRules(expert.getId(), dbTransaction)
+                    self.userProfileDelegate.create(userProfile),
+                    self.expertScheduleRuleDelegate.createDefaultRules(expert.getId())
                 ]);
             })
             .then(
-            function defaultRulesAndProfileCreated(...args):any
+            function memberCreated(...args)
             {
-                self.logger.debug('Default rules and profile created');
+                var profile:UserProfile = args[0][0];
+                var profileId = profile.getId();
+
+                return self.userProfileDelegate.fetchAllDetailsFromLinkedIn(integrationMember.getUserId(), integrationMember.getIntegrationId(), profileId)
+                    .fail(
+                    function linkedInFetchFailed(error)
+                    {
+                        self.logger.debug('LinkedIn profile fetch failed for user id: %s, error: %s', integrationMember.getUserId(), JSON.stringify(error));
+                        return integrationMember;
+                    });
+            })
+            .then(
+            function profileDetailsFetched()
+            {
                 return integrationMember;
-            },
-            function expertCreateFailed(error)
-            {
-                self.logger.error('Error occurred while creating new expert, error: %s', JSON.stringify(error));
-                throw(error);
             });
     }
 

@@ -14,7 +14,7 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
 {
     constructor() { super(new ExpertScheduleExceptionDao()); }
 
-    createException(newScheduleException:ExpertScheduleException, transaction?:any):q.Promise<any>
+    createException(newScheduleException:ExpertScheduleException, transaction?:Object):q.Promise<any>
     {
         var self = this;
         // TODO: Handle cyclic dependencies in a better way
@@ -71,9 +71,9 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
         }));
     }
 
-    deleteByRuleId(ruleId:number, transaction?:any):q.Promise<any>
+    deleteByRuleId(ruleId:number, transaction?:Object):q.Promise<any>
     {
-        return this.delete({'schedule_rule_id': ruleId}, true, transaction);
+        return this.delete({'schedule_rule_id': ruleId}, transaction, true);
     }
 
     getExceptionsByIntegrationMemberId(expertId:number, startTime:number, endTime:number):q.Promise<any>
@@ -82,7 +82,7 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
         return expertScheduleExceptionDao.getExceptionByIntegrationMemberId(expertId, startTime, endTime);
     }
 
-    updateException(updatedScheduleRuleException:ExpertScheduleException, transaction?:any):q.Promise<any>
+    updateException(updatedScheduleRuleException:ExpertScheduleException, transaction?:Object):q.Promise<any>
     {
         var self = this;
         // TODO: Handle cyclic dependencies in a better way

@@ -98,9 +98,13 @@ class OAuthProviderDelegate
                     throw(error);
                 })
                 .then(
-                function (expert:IntegrationMember)
+                function success(expert:IntegrationMember)
                 {
                     done(null, expert.getAuthCode());
+                },
+                function error(error)
+                {
+                    done(error);
                 });
         }));
 
