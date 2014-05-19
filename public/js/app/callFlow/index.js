@@ -71,35 +71,16 @@ $('.row.scheduled-slots li .col-xs-4.remove').click(function(event)
 /* Schedule clicked - Event Handler */
 $('#schedule').click(function()
 {
-    var agenda = $('#agenda').val().trim();
-    var callerName = $('#caller-name').val().trim();
-    var callerPhone = $('#caller-phone').val().trim();
-
-    if (agenda && callerName && callerPhone)
-        $('#scheduler').modal();
-
+    proceedToPayment()
 });
 
 /* Schedule selected - Event Handler */
 $('#schedule-done').click(function()
 {
-    var agenda = $('#agenda').val().trim();
-    var callerName = $('#caller-name').val().trim();
-    var callerPhone = $('#caller-phone').val().trim();
-
-    $('<form action="/expert/call/payment" method="POST">' +
-        '<input type="hidden" name="agenda" value="' + agenda + '">' +
-        '<input type="hidden" name="duration" value="' + duration + '">' +
-        '<input type="hidden" name="name" value="' + callerName + '">' +
-        '<input type="hidden" name="phone" value="' + callerPhone + '">' +
-        _.map(selectedTimeSlots, function(slot)
-        {
-            return '<input type="hidden" name="startTime" value="' + slot + '">';
-        }).join('') +
-        '</form>').submit();
+    $('#scheduler').modal('hide');
 });
 
-/* Call now clicked - Event Handler */
+/* Call now clicked - Event Handler
 $('#call-now').click(function()
 {
     var agenda = $('#agenda').val().trim();
@@ -113,7 +94,47 @@ $('#call-now').click(function()
         '<input type="hidden" name="phone" value="' + callerPhone + '">' +
         '<input type="hidden" name="call-now" value="true">' +
         '</form>').submit();
-});
+});*/
+
+/* Helper method to validate input and process to payment page */
+function proceedToPayment()
+{
+    var agenda = $('#agenda').val().trim();
+    var callerPhone = $('#caller-phone').val().trim();
+
+    // Show scheduling popup if 3 slots not selected
+    if (selectedTimeSlots.length != 3)
+    {
+        $('#scheduler').modal('show');
+        return;
+    }
+
+    // Dismiss modal if agenda or phone not supplied
+    if (agenda.length == 0)
+    {
+        $('#scheduler').modal('hide');
+        $('#agenda').focus();
+        return;
+    }
+
+    // Dismiss modal if agenda or phone not supplied
+    if (callerPhone.length == 0)
+    {
+        $('#scheduler').modal('hide');
+        $('#caller-phone').focus();
+        return;
+    }
+
+    $('<form action="/expert/call/payment" method="POST">' +
+        '<input type="hidden" name="agenda" value="' + agenda + '">' +
+        '<input type="hidden" name="duration" value="' + duration + '">' +
+        '<input type="hidden" name="phone" value="' + callerPhone + '">' +
+        _.map(selectedTimeSlots, function(slot)
+        {
+            return '<input type="hidden" name="startTime" value="' + slot + '">';
+        }).join('') +
+        '</form>').submit();
+}
 
 /* Helper method to mark a data selected */
 function selectDate(selectedDate, dateElement)
@@ -203,9 +224,13 @@ function updateSelectedTimeSlots()
         $('.modal-footer #schedule-done').hide();
         $('.modal-footer .alert.alert-warning').show();
         $('.modal-footer .alert.alert-warning .num-slots').text(selectedTimeSlots.length);
+
+        $('#schedule').text('Choose Time Slots');
     }
     else {
         $('.modal-footer #schedule-done').show();
         $('.modal-footer .alert.alert-warning').hide();
+
+        $('#schedule').text('Proceed');
     }
 }

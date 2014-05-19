@@ -380,19 +380,19 @@ class DashboardRoute
                 var userId:number = member.getUserId();
 
                 userProfile = args[0][1] || userProfile;
-                var profileInfoTasks = [];
+                var profileInfoTasks = [self.userDelegate.get(userId)];
 
                 if (!Utils.isNullOrEmpty(userProfile) && userProfile.getId())
-                    profileInfoTasks = [
+                    profileInfoTasks = profileInfoTasks.concat([
                         self.userSkillDelegate.getSkillWithName(userProfile.getId()),
                         self.userEducationDelegate.search({'profileId': userProfile.getId()}),
                         self.userEmploymentDelegate.search({'profileId': userProfile.getId()}),
                         self.userUrlDelegate.search({'profileId': userProfile.getId()}),
                         Middleware.isSelf(loggedInUser, memberId),
                         Middleware.isAdminOrOwner(loggedInUser, memberId)
-                    ];
+                    ]);
 
-                return q.all([self.userDelegate.get(userId)].concat(profileInfoTasks));
+                return q.all(profileInfoTasks);
             })
             .then(
             function memberDetailsFetched(...args)
