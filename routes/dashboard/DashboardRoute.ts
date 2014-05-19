@@ -218,15 +218,9 @@ class DashboardRoute
      */
     private authSuccess(req, res:express.Response)
     {
-        if(req.body[ApiConstants.LOGIN_FROM_HEADER])
-        {
-            res.send(200);
-            return;
-        }
-
         var sessionData = new SessionData(req);
 
-        if (req.get('content-type') == 'application/json')
+        if (req.get('content-type').indexOf('application/json') != -1)
         {
             res.send(200, {status: 'OK'});
             return null;

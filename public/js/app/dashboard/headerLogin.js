@@ -28,15 +28,21 @@ $('#headerLoginModal form').validate({
         $.ajax({
             url : '/login',
             type: 'post',
-            data:{
+            contentType: 'application/json',
+            dataType: 'json',
+            data:JSON.stringify({
                 username            : $('#headerLoginModal form #username').val(),
-                password            : $('#headerLoginModal form #password').val(),
-                loginFromHeader     : true
-            },
+                password            : $('#headerLoginModal form #password').val()
+            }),
             success: function()
             {
                 location.reload();
+            },
+            error: function()
+            {
+                bootbox.alert('Login Failed');
             }
+
         })
     }
 
