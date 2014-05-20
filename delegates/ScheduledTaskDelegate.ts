@@ -122,7 +122,10 @@ class ScheduledTaskDelegate
                     if(result[AbstractScheduledTask.STARTTIME] > moment().valueOf())
                         self.scheduleAt(TaskTypeFactory.getTask(result), result[AbstractScheduledTask.STARTTIME]);
                     else
+                    {
                         self.logger.error("Task Missed - " + JSON.stringify(result));
+                        self.syncToRedis();
+                    }
                 });
 
             },
