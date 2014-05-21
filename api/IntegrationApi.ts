@@ -6,6 +6,8 @@ import ApiUrlDelegate                               = require('../delegates/ApiU
 import IntegrationDelegate                          = require('../delegates/IntegrationDelegate');
 import IntegrationMemberDelegate                    = require('../delegates/IntegrationMemberDelegate');
 import MysqlDelegate                                = require('../delegates/MysqlDelegate');
+import NotificationDelegate                         = require('../delegates/NotificationDelegate');
+import VerificationCodeDelegate                     = require('../delegates/VerificationCodeDelegate');
 import Integration                                  = require('../models/Integration');
 import IntegrationMember                            = require('../models/IntegrationMember');
 import User                                         = require('../models/User');
@@ -23,20 +25,38 @@ class IntegrationApi
     {
         var integrationDelegate = new IntegrationDelegate();
         var integrationMemberDelegate = new IntegrationMemberDelegate();
-
+        var notificaitonDelegate = new NotificationDelegate();
+        var verificationCodeDelegate = new VerificationCodeDelegate();
         /*
          * Create integration
          * Allow only searchntalk.com admin
          */
-        app.put(ApiUrlDelegate.integration(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
+        app.put(ApiUrlDelegate.integration(), function (req:express.Request, res:express.Response)
         {
             var integration = req.body[ApiConstants.INTEGRATION];
+            var ownerEmail = req.body[ApiConstants.EMAIL];
+            var sender = req.body[ApiConstants.USER];
 
-            integrationDelegate.createByUser(integration, new User(req[ApiConstants.USER]))
+            integrationDelegate.create(integration)
                 .then(
-                function integrationCreated(integration:Integration) { res.json(integration.toJson()); },
-                function handleIntegrationCreateError(err) { res.status(500).json(err); }
-            );
+                function integrationCreated()
+                {
+                    return integrationDelegate.updateCache();
+                })
+                .then (
+                function cacheUpdated(){
+                    var user = new User();
+                    user.setEmail(ownerEmail);
+                    var integrationMember = new IntegrationMember();
+                    integrationMember.setRole(IntegrationMemberRole.Owner);
+                    integrationMember.setUser(user);
+                    integrationMember.setIntegrationId(integration.getId());
+
+                    verificationCodeDelegate.createAndSendExpertInvitationCode(integration.getId(),integrationMember, sender);
+                    //notificaitonDelegate.sendOwnerInvitationNotification(integration.getId(),ownerEmail);
+                    res.json(integration.toJson());
+                })
+                .fail( function (error){  res.status(500).json(error);})
         });
 
         /* Delete integration */

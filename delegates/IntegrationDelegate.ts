@@ -17,13 +17,7 @@ class IntegrationDelegate extends BaseDaoDelegate
 {
     private static cachedIntegrations:{[id:number]:Integration} = {};
 
-    /* Static constructor workaround */
-    private static ctor = (() =>
-    {
-        IntegrationDelegate.updateCache();
-    })();
-
-    private static updateCache()
+    updateCache():q.Promise<any>
     {
         var integrationDao:any = new IntegrationDAO();
 

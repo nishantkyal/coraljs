@@ -220,7 +220,7 @@ class DashboardRoute
     {
         var sessionData = new SessionData(req);
 
-        if (req.get('content-type').indexOf('application/json') != -1)
+        if (req.get('content-type') && req.get('content-type').indexOf('application/json') != -1)
         {
             res.send(200, {status: 'OK'});
             return null;

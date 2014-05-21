@@ -13,8 +13,8 @@ class UserEmployment extends BaseModel
 
     private title:string;
     private summary:string;
-    private start_date:string;
-    private end_date:string;
+    private start_date:number;
+    private end_date:number;
     private is_current:boolean;
     private company:string;
 
@@ -24,15 +24,15 @@ class UserEmployment extends BaseModel
     /* Getters */
     getTitle():string               { return this.title; }
     getSummary():string             { return this.summary; }
-    getStartDate():string           { return this.start_date; }
-    getEndDate():string             { return this.end_date; }
+    getStartDate():number           { return this.start_date; }
+    getEndDate():number             { return this.end_date; }
     getIsCurrent():boolean          { return this.is_current; }
     getCompany():string             { return this.company; }
     /* Setters */
     setTitle(val:string):void       { this.title = val; }
     setSummary(val:string):void     { this.summary = val; }
-    setStartDate(val:string):void   { this.start_date = val; }
-    setEndDate(val:string):void     { this.end_date = val; }
+    setStartDate(val:number):void   { this.start_date = val; }
+    setEndDate(val:number):void     { this.end_date = val; }
     setIsCurrent(val:boolean):void  { this.is_current = val; }
     setCompany(val:string):void     { this.company = val; }
 }

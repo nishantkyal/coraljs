@@ -141,10 +141,20 @@ class UserProfileDelegate extends BaseDaoDelegate
                         tempUserEmployment.setCompany(position.company ? position.company.name : null);
 
                         if (!Utils.isNullOrEmpty(position.startDate))
-                            tempUserEmployment.setStartDate((position.startDate.month || 1) + '-' + (position.startDate.year || null));
+                            if(position.startDate.month && position.startDate.year)
+                                tempUserEmployment.setStartDate(moment(position.startDate.month + '/' +position.startDate.year).format('MM/YYYY').valueOf());
+                            else if (position.startDate.year)
+                                tempUserEmployment.setStartDate(moment(position.startDate.year).format('YYYY').valueOf());
+                            else
+                                tempUserEmployment.setStartDate(-1);
 
                         if (!position.isCurrent && !Utils.isNullOrEmpty(position.endDate))
-                            tempUserEmployment.setEndDate((position.endDate.month || 12) + '-' + (position.endDate.year || null));
+                            if(position.endDate.month && position.endDate.year)
+                                tempUserEmployment.setEndDate(moment(position.endDate.month + '/' +position.endDate.year).format('MM/YYYY').valueOf());
+                            else if (position.endDate.year)
+                                tempUserEmployment.setEndDate(moment(position.endDate.year).format('YYYY').valueOf());
+                            else
+                                tempUserEmployment.setEndDate(-1);
 
                         return new UserEmploymentDelegate().createUserEmployment(tempUserEmployment, profileId, transaction);
                     }));
@@ -343,6 +353,7 @@ class UserProfileDelegate extends BaseDaoDelegate
             .then(
             function SkillFetched(userSkills:UserSkill[])
             {
+                if()
                 return userSkillDelegate.delete({id: _.pluck(userSkills, UserSkill.ID), profileId: profileId}, transaction, false);
             })
             .then(

@@ -18,7 +18,7 @@ class Config
     static DATABASE_NAME:string                         = 'database.name';
     static DATABASE_USER:string                         = 'database.user';
     static DATABASE_PASS:string                         = 'database.pass';
-    sttaic REF_DATABASE_NAME:string                     = 'ref.database.name';
+    static REF_DATABASE_NAME:string                     = 'ref.database.name';
     static DATABASE_SOCKET:string                       = 'database.socket';
     static REDIS_HOST:string                            = 'redis.host';
     static REDIS_PORT:string                            = 'redis.port';
