@@ -78,7 +78,7 @@ class CallSchedulingRoute
             .then(
             function appointmentDetailsFetched(appointment)
             {
-                if (!_.contains(appointment.startTimes, startTime))
+                if (Utils.isNullOrEmpty(appointment) || !_.contains(appointment.startTimes, startTime))
                     throw 'Invalid request. Please click on one of the links in the email';
                 else
                 {
@@ -128,6 +128,11 @@ class CallSchedulingRoute
                                 tasks.push(self.notificationDelegate.scheduleCallNotification(updatedCall));
                             }
                             return q.all(tasks);
+                        })
+                        .then(
+                        function deleteSchedulingCode()
+                        {
+                            return self.verificationCodeDelegate.deleteAppointmentAcceptCode(appointmentCode);
                         })
                         .then(renderPage);
                 else

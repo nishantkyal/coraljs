@@ -184,6 +184,11 @@ class VerificationCodeDelegate
         return this.verificationCodeCache.searchAppointmentAcceptCode(code);
     }
 
+    deleteAppointmentAcceptCode(code:string):q.Promise<boolean>
+    {
+        return this.verificationCodeCache.deleteAppointmentAcceptCode(code);
+    }
+
     createAndSendEmailVerificationCode(user:User):q.Promise<any>
     {
         var self = this;
@@ -197,12 +202,12 @@ class VerificationCodeDelegate
             });
     }
 
-    verifyAccountVerificationCode(email:string, code:string):q.Promise<boolean>
+    verifyEmailVerificationCode(email:string, code:string):q.Promise<boolean>
     {
         return this.verificationCodeCache.searchEmailVerificationCode(email, code);
     }
 
-    deleteAccountVerificationCode(email:string):q.Promise<boolean>
+    deleteEmailVerificationCode(email:string):q.Promise<boolean>
     {
         return this.verificationCodeCache.deleteEmailVerificationCode(email);
     }

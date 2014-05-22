@@ -117,5 +117,10 @@ class VerificationCodeCache
     {
         return CacheHelper.get('aa-' + code);
     }
+
+    deleteAppointmentAcceptCode(code:string):q.Promise<any>
+    {
+        return CacheHelper.del('aa-' + code);
+    }
 }
 export = VerificationCodeCache

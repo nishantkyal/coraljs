@@ -578,7 +578,7 @@ class DashboardRoute
             return;
         }
 
-        this.verificationCodeDelegate.verifyAccountVerificationCode(email, code)
+        this.verificationCodeDelegate.verifyEmailVerificationCode(email, code)
             .then(
             function verified(result):any
             {
@@ -600,7 +600,7 @@ class DashboardRoute
             .then(
             function statusUpdated()
             {
-                return self.verificationCodeDelegate.deleteAccountVerificationCode(email);
+                return self.verificationCodeDelegate.deleteEmailVerificationCode(email);
             });
     }
 
