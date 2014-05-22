@@ -30,7 +30,6 @@ import ApiConstants                                         = require('../../enu
 import IncludeFlag                                          = require('../../enums/IncludeFlag');
 import MoneyUnit                                            = require('../../enums/MoneyUnit');
 import TransactionStatus                                    = require('../../enums/TransactionStatus');
-import Formatter                                            = require('../../common/Formatter');
 
 import Urls                                                 = require('./Urls');
 import SessionData                                          = require('./SessionData');
