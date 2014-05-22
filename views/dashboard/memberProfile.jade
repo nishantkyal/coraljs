@@ -155,10 +155,10 @@ block content
                                             if emp.company
                                                 normal #{emp.company}
                                         div
-                                            if emp.start_date
-                                                small #{emp.start_date}&nbsp
-                                            if emp.end_date
-                                                small - #{emp.end_date}
+                                            if emp.start_date && emp.start_date != -1
+                                                small #{formatDate(emp.start_date, 'MM-YYYY')}
+                                            if emp.end_date && emp.end_date != -1
+                                                small - #{formatDate(emp.end_date, 'MM-YYYY')}
                                         div
                                             if emp.summary
                                                 small #{emp.summary}
@@ -313,4 +313,5 @@ block content
             var userProfile = JSON.parse ( '!{JSON.stringify(userProfile)}' );
         script(src='/js/lib/bootstrap3-typeahead.js')
         script(src='/js/lib/bloodhound.js')
+        script(src='js/lib/moment.js')
         script(src='/js/app/dashboard/memberProfile.js')

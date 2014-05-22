@@ -425,7 +425,7 @@ $('#fetchSkill,#fetchEmployment,#fetchEducation,#fetchBasic').click(function(eve
    {
       if (result)
       {
-          location.href = '/member/profileFromLinkedIn/' + userProfile.id + '?memberId' + memberId + '&' + $(event.currentTarget).attr('id')+ '=on';
+          location.href = '/member/profileFromLinkedIn/' + userProfile.id + '?memberId=' + memberId + '&' + $(event.currentTarget).attr('id')+ '=on';
       }
    });
 });

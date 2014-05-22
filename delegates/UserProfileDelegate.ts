@@ -1,5 +1,6 @@
 ///<reference path='../_references.d.ts'/>
 import _                                        = require('underscore');
+import moment                                   = require('moment');
 import passport                                 = require('passport');
 import passport_linkedin                        = require('passport-linkedin');
 import q                                        = require('q');
@@ -142,17 +143,13 @@ class UserProfileDelegate extends BaseDaoDelegate
 
                         if (!Utils.isNullOrEmpty(position.startDate))
                             if(position.startDate.month && position.startDate.year)
-                                tempUserEmployment.setStartDate(moment(position.startDate.month + '/' +position.startDate.year).format('MM/YYYY').valueOf());
-                            else if (position.startDate.year)
-                                tempUserEmployment.setStartDate(moment(position.startDate.year).format('YYYY').valueOf());
+                                tempUserEmployment.setStartDate(moment(position.startDate.month + ' ' +position.startDate.year, 'MM YYYY').valueOf());
                             else
                                 tempUserEmployment.setStartDate(-1);
 
                         if (!position.isCurrent && !Utils.isNullOrEmpty(position.endDate))
                             if(position.endDate.month && position.endDate.year)
-                                tempUserEmployment.setEndDate(moment(position.endDate.month + '/' +position.endDate.year).format('MM/YYYY').valueOf());
-                            else if (position.endDate.year)
-                                tempUserEmployment.setEndDate(moment(position.endDate.year).format('YYYY').valueOf());
+                                tempUserEmployment.setEndDate(moment(position.endDate.month + ' ' +position.endDate.year, 'MM YYYY').valueOf());
                             else
                                 tempUserEmployment.setEndDate(-1);
 
@@ -310,8 +307,11 @@ class UserProfileDelegate extends BaseDaoDelegate
             .then(
             function educationFetched(userEducation:UserEducation[])
             {
-                //TODO: Check if this can be done in one statement using the IN clause of SQL
-                return userEducationDelegate.delete({id: _.pluck(userEducation, UserEducation.ID), profileId: profileId}, transaction, false);
+                if(userEducation && userEducation.length>0)
+                    //TODO: Check if this can be done in one statement using the IN clause of SQL
+                    return userEducationDelegate.delete({id: _.pluck(userEducation, UserEducation.ID), profileId: profileId}, transaction, false);
+                else
+                    return false;
             })
             .then(
             function deleted()
@@ -332,7 +332,10 @@ class UserProfileDelegate extends BaseDaoDelegate
             .then(
             function EmploymentFetched(userEmployment:UserEmployment[])
             {
-                return userEmploymentDelegate.delete({id: _.pluck(userEmployment, UserEmployment.ID), profileId: profileId}, transaction, false);
+                if(userEmployment && userEmployment.length > 0)
+                    return userEmploymentDelegate.delete({id: _.pluck(userEmployment, UserEmployment.ID), profileId: profileId}, transaction, false);
+                else
+                    return false;
             })
             .then(
             function deleted()
@@ -353,8 +356,10 @@ class UserProfileDelegate extends BaseDaoDelegate
             .then(
             function SkillFetched(userSkills:UserSkill[])
             {
-                if()
-                return userSkillDelegate.delete({id: _.pluck(userSkills, UserSkill.ID), profileId: profileId}, transaction, false);
+                if(userSkills && userSkills.length > 0)
+                    return userSkillDelegate.delete({id: _.pluck(userSkills, UserSkill.ID), profileId: profileId}, transaction, false);
+                else
+                    return false;
             })
             .then(
             function deleted()
