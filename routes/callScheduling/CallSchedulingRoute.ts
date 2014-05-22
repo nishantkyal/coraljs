@@ -18,6 +18,7 @@ import UserPhoneDelegate                                    = require('../../del
 import NotificationDelegate                                 = require('../../delegates/NotificationDelegate');
 import Utils                                                = require('../../common/Utils');
 import Config                                               = require('../../common/Config');
+import Formatter                                            = require('../../common/Formatter');
 import PhoneCall                                            = require('../../models/PhoneCall');
 import ExpertSchedule                                       = require('../../models/ExpertSchedule');
 import Transaction                                          = require('../../models/Transaction');
@@ -68,6 +69,13 @@ class CallSchedulingRoute
         var startTime:number = parseInt(req.query[ApiConstants.START_TIME]);
         var appointmentCode:string = req.query[ApiConstants.CODE];
 
+
+        if (startTime < moment().valueOf())
+        {
+            res.render('500', {error: 'The selected start time(' + Formatter.formatDate(startTime) + ') has already passed. Please choose another slot from the suggested slots or suggest a new one'});
+            return;
+        }
+
         // 1. Validate the code and verify that selected slot is one of the original slots
         // 2. Fetch call details
         // 3. Fetch expert's phones
@@ -85,10 +93,6 @@ class CallSchedulingRoute
                     var callId:number = appointment.id;
                     return self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_USER, IncludeFlag.INCLUDE_INTEGRATION_MEMBER]);
                 }
-            },
-            function appointDetailsFetchFailed(error)
-            {
-                res.send(401, 'Invalid code');
             })
             .then(
             function callFetched(call:PhoneCall)
