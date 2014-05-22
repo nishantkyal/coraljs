@@ -1,4 +1,5 @@
 import q                                                        = require('q');
+import _                                                        = require('underscore');
 import AbstractScheduledTask                                    = require('./AbstractScheduledTask');
 import PhoneCallDelegate                                        = require('../../delegates/PhoneCallDelegate');
 import Utils                                                    = require('../../common/Utils');

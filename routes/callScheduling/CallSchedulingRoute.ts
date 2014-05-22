@@ -47,6 +47,7 @@ class CallSchedulingRoute
     private verificationCodeDelegate = new VerificationCodeDelegate();
     private phoneCallDelegate = new PhoneCallDelegate();
     private notificationDelegate = new NotificationDelegate();
+    private userPhoneDelegate = new UserPhoneDelegate();
 
     constructor(app, secureApp)
     {
@@ -55,7 +56,6 @@ class CallSchedulingRoute
         app.get(Urls.rescheduleByExpert(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: DashboardUrls.login()}), this.reschedulingByExpert.bind(this));
         app.get(Urls.rescheduleByUser(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: DashboardUrls.login()}), this.reschedulingByUser.bind(this));
 
-        app.post(Urls.scheduling(), this.scheduled.bind(this));
         app.post(Urls.rescheduleByExpert(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: DashboardUrls.login()}), this.appointmentSelectedByExpert.bind(this));
         app.post(Urls.rescheduleByUser(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: DashboardUrls.login()}), this.appointmentSelectedByUser.bind(this));
         app.get(Urls.reject(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: DashboardUrls.login()}), this.reject.bind(this));
@@ -68,6 +68,12 @@ class CallSchedulingRoute
         var startTime:number = parseInt(req.query[ApiConstants.START_TIME]);
         var appointmentCode:string = req.query[ApiConstants.CODE];
 
+        // 1. Validate the code and verify that selected slot is one of the original slots
+        // 2. Fetch call details
+        // 3. Fetch expert's phones
+        // 4. If expert has phones in his account, confirm the call with default/first phone number
+        // 5. Else ask expert to verify a phone number on the page
+
         this.verificationCodeDelegate.verifyAppointmentAcceptCode(appointmentCode)
             .then(
             function appointmentDetailsFetched(appointment)
@@ -77,7 +83,7 @@ class CallSchedulingRoute
                 else
                 {
                     var callId:number = appointment.id;
-                    return self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_USER, IncludeFlag.INCLUDE_USER_PHONE, IncludeFlag.INCLUDE_EXPERT_PHONE]);
+                    return self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_USER, IncludeFlag.INCLUDE_INTEGRATION_MEMBER]);
                 }
             },
             function appointDetailsFetchFailed(error)
@@ -85,48 +91,51 @@ class CallSchedulingRoute
                 res.send(401, 'Invalid code');
             })
             .then(
-            function callFetched(call)
+            function callFetched(call:PhoneCall)
             {
-                var pageData = {
-                    call: call,
-                    startTime: startTime
-                };
-                res.render(CallSchedulingRoute.SCHEDULING, pageData);
+                return [call, self.userPhoneDelegate.find(Utils.createSimpleObject(UserPhone.USER_ID, call.getIntegrationMember().getUserId()))];
+            })
+            .spread(
+            function expertPhonesFetched(call:PhoneCall, expertPhone:UserPhone):any
+            {
+                function renderPage()
+                {
+                    var pageData = {
+                        call: call
+                    };
+
+                    res.render(CallSchedulingRoute.SCHEDULING, pageData);
+                }
+
+                // If phone specified, schedule the call
+                // else just render page (which will display appropriate message)
+                if (!Utils.isNullOrEmpty(expertPhone))
+                    return self.phoneCallDelegate.update(call.getId(), {status: CallStatus.SCHEDULED, start_time: startTime, expert_phone_id: expertPhone.getId()})
+                        .then(
+                        function callUpdated()
+                        {
+                            return self.phoneCallDelegate.get(call.getId(), null, [IncludeFlag.INCLUDE_USER, IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_EXPERT_PHONE]);
+                        })
+                        .then(
+                        function callFetched(updatedCall:PhoneCall)
+                        {
+                            call = updatedCall;
+                            var tasks = [self.notificationDelegate.sendCallSchedulingCompleteNotifications(updatedCall, startTime)];
+
+                            if (startTime > moment().valueOf() && startTime < moment().valueOf() + Config.get(Config.PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS) * 1000)
+                            {
+                                tasks.push(self.phoneCallDelegate.scheduleCall(updatedCall));
+                                tasks.push(self.notificationDelegate.scheduleCallNotification(updatedCall));
+                            }
+                            return q.all(tasks);
+                        })
+                        .then(renderPage);
+                else
+                    renderPage();
             })
             .fail(function (error)
             {
                 res.render('500', {error: error});
-            })
-    }
-
-    private scheduled(req:express.Request, res:express.Response)
-    {
-        var self = this;
-        var startTime:number = parseInt(req.body[ApiConstants.START_TIME]);
-        var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
-
-        self.phoneCallDelegate.update(callId, {status: CallStatus.SCHEDULED, start_time: startTime})
-            .then(
-            function callUpdated()
-            {
-                return self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_USER]);
-            })
-            .then(
-            function callFetched(call:PhoneCall)
-            {
-                if (startTime - moment().valueOf() < Config.get(Config.PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS) * 1000)
-                {
-                    self.phoneCallDelegate.scheduleCall(call);
-                    self.notificationDelegate.scheduleCallNotification(call);
-                }
-                self.notificationDelegate.sendCallSchedulingCompleteNotifications(call, startTime);
-            })
-            .then(function scheduled(){
-                res.send(200);
-            })
-            .fail(function (error)
-            {
-                res.send(501);
             })
     }
 

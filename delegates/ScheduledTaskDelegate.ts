@@ -10,6 +10,7 @@ import AbstractScheduledTask                                    = require('../mo
 import PhoneCallCache                                           = require('../caches/PhoneCallCache');
 import CacheHelper                                              = require('../caches/CacheHelper');
 import TaskTypeFactory                                          = require('../factories/TaskTypeFactory');
+import ScheduledTaskType                                        = require('../enums/ScheduledTaskType');
 
 interface TimeoutAndTask
 {
@@ -36,6 +37,7 @@ class ScheduledTaskDelegate
     {
         var self = this;
         var taskId:number = moment().valueOf();
+        task.setStartTime(moment().add({ms: interval}).valueOf());
 
         if (!task.isValid())
         {
@@ -50,7 +52,6 @@ class ScheduledTaskDelegate
         }, interval);
 
         task.setId(taskId);
-        task.setStartTime(moment().add({ms: interval}).valueOf());
 
         // Add task to index and persist
         ScheduledTaskDelegate.tasks[taskId] = {task: task, timeout: timeout};
@@ -72,9 +73,13 @@ class ScheduledTaskDelegate
     }
 
     /* Return id of task matching search */
-    find(criteria:Object):number
+    find(type:ScheduledTaskType):number
     {
-        return null;
+        return _.find(_.keys(ScheduledTaskDelegate.tasks), function(taskId:number)
+        {
+            var taskAndTimeout:TimeoutAndTask = ScheduledTaskDelegate.tasks[taskId];
+            return taskAndTimeout.task.getTaskType() == type;
+        });
     }
 
     /* Return id of all tasks matching search */
@@ -93,20 +98,20 @@ class ScheduledTaskDelegate
     private syncToRedis():q.Promise<any>
     {
         var self = this;
-        var tasksSaveArray = [];
-        var tasksKeys =  _.keys(ScheduledTaskDelegate.tasks);
-       _.each(tasksKeys, function(key){
-            tasksSaveArray.push(ScheduledTaskDelegate.tasks[key].task.toJson());
+        var tasksSaveArray = _.map(_.values(ScheduledTaskDelegate.tasks), function (timeoutAndTask:TimeoutAndTask)
+        {
+            return timeoutAndTask.task.toJson();
         });
+
         return CacheHelper.set('ScheduledTasks', tasksSaveArray, null, true)
             .then(
             function tasksSynced(result)
             {
-                self.logger.log("scheduled tasks synced to Redis");
+                self.logger.debug("scheduled tasks synced to Redis");
             },
             function tasksSyncError(error)
             {
-                self.logger.log("Error in Syncing Scheduled Tasks to Redis");
+                self.logger.debug("Error in Syncing Scheduled Tasks to Redis");
             });
     }
 
@@ -118,9 +123,10 @@ class ScheduledTaskDelegate
             .then(
             function tasksFetched(results)
             {
-                _.each(results, function(result:any){
-                    if(result[AbstractScheduledTask.STARTTIME] > moment().valueOf())
-                        self.scheduleAt(TaskTypeFactory.getTask(result), result[AbstractScheduledTask.STARTTIME]);
+                _.each(results, function (result:any)
+                {
+                    if (result[AbstractScheduledTask.START_TIME] > moment().valueOf())
+                        self.scheduleAt(TaskTypeFactory.getTask(result), result[AbstractScheduledTask.START_TIME]);
                     else
                     {
                         self.logger.error("Task Missed - " + JSON.stringify(result));
@@ -131,7 +137,7 @@ class ScheduledTaskDelegate
             },
             function tasksFetchError(error)
             {
-                self.logger.log("Error in Syncing Scheduled Tasks From Redis");
+                self.logger.error("Error in Syncing Scheduled Tasks From Redis");
             });
     }
 

@@ -8,6 +8,7 @@ import CallStatus                                                   = require('.
 import Salutation                                                   = require('../enums/Salutation');
 import ExpertSchedule                                               = require('../models/ExpertSchedule');
 import User                                                         = require('../models/User');
+import UserPhone                                                    = require('../models/UserPhone');
 import Utils                                                        = require('../common/Utils');
 
 class Formatter
@@ -97,6 +98,11 @@ class Formatter
         if (!Utils.isNullOrEmpty(firstName))
             return Formatter.formatName(firstName, lastName, title) + '<' + email+ '>';
         return email;
+    }
+
+    static formatPhone(phone:UserPhone):string
+    {
+        return phone.getCompleteNumber();
     }
 }
 export = Formatter

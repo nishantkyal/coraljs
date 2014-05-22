@@ -24,16 +24,6 @@ class UserPhoneDelegate extends BaseDaoDelegate
             });
     }
 
-    update(id:number, userPhone:UserPhone):q.Promise<any>
-    {
-        return super.update({'id': id}, userPhone);
-    }
-
-    getByUserId(userId:number):q.Promise<any>
-    {
-        return this.search({'user_id': userId });
-    }
-
     constructor() { super(new UserPhoneDao()); }
 }
 export = UserPhoneDelegate

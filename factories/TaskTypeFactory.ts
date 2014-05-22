@@ -3,6 +3,7 @@ import AbstractScheduledTask                                    = require('../mo
 import TriggerPhoneCallTask                                     = require('../models/tasks/TriggerPhoneCallTask');
 import PrintTimestampTask                                       = require('../models/tasks/PrintTimestampTask');
 import NotificationCallScheduledTask                            = require('../models/tasks/NotificationCallScheduledTask');
+import ScheduleCallsScheduledTask                               = require('../models/tasks/ScheduleCallsScheduledTask');
 import SMSDelegate                                              = require('../delegates/SMSDelegate');
 
 
@@ -26,8 +27,8 @@ class TaskTypeFactory
                 return null;
                 break;
 
-            case ScheduledTaskType.SMS:
-                return null;
+            case ScheduledTaskType.CALL_SCHEDULE:
+                return new ScheduleCallsScheduledTask();
                 break;
 
             case ScheduledTaskType.TEST_TIMESTAMP_PRINT:

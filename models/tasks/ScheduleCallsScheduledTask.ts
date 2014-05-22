@@ -12,9 +12,17 @@ import PhoneCall                                                = require('../..
 import Config                                                   = require('../../common/Config');
 import Utils                                                    = require('../../common/Utils');
 import PhoneCallCache                                           = require('../../caches/PhoneCallCache');
+import ScheduledTaskType                                        = require('../../enums/ScheduledTaskType');
 
 class ScheduleCallsScheduledTask extends AbstractScheduledTask
 {
+
+    constructor()
+    {
+        super();
+        this.setTaskType(ScheduledTaskType.CALL_SCHEDULE);
+    }
+
     execute():q.Promise<any>
     {
         var scheduledTaskDelegate = new ScheduledTaskDelegate();

@@ -34,7 +34,7 @@ class PhoneCall extends BaseModel
     static EXPERT_PHONE:string                      = 'expert_phone';
 
     static DEFAULT_FIELDS:string[] = [PhoneCall.ID, PhoneCall.CALLER_USER_ID, PhoneCall.INTEGRATION_MEMBER_ID, PhoneCall.CALLER_PHONE_ID, PhoneCall.EXPERT_PHONE_ID,
-                                      PhoneCall.START_TIME, PhoneCall.DURATION, PhoneCall.STATUS ];
+                                      PhoneCall.START_TIME, PhoneCall.DURATION, PhoneCall.STATUS, PhoneCall.AGENDA];
     private caller_user_id:number;
     private integration_member_id:number;
     private caller_phone_id:number;

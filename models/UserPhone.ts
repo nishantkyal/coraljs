@@ -41,9 +41,9 @@ class UserPhone extends BaseModel
     getCompleteNumber():string
     {
         if (this.getType() == PhoneType.LANDLINE)
-            return '+' + this.getCountryCode() + this.getAreaCode() + this.getPhone();
+            return '+' + this.getCountryCode() + '-' + this.getAreaCode() + '-' + this.getPhone();
         else
-            return '+' + this.getCountryCode() + this.getPhone();
+            return '+' + this.getCountryCode() + '-' + this.getPhone();
     }
 
     /* Getters */
