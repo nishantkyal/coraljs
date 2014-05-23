@@ -504,7 +504,7 @@ class DashboardRoute
         .then(
         function callDetailsFetched(calls){
             var pageData = _.extend(sessionData.getData(), {
-                calls:calls
+                calls:calls || []
             });
             res.render(DashboardRoute.PAGE_CALL_DETAILS, pageData);
         })

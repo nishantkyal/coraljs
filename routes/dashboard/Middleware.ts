@@ -21,9 +21,15 @@ class Middleware
 
                 var memberId:number = parseInt(req.params[ApiConstants.MEMBER_ID]);
 
+                var integrationMembers = sessionData.getMembers();
+                var integrationId:number = parseInt(req.params[ApiConstants.INTEGRATION_ID]);
+
+                var isAdmin = !Utils.isNullOrEmpty(_.findWhere(integrationMembers, {'integration_id': integrationId, 'role': IntegrationMemberRole.Admin}));
+                var isOwner = !Utils.isNullOrEmpty(_.findWhere(integrationMembers, {'role': IntegrationMemberRole.Owner}));
+
                 Middleware.isAdminOrOwner(sessionData.getLoggedInUser(),memberId)
                     .then(function checked(isAdminOrOwner){
-                        if (isAdminOrOwner)
+                        if (isAdmin || isOwner || isAdminOrOwner)
                             next();
                         else
                             res.send(401);
@@ -129,7 +135,8 @@ class Middleware
 
                         return (isAdmin || isOwner)
                     })
-            });
+            })
+            .fail( function(error) { return false;} )
     }
 }
 export = Middleware
