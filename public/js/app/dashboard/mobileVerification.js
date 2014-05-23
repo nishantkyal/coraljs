@@ -74,7 +74,7 @@ $('#verifyCode').validate({
             },
             success : function(data, textStatus, jqXHR)
             {
-                location.href = '/expert/registration/complete';
+                location.href = '/member/registration/complete';
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 bootbox.alert(jqXHR.responseText);
