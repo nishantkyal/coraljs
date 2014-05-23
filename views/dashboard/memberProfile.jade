@@ -35,8 +35,7 @@ block content
                         if userProfile.status == 1
                             div
                                 a.btn.btn-link#SendProfile() Send Profile for Approval
-                        if members && members.length > 0
-                            if (members[0].role == 1 || members[0].role == 2) && userProfile.status == 2
+                        if adminOrOwner && userProfile.status == 2
                                 div
                                     a.btn.btn-link#publishProfile() Publish Profile
         .col-md-9

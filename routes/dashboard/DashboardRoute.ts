@@ -392,6 +392,11 @@ class DashboardRoute
                         Middleware.isAdminOrOwner(loggedInUser, memberId)
                     ]);
 
+                if(loggedInUser)
+                    profileInfoTasks = profileInfoTasks.concat([
+                        self.integrationMemberDelegate.find({integration_id:member.getIntegrationId(),user_id:loggedInUser.getId()})
+                    ]);
+
                 return q.all(profileInfoTasks);
             })
             .then(
@@ -403,6 +408,11 @@ class DashboardRoute
                 var userEmployment = args[0][3] || [];
                 var userUrl = args[0][4] || [];
                 var isEditable = args[0][5] || args[0][6] || false;
+                var tempMember = args[0][7];
+                var adminOrOwner;
+
+                if(tempMember && (tempMember.getRole() == IntegrationMemberRole.Owner || tempMember.getRole() == IntegrationMemberRole.Admin ))
+                    adminOrOwner = tempMember;
 
                 if(mode == ApiConstants.PUBLIC_MODE)
                     isEditable = false;
@@ -412,6 +422,7 @@ class DashboardRoute
                 var pageData = _.extend(sessionData.getData(), {
                     'profileId': profileId,
                     'member': member,
+                    'adminOrOwner': adminOrOwner,
                     'user': user,
                     'userSkill': _.sortBy(userSkill, function (skill) { return skill['skill_name'].length; }),
                     'userProfile': userProfile,
