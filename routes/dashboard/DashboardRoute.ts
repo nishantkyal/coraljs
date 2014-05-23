@@ -179,7 +179,7 @@ class DashboardRoute
      */
     private verifyMobile(req:express.Request, res:express.Response)
     {
-        this.userPhoneDelegate.getByUserId(req[ApiConstants.USER].id)
+        this.userPhoneDelegate.find(Utils.createSimpleObject(UserPhone.USER_ID, req[ApiConstants.USER].id))
             .then(
             function phoneNumbersFetched(numbers:UserPhone[]) { return numbers; },
             function phoneNumberFetchError(error) { return null; })
@@ -578,7 +578,7 @@ class DashboardRoute
             return;
         }
 
-        this.verificationCodeDelegate.verifyAccountVerificationCode(email, code)
+        this.verificationCodeDelegate.verifyEmailVerificationCode(email, code)
             .then(
             function verified(result):any
             {
@@ -600,7 +600,7 @@ class DashboardRoute
             .then(
             function statusUpdated()
             {
-                return self.verificationCodeDelegate.deleteAccountVerificationCode(email);
+                return self.verificationCodeDelegate.deleteEmailVerificationCode(email);
             });
     }
 

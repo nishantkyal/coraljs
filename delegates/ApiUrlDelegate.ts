@@ -93,10 +93,6 @@ class ApiUrlDelegate
     static couponValidation():string { return this.get('/rest/coupon/validation'); }
 
     /* URL patterns for Twilio */
-    static twiml():string { return this.get('/rest/twiml'); }
-    static twimlJoinConference():string { return this.get('/rest/twiml/call'); }
-    static twimlCallExpert(callId?:number):string { return this.get('/rest/twiml/call/:callId(\\d+)/expert', {callId: callId}); }
-    static twimlCall(callId?:number):string { return this.get('/rest/twiml/call/:callId(\\d+)', {callId: callId}); }
 
     static exotel():string { return this.get('/rest/exotel'); }
     static exotelAddExpert():string { return this.get('/rest/exotelAddExpert'); }

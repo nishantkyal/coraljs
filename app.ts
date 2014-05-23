@@ -30,6 +30,7 @@ import ItemType                                     = require('./enums/ItemType'
 import CouponType                                   = require('./enums/CouponType');
 import IntegrationMemberRole                        = require('./enums/IntegrationMemberRole');
 import TransactionType                              = require('./enums/TransactionType');
+import ScheduledTaskType                            = require('./enums/ScheduledTaskType');
 import CallFlowUrls                                 = require('./routes/callFlow/Urls');
 import CallSchedulingUrls                           = require('./routes/callScheduling/Urls');
 import DashboardUrls                                = require('./routes/dashboard/Urls');
@@ -49,6 +50,7 @@ var helpers =
     formatDate: Formatter.formatDate,
     formatUserStatus:Formatter.formatUserStatus,
     formatCallStatus:Formatter.formatCallStatus,
+    formatPhone:Formatter.formatPhone,
 
     ApiUrlDelegate: ApiUrlDelegate,
     CallFlowUrls: CallFlowUrls,
@@ -163,7 +165,19 @@ app.configure('production', function()
 app.set('port', Config.get(Config.DASHBOARD_HTTP_PORT));
 app.listen(app.get('port'), function ()
 {
-    new ScheduledTaskDelegate().syncFromRedis();
+    var scheduledTaskDelegate = new ScheduledTaskDelegate();
+
+    // Sync scheduled tasks from cache and create the call scheduler task if doesn't already exist
+    scheduledTaskDelegate.syncFromRedis()
+        .then(
+        function tasksSynced()
+        {
+            if (Utils.isNullOrEmpty(scheduledTaskDelegate.find(ScheduledTaskType.CALL_SCHEDULE)))
+                scheduledTaskDelegate.scheduleAfter(new ScheduleCallsScheduledTask(), 1);
+        });
+
+    // Update integration cache
     new IntegrationDelegate().updateCache();
+
     console.log("SearchNTalk started on port %d in %s mode", app.get('port'), app.settings.env);
 });

@@ -131,7 +131,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
     triggerCall(callId:number):q.Promise<any>
     {
         var self = this;
-        return self.get(callId,null, [IncludeFlag.INCLUDE_USER_PHONE])
+        return self.get(callId, null, [IncludeFlag.INCLUDE_USER_PHONE])
             .then(
             function callFetched(call:PhoneCall)
             {
@@ -140,7 +140,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
             .fail(
             function callFailed(error)
             {
-                self.logger.error("Error in call triggering, error: %s", error);
+                self.logger.error("Error in call triggering, error: %s", JSON.stringify(error));
             });
     }
 
@@ -163,6 +163,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
         scheduledTaskDelegate.scheduleAt(new TriggerPhoneCallTask(call.getId()), call.getStartTime());
 
     }
+
     constructor() { super(new PhoneCallDao()); }
 }
 export = PhoneCallDelegate

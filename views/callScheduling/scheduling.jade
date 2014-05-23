@@ -1,17 +1,36 @@
 title Scheduling
 include ../scriptsAndStyles
-    .container-fluid
+.container-fluid
     .row-fluid
         .col-md-2
         .col-md-8
-            .row
-                .col-md-10
-                    p You have chosen the following appointment for call (Id: #{call.id})
-                    p #{formatDate(startTime)}
-                    p Do you want to confirm this appointment?
-                    button.btn.btn-default(onclick='handleRejectAppointment(event)') No
-                    button.btn.btn-primary(onclick='handleConfirmAppointment(event)') Yes
-script.
-    var startTime = parseInt('!{startTime}');
-    var call = JSON.parse( '!{JSON.stringify(call)}' );
+            if call.expert_phone
+                .alert.alert-success The call has been confirmed. Here are the details:
+            else
+                .alert.alert-danger
+                    p You need to tell us your phone number so we can connect the following call.
+                    a.btn.btn-danger Add phone number
+            .form.form-horizontal
+                .form-group
+                    label.control-label(for='#start_time') Call Start Time
+                    .form-control-static#start_time #{formatDate(call.start_time)}
+                .form-group
+                    label.control-label(for='#duration') Duration
+                    .form-control-static#duration #{call.duration} mins.
+                .form-group
+                    label.control-label(for='#expert_phone') Your phone number
+                    .controls
+                        if (call.expert_phone)
+                            .form-control-static#expert_phone= formatPhone(call.expert_phone)
+                            a.btn.btn-primary.btn-xs Change phone number
+                        else
+                            a.btn.btn-primary.btn-xs Add phone number
+                .form-group
+                    label.control-label(for='#user_name') Caller's Name
+                    .form-control-static#user_name #{formatName(call.user.first_name, call.user.last_name, call.user.title)}
+                .form-group
+                    label.control-label(for='#agenda') Agenda
+                    .form-control-static#agenda #{call.agenda}
+
+        .col-md-2
 script(src='/js/app/callScheduling/scheduling.js')

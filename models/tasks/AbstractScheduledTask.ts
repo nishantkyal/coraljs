@@ -7,7 +7,7 @@ import Utils                                    = require('../../common/Utils');
 class AbstractScheduledTask
 {
     static ID:string = 'id';
-    static STARTTIME:string = 'startTime';
+    static START_TIME:string = 'startTime';
     static TASKTYPE:string = 'taskType';
 
     private id:number;

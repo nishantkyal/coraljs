@@ -4,7 +4,7 @@ import json2xml                     = require('json2xml');
 import ApiConstants                 = require('../enums/ApiConstants');
 import IntegrationMemberDelegate    = require('../delegates/IntegrationMemberDelegate');
 import PhoneCallDelegate            = require('../delegates/PhoneCallDelegate');
-import ApiUrlDelegate               = require('../delegates/ApiUrlDelegate');
+import TwilioUrlDelegate            = require('../delegates/TwilioUrlDelegate');
 import TwilioProvider               = require('../providers/TwilioProvider');
 import Utils                        = require('../common/Utils');
 import Config                       = require('../common/Config');
@@ -32,14 +32,14 @@ class TwimlApi
 
     constructor(app, secureApp)
     {
-        app.get(ApiUrlDelegate.twiml(), function (req:express.Request, res:express.Response)
+        app.get(TwilioUrlDelegate.twiml(), function (req:express.Request, res:express.Response)
         {
             var response = {
                 'Response': [
                     {
                         'Gather': {'Say': 'Please enter the call id followed by star key'},
                         'attr': {
-                            'action': req.protocol + "://" + req.get('host') + ApiUrlDelegate.twimlJoinConference(),
+                            'action': req.protocol + "://" + req.get('host') + TwilioUrlDelegate.twimlJoinConference(),
                             'method': 'GET',
                             'finishOnKey': '*'
                         }
@@ -52,7 +52,7 @@ class TwimlApi
                 .send(json2xml(response, {header: true, attributes_key: 'attr'}));
         });
 
-        app.get(ApiUrlDelegate.twimlJoinConference(), function (req:express.Request, res:express.Response)
+        app.get(TwilioUrlDelegate.twimlJoinConference(), function (req:express.Request, res:express.Response)
         {
             var callId = parseInt(req.query[TwimlApi.PARAM_DIGITS]);
             var expert:IntegrationMember, user:User;
@@ -99,7 +99,7 @@ class TwimlApi
                 });
         });
 
-        app.post(ApiUrlDelegate.twimlCall(), function (req:express.Request, res:express.Response)
+        app.post(TwilioUrlDelegate.twimlCall(), function (req:express.Request, res:express.Response)
         {
             var callId:number = req.params[ApiConstants.PHONE_CALL_ID];
 
