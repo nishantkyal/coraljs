@@ -100,6 +100,7 @@ $('#call-now').click(function()
 function proceedToPayment()
 {
     var agenda = $('#agenda').val().trim();
+    var countryCode = $('#country-code').val().trim();
     var callerPhone = $('#caller-phone').val().trim();
 
     // Show scheduling popup if 3 slots not selected
@@ -128,6 +129,7 @@ function proceedToPayment()
     $('<form action="/expert/call/payment" method="POST">' +
         '<input type="hidden" name="agenda" value="' + agenda + '">' +
         '<input type="hidden" name="duration" value="' + duration + '">' +
+        '<input type="hidden" name="countryCode" value="' + countryCode + '">' +
         '<input type="hidden" name="phone" value="' + callerPhone + '">' +
         _.map(selectedTimeSlots, function(slot)
         {

@@ -258,6 +258,7 @@ class CallFlowRoute
         }
 
         var userPhone = new UserPhone();
+        userPhone.setCountryCode(sessionData.getCountryCode());
         userPhone.setPhone(sessionData.getCallerPhone());
         userPhone.setUserId(sessionData.getLoggedInUser().getId());
         userPhone.setType(PhoneType.MOBILE);
