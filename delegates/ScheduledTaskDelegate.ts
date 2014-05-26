@@ -105,13 +105,15 @@ class ScheduledTaskDelegate
 
         return CacheHelper.set('ScheduledTasks', tasksSaveArray, null, true)
             .then(
-            function tasksSynced(result)
+            function tasksSynced():any
             {
-                self.logger.debug("scheduled tasks synced to Redis");
+                self.logger.debug("Scheduled tasks synced to Redis");
+                return true;
             },
             function tasksSyncError(error)
             {
                 self.logger.debug("Error in Syncing Scheduled Tasks to Redis");
+                throw(error);
             });
     }
 
@@ -121,7 +123,7 @@ class ScheduledTaskDelegate
 
         return CacheHelper.get('ScheduledTasks')
             .then(
-            function tasksFetched(results)
+            function tasksFetched(results):any
             {
                 _.each(results, function (result:any)
                 {
@@ -133,11 +135,12 @@ class ScheduledTaskDelegate
                         self.syncToRedis();
                     }
                 });
-
+                return true;
             },
             function tasksFetchError(error)
             {
                 self.logger.error("Error in Syncing Scheduled Tasks From Redis");
+                throw(error);
             });
     }
 

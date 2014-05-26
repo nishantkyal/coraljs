@@ -305,7 +305,7 @@ class UserProfileDelegate extends BaseDaoDelegate
 
         return userEducationDelegate.search({'profileId': profileId})
             .then(
-            function educationFetched(userEducation:UserEducation[])
+            function educationFetched(userEducation:UserEducation[]):any
             {
                 if(userEducation && userEducation.length>0)
                     //TODO: Check if this can be done in one statement using the IN clause of SQL
@@ -330,7 +330,7 @@ class UserProfileDelegate extends BaseDaoDelegate
 
         return userEmploymentDelegate.search({'profileId': profileId})
             .then(
-            function EmploymentFetched(userEmployment:UserEmployment[])
+            function EmploymentFetched(userEmployment:UserEmployment[]):any
             {
                 if(userEmployment && userEmployment.length > 0)
                     return userEmploymentDelegate.delete({id: _.pluck(userEmployment, UserEmployment.ID), profileId: profileId}, transaction, false);
@@ -354,7 +354,7 @@ class UserProfileDelegate extends BaseDaoDelegate
         var userSkillDelegate = new UserSkillDelegate();
         return userSkillDelegate.search({'profileId': profileId})
             .then(
-            function SkillFetched(userSkills:UserSkill[])
+            function SkillFetched(userSkills:UserSkill[]):any
             {
                 if(userSkills && userSkills.length > 0)
                     return userSkillDelegate.delete({id: _.pluck(userSkills, UserSkill.ID), profileId: profileId}, transaction, false);

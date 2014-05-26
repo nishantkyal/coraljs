@@ -97,8 +97,8 @@ class DashboardRoute
         app.get(Urls.integrationCoupons(), Middleware.allowOwnerOrAdmin, this.coupons.bind(this));
         app.get(Urls.integrationMembers(), Middleware.allowOwnerOrAdmin, this.integrationUsers.bind(this));
         app.get(Urls.memberProfile(), this.editMemberProfile.bind(this));
-        app.get(Urls.callDetails(), Middleware.allowMeOrAdmin,this.callDetails.bind(this));
-        app.get(Urls.revenueDetails(), Middleware.allowMeOrAdmin,this.revenueDetails.bind(this));
+        app.get(Urls.callDetails(), Middleware.allowMeOrAdmin, this.callDetails.bind(this));
+        app.get(Urls.revenueDetails(), Middleware.allowMeOrAdmin, this.revenueDetails.bind(this));
 
         app.get(Urls.logout(), this.logout.bind(this));
         app.post(Urls.paymentCallback(), this.paymentComplete.bind(this));
@@ -404,9 +404,9 @@ class DashboardRoute
                 var userUrl = args[0][4] || [];
                 var isEditable = args[0][5] || args[0][6] || false;
 
-                if(mode == ApiConstants.PUBLIC_MODE)
+                if (mode == ApiConstants.PUBLIC_MODE)
                     isEditable = false;
-                
+
                 var profileId = userProfile ? userProfile.getId() : null;
 
                 var pageData = _.extend(sessionData.getData(), {
@@ -489,21 +489,23 @@ class DashboardRoute
         var memberId:number = parseInt(req.params[ApiConstants.MEMBER_ID]);
         var sessionData = new SessionData(req);
 
-        self.phoneCallDelegate.search({'integration_member_id':memberId})
-        .then(
-        function callDetailsFetched(calls){
-            var pageData = _.extend(sessionData.getData(), {
-                calls:calls
-            });
-            res.render(DashboardRoute.PAGE_CALL_DETAILS, pageData);
-        })
-        .fail( function CallDetailsFetchError(error){ res.send(500); })
+        self.phoneCallDelegate.search({'integration_member_id': memberId})
+            .then(
+            function callDetailsFetched(calls)
+            {
+                var pageData = _.extend(sessionData.getData(), {
+                    calls: calls
+                });
+                res.render(DashboardRoute.PAGE_CALL_DETAILS, pageData);
+            })
+            .fail(function CallDetailsFetchError(error) { res.send(500); })
     }
 
     revenueDetails(req:express.Request, res:express.Response)
     {
         res.send(200);
     }
+
     /* Logout and redirect to login page */
     private logout(req, res)
     {
@@ -518,7 +520,6 @@ class DashboardRoute
         var sessionData = new SessionData(req);
         var callFlowSessionData = new CallFlowSessionData(req);
         var payZippyProvider = new PayZippyProvider();
-        var lines:TransactionLine[];
 
         // 1. Fetch transaction lines for the successful transaction
         // 2. Update transaction status
@@ -530,31 +531,32 @@ class DashboardRoute
                 return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, transactionId))
             })
             .then(
-            function transactionLinesFetched(result:TransactionLine[])
+            function transactionLinesFetched(lines:TransactionLine[])
             {
-                lines = result;
-
                 // Assumption: We only have one call on the transaction
                 var callId = _.findWhere(lines, {item_type: ItemType.PHONE_CALL}).getItemId();
-                return self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER]);
+                return [lines, self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER])];
             })
-            .then(
-            function callFetched(call:PhoneCall)
+            .spread(
+            function callFetched(lines:TransactionLine[], call:PhoneCall)
             {
-                var pageData = _.extend(callFlowSessionData.getData(), {
-                    transactionLines: lines,
-                    call: call,
-                    appointments: callFlowSessionData.getAppointments()
-                });
-
-                res.render(DashboardRoute.PAGE_PAYMENT_COMPLETE, pageData);
-
                 // 1. Update call status
                 // 2. Send notifications
                 return q.all([
                     self.phoneCallDelegate.update(call.getId(), {status: CallStatus.SCHEDULING}),
                     self.notificationDelegate.sendCallSchedulingNotifications(call.getId(), callFlowSessionData.getAppointments(), call.getDuration(), sessionData.getLoggedInUser())
-                ]);
+                ])
+                    .then(
+                    function renderPage()
+                    {
+                        var pageData = _.extend(callFlowSessionData.getData(), {
+                            transactionLines: lines,
+                            call: call,
+                            appointments: callFlowSessionData.getAppointments()
+                        });
+
+                        res.render(DashboardRoute.PAGE_PAYMENT_COMPLETE, pageData);
+                    });
             })
             .fail(
             function handleError(error)

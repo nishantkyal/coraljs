@@ -6,7 +6,6 @@ import NotificationCallScheduledTask                            = require('../mo
 import ScheduleCallsScheduledTask                               = require('../models/tasks/ScheduleCallsScheduledTask');
 import SMSDelegate                                              = require('../delegates/SMSDelegate');
 
-
 class TaskTypeFactory
 {
     private static tasks:{[id:number]: AbstractScheduledTask} = {};
@@ -17,23 +16,18 @@ class TaskTypeFactory
         {
             case ScheduledTaskType.CALL:
                 return new TriggerPhoneCallTask(result[TriggerPhoneCallTask.CALL_ID])
-                break;
 
             case ScheduledTaskType.CALL_REMINDER_NOTIFICATION:
                 return new NotificationCallScheduledTask(result[TriggerPhoneCallTask.CALL_ID]);
-                break;
 
             case ScheduledTaskType.EMAIL_MOBILE_VERIFICATION_REMINDER:
                 return null;
-                break;
 
             case ScheduledTaskType.CALL_SCHEDULE:
                 return new ScheduleCallsScheduledTask();
-                break;
 
             case ScheduledTaskType.TEST_TIMESTAMP_PRINT:
                 return new PrintTimestampTask(result[PrintTimestampTask.ts]);
-                break;
 
             default:
                 return null;

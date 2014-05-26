@@ -186,7 +186,7 @@ function setMonth(monthMoment)
 
                 // Display dot if has schedules
                 if (timeSlotsByDate.hasOwnProperty(dayMoment.format('DD-MM-YYYY'))) {
-                    $("td:last-child a", rowElement).append('<span class="marker status-ok">●</span>');
+                    $("td:last-child a", rowElement).append('<i class="icon-marker status-ok"/>');
 
                     // If this is first date of month with available slots, select it
                     if (!firstDateSelected) {
@@ -210,27 +210,36 @@ function updateSelectedTimeSlots()
     selectedTimeSlots = selectedTimeSlots.splice(0, 3);
     for (var i = 0; i < 3; i++) {
         var slotElement = $('.row.scheduled-slots li:nth-child(' + (i + 1) + ')');
-        if (selectedTimeSlots[i]) {
+        var selectedSlotElement = $('#selectedSlots .tagit-choice:nth-child(' + (i + 1) + ')');
+
+        if (selectedTimeSlots[i])
+        {
             $('.col-xs-4.slot', slotElement).text(moment(selectedTimeSlots[i]).format('DD MMM YYYY [at] hh:mm a'));
             $('.col-xs-4.remove', slotElement).removeClass('hidden');
+
+            $('.tagit-label', selectedSlotElement).text(moment(selectedTimeSlots[i]).format('DD MMM YYYY, hh:mm a'));
+            $(selectedSlotElement).show();
         }
         else {
             $('.col-xs-4.slot', slotElement).text('No time slot selected');
             $('.col-xs-4.remove', slotElement).addClass('hidden');
+
+            $(selectedSlotElement).hide();
         }
     }
 
-    if (selectedTimeSlots.length < 3) {
+    if (selectedTimeSlots.length < 3)
+    {
         $('.modal-footer #schedule-done').hide();
         $('.modal-footer .alert.alert-warning').show();
         $('.modal-footer .alert.alert-warning .num-slots').text(selectedTimeSlots.length);
-
-        $('#schedule').text('Choose Time Slots');
+        $('#selectedSlots .tagit-new').show();
     }
-    else {
+    else
+    {
         $('.modal-footer #schedule-done').show();
         $('.modal-footer .alert.alert-warning').hide();
-
-        $('#schedule').text('Proceed');
+        $('#selectedSlots .tagit-new').hide();
     }
+
 }

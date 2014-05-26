@@ -1,100 +1,108 @@
 - var user = expert.user[0];
 
+style
+    #login-modal .register {
+        display: none;
+    }
 include header
 .matter
     .container
         .row
             .flowbar.col-xs-3.col-sm-3.col-md-12.col-lg-12
+                .shadow
                 ul.nav.nav-pills.nav-justified.nav-stacked
                     li.completed
                         a(href='')
-                            i.icon-schedule
-                            span.hidden-xs Schedule
+                            span.nav-label
+                                i.icon-schedule
+                                span.hidden-xs Schedule
                     li.active
                         a(href='')
-                            i.icon-pay
-                            span.hidden-xs Pay
+                            span.nav-label
+                                i.icon-pay
+                                span.hidden-xs Pay
                     li.disabled
                         a(href='')
-                            i.icon-talk
-                            span.hidden-xs Talk
+                            span.nav-label
+                                i.icon-talk
+                                span.hidden-xs Talk
             // flowbar
             .content.col-xs-9.col-sm-9.col-md-12.col-lg-12
-                .row.uneditables
+                .row
                     .col-md-6
-                        .row.user-profile
-                            .status-icon.status-ok
-                                i.icon-searchntalk
+                        .call-profile
+                            .hidden-xs.avatar
+                                .shadow
+                                    a(href=DashboardUrls.memberProfile(expert.id))
+                                        img(src=ApiUrlDelegate.userProfilePicture(user.id), width='100%', height='100%')
                             .info
                                 .user-displayname= formatName(user.first_name, user.last_name, user.title)
+                                if (user.date_of_birth)
+                                    .user-age= moment().diff(moment(parseInt(user.date_of_birth)), 'years') + ' years'
                             .clearer
-                    .col-md-3
-                        .row
-                            .user-schedule-summary
-                                if (is_available)
-                                    .current-status.status-ok Currently available
-                                    .scheduled-slot
-                                        | Accepting calls till&nbsp;
-                                        span= formatDate(next_available_schedule.start_time + next_available_schedule.duration, "HH:mm a")
-                                else
-                                    .current-status.status-warning Not available at the moment
-                                    .scheduled-slot
-                                        span.annotation Next available time:
-                                        span= formatDate(next_available_schedule.start_time, "DD MMM YYYY [at] HH:MM a")
-                    .col-md-3
-                        .row.step-reversal
-                            a.btn.btn-default(href=CallFlowUrls.callExpert(expert.id))
-                                | Back to Schedule
-                                i.icon-left-arrow
-                .row.editables
-                    .col-lg-12
-                        .row
-                            h1
-                                i.icon-bill
-                                | Payment Summary
-                        .row
-                            .hidden-xs.hidden-sm.col-md-6
-                            .col-md-6
-                                .row
-                                    .payment-summary
-                                        if messages && messages.error
-                                            .alert.alert-danger
-                                                strong Sorry!&nbsp;
-                                                | #{messages.error}
-                                        .table
-                                            - var total = 0, currency
-                                            each line in transactionLines
-                                                - total += line.amount
-                                                - currency = line.amount_unit
-                                                .table-row
-                                                    case line.transaction_type
-                                                        when 1
-                                                            .table-cell.title Call duration: #{duration} mins @ #{formatMoney(expert.schedule[0].price_per_min, expert.schedule[0].price_unit)} / min
-                                                        when 2
-                                                            .table-cell.title Network charges
-                                                        when 3
-                                                            .table-cell.title Tax @#{Config.get(Config.CALL_TAX_PERCENT)}%
-                                                        when 4
-                                                            .table-cell.title Discount
-                                                    .table-cell.amount= formatMoney(line.amount, line.amount_unit)
-                                            form.table-row#couponForm(action='/expert/call/payment/coupon', method='post')
-                                                .table-cell.title
-                                                    .input-group
-                                                        input.form-control(type='text', name='code', placeholder='Discount Coupon #')
-                                                .table-cell.amount
-                                                    input.btn.btn-default(type='submit', value='Apply Coupon')
-                                            .table-row.total
-                                                .table-cell.title Total
-                                                .table-cell.amount= formatMoney(total, currency)
-                .row
-                    .hidden-xs.hidden-sm.col-md-6
+                            .meta.meta-price
+                                h5 Charges
+                                p
+                                    if expert.schedule[0].price_per_min
+                                        strong= formatMoney(expert.schedule[0].price_per_min, expert.schedule[0].price_unit)
+                                        | /min.
+                                    else
+                                        strong Free
+                            .meta.meta-schedule
+                                h5 Schedule
+                                ul
+                                    li.schedule-a= formatDate(appointments[0], 'ddd DD MMM YYYY, hh:mm a')
+                                    li.schedule-b= formatDate(appointments[1], 'ddd DD MMM YYYY, hh:mm a')
+                                    li.schedule-c= formatDate(appointments[2], 'ddd DD MMM YYYY, hh:mm a')
+                            .meta
+                                h5 Call Recepient
+                                p +91-#{caller-phone}
+                            .meta
+                                h5 Call Agenda
+                                p= phoneCall.agenda
                     .col-md-6
-                        .row
-                            .call-actions
-                                form#checkout(action=CallFlowUrls.checkout(), method='POST')
-                                    input#login(type='hidden')
-                                    input.btn.btn-lg.btn-primary.first(type='submit') Proceed to Payment
-                // /.content
+                        .call-card
+                            .call-reversal
+                                a.btn.btn-default(href=CallFlowUrls.callExpert(expert.id))
+                                    | Back to Schedule
+                                    i.icon-left-arrow
+                            .payment-summary.call-inputs
+                                h1
+                                    i.icon-bill
+                                    | Payment Summary
+                                if messages && messages.error
+                                    .alert.alert-danger
+                                        strong Sorry!&nbsp;
+                                        | #{messages.error}
+                                .table
+                                    - var total = 0, currency
+                                        each line in transactionLines
+                                            - total += line.amount
+                                            - currency = line.amount_unit
+                                            .table-row
+                                                case line.transaction_type
+                                                    when 1
+                                                        .table-cell.title Call duration: #{duration} mins @ #{formatMoney(expert.schedule[0].price_per_min, expert.schedule[0].price_unit)} / min
+                                                    when 2
+                                                        .table-cell.title Network charges
+                                                    when 3
+                                                        .table-cell.title Tax @#{Config.get(Config.CALL_TAX_PERCENT)}%
+                                                    when 4
+                                                        .table-cell.title Discount
+                                                .table-cell.amount= formatMoney(line.amount, line.amount_unit)
+                                    form.table-row#couponForm(action='/expert/call/payment/coupon', method='post')
+                                        .table-cell.title
+                                            .input-group
+                                                input.form-control(type='text', name='code', placeholder='Discount Coupon #')
+                                        .table-cell.amount
+                                            input.btn.btn-default(type='submit', value='Apply Coupon')
+                                    .table-row.total
+                                        .table-cell.title Total
+                                        .table-cell.amount= formatMoney(total, currency)
+                            form.call-actions#checkout(action=CallFlowUrls.checkout(), method='POST')
+                                input#login(type='hidden')
+                                input.btn.btn-lg.btn-primary.first(type='submit', value='Proceed to Payment')
+            // /.content
 .modal.fade#login-modal
     .modal-dialog
         .modal-content

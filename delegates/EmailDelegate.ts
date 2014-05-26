@@ -31,6 +31,7 @@ import Formatter                                                    = require('.
 import ExpertRegistrationUrls                                       = require('../routes/expertRegistration/Urls');
 import DashboardUrls                                                = require('../routes/dashboard/Urls');
 import CallFlowUrls                                                 = require('../routes/callFlow/Urls');
+import CallSchedulingUrls                                           = require('../routes/callScheduling/Urls');
 
 /*
  Delegate class for managing email
@@ -40,24 +41,22 @@ import CallFlowUrls                                                 = require('.
  */
 class EmailDelegate
 {
-    private static EMAIL_PASSWORD_RESET:string = 'EMAIL_PASSWORD_RESET';
-    private static EMAIL_EXPERT_INVITE:string = 'EMAIL_EXPERT_INVITE';
-    private static EMAIL_EXPERT_WELCOME:string = 'EMAIL_EXPERT_WELCOME';
-    private static EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION:string = 'EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION';
-    private static EMAIL_EXPERT_SCHEDULING:string = 'EMAIL_EXPERT_SCHEDULING';
-    private static EMAIL_EXPERT_SCHEDULED:string = 'EMAIL_EXPERT_SCHEDULED';
-    private static EMAIL_EXPERT_REMINDER:string = 'EMAIL_EXPERT_REMINDER';
-    private static EMAIL_EXPERT_RESCHEDULE:string = 'EMAIL_EXPERT_RESCHEDULE';
-    private static EMAIL_ACCOUNT_VERIFICATION:string = 'EMAIL_ACCOUNT_VERIFICATION';
-    private static EMAIL_USER_REMINDER:string = 'EMAIL_USER_REMINDER';
-    private static EMAIL_USER_SCHEDULED:string = 'EMAIL_USER_SCHEDULED';
-    private static EMAIL_USER_AGENDA_FAIL:string = 'EMAIL_USER_AGENDA_FAIL';
-    private static EMAIL_USER_RESCHEDULE:string = 'EMAIL_USER_RESCHEDULE';
-    private static EMAIL_PROFILE_PENDING_APPROVAL:string = 'EMAIL_PROFILE_PENDING_APPROVAL';
-    private static EMAIL_PROFILE_APPROVED:string = 'EMAIL_PROFILE_APPROVED';
-    private static EMAIL_EXPERT_REGISTRATION_SUCCESS:string = 'EMAIL_EXPERT_REGISTRATION_SUCCESS';
-
-    // TODO: Implement this
+    private static EMAIL_PASSWORD_RESET:string                      = 'EMAIL_PASSWORD_RESET';
+    private static EMAIL_EXPERT_INVITE:string                       = 'EMAIL_EXPERT_INVITE';
+    private static EMAIL_EXPERT_WELCOME:string                      = 'EMAIL_EXPERT_WELCOME';
+    private static EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION:string   = 'EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION';
+    private static EMAIL_EXPERT_SCHEDULING:string                   = 'EMAIL_EXPERT_SCHEDULING';
+    private static EMAIL_EXPERT_SCHEDULED:string                    = 'EMAIL_EXPERT_SCHEDULED';
+    private static EMAIL_EXPERT_REMINDER:string                     = 'EMAIL_EXPERT_REMINDER';
+    private static EMAIL_NEW_SLOTS_TO_EXPERT:string                 = 'EMAIL_NEW_SLOTS_TO_EXPERT';
+    private static EMAIL_ACCOUNT_VERIFICATION:string                = 'EMAIL_ACCOUNT_VERIFICATION';
+    private static EMAIL_USER_REMINDER:string                       = 'EMAIL_USER_REMINDER';
+    private static EMAIL_USER_SCHEDULED:string                      = 'EMAIL_USER_SCHEDULED';
+    private static EMAIL_USER_AGENDA_FAIL:string                    = 'EMAIL_USER_AGENDA_FAIL';
+    private static EMAIL_SUGGESTED_TIME_TO_CALLER:string            = 'EMAIL_SUGGESTED_TIME_TO_CALLER';
+    private static EMAIL_PROFILE_PENDING_APPROVAL:string            = 'EMAIL_PROFILE_PENDING_APPROVAL';
+    private static EMAIL_PROFILE_APPROVED:string                    = 'EMAIL_PROFILE_APPROVED';
+    private static EMAIL_EXPERT_REGISTRATION_SUCCESS:string         = 'EMAIL_EXPERT_REGISTRATION_SUCCESS';
     private static EMAIL_USER_ACCOUNT_INCOMPLETE_REMINDER:string = 'EMAIL_USER_ACCOUNT_INCOMPLETE_REMINDER';
 
     private static templateCache:{[templateNameAndLocale:string]:{bodyTemplate:Function; subjectTemplate:Function}} = {};
@@ -117,7 +116,6 @@ class EmailDelegate
 
     private composeAndSend(template:string, to:string, emailData:Object, from?:string, replyTo?:string):q.Promise<any>
     {
-        var self = this;
         var deferred = q.defer<any>();
 
         emailData["email_cdn_base_uri"] = Config.get(Config.EMAIL_CDN_BASE_URI);
@@ -164,7 +162,6 @@ class EmailDelegate
 
     getEmailBody(template:string, emailData:Object):string
     {
-        var self = this;
         try
         {
             var bodyTemplate:Function = EmailDelegate.templateCache[template].bodyTemplate;
@@ -179,7 +176,6 @@ class EmailDelegate
 
     getEmailSubject(template:string, emailData:Object):string
     {
-        var self = this;
         try
         {
             var subjectTemplate:Function = EmailDelegate.templateCache[template].subjectTemplate;
@@ -192,21 +188,19 @@ class EmailDelegate
         }
     }
 
-    sendAgendaFailedEmailToUser(call:number):q.Promise<any>;
-    sendAgendaFailedEmailToUser(call:PhoneCall):q.Promise<any>;
-    sendAgendaFailedEmailToUser(call:any):q.Promise<any>
+    sendCallRequestRejectedEmail(call:number, reason:string):q.Promise<any>;
+    sendCallRequestRejectedEmail(call:PhoneCall, reason:string):q.Promise<any>;
+    sendCallRequestRejectedEmail(call:any, reason:string):q.Promise<any>
     {
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
             return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall)
             {
-                self.sendAgendaFailedEmailToUser(fetchedCall);
+                self.sendCallRequestRejectedEmail(fetchedCall, reason);
             });
 
-        return q.all([
-            self.composeAndSend(EmailDelegate.EMAIL_USER_AGENDA_FAIL, call.getUser().getEmail(), {call: call}),
-        ]);
+        return self.composeAndSend(EmailDelegate.EMAIL_USER_AGENDA_FAIL, call.getUser().getEmail(), {call: call});
     }
 
     sendSchedulingEmailToExpert(call:number, appointments:number[], duration:number, caller:User):q.Promise<any>;
@@ -232,13 +226,24 @@ class EmailDelegate
             .then(
             function invitationAcceptCodeCreated(code:string)
             {
+                var schedulingUrl:string = CallSchedulingUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI));
+
                 var emailData = {
                     call: call,
-                    appointments: appointments,
                     integration: integration,
-                    acceptCode: code,
                     caller: caller,
-                    duration: duration
+                    duration: duration,
+                    appointments: appointments,
+                    suggestTimeUrl: Utils.addQueryToUrl(CallSchedulingUrls.suggestTimeSlot(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
+                    rejectUrl: Utils.addQueryToUrl(CallSchedulingUrls.reject(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
+                    appointmentUrls: _.map(appointments, function(startTime)
+                    {
+                        var query = {};
+                        query[ApiConstants.CODE] = code;
+                        query[ApiConstants.START_TIME] = startTime;
+
+                        return Utils.addQueryToUrl(schedulingUrl, query);
+                    })
                 };
 
                 return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_SCHEDULING, expert.getUser()[0].getEmail(), emailData);
@@ -273,21 +278,21 @@ class EmailDelegate
 
     }
 
-    sendReschedulingEmailToUser(call:number, appointment:number):q.Promise<any>;
-    sendReschedulingEmailToUser(call:PhoneCall, appointment:number):q.Promise<any>;
-    sendReschedulingEmailToUser(call:any, appointment:number):q.Promise<any>
+    sendSuggestedAppointmentToCaller(call:number, appointment:number):q.Promise<any>;
+    sendSuggestedAppointmentToCaller(call:PhoneCall, appointment:number):q.Promise<any>;
+    sendSuggestedAppointmentToCaller(call:any, appointment:number):q.Promise<any>
     {
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
             return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall)
             {
-                self.sendReschedulingEmailToUser(fetchedCall, appointment);
+                self.sendSuggestedAppointmentToCaller(fetchedCall, appointment);
             });
         var VerificationCodeDelegate:any = require('../delegates/VerificationCodeDelegate');
         var verificationCodeDelegate = new VerificationCodeDelegate();
 
-        return verificationCodeDelegate.createAppointmentAcceptCode(call)
+        return verificationCodeDelegate.createAppointmentAcceptCode(call, [appointment])
             .then(
             function invitationAcceptCodeCreated(code:string)
             {
@@ -298,22 +303,22 @@ class EmailDelegate
                 };
 
                 return q.all([
-                    self.composeAndSend(EmailDelegate.EMAIL_USER_RESCHEDULE, call.getUser().getEmail(), emailData)
+                    self.composeAndSend(EmailDelegate.EMAIL_SUGGESTED_TIME_TO_CALLER, call.getUser().getEmail(), emailData)
                 ]);
             });
 
     }
 
-    sendReschedulingEmailToExpert(call:number, appointments:number[]):q.Promise<any>;
-    sendReschedulingEmailToExpert(call:PhoneCall, appointments:number[]):q.Promise<any>;
-    sendReschedulingEmailToExpert(call:any, appointments:number[]):q.Promise<any>
+    sendNewTimeSlotsToExpert(call:number, appointments:number[]):q.Promise<any>;
+    sendNewTimeSlotsToExpert(call:PhoneCall, appointments:number[]):q.Promise<any>;
+    sendNewTimeSlotsToExpert(call:any, appointments:number[]):q.Promise<any>
     {
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
             return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER]).then(function (fetchedCall:PhoneCall)
             {
-                self.sendReschedulingEmailToExpert(fetchedCall, appointments);
+                self.sendNewTimeSlotsToExpert(fetchedCall, appointments);
             });
 
         var VerificationCodeDelegate:any = require('../delegates/VerificationCodeDelegate');
@@ -332,9 +337,7 @@ class EmailDelegate
                     appointments: appointments
                 };
 
-                return q.all([
-                    self.composeAndSend(EmailDelegate.EMAIL_EXPERT_RESCHEDULE, expert.getUser()[0].getEmail(), emailData)
-                ]);
+                return self.composeAndSend(EmailDelegate.EMAIL_NEW_SLOTS_TO_EXPERT, expert.getUser()[0].getEmail(), emailData);
             });
     }
 
@@ -387,11 +390,6 @@ class EmailDelegate
             recipient: recipient.toJson()
         };
         return this.composeAndSend(EmailDelegate.EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION, recipient.getUser().getEmail(), emailData);
-    }
-
-    sendPaymentCompleteEmail():q.Promise<any>
-    {
-        return null;
     }
 
     sendCallReminderEmail(call:number):q.Promise<any>;

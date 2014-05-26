@@ -34,6 +34,7 @@ class IntegrationMember extends BaseModel
 
     private integration_id:number;
     private user_id:number;
+    private invited_by_member_id:number;
     private role:IntegrationMemberRole;
     private auth_code:string;
     private access_token:string;
@@ -52,6 +53,7 @@ class IntegrationMember extends BaseModel
     /* Getters */
     getIntegrationId():number                           { return this.integration_id; }
     getUserId():number                                  { return this.user_id; }
+    getInvitedByMemberId():number                       { return this.invited_by_member_id; }
     getRole():IntegrationMemberRole                     { return this.role; }
     getAuthCode():string                                { return this.auth_code; }
     getAccessToken():string                             { return this.access_token; }
@@ -74,6 +76,7 @@ class IntegrationMember extends BaseModel
     /* Setters */
     setIntegrationId(val:number):void                   { this.integration_id = val; }
     setUserId(val:number):void                          { this.user_id = val; }
+    setInvitedByMemberId(val:number):void               { this.invited_by_member_id = val; }
     setRole(val:IntegrationMemberRole):void             { this.role = val; }
     setAuthCode(val:string):void                        { this.auth_code = val; }
     setAccessToken(val:string):void                     { this.access_token = val; }
@@ -88,6 +91,5 @@ class IntegrationMember extends BaseModel
     setUserProfile(val:UserProfile):void                { this.user_profile = val; }
     setSchedule(val:ExpertSchedule[]):void              { this.schedule = val; }
     setScheduleRule(val:ExpertScheduleRule[]):void      { this.schedule_rule = val; }
-
 }
 export = IntegrationMember

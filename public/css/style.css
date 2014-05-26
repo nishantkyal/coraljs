@@ -23,10 +23,6 @@
     z-index:1151 !important;
 }
 
-#login-modal .register
-{
-    display: none;
-}
 
 .input-group-btn select
 {
