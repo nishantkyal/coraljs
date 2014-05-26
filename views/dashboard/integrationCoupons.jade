@@ -90,7 +90,7 @@ block content
                                             option(value='4') Points
                             .form-group.col-md-6
                                 label.control-label What's discounted
-                                select.form-control#(data-width='auto')
+                                select.form-control#couponType(data-width='auto')
                                     - for couponType,id in CouponType
                                         option(value=id)= couponType
                     .modal-footer

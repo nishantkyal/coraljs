@@ -29,13 +29,13 @@ $('form').validate({
             dataType: 'json',
             data    : {
                 coupon: {
-                    integration_id       : integrationId,
-                    code                 : $('form #code').val(),
-                    expiry_time          : $('form #expiry').val() ? moment($('form #expiry').val(), "DD/MM/YYYY").valueOf() : null,
-                    discount_amount      : $('form #discount_amount').val(),
-                    discount_unit        : $('form #discount_unit').val(),
-                    max_coupons          : $('form #max_coupons').val(),
-                    waive_network_charges: $('form #waive_network_charges').val()
+                    integration_id : integrationId,
+                    code           : $('form #code').val(),
+                    expiry_time    : $('form #expiry').val() ? moment($('form #expiry').val(), "DD/MM/YYYY").valueOf() : null,
+                    discount_amount: $('form #discount_amount').val(),
+                    discount_unit  : $('form #discount_unit').val(),
+                    max_coupons    : $('form #max_coupons').val(),
+                    coupon_type    : $('form #couponType').val()
                 }
             },
             success : function()
@@ -77,9 +77,8 @@ $('.save').click(function()
     $('#couponDetails #discount_unit').selectpicker('val', null);
 });
 
-
 $('select').selectpicker();
 $('.datepicker').datepicker({
-    format: 'dd/mm/yyyy',
+    format   : 'dd/mm/yyyy',
     startDate: moment().subtract({days: 1}).toDate()
 });
