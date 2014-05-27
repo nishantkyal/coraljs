@@ -392,6 +392,11 @@ class DashboardRoute
                         Middleware.isAdminOrOwner(loggedInUser, memberId)
                     ]);
 
+                if(loggedInUser)
+                    profileInfoTasks = profileInfoTasks.concat([
+                        self.integrationMemberDelegate.find({integration_id:member.getIntegrationId(),user_id:loggedInUser.getId()})
+                    ]);
+
                 return q.all(profileInfoTasks);
             })
             .then(
@@ -403,15 +408,21 @@ class DashboardRoute
                 var userEmployment = args[0][3] || [];
                 var userUrl = args[0][4] || [];
                 var isEditable = args[0][5] || args[0][6] || false;
+                var tempMember = args[0][7];
+                var adminOrOwner;
 
-                if (mode == ApiConstants.PUBLIC_MODE)
+                if(tempMember && (tempMember.getRole() == IntegrationMemberRole.Owner || tempMember.getRole() == IntegrationMemberRole.Admin ))
+                    adminOrOwner = tempMember;
+
+                if(mode == ApiConstants.PUBLIC_MODE)
                     isEditable = false;
-
+                
                 var profileId = userProfile ? userProfile.getId() : null;
 
                 var pageData = _.extend(sessionData.getData(), {
                     'profileId': profileId,
                     'member': member,
+                    'adminOrOwner': adminOrOwner,
                     'user': user,
                     'userSkill': _.sortBy(userSkill, function (skill) { return skill['skill_name'].length; }),
                     'userProfile': userProfile,
@@ -489,16 +500,15 @@ class DashboardRoute
         var memberId:number = parseInt(req.params[ApiConstants.MEMBER_ID]);
         var sessionData = new SessionData(req);
 
-        self.phoneCallDelegate.search({'integration_member_id': memberId})
-            .then(
-            function callDetailsFetched(calls)
-            {
-                var pageData = _.extend(sessionData.getData(), {
-                    calls: calls
-                });
-                res.render(DashboardRoute.PAGE_CALL_DETAILS, pageData);
-            })
-            .fail(function CallDetailsFetchError(error) { res.send(500); })
+        self.phoneCallDelegate.search({'integration_member_id':memberId})
+        .then(
+        function callDetailsFetched(calls){
+            var pageData = _.extend(sessionData.getData(), {
+                calls:calls || []
+            });
+            res.render(DashboardRoute.PAGE_CALL_DETAILS, pageData);
+        })
+        .fail( function CallDetailsFetchError(error){ res.send(500); })
     }
 
     revenueDetails(req:express.Request, res:express.Response)

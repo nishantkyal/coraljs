@@ -19,16 +19,21 @@ class Middleware
             {
                 var sessionData = new SessionData(req);
 
+                var memberId:number = parseInt(req.params[ApiConstants.MEMBER_ID]);
+
                 var integrationMembers = sessionData.getMembers();
                 var integrationId:number = parseInt(req.params[ApiConstants.INTEGRATION_ID]);
 
                 var isAdmin = !Utils.isNullOrEmpty(_.findWhere(integrationMembers, {'integration_id': integrationId, 'role': IntegrationMemberRole.Admin}));
                 var isOwner = !Utils.isNullOrEmpty(_.findWhere(integrationMembers, {'role': IntegrationMemberRole.Owner}));
 
-                if (isAdmin || isOwner)
-                    next();
-                else
-                    res.send(401);
+                Middleware.isAdminOrOwner(sessionData.getLoggedInUser(),memberId)
+                    .then(function checked(isAdminOrOwner){
+                        if (isAdmin || isOwner || isAdminOrOwner)
+                            next();
+                        else
+                            res.send(401);
+                    })
             }];
 
     static allowExpert =
@@ -58,12 +63,13 @@ class Middleware
                 var memberId:number = parseInt(req.params[ApiConstants.MEMBER_ID]);
                 var loggedInUser = sessionData.getLoggedInUser();
 
-                var isSelf = !Utils.isNullOrEmpty(_.findWhere(integrationMembers, {'id': memberId, 'user_id': loggedInUser.getId()}));
-
-                if (isSelf)
-                    next();
-                else
-                    res.send(401);
+                Middleware.isSelf(loggedInUser, memberId)
+                    .then( function checked(isSelf){
+                        if (isSelf)
+                            next();
+                        else
+                            res.send(401);
+                    })
             }];
 
     static allowMeOrAdmin =
@@ -129,7 +135,8 @@ class Middleware
 
                         return (isAdmin || isOwner)
                     })
-            });
+            })
+            .fail( function(error) { return false;} )
     }
 }
 export = Middleware
