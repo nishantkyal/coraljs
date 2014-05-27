@@ -24,7 +24,7 @@ $('#selectNewTime').validate({
         var tt = $('#selectNewTime #date').val() + ' ' + $('#selectNewTime #time_hour').val() + ':' + $('#selectNewTime #time_min').val();
         var option_one = moment(tt, "DD-MM-YYYY HH:mm").toDate().valueOf();
         $.ajax({
-            url : '/call/' + call.id + '/rescheduleByUser',
+            url : '/call/' + call.id + '/scheduling/pick',
             type: 'post',
             data: {
                 startTime: option_one

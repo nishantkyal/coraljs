@@ -296,10 +296,19 @@ class EmailDelegate
             .then(
             function invitationAcceptCodeCreated(code:string)
             {
+                var schedulingUrl:string = CallSchedulingUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI));
+                var query = {};
+                query[ApiConstants.CODE] = code;
+                query[ApiConstants.START_TIME] = appointment;
+
+                var appointmentUrl =  Utils.addQueryToUrl(schedulingUrl, query);
+
                 var emailData = {
                     call: call,
                     acceptCode: code,
-                    appointment: appointment
+                    appointment: appointment,
+                    appointmentUrl:appointmentUrl,
+                    suggestTimeUrl:Utils.addQueryToUrl(CallSchedulingUrls.pickTimeSlot(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code))
                 };
 
                 return q.all([
@@ -328,13 +337,23 @@ class EmailDelegate
             .then(
             function invitationAcceptCodeCreated(code:string)
             {
+                var schedulingUrl:string = CallSchedulingUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI));
                 var expert:IntegrationMember = call.getIntegrationMember();
                 var integration = new IntegrationDelegate().getSync(expert.getIntegrationId());
                 var emailData = {
                     call: call,
                     acceptCode: code,
                     integration: integration,
-                    appointments: appointments
+                    appointments: appointments,
+                    suggestTimeUrl: Utils.addQueryToUrl(CallSchedulingUrls.suggestTimeSlot(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
+                    appointmentUrls: _.map(appointments, function(startTime)
+                    {
+                        var query = {};
+                        query[ApiConstants.CODE] = code;
+                        query[ApiConstants.START_TIME] = startTime;
+
+                        return Utils.addQueryToUrl(schedulingUrl, query);
+                    })
                 };
 
                 return self.composeAndSend(EmailDelegate.EMAIL_NEW_SLOTS_TO_EXPERT, expert.getUser()[0].getEmail(), emailData);
@@ -481,7 +500,8 @@ class EmailDelegate
                 var emailData = {
                     expert: user,
                     integration: integration,
-                    memberId: memberId
+                    memberId: memberId,
+                    profileUrl: DashboardUrls.memberProfile(memberId,  Config.get(Config.DASHBOARD_URI))
                 };
                 return self.composeAndSend(EmailDelegate.EMAIL_PROFILE_PENDING_APPROVAL, ownerUser.getEmail(), emailData);
             })
