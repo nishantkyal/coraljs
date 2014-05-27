@@ -1,10 +1,11 @@
 // Make user login before applying coupon or checking out
 var loginContext;
+var isLoggedIn = false;
 
 $('form#couponForm,form#checkout').submit(function(event)
 {
-    if (!loginContext || loginContext != $(event.currentTarget).attr('id')) {
-        loginContext = $(event.currentTarget).attr('id');
+    if (!isLoggedIn)
+    {
         event.preventDefault();
 
         $.ajax({
@@ -13,7 +14,10 @@ $('form#couponForm,form#checkout').submit(function(event)
             success: function(data, textStatus, jqXHR)
             {
                 // If not logged in, stop event propagation and show modal
+                // Set loginContext so we know what to do after user signs in from the modal
+                isLoggedIn = data;
                 if (!data) {
+                    loginContext = $(event.currentTarget).attr('id');
                     $('#login-modal').modal('show');
                 }
                 else {
@@ -21,6 +25,9 @@ $('form#couponForm,form#checkout').submit(function(event)
                 }
             }
         });
+    }
+    else {
+        $(event.currentTarget).submit();
     }
 });
 

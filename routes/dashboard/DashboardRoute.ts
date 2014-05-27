@@ -550,6 +550,10 @@ class DashboardRoute
             .spread(
             function callFetched(lines:TransactionLine[], call:PhoneCall)
             {
+                lines = _.sortBy(lines, function(line:TransactionLine) {
+                    return line.getTransactionType();
+                });
+
                 // 1. Update call status
                 // 2. Send notifications
                 return q.all([

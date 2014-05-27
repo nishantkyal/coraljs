@@ -221,6 +221,10 @@ class CallFlowRoute
             {
                 var lines:TransactionLine[] = args[0][0];
 
+                lines = _.sortBy(lines, function(line:TransactionLine) {
+                    return line.getTransactionType();
+                });
+
                 var pageData = _.extend(sessionData.getData(), {
                     messages: req.flash(),
                     transactionLines: lines
