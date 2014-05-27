@@ -151,41 +151,52 @@ class CallFlowRoute
         var loggedInUserId = req.isAuthenticated() ? sessionData.getLoggedInUser().getId() : null;
         var tasks = [];
 
-        // 1. Delete old transaction and call if exists
-        // 2. Create phone call and transaction
+        // Create phone call and transaction and if don't already exist, else update them
 
-        if (!Utils.isNullOrEmpty(sessionData.getTransaction().getId()))
-            tasks.push(self.transactionDelegate.delete(sessionData.getTransaction().getId()));
-        if (!Utils.isNullOrEmpty(sessionData.getCall().getId()))
-            tasks.push(self.phoneCallDelegate.delete(sessionData.getCall().getId()));
+        if (Utils.isNullOrEmpty(sessionData.getTransaction().getId()))
+        {
+            var phoneCall = new PhoneCall();
+            phoneCall.setIntegrationMemberId(sessionData.getExpert().getId());
+            phoneCall.setDelay(0);
+            phoneCall.setStatus(CallStatus.PLANNING);
+            phoneCall.setDuration(sessionData.getDuration());
+            phoneCall.setAgenda(sessionData.getAgenda());
+            phoneCall.setPricePerMin(expert.getSchedule()[0][ExpertSchedule.PRICE_PER_MIN]);
+            phoneCall.setPriceCurrency(expert.getSchedule()[0][ExpertSchedule.PRICE_UNIT]);
+            phoneCall.setCallerUserId(loggedInUserId);
 
-        var phoneCall = new PhoneCall();
-        phoneCall.setIntegrationMemberId(sessionData.getExpert().getId());
-        phoneCall.setDelay(0);
-        phoneCall.setStatus(CallStatus.PLANNING);
-        phoneCall.setDuration(sessionData.getDuration());
-        phoneCall.setAgenda(sessionData.getAgenda());
-        phoneCall.setPricePerMin(expert.getSchedule()[0][ExpertSchedule.PRICE_PER_MIN]);
-        phoneCall.setPriceCurrency(expert.getSchedule()[0][ExpertSchedule.PRICE_UNIT]);
-        phoneCall.setCallerUserId(loggedInUserId);
+            var transaction = new Transaction();
+            transaction.setUserId(loggedInUserId);
+            transaction.setStatus(TransactionStatus.CREATED);
 
-        var transaction = new Transaction();
-        transaction.setUserId(loggedInUserId);
-        transaction.setStatus(TransactionStatus.CREATED);
+            tasks.push(self.phoneCallDelegate.create(phoneCall)
+                .then(
+                function phoneCallCreated(createdCall:PhoneCall)
+                {
+                    sessionData.setCall(createdCall);
+                    return self.transactionDelegate.createPhoneCallTransaction(transaction, createdCall);
+                })
+                .then(
+                function transactionCreated(createdTransaction:Transaction)
+                {
+                    sessionData.setTransaction(createdTransaction);
+                    return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, createdTransaction.getId()))
+                }));
+        }
+        else
+        {
+            var loggedInUserId = sessionData.getLoggedInUser() ? sessionData.getLoggedInUser().getId() : null;
 
-        tasks.push(self.phoneCallDelegate.create(phoneCall)
-            .then(
-            function phoneCallCreated(createdCall:PhoneCall)
-            {
-                sessionData.setCall(createdCall);
-                return self.transactionDelegate.createPhoneCallTransaction(transaction, createdCall);
-            })
-            .then(
-            function transactionCreated(createdTransaction:Transaction)
-            {
-                sessionData.setTransaction(createdTransaction);
-                return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, createdTransaction.getId()))
-            }));
+            var sessionTransaction:Transaction = sessionData.getTransaction();
+            sessionTransaction.setUserId(loggedInUserId);
+
+            var sessionPhoneCall = sessionData.getCall();
+            sessionPhoneCall.setAgenda(sessionData.getAgenda());
+            sessionPhoneCall.setCallerUserId(loggedInUserId);
+
+            tasks.push(self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, sessionData.getTransaction().getId())))
+        }
+
 
         /* If logged in, fetch associated phone numbers
         if (req.isAuthenticated())
@@ -208,7 +219,7 @@ class CallFlowRoute
             .then(
             function allDone(...args)
             {
-                var lines = args[0].pop();
+                var lines:TransactionLine[] = args[0][0];
 
                 var pageData = _.extend(sessionData.getData(), {
                     messages: req.flash(),
@@ -305,7 +316,10 @@ class CallFlowRoute
                 var payZippyProvider = new PayZippyProvider();
                 var amount:number = _.reduce(_.pluck(lines, TransactionLine.AMOUNT), function (memo:number, num:number) { return memo + num; }, 0) * 100
 
-                res.redirect(payZippyProvider.getPaymentUrl(transaction, amount, sessionData.getLoggedInUser()));
+                if (amount > 0)
+                    res.redirect(payZippyProvider.getPaymentUrl(transaction, amount, sessionData.getLoggedInUser()));
+                else
+                    res.redirect(DashboardUrls.paymentCallback());
             },
             function handleError(error)
             {

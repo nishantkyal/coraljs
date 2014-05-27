@@ -127,7 +127,7 @@ class TransactionDelegate extends BaseDaoDelegate
                 var discountableAmounts = _.pluck(discountableLines, TransactionLine.AMOUNT);
                 var discountableTotalAmount = _.reduce(discountableAmounts, function (sum:number, n:number) { return sum += n; })
                 var discount:number = (discountUnit == MoneyUnit.PERCENT) ? discountableTotalAmount * discountAmount / 100 : discountAmount;
-                discount = Math.max(0, discount);
+                discount = Math.min(discountableTotalAmount, discount);
 
                 var discountLine = new TransactionLine();
                 discountLine.setTransactionId(transactionId);
