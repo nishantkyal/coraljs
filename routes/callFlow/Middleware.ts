@@ -12,7 +12,7 @@ class Middleware
     {
         var sessionData = new SessionData(req);
         var expert = sessionData.getExpert();
-        var countryCode:string = req.body[ApiConstants.COUNTRY_CODE] || sessionData.getCountryCode();
+        var countryCode:number = parseInt(req.body[ApiConstants.COUNTRY_CODE] || sessionData.getCountryCode());
         var callerPhone:string = req.body[ApiConstants.PHONE] || sessionData.getCallerPhone();
         var agenda:string = req.body[ApiConstants.AGENDA] || sessionData.getAgenda();
         var duration:number = req.body[ApiConstants.DURATION] || sessionData.getDuration();

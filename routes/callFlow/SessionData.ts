@@ -40,7 +40,7 @@ class SessionData extends AbstractSessionData
     getCallNow():boolean                                { return this.getData()[SessionData.CALL_NOW]; }
     getDuration():number                                { return parseInt(this.getData()[SessionData.DURATION]); }
     getTransaction():Transaction                        { return new Transaction(this.getData()[SessionData.TRANSACTION]); }
-    getCountryCode():string                             { return this.getData()[SessionData.COUNTRY_CODE]; }
+    getCountryCode():number                             { return parseInt(this.getData()[SessionData.COUNTRY_CODE]); }
     getCallerPhone():string                             { return this.getData()[SessionData.CALLER_PHONE]; }
     getAgenda():string                                  { return this.getData()[SessionData.AGENDA]; }
 
@@ -52,7 +52,7 @@ class SessionData extends AbstractSessionData
     setCallNow(val:boolean)                             { this.set(SessionData.CALL_NOW, val); }
     setDuration(val:number)                             { this.set(SessionData.DURATION, val); }
     setTransaction(val:Transaction)                     { this.set(SessionData.TRANSACTION, val.toJson()); }
-    setCountryCode(val:string)                          { this.set(SessionData.COUNTRY_CODE, val); }
+    setCountryCode(val:number)                          { this.set(SessionData.COUNTRY_CODE, val); }
     setCallerPhone(val:string)                          { this.set(SessionData.CALLER_PHONE, val); }
     setAgenda(val:string)                               { this.set(SessionData.AGENDA, val); }
 
