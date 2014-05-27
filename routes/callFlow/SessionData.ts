@@ -51,7 +51,7 @@ class SessionData extends AbstractSessionData
     setAppointments(val:number[])                       { this.set(SessionData.APPOINTMENTS, val); }
     setCallNow(val:boolean)                             { this.set(SessionData.CALL_NOW, val); }
     setDuration(val:number)                             { this.set(SessionData.DURATION, val); }
-    setTransaction(val:Transaction)                     { this.set(SessionData.TRANSACTION, val.toJson()); }
+    setTransaction(val:Transaction)                     { this.set(SessionData.TRANSACTION, val.toJson ? val.toJson() : val); }
     setCountryCode(val:number)                          { this.set(SessionData.COUNTRY_CODE, val); }
     setCallerPhone(val:string)                          { this.set(SessionData.CALLER_PHONE, val); }
     setAgenda(val:string)                               { this.set(SessionData.AGENDA, val); }
