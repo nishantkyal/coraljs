@@ -173,10 +173,11 @@ class VerificationCodeDelegate
     {
         var code:string = Utils.getRandomString(20);
         return this.verificationCodeCache.createAppointmentAcceptCode(call.getId(), code, startTimes)
-            .then(function (status)
+            .then(
+            function (code)
             {
                 return code;
-            })
+            });
     }
 
     verifyAppointmentAcceptCode(code:string):q.Promise<any>

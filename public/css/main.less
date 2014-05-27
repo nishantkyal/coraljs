@@ -1,6 +1,8 @@
 @import "mixin.less";
 @import "reset.less";
 @import "icons.less";
+@import "datepicker.less";
+@import "tagit.less";
 
 // Variables
 
@@ -32,10 +34,32 @@ a {
 	}
 }
 
+.alert {
+	margin: 0px;
+	&.alert-warning {
+		a {
+			color: @primary;
+		}
+	}
+	&.alert-success {
+		a {
+			color: @green;
+		}
+	}
+}
+
+.alert-success {
+	background: #eeffdc;
+}
+
 .btn-lg {
 	padding: 15px;
 	font-size: 20px;
 	line-height: 30px;
+}
+
+.ui-autocomplete {
+	z-index: 9999;
 }
 
 .btn-default {
@@ -64,6 +88,27 @@ a {
 	}
 }
 
+.btn-facebook {
+	background: #3A519C;
+	color: #FFFFFF;
+	font-weight: bold;
+	width: 100%;
+	&:hover, &:active, &.active, &:focus {
+		background: darken(#3A519C, 5);
+		color: #FFFFFF;
+	}
+}
+
+.btn-linkedin {
+	background: #00639D;
+	color: #FFFFFF;
+	font-weight: bold;
+	width: 100%;
+	&:hover, &:active, &.active, &:focus {
+		background: darken(#00639D, 5);
+		color: #FFFFFF;
+	}
+}
 .btn-danger {
 	.gradient(@red, darken(@red, 10), @red);
 	border-color: darken(@red, 5);
@@ -108,7 +153,7 @@ a {
 		height: 20px;
 		line-height: 20px;
 		text-align: center;
-		top: 0px;
+		top: 2px;
 		left: 0px;
 		font-family: 'snticons';
 		font-size: 12px;
@@ -130,8 +175,24 @@ a {
 		form {
 			padding: 20px 0px;
 		}
+		.input-group {
+			margin-bottom: 15px;
+		}
+		.second-column {
+			border-left: 1px solid @gray_light;
+		}
+		.registration-information, .registration-alerts, .registration-heading {
+			padding: 15px 0px;
+			h4 {
+				font-weight: 100;
+				font-size: 20px;
+				color: @secondary;
+			}
+		}
+		.call-options {
+			padding: 15px 0px;
+		}
 		.scheduler-header {
-			margin-top: 10px;
 			background: fade(@secondary, 20);
 			height: 40px;
 			line-height: 40px;
@@ -162,28 +223,20 @@ a {
 								@media(max-width: 767px) {
 									padding: 5px 3px;
 								}
-								.marker {
+								i {
+									font-size: 40px;
+									line-height: 40px;
 									position: absolute;
-									top: 5px;
-									right: 5px;
-									@media(max-width: 767px) {
-										top: -3px;
-										right: 2px;
-									}
+									top: -2px;
+									right: 0px;
 								}
 								&:hover {
 									text-decoration: none;
-									background: fade(@green, 20);
+									background: fade(@black, 10);
 								}
 								&:active, &.active {
-									background: @green;
-									color: @white;
+									background: fade(@green, 20);
 									font-weight: bold;
-									.marker {
-										&.status-ok {
-											color: @white;
-										}
-									}
 								}
 							}
 						}
@@ -240,8 +293,18 @@ a {
 		}
 	}
 	.modal-footer {
+		text-align: left;
 		margin-top: 0px;
 		border: none;
+		.registration-terms {
+			padding: 10px;
+			input {
+				margin: 0px 10px;
+			}
+			label {
+				font-weight: 100;				
+			}
+		}
 		.btn-lg {
 			width: 100%;
 		}
@@ -254,18 +317,47 @@ a {
 			button {
 				color: @white;
 			}
+			.close {
+				font-size: 30px;
+			}
 			.modal-title {
 				font-size: 18px;
+				height: 30px;
+				line-height: 30px;
 				font-weight: 100;
 				color: @white;
 				i {
+					display: inline-block;
+					font-size: 18px;
 					color: @primary;
 					margin: 0px 10px 0px 0px;
+					&.icon-searchntalk-logo {
+						font-size: 30px;
+						height: 30px;
+						line-height: 30px;
+					}
+				}
+				.title {
+					display: inline-block;
+					margin: 0px;
+					font-size: 18px;
+					height: 30px;
+					line-height: 30px;
+					font-weight: 100;
 				}
 			}
 		}
 	}
 
+	&.modal-wide {
+		width: 900px;
+	}
+
+	@media(max-width: 991px) {
+		&.modal-wide {
+			width: 100%;
+		}
+	}
 	@media(max-width: 767px) {
 		width: 100%;
 		margin: 0px auto;
@@ -288,7 +380,11 @@ a {
 }
 
 .annotation {
+	color: @gray;
 	font-weight: bold;
+	display: inline-block;
+	margin: 5px 0px;
+	line-height: 20px;
 	margin-right: 0.3em;
 	em {
 		font-weight: 100;
@@ -324,7 +420,7 @@ a {
 
 .matter {
 	padding-bottom: 10px;
-	background: @white;
+	background: @gray_pale;
 	overflow: hidden;
 	@media(max-width: 991px) {
 		padding-bottom: 0px;
@@ -351,33 +447,54 @@ a {
 }
 
 .flowbar {
+	margin: 10px 0px;
 	padding: 0px;
+	.rounded(5px);
+	overflow: hidden;
+	position: relative;
+	.shadow {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		z-index: 9;
+		.inner-shadow(0px, 0px, 5px, 0.5);		
+	}
 	.nav-pills {
 		> li {
 			> a {
+				display: block;
+				width: 100%;
 				border-radius: 0px;
 				color: @white;
 				background: @secondary;
 				border-bottom: 5px solid @secondary;
-				font-size: 14px;
-				line-height: 40px;
 				padding: 0px;
-				i {
-					font-size: 30px;
-					line-height: 30px;
-					margin: 0px 10px 0px 0px;
-					@media(max-width: 767px) {
-						font-size: 50px;
-						line-height: 50px;
+				height: 45px;
+				text-align: center;
+				.nav-label {
+				    text-align: left;
+				    display: inline-block;
+				    *display: inline;
+				    zoom: 1;
+					i {
+						display: inline-block;
+						font-size: 30px;
+						height: 40px;
+						line-height: 40px;
+						margin: 0px 10px;
+						@media(max-width: 767px) {
+							font-size: 50px;
+							line-height: 50px;
+						}
+					}
+					span {
+						font-size: 14px;
+						height: 40px;
+						line-height: 30px;
 					}
 				}
-				span {
-					display: block;
-					height: 40px;
-					line-height: 40px;
-					margin-top: -20px;
-				}
 				@media(max-width: 991px){
+					height: 65px;
 					border-bottom: none;
 					border-right: 5px solid @secondary;
 				}
@@ -418,6 +535,9 @@ a {
 		}
 	}
 	@media(max-width: 991px) {
+		margin: 0px;
+		padding: 0px;
+		.rounded(0px);
 		background: lighten(@secondary, 10);
 	    margin-bottom: -99999px;
 	    padding-bottom: 99999px;
@@ -444,9 +564,10 @@ a {
 	}
 	.icon {
 		display: block;
-		width: 60px;
-		height: 60px;
-		.retina-image("../images/searchntalk_icon", "gif", no-repeat, 60px, 60px, 0, 0);
+		margin: 0px 20px;
+		width: 40px;
+		height: 40px;
+		.retina-image("../images/searchntalk_icon", "gif", no-repeat, 40px, 40px, 0, 0);
 	}
 }
 
@@ -462,28 +583,39 @@ a {
 		line-height: 20px;
 	}
 	@media(max-width: 767px){
-		padding: 20px;
+		padding: 10px;
 	}	
 }
 
-
-.user-profile {
+.user-profile, .call-profile {
 	background: @gray_pale;
 	padding: 10px;
-	margin: 0px -15px;
-	min-height: 390px;
-	@media(max-width: 767px){
-		min-height: 80px;
-	}
+	margin: 10px;
 	.info {
-		float: left;		
+		float: left;
+		margin-left: 10px;		
 		line-height: 20px;
 		.user-displayname {
 			font-size: 20px;
 			font-weight: bold;
 		}
-		.status-message {
+		.user-age {
 			color: @gray;
+		}
+		.info-upper {
+			height: 90px;
+		}
+		.info-lower {
+			height: 30px;
+			font-size: 12px;
+			line-height: 15px;
+			color: @gray;
+		}
+		@media(max-width: 767px) {
+			margin-left: 0px;
+			.info-upper, .info-lower {
+				height: auto;
+			}
 		}
 	}
 	.status-icon {
@@ -494,15 +626,89 @@ a {
 		font-size: 40px;
 	}
 	.avatar {
-		float: right;
+		float: left;
 		width: 120px;
 		height: 120px;
 		background: @gray_light;
+		.rounded(5px);
+		overflow: hidden;
+		position: relative;
+		.shadow {
+			position: absolute;
+			z-index: 9999;
+			width: 100%;
+			height: 100%;
+			.inner-shadow(0px, 0px, 5px, 0.2);
+		}
 	}
 	.profile {
 		margin: 20px 0px 0px 0px;
 		font-size: 16px;
 		line-height: 20px;
+	}
+	.meta {
+		padding: 10px 0px;
+		h5 {
+			display: block;
+			font-size: 10px;
+			height: 15px;
+			line-height: 15px;
+			font-weight: 100;
+			color: @gray;
+			border-bottom: 1px solid @gray_light;
+		}
+		p {
+			display: block;
+		}
+		&.meta-keywords, &.meta-schedule {
+			ul {
+				padding: 5px 0px;
+				li {
+					display: inline-block;
+					padding: 0px 5px;
+					margin: 0px 1px 0px 0px;
+					line-height: 20px;
+					background: fade(@secondary, 60);
+					color: @white;
+				}
+			}
+		}
+		&.meta-schedule {
+			ul {
+				li {
+					margin: 0px 5px 0px 0px;
+					&.schedule-b {
+						background: fade(@secondary, 40);
+					}
+					&.schedule-c {
+						background: fade(@secondary, 20);
+					}
+				}			
+			}
+		}
+		&.meta-price {
+			p {
+				color: @gray;
+				font-size: 20px;
+				line-height: 30px;
+				text-align: right;				
+			}
+		}
+	}
+	@media(max-width: 991px) {
+		margin: 10px 0px 0px 0px;
+		padding: 10px 0px;
+	}
+	@media(max-width: 767px) {
+		padding: 0px;
+		margin: 10px 0px 0px 0px;
+	}
+}
+
+.call-profile {
+	.avatar {
+		width: 40px;
+		height: 40px;
 	}
 }
 
@@ -529,12 +735,29 @@ a {
 	}
 }
 
-.call-options {
+.call-card {
+	background: @white;
+	margin: 10px;
 	padding: 10px;
+	.rounded(5px);
+	.drop-shadow(0px, 0px, 10px, 0.1);
+	.row {
+		background: @white;		
+	}
+	@media(max-width: 991px) {
+		margin: 0px -15px;
+		padding: 0px;
+		.rounded(0px);
+		.drop-shadow(0px, 0px, 0px, 0);
+	}
+}
+
+.call-options {
+	padding: 0px 15px;
 	li {
 		a {
-			padding: 10px;
-			margin: 0px;
+			padding: 5px;
+			margin: 0px 5px;
 			font-size: 18px;
 			line-height: 20px;
 			color: @gray;
@@ -550,12 +773,9 @@ a {
 			}
 		}
 	}
-	.annotation {
-		line-height: 40px;
-		color: @gray_dark;
-	}
 	p {
-		line-height: 40px;
+		margin: 5px 0px;
+		line-height: 20px;
 		strong {
 			font-size: 20px;
 		}
@@ -566,25 +786,52 @@ a {
 		}
 		text-align: right;
 	}
+	@media(max-width: 767px) {
+		margin-top: -10px;
+		text-align: center;
+		.nav-pills {
+			display: inline-block;
+		}	
+	}
+
 }
 
 .call-inputs {
 	padding: 10px 25px;
 	h1 {
 		display: block;
-		font-size: 20px;
-		font-weight: 100;
-		color: lighten(@secondary, 30);
-		padding: 10px;
-		border-bottom: 1px solid @gray_pale;
-		margin: 0px 0px 10px 0px;
+		font-size: 14px;
+		line-height: 20px;
+		font-weight: bold;
+		color: @gray;
+		margin: 0px 0px 5px 0px;
 		i {
-			color: lighten(@secondary, 40);
-			margin: 0px 20px 0px 10px;
+			margin: 0px 10px 0px 5px;
 		}
+	}
+	.input-row {
+		padding: 10px 0px;
 	}
 	.input-group {
 		width: 100%;
+	}
+	.form-group {
+		margin: 0px 5px;
+	}
+}
+
+.call-status {
+	padding: 10px;
+}
+
+.call-reversal {
+	padding: 10px;
+	.btn {
+		display: block;
+		text-align: left;
+		i {
+			float: right;
+		}
 	}
 }
 
@@ -595,41 +842,6 @@ a {
 		margin: 10px 0px 0px 0px;
 		&.first {
 			margin: 0px;
-		}
-	}
-}
-
-.uneditables {
-	background: @gray_pale;
-	.user-profile {
-		min-height: 0px;
-	}
-	.user-schedule-summary {
-		text-align: left;
-	}
-	.step-reversal {
-		.btn {
-			float: right;
-			margin: 10px;
-			i {
-				margin: 10px 0px 0px 10px;
-			}
-		}
-	}
-}
-
-.editables {
-	border-bottom: 1px solid lighten(@secondary, 50);
-	h1 {
-		display: block;
-		font-size: 20px;
-		font-weight: 100;
-		color: lighten(@secondary, 30);
-		padding: 10px;
-		border-bottom: 1px solid @gray_pale;
-		i {
-			color: lighten(@secondary, 40);
-			margin: 0px 20px 0px 10px;
 		}
 	}
 }

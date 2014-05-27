@@ -16,7 +16,6 @@ import ScheduledTaskType                                        = require('../..
 
 class ScheduleCallsScheduledTask extends AbstractScheduledTask
 {
-
     constructor()
     {
         super();

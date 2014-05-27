@@ -24,9 +24,7 @@ class NotificationDelegate
     {
         var self = this;
 
-        return q.all([
-            self.emailDelegate.sendSchedulingEmailToExpert(call, appointments, duration, caller)
-        ]);
+        return self.emailDelegate.sendSchedulingEmailToExpert(call, appointments, duration, caller);
     }
 
     sendCallSchedulingCompleteNotifications(call:number, appointment:number):q.Promise<any>;
@@ -34,39 +32,31 @@ class NotificationDelegate
     sendCallSchedulingCompleteNotifications(call:any, appointment:number):q.Promise<any>
     {
         var self = this;
-        return q.all([
-            self.emailDelegate.sendSchedulingCompleteEmail(call, appointment)
-        ]);
+        return self.emailDelegate.sendSchedulingCompleteEmail(call, appointment);
     }
 
-    sendCallReschedulingNotificationsToUser(call:number, appointment:number):q.Promise<any>;
-    sendCallReschedulingNotificationsToUser(call:PhoneCall, appointment:number):q.Promise<any>;
-    sendCallReschedulingNotificationsToUser(call:any, appointment:number):q.Promise<any>
+    sendSuggestedAppointmentToCaller(call:number, appointment:number):q.Promise<any>;
+    sendSuggestedAppointmentToCaller(call:PhoneCall, appointment:number):q.Promise<any>;
+    sendSuggestedAppointmentToCaller(call:any, appointment:number):q.Promise<any>
     {
         var self = this;
-        return q.all([
-            self.emailDelegate.sendReschedulingEmailToUser(call, appointment)
-        ]);
+        return self.emailDelegate.sendSuggestedAppointmentToCaller(call, appointment);
     }
 
-    sendCallReschedulingNotificationsToExpert(call:number, appointments:number[]):q.Promise<any>;
-    sendCallReschedulingNotificationsToExpert(call:PhoneCall, appointments:number[]):q.Promise<any>;
-    sendCallReschedulingNotificationsToExpert(call:any, appointments:number[]):q.Promise<any>
+    sendNewTimeSlotsToExpert(call:number, appointments:number[]):q.Promise<any>;
+    sendNewTimeSlotsToExpert(call:PhoneCall, appointments:number[]):q.Promise<any>;
+    sendNewTimeSlotsToExpert(call:any, appointments:number[]):q.Promise<any>
     {
         var self = this;
-        return q.all([
-            self.emailDelegate.sendReschedulingEmailToExpert(call, appointments)
-        ]);
+        return self.emailDelegate.sendNewTimeSlotsToExpert(call, appointments);
     }
 
-    sendCallAgendaFailedNotifications(call:number):q.Promise<any>;
-    sendCallAgendaFailedNotifications(call:PhoneCall):q.Promise<any>;
-    sendCallAgendaFailedNotifications(call:any):q.Promise<any>
+    sendCallRejectedNotifications(call:number, reason:string):q.Promise<any>;
+    sendCallRejectedNotifications(call:PhoneCall, reason:string):q.Promise<any>;
+    sendCallRejectedNotifications(call:any, reason:string):q.Promise<any>
     {
         var self = this;
-        return q.all([
-            self.emailDelegate.sendAgendaFailedEmailToUser(call)
-        ]);
+        return self.emailDelegate.sendCallRequestRejectedEmail(call, reason);
     }
 
     sendCallReminderNotification(call:number):q.Promise<any>;
@@ -98,9 +88,7 @@ class NotificationDelegate
     {
         var self = this;
 
-        return q.all([
-            self.smsDelegate.sendSuccessSMS(call, duration)
-        ]);
+        return self.smsDelegate.sendSuccessSMS(call, duration);
     }
 
     sendCallStatusNotifications(callFragment:CallFragment, attemptCount:number):q.Promise<any>
@@ -135,11 +123,10 @@ class NotificationDelegate
     {
         var self = this;
 
-        return q.all([
-            self.emailDelegate.sendExpertRegistrationCompleteEmail(expert)
-        ]);
+        return self.emailDelegate.sendExpertRegistrationCompleteEmail(expert);
     }
 
+    //TODO: Figure out correct place for this
     scheduleCallNotification(call:PhoneCall);
     scheduleCallNotification(call:number);
     scheduleCallNotification(call:any)

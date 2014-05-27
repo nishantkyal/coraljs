@@ -13,29 +13,29 @@ include header
                 .call-options
                     .row
                         .col-xs-12.col-sm-4.col-md-3.col-lg-3
-                            span.annotation
+                            .annotation
                                 | Duration
                                 em (mins):
                         .col-xs-12.col-sm-8.col-md-9.col-lg-9
                             ul.floatleft.nav.nav-pills.duration
-                                li(class=duration == 15 || !duration ? 'active' : '')
+                                li.active
                                     a.well 15
-                                li(class=duration == 30 ? 'active' : '')
+                                li
                                     a.well 30
-                                li(class=duration == 45 ? 'active' : '')
+                                li
                                     a.well 45
-                                li(class=duration == 60 ? 'active' : '')
+                                li
                                     a.well 60
                             p.floatright
-                                strong= formatMoney(expert.schedule[0].price_per_min, expert.schedule[0].price_unit)
+                                strong $1.00
                                 | /min
                 .schedule-options
                     .row.scheduler-header
                         .col-xs-8
                             .row#monthSelector
-                                a.col-xs-2#prev «
+                                .col-xs-2#prev «
                                 .col-xs-8#month April 2014
-                                a.col-xs-2#next »
+                                .col-xs-2#next »
                         .col-xs-4
                             .row Time Slots
                     .row.scheduler-widgets
@@ -61,127 +61,151 @@ include header
                         ul
                             li.timeslot.completed.row
                                 span.col-xs-4.heading Preferred Time:
-                                span.col-xs-4.slot No time slot selected
-                                span.col-xs-4.remove.hidden
+                                span.col-xs-4.slot 15 Apr 2014 at 11:30
+                                span.col-xs-4.remove
                                     a.remove-timeslot Remove
                             li.timeslot.row
                                 span.col-xs-4.heading Alternative Time #1:
                                 span.col-xs-4.slot No time slot selected
-                                span.col-xs-4.remove.hidden
+                                span.col-xs-4.remove
                                     a.remove-timeslot Remove
                             li.timeslot.row
                                 span.col-xs-4.heading Alternative Time #2:
                                 span.col-xs-4.slot No time slot selected
-                                span.col-xs-4.remove.hidden
+                                span.col-xs-4.remove
                                     a.remove-timeslot Remove
             .modal-footer
                 .alert.alert-warning
-                    strong You have selected&nbsp;
-                    strong.num-slots no
-                    strong &nbsp;time slots so far.
-                    | &nbsp;Please select 3 slots in order to schedule a call.
-                .btn.btn-primary#schedule-done Done
+                    strong You have selected 1 time slot so far.
+                    | Please select 3 time slots in order to schedule a call.
         // /.modal-content
     // /.modal-dialog
-// /.modal
+    // /.modal
+
 // /.masthead
 .matter
     .container
         .row
             .flowbar.col-xs-3.col-sm-3.col-md-12.col-lg-12
+                .shadow
                 ul.nav.nav-pills.nav-justified.nav-stacked
                     li.active
                         a(href='')
-                            i.icon-schedule
-                            span.hidden-xs Schedule
+                            span.nav-label
+                                i.icon-schedule
+                                span.hidden-xs Schedule
                     li.disabled
                         a(href='')
-                            i.icon-pay
-                            span.hidden-xs Pay
+                            span.nav-label
+                                i.icon-pay
+                                span.hidden-xs Pay
                     li.disabled
                         a(href='')
-                            i.icon-talk
-                            span.hidden-xs Talk
+                            span.nav-label
+                                i.icon-talk
+                                span.hidden-xs Talk
             // flowbar
             .content.col-xs-9.col-sm-9.col-md-12.col-lg-12
                 .row
                     .col-md-6
-                        .row.user-profile
-                            .status-icon.status-ok
-                                i.icon-searchntalk
-                            .info
-                                .user-displayname= formatName(user.first_name, user.last_name, user.title)
+                        .user-profile
                             .hidden-xs.avatar
-                                img(src=ApiUrlDelegate.userProfilePicture(user.id), width='100%', height='100%')
+                                .shadow
+                                    a(href=DashboardUrls.memberProfile(expert.id))
+                                        img(src=ApiUrlDelegate.userProfilePicture(user.id), width='100%', height='100%')
+                            .info
+                                .info-upper
+                                    a.user-displayname(href=DashboardUrls.memberProfile(expert.id))= formatName(user.first_name, user.last_name, user.title)
+                                    if (user.date_of_birth)
+                                        .user-age= moment().diff(moment(parseInt(user.date_of_birth)), 'years') + ' years'
+                                .info-lower
+                                    if (user.location)
+                                        .user-locale New Delhi
+                                    if (user.timezone)
+                                        .user-timezone GMT +5:30h
                             .clearer
-                            .hidden-xs.profile
+                            if userProfile.short_desc
+                                .hidden-xs.profile
+                                    p
+                                        | #{userProfile.short_desc}
+                            if userSkill
+                                .hidden-xs.meta.meta-keywords
+                                    h5 Skills/Keywords
+                                    ul
+                                        for skill in userSkill
+                                            li= skill.skill_name
+                            .meta.meta-price
+                                h5 Charges
                                 p
-                                    | A freelance policy analyst since 1994, I specialize in policy for sustainability, planning and the urban environment in India, funding programmes, comparative research and good practice.
+                                    if expert.schedule[0].price_per_min
+                                        strong= formatMoney(expert.schedule[0].price_per_min, expert.schedule[0].price_unit)
+                                        | /min.
+                                    else
+                                        strong Free
                     .col-md-6
-                        .row
+                        .call-card
                             .user-schedule-summary
                                 if (is_available)
                                     .current-status.status-ok Currently available
                                     .available-slot
-                                        | Accepting calls till&nbsp;
-                                        span= formatDate(next_available_schedule.start_time + next_available_schedule.duration, "HH:mm a")
+                                        span.annotation Accepting calls till&nbsp;
+                                        | #{formatDate(next_available_schedule.start_time + next_available_schedule.duration, "HH:mm a")}
                                 else
                                     .current-status.status-warning Not available at the moment
                                     .available-slot
                                         span.annotation Next available time:
-                                        span= formatDate(next_available_schedule.start_time, "DD MMM YYYY [at] HH:MM a")
-                        .row
+                                        | #{formatDate(next_available_schedule.start_time, "DD MMM YYYY [at] HH:MM a")}
                             .call-options
                                 .row
-                                    .col-xs-12.col-sm-4.col-md-3.col-lg-3
+                                    .col-xs-12.col-sm-4.col-md-4.col-lg-4
                                         span.annotation
-                                            | Duration&nbsp;
+                                            | Duration
                                             em (mins):
-                                    .col-xs-12.col-sm-8.col-md-9.col-lg-9
-                                        ul.floatleft.nav.nav-pills.duration
-                                            li(class=duration == 15 || !duration ? 'active' : '')
+                                    .col-xs-12.col-sm-8.col-md-8.col-lg-8
+                                        ul.nav.nav-pills.duration
+                                            li.active
                                                 a.well 15
-                                            li(class=duration == 30 ? 'active' : '')
+                                            li
                                                 a.well 30
-                                            li(class=duration == 45 ? 'active' : '')
+                                            li
                                                 a.well 45
-                                            li(class=duration == 60 ? 'active' : '')
+                                            li
                                                 a.well 60
-                                        p.floatright
-                                            strong= formatMoney(expert.schedule[0].price_per_min, expert.schedule[0].price_unit)
-                                            | /min
-                        .row
                             .call-inputs
-                                .row
+                                .row.input-row
+                                    h1
+                                        i.icon-clock
+                                        | Timeslots
+                                    ul.tagit.ui-widget.ui-widget-content.ui-corner-all#selectedSlots(data-toggle='modal', data-target='#scheduler')
+                                        li.tagit-choice.ui-widget-content.ui-state-default.ui-corner-all
+                                            .tagit-label
+                                        li.tagit-choice.ui-widget-content.ui-state-default.ui-corner-all
+                                            .tagit-label
+                                        li.tagit-choice.ui-widget-content.ui-state-default.ui-corner-all
+                                            .tagit-label
+                                        li.tagit-new
+                                            input(type='text', placeholder='Choose three timeslots', readonly="readonly")
+                                .row.input-row
                                     h1
                                         i.icon-phone
+                                        | Recepient Phone
+                                    .form-group
+                                        .row
+                                            .col-xs-4
+                                                select.form-control#country-code
+                                                    for code,country in CountryCode
+                                                        option(value=country, selected=code == country_code)= CountryName[code.toUpperCase()] + ' (+' + country + ')'
+                                            .col-xs-8
+                                                input.form-control.phone-number#caller-phone(type='text', placeholder='Phone Number', value=caller_phone)
+                                .row.input-row
+                                    h1
+                                        i.icon-list
                                         | Call Agenda
-                                .row
-                                    .input-group
-                                            textarea.form-control#agenda(type='text', placeholder='Please provide your agenda and questions for the expert. Please be as descriptive as possible.')= agenda
-                        .row
-                            .call-inputs
-                                .row
-                                    h1
-                                        i.icon-phone
-                                        | Your Phone
-                                .row.not-first
-                                    .input-group
-                                        input.form-control#caller-phone(type='text', placeholder='10-digit phone number', value=caller_phone)
-                        .row
-                            .call-inputs
-                                .row
-                                    h1
-                                        i.icon-phone
-                                        | Time Slots
-                                .row.not-first
-                                    .input-group
-                                        input.form-control#caller-phone(type='text', placeholder='10-digit phone number', value=caller_phone)
-                        .row
+                                    .form-group
+                                        textarea.form-control#agenda(type='text', placeholder='Enter an agenda for your call (optional)')= agenda
                             .call-actions
-                                a.btn.btn-lg.btn-default.col-xs-12.col-md-12.col-lg-12#schedule Choose Time Slots
-                                //if (is_available)
-                                    a.btn.btn-lg.btn-primary.first.col-xs-12.col-md-12.col-lg-12#call-now Call Now
+                                a.btn.btn-lg.btn-primary.first#schedule Proceed
+            // /.content
 include footer
 script.
     var schedules = JSON.parse( '!{JSON.stringify(expert.schedule)}' );

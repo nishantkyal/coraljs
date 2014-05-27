@@ -15,7 +15,7 @@ class ScheduledTaskApi
             _.each(tasks,  function (task:any){
                 delete task.task['logger'];
                 tasksArray.push(task.task);
-            })
+            });
             res.json(tasksArray).status(200);
         });
 

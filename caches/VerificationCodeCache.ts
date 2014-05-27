@@ -110,7 +110,10 @@ class VerificationCodeCache
 
     createAppointmentAcceptCode(callId:number, code:string, startTimes:number[]):q.Promise<any>
     {
-        return CacheHelper.set('aa-' + code, {id: callId, startTimes: startTimes});
+        return CacheHelper.set('aa-' + code, {id: callId, startTimes: startTimes})
+            .then(
+            function codeSaved() { return code; }
+        );
     }
 
     searchAppointmentAcceptCode(code:string):q.Promise<any>

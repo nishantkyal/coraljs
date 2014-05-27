@@ -21,13 +21,17 @@ $('#selectNewTime').validate({
     },
     submitHandler : function()
     {
-        var tt = $('#selectNewTime #date').val() + ' ' + $('#selectNewTime #time_hour').val() + ':' + $('#selectNewTime #time_min').val();
-        var option_one = moment(tt, "DD-MM-YYYY HH:mm").toDate().valueOf();
+        var slot = moment($('#selectNewTime #date').val())
+            .hours($('#selectNewTime #time_hour').val())
+            .minutes($('#selectNewTime #time_min').val())
+            .valueOf();
+
         $.ajax({
-            url : '/call/' + call.id + '/rescheduleByExpert',
+            url : '/call/' + call.id + '/scheduling/suggest',
             type: 'post',
             data: {
-                startTime: option_one
+                startTime: slot,
+                code: code
             }
         })
     }

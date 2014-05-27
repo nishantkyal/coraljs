@@ -82,7 +82,6 @@ class CallFlowRoute
         var self = this;
         var expertId = req.params[ApiConstants.EXPERT_ID];
         var sessionData = new SessionData(req);
-        var userProfile;
 
         this.integrationMemberDelegate.get(expertId, IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_SCHEDULES, IncludeFlag.INCLUDE_USER])
             .then(
@@ -101,25 +100,23 @@ class CallFlowRoute
             },
             function handleExpertSearchFailed(error)
             {
-                res.render('500', 'No such expert exists!');
+                throw('No such expert exists!');
             })
             .then(
-            function userProfileFetched(fetchedProfile:UserProfile):any
+            function userProfileFetched(userProfile:UserProfile):any
             {
-                userProfile = fetchedProfile;
-
-                return q.all([
+                return [userProfile, q.all([
                     self.userSkillDelegate.getSkillWithName(userProfile.getId()),
                     self.userEducationDelegate.search({'profileId': userProfile.getId()}),
                     self.userEmploymentDelegate.search({'profileId': userProfile.getId()})
-                ]);
+                ])];
             })
-            .then(
-            function profileDetailsFetched(...args)
+            .spread(
+            function profileDetailsFetched(userProfile, ...args)
             {
-                var userSkill = args[0][1] || [];
-                var userEducation = args[0][2] || [];
-                var userEmployment = args[0][3] || [];
+                var userSkill = args[0][0] || [];
+                var userEducation = args[0][1] || [];
+                var userEmployment = args[0][2] || [];
 
                 var pageData = _.extend(sessionData.getData(), {
                     userSkill: _.sortBy(userSkill, function (skill) { return skill['skill_name'].length; }),
@@ -154,40 +151,43 @@ class CallFlowRoute
         var loggedInUserId = req.isAuthenticated() ? sessionData.getLoggedInUser().getId() : null;
         var tasks = [];
 
-        // Create transaction if doesn't exist and send back transaction lines
-        if (sessionData.getTransaction() && sessionData.getTransaction().isValid())
-            tasks.push(self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, sessionData.getTransaction().getId())));
-        else
-        {
-            var phoneCall = new PhoneCall();
-            phoneCall.setIntegrationMemberId(sessionData.getExpert().getId());
-            phoneCall.setDelay(0);
-            phoneCall.setStatus(CallStatus.PLANNING);
-            phoneCall.setDuration(sessionData.getDuration());
-            phoneCall.setPricePerMin(expert.getSchedule()[0][ExpertSchedule.PRICE_PER_MIN]);
-            phoneCall.setPriceCurrency(expert.getSchedule()[0][ExpertSchedule.PRICE_UNIT]);
-            phoneCall.setCallerUserId(loggedInUserId);
+        // 1. Delete old transaction and call if exists
+        // 2. Create phone call and transaction
 
-            var transaction = new Transaction();
-            transaction.setUserId(loggedInUserId);
-            transaction.setStatus(TransactionStatus.CREATED);
+        if (!Utils.isNullOrEmpty(sessionData.getTransaction().getId()))
+            tasks.push(self.transactionDelegate.delete(sessionData.getTransaction().getId()));
+        if (!Utils.isNullOrEmpty(sessionData.getCall().getId()))
+            tasks.push(self.phoneCallDelegate.delete(sessionData.getCall().getId()));
 
-            tasks.push(self.phoneCallDelegate.create(phoneCall)
-                .then(
-                function phoneCallCreated(createdCall:PhoneCall)
-                {
-                    sessionData.setCall(createdCall);
-                    return self.transactionDelegate.createPhoneCallTransaction(transaction, createdCall);
-                })
-                .then(
-                function transactionCreated(createdTransaction:Transaction)
-                {
-                    sessionData.setTransaction(createdTransaction);
-                    return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, createdTransaction.getId()))
-                }));
-        }
+        var phoneCall = new PhoneCall();
+        phoneCall.setIntegrationMemberId(sessionData.getExpert().getId());
+        phoneCall.setDelay(0);
+        phoneCall.setStatus(CallStatus.PLANNING);
+        phoneCall.setDuration(sessionData.getDuration());
+        phoneCall.setAgenda(sessionData.getAgenda());
+        phoneCall.setPricePerMin(expert.getSchedule()[0][ExpertSchedule.PRICE_PER_MIN]);
+        phoneCall.setPriceCurrency(expert.getSchedule()[0][ExpertSchedule.PRICE_UNIT]);
+        phoneCall.setCallerUserId(loggedInUserId);
 
-        // If logged in, fetch associated phone numbers
+        var transaction = new Transaction();
+        transaction.setUserId(loggedInUserId);
+        transaction.setStatus(TransactionStatus.CREATED);
+
+        tasks.push(self.phoneCallDelegate.create(phoneCall)
+            .then(
+            function phoneCallCreated(createdCall:PhoneCall)
+            {
+                sessionData.setCall(createdCall);
+                return self.transactionDelegate.createPhoneCallTransaction(transaction, createdCall);
+            })
+            .then(
+            function transactionCreated(createdTransaction:Transaction)
+            {
+                sessionData.setTransaction(createdTransaction);
+                return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, createdTransaction.getId()))
+            }));
+
+        /* If logged in, fetch associated phone numbers
         if (req.isAuthenticated())
         {
             var userPhoneSearch = {};
@@ -201,19 +201,17 @@ class CallFlowRoute
                     self.logger.error('User phone fetch error. Error: %s', error);
                     return null;
                 }));
-        }
+        }*/
 
         // Execute all tasks and render
         q.all(tasks)
             .then(
             function allDone(...args)
             {
-                var lines = args[0][0];
-                var phoneNumbers = args[0][1];
+                var lines = args[0].pop();
 
                 var pageData = _.extend(sessionData.getData(), {
                     messages: req.flash(),
-                    userPhones: phoneNumbers,
                     transactionLines: lines
                 });
 
@@ -235,10 +233,9 @@ class CallFlowRoute
             function transactionLinesFetched() { res.redirect(Urls.callPayment()); },
             function couponApplyFailed(error)
             {
-                req.flash('error', error);
+                req.flash('error', JSON.stringify(error));
                 res.redirect(Urls.callPayment());
-            }
-        );
+            });
     }
 
     /* Redirect to gateway for payment */
@@ -252,7 +249,6 @@ class CallFlowRoute
 
         // Check that we've a valid call for scheduling
         var isCallValid = !Utils.isNullOrEmpty(call.getAgenda())
-                            && !Utils.isNullOrEmpty(call.getCallerUserId())
                                 && !Utils.isNullOrEmpty(sessionData.getAppointments())
 
         if (!isCallValid)
@@ -262,6 +258,7 @@ class CallFlowRoute
         }
 
         var userPhone = new UserPhone();
+        userPhone.setCountryCode(sessionData.getCountryCode());
         userPhone.setPhone(sessionData.getCallerPhone());
         userPhone.setUserId(sessionData.getLoggedInUser().getId());
         userPhone.setType(PhoneType.MOBILE);
