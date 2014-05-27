@@ -81,20 +81,20 @@ $('#schedule-done').click(function()
 });
 
 /* Call now clicked - Event Handler
-$('#call-now').click(function()
-{
-    var agenda = $('#agenda').val().trim();
-    var callerName = $('#caller-name').val().trim();
-    var callerPhone = $('#caller-phone').val().trim();
+ $('#call-now').click(function()
+ {
+ var agenda = $('#agenda').val().trim();
+ var callerName = $('#caller-name').val().trim();
+ var callerPhone = $('#caller-phone').val().trim();
 
-    $('<form action="/expert/call/payment" method="POST">' +
-        '<input type="hidden" name="agenda" value="' + agenda + '">' +
-        '<input type="hidden" name="duration" value="' + duration + '">' +
-        '<input type="hidden" name="name" value="' + callerName + '">' +
-        '<input type="hidden" name="phone" value="' + callerPhone + '">' +
-        '<input type="hidden" name="call-now" value="true">' +
-        '</form>').submit();
-});*/
+ $('<form action="/expert/call/payment" method="POST">' +
+ '<input type="hidden" name="agenda" value="' + agenda + '">' +
+ '<input type="hidden" name="duration" value="' + duration + '">' +
+ '<input type="hidden" name="name" value="' + callerName + '">' +
+ '<input type="hidden" name="phone" value="' + callerPhone + '">' +
+ '<input type="hidden" name="call-now" value="true">' +
+ '</form>').submit();
+ });*/
 
 /* Helper method to validate input and process to payment page */
 function proceedToPayment()
@@ -104,29 +104,26 @@ function proceedToPayment()
     var callerPhone = $('#caller-phone').val().trim();
 
     // Show scheduling popup if 3 slots not selected
-    if (selectedTimeSlots.length != 3)
-    {
+    if (selectedTimeSlots.length != 3) {
         $('#scheduler').modal('show');
         return;
     }
 
     // Dismiss modal if agenda or phone not supplied
-    if (agenda.length == 0)
-    {
+    if (agenda.length == 0) {
         $('#scheduler').modal('hide');
         $('#agenda').focus();
         return;
     }
 
     // Dismiss modal if agenda or phone not supplied
-    if (callerPhone.length == 0)
-    {
+    if (callerPhone.length == 0) {
         $('#scheduler').modal('hide');
         $('#caller-phone').focus();
         return;
     }
 
-    $('<form action="/expert/call/payment" method="POST">' +
+    var form = $('<form action="/expert/call/payment" method="POST">' +
         '<input type="hidden" name="agenda" value="' + agenda + '">' +
         '<input type="hidden" name="duration" value="' + duration + '">' +
         '<input type="hidden" name="countryCode" value="' + countryCode + '">' +
@@ -135,7 +132,10 @@ function proceedToPayment()
         {
             return '<input type="hidden" name="startTime" value="' + slot + '">';
         }).join('') +
-        '</form>').submit();
+        '</form>');
+
+    $('body').append(form);
+    form.submit();
 }
 
 /* Helper method to mark a data selected */
@@ -214,8 +214,7 @@ function updateSelectedTimeSlots()
         var slotElement = $('.row.scheduled-slots li:nth-child(' + (i + 1) + ')');
         var selectedSlotElement = $('#selectedSlots .tagit-choice:nth-child(' + (i + 1) + ')');
 
-        if (selectedTimeSlots[i])
-        {
+        if (selectedTimeSlots[i]) {
             $('.col-xs-4.slot', slotElement).text(moment(selectedTimeSlots[i]).format('DD MMM YYYY [at] hh:mm a'));
             $('.col-xs-4.remove', slotElement).removeClass('hidden');
 
@@ -230,15 +229,13 @@ function updateSelectedTimeSlots()
         }
     }
 
-    if (selectedTimeSlots.length < 3)
-    {
+    if (selectedTimeSlots.length < 3) {
         $('.modal-footer #schedule-done').hide();
         $('.modal-footer .alert.alert-warning').show();
         $('.modal-footer .alert.alert-warning .num-slots').text(selectedTimeSlots.length);
         $('#selectedSlots .tagit-new').show();
     }
-    else
-    {
+    else {
         $('.modal-footer #schedule-done').show();
         $('.modal-footer .alert.alert-warning').hide();
         $('#selectedSlots .tagit-new').hide();
@@ -251,7 +248,7 @@ $('#caller-phone').keydown(function(event)
     var code = (event.keyCode ? event.keyCode : event.which)
 
     // Allow: backspace, delete, tab, escape, and enter
-    if ( code == 46 || code == 8 || code == 9 || code == 27 || code == 13 ||
+    if (code == 46 || code == 8 || code == 9 || code == 27 || code == 13 ||
         // Allow: Ctrl+A
         (code == 65 && event.ctrlKey === true) ||
         // Allow: home, end, left, right
