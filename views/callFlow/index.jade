@@ -78,6 +78,8 @@ include header
                 .alert.alert-warning
                     strong You have selected 1 time slot so far.
                     | Please select 3 time slots in order to schedule a call.
+                .pull-right
+                    a.btn.btn-primary#schedule-done Done
         // /.modal-content
     // /.modal-dialog
     // /.modal
@@ -194,7 +196,7 @@ include header
                                             .col-xs-4
                                                 select.form-control#country-code
                                                     for code,country in CountryCode
-                                                        option(value=country, selected=code == country_code)= CountryName[code.toUpperCase()] + ' (+' + country + ')'
+                                                        option(value=country, selected=)= CountryName[code.toUpperCase()] + ' (+' + country + ')'
                                             .col-xs-8
                                                 input.form-control.phone-number#caller-phone(type='text', placeholder='Phone Number', value=caller_phone)
                                 .row.input-row
