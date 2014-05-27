@@ -1,6 +1,6 @@
 - var user = expert.user[0];
 title ST-#{formatName(user.first_name, user.last_name, user.title)}
-include header
+include ../header
 .modal.fade#scheduler
     .modal-dialog
         .modal-content
@@ -208,7 +208,7 @@ include header
                             .call-actions
                                 a.btn.btn-lg.btn-primary.first#schedule Proceed
             // /.content
-include footer
+include ../footer
 script.
     var schedules = JSON.parse( '!{JSON.stringify(expert.schedule)}' );
     var duration = parseInt('#{duration}') || 15;

@@ -4,7 +4,7 @@ style.
     #login-modal .register {
         display: none;
     }
-include header
+include ../header
 title ST-#{formatName(expert.user[0].first_name, expert.user[0].last_name, expert.user[0].title)} | Payment for Call
 .matter
     .container
@@ -149,4 +149,4 @@ title ST-#{formatName(expert.user[0].first_name, expert.user[0].last_name, exper
             .modal-footer
 
 script(src='/js/app/callFlow/payment.js')
-include footer
+include ../footer

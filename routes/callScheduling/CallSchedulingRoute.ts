@@ -35,7 +35,7 @@ import SessionData                                          = require('./Session
 import CallFlowUrls                                         = require('../callFlow/Urls');
 import DashboardUrls                                        = require('../../routes/dashboard/Urls');
 
-class CallSchedulingRoute
+class   CallSchedulingRoute
 {
     private static SCHEDULING:string = 'callScheduling/scheduling';
     private static SUGGEST_NEW_TIME:string = 'callScheduling/rescheduling';
