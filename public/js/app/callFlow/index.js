@@ -245,3 +245,25 @@ function updateSelectedTimeSlots()
     }
 
 }
+
+$('#caller-phone').keydown(function(event)
+{
+    var code = (event.keyCode ? event.keyCode : event.which)
+
+    // Allow: backspace, delete, tab, escape, and enter
+    if ( code == 46 || code == 8 || code == 9 || code == 27 || code == 13 ||
+        // Allow: Ctrl+A
+        (code == 65 && event.ctrlKey === true) ||
+        // Allow: home, end, left, right
+        (code >= 35 && code <= 39) ||
+        (code >= 48 && code <= 57)) {
+        // let it happen, don't do anything
+        return;
+    }
+    else {
+        // Ensure that it is a number and stop the keypress
+        if (event.shiftKey || (code < 48 || code > 57) && (code < 96 || code > 105 )) {
+            event.preventDefault();
+        }
+    }
+});
