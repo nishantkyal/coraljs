@@ -71,7 +71,7 @@ class TransactionDelegate extends BaseDaoDelegate
             .then(
             function discountLinesFetched(lines:TransactionLine[])
             {
-                if (lines.length == 0)
+                if (Utils.isNullOrEmpty(lines))
                     return q.all([
                         self.couponDelegate.findCoupon(code, Coupon.DASHBOARD_FIELDS),
                         self.transactionLineDelegate.search({transaction_id: transactionId})
