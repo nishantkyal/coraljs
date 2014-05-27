@@ -12,7 +12,7 @@ import AuthenticationDelegate                               = require('../../del
 import UserDelegate                                         = require('../../delegates/UserDelegate');
 import IntegrationMemberDelegate                            = require('../../delegates/IntegrationMemberDelegate');
 import UserProfileDelegate                                  = require('../../delegates/UserProfileDelegate');
-import VerificationCodeCache                                = require('../../caches/VerificationCodeCache');
+import VerificationCodeDelegate                             = require('../../delegates/VerificationCodeDelegate');
 import IntegrationDelegate                                  = require('../../delegates/IntegrationDelegate');
 import EmailDelegate                                        = require('../../delegates/EmailDelegate');
 import Integration                                          = require('../../models/Integration');
@@ -40,7 +40,7 @@ class MemberRegistrationRoute
     private static PAGE_COMPLETE:string = 'memberRegistration/complete';
 
     private integrationMemberDelegate = new IntegrationMemberDelegate();
-    private verificationCodeCache = new VerificationCodeCache();
+    private verificationCodeDelegate = new VerificationCodeDelegate();
     private userDelegate = new UserDelegate();
     private userProfileDelegate = new UserProfileDelegate();
 
@@ -86,7 +86,7 @@ class MemberRegistrationRoute
 
         // 1. Validate invitation code
         // 2. Authenticate
-        this.verificationCodeCache.searchInvitationCode(invitationCode, integrationId)
+        this.verificationCodeDelegate.searchInvitationCode(invitationCode, integrationId)
             .then(
             function verified(result):any
             {
@@ -189,7 +189,7 @@ class MemberRegistrationRoute
         // 2. Delete invitation code
         //TODO: Schedule the mobile verification reminder notification
         q.all([
-            self.verificationCodeCache.deleteInvitationCode(sessionData.getInvitationCode(), sessionData.getIntegrationId()),
+            self.verificationCodeDelegate.deleteInvitationCode(sessionData.getInvitationCode(), sessionData.getIntegrationId()),
             self.integrationMemberDelegate.update({'user_id': userId, 'integration_id': integrationId}, {role: member.getRole()})
         ])
             .finally(

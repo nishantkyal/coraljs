@@ -5,6 +5,7 @@ style.
         display: none;
     }
 include header
+title ST-#{formatName(expert.user[0].first_name, expert.user[0].last_name, expert.user[0].title)} | Payment for Call
 .matter
     .container
         .row
@@ -115,26 +116,36 @@ include header
                 .alert.alert-danger(style='display: none;') Login Failed
                 form#authentication.form.col-md-12.center-block
                     .form-group
-                        input.form-control.input-lg(type='text', placeholder='Email', name='username')
+                        input.form-control(type='text', placeholder='Email', name='username', autocomplete="off")
                     .form-group.register
-                        .input-group
-                            .input-group-btn
-                                select
-                            input.form-control.input-lg(type='text', placeholder='First Name', name='first_name')
-                            span.input-group-btn(style="width:0px;")
-                            input.form-control.input-lg(type='text', placeholder='Middle Name', name='middle_name')
-                            span.input-group-btn(style="width:0px;")
-                            input.form-control.input-lg(type='text', placeholder='Last Name', name='last_name')
+                        .row
+                            .col-xs-3
+                                select.form-control
+                                    - for title,id in Salutation
+                                        option(value=id)= title
+                            .col-xs-9
+                                .input-group
+                                    input.form-control(type='text', placeholder='First Name', name='first_name', autocomplete="off")
+                                    span.input-group-btn(style="width:0px;")
+                                    input.form-control(type='text', placeholder='Middle Name', name='middle_name', autocomplete="off")
+                                    span.input-group-btn(style="width:0px;")
+                                    input.form-control(type='text', placeholder='Last Name', name='last_name', autocomplete="off")
                     .form-group
-                        input.form-control.input-lg(type='password', placeholder='Password', name='password')
+                        input.form-control(type='password', placeholder='Password', name='password', autocomplete="off")
                     .form-group.register
-                        input.form-control.input-lg(type='password', placeholder='Confirm Password')
+                        input.form-control(type='password', placeholder='Confirm Password', autocomplete="off")
                     .form-group
-                        a.btn.btn-primary.btn-lg.btn-block#login-button.login Login
-                        a.btn.btn-primary.btn-lg.btn-block#register-button.register Register
-                    span.pull-right
-                        a#register-link.login Register
-                        a#login-link.register Login
+                        .row
+                            a.btn.btn-primary.btn-block#login-button.login Login
+                            a.btn.btn-primary.btn-block#register-button.register Register
+                        .row
+                            a.btn.btn-linkedin Login using LinkedIn
+                            a.btn.btn-facebook Login using Facebook
+                    .form-group
+                        .controls
+                            span.pull-right
+                                a#register-link.login Register
+                                a#login-link.register Login
             .modal-footer
 
 script(src='/js/app/callFlow/payment.js')

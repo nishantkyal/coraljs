@@ -11,7 +11,6 @@ import PhoneNumberDelegate                                  = require('../delega
 import TemporaryTokenType                                   = require('../enums/TemporaryTokenType');
 import ApiConstants                                         = require('../enums/ApiConstants');
 import PhoneType                                            = require('../enums/PhoneType');
-import VerificationCodeCache                                = require('../caches/VerificationCodeCache');
 import Utils                                                = require('../common/Utils');
 import User                                                 = require('../models/User');
 import IntegrationMember                                    = require('../models/IntegrationMember');
@@ -21,7 +20,6 @@ class TokenApi
 {
     constructor(app, secureApp)
     {
-        var verificationCodeCache = new VerificationCodeCache();
         var verificationCodeDelegate = new VerificationCodeDelegate();
         var userDelegate = new UserDelegate();
 
@@ -93,7 +91,7 @@ class TokenApi
             var integrationId:number = parseInt(req.query[ApiConstants.INTEGRATION_ID]);
             var code:string = req.query[ApiConstants.CODE];
 
-            verificationCodeCache.searchInvitationCode(code, integrationId)
+            verificationCodeDelegate.searchInvitationCode(code, integrationId)
                 .then(
                 function tokenFound(user)
                 {
