@@ -189,7 +189,7 @@ block content
                                 input.form-control#password(type='password', name='password', autocomplete='off', data-toggle="tooltip", data-placement="bottom")
                             .form-group
                                 label.control-label(for='long_desc') Confirm Password
-                                input.form-control#confirm_password(type='password', name='confirmPassword', autocomplete='off', data-toggle="tooltip", data-placement="bottom")
+                                input.form-control#confirm_password(type='password', name='confirm_password', autocomplete='off', data-toggle="tooltip", data-placement="bottom")
                         .modal-footer
                             button.btn.btn-default(data-dismiss='modal') Close
                             input.btn.btn-primary(type='submit', value='OK')
@@ -313,5 +313,5 @@ block content
             var userProfile = JSON.parse ( '!{JSON.stringify(userProfile)}' );
         script(src='/js/lib/bootstrap3-typeahead.js')
         script(src='/js/lib/bloodhound.js')
-        script(src='js/lib/moment.js')
+        script(src='/js/lib/moment.js')
         script(src='/js/app/dashboard/memberProfile.js')
