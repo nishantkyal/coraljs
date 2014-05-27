@@ -75,7 +75,7 @@ class PayZippyProvider
     handleResponse(req:express.Request):q.Promise<number>
     {
         var self = this;
-        var response = req.body;
+        var response = req.body.hasOwnProperty('hash') ? req.body : req.query;
         var hash = response['hash'];
         var transactionStatus:TransactionStatus = TransactionStatus.PAYMENT_SUCCESS;
         delete response['hash'];

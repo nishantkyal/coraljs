@@ -316,7 +316,10 @@ class CallFlowRoute
                 var payZippyProvider = new PayZippyProvider();
                 var amount:number = _.reduce(_.pluck(lines, TransactionLine.AMOUNT), function (memo:number, num:number) { return memo + num; }, 0) * 100
 
-                res.redirect(payZippyProvider.getPaymentUrl(transaction, amount, sessionData.getLoggedInUser()));
+                if (amount > 0)
+                    res.redirect(payZippyProvider.getPaymentUrl(transaction, amount, sessionData.getLoggedInUser()));
+                else
+                    res.redirect(DashboardUrls.paymentCallback());
             },
             function handleError(error)
             {
