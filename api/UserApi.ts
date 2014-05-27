@@ -18,7 +18,6 @@ import UserProfile                          = require('../models/UserProfile');
 import IntegrationMember                    = require('../models/IntegrationMember');
 import Utils                                = require('../common/Utils');
 import Config                               = require('../common/Config');
-import VerificationCodeCache                = require('../caches/VerificationCodeCache');
 
 /*
  Rest Calls for User

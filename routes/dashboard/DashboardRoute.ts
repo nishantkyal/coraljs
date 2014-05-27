@@ -48,7 +48,6 @@ import ProfileStatus                                    = require('../../enums/P
 import Utils                                            = require('../../common/Utils');
 import Formatter                                        = require('../../common/Formatter');
 import Config                                           = require('../../common/Config');
-import VerificationCodeCache                            = require('../../caches/VerificationCodeCache');
 import PayZippyProvider                                 = require('../../providers/PayZippyProvider');
 import CallFlowSessionData                              = require('../../routes/callFlow/SessionData');
 import ExpertRegistrationSessionData                    = require('../../routes/expertRegistration/SessionData');
@@ -73,7 +72,7 @@ class DashboardRoute
     private integrationDelegate = new IntegrationDelegate();
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private userDelegate = new UserDelegate();
-    private verificationCodeCache = new VerificationCodeCache();
+    private verificationCodeDelegate = new VerificationCodeDelegate();
     private couponDelegate = new CouponDelegate();
     private userEmploymentDelegate = new UserEmploymentDelegate();
     private userSkillDelegate = new UserSkillDelegate();
@@ -81,7 +80,6 @@ class DashboardRoute
     private userPhoneDelegate = new UserPhoneDelegate();
     private phoneCallDelegate = new PhoneCallDelegate();
     private notificationDelegate = new NotificationDelegate();
-    private verificationCodeDelegate = new VerificationCodeDelegate();
     private userProfileDelegate = new UserProfileDelegate();
     private userUrlDelegate = new UserUrlDelegate();
     private transactionLineDelegate = new TransactionLineDelegate();
@@ -295,7 +293,7 @@ class DashboardRoute
         // 3. Merge the two lists
         q.all([
             self.integrationMemberDelegate.search({integration_id: integrationId}, IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER]),
-            self.verificationCodeCache.getInvitationCodes(integrationId)
+            self.verificationCodeDelegate.getInvitationCodes(integrationId)
         ])
             .then(
             function membersFetched(...results)
