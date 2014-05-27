@@ -1,28 +1,43 @@
 include ../scriptsAndStyles
-extends  ../contextualHeader
-title SearchNTalk - Mobile Verification
+extends  ../memberRegistration/header
 block content
-    include ../errorMessage
-    p Please verify your mobile number
-    em.small This number will be used to connect the users to you for calls that you accept to receive
-    hr
-    form#sendCode(action=ApiUrlDelegate.mobileVerificationCode(), method='post')
-        .form-group
-            label Mobile Number
-            .controls
-                .input-group
-                    .input-group-btn
-                        select.form-control.col-md-2#countryCode
-                            option(value='91') India (+91)
-                            option(value='1') USA (+1)
-                            option(value='65') Singapore (+65)
-                    input(type='tel').form-control#phoneNumber
-        .form-group
-            input.btn.btn-primary.form-control(type='submit', value='Send verification code', name='sendCode')
-    form#verifyCode(style='display: none;')
-        .form-group
-            label Verification code
-            input(type='text').form-control#verificationCode
-        .form-group
-            input.btn.btn-primary.form-control(type='submit', value='Verify', name='verify')
+    title SearchNTalk - Mobile Verification
+    .row-fluid
+        include ../errorMessage
+    .row-fluid
+        .row.registration-heading
+            .row.registration-alerts
+                .col-xs-12
+                    .alert.alert-success
+                        strong Expert account successfully created!
+    .row-fluid
+        h1 Just one more step!
+        h2 Please verify your mobile number
+        em.small This number will be used to connect the users to you for calls that you accept to receive
+    .row-fluid
+        form#sendCode(action=ApiUrlDelegate.mobileVerificationCode(), method='post')
+            .form-group
+                .row.registration-information
+                    .col-sm-6.first-column
+                        .row
+                            .hidden-xs.hidden-sm.hidden-md.col-xs-12.col-sm-4.col-md-4.col-lg-4
+                                span.annotation Mobile Number :
+                            .col-xs-12.col-sm-12.col-md-12.col-lg-8
+                                .form-group
+                                    .row
+                                        .col-xs-4
+                                            select.form-control#countryCode
+                                                option(value='91') India(+91)
+                                                option(value='1') USA (+1)
+                                                option(value='65') Singapore (+65)
+                                        .col-xs-8
+                                            input.form-control#phoneNumber(type='text', placeholder='Phone Number')
+            .form-group
+                input.btn.btn-primary.form-control(type='submit', value='Send verification code', name='sendCode')
+        form#verifyCode(style='display: none;')
+            .form-group
+                label Verification code
+                input(type='text').form-control#verificationCode
+            .form-group
+                input.btn.btn-primary.form-control(type='submit', value='Verify', name='verify')
     script(src='/js/app/dashboard/mobileVerification.js')
