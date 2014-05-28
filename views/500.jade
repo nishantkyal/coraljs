@@ -1,9 +1,8 @@
 extends header
-block content
-    h3 Oops!
-    div
-        if error
-            strong #{error}
-        else
-            | If you're reading this message, we've made a mistake. Please drop us a line at&nbsp;
-            a(href='mail:contact@searchntalk.com') contact@searchntalk.com
+h3 Oops!
+div
+    if error
+        strong #{error}
+    else
+        | If you're reading this message, we've made a mistake. Please drop us a line at&nbsp;
+        a(href='mail:contact@searchntalk.com') contact@searchntalk.com
