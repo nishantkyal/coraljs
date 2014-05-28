@@ -112,43 +112,24 @@ title ST-#{formatName(expert.user[0].first_name, expert.user[0].last_name, exper
                 button.close(type='button', data-dismiss='modal', aria-hidden='true') ×
                 h4.modal-title
                     i.icon-scheduler
-                    | Login to SearchNTalk.com
+                    | Login to Search-n-Talk
             .modal-body
-                .alert.alert-danger(style='display: none;') Login Failed
                 form#authentication.form.col-md-12.center-block
                     .form-group
-                        input.form-control(type='text', placeholder='Email', name='username', autocomplete="off")
-                    .form-group.register
-                        .row
-                            .col-xs-3
-                                select.form-control
-                                    - for title,id in Salutation
-                                        option(value=id)= title
-                            .col-xs-9
-                                .input-group
-                                    input.form-control(type='text', placeholder='First Name', name='first_name', autocomplete="off")
-                                    span.input-group-btn(style="width:0px;")
-                                    input.form-control(type='text', placeholder='Middle Name', name='middle_name', autocomplete="off")
-                                    span.input-group-btn(style="width:0px;")
-                                    input.form-control(type='text', placeholder='Last Name', name='last_name', autocomplete="off")
+                        input.form-control.input-lg(type='text', placeholder='Email', name='username')
                     .form-group
-                        input.form-control(type='password', placeholder='Password', name='password', autocomplete="off")
-                    .form-group.register
-                        input.form-control(type='password', placeholder='Confirm Password', autocomplete="off")
+                        input.form-control.input-lg(type='password', placeholder='Password', name='password')
                     .form-group
-                        .row
-                            a.btn.btn-primary.btn-block#login-button.login Login
-                        .row
-                            a.btn.btn-primary.btn-block#register-button.register Register
-                        .row
-                            a.btn.btn-linkedin Login using LinkedIn
-                            a.btn.btn-facebook Login using Facebook
+                        a.btn.btn-facebook.btn-block(href='') Login with Facebook
                     .form-group
-                        .controls
-                            span.pull-right
-                                a#register-link.login Register
-                                a#login-link.register Login
+                        a.btn.btn-linkedin.btn-block(href='') Login with LinkedIn
+                    .form-group
+                        input.btn.btn-primary.btn-lg.btn-block#login-button(type='submit', value='login')
+                    span.pull-right
+                        a(href='#') Register
+                    span
+                        a(href='#') Continue without logging in?
             .modal-footer
-
+        // /.modal-content
 script(src='/js/app/callFlow/payment.js')
 include ../footer

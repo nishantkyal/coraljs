@@ -735,14 +735,14 @@ a {
 	}
 }
 
-.call-card {
+.call-card, .error-card {
 	background: @white;
 	margin: 10px;
 	padding: 10px;
 	.rounded(5px);
 	.drop-shadow(0px, 0px, 10px, 0.1);
 	.row {
-		background: @white;		
+		background: @white;
 	}
 	@media(max-width: 991px) {
 		margin: 0px -15px;
@@ -750,6 +750,59 @@ a {
 		.rounded(0px);
 		.drop-shadow(0px, 0px, 0px, 0);
 	}
+}
+
+.error-card {
+	text-align: center;
+	padding: 15px;
+	@media(max-width: 991px) {
+		margin: 15px;
+	}
+}
+
+.error-box {
+	padding: 215px 15px 15px 15px;
+	position: relative;
+	&::before {
+		position: absolute;
+		text-align: center;
+		font-family: 'snticons';
+		font-size: 200px;
+		line-height: 200px;
+		margin-left: -100px;
+		top: 15px;
+		color: lighten(desaturate(@primary, saturation(@primary) * 0.2), luma(desaturate(@primary, saturation(@primary) * 0.5)) * 0.6);
+		text-shadow: 0px -1px 0px fade(@primary, 30);
+		content: '\200A';
+	}
+	&::after {
+		position: absolute;
+		text-align: center;
+		font-family: 'snticons';
+		font-size: 50px;
+		line-height: 200px;
+		margin-left: -23px;
+		top: 20px;
+		color: lighten(@secondary, 60);
+		text-shadow: 0px -1px 0px fade(@secondary, 20);
+		content: '\e014';
+	}
+	h1, p {
+		margin: 20px;
+	}
+	h1 {
+		font-size: 40px;
+		font-weight: 100;
+		color: @gray_pale;
+		text-shadow: 0px -1px 0px @gray_light;
+	}
+	p {
+		font-size: 16px;
+	}
+	a {
+		color: @primary;
+	}
+
 }
 
 .call-options {

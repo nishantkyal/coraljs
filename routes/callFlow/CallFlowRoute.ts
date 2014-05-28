@@ -157,7 +157,7 @@ class CallFlowRoute
 
         // Create phone call and transaction and if don't already exist, else update them
 
-        if (Utils.isNullOrEmpty(sessionData.getTransaction().getId()))
+        if (Utils.isNullOrEmpty(sessionData.getTransaction()) || Utils.isNullOrEmpty(sessionData.getTransaction().getId()))
         {
             var phoneCall = new PhoneCall();
             phoneCall.setIntegrationMemberId(sessionData.getExpert().getId());
