@@ -26,9 +26,6 @@ $('form#couponForm,form#checkout').submit(function(event)
             }
         });
     }
-    else {
-        $(event.currentTarget).submit();
-    }
 });
 
 /* Login handler */

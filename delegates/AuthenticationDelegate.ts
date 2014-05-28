@@ -28,6 +28,7 @@ import IndustryCodes                            = require('../enums/IndustryCode
 import UserStatus                               = require('../enums/UserStatus');
 import ExpertRegistrationUrls                   = require('../routes/expertRegistration/Urls')
 import DashboardUrls                            = require('../routes/dashboard/Urls')
+import CallFlowUrls                             = require('../routes/callFlow/Urls');
 
 class AuthenticationDelegate
 {
@@ -38,6 +39,7 @@ class AuthenticationDelegate
     static STRATEGY_FACEBOOK_CALL_FLOW:string = 'facebook-call';
     static STRATEGY_LINKEDIN_EXPERT_REGISTRATION:string = 'linkedin-expert';
     static STRATEGY_LINKEDIN_FETCH = 'linkedin-fetch';
+    static STRATEGY_LINKEDIN_CALL_LOGIN = 'linkedin-call-login';
 
     private static logger = log4js.getLogger('AuthenticationDelegate');
 
@@ -56,6 +58,7 @@ class AuthenticationDelegate
         AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN, url.resolve(Config.get(Config.DASHBOARD_URI), DashboardUrls.linkedInLoginCallback()));
         AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, url.resolve(Config.get(Config.DASHBOARD_URI), ExpertRegistrationUrls.linkedInLoginCallback()));
         AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN_FETCH, url.resolve(Config.get(Config.DASHBOARD_URI), DashboardUrls.userProfileFromLinkedInCallback()));
+        AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN_CALL_LOGIN, url.resolve(Config.get(Config.DASHBOARD_URI), CallFlowUrls.linkedInLoginCallback()));
 
         // Serialize-Deserialize user
         passport.serializeUser(function (user, done) { done(null, user); });

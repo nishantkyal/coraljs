@@ -90,6 +90,7 @@ title ST-#{formatName(expert.user[0].first_name, expert.user[0].last_name, exper
                                                         .table-cell.title Tax @#{Config.get(Config.CALL_TAX_PERCENT)}%
                                                     when 4
                                                         .table-cell.title Discount
+                                                            a.glyphicon.glyphicon-remove#removeCoupon(href=CallFlowUrls.removeCoupon())
                                                 .table-cell.amount= formatMoney(line.amount, line.amount_unit)
                                     form.table-row#couponForm(action='/expert/call/payment/coupon', method='post')
                                         .table-cell.title
@@ -140,7 +141,7 @@ title ST-#{formatName(expert.user[0].first_name, expert.user[0].last_name, exper
                         .row
                             a.btn.btn-primary.btn-block#register-button.register Register
                         .row
-                            a.btn.btn-linkedin Login using LinkedIn
+                            a.btn.btn-linkedin(href=CallFlowUrls.linkedInLogin()) Login using LinkedIn
                             a.btn.btn-facebook Login using Facebook
                     .form-group
                         .controls
