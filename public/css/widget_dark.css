@@ -246,6 +246,9 @@ h1 {
 .icon-searchntalk:before {
   content: '\2001';
 }
+.icon-searchntalk-empty:before {
+  content: '\200A';
+}
 .icon-searchntalk-logo:before {
   content: '\2009';
 }

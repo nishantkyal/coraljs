@@ -73,8 +73,6 @@ class   CallSchedulingRoute
         // 1. Validate the code and verify that selected slot is one of the original slots
         // 2. Fetch call details
         // 3. Fetch expert's phones
-        // 4. If expert has phones in his account, confirm the call with default/first phone number
-        // 5. Else ask expert to verify a phone number on the page
         if (startTime < moment().valueOf())
         {
             res.render('500', {error: 'The selected start time(' + Formatter.formatDate(startTime) + ') has already passed. Please choose another slot from the suggested slots or suggest a new one'});
@@ -94,50 +92,18 @@ class   CallSchedulingRoute
                 if (Utils.isNullOrEmpty(appointment) || !_.contains(appointment.startTimes, startTime))
                     throw 'Invalid request. Please click on one of the links in the email';
                 else
-                    return [call, self.userPhoneDelegate.find(Utils.createSimpleObject(UserPhone.USER_ID, call.getIntegrationMember().getUserId()))];
+                    return [appointment.startTimes, call, self.userPhoneDelegate.search(Utils.createSimpleObject(UserPhone.USER_ID, call.getIntegrationMember().getUserId()))];
             })
             .spread(
-            function expertPhonesFetched(call:PhoneCall, expertPhone:UserPhone):any
+            function expertPhonesFetched(startTimes:number[], call:PhoneCall, expertPhones:UserPhone[]):any
             {
-                function renderPage()
-                {
-                    var pageData = {
-                        call: call
-                    };
+                var pageData = {
+                    call: call,
+                    startTimes: startTimes,
+                    phones: expertPhones
+                };
 
-                    res.render(CallSchedulingRoute.SCHEDULING, pageData);
-                }
-
-                // If phone specified, schedule the call
-                // else just render page (which will display appropriate message)
-                if (!Utils.isNullOrEmpty(expertPhone))
-                    return self.phoneCallDelegate.update(call.getId(), {status: CallStatus.SCHEDULED, start_time: startTime, expert_phone_id: expertPhone.getId()})
-                        .then(
-                        function callUpdated()
-                        {
-                            return self.phoneCallDelegate.get(call.getId(), null, [IncludeFlag.INCLUDE_USER, IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_EXPERT_PHONE]);
-                        })
-                        .then(
-                        function callFetched(updatedCall:PhoneCall)
-                        {
-                            call = updatedCall;
-                            var tasks = [self.notificationDelegate.sendCallSchedulingCompleteNotifications(updatedCall, startTime)];
-
-                            if (startTime > moment().valueOf() && startTime < moment().valueOf() + Config.get(Config.PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS) * 1000)
-                            {
-                                tasks.push(self.phoneCallDelegate.scheduleCall(updatedCall));
-                                tasks.push(self.notificationDelegate.scheduleCallNotification(updatedCall));
-                            }
-                            return q.all(tasks);
-                        })
-                        .then(
-                        function deleteSchedulingCode()
-                        {
-                            return self.verificationCodeDelegate.deleteAppointmentAcceptCode(appointmentCode);
-                        })
-                        .then(renderPage);
-                else
-                    renderPage();
+                res.render(CallSchedulingRoute.SCHEDULING, pageData);
             })
             .fail(function (error)
             {

@@ -43,6 +43,7 @@ $('#login-button').click(function()
         }),
         success    : function()
         {
+            isLoggedIn = true;
             if (loginContext)
                 $('form#' + loginContext).submit();
         },
@@ -72,6 +73,7 @@ $('#register-button').click(function()
         }),
         success    : function()
         {
+            isLoggedIn = true;
             if (loginContext)
                 $('form#' + loginContext).submit();
         },

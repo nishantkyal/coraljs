@@ -1,36 +1,73 @@
 title Scheduling
-include ../scriptsAndStyles
-.container-fluid
-    .row-fluid
-        .col-md-2
-        .col-md-8
-            if call.expert_phone
-                .alert.alert-success The call has been confirmed. Here are the details:
-            else
-                .alert.alert-danger
-                    p You need to tell us your phone number so we can connect the following call.
-                    a.btn.btn-danger Add phone number
-            .form.form-horizontal
-                .form-group
-                    label.control-label(for='#start_time') Call Start Time
-                    .form-control-static#start_time #{formatDate(call.start_time)}
-                .form-group
-                    label.control-label(for='#duration') Duration
-                    .form-control-static#duration #{call.duration} mins.
-                .form-group
-                    label.control-label(for='#expert_phone') Your phone number
-                    .controls
-                        if (call.expert_phone)
-                            .form-control-static#expert_phone= formatPhone(call.expert_phone)
-                            a.btn.btn-primary.btn-xs Change phone number
-                        else
-                            a.btn.btn-primary.btn-xs Add phone number
-                .form-group
-                    label.control-label(for='#user_name') Caller's Name
-                    .form-control-static#user_name #{formatName(call.user.first_name, call.user.last_name, call.user.title)}
-                .form-group
-                    label.control-label(for='#agenda') Agenda
-                    .form-control-static#agenda #{call.agenda}
+include ../header
+// /.masthead
+.matter
+    .container
+        .row
+            .flowbar.col-xs-3.col-sm-3.col-md-12.col-lg-12
+                .shadow
+                ul.nav.nav-pills.nav-justified.nav-stacked
+                    li.completed
+                        a(href='')
+                            span.nav-label
+                                i.icon-schedule
+                                span.hidden-xs Schedule
+                    li.completed
+                        a(href='')
+                            span.nav-label
+                                i.icon-pay
+                                span.hidden-xs Pay
+                    li.active
+                        a(href='')
+                            span.nav-label
+                                i.icon-talk
+                                span.hidden-xs Talk
+            // flowbar
+            .content.col-xs-9.col-sm-9.col-md-12.col-lg-12
+                .row
+                    .col-md-6
+                        .call-profile
+                            h1= formatName(call.user.first_name, call.user.last_name, call.user.title)
+                                | &nbsp; has requested to speak to you
+                            .meta
+                                h5 Call Agenda
+                                p= call.agenda
+                            .meta
+                                h5 Duration
+                                p= call.duration
+                                    | &nbsp; mins.
+                    .col-md-6
+                        .call-card
+                            form
+                                .payment-summary.call-inputs
+                                    h1
+                                        i.icon-bill
+                                        | Requested appointments
+                                    for slot in startTimes
+                                        p
+                                            input(type='radio', name='startTime', value=slot)
+                                            label= formatDate(slot)
+                                .payment-summary.call-inputs
+                                    h1
+                                        i.icon-bill
+                                        | Your phone number
+                                        .row
+                                            .input-group
+                                                .input-group-btn
+                                                    select.form-control#country-code
+                                                        for code,country in CountryCode
+                                                            option(value=country, selected=country == phones[0].country_code)= CountryName[code.toUpperCase()] + ' (+' + country + ')'
+                                                input.form-control(type='text', value=phones ? phones[0].phone : null)
+                                                .input-group-btn
+                                                    input.btn.btn-success(type='submit', value='Verify')
+                                .call-reversal
+                                    a.btn.btn-primary(href='index.html')
+                                        | Confirm
+                                        i.icon-schedule
+                                .call-reversal
+                                    a.btn.btn-danger(href='index.html')
+                                        | Cancel
+                                        i.icon-cancel
 
-        .col-md-2
+include ../footer
 script(src='/js/app/callScheduling/scheduling.js')

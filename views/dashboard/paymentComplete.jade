@@ -38,16 +38,8 @@ title ST- Payment Complete
                                 if (user.date_of_birth)
                                     .user-age= moment().diff(moment(parseInt(user.date_of_birth)), 'years') + ' years'
                             .clearer
-                            .meta.meta-price
-                                h5 Charges
-                                p
-                                    if expert.schedule[0].price_per_min
-                                        strong= formatMoney(expert.schedule[0].price_per_min, expert.schedule[0].price_unit)
-                                        | /min.
-                                    else
-                                        strong Free
                             .meta.meta-schedule
-                                h5 Schedule
+                                h5 Your chosen slots
                                 ul
                                     li.schedule-a= formatDate(appointments[0], 'ddd DD MMM YYYY, hh:mm a')
                                     li.schedule-b= formatDate(appointments[1], 'ddd DD MMM YYYY, hh:mm a')
@@ -70,8 +62,8 @@ title ST- Payment Complete
                                         br
                                         | You may try again with a new schedule.
                                 .call-reversal
-                                    a.btn.btn-default(href='index.html')
-                                        | Back to Schedule
+                                    a.btn.btn-default(href=CallFlowUrls.callExpert(expert.id))
+                                        | Try scheduling again
                                         i.icon-left-arrow
                             else
                                 .call-status

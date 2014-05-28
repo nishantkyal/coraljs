@@ -13,9 +13,12 @@ import Config                                                   = require('../..
 import Utils                                                    = require('../../common/Utils');
 import PhoneCallCache                                           = require('../../caches/PhoneCallCache');
 import ScheduledTaskType                                        = require('../../enums/ScheduledTaskType');
+import IncludeFlag                                              = require('../../enums/IncludeFlag');
 
 class ScheduleCallsScheduledTask extends AbstractScheduledTask
 {
+    private phoneCallDelegate = new PhoneCallDelegate();
+
     constructor()
     {
         super();
@@ -24,23 +27,31 @@ class ScheduleCallsScheduledTask extends AbstractScheduledTask
 
     execute():q.Promise<any>
     {
+        var self = this;
         var scheduledTaskDelegate = new ScheduledTaskDelegate();
-        var phoneCallDelegate = new PhoneCallDelegate();
         var phoneCallCache = new PhoneCallCache();
         var notificationDelegate = new NotificationDelegate();
-        var self = this;
 
         // Add tasks for
         // 1. Triggering call
         // 2. Sending reminder notifications
         // Also add calls to cache for faster access by twilio API calls
-        return phoneCallDelegate.getCallsBetweenInterval(moment().valueOf(), moment().add({minutes: parseInt(Config.get(Config.PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS))}).valueOf())
+        var callIntervalStartTime = moment().valueOf();
+        var callIntervalEndTime = moment().add({minutes: parseInt(Config.get(Config.PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS))}).valueOf();
+        var query:Object = {
+            'start_time': {
+                'operator': 'between',
+                'value': [callIntervalStartTime, callIntervalEndTime]
+            }
+        };
+
+        return self.phoneCallDelegate.search(query, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER])
             .then(
             function callsFetched(calls:PhoneCall[]):any
             {
                 return q.all(_.map(calls, function (call:PhoneCall)
                 {
-                    phoneCallDelegate.scheduleCall(call);
+                    self.phoneCallDelegate.scheduleCall(call);
                     notificationDelegate.scheduleCallNotification(call);
                     return phoneCallCache.addCall(call);
                 }));

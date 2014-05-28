@@ -1,5 +1,3 @@
-$('select').selectpicker();
-
 function handleConfirmAppointment(event)
 {
     $.ajax({

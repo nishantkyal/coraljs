@@ -38,6 +38,7 @@ import Coupon                                           = require('../../models/
 import UserPhone                                        = require('../../models/UserPhone');
 import PhoneCall                                        = require('../../models/PhoneCall');
 import UserProfile                                      = require('../../models/UserProfile');
+import Transaction                                      = require('../../models/Transaction');
 import TransactionLine                                  = require('../../models/TransactionLine');
 import IntegrationMemberRole                            = require('../../enums/IntegrationMemberRole');
 import ApiConstants                                     = require('../../enums/ApiConstants');
@@ -83,6 +84,7 @@ class DashboardRoute
     private userProfileDelegate = new UserProfileDelegate();
     private userUrlDelegate = new UserUrlDelegate();
     private transactionLineDelegate = new TransactionLineDelegate();
+    private transactionDelegate = new TransactionDelegate();
 
     constructor(app, secureApp)
     {
@@ -565,9 +567,12 @@ class DashboardRoute
                     {
                         var pageData = _.extend(callFlowSessionData.getData(), {
                             transactionLines: lines,
-                            call: call,
-                            appointments: callFlowSessionData.getAppointments()
+                            call: call
                         });
+                        callFlowSessionData.setTransaction(null);
+                        callFlowSessionData.setCall(null);
+                        callFlowSessionData.setAppointments([]);
+                        
                         delete req.session[CallFlowSessionData.IDENTIFIER]
                         res.render(DashboardRoute.PAGE_PAYMENT_COMPLETE, pageData);
                     });

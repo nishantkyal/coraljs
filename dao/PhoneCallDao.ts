@@ -10,16 +10,5 @@ import PhoneCall                                = require('../models/PhoneCall')
 class PhoneCallDao extends AbstractDao
 {
     constructor() { super(PhoneCall); }
-
-    getCallsBetweenInterval(startTime:number, endTime:number):q.Promise<any>
-    {
-        var searchQuery = {
-            'start_time' :{
-                'operator': 'between',
-                'value': [startTime, endTime]
-            }
-        };
-        return this.search(searchQuery);
-    }
 }
 export = PhoneCallDao
