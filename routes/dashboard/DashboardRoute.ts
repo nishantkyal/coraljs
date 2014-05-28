@@ -536,6 +536,8 @@ class DashboardRoute
             .then(
             function responseProcessed(transactionId:number)
             {
+                if(transactionId == null)
+                    transactionId = callFlowSessionData.getTransaction().getId();
                 return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, transactionId))
             })
             .then(

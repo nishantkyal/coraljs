@@ -71,6 +71,7 @@ class ApiConstants
     static SCHEDULE_EXCEPTION:string                    = 'expertScheduleException';
     static SMS:string                                   = 'sms';
     static TRANSACTION:string                           = 'transaction';
+    static NO_PAYMENT:string                            = 'noPayment';
     static PAGE_DATE:string                             = 'pageData';
     static WIDGET:string                                = 'widget';
 

@@ -15,6 +15,7 @@ import TransactionDelegate                                  = require('../delega
 import PaymentDelegate                                      = require('../delegates/PaymentDelegate');
 import TransactionStatus                                    = require('../enums/TransactionStatus');
 import PaymentGateway                                       = require('../enums/PaymentGateway');
+import ApiConstants                                         = require('../enums/ApiConstants');
 
 class PayZippyProvider
 {
@@ -72,7 +73,7 @@ class PayZippyProvider
         return payZippyUrl;
     }
 
-    handleResponse(req:express.Request):q.Promise<number>
+    handleResponse(req:express.Request):q.Promise<any>
     {
         var self = this;
         var response = req.body.hasOwnProperty('hash') ? req.body : req.query;
@@ -88,7 +89,15 @@ class PayZippyProvider
         var computedHash:string = md5sum.update(concatString).digest('hex');
 
         if (computedHash != hash)
-            return null
+        {
+            var noPayment = req.query[ApiConstants.NO_PAYMENT];
+            var deferred = q.defer();
+            if(noPayment)
+                deferred.resolve();
+            else
+                deferred.reject('Computed hash doesn\'t match with actual hash');
+            return deferred.promise;
+        }
 
         if (response[PayZippyProvider.TRANSACTION_STATUS] != PayZippyProvider.TRANSACTION_STATUS_SUCCESS)
             transactionStatus = TransactionStatus.PAYMENT_FAILED;

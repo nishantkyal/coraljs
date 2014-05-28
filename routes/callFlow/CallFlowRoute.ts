@@ -344,7 +344,7 @@ class CallFlowRoute
                 if (amount > 0)
                     res.redirect(payZippyProvider.getPaymentUrl(transaction, amount, sessionData.getLoggedInUser()));
                 else
-                    res.redirect(DashboardUrls.paymentCallback());
+                    res.redirect(DashboardUrls.paymentCallback()+'?noPayment=true');
             },
             function handleError(error)
             {
