@@ -14,7 +14,6 @@ function init(grunt)
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
-        clean: ['Coral.d.ts'],
         concat: {
             css: {
                 src: [
