@@ -27,8 +27,11 @@ include ../header
                                 li
                                     a.well 60
                             p.floatright
-                                strong $1.00
-                                | /min
+                                if expert.schedule[0].price_per_min
+                                    strong= formatMoney(expert.schedule[0].price_per_min, expert.schedule[0].price_unit)
+                                    | /min.
+                                else
+                                    strong Free
                 .schedule-options
                     .row.scheduler-header
                         .col-xs-8
@@ -77,8 +80,10 @@ include ../header
             .modal-footer
                 .alert.alert-warning
                     strong
-                        .num-slots
-                        | Please select 3 time slots in order to schedule a call.
+                        | You have selected &nbsp;
+                        span.num-slots
+                        | &nbsp;time slot so far.&nbsp;
+                    | Please select 3 time slots in order to schedule a call.
                 .pull-right
                     a.btn.btn-primary#schedule-done Done
         // /.modal-content
