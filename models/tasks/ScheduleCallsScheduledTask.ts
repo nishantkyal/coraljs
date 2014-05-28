@@ -17,6 +17,8 @@ import IncludeFlag                                              = require('../..
 
 class ScheduleCallsScheduledTask extends AbstractScheduledTask
 {
+    private phoneCallDelegate = new PhoneCallDelegate();
+
     constructor()
     {
         super();
@@ -25,11 +27,10 @@ class ScheduleCallsScheduledTask extends AbstractScheduledTask
 
     execute():q.Promise<any>
     {
+        var self = this;
         var scheduledTaskDelegate = new ScheduledTaskDelegate();
-        var phoneCallDelegate = new PhoneCallDelegate();
         var phoneCallCache = new PhoneCallCache();
         var notificationDelegate = new NotificationDelegate();
-        var self = this;
 
         // Add tasks for
         // 1. Triggering call
@@ -44,13 +45,13 @@ class ScheduleCallsScheduledTask extends AbstractScheduledTask
             }
         };
 
-        return phoneCallDelegate.search(query, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER])
+        return self.phoneCallDelegate.search(query, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER])
             .then(
             function callsFetched(calls:PhoneCall[]):any
             {
                 return q.all(_.map(calls, function (call:PhoneCall)
                 {
-                    phoneCallDelegate.scheduleCall(call);
+                    self.phoneCallDelegate.scheduleCall(call);
                     notificationDelegate.scheduleCallNotification(call);
                     return phoneCallCache.addCall(call);
                 }));
