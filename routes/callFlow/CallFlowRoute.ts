@@ -73,6 +73,10 @@ class CallFlowRoute
         app.post(Urls.callPayment(), Middleware.requireCallerAndCallDetails, this.callPayment.bind(this));
         app.post(Urls.applyCoupon(), Middleware.requireTransaction, this.applyCoupon.bind(this))
         app.post(Urls.checkout(), connect_ensure_login.ensureLoggedIn(), Middleware.requireTransaction, this.checkout.bind(this));
+        app.get(Urls.removeCoupon(), Middleware.requireTransaction, this.removeCoupon.bind(this))
+
+        app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.callPayment(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
+        app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.callPayment(), failureFlash: true}), this.callPayment.bind(this));
     }
 
     /* Render index with expert schedules */
@@ -247,6 +251,23 @@ class CallFlowRoute
             .then(
             function transactionLinesFetched() { res.redirect(Urls.callPayment()); },
             function couponApplyFailed(error)
+            {
+                req.flash('error', JSON.stringify(error));
+                res.redirect(Urls.callPayment());
+            });
+    }
+
+    private removeCoupon(req:express.Request, res:express.Response)
+    {
+        var self = this;
+
+        var sessionData:SessionData = new SessionData(req);
+        var transaction = sessionData.getTransaction();
+
+        self.transactionDelegate.removeCoupon(transaction.getId())
+            .then(
+            function couponRemoved() { res.redirect(Urls.callPayment()); },
+            function couponRemoveFailed(error)
             {
                 req.flash('error', JSON.stringify(error));
                 res.redirect(Urls.callPayment());

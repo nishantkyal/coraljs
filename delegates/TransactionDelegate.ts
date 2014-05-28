@@ -139,7 +139,8 @@ class TransactionDelegate extends BaseDaoDelegate
 
                 // Create discount transaction line and increment coupons used counter
                 return q.all([
-                    self.couponDelegate.markUsed(code, dbTransaction),
+                    //TODO[ankit] change mark used function
+                    //self.couponDelegate.markUsed(code, dbTransaction),
                     self.transactionLineDelegate.create(discountLine, dbTransaction)
                 ]);
             },
@@ -148,6 +149,15 @@ class TransactionDelegate extends BaseDaoDelegate
                 self.logger.error('Error while applying coupon: %s. Error: %s', code, error);
                 throw(error);
             });
+    }
+
+    removeCoupon(transactionId:number, dbTransaction?:Object):q.Promise<any>
+    {
+        var self = this;
+        var criteria = {};
+        criteria[TransactionLine.TRANSACTION_ID] = transactionId;
+        criteria[TransactionLine.TRANSACTION_TYPE] = TransactionType.DISCOUNT;
+        return self.transactionLineDelegate.delete(criteria,dbTransaction);
     }
 
     /* Mark transaction as expired if user operation times out */

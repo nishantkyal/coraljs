@@ -37,7 +37,7 @@ class CouponDelegate extends BaseDaoDelegate
         if (!includeExpiredAndExhausted)
         {
             search[Coupon.NUM_USED] = {
-                raw: ' < ' + Coupon.MAX_COUPONS
+                raw: ' <= ' + Coupon.MAX_COUPONS
             };
 
             search[Coupon.EXPIRY_TIME] = {
@@ -57,7 +57,7 @@ class CouponDelegate extends BaseDaoDelegate
     {
         var self = this;
         criteria = [].concat(criteria);
-
+        self.update
         var criteriaField = Utils.getObjectType(criteria[0]) == 'String' ? Coupon.CODE : Coupon.ID;
         criteria = Utils.createSimpleObject(criteriaField, criteria);
         return self.update(criteria, Utils.createSimpleObject(Coupon.NUM_USED, Coupon.NUM_USED + ' + 1'), transaction);
