@@ -568,7 +568,7 @@ class DashboardRoute
                             call: call,
                             appointments: callFlowSessionData.getAppointments()
                         });
-
+                        delete req.session[CallFlowSessionData.IDENTIFIER]
                         res.render(DashboardRoute.PAGE_PAYMENT_COMPLETE, pageData);
                     });
             })

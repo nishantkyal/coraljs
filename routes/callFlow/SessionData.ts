@@ -11,6 +11,7 @@ import Utils                                            = require('../../common/
 
 class SessionData extends AbstractSessionData
 {
+    static IDENTIFIER:string                            = 'CallFlow';
     private static CALL:string                          = 'phoneCall';
     private static INTEGRATION:string                   = 'integration';
     private static EXPERT:string                        = 'expert';
@@ -31,7 +32,7 @@ class SessionData extends AbstractSessionData
     }
 
     /* Getters */
-    getIdentifier():string                              { return 'CallFlow'; }
+    getIdentifier():string                              { return SessionData.IDENTIFIER; }
     getCall():PhoneCall                                 { return new PhoneCall(this.getData()[SessionData.CALL]); }
     getIntegration():Integration                        { return new Integration(this.getData()[SessionData.INTEGRATION]); }
     getExpert():IntegrationMember                       { return new IntegrationMember(this.getData()[SessionData.EXPERT]); }

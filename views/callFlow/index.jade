@@ -76,8 +76,9 @@ include ../header
                                     a.remove-timeslot Remove
             .modal-footer
                 .alert.alert-warning
-                    strong You have selected 1 time slot so far.
-                    | Please select 3 time slots in order to schedule a call.
+                    strong
+                        .num-slots
+                        | Please select 3 time slots in order to schedule a call.
                 .pull-right
                     a.btn.btn-primary#schedule-done Done
         // /.modal-content
