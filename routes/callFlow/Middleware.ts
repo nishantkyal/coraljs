@@ -23,7 +23,7 @@ class Middleware
             appointments = _.map(appointments, function(time:any) { return parseInt(time); });
 
         sessionData.setCountryCode(countryCode);
-        sessionData.setCallerPhone(callerPhone);
+        sessionData.setCallerPhone(callerPhone.toString());
         sessionData.setAgenda(agenda);
         sessionData.setDuration(duration);
         sessionData.setAppointments(appointments);

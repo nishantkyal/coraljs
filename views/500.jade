@@ -1,28 +1,8 @@
-doctype html
-head
-    meta(charset='utf-8')
-    meta(http-equiv='X-UA-Compatible', content='IE=edge')
-    meta(name='viewport', content='width=device-width, initial-scale=1, user-scalable=false')
-    title Search-n-Talk Template Error Messaging
-    link(href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic', rel='stylesheet', type='text/css')
-    link(href='/css/bootstrap.min.css', rel='stylesheet')
-    link(href='/css/main.css', rel='stylesheet')
-    //link(href='/css/style.css', rel='stylesheet')
-    script(src='/js/lib/combined.js')
-.masthead(role='banner')
-    .container
-        .masthead-brand
-            a.logo.hidden-xs(href='#')
-            a.icon.visible-xs(href='#')
-        .masthead-controls
-            .masthead-control-field
-                .field-label
-                    | Language
-                .field-menu
-                    select(name='ui_language')
-                        option(value='en', selected='')
-                            | English
-.matter
-    .container
-        .row
-            p #{error}
+extends header
+h3 Oops!
+div
+    if error
+        strong #{error}
+    else
+        | If you're reading this message, we've made a mistake. Please drop us a line at&nbsp;
+        a(href='mail:contact@searchntalk.com') contact@searchntalk.com

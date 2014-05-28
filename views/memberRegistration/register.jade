@@ -1,33 +1,50 @@
-extends header
-block content
-    title Search N Talk - Expert Registration - Login
-    include ../errorMessage
-    .row-fluid
-        p.h4
-            | Welcome to expert network of&nbsp;
-            strong #{integration.title}
-        em.small Note: We've pre-filled some of the fields based on the invitation for your convenience
-    .row-fluid
-        div
-            form#registration-form(method='POST')
-                .form-group
-                    label(for='email') Email
-                    input.form-control#email(name='email', type='email', data-toggle="tooltip", data-placement="bottom", value=member.user.email, autocomplete='off')
-                .form-group
-                    label(for='first_name') First Name
-                    input.form-control#first_name(name='first_name', type='text', data-toggle="tooltip", data-placement="bottom", value=member.user.first_name, autocomplete='off')
-                .form-group
-                    label(for='last_name') Last Name
-                    input.form-control#last_name(name='last_name', type='text', data-toggle="tooltip", data-placement="bottom", value=member.user.last_name, autocomplete='off')
-                .form-group
-                    label(for='password') Password
-                    input.form-control#password(type='password', name='password', data-toggle="tooltip", data-placement="bottom", autocomplete='off')
-                .form-group
-                    label(for='confirm_password') Confirm Password
-                    input.form-control#confirm_password(type='password', name='confirm_password', data-toggle="tooltip", data-placement="bottom", autocomplete='off')
-                .form-group
-                    input(type='hidden', name='invitation_code', value=code)
-                    input.btn-primary.btn(value='Register', type='submit')
-                    a.btn-primary.btn(href=MemberRegistrationUrls.linkedInLogin()) Login with LinkedIn
-                    a.btn.btn-link(href=MemberRegistrationUrls.login()) Login
-    script(src='/js/app/expertRegistration/authenticate.js')
+title SearchNTalk | Member Registration | Create Account
+include ../header
+.matter
+    .container
+        .row
+            .content.col-xs-9.col-sm-9.col-md-12.col-lg-12
+                .row
+                    .col-md-6
+                        .user-profile
+                            .info
+                                .user-displayname You've been invited to the expert panel of #{integration.title}
+                            .hidden-xs.profile
+                                p Please begin by creating an account on searchntalk.com
+                            .clearer
+                            .hidden-xs.meta.meta-keywords
+                                h5 How it works
+                                dl
+                                    dt Share your expertise
+                                    dd You can charge for your advice or offer it for free
+                                    dt After your approval
+                                    dd Callers will book an appointment and share agenda before the call
+                                    dt Your number stays private
+                                    dd We connect the calls without disclosing your number
+                    .col-md-6
+                        .call-card
+                            form#registration-form(method='POST')
+                                .form-group
+                                    label(for='email') Email
+                                    input.form-control#email(name='email', type='email', data-toggle="tooltip", data-placement="bottom", value=member.user.email, autocomplete='off')
+                                .form-group
+                                    label(for='first_name') First Name
+                                    input.form-control#first_name(name='first_name', type='text', data-toggle="tooltip", data-placement="bottom", value=member.user.first_name, autocomplete='off')
+                                .form-group
+                                    label(for='last_name') Last Name
+                                    input.form-control#last_name(name='last_name', type='text', data-toggle="tooltip", data-placement="bottom", value=member.user.last_name, autocomplete='off')
+                                .form-group
+                                    label(for='password') Password
+                                    input.form-control#password(type='password', name='password', data-toggle="tooltip", data-placement="bottom", autocomplete='off')
+                                .form-group
+                                    label(for='confirm_password') Confirm Password
+                                    input.form-control#confirm_password(type='password', name='confirm_password', data-toggle="tooltip", data-placement="bottom", autocomplete='off')
+                                .form-group
+                                    .controls
+                                        input(type='hidden', name='invitation_code', value=code)
+                                        input.btn-primary.btn.btn-block(value='Register', type='submit')
+                                a.btn-linkedin.btn(href=MemberRegistrationUrls.linkedInLogin()) Login with LinkedIn
+                                a.btn.btn-link(href=MemberRegistrationUrls.login()) Login
+            // /.content
+include ../footer
+script(src='/js/app/expertRegistration/authenticate.js')
