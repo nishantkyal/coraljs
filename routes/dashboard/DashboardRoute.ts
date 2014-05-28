@@ -581,6 +581,11 @@ class DashboardRoute
                 var pageData = _.extend(callFlowSessionData.getData(), {
                     error: error
                 });
+
+                callFlowSessionData.setTransaction(null);
+                callFlowSessionData.setCall(null);
+                callFlowSessionData.setAppointments([]);
+
                 res.render(DashboardRoute.PAGE_PAYMENT_COMPLETE, pageData);
             });
     }
