@@ -16,14 +16,6 @@ function init(grunt)
         pkg: grunt.file.readJSON('package.json'),
         clean: ['Coral.d.ts'],
         concat: {
-            dist: {
-                src: ['enums/*.d.ts', 'models/*.d.ts', 'delegates/ApiUrlDelegate.d.ts', 'common/*.d.ts'],
-                dest: 'Coral.d.ts',
-                options: {
-                    banner: "declare module 'Coral'\n{\n",
-                    footer: '}'
-                }
-            },
             css: {
                 src: [
                     'public/css/!(combined|main).css*'
@@ -33,36 +25,6 @@ function init(grunt)
             js: {
                 src: ['public/js/lib/jquery.js', 'public/js/lib/jquery.validate.js', 'public/js/lib/!(combined).js', 'public/js/lib/!(combined).js'],
                 dest: 'public/js/lib/combined.js'
-            }
-        },
-        'generate-index': {
-            target: {
-                src: ['enums/*.js', 'models/*.js', 'delegates/ApiUrlDelegate.js', 'common/*.js'],
-                dest: 'index.js'
-            }
-        },
-        replace: {
-            'coral-ts': {
-                src: ['Coral.d.ts'],
-                overwrite: true,
-                replacements: [
-                    {
-                        from: /export =.*/g,
-                        to: ''
-                    },
-                    {
-                        from: /declare (class|enum|interface)/g,
-                        to: 'export $1'
-                    },
-                    {
-                        from: /\/\/\/ \<reference .*/g,
-                        to: ''
-                    },
-                    {
-                        from: /import.*\..*/g,
-                        to: ''
-                    }
-                ]
             }
         },
         uglify: {
@@ -80,22 +42,6 @@ function init(grunt)
         }
     });
 
-    /* Generate indx.js by combining all generated .js files */
-    grunt.registerMultiTask('generate-index', function ()
-    {
-        this.files.forEach(function (file)
-        {
-            var output = file.src.map(function (filepath)
-            {
-                var filename = filepath.match(/\/([A-Za-z]*)\.js/);
-                return 'exports.' + filename[1] + ' = require("./' + filepath + '");';
-            }).join('\n');
-            grunt.file.write(file.dest, output);
-        });
-    });
-
-
-    grunt.registerTask('coral', ['clean', 'concat', 'replace', 'generate-index']);
     grunt.registerTask('default', ['concat:js', 'concat:css', 'cssmin:css']);
 }
 
