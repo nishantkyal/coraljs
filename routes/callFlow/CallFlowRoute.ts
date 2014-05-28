@@ -158,9 +158,23 @@ class CallFlowRoute
         var loggedInUserId = req.isAuthenticated() ? sessionData.getLoggedInUser().getId() : null;
         var tasks = [];
 
-        // Create phone call and transaction and if don't already exist, else update them
+        // Delete transaction and call if anything was changed
+        var transactionExists:boolean = !Utils.isNullOrEmpty(sessionData.getTransaction());
+        if (transactionExists)
+        {
+            var isExpertChanged = sessionData.getCall().getIntegrationMemberId() != sessionData.getExpert().getId();
+            var isDurationChanged = sessionData.getCall().getDuration() != sessionData.getDuration();
+            var isAgendaChanged = sessionData.getCall().getAgenda() != sessionData.getAgenda();
 
-        if (Utils.isNullOrEmpty(sessionData.getTransaction()) || Utils.isNullOrEmpty(sessionData.getTransaction().getId()))
+            if (isExpertChanged || isDurationChanged || isAgendaChanged)
+            {
+                tasks.push(self.transactionDelegate.delete(sessionData.getTransaction().getId()));
+                tasks.push(self.phoneCallDelegate.delete(sessionData.getCall().getId()));
+            }
+        }
+
+        // Create transaction and call if anything was changed or if transaction wasn't already started
+        if (!transactionExists || isExpertChanged || isDurationChanged || isAgendaChanged)
         {
             var phoneCall = new PhoneCall();
             phoneCall.setIntegrationMemberId(sessionData.getExpert().getId());
@@ -187,48 +201,21 @@ class CallFlowRoute
                 function transactionCreated(createdTransaction:Transaction)
                 {
                     sessionData.setTransaction(createdTransaction);
-                    return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, createdTransaction.getId()))
+                    return true;
                 }));
         }
-        else
-        {
-            var loggedInUserId = sessionData.getLoggedInUser() ? sessionData.getLoggedInUser().getId() : null;
-
-            var sessionTransaction:Transaction = sessionData.getTransaction();
-            sessionTransaction.setUserId(loggedInUserId);
-
-            var sessionPhoneCall = sessionData.getCall();
-            sessionPhoneCall.setAgenda(sessionData.getAgenda());
-            sessionPhoneCall.setCallerUserId(loggedInUserId);
-
-            tasks.push(self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, sessionData.getTransaction().getId())))
-        }
-
-
-        /* If logged in, fetch associated phone numbers
-        if (req.isAuthenticated())
-        {
-            var userPhoneSearch = {};
-            userPhoneSearch[UserPhone.USER_ID] = loggedInUserId;
-            userPhoneSearch[UserPhone.VERIFIED] = true;
-
-            tasks.push(self.userPhoneDelegate.search(userPhoneSearch)
-                .fail(
-                function userPhoneFetchFailed(error)
-                {
-                    self.logger.error('User phone fetch error. Error: %s', error);
-                    return null;
-                }));
-        }*/
 
         // Execute all tasks and render
         q.all(tasks)
             .then(
             function allDone(...args)
             {
-                var lines:TransactionLine[] = args[0][0];
-
-                lines = _.sortBy(lines, function(line:TransactionLine) {
+                return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, sessionData.getTransaction().getId()));
+            }).
+            then(function transactionLinesFetched(lines:TransactionLine[])
+            {
+                lines = _.sortBy(lines, function (line:TransactionLine)
+                {
                     return line.getTransactionType();
                 });
 
@@ -288,7 +275,7 @@ class CallFlowRoute
 
         // Check that we've a valid call for scheduling
         var isCallValid = !Utils.isNullOrEmpty(call.getAgenda())
-                                && !Utils.isNullOrEmpty(sessionData.getAppointments())
+            && !Utils.isNullOrEmpty(sessionData.getAppointments())
 
         if (!isCallValid)
         {

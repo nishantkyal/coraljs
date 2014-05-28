@@ -15,7 +15,7 @@ class Middleware
         var countryCode:number = parseInt(req.body[ApiConstants.COUNTRY_CODE] || sessionData.getCountryCode());
         var callerPhone:string = req.body[ApiConstants.PHONE] || sessionData.getCallerPhone();
         var agenda:string = req.body[ApiConstants.AGENDA] || sessionData.getAgenda();
-        var duration:number = req.body[ApiConstants.DURATION] || sessionData.getDuration();
+        var duration:number = parseInt(req.body[ApiConstants.DURATION]) || sessionData.getDuration();
         var appointments = req.body[ApiConstants.START_TIME] || sessionData.getAppointments();
         var isCallNow = req.body[ApiConstants.CALL_NOW] || sessionData.getCallNow();
 
