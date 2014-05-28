@@ -196,7 +196,7 @@ include ../header
                                             .col-xs-4
                                                 select.form-control#country-code
                                                     for code,country in CountryCode
-                                                        option(value=country, selected=)= CountryName[code.toUpperCase()] + ' (+' + country + ')'
+                                                        option(value=country, selected=country==country_code)= CountryName[code.toUpperCase()] + ' (+' + country + ')'
                                             .col-xs-8
                                                 input.form-control.phone-number#caller-phone(type='text', placeholder='Phone Number', value=caller_phone)
                                 .row.input-row
@@ -214,7 +214,7 @@ script.
     var duration = parseInt('#{duration}') || 15;
     var selectedTimeSlots = [];
     try {
-        selectedTimeSlots = JSON.parse( '!{JSON.stringify(appointments)}' );
+        selectedTimeSlots = JSON.parse( '!{JSON.stringify(appointments)}' ) || [];
     }
     catch(e){}
 script(src='/js/app/callFlow/index.js')
