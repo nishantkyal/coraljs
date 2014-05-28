@@ -565,8 +565,7 @@ class DashboardRoute
                     {
                         var pageData = _.extend(callFlowSessionData.getData(), {
                             transactionLines: lines,
-                            call: call,
-                            appointments: callFlowSessionData.getAppointments()
+                            call: call
                         });
 
                         callFlowSessionData.setTransaction(null);
