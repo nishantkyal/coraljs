@@ -13,6 +13,7 @@ import Config                                                   = require('../..
 import Utils                                                    = require('../../common/Utils');
 import PhoneCallCache                                           = require('../../caches/PhoneCallCache');
 import ScheduledTaskType                                        = require('../../enums/ScheduledTaskType');
+import IncludeFlag                                              = require('../../enums/IncludeFlag');
 
 class ScheduleCallsScheduledTask extends AbstractScheduledTask
 {
@@ -34,7 +35,16 @@ class ScheduleCallsScheduledTask extends AbstractScheduledTask
         // 1. Triggering call
         // 2. Sending reminder notifications
         // Also add calls to cache for faster access by twilio API calls
-        return phoneCallDelegate.getCallsBetweenInterval(moment().valueOf(), moment().add({minutes: parseInt(Config.get(Config.PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS))}).valueOf())
+        var callIntervalStartTime = moment().valueOf();
+        var callIntervalEndTime = moment().add({minutes: parseInt(Config.get(Config.PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS))}).valueOf();
+        var query:Object = {
+            'start_time': {
+                'operator': 'between',
+                'value': [callIntervalStartTime, callIntervalEndTime]
+            }
+        };
+
+        return phoneCallDelegate.search(query, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER])
             .then(
             function callsFetched(calls:PhoneCall[]):any
             {

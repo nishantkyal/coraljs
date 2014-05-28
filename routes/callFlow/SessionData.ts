@@ -45,13 +45,13 @@ class SessionData extends AbstractSessionData
     getAgenda():string                                  { return this.getData()[SessionData.AGENDA]; }
 
     /* Setters */
-    setCall(val:PhoneCall)                              { this.set(SessionData.CALL, val.toJson()); }
+    setCall(val:PhoneCall)                              { this.set(SessionData.CALL, val && val.toJson ? val.toJson() : val); }
     setIntegration(val:Integration)                     { this.set(SessionData.INTEGRATION, val.toJson()); }
     setExpert(val:IntegrationMember)                    { this.set(SessionData.EXPERT, val.toJson());  this.computeAvailability(); }
     setAppointments(val:number[])                       { this.set(SessionData.APPOINTMENTS, val); }
     setCallNow(val:boolean)                             { this.set(SessionData.CALL_NOW, val); }
     setDuration(val:number)                             { this.set(SessionData.DURATION, val); }
-    setTransaction(val:Transaction)                     { this.set(SessionData.TRANSACTION, val.toJson ? val.toJson() : val); }
+    setTransaction(val:Transaction)                     { this.set(SessionData.TRANSACTION, val && val.toJson ? val.toJson() : val); }
     setCountryCode(val:number)                          { this.set(SessionData.COUNTRY_CODE, val); }
     setCallerPhone(val:string)                          { this.set(SessionData.CALLER_PHONE, val); }
     setAgenda(val:string)                               { this.set(SessionData.AGENDA, val); }

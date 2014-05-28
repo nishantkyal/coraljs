@@ -146,7 +146,7 @@ class TransactionDelegate extends BaseDaoDelegate
             },
             function couponFetchFailed(error)
             {
-                self.logger.error('Error while applying coupon: %s. Error: %s', code, error);
+                self.logger.error('Error while applying coupon: %s. Error: %s', code, JSON.stringify(error));
                 throw(error);
             });
     }
