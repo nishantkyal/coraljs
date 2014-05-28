@@ -11,6 +11,10 @@ $('.duration li').click(function(event)
     $('.duration li:nth-child(' + (selectedDurationIndex + 1) + ')').addClass('active');
     duration = $('a', event.currentTarget).text();
 
+    //clear time slots as duration has changed
+    selectedTimeSlots = [];
+    updateSelectedTimeSlots();
+
     var dateElement = $('a.date-link.active');
     var selectedDate = parseInt($(dateElement).parent().attr('value'));
     selectDate(selectedDate, dateElement);
@@ -37,15 +41,23 @@ $('#monthSelector #next').click(function()
 /* Time slot selection - Event handler */
 $(document).on('click', '.timeslot-widget ul li span', function handleTimeSlotSelected(event)
 {
-    $(event.currentTarget).addClass('checked');
-    var selectedSlot = $(event.currentTarget).parent().data('slot');
-    var index = selectedTimeSlots.indexOf(selectedSlot);
-    if (index == -1)
-        selectedTimeSlots.push(selectedSlot);
-    else
-        selectedTimeSlots.splice(index, 1);
+        var selectedSlot = $(event.currentTarget).parent().data('slot');
+        var index = selectedTimeSlots.indexOf(selectedSlot);
+        if (index == -1)
+        {
+            if(selectedTimeSlots.length < 3)
+            {
+                $(event.currentTarget).addClass('checked');
+                selectedTimeSlots.push(selectedSlot);
+            }
+        }
+        else
+        {
+            selectedTimeSlots.splice(index, 1);
+            $(event.currentTarget).removeClass('checked');
+        }
 
-    updateSelectedTimeSlots();
+        updateSelectedTimeSlots();
 });
 
 /* Date selection - Event handler */
@@ -152,6 +164,7 @@ function selectDate(selectedDate, dateElement)
     {
         var slotTime = schedule.start_time;
         var selectedDurationInMillis = duration * 60 * 1000;
+        var jumpInMillis = 15 * 60 *1000;
         var maxSlotTime = schedule.start_time + schedule.duration - selectedDurationInMillis;
         while (slotTime < maxSlotTime) {
             if(slotTime > moment().valueOf())
@@ -160,7 +173,7 @@ function selectDate(selectedDate, dateElement)
                 if (selectedTimeSlots.indexOf(slotTime) != -1)
                     $('.timeslot-widget ul li:last-child span').addClass('checked');
             }
-            slotTime += selectedDurationInMillis;
+            slotTime += jumpInMillis;
         }
     });
 }
@@ -235,7 +248,7 @@ function updateSelectedTimeSlots()
     if (selectedTimeSlots.length < 3) {
         $('.modal-footer #schedule-done').hide();
         $('.modal-footer .alert.alert-warning').show();
-        $('.modal-footer .alert.alert-warning .num-slots').text(selectedTimeSlots.length);
+        $('.modal-footer .alert.alert-warning .num-slots').text('You have selected ' + selectedTimeSlots.length + ' time slot so far.');
         $('#selectedSlots .tagit-new').show();
     }
     else {

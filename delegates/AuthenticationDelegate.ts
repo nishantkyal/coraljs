@@ -52,7 +52,7 @@ class AuthenticationDelegate
 
         /* Facebook login */
         AuthenticationDelegate.configureFacebookStrategy(AuthenticationDelegate.STRATEGY_FACEBOOK, url.resolve(Config.get(Config.DASHBOARD_URI), '/login/fb/callback'));
-        AuthenticationDelegate.configureFacebookStrategy(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, url.resolve(Config.get(Config.DASHBOARD_URI), '/call/login/fb/callback'));
+        AuthenticationDelegate.configureFacebookStrategy(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, url.resolve(Config.get(Config.DASHBOARD_URI), CallFlowUrls.facebookLoginCallback()));
 
         /* Linkedin login */
         AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN, url.resolve(Config.get(Config.DASHBOARD_URI), DashboardUrls.linkedInLoginCallback()));
@@ -151,8 +151,10 @@ class AuthenticationDelegate
                 var profile = profile['_json'];
 
                 var user:User = new User();
+                if(profile.name)
                 user.setFirstName(profile.first_name);
                 user.setLastName(profile.last_name);
+                user.setEmail(profile.email);
 
                 var userOauth = new UserOauth();
                 userOauth.setOauthUserId(profile.id);
@@ -181,7 +183,7 @@ class AuthenticationDelegate
                     },
                     function tokenUpdateError(error)
                     {
-                        AuthenticationDelegate.logger.error('An error occurred while logging in using linkedin. Error: %s', error);
+                        AuthenticationDelegate.logger.error('An error occurred while logging in using facebook. Error: %s', JSON.stringify(error));
                         done(error);
                     });
             }

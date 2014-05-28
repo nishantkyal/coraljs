@@ -538,6 +538,8 @@ class DashboardRoute
             .then(
             function responseProcessed(transactionId:number)
             {
+                if(transactionId == null)
+                    transactionId = callFlowSessionData.getTransaction().getId();
                 return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, transactionId))
             })
             .then(
@@ -567,11 +569,11 @@ class DashboardRoute
                             transactionLines: lines,
                             call: call
                         });
-
                         callFlowSessionData.setTransaction(null);
                         callFlowSessionData.setCall(null);
                         callFlowSessionData.setAppointments([]);
-
+                        
+                        delete req.session[CallFlowSessionData.IDENTIFIER]
                         res.render(DashboardRoute.PAGE_PAYMENT_COMPLETE, pageData);
                     });
             })

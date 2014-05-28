@@ -120,9 +120,9 @@ title ST-#{formatName(expert.user[0].first_name, expert.user[0].last_name, exper
                     .form-group
                         input.form-control.input-lg(type='password', placeholder='Password', name='password')
                     .form-group
-                        a.btn.btn-facebook.btn-block(href='') Login with Facebook
+                        a.btn.btn-facebook.btn-block(href=CallFlowUrls.facebookLogin()) Login with Facebook
                     .form-group
-                        a.btn.btn-linkedin.btn-block(href='') Login with LinkedIn
+                        a.btn.btn-linkedin.btn-block(href=CallFlowUrls.linkedInLogin()) Login with LinkedIn
                     .form-group
                         input.btn.btn-primary.btn-lg.btn-block#login-button(type='submit', value='login')
                     span.pull-right
