@@ -195,7 +195,7 @@ function setMonth(monthMoment)
 
                     // If this is first date of month with available slots, select it
                     if (!firstDateSelected) {
-                        selectDate(dayMoment, $('td:last-child', rowElement));
+                        selectDate(dayMoment, $('td:last-child .date-link', rowElement));
                         firstDateSelected = true;
                     }
                 }
@@ -243,6 +243,8 @@ function updateSelectedTimeSlots()
         $('.modal-footer .alert.alert-warning').hide();
         $('#selectedSlots .tagit-new').hide();
     }
+
+    $('.num-slots').text(selectedTimeSlots.length);
 
 }
 
