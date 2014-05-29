@@ -82,6 +82,15 @@ class ScheduledTaskDelegate
         });
     }
 
+    filter(type:ScheduledTaskType):number[]
+    {
+        return _.filter(_.keys(ScheduledTaskDelegate.tasks), function(taskId:number)
+        {
+            var taskAndTimeout:TimeoutAndTask = ScheduledTaskDelegate.tasks[taskId];
+            return taskAndTimeout.task.getTaskType() == type;
+        });
+    }
+
     /* Return id of all tasks matching search */
     search(criteria:Object):number[]
     {

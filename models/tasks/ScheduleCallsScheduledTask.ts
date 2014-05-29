@@ -49,11 +49,17 @@ class ScheduleCallsScheduledTask extends AbstractScheduledTask
             .then(
             function callsFetched(calls:PhoneCall[]):any
             {
+                var callsAlreadyScheduled:number[] = new ScheduledTaskDelegate().filter(ScheduledTaskType.CALL_SCHEDULE);
                 return q.all(_.map(calls, function (call:PhoneCall)
                 {
-                    self.phoneCallDelegate.scheduleCall(call);
-                    notificationDelegate.scheduleCallNotification(call);
-                    return phoneCallCache.addCall(call);
+                    var alreadyScheduled = _.find(callsAlreadyScheduled, function(callId){return callId == call.getId() });
+
+                    if(Utils.isNullOrEmpty(alreadyScheduled))
+                    {
+                        self.phoneCallDelegate.scheduleCall(call);
+                        notificationDelegate.scheduleCallNotification(call);
+                        return phoneCallCache.addCall(call)
+                    }
                 }));
             },
             function callsFetchError(error)
