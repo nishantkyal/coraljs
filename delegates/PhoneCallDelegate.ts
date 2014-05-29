@@ -12,6 +12,7 @@ import NotificationDelegate                                             = requir
 import CallStatus                                                       = require('../enums/CallStatus');
 import IncludeFlag                                                      = require('../enums/IncludeFlag');
 import PhoneType                                                        = require('../enums/PhoneType');
+import ScheduledTaskType                                                = require('../enums/ScheduledTaskType');
 import PhoneCall                                                        = require('../models/PhoneCall');
 import User                                                             = require('../models/User');
 import UserPhone                                                        = require('../models/UserPhone');
@@ -137,10 +138,14 @@ class PhoneCallDelegate extends BaseDaoDelegate
                     self.queueCallForTriggering(fetchedCall);
                 });
 
-        //TODO[ankit] check whether the call has not been scheduled already as new call scheduled in next one hour are scheduled manually
         var ScheduledTaskDelegate = require('../delegates/ScheduledTaskDelegate');
         var scheduledTaskDelegate = new ScheduledTaskDelegate();
-        scheduledTaskDelegate.scheduleAt(new TriggerPhoneCallTask(call.getId()), call.getStartTime());
+
+        var callsAlreadyScheduled:number[] = scheduledTaskDelegate.filter(ScheduledTaskType.CALL);
+        var alreadyScheduled = _.find(callsAlreadyScheduled, function(callId){return callId == call.getId() });
+
+        if(Utils.isNullOrEmpty(alreadyScheduled))
+            scheduledTaskDelegate.scheduleAt(new TriggerPhoneCallTask(call.getId()), call.getStartTime());
     }
 
     /* Cancel call */

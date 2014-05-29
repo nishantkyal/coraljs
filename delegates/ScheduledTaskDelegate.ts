@@ -9,7 +9,6 @@ import PhoneCall                                                = require('../mo
 import AbstractScheduledTask                                    = require('../models/tasks/AbstractScheduledTask');
 import PhoneCallCache                                           = require('../caches/PhoneCallCache');
 import CacheHelper                                              = require('../caches/CacheHelper');
-import TaskTypeFactory                                          = require('../factories/TaskTypeFactory');
 import ScheduledTaskType                                        = require('../enums/ScheduledTaskType');
 
 interface TimeoutAndTask
@@ -132,10 +131,11 @@ class ScheduledTaskDelegate
 
         return CacheHelper.get('ScheduledTasks')
             .then(
-            function tasksFetched(results):any
+            function tasksFetched(results)
             {
                 _.each(results, function (result:any)
                 {
+                    var TaskTypeFactory = require('../factories/TaskTypeFactory');
                     if (result[AbstractScheduledTask.START_TIME] > moment().valueOf())
                         self.scheduleAt(TaskTypeFactory.getTask(result), result[AbstractScheduledTask.START_TIME]);
                     else
@@ -144,7 +144,6 @@ class ScheduledTaskDelegate
                         self.syncToRedis();
                     }
                 });
-                return true;
             },
             function tasksFetchError(error)
             {

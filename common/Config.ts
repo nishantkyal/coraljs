@@ -41,6 +41,7 @@ class Config
     static TWILIO_ACCOUNT_SID:string                    = 'twilio.account_sid';
     static TWILIO_AUTH_TOKEN:string                     = 'twilio.auth_token';
     static TWILIO_NUMBER:string                         = 'twilio.number';
+    static TWILIO_URI:string                            = 'twilio.uri';
     static EXOTEL_SID:string                            = 'exotel.sid';
     static EXOTEL_TOKEN:string                          = 'exotel.token';
     static SMS_COUNTRY_URL:string                       = 'sms_country.url';
