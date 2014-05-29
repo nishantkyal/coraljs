@@ -33,7 +33,6 @@ import ItemType                                         = require('../../enums/I
 import User                                             = require('../../models/User');
 import IntegrationMember                                = require('../../models/IntegrationMember');
 import Integration                                      = require('../../models/Integration');
-import SMS                                              = require('../../models/SMS');
 import Coupon                                           = require('../../models/Coupon');
 import UserPhone                                        = require('../../models/UserPhone');
 import PhoneCall                                        = require('../../models/PhoneCall');

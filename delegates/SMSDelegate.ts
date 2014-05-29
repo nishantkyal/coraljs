@@ -9,7 +9,6 @@ import BaseDaoDelegate                                              = require('.
 import LocalizationDelegate                                         = require('../delegates/LocalizationDelegate');
 import UserPhoneDelegate                                            = require('../delegates/UserPhoneDelegate');
 import IntegrationMemberDelegate                                    = require('../delegates/IntegrationMemberDelegate');
-import SMS                                                          = require('../models/SMS');
 import CallFragment                                                 = require('../models/CallFragment');
 import User                                                         = require('../models/User');
 import IntegrationMember                                            = require('../models/IntegrationMember');

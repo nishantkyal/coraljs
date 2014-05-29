@@ -8,7 +8,6 @@ import path                                                         = require('p
 import q                                                            = require('q');
 import nodemailer                                                   = require('nodemailer');
 import watch                                                        = require('watch');
-import Email                                                        = require('../models/Email')
 import User                                                         = require('../models/User')
 import Integration                                                  = require('../models/Integration')
 import IntegrationMember                                            = require('../models/IntegrationMember')
