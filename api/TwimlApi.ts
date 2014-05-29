@@ -39,7 +39,7 @@ class TwimlApi
                     {
                         'Gather': {'Say': 'Please enter the call id followed by star key'},
                         'attr': {
-                            'action': req.protocol + "://" + req.get('host') + TwilioUrlDelegate.twimlJoinConference(),
+                            'action': req.protocol + "://" + req.get('host') + TwilioUrlDelegate.twimlJoinConference(Config.get(Config.TWILIO_URI)),
                             'method': 'GET',
                             'finishOnKey': '*'
                         }

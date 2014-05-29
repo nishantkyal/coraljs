@@ -5,13 +5,13 @@ import Config                                               = require('../common
 
 class TwilioUrlDelegate
 {
-    static twimlGenerateCall(callId?:number):string { return ApiUrlDelegate.get('/rest/twiml/calling/:callId', {callId: callId}, Config.get(Config.TWILIO_URI)); }
-    static twimlJoinCall(callId?:number):string { return ApiUrlDelegate.get('/rest/twiml/join/:callId', {callId: callId}, Config.get(Config.TWILIO_URI)); }
-    static twimlCallback(callId?:number):string { return ApiUrlDelegate.get('/rest/twiml/callback/:callId', {callId: callId}, Config.get(Config.TWILIO_URI)); }
-    static twimlCall(callId ?:number):string { return ApiUrlDelegate.get('/rest/twiml/call/:callId(\\d+)', {callId: callId}); }
-    static twimlCallExpert(callId ?:number):string { return ApiUrlDelegate.get('/rest/twiml/call/:callId(\\d+)/expert', {callId: callId}); }
-    static twimlJoinConference():string { return ApiUrlDelegate.get('/rest/twiml/call'); }
-    static twiml():string { return ApiUrlDelegate.get('/rest/twiml'); }
+    static twimlGenerateCall(callId?:number, baseUrl?:string):string { return ApiUrlDelegate.get('/rest/twiml/calling/:callId', {callId: callId}, baseUrl); }
+    static twimlJoinCall(callId?:number, baseUrl?:string):string { return ApiUrlDelegate.get('/rest/twiml/join/:callId', {callId: callId}, baseUrl); }
+    static twimlCallback(callId?:number, baseUrl?:string):string { return ApiUrlDelegate.get('/rest/twiml/callback/:callId', {callId: callId}, baseUrl); }
+    static twimlCall(callId ?:number, baseUrl?:string):string { return ApiUrlDelegate.get('/rest/twiml/call/:callId(\\d+)', {callId: callId}, baseUrl); }
+    static twimlCallExpert(callId ?:number, baseUrl?:string):string { return ApiUrlDelegate.get('/rest/twiml/call/:callId(\\d+)/expert', {callId: callId}, baseUrl); }
+    static twimlJoinConference(baseUrl?:string):string { return ApiUrlDelegate.get('/rest/twiml/call',null, baseUrl); }
+    static twiml(baseUrl?:string):string { return ApiUrlDelegate.get('/rest/twiml', null, baseUrl); }
 }
 
 export = TwilioUrlDelegate

@@ -55,6 +55,8 @@ class ScheduledTaskDelegate
         // Add task to index and persist
         ScheduledTaskDelegate.tasks[taskId] = {task: task, timeout: timeout};
 
+        this.logger.info('Task of type ' + task.getTaskType() + ' scheduled, startTime - ' + moment(task.getStartTime()) + ' id - ' + task.getId());
+
         self.syncToRedis();
 
         return taskId;
@@ -97,6 +99,7 @@ class ScheduledTaskDelegate
 
     cancel(taskId:number):q.Promise<any>
     {
+        this.logger.info('Task with id - ' + taskId + ' completed' );
         clearTimeout(ScheduledTaskDelegate.tasks[taskId].timeout);
         delete ScheduledTaskDelegate.tasks[taskId];
         return this.syncToRedis();

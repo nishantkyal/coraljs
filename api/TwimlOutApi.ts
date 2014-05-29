@@ -57,7 +57,7 @@ class TwimlOutApi
                 function callFetched(call:PhoneCall)
                 {
                     var pageData = {};
-                    pageData['actionURL'] = req.protocol + "://" + req.get('host') + TwilioUrlDelegate.twimlJoinCall(callId);
+                    pageData['actionURL'] = req.protocol + "://" + req.get('host') + TwilioUrlDelegate.twimlJoinCall(callId,Config.get(Config.TWILIO_URI));
                     pageData['timeLimit'] = call.getDuration();
                     pageData['phoneNumber'] = call.getExpertPhone().getCompleteNumber();
                     pageData['record'] = (call.getRecorded() == false) ? 'false' : 'true';

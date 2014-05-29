@@ -1,6 +1,7 @@
 ///<reference path='../_references.d.ts'/>
 import _                                                                = require('underscore');
 import q                                                                = require('q');
+import moment                                                           = require('moment');
 import Utils                                                            = require('../common/Utils');
 import Config                                                           = require('../common/Config');
 import PhoneCallDao                                                     = require('../dao/PhoneCallDao');
@@ -155,9 +156,16 @@ class PhoneCallDelegate extends BaseDaoDelegate
             var scheduledTaskDelegate = new ScheduledTaskDelegate();
             var notificationDelegate = new NotificationDelegate();
 
-            scheduledTaskDelegate.scheduleAt(new TriggerPhoneCallTask(call.getId()), call.getStartTime());
-            scheduledTaskDelegate.scheduleAt(new CallReminderNotificationScheduledTask(call.getId()), call.getStartTime() - parseInt(Config.get(Config.CALL_REMINDER_LEAD_TIME_SECS)) * 1000);
-            return self.phoneCallCache.addCall(call);
+            //check whether the call has not been scheduled manually (like on Server restart)
+            var callsAlreadyScheduled:number[] = scheduledTaskDelegate.filter(ScheduledTaskType.CALL);
+            var alreadyScheduled = _.find(callsAlreadyScheduled, function(callId){return callId == call.getId() });
+
+            if(Utils.isNullOrEmpty(alreadyScheduled))
+            {
+                scheduledTaskDelegate.scheduleAt(new TriggerPhoneCallTask(call.getId()), call.getStartTime());
+                scheduledTaskDelegate.scheduleAt(new CallReminderNotificationScheduledTask(call.getId()), call.getStartTime() - parseInt(Config.get(Config.CALL_REMINDER_LEAD_TIME_SECS)) * 1000);
+                return self.phoneCallCache.addCall(call);
+            }
         }
         return null;
     }
