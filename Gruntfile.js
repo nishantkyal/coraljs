@@ -6,6 +6,9 @@ function init(grunt) {
     grunt.loadNpmTasks('grunt-text-replace');
     grunt.loadNpmTasks('grunt-promise-q');
     grunt.loadNpmTasks('grunt-typescript');
+    grunt.loadNpmTasks('grunt-bumpup');
+    grunt.loadNpmTasks('grunt-prompt');
+    grunt.loadNpmTasks('grunt-git');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -34,22 +37,67 @@ function init(grunt) {
                 dest: 'public/css/combined.min.css'
             }
         },
-        typescript: {
-            src: ['app.ts'],
-            options: {
-                module: 'commonjs',
-                target: 'es5',
-                basePath: '.',
-                sourceMap: false,
-                declaration: false
+        "typescript": {
+            coral: {
+                src: ['app.ts'],
+                options: {
+                    module: 'commonjs',
+                    target: 'es5',
+                    basePath: '.',
+                    sourceMap: false,
+                    declaration: false
+                }
             }
         },
         clean: {
-            typescript: ["*/**/*.js", '!Gruntfile.js', '!public/**/*.js', '!node_modules/**/*.js']
+            typescript: ["app.js", "*/**/*.js", '!Gruntfile.js', '!public/**/*.js', '!node_modules/**/*.js']
+        },
+        bumpup: {
+            'file': 'package.json'
+        },
+        prompt: {
+            bumpup: {
+                options: {
+                    questions: [
+                        {
+                            config: 'bumpup.type',
+                            type: 'list',
+                            message: 'How do you want to bump up the version number for this release?',
+                            default: 'patch',
+                            choices: [
+                                { name: 'patch', checked: true },
+                                { name: 'major' },
+                                { name: 'minor' },
+                                { name: 'prerelease' },
+                                { name: 'build' }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "prompt_bumpup": {
+            "target": {}
+        },
+        "gitcommit": {
+            "bumpup": {
+                "message": "Released and bumped up project version",
+                "files": {
+                    'src': ['package.json']
+                }
+            }
+        },
+        "gitpush": {
+            "bumpup": {}
         }
     });
 
+    grunt.registerMultiTask('prompt_bumpup', function () {
+        grunt.task.run('bumpup:' + grunt.config('bumpup.type'));
+    });
+
     grunt.registerTask('default', ['concat:js', 'concat:css', 'cssmin:css']);
+    grunt.registerTask('release', ['clean:typescript', 'typescript:coral', 'prompt:bumpup', 'prompt_bumpup', "gitcommit:bumpup", "gitpush:bumpup"]);
 }
 
 module.exports = init;
