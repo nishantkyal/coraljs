@@ -4,7 +4,6 @@ import q                                                        = require('q');
 import log4js                                                   = require('log4js');
 import User                                                     = require('../models/User');
 import IntegrationMember                                        = require('../models/IntegrationMember');
-import SMS                                                      = require('../models/SMS');
 import UserPhone                                                = require('../models/UserPhone');
 import PhoneCall                                                = require('../models/PhoneCall');
 import IntegrationMemberDelegate                                = require('../delegates/IntegrationMemberDelegate');

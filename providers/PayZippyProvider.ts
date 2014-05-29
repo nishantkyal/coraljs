@@ -23,7 +23,7 @@ class PayZippyProvider
     private transactionDelegate = new TransactionDelegate();
     private paymentDelegate = new PaymentDelegate();
 
-    private static MERHANT_TRANSACTION_ID:string = 'merchant_transaction_id';
+    private static MERCHANT_TRANSACTION_ID:string = 'merchant_transaction_id';
     private static PAYZIPPY_TRANSACTION_ID:string = 'payzippy_transaction_id';
     private static TRANSACTION_STATUS:string = 'transaction_status';
     private static TRANSACTION_AMOUNT:string = 'transaction_amount';
@@ -89,21 +89,13 @@ class PayZippyProvider
         var computedHash:string = md5sum.update(concatString).digest('hex');
 
         if (computedHash != hash)
-        {
-            var noPayment = req.query[ApiConstants.NO_PAYMENT];
-            var deferred = q.defer();
-            if (noPayment)
-                deferred.resolve(true);
-            else
-                deferred.reject('Computed hash doesn\'t match with actual hash');
-            return deferred.promise;
-        }
+            return q.reject("HASH_MISMATCH");
 
         if (response[PayZippyProvider.TRANSACTION_STATUS] != PayZippyProvider.TRANSACTION_STATUS_SUCCESS)
             transactionStatus = TransactionStatus.PAYMENT_FAILED;
 
         // Mark the transaction id as success and send it back
-        var transactionId = parseInt(response[PayZippyProvider.MERHANT_TRANSACTION_ID].split('-')[0]);
+        var transactionId = parseInt(response[PayZippyProvider.MERCHANT_TRANSACTION_ID].split('-')[0]);
         var paymentTransactionId = response[PayZippyProvider.PAYZIPPY_TRANSACTION_ID];
 
         var payment = new Payment();

@@ -6,7 +6,6 @@ import Utils                                                            = requir
 import Config                                                           = require('../common/Config');
 import PhoneCallDao                                                     = require('../dao/PhoneCallDao');
 import BaseDaoDelegate                                                  = require('../delegates/BaseDaoDelegate');
-import ScheduledTaskDelegate                                            = require('../delegates/ScheduledTaskDelegate');
 import IntegrationMemberDelegate                                        = require('../delegates/IntegrationMemberDelegate');
 import UserPhoneDelegate                                                = require('../delegates/UserPhoneDelegate');
 import UserDelegate                                                     = require('../delegates/UserDelegate');
@@ -30,7 +29,6 @@ class PhoneCallDelegate extends BaseDaoDelegate
 {
     static ALLOWED_NEXT_STATUS:{ [s: number]: CallStatus[]; } = {};
 
-    private scheduledTaskDelegate = new ScheduledTaskDelegate();
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private userDelegate = new UserDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
@@ -72,9 +70,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
     }
 
     update(criteria:Object, newValues:Object, transaction?:Object):q.Promise<any>;
-
     update(criteria:number, newValues:Object, transaction?:Object):q.Promise<any>;
-
     update(criteria:any, newValues:Object, transaction?:Object):q.Promise<any>
     {
         var newStatus = newValues.hasOwnProperty(PhoneCall.STATUS) ? newValues[PhoneCall.STATUS] : null;
@@ -86,13 +82,13 @@ class PhoneCallDelegate extends BaseDaoDelegate
 
             // Only return calls whose current status' next step can be the new status
             // This is a better way to update status to a valid next status without querying for current status first
-            var allowedPreviousStatuses:CallStatus[] = _.filter(_.keys(PhoneCallDelegate.ALLOWED_NEXT_STATUS), function (status:CallStatus)
+            var allowedPreviousStatuses = _.filter(_.keys(PhoneCallDelegate.ALLOWED_NEXT_STATUS), function (status:any)
             {
                 return _.contains(PhoneCallDelegate.ALLOWED_NEXT_STATUS[status], newStatus);
             });
 
             if (allowedPreviousStatuses.length > 0)
-                criteria[PhoneCall.STATUS] = allowedPreviousStatuses;
+                criteria[PhoneCall.STATUS] = _.map(allowedPreviousStatuses, function(status:string) {return parseInt(status); });;
         }
 
         return super.update(criteria, newValues, transaction);
@@ -134,15 +130,13 @@ class PhoneCallDelegate extends BaseDaoDelegate
 
     /* Queue the call for triggering */
     queueCallForTriggering(call:number);
-
     queueCallForTriggering(call:PhoneCall);
-
     queueCallForTriggering(call:any):q.Promise<any>
     {
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.get(call, null, [IncludeFlag.INCLUDE_USER])
+            return self.get(call, null, [IncludeFlag.INCLUDE_USER, IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_EXPERT_PHONE, IncludeFlag.INCLUDE_USER_PHONE])
                 .then(function (fetchedCall:PhoneCall)
                 {
                     self.queueCallForTriggering(fetchedCall);
@@ -154,7 +148,6 @@ class PhoneCallDelegate extends BaseDaoDelegate
             //TODO[ankit] check whether the call has not been scheduled already as new call scheduled in next one hour are scheduled manually
             var ScheduledTaskDelegate = require('../delegates/ScheduledTaskDelegate');
             var scheduledTaskDelegate = new ScheduledTaskDelegate();
-            var notificationDelegate = new NotificationDelegate();
 
             //check whether the call has not been scheduled manually (like on Server restart)
             var callsAlreadyScheduled:number[] = scheduledTaskDelegate.filter(ScheduledTaskType.CALL);
@@ -167,7 +160,9 @@ class PhoneCallDelegate extends BaseDaoDelegate
                 return self.phoneCallCache.addCall(call);
             }
         }
-        return null;
+
+        self.logger.debug('Queuing trigger failed for call id: %s, reason: %s', call.getId(), 'Scheduled for much later');
+        return q.resolve(true);
     }
 
     /* Cancel call */
@@ -194,8 +189,14 @@ class PhoneCallDelegate extends BaseDaoDelegate
             .then(
             function callCancelled()
             {
-                var callTriggeringScheduledTaskId = self.scheduledTaskDelegate.find(null);
-                return self.scheduledTaskDelegate.cancel(callTriggeringScheduledTaskId);
+                var ScheduledTaskDelegate = require('../delegates/ScheduledTaskDelegate');
+                var scheduledTaskDelegate = new ScheduledTaskDelegate();
+
+                var callTriggeringScheduledTaskId = scheduledTaskDelegate.find(null);
+                if (!Utils.isNullOrEmpty(callTriggeringScheduledTaskId))
+                    return scheduledTaskDelegate.cancel(callTriggeringScheduledTaskId);
+                else
+                    return q.resolve(true);
             });
     }
 
@@ -220,7 +221,17 @@ class PhoneCallDelegate extends BaseDaoDelegate
                 var isSuggestion = _.intersection(originalSlots, pickedSlots).length == 0;
                 var isRejection = !Utils.isNullOrEmpty(reason);
 
-                if (isConfirmation)
+                if (isRejection)
+                {
+                    // Cancel call and notify
+                    return self.cancelCall(callId, requesterUserId)
+                        .then(
+                        function callCancelled()
+                        {
+                            return notificationDelegate.sendCallRejectedNotifications(call, reason);
+                        });
+                }
+                else if (isConfirmation)
                 {
                     // 1. Update call status
                     // 2. Send notifications to both
@@ -235,26 +246,16 @@ class PhoneCallDelegate extends BaseDaoDelegate
                             ]);
                         })
                 }
-                else if (isSuggestion)
+                else if (isSuggestion && call.getStatus() == CallStatus.SCHEDULING)
                 {
                     // Send notification to other party
-                    var isExpert = call.getIntegrationMember().getUser().getId() == requesterUserId;
+                    var isExpert = call.getIntegrationMember().getUser()[0].getId() == requesterUserId;
                     var isCaller = call.getCallerUserId() == requesterUserId;
 
                     if (isExpert)
                         return notificationDelegate.sendNewTimeSlotsToExpert(call, pickedSlots);
                     else if (isCaller)
                         return notificationDelegate.sendSuggestedAppointmentToCaller(call, pickedSlots[0]);
-                }
-                else if (isRejection)
-                {
-                    // Cancel call and notify
-                    return self.cancelCall(callId, requesterUserId)
-                        .then(
-                        function callCancelled()
-                        {
-                            return notificationDelegate.sendCallRejectedNotifications(call, reason);
-                        });
                 }
                 else
                     throw('Invalid request');

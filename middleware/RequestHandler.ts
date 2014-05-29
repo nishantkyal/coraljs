@@ -11,7 +11,6 @@ import Integration                      = require('../models/Integration');
 import IntegrationMember                = require('../models/IntegrationMember');
 import PhoneCall                        = require('../models/PhoneCall');
 import UserPhone                        = require('../models/UserPhone');
-import SMS                              = require('../models/SMS');
 import ExpertScheduleRule               = require('../models/ExpertScheduleRule');
 import ExpertScheduleException          = require('../models/ExpertScheduleException');
 import UserProfile                      = require('../models/UserProfile');
@@ -73,9 +72,6 @@ class RequestHandler
                     break;
                 case ApiConstants.PHONE_NUMBER:
                     modelClass = UserPhone;
-                    break;
-                case ApiConstants.SMS:
-                    modelClass = SMS;
                     break;
                 case ApiConstants.PHONE_CALL:
                     modelClass = PhoneCall;
@@ -147,9 +143,6 @@ class RequestHandler
                         break;
                     case ApiConstants.PHONE_NUMBER:
                         modelClass = UserPhone;
-                        break;
-                    case ApiConstants.SMS:
-                        modelClass = SMS;
                         break;
                     case ApiConstants.PHONE_CALL:
                         modelClass = PhoneCall;

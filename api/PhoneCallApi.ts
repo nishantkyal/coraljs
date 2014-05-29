@@ -64,6 +64,11 @@ class PhoneCallApi
                     {
                         return phoneCallDelegate.handleSchedulingRequest(callId, loggedInUser.getId(), appointment.startTimes, pickedTimeSlots, reason);
                     })
+                    .then(
+                    function callSchedulingProcessed()
+                    {
+                        res.send(200);
+                    })
                     .fail(
                     function callSchedulingFailed(error)
                     {
