@@ -11,19 +11,14 @@ function init(grunt)
     grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-text-replace');
     grunt.loadNpmTasks('grunt-promise-q');
+    grunt.loadNpmTasks('grunt-typescript');
+    grunt.loadNpmTasks('grunt-bumpup');
+    grunt.loadNpmTasks('grunt-prompt');
+    grunt.loadNpmTasks('grunt-git');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
-        clean: ['Coral.d.ts'],
         concat: {
-            dist: {
-                src: ['enums/*.d.ts', 'models/*.d.ts', 'delegates/ApiUrlDelegate.d.ts', 'common/*.d.ts'],
-                dest: 'Coral.d.ts',
-                options: {
-                    banner: "declare module 'Coral'\n{\n",
-                    footer: '}'
-                }
-            },
             css: {
                 src: [
                     'public/css/!(combined|main).css*'
@@ -33,36 +28,6 @@ function init(grunt)
             js: {
                 src: ['public/js/lib/jquery.js', 'public/js/lib/jquery.validate.js', 'public/js/lib/!(combined).js', 'public/js/lib/!(combined).js'],
                 dest: 'public/js/lib/combined.js'
-            }
-        },
-        'generate-index': {
-            target: {
-                src: ['enums/*.js', 'models/*.js', 'delegates/ApiUrlDelegate.js', 'common/*.js'],
-                dest: 'index.js'
-            }
-        },
-        replace: {
-            'coral-ts': {
-                src: ['Coral.d.ts'],
-                overwrite: true,
-                replacements: [
-                    {
-                        from: /export =.*/g,
-                        to: ''
-                    },
-                    {
-                        from: /declare (class|enum|interface)/g,
-                        to: 'export $1'
-                    },
-                    {
-                        from: /\/\/\/ \<reference .*/g,
-                        to: ''
-                    },
-                    {
-                        from: /import.*\..*/g,
-                        to: ''
-                    }
-                ]
             }
         },
         uglify: {
@@ -77,26 +42,72 @@ function init(grunt)
                 src: 'public/css/combined.css',
                 dest: 'public/css/combined.min.css'
             }
+        },
+        "typescript": {
+            coral: {
+                src: ['app.ts'],
+                options: {
+                    module: 'commonjs', //or commonjs
+                    target: 'es5', //or es3
+                    basePath: '.',
+                    sourceMap: false,
+                    declaration: false
+                }
+            }
+        },
+        clean: {
+            typescript: ["app.js", "*/**/*.js", '!Gruntfile.js', '!public/**/*.js', '!node_modules/**/*.js']
+        },
+        bumpup: {
+            'file': 'package.json'
+        },
+        prompt: {
+            bumpup: {
+                options: {
+                    questions: [
+                        {
+                            config: 'bumpup.type',
+                            type: 'list',
+                            message: 'How do you want to bump up the version number for this release?',
+                            default: 'patch',
+                            choices: [
+                                { name: 'patch', checked: true },
+                                { name: 'major'},
+                                { name: 'minor' },
+                                { name: 'prerelease' },
+                                { name: 'build' },
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "prompt_bumpup": {
+            "target": {
+
+            }
+        },
+        "gitcommit": {
+            "bumpup": {
+                "message": "Released and bumped up project version",
+                "files": {
+                    'src': ['package.json']
+                }
+            }
+        },
+        "gitpush": {
+            "bumpup": {}
         }
     });
 
-    /* Generate indx.js by combining all generated .js files */
-    grunt.registerMultiTask('generate-index', function ()
+    grunt.registerMultiTask('prompt_bumpup', function ()
     {
-        this.files.forEach(function (file)
-        {
-            var output = file.src.map(function (filepath)
-            {
-                var filename = filepath.match(/\/([A-Za-z]*)\.js/);
-                return 'exports.' + filename[1] + ' = require("./' + filepath + '");';
-            }).join('\n');
-            grunt.file.write(file.dest, output);
-        });
+        grunt.task.run('bumpup:' + grunt.config('bumpup.type'));
     });
 
-
-    grunt.registerTask('coral', ['clean', 'concat', 'replace', 'generate-index']);
     grunt.registerTask('default', ['concat:js', 'concat:css', 'cssmin:css']);
+    grunt.registerTask('release', ['clean:typescript', 'typescript:coral', 'prompt:bumpup', 'prompt_bumpup', "gitcommit:bumpup", "gitpush:bumpup"]);
+
 }
 
 export = init;

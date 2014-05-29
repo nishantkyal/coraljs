@@ -3,7 +3,6 @@ import q                                                    = require('q');
 import Config                                               = require('../common/Config');
 import EmailDelegate                                        = require('../delegates/EmailDelegate');
 import SMSDelegate                                          = require('../delegates/SMSDelegate');
-import PhoneCallDelegate                                    = require('../delegates/PhoneCallDelegate');
 import PhoneCall                                            = require('../models/PhoneCall');
 import IntegrationMember                                    = require('../models/IntegrationMember');
 import CallFragment                                         = require('../models/CallFragment');
@@ -16,7 +15,13 @@ class NotificationDelegate
 {
     private smsDelegate = new SMSDelegate();
     private emailDelegate = new EmailDelegate();
-    private phoneCallDelegate =  new PhoneCallDelegate();
+    private phoneCallDelegate;
+
+    constructor()
+    {
+        var PhoneCallDelegate = require('../delegates/PhoneCallDelegate');
+        this.phoneCallDelegate = new PhoneCallDelegate();
+    }
 
     sendCallSchedulingNotifications(call:number, appointments:number[], duration:number, caller:User):q.Promise<any>;
     sendCallSchedulingNotifications(call:PhoneCall, appointments:number[], duration:number, caller:User):q.Promise<any>;

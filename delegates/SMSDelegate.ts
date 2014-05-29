@@ -28,7 +28,7 @@ class SMSDelegate
     private smsProvider:ISmsProvider = new SmsProviderFactory().getProvider();
     private phoneCallDelegate;
     private integrationMemberDelegate = new IntegrationMemberDelegate();
-    private userPhoneDelagate =  new UserPhoneDelegate();
+    private userPhoneDelegate =  new UserPhoneDelegate();
 
     constructor()
     {
@@ -43,7 +43,7 @@ class SMSDelegate
         return self.integrationMemberDelegate.get(memberId)
             .then(function memberFetched(integrationMember:IntegrationMember)
             {
-                return self.userPhoneDelagate.find({used_id:integrationMember.getUserId()})
+                return self.userPhoneDelegate.find({used_id:integrationMember.getUserId()})
             })
             .then( function expertPhone(phone:UserPhone){
                 var smsTemplate = _.template(LocalizationDelegate.get('sms.expert.complete'));

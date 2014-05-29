@@ -55,8 +55,7 @@ class ApiUrlDelegate
     /* URL patterns for phone calls */
     static phoneCall():string { return this.get('/rest/call'); }
     static phoneCallById(callId?:number):string { return this.get('/rest/call/:callId(\\d+)', {callId: callId}); }
-    static phoneCallReschedule(callId?:number):string { return this.get('/rest/call/:callId(\\d+)/reschedule', {callId: callId}); }
-    static phoneCallCancel(callId?:number):string { return this.get('/rest/call/:callId(\\d+)/cancel', {callId: callId}); }
+    static phoneCallScheduling(callId?:number):string { return this.get('/rest/call/:callId(\\d+)/scheduling', {callId: callId}); }
 
     /* URL patterns for Scheduled Tasks */
     static scheduleTask():string { return this.get('/rest/scheduledTask')}

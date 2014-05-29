@@ -4,25 +4,6 @@ include ../header
 .matter
     .container
         .row
-            .flowbar.col-xs-3.col-sm-3.col-md-12.col-lg-12
-                .shadow
-                ul.nav.nav-pills.nav-justified.nav-stacked
-                    li.completed
-                        a(href='')
-                            span.nav-label
-                                i.icon-schedule
-                                span.hidden-xs Schedule
-                    li.completed
-                        a(href='')
-                            span.nav-label
-                                i.icon-pay
-                                span.hidden-xs Pay
-                    li.active
-                        a(href='')
-                            span.nav-label
-                                i.icon-talk
-                                span.hidden-xs Talk
-            // flowbar
             .content.col-xs-9.col-sm-9.col-md-12.col-lg-12
                 .row
                     .col-md-6
@@ -38,18 +19,21 @@ include ../header
                                     | &nbsp; mins.
                     .col-md-6
                         .call-card
-                            form
+                            form(method='POST')
                                 .payment-summary.call-inputs
                                     h1
                                         i.icon-bill
-                                        | Requested appointments
+                                        | Suggested Time
+                                    h3 Pick one of the suggested slots
                                     for slot in startTimes
-                                        p
+                                        p.title
                                             input(type='radio', name='startTime', value=slot)
                                             label= formatDate(slot)
+                                    h3 Or Suggest another time convenient to you
+                                    input(type='text', name='startTime')
                                 .payment-summary.call-inputs
                                     h1
-                                        i.icon-bill
+                                        i.icon-phone
                                         | Your phone number
                                         .row
                                             .input-group
@@ -60,10 +44,7 @@ include ../header
                                                 input.form-control(type='text', value=phones ? phones[0].phone : null)
                                                 .input-group-btn
                                                     input.btn.btn-success(type='submit', value='Verify')
-                                .call-reversal
-                                    a.btn.btn-primary(href='index.html')
-                                        | Confirm
-                                        i.icon-schedule
+                                input.btn.btn-primary.btn-block(type='submit', value='Confirm')
                                 .call-reversal
                                     a.btn.btn-danger(href='index.html')
                                         | Cancel

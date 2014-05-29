@@ -64,7 +64,7 @@ class ScheduleCallsScheduledTask extends AbstractScheduledTask
             },
             function callsFetchError(error)
             {
-                self.logger.fatal('An error occurred while scheduling calls. Error: %s', error);
+                self.logger.fatal('An error occurred while scheduling calls. Error: %s', JSON.stringify(error));
             })
             .finally(
             function triggerAfterOneHour()

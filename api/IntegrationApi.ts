@@ -25,8 +25,8 @@ class IntegrationApi
     {
         var integrationDelegate = new IntegrationDelegate();
         var integrationMemberDelegate = new IntegrationMemberDelegate();
-        var notificaitonDelegate = new NotificationDelegate();
         var verificationCodeDelegate = new VerificationCodeDelegate();
+
         /*
          * Create integration
          * Allow only searchntalk.com admin
@@ -53,7 +53,6 @@ class IntegrationApi
                     integrationMember.setIntegrationId(integration.getId());
 
                     verificationCodeDelegate.createAndSendExpertInvitationCode(integration.getId(),integrationMember, sender);
-                    //notificaitonDelegate.sendOwnerInvitationNotification(integration.getId(),ownerEmail);
                     res.json(integration.toJson());
                 })
                 .fail( function (error){  res.status(500).json(error);})

@@ -8,6 +8,7 @@ import nconf        = require("nconf");
 class Config
 {
     static ENV:string                                   = 'env';
+    static VERSION:string                               = 'version';
     static SESSION_EXPIRY:string                        = 'session.expiry';
 
     static PROFILE_IMAGE_PATH:string                    = 'profile_image_path';
@@ -60,6 +61,7 @@ class Config
     static PAY_ZIPPY_MERCHANT_KEY_ID:string             = "pay_zippy.merchant_key_id";
     static PAY_ZIPPY_SECRET_KEY:string                  = "pay_zippy.secret_key";
 
+    private static version:string;
 
     /* Static constructor workaround */
     private static ctor = (() =>
@@ -70,7 +72,16 @@ class Config
     /* Getters */
     static get(key:string):any
     {
+        if (key == Config.VERSION)
+            return Config.version;
+
         return nconf.get(key);
+    }
+
+    static set(key:string, val:any)
+    {
+        if (key == Config.VERSION)
+            Config.version = val;
     }
 }
 export = Config

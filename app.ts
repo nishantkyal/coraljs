@@ -35,8 +35,10 @@ import CallFlowUrls                                 = require('./routes/callFlow
 import CallSchedulingUrls                           = require('./routes/callScheduling/Urls');
 import DashboardUrls                                = require('./routes/dashboard/Urls');
 import MemberRegistrationUrls                       = require('./routes/expertRegistration/Urls');
+var pjson                                           = require('./package.json');
 
 log4js.configure('/var/searchntalk/config/log4js.json');
+Config.set(Config.VERSION, pjson.version);
 
 var app:express.Application = express();
 
