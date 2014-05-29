@@ -45,26 +45,20 @@ class ScheduleCallsScheduledTask extends AbstractScheduledTask
             }
         };
 
-        return self.phoneCallDelegate.search(query)
+        return self.phoneCallDelegate.search(query, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER])
             .then(
             function callsFetched(calls:PhoneCall[]):any
             {
                 var callsAlreadyScheduled:number[] = new ScheduledTaskDelegate().filter(ScheduledTaskType.CALL);
                 return q.all(_.map(calls, function (call:PhoneCall)
                 {
-                    var alreadyScheduled = _.find(callsAlreadyScheduled, function(callId){return callId == call.getId() });
-
-                    if(Utils.isNullOrEmpty(alreadyScheduled))
-                    {
-                        self.phoneCallDelegate.queueCallForTriggering(call);
-                        notificationDelegate.scheduleCallNotification(call);
-                        return phoneCallCache.addCall(call)
-                    }
+                    return self.phoneCallDelegate.queueCallForTriggering(call);
                 }));
             },
             function callsFetchError(error)
             {
                 self.logger.fatal('An error occurred while scheduling calls. Error: %s', JSON.stringify(error));
+                throw(error);
             })
             .finally(
             function triggerAfterOneHour()

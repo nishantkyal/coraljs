@@ -32,7 +32,7 @@ class Middleware
         if (!Utils.isNullOrEmpty(callerPhone)
                 && !Utils.isNullOrEmpty(agenda) && !Utils.isNullOrEmpty(duration)
                     && (!Utils.isNullOrEmpty(appointments) || isCallNow)
-                        && (Utils.isNullOrEmpty(expert) && expert.isValid()))
+                        && (!Utils.isNullOrEmpty(expert) && expert.isValid()))
         {
             next();
         }

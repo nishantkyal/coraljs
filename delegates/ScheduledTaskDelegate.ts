@@ -55,7 +55,6 @@ class ScheduledTaskDelegate
         // Add task to index and persist
         ScheduledTaskDelegate.tasks[taskId] = {task: task, timeout: timeout};
 
-        // TODO: Make sync to redis work
         self.syncToRedis();
 
         return taskId;
@@ -96,11 +95,11 @@ class ScheduledTaskDelegate
         return null;
     }
 
-    cancel(taskId:number):void
+    cancel(taskId:number):q.Promise<any>
     {
         clearTimeout(ScheduledTaskDelegate.tasks[taskId].timeout);
         delete ScheduledTaskDelegate.tasks[taskId];
-        this.syncToRedis();
+        return this.syncToRedis();
     }
 
     private syncToRedis():q.Promise<any>

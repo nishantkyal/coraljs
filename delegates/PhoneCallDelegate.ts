@@ -5,10 +5,12 @@ import Utils                                                            = requir
 import Config                                                           = require('../common/Config');
 import PhoneCallDao                                                     = require('../dao/PhoneCallDao');
 import BaseDaoDelegate                                                  = require('../delegates/BaseDaoDelegate');
+import ScheduledTaskDelegate                                            = require('../delegates/ScheduledTaskDelegate');
 import IntegrationMemberDelegate                                        = require('../delegates/IntegrationMemberDelegate');
 import UserPhoneDelegate                                                = require('../delegates/UserPhoneDelegate');
 import UserDelegate                                                     = require('../delegates/UserDelegate');
 import NotificationDelegate                                             = require('../delegates/NotificationDelegate');
+import TransactionDelegate                                              = require('../delegates/TransactionDelegate');
 import CallStatus                                                       = require('../enums/CallStatus');
 import IncludeFlag                                                      = require('../enums/IncludeFlag');
 import PhoneType                                                        = require('../enums/PhoneType');
@@ -18,6 +20,7 @@ import User                                                             = requir
 import UserPhone                                                        = require('../models/UserPhone');
 import IntegrationMember                                                = require('../models/IntegrationMember');
 import TriggerPhoneCallTask                                             = require('../models/tasks/TriggerPhoneCallTask');
+import CallReminderNotificationScheduledTask                            = require('../models/tasks/CallReminderNotificationScheduledTask');
 import UnscheduledCallsCache                                            = require('../caches/UnscheduledCallsCache');
 import PhoneCallCache                                                   = require('../caches/PhoneCallCache');
 import CallProviderFactory                                              = require('../factories/CallProviderFactory');
@@ -26,9 +29,11 @@ class PhoneCallDelegate extends BaseDaoDelegate
 {
     static ALLOWED_NEXT_STATUS:{ [s: number]: CallStatus[]; } = {};
 
+    private scheduledTaskDelegate = new ScheduledTaskDelegate();
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private userDelegate = new UserDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
+    private transactionDelegate = new TransactionDelegate();
     private callProvider = new CallProviderFactory().getProvider();
     private phoneCallCache = new PhoneCallCache();
 
@@ -66,7 +71,9 @@ class PhoneCallDelegate extends BaseDaoDelegate
     }
 
     update(criteria:Object, newValues:Object, transaction?:Object):q.Promise<any>;
+
     update(criteria:number, newValues:Object, transaction?:Object):q.Promise<any>;
+
     update(criteria:any, newValues:Object, transaction?:Object):q.Promise<any>
     {
         var newStatus = newValues.hasOwnProperty(PhoneCall.STATUS) ? newValues[PhoneCall.STATUS] : null;
@@ -126,8 +133,10 @@ class PhoneCallDelegate extends BaseDaoDelegate
 
     /* Queue the call for triggering */
     queueCallForTriggering(call:number);
+
     queueCallForTriggering(call:PhoneCall);
-    queueCallForTriggering(call:any)
+
+    queueCallForTriggering(call:any):q.Promise<any>
     {
         var self = this;
 
@@ -138,21 +147,48 @@ class PhoneCallDelegate extends BaseDaoDelegate
                     self.queueCallForTriggering(fetchedCall);
                 });
 
-        var ScheduledTaskDelegate = require('../delegates/ScheduledTaskDelegate');
-        var scheduledTaskDelegate = new ScheduledTaskDelegate();
+        // Queue call for triggering if it's before the scheduler will trigger again
+        if (call.getStartTime() > moment().valueOf() && call.getStartTime() < moment().valueOf() + Config.get(Config.PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS) * 1000)
+        {
+            //TODO[ankit] check whether the call has not been scheduled already as new call scheduled in next one hour are scheduled manually
+            var ScheduledTaskDelegate = require('../delegates/ScheduledTaskDelegate');
+            var scheduledTaskDelegate = new ScheduledTaskDelegate();
+            var notificationDelegate = new NotificationDelegate();
 
-        var callsAlreadyScheduled:number[] = scheduledTaskDelegate.filter(ScheduledTaskType.CALL);
-        var alreadyScheduled = _.find(callsAlreadyScheduled, function(callId){return callId == call.getId() });
-
-        if(Utils.isNullOrEmpty(alreadyScheduled))
             scheduledTaskDelegate.scheduleAt(new TriggerPhoneCallTask(call.getId()), call.getStartTime());
+            scheduledTaskDelegate.scheduleAt(new CallReminderNotificationScheduledTask(call.getId()), call.getStartTime() - parseInt(Config.get(Config.CALL_REMINDER_LEAD_TIME_SECS)) * 1000);
+            return self.phoneCallCache.addCall(call);
+        }
+        return null;
     }
 
     /* Cancel call */
     cancelCall(callId:number, cancelledByUser:number):q.Promise<any>
     {
-        // If cancelled by user, create a call cancellation transaction in his account
-        return null;
+        var self = this;
+
+        // 1. Update status
+        // 2. Remove from cache
+        // 3. If cancelled by user, create a call cancellation transaction in his account
+        // 4. Cancel trigger task
+
+        var tasks = [
+            self.update(callId, Utils.createSimpleObject(PhoneCall.STATUS, CallStatus.CANCELLED)),
+            self.phoneCallCache.delete(callId),
+        ];
+
+        if (cancelledByUser)
+        {
+            tasks.push(self.transactionDelegate.createCancellationTransaction(callId));
+        }
+
+        return q.all(tasks)
+            .then(
+            function callCancelled()
+            {
+                var callTriggeringScheduledTaskId = self.scheduledTaskDelegate.find(null);
+                return self.scheduledTaskDelegate.cancel(callTriggeringScheduledTaskId);
+            });
     }
 
     /**
@@ -165,8 +201,6 @@ class PhoneCallDelegate extends BaseDaoDelegate
      * */
     handleSchedulingRequest(callId:number, requesterUserId:number, originalSlots:number[], pickedSlots:number[], reason?:string):q.Promise<any>
     {
-        return null;
-
         var notificationDelegate = new NotificationDelegate();
         var self = this;
 
@@ -180,8 +214,18 @@ class PhoneCallDelegate extends BaseDaoDelegate
 
                 if (isConfirmation)
                 {
-                    // Send notifications to both
-                    return notificationDelegate.sendCallSchedulingCompleteNotifications(call, pickedSlots[0]);
+                    // 1. Update call status
+                    // 2. Send notifications to both
+                    // 3. Try to queue call for triggering
+                    return self.update(callId, {status: CallStatus.SCHEDULED, start_time: pickedSlots[0]})
+                        .then(
+                        function callStatusUpdated()
+                        {
+                            return q.all([
+                                self.queueCallForTriggering(call),
+                                notificationDelegate.sendCallSchedulingCompleteNotifications(call, pickedSlots[0])
+                            ]);
+                        })
                 }
                 else if (isSuggestion)
                 {
@@ -196,6 +240,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
                 }
                 else if (isRejection)
                 {
+                    // Cancel call and notify
                     return self.cancelCall(callId, requesterUserId)
                         .then(
                         function callCancelled()

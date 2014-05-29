@@ -4,7 +4,6 @@ import _                                                    = require('underscor
 import BaseDaoDelegate                                      = require('./BaseDaoDelegate');
 import MysqlDelegate                                        = require('./MysqlDelegate');
 import TransactionLineDelegate                              = require('./TransactionLineDelegate');
-import PhoneCallDelegate                                    = require('./PhoneCallDelegate');
 import CouponDelegate                                       = require('./CouponDelegate');
 import TransactionDAO                                       = require('../dao/TransactionDao');
 import Transaction                                          = require('../models/Transaction');
@@ -23,7 +22,6 @@ class TransactionDelegate extends BaseDaoDelegate
 {
     private couponDelegate = new CouponDelegate();
     private transactionLineDelegate = new TransactionLineDelegate();
-    private phoneCallDelegate = new PhoneCallDelegate();
 
     constructor() { super(new TransactionDAO()); }
 
@@ -52,6 +50,11 @@ class TransactionDelegate extends BaseDaoDelegate
             {
                 return transaction.getId();
             });
+    }
+
+    createCancellationTransaction(callId:number):q.Promise<any>
+    {
+        return null;
     }
 
     applyCoupon(transactionId:number, code:string, dbTransaction?:Object):q.Promise<any>

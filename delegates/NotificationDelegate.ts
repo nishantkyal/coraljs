@@ -7,7 +7,7 @@ import PhoneCall                                            = require('../models
 import IntegrationMember                                    = require('../models/IntegrationMember');
 import CallFragment                                         = require('../models/CallFragment');
 import User                                                 = require('../models/User');
-import NotificationCallScheduledTask                        = require('../models/tasks/NotificationCallScheduledTask');
+import CallReminderNotificationScheduledTask                        = require('../models/tasks/CallReminderNotificationScheduledTask');
 import Utils                                                = require('../common/Utils');
 import IncludeFlag                                          = require('../enums/IncludeFlag');
 
@@ -129,25 +129,6 @@ class NotificationDelegate
         var self = this;
 
         return self.emailDelegate.sendExpertRegistrationCompleteEmail(expert);
-    }
-
-    //TODO: Figure out correct place for this
-    scheduleCallNotification(call:PhoneCall);
-    scheduleCallNotification(call:number);
-    scheduleCallNotification(call:any)
-    {
-        var self = this;
-
-        if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_USER])
-                .then(function (fetchedCall:PhoneCall)
-                {
-                    self.scheduleCallNotification(fetchedCall);
-                });
-
-        var ScheduledTaskDelegate = require('../delegates/ScheduledTaskDelegate');
-        var scheduledTaskDelegate = new ScheduledTaskDelegate();
-        scheduledTaskDelegate.scheduleAt(new NotificationCallScheduledTask(call.getId()), call.getStartTime() - parseInt(Config.get(Config.CALL_REMINDER_LEAD_TIME_SECS)) * 1000);
     }
 }
 export = NotificationDelegate
