@@ -1,6 +1,6 @@
 {
     "name": "Coral",
-    "version": "0.0.3",
+    "version": "0.1.0",
     "private": true,
     "scripts": {
         "start": "node app.js",
@@ -33,6 +33,7 @@
         "grunt-text-replace": "*",
         "grunt-contrib-jade": "*",
         "grunt-bumpup": "*",
+        "grunt-version": "*",
         "grunt-typescript": "*",
         "grunt-prompt": "*",
         "grunt-git": "*",
