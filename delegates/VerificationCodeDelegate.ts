@@ -8,7 +8,7 @@ import SMS                                                      = require('../mo
 import UserPhone                                                = require('../models/UserPhone');
 import PhoneCall                                                = require('../models/PhoneCall');
 import IntegrationMemberDelegate                                = require('../delegates/IntegrationMemberDelegate');
-import SmsDelegate                                              = require('../delegates/SMSDelegate');
+import SMSDelegate                                              = require('../delegates/SMSDelegate');
 import UserDelegate                                             = require('../delegates/UserDelegate');
 import UserPhoneDelegate                                        = require('../delegates/UserPhoneDelegate');
 import Utils                                                    = require('../common/Utils');
@@ -22,7 +22,7 @@ class VerificationCodeDelegate
 
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private emailDelegate;
-    private smsDelegate = new SmsDelegate();
+    private smsDelegate = new SMSDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
     private userDelegate = new UserDelegate();
     private notificationDelegate;
@@ -31,6 +31,7 @@ class VerificationCodeDelegate
     {
         var EmailDelegate = require('../delegates/EmailDelegate');
         this.emailDelegate = new EmailDelegate();
+
         var NotificationDelegate = require('../delegates/NotificationDelegate');
         this.notificationDelegate = new NotificationDelegate();
     }

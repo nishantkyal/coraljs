@@ -23,24 +23,24 @@ class PayZippyProvider
     private transactionDelegate = new TransactionDelegate();
     private paymentDelegate = new PaymentDelegate();
 
-    private static MERHANT_TRANSACTION_ID:string            = 'merchant_transaction_id';
-    private static PAYZIPPY_TRANSACTION_ID:string           = 'payzippy_transaction_id';
-    private static TRANSACTION_STATUS:string                = 'transaction_status';
-    private static TRANSACTION_AMOUNT:string                = 'transaction_amount';
-    private static TRANSACTION_CURRENCY:string              = 'transaction_currency';
-    private static TRANSACTION_RESPONSE_CODE:string         = 'transaction_response_code';
-    private static TRANSACTION_RESPONSE_MESSAGE:string      = 'transaction_response_message';
-    private static FRAUD_ACTION:string                      = 'fraud_action';
-    private static FRAUD_DETAILS:string                     = 'fraud_details';
+    private static MERHANT_TRANSACTION_ID:string = 'merchant_transaction_id';
+    private static PAYZIPPY_TRANSACTION_ID:string = 'payzippy_transaction_id';
+    private static TRANSACTION_STATUS:string = 'transaction_status';
+    private static TRANSACTION_AMOUNT:string = 'transaction_amount';
+    private static TRANSACTION_CURRENCY:string = 'transaction_currency';
+    private static TRANSACTION_RESPONSE_CODE:string = 'transaction_response_code';
+    private static TRANSACTION_RESPONSE_MESSAGE:string = 'transaction_response_message';
+    private static FRAUD_ACTION:string = 'fraud_action';
+    private static FRAUD_DETAILS:string = 'fraud_details';
 
-    private static FRAUD_ACTION_ACCEPT:string               = 'Accept';
-    private static FRAUD_ACTION_REJECT:string               = 'Reject';
-    private static FRAUD_ACTION_REVIEW:string               = 'Review';
-    private static FRAUD_ACTION_NO_ACTION:string            = 'No Action';
+    private static FRAUD_ACTION_ACCEPT:string = 'Accept';
+    private static FRAUD_ACTION_REJECT:string = 'Reject';
+    private static FRAUD_ACTION_REVIEW:string = 'Review';
+    private static FRAUD_ACTION_NO_ACTION:string = 'No Action';
 
-    private static TRANSACTION_STATUS_SUCCESS:string        = 'SUCCESS';
-    private static TRANSACTION_STATUS_FAILED:string         = 'FAILED';
-    private static TRANSACTION_STATUS_PENDING:string        = 'PENDING';
+    private static TRANSACTION_STATUS_SUCCESS:string = 'SUCCESS';
+    private static TRANSACTION_STATUS_FAILED:string = 'FAILED';
+    private static TRANSACTION_STATUS_PENDING:string = 'PENDING';
 
 
     getPaymentUrl(transaction:Transaction, amount:number, user:User):string
@@ -92,8 +92,8 @@ class PayZippyProvider
         {
             var noPayment = req.query[ApiConstants.NO_PAYMENT];
             var deferred = q.defer();
-            if(noPayment)
-                deferred.resolve();
+            if (noPayment)
+                deferred.resolve(true);
             else
                 deferred.reject('Computed hash doesn\'t match with actual hash');
             return deferred.promise;

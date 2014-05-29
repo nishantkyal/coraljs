@@ -25,7 +25,6 @@ class PhoneCallDelegate extends BaseDaoDelegate
 {
     static ALLOWED_NEXT_STATUS:{ [s: number]: CallStatus[]; } = {};
 
-    private unscheduledCallsCache:UnscheduledCallsCache = new UnscheduledCallsCache();
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private userDelegate = new UserDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
@@ -65,21 +64,6 @@ class PhoneCallDelegate extends BaseDaoDelegate
             });
     }
 
-    create(object:any, transaction?:Object):q.Promise<any>
-    {
-        //TODO[alpha-calling] remoce the comment
-        //if (object[PhoneCall.STATUS] == CallStatus.PLANNING)
-        //    return this.unscheduledCallsCache.addUnscheduledCall(object[PhoneCall.EXPERT_PHONE_ID], object[PhoneCall.START_TIME], object);
-        return super.create(object, transaction);
-    }
-
-    search(search:Object):q.Promise<any>
-    {
-        if (search[PhoneCall.STATUS] == CallStatus.PLANNING)
-            return this.unscheduledCallsCache.getUnscheduledCalls(search['integration_member_id'], search['schedule_id']);
-        return super.search(search);
-    }
-
     update(criteria:Object, newValues:Object, transaction?:Object):q.Promise<any>;
     update(criteria:number, newValues:Object, transaction?:Object):q.Promise<any>;
     update(criteria:any, newValues:Object, transaction?:Object):q.Promise<any>
@@ -105,12 +89,6 @@ class PhoneCallDelegate extends BaseDaoDelegate
         return super.update(criteria, newValues, transaction);
     }
 
-    getCallsBetweenInterval(startTime:number, endTime:number):q.Promise<any>
-    {
-        var phoneCallDao:any = this.dao;
-        return phoneCallDao.getCallsBetweenInterval(startTime, endTime);
-    }
-
     getIncludeHandler(include:IncludeFlag, result:PhoneCall):q.Promise<any>
     {
         var self = this;
@@ -128,6 +106,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
         return super.getIncludeHandler(include, result);
     }
 
+    /* Trigger the call */
     triggerCall(callId:number):q.Promise<any>
     {
         var self = this;
@@ -144,9 +123,10 @@ class PhoneCallDelegate extends BaseDaoDelegate
             });
     }
 
-    scheduleCall(call:number);
-    scheduleCall(call:PhoneCall);
-    scheduleCall(call:any)
+    /* Queue the call for triggering */
+    queueCallForTriggering(call:number);
+    queueCallForTriggering(call:PhoneCall);
+    queueCallForTriggering(call:any)
     {
         var self = this;
 
@@ -154,14 +134,73 @@ class PhoneCallDelegate extends BaseDaoDelegate
             return self.get(call, null, [IncludeFlag.INCLUDE_USER])
                 .then(function (fetchedCall:PhoneCall)
                 {
-                    self.scheduleCall(fetchedCall);
+                    self.queueCallForTriggering(fetchedCall);
                 });
 
         //TODO[ankit] check whether the call has not been scheduled already as new call scheduled in next one hour are scheduled manually
         var ScheduledTaskDelegate = require('../delegates/ScheduledTaskDelegate');
         var scheduledTaskDelegate = new ScheduledTaskDelegate();
         scheduledTaskDelegate.scheduleAt(new TriggerPhoneCallTask(call.getId()), call.getStartTime());
+    }
 
+    /* Cancel call */
+    cancelCall(callId:number, cancelledByUser:number):q.Promise<any>
+    {
+        // If cancelled by user, create a call cancellation transaction in his account
+        return null;
+    }
+
+    /**
+     * Process call scheduling based on expert/caller input
+     * Called when either caller/expert respond the time slots suggested by other party
+     * The call may get
+     *  - Cancelled (if either party cancels)
+     *  - Scheduled (if either party agrees to one of suggested)
+     *  - Remain unchanged (if suggested slots are rejected and alternates suggested)
+     * */
+    handleSchedulingRequest(callId:number, requesterUserId:number, originalSlots:number[], pickedSlots:number[], reason?:string):q.Promise<any>
+    {
+        return null;
+
+        var notificationDelegate = new NotificationDelegate();
+        var self = this;
+
+        return this.get(callId, null, [IncludeFlag.INCLUDE_USER, IncludeFlag.INCLUDE_INTEGRATION_MEMBER])
+            .then(
+            function callFetched(call:PhoneCall)
+            {
+                var isConfirmation = pickedSlots.length == 1 && _.contains(originalSlots, pickedSlots[0]);
+                var isSuggestion = _.intersection(originalSlots, pickedSlots).length == 0;
+                var isRejection = !Utils.isNullOrEmpty(reason);
+
+                if (isConfirmation)
+                {
+                    // Send notifications to both
+                    return notificationDelegate.sendCallSchedulingCompleteNotifications(call, pickedSlots[0]);
+                }
+                else if (isSuggestion)
+                {
+                    // Send notification to other party
+                    var isExpert = call.getIntegrationMember().getUser().getId() == requesterUserId;
+                    var isCaller = call.getCallerUserId() == requesterUserId;
+
+                    if (isExpert)
+                        return notificationDelegate.sendNewTimeSlotsToExpert(call, pickedSlots);
+                    else if (isCaller)
+                        return notificationDelegate.sendSuggestedAppointmentToCaller(call, pickedSlots[0]);
+                }
+                else if (isRejection)
+                {
+                    return self.cancelCall(callId, requesterUserId)
+                        .then(
+                        function callCancelled()
+                        {
+                            return notificationDelegate.sendCallRejectedNotifications(call, reason);
+                        });
+                }
+                else
+                    throw('Invalid request');
+            });
     }
 
     constructor() { super(new PhoneCallDao()); }

@@ -33,6 +33,7 @@ class ApiConstants
     static SCHEDULE_RULE_ID:string                      = 'scheduleRuleId';
     static SCHEDULE_EXCEPTION_ID:string                 = 'scheduleExceptionId';
     static START_TIME:string                            = 'startTime';
+    static REASON:string                                = 'reason';
     static END_TIME:string                              = 'endTime';
     static DURATION:string                              = 'duration';
     static TOKEN:string                                 = 'token';

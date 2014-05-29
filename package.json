@@ -2,13 +2,11 @@
     "name"        : "Coral",
     "version"     : "0.0.1",
     "private"     : true,
-    "scripts"     :
-    {
+    "scripts"     : {
         "start": "node app.js",
         "test" : "nodeunit test"
     },
-    "dependencies":
-    {
+    "dependencies": {
         "express"             : "3.4.1",
         "connect"             : "*",
         "connect-flash"       : "*",
@@ -34,7 +32,8 @@
         "grunt-contrib-cssmin": "*",
         "grunt-text-replace"  : "*",
         "grunt-contrib-jade"  : "*",
-        "grunt-ts"            : "*",
+        "grunt-bumpup"        : "*",
+        "grunt-typescript"    : "*",
         "grunt-promise-q"     : "*",
         "nodeunit"            : "0.8.2",
         "redis"               : "0.10.0",

@@ -5,6 +5,7 @@ function init(grunt) {
     grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-text-replace');
     grunt.loadNpmTasks('grunt-promise-q');
+    grunt.loadNpmTasks('grunt-typescript');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -32,6 +33,19 @@ function init(grunt) {
                 src: 'public/css/combined.css',
                 dest: 'public/css/combined.min.css'
             }
+        },
+        typescript: {
+            src: ['app.ts'],
+            options: {
+                module: 'commonjs',
+                target: 'es5',
+                basePath: '.',
+                sourceMap: false,
+                declaration: false
+            }
+        },
+        clean: {
+            typescript: ["*/**/*.js", '!Gruntfile.js', '!public/**/*.js', '!node_modules/**/*.js']
         }
     });
 

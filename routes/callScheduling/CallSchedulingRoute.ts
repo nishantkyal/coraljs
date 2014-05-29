@@ -24,6 +24,7 @@ import Transaction                                          = require('../../mod
 import Coupon                                               = require('../../models/Coupon');
 import UserPhone                                            = require('../../models/UserPhone');
 import IntegrationMember                                    = require('../../models/IntegrationMember');
+import User                                                 = require('../../models/User');
 import CallStatus                                           = require('../../enums/CallStatus');
 import ApiConstants                                         = require('../../enums/ApiConstants');
 import IncludeFlag                                          = require('../../enums/IncludeFlag');
@@ -35,28 +36,18 @@ import SessionData                                          = require('./Session
 import CallFlowUrls                                         = require('../callFlow/Urls');
 import DashboardUrls                                        = require('../../routes/dashboard/Urls');
 
-class   CallSchedulingRoute
+class CallSchedulingRoute
 {
     private static SCHEDULING:string = 'callScheduling/scheduling';
-    private static SUGGEST_NEW_TIME:string = 'callScheduling/rescheduling';
-    private static PICK_NEW_SLOTS:string = 'callScheduling/reschedulingByUser';
 
-    private logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
     private verificationCodeDelegate = new VerificationCodeDelegate();
     private phoneCallDelegate = new PhoneCallDelegate();
-    private notificationDelegate = new NotificationDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
 
     constructor(app, secureApp)
     {
         // Actual rendered pages
         app.get(Urls.scheduling(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: DashboardUrls.login()}), this.scheduling.bind(this));
-        app.get(Urls.suggestTimeSlot(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: DashboardUrls.login()}), this.suggestAlternateAppointment.bind(this));
-        app.get(Urls.pickTimeSlot(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: DashboardUrls.login()}), this.chooseAnotherTimeSlot.bind(this));
-        app.get(Urls.reject(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: DashboardUrls.login()}), this.reject.bind(this));
-
-        app.post(Urls.suggestTimeSlot(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: DashboardUrls.login()}), this.sendSuggestedAppointmentToCaller.bind(this));
-        app.post(Urls.pickTimeSlot(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: DashboardUrls.login()}), this.sendNewTimeSlotsToExpert.bind(this));
     }
 
     /**
@@ -110,156 +101,5 @@ class   CallSchedulingRoute
                 res.render('500', {error: error});
             });
     }
-
-    /**
-     * Invoked when expert doesn't like any of the slots and wants to specify a new time
-     */
-    private suggestAlternateAppointment(req:express.Request, res:express.Response)
-    {
-        var self = this;
-        var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
-        var appointmentCode:string = req.query[ApiConstants.CODE];
-
-        self.phoneCallDelegate.get(callId)
-            .then(
-            function callFetched(call:PhoneCall)
-            {
-                var pageData = {
-                    call: call,
-                    code: appointmentCode
-                };
-                res.render(CallSchedulingRoute.SUGGEST_NEW_TIME, pageData);
-            })
-            .fail(function (error)
-            {
-                res.send(500, {error: JSON.stringify(error)});
-            });
-    }
-
-    /**
-     * Send the appointment slot suggested by expert to caller
-     */
-    private sendSuggestedAppointmentToCaller(req:express.Request, res:express.Response)
-    {
-        var self = this;
-        var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
-        var startTime:number = parseInt(req.body[ApiConstants.START_TIME]);
-        var appointmentCode:string = req.body[ApiConstants.CODE];
-
-        self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_USER])
-            .then(
-            function callFetched(call:PhoneCall)
-            {
-                self.notificationDelegate.sendSuggestedAppointmentToCaller(call, startTime);
-            })
-            .then(
-            function deleteSchedulingCode()
-            {
-                return self.verificationCodeDelegate.deleteAppointmentAcceptCode(appointmentCode);
-            })
-            .then(
-            function sendResponse()
-            {
-                res.send(200, "We've intimated the caller of your preferences. We'll get back to you when we get a response.");
-            })
-            .fail(function (error)
-            {
-                res.status(501);
-            });
-    }
-
-    /**
-     * Invoked when caller doesn't like the appointment slot suggested by expert and wants to pick more slots
-     */
-    private chooseAnotherTimeSlot(req:express.Request, res:express.Response)
-    {
-        var self = this;
-        var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
-        var sessionData = new SessionData(req);
-
-        return self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER])
-            .then(
-            function handleCallFetched(call:PhoneCall)
-            {
-                sessionData.setExpert(call.getIntegrationMember());
-
-                var pageData = _.extend(sessionData.getData(),
-                    {
-                        messages: req.flash(),
-                        call: call
-                    });
-
-                res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
-                res.render(CallSchedulingRoute.PICK_NEW_SLOTS, pageData);
-            })
-            .fail(
-            function handleError(error)
-            {
-                res.render('500', {error: JSON.stringify(error)});
-            });
-    }
-
-    /**
-     * Send new time slots to expert
-     */
-    private sendNewTimeSlotsToExpert(req:express.Request, res:express.Response)
-    {
-        var self = this;
-        var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
-        var startTime:number[] = [parseInt(req.body[ApiConstants.START_TIME])];
-        var appointmentCode:string = req.body[ApiConstants.CODE];
-
-        self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_USER])
-            .then(
-            function callFetched(call:PhoneCall)
-            {
-                self.notificationDelegate.sendNewTimeSlotsToExpert(call, startTime);
-            })
-            .then(
-            function deleteSchedulingCode()
-            {
-                return self.verificationCodeDelegate.deleteAppointmentAcceptCode(appointmentCode);
-            })
-            .then(
-            function sendResponse()
-            {
-                res.send(200, "We've intimated the expert of your preferences. We'll get back to you when we get a response.");
-            })
-            .fail(function (error)
-            {
-                res.render('500', {error: JSON.stringify(error)});
-            });
-    }
-
-    /**
-     * Invoked when expert rejects the call
-     */
-    private reject(req:express.Request, res:express.Response)
-    {
-        var self = this;
-        var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
-
-        self.phoneCallDelegate.update(callId, {status: CallStatus.AGENDA_DECLINED})
-            .then(
-            function callUpdated()
-            {
-                return self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_USER]);
-            })
-            .then(
-            function callFetched(call:PhoneCall)
-            {
-                return self.notificationDelegate.sendCallRejectedNotifications(call, 'agenda ');
-            })
-            .then(
-            function notificationSent()
-            {
-                res.send(200);
-            })
-            .fail(function (error)
-            {
-                res.render('500', {error: JSON.stringify(error)});
-            });
-    }
-
 }
 export = CallSchedulingRoute
