@@ -1,6 +1,7 @@
 ///<reference path='../_references.d.ts'/>
 import _                                                                = require('underscore');
 import q                                                                = require('q');
+import moment                                                           = require('moment');
 import Utils                                                            = require('../common/Utils');
 import Config                                                           = require('../common/Config');
 import PhoneCallDao                                                     = require('../dao/PhoneCallDao');
@@ -80,13 +81,13 @@ class PhoneCallDelegate extends BaseDaoDelegate
 
             // Only return calls whose current status' next step can be the new status
             // This is a better way to update status to a valid next status without querying for current status first
-            var allowedPreviousStatuses:CallStatus[] = _.filter(_.keys(PhoneCallDelegate.ALLOWED_NEXT_STATUS), function (status:CallStatus)
+            var allowedPreviousStatuses = _.filter(_.keys(PhoneCallDelegate.ALLOWED_NEXT_STATUS), function (status:any)
             {
                 return _.contains(PhoneCallDelegate.ALLOWED_NEXT_STATUS[status], newStatus);
             });
 
             if (allowedPreviousStatuses.length > 0)
-                criteria[PhoneCall.STATUS] = allowedPreviousStatuses;
+                criteria[PhoneCall.STATUS] = _.map(allowedPreviousStatuses, function(status:string) {return parseInt(status); });;
         }
 
         return super.update(criteria, newValues, transaction);
@@ -151,7 +152,9 @@ class PhoneCallDelegate extends BaseDaoDelegate
             scheduledTaskDelegate.scheduleAt(new CallReminderNotificationScheduledTask(call.getId()), call.getStartTime() - parseInt(Config.get(Config.CALL_REMINDER_LEAD_TIME_SECS)) * 1000);
             return self.phoneCallCache.addCall(call);
         }
-        return null;
+
+        self.logger.debug('Queuing trigger failed for call id: %s, reason: %s', call.getId(), 'Scheduled for much later');
+        return q.resolve(true);
     }
 
     /* Cancel call */
@@ -182,7 +185,10 @@ class PhoneCallDelegate extends BaseDaoDelegate
                 var scheduledTaskDelegate = new ScheduledTaskDelegate();
 
                 var callTriggeringScheduledTaskId = scheduledTaskDelegate.find(null);
-                return scheduledTaskDelegate.cancel(callTriggeringScheduledTaskId);
+                if (!Utils.isNullOrEmpty(callTriggeringScheduledTaskId))
+                    return scheduledTaskDelegate.cancel(callTriggeringScheduledTaskId);
+                else
+                    return q.resolve(true);
             });
     }
 
@@ -207,7 +213,17 @@ class PhoneCallDelegate extends BaseDaoDelegate
                 var isSuggestion = _.intersection(originalSlots, pickedSlots).length == 0;
                 var isRejection = !Utils.isNullOrEmpty(reason);
 
-                if (isConfirmation)
+                if (isRejection)
+                {
+                    // Cancel call and notify
+                    return self.cancelCall(callId, requesterUserId)
+                        .then(
+                        function callCancelled()
+                        {
+                            return notificationDelegate.sendCallRejectedNotifications(call, reason);
+                        });
+                }
+                else if (isConfirmation)
                 {
                     // 1. Update call status
                     // 2. Send notifications to both
@@ -222,26 +238,16 @@ class PhoneCallDelegate extends BaseDaoDelegate
                             ]);
                         })
                 }
-                else if (isSuggestion)
+                else if (isSuggestion && call.getStatus() == CallStatus.SCHEDULING)
                 {
                     // Send notification to other party
-                    var isExpert = call.getIntegrationMember().getUser().getId() == requesterUserId;
+                    var isExpert = call.getIntegrationMember().getUser()[0].getId() == requesterUserId;
                     var isCaller = call.getCallerUserId() == requesterUserId;
 
                     if (isExpert)
                         return notificationDelegate.sendNewTimeSlotsToExpert(call, pickedSlots);
                     else if (isCaller)
                         return notificationDelegate.sendSuggestedAppointmentToCaller(call, pickedSlots[0]);
-                }
-                else if (isRejection)
-                {
-                    // Cancel call and notify
-                    return self.cancelCall(callId, requesterUserId)
-                        .then(
-                        function callCancelled()
-                        {
-                            return notificationDelegate.sendCallRejectedNotifications(call, reason);
-                        });
                 }
                 else
                     throw('Invalid request');

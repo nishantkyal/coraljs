@@ -391,9 +391,9 @@ class DashboardRoute
                         Middleware.isAdminOrOwner(loggedInUser, memberId)
                     ]);
 
-                if(loggedInUser)
+                if (loggedInUser)
                     profileInfoTasks = profileInfoTasks.concat([
-                        self.integrationMemberDelegate.find({integration_id:member.getIntegrationId(),user_id:loggedInUser.getId()})
+                        self.integrationMemberDelegate.find({integration_id: member.getIntegrationId(), user_id: loggedInUser.getId()})
                     ]);
 
                 return q.all(profileInfoTasks);
@@ -410,12 +410,12 @@ class DashboardRoute
                 var tempMember = args[0][7];
                 var adminOrOwner;
 
-                if(tempMember && (tempMember.getRole() == IntegrationMemberRole.Owner || tempMember.getRole() == IntegrationMemberRole.Admin ))
+                if (tempMember && (tempMember.getRole() == IntegrationMemberRole.Owner || tempMember.getRole() == IntegrationMemberRole.Admin ))
                     adminOrOwner = tempMember;
 
-                if(mode == ApiConstants.PUBLIC_MODE)
+                if (mode == ApiConstants.PUBLIC_MODE)
                     isEditable = false;
-                
+
                 var profileId = userProfile ? userProfile.getId() : null;
 
                 var pageData = _.extend(sessionData.getData(), {
@@ -499,15 +499,16 @@ class DashboardRoute
         var memberId:number = parseInt(req.params[ApiConstants.MEMBER_ID]);
         var sessionData = new SessionData(req);
 
-        self.phoneCallDelegate.search({'integration_member_id':memberId})
-        .then(
-        function callDetailsFetched(calls){
-            var pageData = _.extend(sessionData.getData(), {
-                calls:calls || []
-            });
-            res.render(DashboardRoute.PAGE_CALL_DETAILS, pageData);
-        })
-        .fail( function CallDetailsFetchError(error){ res.send(500); })
+        self.phoneCallDelegate.search({'integration_member_id': memberId})
+            .then(
+            function callDetailsFetched(calls)
+            {
+                var pageData = _.extend(sessionData.getData(), {
+                    calls: calls || []
+                });
+                res.render(DashboardRoute.PAGE_CALL_DETAILS, pageData);
+            })
+            .fail(function CallDetailsFetchError(error) { res.send(500); })
     }
 
     revenueDetails(req:express.Request, res:express.Response)
@@ -529,6 +530,7 @@ class DashboardRoute
         var sessionData = new SessionData(req);
         var callFlowSessionData = new CallFlowSessionData(req);
         var payZippyProvider = new PayZippyProvider();
+        var noPayment = req.query[ApiConstants.NO_PAYMENT];
 
         // 1. Fetch transaction lines for the successful transaction
         // 2. Update transaction status
@@ -537,9 +539,17 @@ class DashboardRoute
             .then(
             function responseProcessed(transactionId:number)
             {
-                if(transactionId == null)
-                    transactionId = callFlowSessionData.getTransaction().getId();
                 return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, transactionId))
+            },
+            function responseProcessingFailed(error)
+            {
+                if (error == 'HASH_MISMATCH' && noPayment)
+                {
+                    var transactionId = callFlowSessionData.getTransaction().getId();
+                    return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, transactionId))
+                }
+                else
+                    throw(error);
             })
             .then(
             function transactionLinesFetched(lines:TransactionLine[])
@@ -551,7 +561,8 @@ class DashboardRoute
             .spread(
             function callFetched(lines:TransactionLine[], call:PhoneCall)
             {
-                lines = _.sortBy(lines, function(line:TransactionLine) {
+                lines = _.sortBy(lines, function (line:TransactionLine)
+                {
                     return line.getTransactionType();
                 });
 
@@ -571,7 +582,7 @@ class DashboardRoute
                         callFlowSessionData.setTransaction(null);
                         callFlowSessionData.setCall(null);
                         callFlowSessionData.setAppointments([]);
-                        
+
                         delete req.session[CallFlowSessionData.IDENTIFIER]
                         res.render(DashboardRoute.PAGE_PAYMENT_COMPLETE, pageData);
                     });
