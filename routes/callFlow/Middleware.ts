@@ -32,17 +32,17 @@ class Middleware
         if (!Utils.isNullOrEmpty(callerPhone)
                 && !Utils.isNullOrEmpty(agenda) && !Utils.isNullOrEmpty(duration)
                     && (!Utils.isNullOrEmpty(appointments) || isCallNow)
-                        && !Utils.isNullOrEmpty(expert))
+                        && (Utils.isNullOrEmpty(expert) && expert.isValid()))
         {
             next();
         }
-        else if (!Utils.isNullOrEmpty(expert))
+        else if (!Utils.isNullOrEmpty(expert) && expert.isValid())
         {
             res.redirect(Urls.callExpert(expert.getId()));
         }
         else
         {
-            res.send(400, "This is strange, how did you land up here without selecting an expert");
+            res.render('500', {error: JSON.stringify("Session Expire")});
         }
     }
 
