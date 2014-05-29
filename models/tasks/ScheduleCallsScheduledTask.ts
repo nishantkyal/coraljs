@@ -51,14 +51,13 @@ class ScheduleCallsScheduledTask extends AbstractScheduledTask
             {
                 return q.all(_.map(calls, function (call:PhoneCall)
                 {
-                    self.phoneCallDelegate.queueCallForTriggering(call);
-                    notificationDelegate.scheduleCallNotification(call);
-                    return phoneCallCache.addCall(call);
+                    return self.phoneCallDelegate.queueCallForTriggering(call);
                 }));
             },
             function callsFetchError(error)
             {
                 self.logger.fatal('An error occurred while scheduling calls. Error: %s', JSON.stringify(error));
+                throw(error);
             })
             .finally(
             function triggerAfterOneHour()

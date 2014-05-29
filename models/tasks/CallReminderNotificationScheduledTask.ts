@@ -5,7 +5,7 @@ import PhoneCallDelegate                                        = require('../..
 import Utils                                                    = require('../../common/Utils');
 import ScheduledTaskType                                        = require('../../enums/ScheduledTaskType');
 
-class NotificationCallScheduledTask extends AbstractScheduledTask
+class CallReminderNotificationScheduledTask extends AbstractScheduledTask
 {
     private callId:number;
 
@@ -32,4 +32,4 @@ class NotificationCallScheduledTask extends AbstractScheduledTask
         return _.extend(super.toJson(),{callId:this.callId});
     }
 }
-export = NotificationCallScheduledTask
+export = CallReminderNotificationScheduledTask

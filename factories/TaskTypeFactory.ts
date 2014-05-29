@@ -2,7 +2,7 @@ import ScheduledTaskType                                        = require('../en
 import AbstractScheduledTask                                    = require('../models/tasks/AbstractScheduledTask');
 import TriggerPhoneCallTask                                     = require('../models/tasks/TriggerPhoneCallTask');
 import PrintTimestampTask                                       = require('../models/tasks/PrintTimestampTask');
-import NotificationCallScheduledTask                            = require('../models/tasks/NotificationCallScheduledTask');
+import CallReminderNotificationScheduledTask                    = require('../models/tasks/CallReminderNotificationScheduledTask');
 import ScheduleCallsScheduledTask                               = require('../models/tasks/ScheduleCallsScheduledTask');
 import SMSDelegate                                              = require('../delegates/SMSDelegate');
 
@@ -18,7 +18,7 @@ class TaskTypeFactory
                 return new TriggerPhoneCallTask(result[TriggerPhoneCallTask.CALL_ID])
 
             case ScheduledTaskType.CALL_REMINDER_NOTIFICATION:
-                return new NotificationCallScheduledTask(result[TriggerPhoneCallTask.CALL_ID]);
+                return new CallReminderNotificationScheduledTask(result[TriggerPhoneCallTask.CALL_ID]);
 
             case ScheduledTaskType.EMAIL_MOBILE_VERIFICATION_REMINDER:
                 return null;

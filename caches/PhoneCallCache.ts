@@ -14,5 +14,10 @@ class PhoneCallCache
         return CacheHelper.get('call-' + callId);
     }
 
+    delete(callId:number):q.Promise<any>
+    {
+        return CacheHelper.del('call-' + callId);
+    }
+
 }
 export = PhoneCallCache

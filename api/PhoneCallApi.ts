@@ -4,6 +4,7 @@ import connect_ensure_login                                 = require('connect-e
 import ApiConstants                                         = require('../enums/ApiConstants');
 import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
 import PhoneCallDelegate                                    = require('../delegates/PhoneCallDelegate');
+import VerificationCodeDelegate                             = require('../delegates/VerificationCodeDelegate');
 import AccessControl                                        = require('../middleware/AccessControl');
 import RequestHandler                                       = require('../middleware/RequestHandler');
 import PhoneCall                                            = require('../models/PhoneCall');
@@ -18,6 +19,7 @@ class PhoneCallApi
     constructor(app, secureApp)
     {
         var phoneCallDelegate = new PhoneCallDelegate();
+        var verificationCodeDelegate = new VerificationCodeDelegate();
 
         app.put(ApiUrlDelegate.phoneCall(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
         {
@@ -25,9 +27,9 @@ class PhoneCallApi
 
             phoneCallDelegate.create(phoneCall)
                 .then(
-                    function callCreated(result) { res.send(result); },
-                    function callCreateError(error) { res.send(500); }
-                )
+                function callCreated(result) { res.send(result); },
+                function callCreateError(error) { res.send(500); }
+            )
         });
 
         app.post(ApiUrlDelegate.phoneCallById(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
@@ -37,9 +39,9 @@ class PhoneCallApi
 
             phoneCallDelegate.update({id: phoneCallId}, phoneCall)
                 .then(
-                    function callUpdated() { res.send(200); },
-                    function callUpdateError(error) { res.status(500); }
-                )
+                function callUpdated() { res.send(200); },
+                function callUpdateError(error) { res.status(500); }
+            )
         });
 
         app.post(ApiUrlDelegate.phoneCallScheduling(), function (req:express.Request, res:express.Response)
@@ -47,9 +49,7 @@ class PhoneCallApi
             // 1. Update call status
             // 2. Send emails to both caller and expert
             // 3. Send SMS to both caller and expert
-
-            var self = this;
-            var loggedInUser:User = req[ApiConstants.USER];
+            var loggedInUser:User = new User(req[ApiConstants.USER]);
             var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
             var appointmentCode:string = req.query[ApiConstants.CODE] || req.body[ApiConstants.CODE];
 
@@ -58,15 +58,20 @@ class PhoneCallApi
 
             if (pickedTimeSlots.length != 0 || !Utils.isNullOrEmpty(reason))
             {
-                self.verificationCodeDelegate.verifyAppointmentAcceptCode(appointmentCode)
+                verificationCodeDelegate.verifyAppointmentAcceptCode(appointmentCode)
                     .then(
                     function callAndSchedulingDetailsFetched(appointment)
                     {
-                        return self.phoneCallDelegate.handleSchedulingRequest(callId, loggedInUser.getId(), appointment.startTimes, pickedTimeSlots, reason);
+                        return phoneCallDelegate.handleSchedulingRequest(callId, loggedInUser.getId(), appointment.startTimes, pickedTimeSlots, reason);
+                    })
+                    .fail(
+                    function callSchedulingFailed(error)
+                    {
+                        res.send(500, JSON.stringify(error));
                     });
             }
             else
-                res.render('500', {error: 'Invalid request'});
+                res.send(400, 'Invalid request');
         });
 
         app.get(ApiUrlDelegate.phoneCallById(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
@@ -75,9 +80,9 @@ class PhoneCallApi
 
             return phoneCallDelegate.get(phoneCallId)
                 .then(
-                    function callFetched(call) { res.json(call); },
-                    function callFetchFailed(error) { res.status(400).send('No phone call found for id: ' + phoneCallId); }
-                )
+                function callFetched(call) { res.json(call); },
+                function callFetchFailed(error) { res.status(400).send('No phone call found for id: ' + phoneCallId); }
+            )
         });
 
         app.get(ApiUrlDelegate.phoneCall(), RequestHandler.requireFilters, connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
