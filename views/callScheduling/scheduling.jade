@@ -19,7 +19,7 @@ include ../header
                                     | &nbsp; mins.
                     .col-md-6
                         .call-card
-                            form(method='POST')
+                            form#scheduling(action=ApiUrlDelegate.phoneCallScheduling(call.id))
                                 .payment-summary.call-inputs
                                     h1
                                         i.icon-bill
@@ -27,7 +27,7 @@ include ../header
                                     h3 Pick one of the suggested slots
                                     for slot in startTimes
                                         p.title
-                                            input(type='radio', name='startTime', value=slot)
+                                            input(type='radio', name='startTime', value=slot, checked=selectedStartTime == slot)
                                             label= formatDate(slot)
                                     h3 Or Suggest another time convenient to you
                                     input(type='text', name='startTime')
@@ -36,19 +36,27 @@ include ../header
                                         i.icon-phone
                                         | Your phone number
                                         .row
-                                            .input-group
-                                                .input-group-btn
-                                                    select.form-control#country-code
-                                                        for code,country in CountryCode
-                                                            option(value=country, selected=country == phones[0].country_code)= CountryName[code.toUpperCase()] + ' (+' + country + ')'
-                                                input.form-control(type='text', value=phones ? phones[0].phone : null)
-                                                .input-group-btn
-                                                    input.btn.btn-success(type='submit', value='Verify')
+                                            if !phones
+                                                .input-group
+                                                    .input-group-btn
+                                                        select.form-control#country-code
+                                                            for code,country in CountryCode
+                                                                option(value=country, selected=country == phones[0].country_code)= CountryName[code.toUpperCase()] + ' (+' + country + ')'
+                                                    input.form-control#phone(type='text', value=phones ? phones[0].phone : null)
+                                                    .input-group-btn
+                                                        a.btn.btn-success#verify-btn Verify
+                                            else
+                                                p= '+' + phones[0].country_code + '-' + phones[0].phone
+
+                                input(type='hidden', name='phoneId', value=phones ? phones[0].id : null)
+                                input(type='hidden', name='code', value=code)
                                 input.btn.btn-primary.btn-block(type='submit', value='Confirm')
                                 .call-reversal
-                                    a.btn.btn-danger(href='index.html')
+                                    a.btn.btn-danger#reject-call
                                         | Cancel
                                         i.icon-cancel
 
 include ../footer
+script.
+    var callId = '!{call.id}';
 script(src='/js/app/callScheduling/scheduling.js')

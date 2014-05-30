@@ -245,7 +245,7 @@ class EmailDelegate
                     })
                 };
 
-                return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_SCHEDULING, expert.getUser()[0].getEmail(), emailData);
+                return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_SCHEDULING, expert.getUser().getEmail(), emailData);
             });
     }
 
@@ -271,7 +271,7 @@ class EmailDelegate
         };
 
         return q.all([
-            self.composeAndSend(EmailDelegate.EMAIL_EXPERT_SCHEDULED, expert.getUser()[0].getEmail(), emailData),
+            self.composeAndSend(EmailDelegate.EMAIL_EXPERT_SCHEDULED, expert.getUser().getEmail(), emailData),
             self.composeAndSend(EmailDelegate.EMAIL_USER_SCHEDULED, call.getUser().getEmail(), emailData)
         ]);
 
@@ -355,7 +355,7 @@ class EmailDelegate
                     })
                 };
 
-                return self.composeAndSend(EmailDelegate.EMAIL_NEW_SLOTS_TO_EXPERT, expert.getUser()[0].getEmail(), emailData);
+                return self.composeAndSend(EmailDelegate.EMAIL_NEW_SLOTS_TO_EXPERT, expert.getUser().getEmail(), emailData);
             });
     }
 
@@ -424,7 +424,7 @@ class EmailDelegate
 
         return q.all([
             self.composeAndSend(EmailDelegate.EMAIL_USER_REMINDER, call.getUser().getEmail(), {call: call}),
-            self.composeAndSend(EmailDelegate.EMAIL_EXPERT_REMINDER, call.getIntegrationMember().getUser()[0].getEmail(), {call: call})
+            self.composeAndSend(EmailDelegate.EMAIL_EXPERT_REMINDER, call.getIntegrationMember().getUser().getEmail(), {call: call})
         ]);
     }
 
@@ -521,7 +521,7 @@ class EmailDelegate
                     callHandleUrl: callHandleUrl,
                     integration: integration
                 };
-                return self.composeAndSend(EmailDelegate.EMAIL_PROFILE_APPROVED, integrationMember.getUser()[0].getEmail(), emailData);
+                return self.composeAndSend(EmailDelegate.EMAIL_PROFILE_APPROVED, integrationMember.getUser().getEmail(), emailData);
             })
     }
 
@@ -543,7 +543,7 @@ class EmailDelegate
             .then(
             function expertUserFetched(expertUser:IntegrationMember)
             {
-                return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_REGISTRATION_SUCCESS, expertUser.getUser()[0].getEmail(), emailData);
+                return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_REGISTRATION_SUCCESS, expertUser.getUser().getEmail(), emailData);
             });
     }
 

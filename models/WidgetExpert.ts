@@ -36,7 +36,7 @@ class WidgetExpert
         if (Utils.getObjectType(expert) == 'IntegrationMember')
         {
             var member:IntegrationMember = expert;
-            var user:User = member.getUser()[0];
+            var user:User = member.getUser();
 
             this.expert_id = member.getId();
             this.user_id = user.getId();

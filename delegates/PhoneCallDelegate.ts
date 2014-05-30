@@ -70,7 +70,9 @@ class PhoneCallDelegate extends BaseDaoDelegate
     }
 
     update(criteria:Object, newValues:Object, transaction?:Object):q.Promise<any>;
+
     update(criteria:number, newValues:Object, transaction?:Object):q.Promise<any>;
+
     update(criteria:any, newValues:Object, transaction?:Object):q.Promise<any>
     {
         var newStatus = newValues.hasOwnProperty(PhoneCall.STATUS) ? newValues[PhoneCall.STATUS] : null;
@@ -88,7 +90,8 @@ class PhoneCallDelegate extends BaseDaoDelegate
             });
 
             if (allowedPreviousStatuses.length > 0)
-                criteria[PhoneCall.STATUS] = _.map(allowedPreviousStatuses, function(status:string) {return parseInt(status); });;
+                criteria[PhoneCall.STATUS] = _.map(allowedPreviousStatuses, function (status:string) {return parseInt(status); });
+            ;
         }
 
         return super.update(criteria, newValues, transaction);
@@ -130,7 +133,9 @@ class PhoneCallDelegate extends BaseDaoDelegate
 
     /* Queue the call for triggering */
     queueCallForTriggering(call:number);
+
     queueCallForTriggering(call:PhoneCall);
+
     queueCallForTriggering(call:any):q.Promise<any>
     {
         var self = this;
@@ -151,9 +156,9 @@ class PhoneCallDelegate extends BaseDaoDelegate
 
             //check whether the call has not been scheduled manually (like on Server restart)
             var callsAlreadyScheduled:number[] = scheduledTaskDelegate.filter(ScheduledTaskType.CALL);
-            var alreadyScheduled = _.find(callsAlreadyScheduled, function(callId){return callId == call.getId() });
+            var alreadyScheduled = _.find(callsAlreadyScheduled, function (callId) {return callId == call.getId() });
 
-            if(Utils.isNullOrEmpty(alreadyScheduled))
+            if (Utils.isNullOrEmpty(alreadyScheduled))
             {
                 scheduledTaskDelegate.scheduleAt(new TriggerPhoneCallTask(call.getId()), call.getStartTime());
                 scheduledTaskDelegate.scheduleAt(new CallReminderNotificationScheduledTask(call.getId()), call.getStartTime() - parseInt(Config.get(Config.CALL_REMINDER_LEAD_TIME_SECS)) * 1000);
@@ -208,7 +213,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
      *  - Scheduled (if either party agrees to one of suggested)
      *  - Remain unchanged (if suggested slots are rejected and alternates suggested)
      * */
-    handleSchedulingRequest(callId:number, requesterUserId:number, originalSlots:number[], pickedSlots:number[], reason?:string):q.Promise<any>
+    processSchedulingRequest(callId:number, requesterUserId:number, originalSlots:number[], pickedSlots:number[], reason?:string):q.Promise<CallStatus>
     {
         var notificationDelegate = new NotificationDelegate();
         var self = this;
@@ -229,7 +234,9 @@ class PhoneCallDelegate extends BaseDaoDelegate
                         function callCancelled()
                         {
                             return notificationDelegate.sendCallRejectedNotifications(call, reason);
-                        });
+                        })
+                        .then(
+                        function sendResponse() { return CallStatus.CANCELLED; });
                 }
                 else if (isConfirmation)
                 {
@@ -245,17 +252,23 @@ class PhoneCallDelegate extends BaseDaoDelegate
                                 notificationDelegate.sendCallSchedulingCompleteNotifications(call, pickedSlots[0])
                             ]);
                         })
+                        .then(
+                        function sendResponse() { return CallStatus.SCHEDULED; })
                 }
                 else if (isSuggestion && call.getStatus() == CallStatus.SCHEDULING)
                 {
                     // Send notification to other party
-                    var isExpert = call.getIntegrationMember().getUser()[0].getId() == requesterUserId;
+                    var isExpert = call.getIntegrationMember().getUser().getId() == requesterUserId;
                     var isCaller = call.getCallerUserId() == requesterUserId;
 
                     if (isExpert)
-                        return notificationDelegate.sendNewTimeSlotsToExpert(call, pickedSlots);
+                        return notificationDelegate.sendNewTimeSlotsToExpert(call, pickedSlots)
+                            .then(
+                            function sendResponse() { return CallStatus.SCHEDULING; });
                     else if (isCaller)
-                        return notificationDelegate.sendSuggestedAppointmentToCaller(call, pickedSlots[0]);
+                        return notificationDelegate.sendSuggestedAppointmentToCaller(call, pickedSlots[0])
+                            .then(
+                            function sendResponse() { return CallStatus.SCHEDULING; });
                 }
                 else
                     throw('Invalid request');

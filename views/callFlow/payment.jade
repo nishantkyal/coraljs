@@ -1,11 +1,11 @@
-- var user = expert.user[0];
+- var user = expert.user;
 
 style.
     #login-modal .register {
         display: none;
     }
 include ../header
-title ST-#{formatName(expert.user[0].first_name, expert.user[0].last_name, expert.user[0].title)} | Payment for Call
+title ST-#{formatName(user.first_name, user.last_name, user.title)} | Payment for Call
 .matter
     .container
         .row

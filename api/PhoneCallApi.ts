@@ -1,4 +1,4 @@
-import json2xml                                             = require('json2xml');
+import _                                                    = require('underscore');
 import express                                              = require('express');
 import connect_ensure_login                                 = require('connect-ensure-login');
 import ApiConstants                                         = require('../enums/ApiConstants');
@@ -53,7 +53,7 @@ class PhoneCallApi
             var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
             var appointmentCode:string = req.query[ApiConstants.CODE] || req.body[ApiConstants.CODE];
 
-            var pickedTimeSlots = [].concat(req.body[ApiConstants.START_TIME] || req.query[ApiConstants.START_TIME]);
+            var pickedTimeSlots = _.map([].concat(req.body[ApiConstants.START_TIME] || req.query[ApiConstants.START_TIME]), function(slot) { return parseInt(slot); });
             var reason:string = req.body[ApiConstants.REASON];
 
             if (pickedTimeSlots.length != 0 || !Utils.isNullOrEmpty(reason))
@@ -62,12 +62,17 @@ class PhoneCallApi
                     .then(
                     function callAndSchedulingDetailsFetched(appointment)
                     {
-                        return phoneCallDelegate.handleSchedulingRequest(callId, loggedInUser.getId(), appointment.startTimes, pickedTimeSlots, reason);
+                        return phoneCallDelegate.processSchedulingRequest(callId, loggedInUser.getId(), appointment.startTimes, pickedTimeSlots, reason);
                     })
-                    .then(
-                    function callSchedulingProcessed()
+                    /*.then(
+                    function callSchedulingDone()
                     {
-                        res.send(200);
+                        return verificationCodeDelegate.deleteAppointmentAcceptCode(appointmentCode);
+                    })*/
+                    .then(
+                    function appointmentCodeDeleted(response)
+                    {
+                        res.send(200, response.toString());
                     })
                     .fail(
                     function callSchedulingFailed(error)

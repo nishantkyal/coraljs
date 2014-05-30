@@ -91,7 +91,9 @@ class CallSchedulingRoute
                 var pageData = {
                     call: call,
                     startTimes: startTimes,
-                    phones: expertPhones
+                    phones: expertPhones,
+                    selectedStartTime: startTime,
+                    code: appointmentCode
                 };
 
                 res.render(CallSchedulingRoute.SCHEDULING, pageData);

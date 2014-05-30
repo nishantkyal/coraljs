@@ -161,7 +161,11 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
                 var scheduleStartTime = moment().hours(0).valueOf();
                 var scheduleEndTime = moment().add({months: 4}).valueOf();
 
-                return self.expertScheduleDelegate.getSchedulesForExpert(result[0][IntegrationMember.ID], scheduleStartTime, scheduleEndTime);
+                return self.expertScheduleDelegate.getSchedulesForExpert(result.getId(), scheduleStartTime, scheduleEndTime);
+                if (Utils.getObjectType(result) == 'Array')
+                    return self.userDelegate.get(_.uniq(_.pluck(result, IntegrationMember.USER_ID)));
+                else
+                    return self.userDelegate.get(result.getUserId());
             case IncludeFlag.INCLUDE_SCHEDULE_RULES:
                 return self.expertScheduleRuleDelegate.getRulesByIntegrationMemberId(result[0][IntegrationMember.ID]);
         }

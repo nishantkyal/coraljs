@@ -47,21 +47,21 @@ class ScheduleCallsScheduledTask extends AbstractScheduledTask
 
         return self.phoneCallDelegate.search(query, [PhoneCall.ID])
             .then(
-            function callIdsFetched(calls):any
+            function callIdsFetched(calls:PhoneCall[]):any
             {
-                return q.all(_.map(calls, function (call){
+                return q.all(_.map(calls, function (call:PhoneCall){
                     return self.phoneCallDelegate.get(call.getId(), null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_USER_PHONE, IncludeFlag.INCLUDE_EXPERT_PHONE])
                 }));
             })
             .then(
-            function callsFetched(calls:PhoneCall[])
+            function callsFetched(calls:PhoneCall[]):any
             {
                 return q.all(_.map(calls, function (call:PhoneCall)
                 {
                     return self.phoneCallDelegate.queueCallForTriggering(call);
                 }));
             },
-            function callsFetchError(error)
+            function callsFetchError(error):any
             {
                 self.logger.fatal('An error occurred while scheduling calls. Error: %s', JSON.stringify(error));
                 throw(error);

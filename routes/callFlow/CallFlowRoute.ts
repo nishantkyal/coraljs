@@ -94,7 +94,7 @@ class CallFlowRoute
             .then(
             function expertFetched(expert:IntegrationMember):any
             {
-                var user = expert.getUser()[0];
+                var user = expert.getUser();
 
                 if (user.getStatus() != UserStatus.ACTIVE)
                 {
