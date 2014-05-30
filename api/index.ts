@@ -11,7 +11,6 @@ import ScheduledTaskApi                                 = require('./ScheduledTa
 import UserPhoneApi                                     = require('./UserPhoneApi');
 import TokenApi                                         = require('./TokenApi');
 import TransactionApi                                   = require('./TransactionApi');
-import TwimlApi                                         = require('./TwimlApi');
 import TwimlOutApi                                      = require('./TwimlOutApi');
 import ExotelApi                                        = require('./ExotelApi')
 import UserApi                                          = require('./UserApi');
@@ -37,7 +36,6 @@ function init(app, secureApp?)
     new TokenApi(app, secureApp);
     new TransactionApi(app, secureApp);
     new TwimlOutApi(app, secureApp);
-    new TwimlApi(app, secureApp);
     new ExotelApi(app, secureApp);
     new UserApi(app, secureApp);
     new UserProfileApi(app, secureApp);

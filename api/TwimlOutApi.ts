@@ -5,9 +5,11 @@ import ApiConstants                                         = require('../enums/
 import IncludeFlag                                          = require('../enums/IncludeFlag');
 import PhoneType                                            = require('../enums/PhoneType');
 import CallFragmentStatus                                   = require('../enums/CallFragmentStatus');
+import CallStatus                                           = require('../enums/CallStatus');
 import AgentType                                            = require('../enums/AgentType');
 import IntegrationMemberDelegate                            = require('../delegates/IntegrationMemberDelegate');
 import PhoneCallDelegate                                    = require('../delegates/PhoneCallDelegate');
+import PhoneCallCache                                       = require('../caches/PhoneCallCache');
 import UserPhoneDelegate                                    = require('../delegates/UserPhoneDelegate');
 import TwilioUrlDelegate                                    = require('../delegates/TwilioUrlDelegate');
 import CallFragmentDelegate                                 = require('../delegates/CallFragmentDelegate');
@@ -40,6 +42,7 @@ class TwimlOutApi
     phoneCallDelegate = new PhoneCallDelegate();
     twilioProvider = new TwilioProvider();
     notificationDelegate = new NotificationDelegate();
+    phoneCallCache = new PhoneCallCache();
 
     constructor(app, secureApp)
     {
@@ -58,10 +61,10 @@ class TwimlOutApi
                 {
                     var pageData = {};
                     pageData['actionURL'] = TwilioUrlDelegate.twimlJoinCall(callId,Config.get(Config.TWILIO_URI));
-                    pageData['timeLimit'] = call.getDuration();
+                    pageData['timeLimit'] = call.getDuration() * 60;
                     pageData['phoneNumber'] = call.getExpertPhone().getCompleteNumber();
                     pageData['record'] = (call.getRecorded() == false) ? 'false' : 'true';
-                    pageData['message'] = 'Please wait while we get ' + Formatter.formatName(call.getIntegrationMember().getUser()[0].getFirstName(), call.getIntegrationMember().getUser()[0].getLastName(), call.getIntegrationMember().getUser()[0].getTitle()) + ' on the call';
+                    pageData['message'] = 'Please wait while we get ' + Formatter.formatName(call.getIntegrationMember().getUser().getFirstName(), call.getIntegrationMember().getUser().getLastName(), call.getIntegrationMember().getUser().getTitle()) + ' on the call';
                     res.render('twilio/TwilioXMLJoin.jade', pageData);
                 })
                 .fail(function (error)
@@ -79,10 +82,13 @@ class TwimlOutApi
                 attemptCount = 0;
 
             var dialCallStatus = req.body[TwimlOutApi.DIAL_CALL_STATUS];
+            var callId = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
             var pageData = {};
+            var call:PhoneCall = new PhoneCall();
+            call.setNumReattempts(attemptCount);
 
             var callFragment:CallFragment = new CallFragment(); //save information received in CaLLFragment
-            callFragment.setCallId(parseInt(req.params[ApiConstants.PHONE_CALL_ID]));
+            callFragment.setCallId(callId);
             callFragment.setAgentCallSidExpert(req.body[TwimlOutApi.DIAL_CALL_SID]);
             callFragment.setAgentCallSidUser(req.body[TwimlOutApi.CALL_SID]);
             callFragment.setFromNumber(req.body[TwimlOutApi.USER_NUMBER]);
@@ -100,24 +106,42 @@ class TwimlOutApi
                     if (attemptCount == 1)
                         pageData['message'] = 'Call could not be completed. We regret the inconvenience caused';
                     else
-                        pageData['message'] = 'Expert did not answer the call. We will retry in ' + Config.get("call.retry.gap") + ' minutes';
+                        pageData['message'] = 'Expert did not answer the call. We will retry in ' + Config.get(Config.CALL_RETRY_DELAY_SECS)/60 + ' minutes';
                     break;
                 default:
                     if (attemptCount == 1)
                         pageData['message'] = 'Call could not be completed. We regret the inconvenience caused';
                     else
-                        pageData['message'] = 'The expert is unreachable. We will retry in ' + Config.get("call.retry.gap") + ' minutes';
+                        pageData['message'] = 'The expert is unreachable. We will retry in ' + Config.get(Config.CALL_RETRY_DELAY_SECS)/60 + ' minutes';
             }
             res.render('twilio/TwilioXMLSay.jade', pageData);
 
-            if (attemptCount == 0 && dialCallStatus != TwimlOutApi.COMPLETED && dialCallStatus != TwimlOutApi.BUSY)
-                console.log('Reattempt to be made');// TODO change this to rescheduling function
-
             q.all([
-                new CallFragmentDelegate().saveCallFragment(callFragment),
+                self.twilioProvider.updateCallFragment(callFragment),
                 self.notificationDelegate.sendCallStatusNotifications(callFragment, attemptCount)
-            ]);
-
+            ])
+            .then(
+            function (...args){
+                if(args[0][0])
+                {
+                    var fragmentStatus:CallFragmentStatus = args[0][0].getCallFragmentStatus();
+                    if (fragmentStatus == CallFragmentStatus.SUCCESS)
+                        call.setStatus(CallStatus.COMPLETED)
+                    else if(attemptCount == 1 && fragmentStatus != CallFragmentStatus.SUCCESS)
+                        call.setStatus(CallStatus.FAILED);
+                    if(attemptCount == 0)
+                        call.setDelay(Config.get(Config.CALL_RETRY_DELAY_SECS));
+                }
+                return q.all([
+                    self.phoneCallDelegate.update(callId,call),
+                    self.phoneCallCache.addCall(call)
+                ])
+            })
+            .then(
+            function callUpdated(...args)
+            {
+                self.phoneCallDelegate.queueCallForTriggering(callId);
+            });
         });
 
         /* Called after User hangs up the call */
@@ -132,12 +156,12 @@ class TwimlOutApi
             var attemptCount = parseInt(req.query[TwilioProvider.ATTEMPTCOUNT]);
             attemptCount = attemptCount || 0;
 
+            var call:PhoneCall = new PhoneCall();
+            call.setNumReattempts(attemptCount);
+
             if (callStatus != TwimlOutApi.COMPLETED) // if completed then information saved after expert drops the call
             {
                 //save information for failed call
-                if (attemptCount == 0)
-                    console.log('Reattempt to be made');// TODO change this to rescheduling function, make change in num_reattempt in call table and cache
-
                 var callFragment:CallFragment = new CallFragment();
                 callFragment.setCallId(parseInt(req.params[ApiConstants.PHONE_CALL_ID]));
                 callFragment.setAgentCallSidUser(req.body[TwimlOutApi.CALL_SID]);
@@ -150,10 +174,37 @@ class TwimlOutApi
                 else
                     callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_USER_ERROR);
 
+                if (attemptCount == 0)
+                    self.phoneCallDelegate.queueCallForTriggering(callId);
+
                 q.all([
                     self.twilioProvider.updateCallFragment(callFragment),
                     self.notificationDelegate.sendCallFailureNotifications(callId)
-                ]);
+                ])
+                .then(
+                function (...args){
+                    if(args[0][0])
+                    {
+                        var fragmentStatus:CallFragmentStatus = args[0][0].getCallFragmentStatus();
+
+                        if (fragmentStatus == CallFragmentStatus.SUCCESS)
+                            call.setStatus(CallStatus.COMPLETED)
+                        else if(attemptCount == 1 && fragmentStatus != CallFragmentStatus.SUCCESS)
+                            call.setStatus(CallStatus.FAILED);
+
+                        if(attemptCount == 0)
+                            call.setDelay(Config.get(Config.CALL_RETRY_DELAY_SECS));
+                    }
+                    return q.all([
+                        self.phoneCallDelegate.update(callId,call),
+                        self.phoneCallCache.addCall(call)
+                    ])
+                })
+                .then(
+                function callUpdated(...args)
+                {
+                    self.phoneCallDelegate.queueCallForTriggering(callId);
+                });
             }
         });
     }
