@@ -63,9 +63,9 @@ class IntegrationMember extends BaseModel
     getRevenueShare():number                            { return this.revenue_share; }
     getRevenueShareUnit():number                        { return this.revenue_share_unit; }
 
-    getIntegration():Integration                        { return this.integration; }
-    getUser():User                                      { return this.user; }
-    getUserProfile():UserProfile                        { return this.user_profile; }
+    getIntegration():Integration                        { return this.integration ? new Integration(this.integration) : null; }
+    getUser():User                                      { return this.user ? new User(this.user) : null; }
+    getUserProfile():UserProfile                        { return this.user_profile ? new UserProfile(this.user_profile) : null; }
     getSchedule():ExpertSchedule[]                      { return this.schedule; }
     getScheduleRule():ExpertScheduleRule[]              { return this.schedule_rule; }
 

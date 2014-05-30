@@ -57,11 +57,11 @@ class TwimlOutApi
                 function callFetched(call:PhoneCall)
                 {
                     var pageData = {};
-                    pageData['actionURL'] = req.protocol + "://" + req.get('host') + TwilioUrlDelegate.twimlJoinCall(callId,Config.get(Config.TWILIO_URI));
+                    pageData['actionURL'] = TwilioUrlDelegate.twimlJoinCall(callId,Config.get(Config.TWILIO_URI));
                     pageData['timeLimit'] = call.getDuration();
                     pageData['phoneNumber'] = call.getExpertPhone().getCompleteNumber();
                     pageData['record'] = (call.getRecorded() == false) ? 'false' : 'true';
-                    pageData['message'] = 'Please wait while we get ' + Formatter.formatName(call.getIntegrationMember().getUser().getFirstName(), call.getIntegrationMember().getUser().getLastName(), call.getIntegrationMember().getUser().getTitle()) + ' on the call';
+                    pageData['message'] = 'Please wait while we get ' + Formatter.formatName(call.getIntegrationMember().getUser()[0].getFirstName(), call.getIntegrationMember().getUser()[0].getLastName(), call.getIntegrationMember().getUser()[0].getTitle()) + ' on the call';
                     res.render('twilio/TwilioXMLJoin.jade', pageData);
                 })
                 .fail(function (error)
@@ -152,7 +152,7 @@ class TwimlOutApi
 
                 q.all([
                     self.twilioProvider.updateCallFragment(callFragment),
-                    self.notificationDelegate.sendCallFailureNotifications()
+                    self.notificationDelegate.sendCallFailureNotifications(callId)
                 ]);
             }
         });

@@ -56,8 +56,8 @@ class TwilioProvider implements IPhoneCallProvider,ISmsProvider
 
     makeCall(phone:string, callId?:number, reAttempts?:number):q.Promise<any>
     {
-        var url:string = TwilioUrlDelegate.twiml(Config.get(Config.TWILIO_URI));
-        var callbackUrl:string = TwilioUrlDelegate.twimlCallback(callId,Config.get(Config.TWILIO_URI));
+        var url:string = TwilioUrlDelegate.twimlJoinCall(callId, Config.get(Config.TWILIO_URI));
+        var callbackUrl:string = TwilioUrlDelegate.twimlCallback(callId, Config.get(Config.TWILIO_URI));
 
         if(!Utils.isNullOrEmpty(reAttempts))
         {
@@ -65,6 +65,7 @@ class TwilioProvider implements IPhoneCallProvider,ISmsProvider
             callbackUrl += '?' + TwilioProvider.ATTEMPTCOUNT + '=' + reAttempts;
         }
 
+        this.logger.info('Call being made to ' + phone +' . CallId: ' + callId);
         var deferred = q.defer();
         this.twilioClient.makeCall({
 
