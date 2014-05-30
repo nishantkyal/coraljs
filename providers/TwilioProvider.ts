@@ -56,8 +56,8 @@ class TwilioProvider implements IPhoneCallProvider,ISmsProvider
 
     makeCall(phone:string, callId?:number, reAttempts?:number):q.Promise<any>
     {
-        var url:string = TwilioUrlDelegate.twimlJoinCall(callId);
-        var callbackUrl:string = TwilioUrlDelegate.twimlCallback(callId);
+        var url:string = TwilioUrlDelegate.twiml(Config.get(Config.TWILIO_URI));
+        var callbackUrl:string = TwilioUrlDelegate.twimlCallback(callId,Config.get(Config.TWILIO_URI));
 
         if(!Utils.isNullOrEmpty(reAttempts))
         {

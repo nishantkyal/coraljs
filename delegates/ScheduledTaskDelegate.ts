@@ -9,7 +9,6 @@ import PhoneCall                                                = require('../mo
 import AbstractScheduledTask                                    = require('../models/tasks/AbstractScheduledTask');
 import PhoneCallCache                                           = require('../caches/PhoneCallCache');
 import CacheHelper                                              = require('../caches/CacheHelper');
-import TaskTypeFactory                                          = require('../factories/TaskTypeFactory');
 import ScheduledTaskType                                        = require('../enums/ScheduledTaskType');
 
 interface TimeoutAndTask
@@ -56,6 +55,8 @@ class ScheduledTaskDelegate
         // Add task to index and persist
         ScheduledTaskDelegate.tasks[taskId] = {task: task, timeout: timeout};
 
+        this.logger.info('Task of type ' + task.getTaskType() + ' scheduled, startTime - ' + moment(task.getStartTime()) + ' id - ' + task.getId());
+
         self.syncToRedis();
 
         return taskId;
@@ -81,6 +82,15 @@ class ScheduledTaskDelegate
         });
     }
 
+    filter(type:ScheduledTaskType):number[]
+    {
+        return _.filter(_.keys(ScheduledTaskDelegate.tasks), function(taskId:number)
+        {
+            var taskAndTimeout:TimeoutAndTask = ScheduledTaskDelegate.tasks[taskId];
+            return taskAndTimeout.task.getTaskType() == type;
+        });
+    }
+
     /* Return id of all tasks matching search */
     search(criteria:Object):number[]
     {
@@ -89,6 +99,7 @@ class ScheduledTaskDelegate
 
     cancel(taskId:number):q.Promise<any>
     {
+        this.logger.info('Task with id - ' + taskId + ' completed' );
         clearTimeout(ScheduledTaskDelegate.tasks[taskId].timeout);
         delete ScheduledTaskDelegate.tasks[taskId];
         return this.syncToRedis();
@@ -122,10 +133,11 @@ class ScheduledTaskDelegate
 
         return CacheHelper.get('ScheduledTasks')
             .then(
-            function tasksFetched(results):any
+            function tasksFetched(results)
             {
                 _.each(results, function (result:any)
                 {
+                    var TaskTypeFactory = require('../factories/TaskTypeFactory');
                     if (result[AbstractScheduledTask.START_TIME] > moment().valueOf())
                         self.scheduleAt(TaskTypeFactory.getTask(result), result[AbstractScheduledTask.START_TIME]);
                     else
@@ -134,7 +146,6 @@ class ScheduledTaskDelegate
                         self.syncToRedis();
                     }
                 });
-                return true;
             },
             function tasksFetchError(error)
             {

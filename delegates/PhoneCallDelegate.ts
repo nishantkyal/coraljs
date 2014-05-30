@@ -14,6 +14,7 @@ import TransactionDelegate                                              = requir
 import CallStatus                                                       = require('../enums/CallStatus');
 import IncludeFlag                                                      = require('../enums/IncludeFlag');
 import PhoneType                                                        = require('../enums/PhoneType');
+import ScheduledTaskType                                                = require('../enums/ScheduledTaskType');
 import PhoneCall                                                        = require('../models/PhoneCall');
 import User                                                             = require('../models/User');
 import UserPhone                                                        = require('../models/UserPhone');
@@ -148,9 +149,16 @@ class PhoneCallDelegate extends BaseDaoDelegate
             var ScheduledTaskDelegate = require('../delegates/ScheduledTaskDelegate');
             var scheduledTaskDelegate = new ScheduledTaskDelegate();
 
-            scheduledTaskDelegate.scheduleAt(new TriggerPhoneCallTask(call.getId()), call.getStartTime());
-            scheduledTaskDelegate.scheduleAt(new CallReminderNotificationScheduledTask(call.getId()), call.getStartTime() - parseInt(Config.get(Config.CALL_REMINDER_LEAD_TIME_SECS)) * 1000);
-            return self.phoneCallCache.addCall(call);
+            //check whether the call has not been scheduled manually (like on Server restart)
+            var callsAlreadyScheduled:number[] = scheduledTaskDelegate.filter(ScheduledTaskType.CALL);
+            var alreadyScheduled = _.find(callsAlreadyScheduled, function(callId){return callId == call.getId() });
+
+            if(Utils.isNullOrEmpty(alreadyScheduled))
+            {
+                scheduledTaskDelegate.scheduleAt(new TriggerPhoneCallTask(call.getId()), call.getStartTime());
+                scheduledTaskDelegate.scheduleAt(new CallReminderNotificationScheduledTask(call.getId()), call.getStartTime() - parseInt(Config.get(Config.CALL_REMINDER_LEAD_TIME_SECS)) * 1000);
+                return self.phoneCallCache.addCall(call);
+            }
         }
 
         self.logger.debug('Queuing trigger failed for call id: %s, reason: %s', call.getId(), 'Scheduled for much later');

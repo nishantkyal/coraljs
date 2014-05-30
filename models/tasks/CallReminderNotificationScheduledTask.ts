@@ -1,7 +1,6 @@
 import q                                                        = require('q');
 import _                                                        = require('underscore');
 import AbstractScheduledTask                                    = require('./AbstractScheduledTask');
-import PhoneCallDelegate                                        = require('../../delegates/PhoneCallDelegate');
 import Utils                                                    = require('../../common/Utils');
 import ScheduledTaskType                                        = require('../../enums/ScheduledTaskType');
 
@@ -18,7 +17,8 @@ class CallReminderNotificationScheduledTask extends AbstractScheduledTask
 
     execute():q.Promise<any>
     {
-        return new PhoneCallDelegate().triggerCall(this.callId);
+        var NotificationDelegate  = require('../../delegates/NotificationDelegate');
+        return new NotificationDelegate().sendCallReminderNotification(this.callId);
     }
 
     isValid():boolean

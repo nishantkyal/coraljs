@@ -10,7 +10,7 @@ class TaskTypeFactory
 {
     private static tasks:{[id:number]: AbstractScheduledTask} = {};
 
-    static getTask(result):AbstractScheduledTask
+    static getTask(result:any):AbstractScheduledTask
     {
         switch(result[AbstractScheduledTask.TASKTYPE])
         {

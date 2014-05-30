@@ -73,10 +73,10 @@ class PhoneCall extends BaseModel
     getNumReschedules():number                      { return this.num_reschedules; }
     getNumReattempts():number                       { return this.num_reattempts; }
 
-    getUser():User                                  { return this.user; }
-    getIntegrationMember():IntegrationMember        { return this.integration_member; }
-    getUserPhone():UserPhone                        { return this.user_phone; }
-    getExpertPhone():UserPhone                      { return this.expert_phone; }
+    getUser():User                                  { return this.user ? new User(this.user) : null; }
+    getIntegrationMember():IntegrationMember        { return this.integration_member ? new IntegrationMember(this.integration_member) : null; }
+    getUserPhone():UserPhone                        { return this.user_phone ? new UserPhone(this.user_phone) : null; }
+    getExpertPhone():UserPhone                      { return this.expert_phone ? new UserPhone(this.expert_phone) : null; }
 
     /* Setters */
     setCallerUserId(val:number):void                { this.caller_user_id = val; }
