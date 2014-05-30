@@ -142,14 +142,18 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
     getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
     {
         var self = this;
-        result = [].concat(result);
 
         switch (include)
         {
             case IncludeFlag.INCLUDE_INTEGRATION:
                 return self.integrationDelegate.get(_.uniq(_.pluck(result, IntegrationMember.INTEGRATION_ID)));
             case IncludeFlag.INCLUDE_USER:
-                return self.userDelegate.get(_.uniq(_.pluck(result, IntegrationMember.USER_ID)));
+
+                if (Utils.getObjectType(result) == 'Array')
+                    return self.userDelegate.get(_.uniq(_.pluck(result, IntegrationMember.USER_ID)));
+                else
+                    return self.userDelegate.get(result.getUserId());
+
             case IncludeFlag.INCLUDE_USER_PROFILE:
                 return self.userProfileDelegate.search({'user_id': _.uniq(_.pluck(result, IntegrationMember.USER_ID))});
             case IncludeFlag.INCLUDE_SCHEDULES:
