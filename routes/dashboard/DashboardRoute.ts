@@ -570,7 +570,7 @@ class DashboardRoute
                 // 2. Send notifications
                 return q.all([
                     self.phoneCallDelegate.update(call.getId(), {status: CallStatus.SCHEDULING}),
-                    self.notificationDelegate.sendCallSchedulingNotifications(call.getId(), callFlowSessionData.getAppointments(), call.getDuration(), sessionData.getLoggedInUser())
+                    self.notificationDelegate.sendNewCallRequestNotifications(call.getId(), callFlowSessionData.getAppointments(), call.getDuration(), sessionData.getLoggedInUser())
                 ])
                     .then(
                     function renderPage()

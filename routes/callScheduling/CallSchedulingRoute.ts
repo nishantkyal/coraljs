@@ -59,11 +59,14 @@ class CallSchedulingRoute
         var startTime:number = parseInt(req.query[ApiConstants.START_TIME]);
         var appointmentCode:string = req.query[ApiConstants.CODE];
         var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
+        var loggedInUserId = req[ApiConstants.USER].id;
 
         // 0. Check that selected start time hasn't already passed (expert reads the email too late)
-        // 1. Validate the code and verify that selected slot is one of the original slots
+        // 1. Validate the code
+        //      a. verify that selected slot is one of the original slots
+        //      b. Verify that request was not sent by me
         // 2. Fetch call details
-        // 3. Fetch expert's phones
+        // 3. If expert, check that we've a verified mobile number else ask to verify
         if (startTime < moment().valueOf())
         {
             res.render('500', {error: 'The selected start time(' + Formatter.formatDate(startTime) + ') has already passed. Please choose another slot from the suggested slots or suggest a new one'});
@@ -80,9 +83,14 @@ class CallSchedulingRoute
                 var appointment = args[0][0];
                 var call:PhoneCall = args[0][1];
 
-                if (Utils.isNullOrEmpty(appointment) || !_.contains(appointment.startTimes, startTime))
+                var isExpert = call.getIntegrationMember().getUser().getId() == loggedInUserId;
+                var isCaller = call.getCallerUserId() == loggedInUserId;
+
+                if (Utils.isNullOrEmpty(appointment) || !_.contains(appointment.startTimes, startTime) || appointment.from == loggedInUserId)
                     throw 'Invalid request. Please click on one of the links in the email';
-                else
+                else if (isExpert)
+                    return [appointment.startTimes, call, self.userPhoneDelegate.search(Utils.createSimpleObject(UserPhone.USER_ID, call.getIntegrationMember().getUserId()))];
+                else if (isCaller)
                     return [appointment.startTimes, call, self.userPhoneDelegate.search(Utils.createSimpleObject(UserPhone.USER_ID, call.getIntegrationMember().getUserId()))];
             })
             .spread(

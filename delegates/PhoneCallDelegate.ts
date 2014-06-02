@@ -271,11 +271,11 @@ class PhoneCallDelegate extends BaseDaoDelegate
                     var isCaller = call.getCallerUserId() == requesterUserId;
 
                     if (isCaller)
-                        return notificationDelegate.sendNewTimeSlotsToExpert(call, pickedSlots)
+                        return notificationDelegate.sendNewTimeSlotsToExpert(call, pickedSlots, requesterUserId)
                             .then(
                             function sendResponse() { return CallStatus.SCHEDULING; });
                     else if (isExpert)
-                        return notificationDelegate.sendSuggestedAppointmentToCaller(call, pickedSlots[0])
+                        return notificationDelegate.sendSuggestedAppointmentToCaller(call, pickedSlots[0], requesterUserId)
                             .then(
                             function sendResponse() { return CallStatus.SCHEDULING; });
                 }
