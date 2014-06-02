@@ -10,6 +10,7 @@ import TransactionLineDao                           = require('../dao/Transactio
 import ItemType                                     = require('../enums/ItemType');
 import TransactionType                              = require('../enums/TransactionType');
 import Config                                       = require('../common/Config');
+import Utils                                        = require('../common/Utils');
 
 class TransactionLineDelegate extends BaseDaoDelegate
 {
@@ -30,7 +31,7 @@ class TransactionLineDelegate extends BaseDaoDelegate
     {
         var callPrice = call.getPricePerMin() * call.getDuration();
         var networkCharges = call.getDuration() * Config.get(Config.CALL_NETWORK_CHARGES_PER_MIN_DOLLAR);
-        var tax = (callPrice + networkCharges) * Config.get(Config.CALL_TAX_PERCENT)/100;
+        var tax = (callPrice + networkCharges) * Config.get(Config.CALL_TAX_PERCENT) / 100;
 
         var phoneCallTransactionLine = new TransactionLine();
         phoneCallTransactionLine.setAmount(callPrice);
@@ -55,6 +56,22 @@ class TransactionLineDelegate extends BaseDaoDelegate
         taxationTransactionLine.setTransactionId(transactionId);
 
         return [phoneCallTransactionLine, networkChargesTransactionLine, taxationTransactionLine];
+    }
+
+    /**
+     * Get all transaction lines for a transaction identified by item id
+     * e.g. Get all transaction lines for a call id
+     */
+    getTransactionLinesForItemId(itemId:number):q.Promise<TransactionLine[]>
+    {
+        var self = this;
+
+        return self.find(Utils.createSimpleObject(TransactionLine.ITEM_ID, itemId))
+            .then(
+            function transactionIdFound(line:TransactionLine)
+            {
+                return self.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, line.getTransactionId()));
+            });
     }
 }
 export = TransactionLineDelegate

@@ -194,25 +194,28 @@ class EmailDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall)
-            {
-                self.sendCallRequestRejectedEmail(fetchedCall, reason);
-            });
+            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_USER])
+                .then(
+                function (fetchedCall:PhoneCall)
+                {
+                    return self.sendCallRequestRejectedEmail(fetchedCall, reason);
+                });
 
         return self.composeAndSend(EmailDelegate.EMAIL_USER_AGENDA_FAIL, call.getUser().getEmail(), {call: call});
     }
 
-    sendSchedulingEmailToExpert(call:number, appointments:number[], duration:number, caller:User):q.Promise<any>;
-    sendSchedulingEmailToExpert(call:PhoneCall, appointments:number[], duration:number, caller:User):q.Promise<any>;
-    sendSchedulingEmailToExpert(call:any, appointments:number[], duration:number, caller:User):q.Promise<any>
+    sendNewCallRequestNotifications(call:number, appointments:number[], duration:number, caller:User):q.Promise<any>;
+    sendNewCallRequestNotifications(call:PhoneCall, appointments:number[], duration:number, caller:User):q.Promise<any>;
+    sendNewCallRequestNotifications(call:any, appointments:number[], duration:number, caller:User):q.Promise<any>
     {
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
             return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER])
-                .then(function (fetchedCall:PhoneCall)
+                .then(
+                function (fetchedCall:PhoneCall)
                 {
-                    self.sendSchedulingEmailToExpert(fetchedCall, appointments, duration, caller);
+                    return self.sendNewCallRequestNotifications(fetchedCall, appointments, duration, caller);
                 });
 
         var expert:IntegrationMember = call.getIntegrationMember();
@@ -221,7 +224,7 @@ class EmailDelegate
         var VerificationCodeDelegate:any = require('../delegates/VerificationCodeDelegate');
         var verificationCodeDelegate = new VerificationCodeDelegate();
 
-        return verificationCodeDelegate.createAppointmentAcceptCode(call, appointments)
+        return verificationCodeDelegate.createAppointmentAcceptCode(call, appointments, caller.getId())
             .then(
             function invitationAcceptCodeCreated(code:string)
             {
@@ -256,9 +259,11 @@ class EmailDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall)
+            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_USER])
+                .then(
+                function (fetchedCall:PhoneCall)
             {
-                self.sendSchedulingCompleteEmail(fetchedCall, appointment);
+                return self.sendSchedulingCompleteEmail(fetchedCall, appointment);
             });
 
         var expert:IntegrationMember = call.getIntegrationMember();
@@ -277,21 +282,24 @@ class EmailDelegate
 
     }
 
-    sendSuggestedAppointmentToCaller(call:number, appointment:number):q.Promise<any>;
-    sendSuggestedAppointmentToCaller(call:PhoneCall, appointment:number):q.Promise<any>;
-    sendSuggestedAppointmentToCaller(call:any, appointment:number):q.Promise<any>
+    sendSuggestedAppointmentToCaller(call:number, appointment:number, expertUserId:number):q.Promise<any>;
+    sendSuggestedAppointmentToCaller(call:PhoneCall, appointment:number, expertUserId:number):q.Promise<any>;
+    sendSuggestedAppointmentToCaller(call:any, appointment:number, expertUserId:number):q.Promise<any>
     {
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall)
-            {
-                self.sendSuggestedAppointmentToCaller(fetchedCall, appointment);
-            });
+            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_USER])
+                .then(
+                function (fetchedCall:PhoneCall)
+                {
+                    return self.sendSuggestedAppointmentToCaller(fetchedCall, appointment, expertUserId);
+                });
+
         var VerificationCodeDelegate:any = require('../delegates/VerificationCodeDelegate');
         var verificationCodeDelegate = new VerificationCodeDelegate();
 
-        return verificationCodeDelegate.createAppointmentAcceptCode(call, [appointment])
+        return verificationCodeDelegate.createAppointmentAcceptCode(call, [appointment], expertUserId)
             .then(
             function invitationAcceptCodeCreated(code:string)
             {
@@ -317,22 +325,24 @@ class EmailDelegate
 
     }
 
-    sendNewTimeSlotsToExpert(call:number, appointments:number[]):q.Promise<any>;
-    sendNewTimeSlotsToExpert(call:PhoneCall, appointments:number[]):q.Promise<any>;
-    sendNewTimeSlotsToExpert(call:any, appointments:number[]):q.Promise<any>
+    sendNewTimeSlotsToExpert(call:number, appointments:number[], callerUserId:number):q.Promise<any>;
+    sendNewTimeSlotsToExpert(call:PhoneCall, appointments:number[], callerUserId:number):q.Promise<any>;
+    sendNewTimeSlotsToExpert(call:any, appointments:number[], callerUserId:number):q.Promise<any>
     {
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER]).then(function (fetchedCall:PhoneCall)
-            {
-                self.sendNewTimeSlotsToExpert(fetchedCall, appointments);
-            });
+            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER])
+                .then(
+                function (fetchedCall:PhoneCall)
+                {
+                    return self.sendNewTimeSlotsToExpert(fetchedCall, appointments, callerUserId);
+                });
 
         var VerificationCodeDelegate:any = require('../delegates/VerificationCodeDelegate');
         var verificationCodeDelegate = new VerificationCodeDelegate();
 
-        return verificationCodeDelegate.createAppointmentAcceptCode(call, appointments)
+        return verificationCodeDelegate.createAppointmentAcceptCode(call, appointments, callerUserId)
             .then(
             function invitationAcceptCodeCreated(code:string)
             {
@@ -419,7 +429,7 @@ class EmailDelegate
         if (Utils.getObjectType(call) == 'Number')
             return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall)
             {
-                self.sendCallReminderEmail(fetchedCall);
+                return self.sendCallReminderEmail(fetchedCall);
             });
 
         return q.all([

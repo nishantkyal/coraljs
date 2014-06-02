@@ -1,4 +1,5 @@
 import _                                                    = require('underscore');
+import moment                                               = require('moment');
 import express                                              = require('express');
 import connect_ensure_login                                 = require('connect-ensure-login');
 import ApiConstants                                         = require('../enums/ApiConstants');
@@ -53,7 +54,12 @@ class PhoneCallApi
             var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
             var appointmentCode:string = req.query[ApiConstants.CODE] || req.body[ApiConstants.CODE];
 
-            var pickedTimeSlots = _.map([].concat(req.body[ApiConstants.START_TIME] || req.query[ApiConstants.START_TIME]), function(slot) { return parseInt(slot); });
+            var pickedTimeSlots:number[] = _.map([].concat(req.body[ApiConstants.START_TIME] || req.query[ApiConstants.START_TIME]), function(slot) { return parseInt(slot); });
+            pickedTimeSlots = _.filter(pickedTimeSlots, function(slot:number)
+            {
+                return moment(slot) > moment();
+            });
+
             var reason:string = req.body[ApiConstants.REASON];
 
             if (pickedTimeSlots.length != 0 || !Utils.isNullOrEmpty(reason))

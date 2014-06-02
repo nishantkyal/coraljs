@@ -1,0 +1,112 @@
+title Scheduling
+doctype html
+head
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    meta(name='viewport', content='width=device-width, initial-scale=1, user-scalable=false')
+    link(href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic', rel='stylesheet', type='text/css')
+    link(href='/bower_dependencies/bootstrap/dist/css/bootstrap.min.css')
+    link(href='/css/bootstrap.min.css', rel='stylesheet')
+    link(href='/css/main.css', rel='stylesheet')
+    link(href='/bower_dependencies/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css', rel='stylesheet')
+    //link(href='/css/style.css', rel='stylesheet')
+    script(src='/bower_dependencies/jquery/jquery.js')
+    script(src='/bower_dependencies/bootstrap/dist/js/bootstrap.min.js')
+    script(src='/bower_dependencies/moment/moment.js')
+    script(src='/bower_dependencies/moment/moment.js')
+    script(src='/bower_dependencies/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js')
+    script(src='/bower_dependencies/bootbox/bootbox.js')
+    script(src='/js/lib/jquery.validate.js')
+.masthead(role='banner')
+    .container
+        .masthead-brand
+            a.logo.hidden-xs(href='#')
+            a.icon.visible-xs(href='#')
+        .masthead-controls
+            .masthead-control-field
+                .field-label
+                    | Language
+                .field-menu
+                    select(name='ui_language')
+                        option(value='en', selected='')
+                            | English
+
+// /.masthead
+.matter
+    .container
+        .row
+            .content.col-xs-9.col-sm-9.col-md-12.col-lg-12
+                .row
+                    .col-md-6
+                        .call-profile
+                            h1
+                                | Call request from&nbsp;
+                                span= formatName(call.user.first_name, call.user.last_name, call.user.title)
+                            .meta
+                                h5 Call Id
+                                p= call.id
+                            .meta
+                                h5 Call Agenda
+                                p= call.agenda
+                            .meta
+                                h5 Duration
+                                p= call.duration
+                                    | &nbsp; mins.
+                    .col-md-6
+                        .call-card
+                            form#scheduling(action=ApiUrlDelegate.phoneCallScheduling(call.id))
+                                .payment-summary.call-inputs
+                                    h1
+                                        i.icon-scheduler
+                                        | Suggested Time
+                                    h3 Pick one of the suggested slots
+                                    for slot in startTimes
+                                        p.title
+                                            input(type='radio', name='startTime', value=slot, checked=selectedStartTime == slot)
+                                            label= formatDate(slot)
+                                    h3 Or Suggest another time convenient to you
+                                    .row
+                                        .col-md-8
+                                            .form-group
+                                                .input-group.date.datepicker
+                                                    input.form-control(type='text', disabled=true)
+                                                    span.input-group-addon
+                                                        span.glyphicon-calendar.glyphicon
+                                .payment-summary.call-inputs
+                                    h1
+                                        i.icon-phone
+                                        | Your phone number
+                                        .row
+                                            if !phone
+                                                .input-group
+                                                    .input-group-btn
+                                                        select.form-control#country-code
+                                                            for code,country in CountryCode
+                                                                option(value=country, selected=country == phone.country_code)= CountryName[code.toUpperCase()] + ' (+' + country + ')'
+                                                    input.form-control#phone(type='text', value=phone ? phone.phone : null)
+                                                    .input-group-btn
+                                                        a.btn.btn-success#verify-btn Verify
+                                            else
+                                                p= '+' + phone.country_code + '-' + phone.phone
+
+                                if earning > 0
+                                    .payment-summary.call-inputs
+                                        h1
+                                            i.icon-bill
+                                            | Your earnings
+                                            .row
+                                                p= formatMoney(earning, earningUnit)
+
+
+                                input(type='hidden', name='phoneId', value=phone ? phone.id : null)
+                                input(type='hidden', name='code', value=code)
+                                input.btn.btn-primary.btn-block(type='submit', value='Confirm')
+                                .call-reversal
+                                    a.btn.btn-danger#reject-call
+                                        | Cancel
+                                        i.icon-cancel
+
+include ../footer
+script.
+    var callId = '!{call.id}';
+script(src='/js/app/callScheduling/scheduling.js')

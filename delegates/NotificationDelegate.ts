@@ -23,13 +23,13 @@ class NotificationDelegate
         this.phoneCallDelegate = new PhoneCallDelegate();
     }
 
-    sendCallSchedulingNotifications(call:number, appointments:number[], duration:number, caller:User):q.Promise<any>;
-    sendCallSchedulingNotifications(call:PhoneCall, appointments:number[], duration:number, caller:User):q.Promise<any>;
-    sendCallSchedulingNotifications(call:any, appointments:number[], duration:number, caller:User):q.Promise<any>
+    sendNewCallRequestNotifications(call:number, appointments:number[], duration:number, caller:User):q.Promise<any>;
+    sendNewCallRequestNotifications(call:PhoneCall, appointments:number[], duration:number, caller:User):q.Promise<any>;
+    sendNewCallRequestNotifications(call:any, appointments:number[], duration:number, caller:User):q.Promise<any>
     {
         var self = this;
 
-        return self.emailDelegate.sendSchedulingEmailToExpert(call, appointments, duration, caller);
+        return self.emailDelegate.sendNewCallRequestNotifications(call, appointments, duration, caller);
     }
 
     sendCallSchedulingCompleteNotifications(call:number, appointment:number):q.Promise<any>;
@@ -40,20 +40,20 @@ class NotificationDelegate
         return self.emailDelegate.sendSchedulingCompleteEmail(call, appointment);
     }
 
-    sendSuggestedAppointmentToCaller(call:number, appointment:number):q.Promise<any>;
-    sendSuggestedAppointmentToCaller(call:PhoneCall, appointment:number):q.Promise<any>;
-    sendSuggestedAppointmentToCaller(call:any, appointment:number):q.Promise<any>
+    sendSuggestedAppointmentToCaller(call:number, appointment:number, expertUserId:number):q.Promise<any>;
+    sendSuggestedAppointmentToCaller(call:PhoneCall, appointment:number, expertUserId:number):q.Promise<any>;
+    sendSuggestedAppointmentToCaller(call:any, appointment:number, expertUserId:number):q.Promise<any>
     {
         var self = this;
-        return self.emailDelegate.sendSuggestedAppointmentToCaller(call, appointment);
+        return self.emailDelegate.sendSuggestedAppointmentToCaller(call, appointment, expertUserId);
     }
 
-    sendNewTimeSlotsToExpert(call:number, appointments:number[]):q.Promise<any>;
-    sendNewTimeSlotsToExpert(call:PhoneCall, appointments:number[]):q.Promise<any>;
-    sendNewTimeSlotsToExpert(call:any, appointments:number[]):q.Promise<any>
+    sendNewTimeSlotsToExpert(call:number, appointments:number[], callerUserId:number):q.Promise<any>;
+    sendNewTimeSlotsToExpert(call:PhoneCall, appointments:number[], callerUserId:number):q.Promise<any>;
+    sendNewTimeSlotsToExpert(call:any, appointments:number[], callerUserId:number):q.Promise<any>
     {
         var self = this;
-        return self.emailDelegate.sendNewTimeSlotsToExpert(call, appointments);
+        return self.emailDelegate.sendNewTimeSlotsToExpert(call, appointments, callerUserId);
     }
 
     sendCallRejectedNotifications(call:number, reason:string):q.Promise<any>;
