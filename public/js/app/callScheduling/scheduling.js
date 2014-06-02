@@ -1,3 +1,4 @@
+/* Send scheduling details */
 $('form#scheduling').validate({
     ignore: "",
     rules        : {
@@ -51,6 +52,7 @@ $('form#scheduling').validate({
     }
 });
 
+/* Cancel call with a reason */
 $('#reject-call').click(function()
 {
     bootbox.prompt('Please tell us why you want to reject this call so we can inform the caller.', function(reason)
@@ -75,6 +77,7 @@ $('#reject-call').click(function()
     });
 });
 
+/* Send and process verification code */
 $('#verify-btn').click(function()
 {
     var phone = $('#phone').val();
@@ -121,12 +124,18 @@ $('#verify-btn').click(function()
     })
 });
 
+/* Deselect start time radio button if alternate time entered */
 $('input#startTime').keydown(function(event)
 {
     $('input[name="startTime"]').removeAttr('checked');
 });
 
+/* Empty startTime input if startTime slot selected */
 $('input[name="startTime"]').focus(function()
 {
     $('input#startTime').val('');
+});
+
+$('.datepicker').timepicker({
+    minuteStep: 5
 });

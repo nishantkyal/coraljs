@@ -7,14 +7,10 @@ import express                                              = require('express')
 import passport                                             = require('passport');
 import log4js                                               = require('log4js');
 import RequestHandler                                       = require('../../middleware/RequestHandler');
-import AuthenticationDelegate                               = require('../../delegates/AuthenticationDelegate');
-import IntegrationDelegate                                  = require('../../delegates/IntegrationDelegate');
-import PhoneCallDelegate                                    = require('../../delegates/PhoneCallDelegate');
-import EmailDelegate                                        = require('../../delegates/EmailDelegate');
-import TransactionDelegate                                  = require('../../delegates/TransactionDelegate');
 import VerificationCodeDelegate                             = require('../../delegates/VerificationCodeDelegate');
+import PhoneCallDelegate                                    = require('../../delegates/PhoneCallDelegate');
+import TransactionLineDelegate                              = require('../../delegates/TransactionLineDelegate');
 import UserPhoneDelegate                                    = require('../../delegates/UserPhoneDelegate');
-import NotificationDelegate                                 = require('../../delegates/NotificationDelegate');
 import Utils                                                = require('../../common/Utils');
 import Config                                               = require('../../common/Config');
 import Formatter                                            = require('../../common/Formatter');
@@ -25,11 +21,13 @@ import Coupon                                               = require('../../mod
 import UserPhone                                            = require('../../models/UserPhone');
 import IntegrationMember                                    = require('../../models/IntegrationMember');
 import User                                                 = require('../../models/User');
+import TransactionLine                                      = require('../../models/TransactionLine');
 import CallStatus                                           = require('../../enums/CallStatus');
 import ApiConstants                                         = require('../../enums/ApiConstants');
 import IncludeFlag                                          = require('../../enums/IncludeFlag');
 import MoneyUnit                                            = require('../../enums/MoneyUnit');
 import TransactionStatus                                    = require('../../enums/TransactionStatus');
+import TransactionType                                      = require('../../enums/TransactionType');
 
 import Urls                                                 = require('./Urls');
 import SessionData                                          = require('./SessionData');
@@ -38,11 +36,13 @@ import DashboardUrls                                        = require('../../rou
 
 class CallSchedulingRoute
 {
-    private static SCHEDULING:string = 'callScheduling/scheduling';
+    private static SCHEDULING_PAGE_FOR_EXPERT:string        = 'callScheduling/schedulingPageForExpert';
+    private static SCHEDULING_PAGE_FOR_CALLER:string        = 'callScheduling/schedulingPageForCaller';
 
     private verificationCodeDelegate = new VerificationCodeDelegate();
     private phoneCallDelegate = new PhoneCallDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
+    private transactionLineDelegate = new TransactionLineDelegate();
 
     constructor(app, secureApp)
     {
@@ -83,28 +83,66 @@ class CallSchedulingRoute
                 var appointment = args[0][0];
                 var call:PhoneCall = args[0][1];
 
-                var isExpert = call.getIntegrationMember().getUser().getId() == loggedInUserId;
-                var isCaller = call.getCallerUserId() == loggedInUserId;
-
                 if (Utils.isNullOrEmpty(appointment) || !_.contains(appointment.startTimes, startTime) || appointment.from == loggedInUserId)
                     throw 'Invalid request. Please click on one of the links in the email';
-                else if (isExpert)
-                    return [appointment.startTimes, call, self.userPhoneDelegate.search(Utils.createSimpleObject(UserPhone.USER_ID, call.getIntegrationMember().getUserId()))];
-                else if (isCaller)
-                    return [appointment.startTimes, call, self.userPhoneDelegate.search(Utils.createSimpleObject(UserPhone.USER_ID, call.getIntegrationMember().getUserId()))];
+
+                var returnArray = [appointment.startTimes, call, self.transactionLineDelegate.getTransactionLinesForItemId(call.getId())];
+
+                switch (loggedInUserId)
+                {
+                    // If viewer == expert
+                    case call.getIntegrationMember().getUser().getId():
+                        if (!Utils.isNullOrEmpty(call.getExpertPhoneId()))
+                            returnArray.push(self.userPhoneDelegate.get(call.getExpertPhoneId()));
+                        else
+                            returnArray.push(self.userPhoneDelegate.find(Utils.createSimpleObject(UserPhone.USER_ID, call.getIntegrationMember().getUserId())));
+
+                    // If viewer == caller
+                    case call.getCallerUserId():
+                        returnArray.push(self.userPhoneDelegate.get(call.getCallerPhoneId()));
+                }
+
+                return returnArray;
             })
             .spread(
-            function expertPhonesFetched(startTimes:number[], call:PhoneCall, expertPhones:UserPhone[]):any
+            function expertPhonesFetched(startTimes:number[], call:PhoneCall, lines:TransactionLine[], phone:UserPhone):any
             {
+                var productLine = _.findWhere(lines, Utils.createSimpleObject(TransactionLine.TRANSACTION_TYPE, TransactionType.PRODUCT));
+                var revenueShare:number = call.getIntegrationMember().getRevenueShare();
+                var revenueShareUnit:MoneyUnit = call.getIntegrationMember().getRevenueShareUnit();
+
+                var earning:number = 0;
+                var earningUnit:MoneyUnit = revenueShareUnit;
+
+                switch(revenueShareUnit)
+                {
+                    case MoneyUnit.PERCENT:
+                        earning = revenueShare * productLine.getAmount() / 100;
+                        break;
+
+                    default:
+                        // TODO: Handle currency conversion if different currencies
+                        if (revenueShareUnit == productLine.getAmountUnit())
+                            earning = Math.min(productLine.getAmount(), revenueShare);
+                        break;
+                }
+
                 var pageData = {
                     call: call,
                     startTimes: startTimes,
-                    phones: expertPhones,
                     selectedStartTime: startTime,
-                    code: appointmentCode
+                    phone: phone,
+                    code: appointmentCode,
+                    lines: lines,
+                    loggedInUserId: loggedInUserId,
+                    earning: earning,
+                    earningUnit: earningUnit
                 };
 
-                res.render(CallSchedulingRoute.SCHEDULING, pageData);
+                if (loggedInUserId == call.getIntegrationMember().getUser().getId())
+                    res.render(CallSchedulingRoute.SCHEDULING_PAGE_FOR_EXPERT, pageData);
+                else if (loggedInUserId == call.getCallerUserId())
+                    res.render(CallSchedulingRoute.SCHEDULING_PAGE_FOR_CALLER, pageData);
             })
             .fail(function (error)
             {

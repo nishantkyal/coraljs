@@ -59,7 +59,7 @@ function init(grunt)
             typescript: ["app.js", "*/**/*.js", '!Gruntfile.js', '!public/**/*.js', '!node_modules/**/*.js']
         },
         bumpup: {
-            'file': 'package.json'
+            'file': ['package.json', 'bower.json']
         },
         prompt: {
             bumpup: {
@@ -91,7 +91,7 @@ function init(grunt)
             "bumpup": {
                 "message": "Released and bumped up project version",
                 "files": {
-                    'src': ['package.json']
+                    'src': ['package.json', 'bower.json']
                 }
             }
         },
