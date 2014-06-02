@@ -5,7 +5,14 @@ $('form#scheduling').validate({
             required: true
         },
         'startTime': {
-            required: true
+            required: function(element) {
+                return $("form#scheduling input[name='startTime']").val() == null;
+            }
+        },
+        'startTimeInput': {
+            required: function(element) {
+                return $("form#scheduling input#startTime").val().trim().length == 0;
+            }
         }
     },
     submitHandler: function(form)
@@ -14,7 +21,7 @@ $('form#scheduling').validate({
             type: 'post',
             url: form.action,
             data: {
-                startTime: $('form#scheduling input[name="startTime"]').val(),
+                startTime: $('form#scheduling input#startTime').val() || $('form#scheduling input[name="startTime"]').val(),
                 code: $('form#scheduling input[name="code"]').val(),
                 phoneId: $('form#scheduling input[name="phoneId"]').val()
             },
@@ -112,4 +119,14 @@ $('#verify-btn').click(function()
             bootbox.alert('Sending verification code to your mobile failed. Please check the number and try again.')
         }
     })
+});
+
+$('input#startTime').keydown(function(event)
+{
+    $('input[name="startTime"]').removeAttr('checked');
+});
+
+$('input[name="startTime"]').focus(function()
+{
+    $('input#startTime').val('');
 });

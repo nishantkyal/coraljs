@@ -30,7 +30,7 @@ include ../header
                                             input(type='radio', name='startTime', value=slot, checked=selectedStartTime == slot)
                                             label= formatDate(slot)
                                     h3 Or Suggest another time convenient to you
-                                    input(type='text', name='startTime')
+                                    input#startTime(type='text', name='startTimeInput')
                                 .payment-summary.call-inputs
                                     h1
                                         i.icon-phone
