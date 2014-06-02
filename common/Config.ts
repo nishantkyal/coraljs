@@ -52,6 +52,8 @@ class Config
     static PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS   = 'task.call_trigger.interval';                 // How often do we create scheduled tasks for triggering calls
     static CALL_REMINDER_LEAD_TIME_SECS:string          = 'call.reminder_notification.lead_time';       // Lead time for sending reminder for upcoming call
     static CALL_RETRY_DELAY_SECS:string                 = 'call.retry.delay';                           // Delay after which failed calls are retried
+    static MINIMUM_DURATION_FOR_SUCCESS:string          = 'minimum.duration.for.success';
+    static MAXIMUM_REATTEMPTS:string                    = 'maximum.reattempts';
     static MINIMUM_YEAR:string                          = 'minimum.year';
 
     static CALL_NETWORK_CHARGES_PER_MIN_DOLLAR:string   = 'call.network_charges_per_min.dollar';

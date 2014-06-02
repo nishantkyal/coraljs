@@ -1,6 +1,7 @@
 import q                                                    = require('q');
 import express                                              = require('express');
 import json2xml                                             = require('json2xml');
+import log4js                                               = require('log4js');
 import ApiConstants                                         = require('../enums/ApiConstants');
 import IncludeFlag                                          = require('../enums/IncludeFlag');
 import PhoneType                                            = require('../enums/PhoneType');
@@ -43,6 +44,7 @@ class TwimlOutApi
     twilioProvider = new TwilioProvider();
     notificationDelegate = new NotificationDelegate();
     phoneCallCache = new PhoneCallCache();
+    logger:log4js.Logger = log4js.getLogger('TwimlOutApi');
 
     constructor(app, secureApp)
     {
@@ -84,8 +86,7 @@ class TwimlOutApi
             var dialCallStatus = req.body[TwimlOutApi.DIAL_CALL_STATUS];
             var callId = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
             var pageData = {};
-            var call:PhoneCall = new PhoneCall();
-            call.setNumReattempts(attemptCount);
+            var call:PhoneCall = new PhoneCall(); //to update cache
 
             var callFragment:CallFragment = new CallFragment(); //save information received in CaLLFragment
             callFragment.setCallId(callId);
@@ -118,29 +119,54 @@ class TwimlOutApi
 
             q.all([
                 self.twilioProvider.updateCallFragment(callFragment),
-                self.notificationDelegate.sendCallStatusNotifications(callFragment, attemptCount)
+                self.phoneCallDelegate.get(callId)
+                //self.notificationDelegate.sendCallStatusNotifications(callFragment, attemptCount)
             ])
             .then(
             function (...args){
+                call = args[0][1];
+
+                var tempCall:PhoneCall =  new PhoneCall(); //to update call table
+
                 if(args[0][0])
                 {
-                    var fragmentStatus:CallFragmentStatus = args[0][0].getCallFragmentStatus();
+                    var fragmentStatus:CallFragmentStatus;
+                    if(Utils.getObjectType(args[0][0]) == 'String')
+                        fragmentStatus = CallFragmentStatus.FAILED_EXPERT_ERROR;
+                    else
+                        fragmentStatus = args[0][0].getCallFragmentStatus();
+
                     if (fragmentStatus == CallFragmentStatus.SUCCESS)
-                        call.setStatus(CallStatus.COMPLETED)
+                    {
+                        call.setStatus(CallStatus.COMPLETED);
+                        tempCall.setStatus(CallStatus.COMPLETED);
+                    }
                     else if(attemptCount == 1 && fragmentStatus != CallFragmentStatus.SUCCESS)
+                    {
                         call.setStatus(CallStatus.FAILED);
-                    if(attemptCount == 0)
+                        tempCall.setStatus(CallStatus.FAILED);
+                        call.setNumReattempts(attemptCount+1);
+                        tempCall.setNumReattempts(attemptCount+1);
+                    }
+
+                    if(attemptCount == 0 && fragmentStatus != CallFragmentStatus.SUCCESS)
                         call.setDelay(Config.get(Config.CALL_RETRY_DELAY_SECS));
+
+                    tempCall.setDelay(call.getDelay());
                 }
                 return q.all([
-                    self.phoneCallDelegate.update(callId,call),
-                    self.phoneCallCache.addCall(call)
-                ])
+                    self.phoneCallDelegate.update(callId,tempCall),
+                    self.phoneCallCache.addCall(call,null,true)
+                ]);
             })
             .then(
-            function callUpdated(...args)
+            function callCacheUpdated()
             {
                 self.phoneCallDelegate.queueCallForTriggering(callId);
+            })
+            .fail (
+            function (error){
+                self.logger.debug('TwimlJoinCall error - ' + JSON.stringify(error));
             });
         });
 
@@ -149,24 +175,23 @@ class TwimlOutApi
         {
             res.json('OK');
 
-            var self = this;
             var callId = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
 
             var callStatus = req.body[TwimlOutApi.CALL_STATUS];
             var attemptCount = parseInt(req.query[TwilioProvider.ATTEMPTCOUNT]);
+            var duration:number = parseInt(req.body[TwimlOutApi.DURATION]);
             attemptCount = attemptCount || 0;
 
-            var call:PhoneCall = new PhoneCall();
-            call.setNumReattempts(attemptCount);
+            var call:PhoneCall =  new PhoneCall();
 
-            if (callStatus != TwimlOutApi.COMPLETED) // if completed then information saved after expert drops the call
+            if (callStatus != TwimlOutApi.COMPLETED || duration < Config.get(Config.MINIMUM_DURATION_FOR_SUCCESS)) // if completed then information saved after expert drops the call
             {
                 //save information for failed call
                 var callFragment:CallFragment = new CallFragment();
                 callFragment.setCallId(parseInt(req.params[ApiConstants.PHONE_CALL_ID]));
                 callFragment.setAgentCallSidUser(req.body[TwimlOutApi.CALL_SID]);
                 callFragment.setFromNumber(req.body[TwimlOutApi.USER_NUMBER]);
-                callFragment.setDuration(parseInt(req.body[TwimlOutApi.DURATION]));
+                callFragment.setDuration(duration);
                 callFragment.setAgentId(AgentType.TWILIO);
 
                 if (callStatus == TwimlOutApi.FAILED) //failed means twilio was not able to connect the call
@@ -174,37 +199,57 @@ class TwimlOutApi
                 else
                     callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_USER_ERROR);
 
-                if (attemptCount == 0)
-                    self.phoneCallDelegate.queueCallForTriggering(callId);
-
                 q.all([
                     self.twilioProvider.updateCallFragment(callFragment),
-                    self.notificationDelegate.sendCallFailureNotifications(callId)
+                    self.phoneCallDelegate.get(callId)
+                    //self.notificationDelegate.sendCallFailureNotifications(callId)
                 ])
                 .then(
                 function (...args){
+                    call = args[0][1];
+                    call.setNumReattempts(attemptCount + 1);
+
+                    var tempCall:PhoneCall =  new PhoneCall();
+                    tempCall.setNumReattempts(attemptCount + 1);
+
                     if(args[0][0])
                     {
-                        var fragmentStatus:CallFragmentStatus = args[0][0].getCallFragmentStatus();
+                        var fragmentStatus:CallFragmentStatus;
+                        if(Utils.getObjectType(args[0][0]) == 'String')
+                            fragmentStatus = CallFragmentStatus.FAILED_USER_ERROR;
+                        else
+                            fragmentStatus = args[0][0].getCallFragmentStatus();
 
                         if (fragmentStatus == CallFragmentStatus.SUCCESS)
-                            call.setStatus(CallStatus.COMPLETED)
+                        {
+                            call.setStatus(CallStatus.COMPLETED);
+                            tempCall.setStatus(CallStatus.COMPLETED);
+                        }
                         else if(attemptCount == 1 && fragmentStatus != CallFragmentStatus.SUCCESS)
+                        {
                             call.setStatus(CallStatus.FAILED);
+                            tempCall.setStatus(CallStatus.FAILED);
+                        }
 
-                        if(attemptCount == 0)
+                        if(attemptCount == 0 && fragmentStatus != CallFragmentStatus.SUCCESS)
                             call.setDelay(Config.get(Config.CALL_RETRY_DELAY_SECS));
+
+                        tempCall.setDelay(call.getDelay());
                     }
                     return q.all([
-                        self.phoneCallDelegate.update(callId,call),
-                        self.phoneCallCache.addCall(call)
-                    ])
+                        self.phoneCallDelegate.update(callId,tempCall),
+                        self.phoneCallCache.addCall(call,null,true)
+                    ]);
                 })
                 .then(
-                function callUpdated(...args)
+                function callCacheUpdated()
                 {
                     self.phoneCallDelegate.queueCallForTriggering(callId);
-                });
+                })
+                .fail (
+                function (error){
+                    self.logger.debug('TwimlCallback error - ' + JSON.stringify(error));
+                })
             }
         });
     }
