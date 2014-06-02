@@ -155,46 +155,49 @@ class PhoneCallDelegate extends BaseDaoDelegate
 
         // Queue call for triggering if it's before the scheduler will trigger again
         var startTime:number = (call.getStartTime() + (call.getDelay() || 0) * 1000);
-        var error:string = '';
+        var error:string;
 
-        if ((call.getNumReattempts() || 0) <= Config.get(Config.MAXIMUM_REATTEMPTS)) //check numbe rof reattempts already made
+        // If call is scheduled for much later, skip queuing
+        if (startTime < moment().valueOf() || startTime > (moment().add({seconds: Config.get(Config.PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS)})).valueOf())
         {
-            if (call.getStatus() == CallStatus.IN_PROGRESS || call.getStatus() == CallStatus.SCHEDULED) // check status of call is valid or not
-            {
-                if (startTime > moment().valueOf() && startTime < (moment().valueOf() + Config.get(Config.PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS) * 1000)) // check whether call is within next hour or not
-                {
-                    var ScheduledTaskDelegate = require('../delegates/ScheduledTaskDelegate');
-                    var scheduledTaskDelegate = new ScheduledTaskDelegate();
-
-                    //check whether the call has not been scheduled manually (like on Server restart)
-                    var callsAlreadyScheduledTasks:AbstractScheduledTask[] = scheduledTaskDelegate.filter(ScheduledTaskType.CALL);
-                    var alreadyScheduled = _.find(callsAlreadyScheduledTasks, function (callScheduledTask:any)
-                    {
-                        var callTask:TriggerPhoneCallTask = callScheduledTask;
-                        return callTask.getCallId() == call.getId()
-                    });
-
-                    if (Utils.isNullOrEmpty(alreadyScheduled))
-                    {
-                        scheduledTaskDelegate.scheduleAt(new TriggerPhoneCallTask(call.getId()), startTime);
-                        if((call.getDelay() || 0) == 0) //send reminder only once
-                            scheduledTaskDelegate.scheduleAt(new CallReminderNotificationScheduledTask(call.getId()), call.getStartTime() - parseInt(Config.get(Config.CALL_REMINDER_LEAD_TIME_SECS)) * 1000);
-                        return self.phoneCallCache.addCall(call, null, true);
-                    }
-                    else
-                        error = 'Call already scheduled';
-                }
-                else
-                    error = 'Scheduled for much later'
-            }
-            else
-                error = 'Call status not correct for queueing'
+            self.logger.debug('Call id %s not queued for triggering because it scheduled for much later', call.getId());
+            return q.resolve(true);
         }
-        else
+
+        // Check number of attempts already made
+        if ((call.getNumReattempts() || 0) > Config.get(Config.MAXIMUM_REATTEMPTS))
             error = 'Call has been tried maximum allowed times';
 
-        self.logger.debug('Queueing trigger failed for call id: %s, reason: %s', call.getId(), error);
-        return q.resolve(true);
+        // Check status of call is valid or not
+        if (call.getStatus() != CallStatus.IN_PROGRESS && call.getStatus() != CallStatus.SCHEDULED)
+            error = 'Call status not correct for queueing';
+
+        var ScheduledTaskDelegate = require('../delegates/ScheduledTaskDelegate');
+        var scheduledTaskDelegate = new ScheduledTaskDelegate();
+
+        // Check whether the call has been scheduled already
+        var callsAlreadyScheduledTasks:AbstractScheduledTask[] = scheduledTaskDelegate.filter(ScheduledTaskType.CALL);
+        var alreadyScheduled = _.find(callsAlreadyScheduledTasks, function (callScheduledTask:any)
+        {
+            var callTask:TriggerPhoneCallTask = callScheduledTask;
+            return callTask.getCallId() == call.getId()
+        });
+        if (!Utils.isNullOrEmpty(alreadyScheduled))
+            error = 'Call already scheduled';
+
+        // If no error, SCHEDULE!
+        if (Utils.isNullOrEmpty(error))
+        {
+            scheduledTaskDelegate.scheduleAt(new TriggerPhoneCallTask(call.getId()), startTime);
+            if((call.getDelay() || 0) == 0) //send reminder only once
+                scheduledTaskDelegate.scheduleAt(new CallReminderNotificationScheduledTask(call.getId()), call.getStartTime() - parseInt(Config.get(Config.CALL_REMINDER_LEAD_TIME_SECS)) * 1000);
+            return self.phoneCallCache.addCall(call, null, true);
+        }
+        else
+        {
+            self.logger.debug('Queueing trigger failed for call id: %s, reason: %s', call.getId(), error);
+            return q.reject(error);
+        }
     }
 
     /* Cancel call */
@@ -288,8 +291,8 @@ class PhoneCallDelegate extends BaseDaoDelegate
                         function callStatusUpdated()
                         {
                             return q.all([
-                                self.queueCallForTriggering(call),
-                                notificationDelegate.sendCallSchedulingCompleteNotifications(call, pickedSlots[0])
+                                self.queueCallForTriggering(callId),
+                                notificationDelegate.sendCallSchedulingCompleteNotifications(callId, pickedSlots[0])
                             ]);
                         })
                         .then(
