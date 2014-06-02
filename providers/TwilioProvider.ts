@@ -2,6 +2,7 @@
 import q                                                        = require('q');
 import log4js                                                   = require('log4js');
 import twilio                                                   = require('twilio');
+import moment                                                   = require('moment');
 import Utils                                                    = require('../common/Utils');
 import ApiUrlDelegate                                           = require('../delegates/ApiUrlDelegate');
 import TwilioUrlDelegate                                        = require('../delegates/TwilioUrlDelegate');
@@ -56,8 +57,8 @@ class TwilioProvider implements IPhoneCallProvider,ISmsProvider
 
     makeCall(phone:string, callId?:number, reAttempts?:number):q.Promise<any>
     {
-        var url:string = TwilioUrlDelegate.twiml(Config.get(Config.TWILIO_URI));
-        var callbackUrl:string = TwilioUrlDelegate.twimlCallback(callId,Config.get(Config.TWILIO_URI));
+        var url:string = TwilioUrlDelegate.twimlJoinCall(callId, Config.get(Config.TWILIO_URI));
+        var callbackUrl:string = TwilioUrlDelegate.twimlCallback(callId, Config.get(Config.TWILIO_URI));
 
         if(!Utils.isNullOrEmpty(reAttempts))
         {
@@ -65,7 +66,9 @@ class TwilioProvider implements IPhoneCallProvider,ISmsProvider
             callbackUrl += '?' + TwilioProvider.ATTEMPTCOUNT + '=' + reAttempts;
         }
 
+        this.logger.info('Call being made to ' + phone +' . CallId: ' + callId);
         var deferred = q.defer();
+
         this.twilioClient.makeCall({
 
             to : phone,
@@ -80,6 +83,7 @@ class TwilioProvider implements IPhoneCallProvider,ISmsProvider
             else
                 deferred.reject(err);
         });
+
         return deferred.promise;
     }
 
@@ -101,18 +105,20 @@ class TwilioProvider implements IPhoneCallProvider,ISmsProvider
                     callFragment.setAgentId(AgentType.TWILIO);
 
                     if (callDetails[TwilioProvider.STATUS] == TwilioProvider.COMPLETED)
+                    {
                         if(duration < Config.get('minimum.duration.for.success'))
                             callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_MINIMUM_DURATION);
                         else
                             callFragment.setCallFragmentStatus(CallFragmentStatus.SUCCESS);
+                    }
                     else
                         callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_EXPERT_ERROR);
 
-                    var CallFragmentDelegate:any  = require('../../delegates/CallFragmentDelegate');
+                    var CallFragmentDelegate:any  = require('../delegates/CallFragmentDelegate');
                     new CallFragmentDelegate().create(callFragment)
                     .then(
-                        function callFragmentCreated(frag) { deferred.resolve(frag); },
-                        function callFragmentCreatError(error) { deferred.reject(error); }
+                    function callFragmentCreated(frag) { deferred.resolve(frag); },
+                    function callFragmentCreatError(error) { deferred.reject(error); }
                     );
                 }
                 else

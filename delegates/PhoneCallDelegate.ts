@@ -124,9 +124,18 @@ class PhoneCallDelegate extends BaseDaoDelegate
             {
                 return self.callProvider.makeCall(call.getUserPhone().getCompleteNumber(), callId, call.getNumReattempts());
             })
+            .then(
+            function callTriggered()
+            {
+                var call:PhoneCall = new PhoneCall();
+                call.setStatus(CallStatus.IN_PROGRESS);
+
+                return self.update(callId,call);
+            })
             .fail(
             function callFailed(error)
             {
+                //TODO[ankit] - if call trigger fails then also we shoudl retry
                 self.logger.error("Error in call triggering, error: %s", JSON.stringify(error));
             });
     }
@@ -148,7 +157,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
                 });
 
         // Queue call for triggering if it's before the scheduler will trigger again
-        if (call.getStartTime() > moment().valueOf() && call.getStartTime() < moment().valueOf() + Config.get(Config.PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS) * 1000)
+        if ((call.getStartTime() + (call.getDelay() || 0)) > moment().valueOf() && (call.getStartTime() + (call.getDelay() || 0)) < (moment().valueOf() + Config.get(Config.PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS) * 1000))
         {
             //TODO[ankit] check whether the call has not been scheduled already as new call scheduled in next one hour are scheduled manually
             var ScheduledTaskDelegate = require('../delegates/ScheduledTaskDelegate');

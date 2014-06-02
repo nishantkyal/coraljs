@@ -3,6 +3,7 @@ import q                                                        = require('q');
 import _                                                        = require('underscore');
 import log4js                                                   = require('log4js');
 import moment                                                   = require('moment');
+import GlobalIdDelegate                                         = require('../delegates/GlobalIDDelegate');
 import Utils                                                    = require('../common/Utils');
 import Config                                                   = require('../common/Config');
 import PhoneCall                                                = require('../models/PhoneCall');
@@ -35,7 +36,7 @@ class ScheduledTaskDelegate
     scheduleAfter(task:AbstractScheduledTask, interval:number):number
     {
         var self = this;
-        var taskId:number = moment().valueOf();
+        var taskId:number = new GlobalIdDelegate().generate('ScheduleTask');
         task.setStartTime(moment().add({ms: interval}).valueOf());
 
         if (!task.isValid())
