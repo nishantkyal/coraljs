@@ -34,7 +34,13 @@ include ../header
                                             input(type='radio', name='startTime', value=slot, checked=selectedStartTime == slot)
                                             label= formatDate(slot)
                                     h3 Or Suggest another time convenient to you
-                                    input#startTime.datepicker(type='text', name='startTimeInput')
+                                    .row
+                                        .col-md-8
+                                            .form-group
+                                                .input-group.date.datepicker
+                                                    input.form-control(type='text', disabled=true)
+                                                    span.input-group-addon
+                                                        span.glyphicon-calendar.glyphicon
                                 .payment-summary.call-inputs
                                     h1
                                         i.icon-phone

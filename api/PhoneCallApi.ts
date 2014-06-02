@@ -1,4 +1,5 @@
 import _                                                    = require('underscore');
+import moment                                               = require('moment');
 import express                                              = require('express');
 import connect_ensure_login                                 = require('connect-ensure-login');
 import ApiConstants                                         = require('../enums/ApiConstants');

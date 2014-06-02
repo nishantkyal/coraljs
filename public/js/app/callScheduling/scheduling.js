@@ -136,6 +136,8 @@ $('input[name="startTime"]').focus(function()
     $('input#startTime').val('');
 });
 
-$('.datepicker').timepicker({
-    minuteStep: 5
+$('.datepicker').datetimepicker({
+    sideBySide: true,
+    minuteStepping: 15,
+    minDate: moment().toDate()
 });
