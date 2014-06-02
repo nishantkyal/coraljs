@@ -59,7 +59,7 @@ function init(grunt)
             typescript: ["app.js", "*/**/*.js", '!Gruntfile.js', '!public/**/*.js', '!node_modules/**/*.js']
         },
         bumpup: {
-            'file': ['package.json', 'bower.json']
+            'files': ['package.json', 'bower.json']
         },
         prompt: {
             bumpup: {
