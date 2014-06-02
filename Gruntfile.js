@@ -88,7 +88,10 @@ function init(grunt) {
             }
         },
         "gitpush": {
-            "bumpup": {}
+            "bumpup": {
+                remote: "origin",
+                branch: "alpha"
+            }
         }
     });
 

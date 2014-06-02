@@ -70,11 +70,11 @@ class PhoneCallApi
                     {
                         return phoneCallDelegate.processSchedulingRequest(callId, loggedInUser.getId(), appointment.startTimes, pickedTimeSlots, reason);
                     })
-                    /*.then(
+                    .then(
                     function callSchedulingDone()
                     {
                         return verificationCodeDelegate.deleteAppointmentAcceptCode(appointmentCode);
-                    })*/
+                    })
                     .then(
                     function appointmentCodeDeleted(response)
                     {
