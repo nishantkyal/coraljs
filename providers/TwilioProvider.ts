@@ -92,41 +92,46 @@ class TwilioProvider implements IPhoneCallProvider,ISmsProvider
         var self = this;
         var deferred = q.defer();
 
-        this.twilioClient.calls(callFragment.getAgentCallSidExpert()).get(
-            function(err, callDetails)
-            {
-                if(!Utils.isNullOrEmpty(callDetails))
+        if(!Utils.isNullOrEmpty(callFragment.getAgentCallSidExpert()))
+        {
+            this.twilioClient.calls(callFragment.getAgentCallSidExpert()).get(
+                function(err, callDetails)
                 {
-                    var duration:number = parseInt(callDetails[TwilioProvider.DURATION]);
-                    var startTime:Date = new Date(callDetails[TwilioProvider.START_TIME]);
-                    callFragment.setDuration(duration);
-                    callFragment.setStartTime(moment(startTime).valueOf());
-                    callFragment.setToNumber(callDetails[TwilioProvider.EXPERT_NUMBER]);
-                    callFragment.setAgentId(AgentType.TWILIO);
-
-                    if (callDetails[TwilioProvider.STATUS] == TwilioProvider.COMPLETED)
+                    if(!Utils.isNullOrEmpty(callDetails))
                     {
-                        if(duration < Config.get('minimum.duration.for.success'))
-                            callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_MINIMUM_DURATION);
+                        var duration:number = parseInt(callDetails[TwilioProvider.DURATION]);
+                        var startTime:Date = new Date(callDetails[TwilioProvider.START_TIME]);
+                        callFragment.setDuration(duration);
+                        callFragment.setStartTime(moment(startTime).valueOf());
+                        callFragment.setToNumber(callDetails[TwilioProvider.EXPERT_NUMBER]);
+                        callFragment.setAgentId(AgentType.TWILIO);
+
+                        if (callDetails[TwilioProvider.STATUS] == TwilioProvider.COMPLETED)
+                        {
+                            if(duration < Config.get(Config.MINIMUM_DURATION_FOR_SUCCESS))
+                                callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_MINIMUM_DURATION);
+                            else
+                                callFragment.setCallFragmentStatus(CallFragmentStatus.SUCCESS);
+                        }
                         else
-                            callFragment.setCallFragmentStatus(CallFragmentStatus.SUCCESS);
+                            callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_EXPERT_ERROR);
+
+                        var CallFragmentDelegate:any  = require('../delegates/CallFragmentDelegate');
+                        new CallFragmentDelegate().create(callFragment)
+                        .then(
+                        function callFragmentCreated(frag) { deferred.resolve(frag); },
+                        function callFragmentCreatError(error) { deferred.reject(error); }
+                        );
                     }
                     else
-                        callFragment.setCallFragmentStatus(CallFragmentStatus.FAILED_EXPERT_ERROR);
-
-                    var CallFragmentDelegate:any  = require('../delegates/CallFragmentDelegate');
-                    new CallFragmentDelegate().create(callFragment)
-                    .then(
-                    function callFragmentCreated(frag) { deferred.resolve(frag); },
-                    function callFragmentCreatError(error) { deferred.reject(error); }
-                    );
-                }
-                else
-                {
-                    deferred.reject('Error in getting call details');
-                    self.logger.debug('Error in getting call details');
-                }
-            });
+                    {
+                        deferred.reject(err);
+                        self.logger.debug('Error in getting call details');
+                    }
+                });
+        }
+        else
+            deferred.resolve('No Expert Sid');
 
         return deferred.promise;
     }

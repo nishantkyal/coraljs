@@ -4,9 +4,9 @@ import PhoneCall                                        = require('../models/Pho
 
 class PhoneCallCache
 {
-    addCall(call:PhoneCall):q.Promise<any>
+    addCall(call:PhoneCall, expiry?:number, overWrite?:boolean):q.Promise<any>
     {
-        return CacheHelper.set('call-' + call.getId(), call);
+        return CacheHelper.set('call-' + call.getId(), call, expiry, overWrite);
     }
 
     get(callId:number):q.Promise<any>

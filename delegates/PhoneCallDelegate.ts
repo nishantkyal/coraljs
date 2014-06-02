@@ -43,7 +43,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
         PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.SCHEDULED] = [CallStatus.CANCELLED, CallStatus.POSTPONED, CallStatus.IN_PROGRESS];
         PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.CANCELLED] = [];
         PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.COMPLETED] = [];
-        PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.IN_PROGRESS] = [CallStatus.COMPLETED, CallStatus.FAILED];
+        PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.IN_PROGRESS] = [CallStatus.IN_PROGRESS, CallStatus.COMPLETED, CallStatus.FAILED];
         PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.FAILED] = [CallStatus.SCHEDULING];
         PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.POSTPONED] = [CallStatus.SCHEDULING, CallStatus.CANCELLED];
         PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.AGENDA_DECLINED] = [CallStatus.SCHEDULING];
@@ -157,25 +157,42 @@ class PhoneCallDelegate extends BaseDaoDelegate
                 });
 
         // Queue call for triggering if it's before the scheduler will trigger again
-        if ((call.getStartTime() + (call.getDelay() || 0)) > moment().valueOf() && (call.getStartTime() + (call.getDelay() || 0)) < (moment().valueOf() + Config.get(Config.PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS) * 1000))
+        var startTime:number = (call.getStartTime() + (call.getDelay() || 0) * 1000);
+        var error:string = '';
+
+        if ((call.getNumReattempts() || 0) <= Config.get(Config.MAXIMUM_REATTEMPTS)) //check numbe rof reattempts already made
         {
-            //TODO[ankit] check whether the call has not been scheduled already as new call scheduled in next one hour are scheduled manually
-            var ScheduledTaskDelegate = require('../delegates/ScheduledTaskDelegate');
-            var scheduledTaskDelegate = new ScheduledTaskDelegate();
-
-            //check whether the call has not been scheduled manually (like on Server restart)
-            var callsAlreadyScheduled:number[] = scheduledTaskDelegate.filter(ScheduledTaskType.CALL);
-            var alreadyScheduled = _.find(callsAlreadyScheduled, function (callId) {return callId == call.getId() });
-
-            if (Utils.isNullOrEmpty(alreadyScheduled))
+            if (call.getStatus() == CallStatus.IN_PROGRESS || call.getStatus() == CallStatus.SCHEDULED) // check status of call is valid or not
             {
-                scheduledTaskDelegate.scheduleAt(new TriggerPhoneCallTask(call.getId()), call.getStartTime());
-                scheduledTaskDelegate.scheduleAt(new CallReminderNotificationScheduledTask(call.getId()), call.getStartTime() - parseInt(Config.get(Config.CALL_REMINDER_LEAD_TIME_SECS)) * 1000);
-                return self.phoneCallCache.addCall(call);
-            }
-        }
+                if (startTime > moment().valueOf() && startTime < (moment().valueOf() + Config.get(Config.PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS) * 1000)) // check whether call is within next hour or not
+                {
+                    var ScheduledTaskDelegate = require('../delegates/ScheduledTaskDelegate');
+                    var scheduledTaskDelegate = new ScheduledTaskDelegate();
 
-        self.logger.debug('Queuing trigger failed for call id: %s, reason: %s', call.getId(), 'Scheduled for much later');
+                    //check whether the call has not been scheduled manually (like on Server restart)
+                    var callsAlreadyScheduledTasks:Object[] = scheduledTaskDelegate.filter(ScheduledTaskType.CALL);
+                    var alreadyScheduled = _.find(callsAlreadyScheduledTasks, function (callScheduledtask) {return callScheduledtask.task.callId == call.getId() });
+
+                    if (Utils.isNullOrEmpty(alreadyScheduled))
+                    {
+                        scheduledTaskDelegate.scheduleAt(new TriggerPhoneCallTask(call.getId()), startTime);
+                        if((call.getDelay() || 0) == 0) //send reminder only once
+                            scheduledTaskDelegate.scheduleAt(new CallReminderNotificationScheduledTask(call.getId()), call.getStartTime() - parseInt(Config.get(Config.CALL_REMINDER_LEAD_TIME_SECS)) * 1000);
+                        return self.phoneCallCache.addCall(call, null, true);
+                    }
+                    else
+                        error = 'Call already scheduled';
+                }
+                else
+                    error = 'Scheduled for much later'
+            }
+            else
+                error = 'Call status not correct for queueing'
+        }
+        else
+            error = 'Call has been tried maximum allowed times';
+
+        self.logger.debug('Queueing trigger failed for call id: %s, reason: %s', call.getId(), error);
         return q.resolve(true);
     }
 
