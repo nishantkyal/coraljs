@@ -67,11 +67,14 @@ $('#reject-call').click(function()
             dataType: 'json',
             success: function()
             {
-
+                bootbox.alert('The call has been cancelled as per your request. You may close this window.', function()
+                {
+                    window.close();
+                });
             },
             error: function()
             {
-
+                bootbox.alert('Request failed');
             }
         });
     });
