@@ -23,6 +23,7 @@ import UserDelegate                                         = require('../../del
 import UserEducationDelegate                                = require('../../delegates/UserEducationDelegate');
 import UserSkillDelegate                                    = require('../../delegates/UserSkillDelegate');
 import UserEmploymentDelegate                               = require('../../delegates/UserEmploymentDelegate');
+import CouponDelegate                                       = require('../../delegates/CouponDelegate');
 import PhoneCall                                            = require('../../models/PhoneCall');
 import ExpertSchedule                                       = require('../../models/ExpertSchedule');
 import Transaction                                          = require('../../models/Transaction');
@@ -38,6 +39,7 @@ import MoneyUnit                                            = require('../../enu
 import UserStatus                                           = require('../../enums/UserStatus');
 import PhoneType                                            = require('../../enums/PhoneType');
 import TransactionStatus                                    = require('../../enums/TransactionStatus');
+import TransactionType                                      = require('../../enums/TransactionType');
 import Formatter                                            = require('../../common/Formatter');
 import Utils                                                = require('../../common/Utils');
 import Config                                               = require('../../common/Config');
@@ -64,6 +66,7 @@ class CallFlowRoute
     private userEmploymentDelegate = new UserEmploymentDelegate();
     private userSkillDelegate = new UserSkillDelegate();
     private userEducationDelegate = new UserEducationDelegate();
+    private couponDelegate = new CouponDelegate();
 
     constructor(app, secureApp)
     {
@@ -78,7 +81,7 @@ class CallFlowRoute
         app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_CALL_LOGIN, {failureRedirect: Urls.callPayment(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
         app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_CALL_LOGIN, {failureRedirect: Urls.callPayment(), failureFlash: true}), this.callPayment.bind(this));
 
-        app.get(Urls.facebookLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {failureRedirect: Urls.callPayment(), failureFlash: true, scope: ['public_profile','email']}));
+        app.get(Urls.facebookLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {failureRedirect: Urls.callPayment(), failureFlash: true, scope: ['public_profile', 'email']}));
         app.get(Urls.facebookLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {failureRedirect: Urls.callPayment(), failureFlash: true}), this.callPayment.bind(this));
     }
 
@@ -219,9 +222,23 @@ class CallFlowRoute
                     return line.getTransactionType();
                 });
 
+                // If discount applied, fetch coupon name
+                var discountLine = _.findWhere(lines, Utils.createSimpleObject(TransactionLine.TRANSACTION_TYPE, TransactionType.DISCOUNT));
+                if (Utils.isNullOrEmpty(discountLine))
+                    return [lines];
+                else
+                    return [lines, self.couponDelegate.get(discountLine.getItemId())];
+            })
+            .spread(
+            function linesAndCouponFetched(...args)
+            {
+                var lines = args[0];
+                var coupon = args[1];
+
                 var pageData = _.extend(sessionData.getData(), {
                     messages: req.flash(),
-                    transactionLines: lines
+                    transactionLines: lines,
+                    coupon: coupon
                 });
 
                 res.render(CallFlowRoute.PAYMENT, pageData);
@@ -334,7 +351,7 @@ class CallFlowRoute
                 if (amount > 0)
                     res.redirect(payZippyProvider.getPaymentUrl(transaction, amount, sessionData.getLoggedInUser()));
                 else
-                    res.redirect(DashboardUrls.paymentCallback()+'?noPayment=true');
+                    res.redirect(DashboardUrls.paymentCallback() + '?noPayment=true');
             },
             function handleError(error)
             {

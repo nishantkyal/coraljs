@@ -157,10 +157,12 @@ class TransactionDelegate extends BaseDaoDelegate
     removeCoupon(transactionId:number, dbTransaction?:Object):q.Promise<any>
     {
         var self = this;
+
         var criteria = {};
         criteria[TransactionLine.TRANSACTION_ID] = transactionId;
         criteria[TransactionLine.TRANSACTION_TYPE] = TransactionType.DISCOUNT;
-        return self.transactionLineDelegate.delete(criteria,dbTransaction);
+
+        return self.transactionLineDelegate.delete(criteria, dbTransaction);
     }
 
     /* Mark transaction as expired if user operation times out */

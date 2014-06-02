@@ -89,8 +89,8 @@ title ST-#{formatName(user.first_name, user.last_name, user.title)} | Payment fo
                                                     when 3
                                                         .table-cell.title Tax @#{Config.get(Config.CALL_TAX_PERCENT)}%
                                                     when 4
-                                                        .table-cell.title Discount
-                                                            a.glyphicon.glyphicon-remove#removeCoupon(href=CallFlowUrls.removeCoupon())
+                                                        .table-cell.title Discount Coupon #{coupon.code}&nbsp;
+                                                            a.cancel-link(href=CallFlowUrls.removeCoupon()) Remove
                                                 .table-cell.amount= formatMoney(line.amount, line.amount_unit)
                                     form.table-row#couponForm(action='/expert/call/payment/coupon', method='post')
                                         .table-cell.title
