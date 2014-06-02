@@ -19,6 +19,7 @@ import PhoneCall                                                        = requir
 import User                                                             = require('../models/User');
 import UserPhone                                                        = require('../models/UserPhone');
 import IntegrationMember                                                = require('../models/IntegrationMember');
+import AbstractScheduledTask                                            = require('../models/tasks/AbstractScheduledTask');
 import TriggerPhoneCallTask                                             = require('../models/tasks/TriggerPhoneCallTask');
 import CallReminderNotificationScheduledTask                            = require('../models/tasks/CallReminderNotificationScheduledTask');
 import UnscheduledCallsCache                                            = require('../caches/UnscheduledCallsCache');
@@ -70,9 +71,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
     }
 
     update(criteria:Object, newValues:Object, transaction?:Object):q.Promise<any>;
-
     update(criteria:number, newValues:Object, transaction?:Object):q.Promise<any>;
-
     update(criteria:any, newValues:Object, transaction?:Object):q.Promise<any>
     {
         var newStatus = newValues.hasOwnProperty(PhoneCall.STATUS) ? newValues[PhoneCall.STATUS] : null;
@@ -142,9 +141,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
 
     /* Queue the call for triggering */
     queueCallForTriggering(call:number);
-
     queueCallForTriggering(call:PhoneCall);
-
     queueCallForTriggering(call:any):q.Promise<any>
     {
         var self = this;
@@ -170,8 +167,12 @@ class PhoneCallDelegate extends BaseDaoDelegate
                     var scheduledTaskDelegate = new ScheduledTaskDelegate();
 
                     //check whether the call has not been scheduled manually (like on Server restart)
-                    var callsAlreadyScheduledTasks:Object[] = scheduledTaskDelegate.filter(ScheduledTaskType.CALL);
-                    var alreadyScheduled = _.find(callsAlreadyScheduledTasks, function (callScheduledtask) {return callScheduledtask.task.callId == call.getId() });
+                    var callsAlreadyScheduledTasks:AbstractScheduledTask[] = scheduledTaskDelegate.filter(ScheduledTaskType.CALL);
+                    var alreadyScheduled = _.find(callsAlreadyScheduledTasks, function (callScheduledTask:any)
+                    {
+                        var callTask:TriggerPhoneCallTask = callScheduledTask;
+                        return callTask.getCallId() == call.getId()
+                    });
 
                     if (Utils.isNullOrEmpty(alreadyScheduled))
                     {

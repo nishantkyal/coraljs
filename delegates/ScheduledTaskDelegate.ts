@@ -83,12 +83,12 @@ class ScheduledTaskDelegate
         });
     }
 
-    filter(type:ScheduledTaskType):number[]
+    filter(type:ScheduledTaskType):AbstractScheduledTask[]
     {
-        return _.filter(_.values(ScheduledTaskDelegate.tasks), function(task:TimeoutAndTask)
+        return _.pluck(_.filter(_.values(ScheduledTaskDelegate.tasks), function(task:TimeoutAndTask)
         {
             return task.task.getTaskType() == type;
-        });
+        }), 'task');
     }
 
     /* Return id of all tasks matching search */

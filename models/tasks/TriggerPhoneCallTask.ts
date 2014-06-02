@@ -33,5 +33,8 @@ class TriggerPhoneCallTask extends AbstractScheduledTask
     {
         return _.extend(super.toJson(), {callId:this.callId});
     }
+
+    /* Getters */
+    getCallId():number                                      { return this.callId; }
 }
 export = TriggerPhoneCallTask
