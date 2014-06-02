@@ -56,6 +56,7 @@ class Config
 
     static CALL_NETWORK_CHARGES_PER_MIN_DOLLAR:string   = 'call.network_charges_per_min.dollar';
     static CALL_TAX_PERCENT:string                      = 'call.tax.percent';
+    static CALL_CANCELLATION_CHARGES_PERCENT:string     = 'call.cancellation_charges.percent';
 
     static PAY_ZIPPY_CHARGING_URI:string                = "pay_zippy.charging.uri";
     static PAY_ZIPPY_MERCHANT_ID:string                 = "pay_zippy.merchant_id";

@@ -70,7 +70,9 @@ class PhoneCallDelegate extends BaseDaoDelegate
     }
 
     update(criteria:Object, newValues:Object, transaction?:Object):q.Promise<any>;
+
     update(criteria:number, newValues:Object, transaction?:Object):q.Promise<any>;
+
     update(criteria:any, newValues:Object, transaction?:Object):q.Promise<any>
     {
         var newStatus = newValues.hasOwnProperty(PhoneCall.STATUS) ? newValues[PhoneCall.STATUS] : null;
@@ -128,7 +130,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
                 var call:PhoneCall = new PhoneCall();
                 call.setStatus(CallStatus.IN_PROGRESS);
 
-                return self.update(callId,call);
+                return self.update(callId, call);
             })
             .fail(
             function callFailed(error)
@@ -140,7 +142,9 @@ class PhoneCallDelegate extends BaseDaoDelegate
 
     /* Queue the call for triggering */
     queueCallForTriggering(call:number);
+
     queueCallForTriggering(call:PhoneCall);
+
     queueCallForTriggering(call:any):q.Promise<any>
     {
         var self = this;
@@ -176,9 +180,19 @@ class PhoneCallDelegate extends BaseDaoDelegate
     }
 
     /* Cancel call */
-    cancelCall(callId:number, cancelledByUser:number):q.Promise<any>
+    cancelCall(call:number, cancelledByUser:number):q.Promise<any>;
+    cancelCall(call:PhoneCall, cancelledByUser:number):q.Promise<any>;
+    cancelCall(call:any, cancelledByUser:number):q.Promise<any>
     {
         var self = this;
+
+        if (Utils.getObjectType(call) == 'Number')
+            return self.get(call)
+                .then(
+                function callFetched(call:PhoneCall)
+                {
+                    return self.cancelCall(call, cancelledByUser);
+                });
 
         // 1. Update status
         // 2. Remove from cache
@@ -186,13 +200,13 @@ class PhoneCallDelegate extends BaseDaoDelegate
         // 4. Cancel trigger task
 
         var tasks = [
-            self.update(callId, Utils.createSimpleObject(PhoneCall.STATUS, CallStatus.CANCELLED)),
-            self.phoneCallCache.delete(callId),
+            self.update(call.getId(), Utils.createSimpleObject(PhoneCall.STATUS, CallStatus.CANCELLED)),
+            self.phoneCallCache.delete(call.getId()),
         ];
 
-        if (cancelledByUser)
+        if (cancelledByUser == call.getCallerUserId())
         {
-            tasks.push(self.transactionDelegate.createCancellationTransaction(callId));
+            tasks.push(self.transactionDelegate.createCancellationTransaction(call.getId(), cancelledByUser));
         }
 
         return q.all(tasks)

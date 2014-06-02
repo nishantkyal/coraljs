@@ -11,6 +11,7 @@ import TransactionLine                                      = require('../models
 import PhoneCall                                            = require('../models/PhoneCall');
 import Coupon                                               = require('../models/Coupon');
 import Utils                                                = require('../common/Utils');
+import Config                                               = require('../common/Config');
 import TransactionType                                      = require('../enums/TransactionType');
 import CouponType                                           = require('../enums/CouponType');
 import ItemType                                             = require('../enums/ItemType');
@@ -52,9 +53,46 @@ class TransactionDelegate extends BaseDaoDelegate
             });
     }
 
-    createCancellationTransaction(callId:number):q.Promise<any>
+    createCancellationTransaction(callId:number, cancelledByUser:number, dbTransaction?:Object):q.Promise<any>
     {
-        return null;
+        var self = this;
+
+        if (Utils.isNullOrEmpty(dbTransaction))
+            return MysqlDelegate.executeInTransaction(self, arguments);
+
+        var transaction = new Transaction();
+        transaction.setUserId(cancelledByUser);
+        transaction.setStatus(TransactionStatus.COMPLETE);
+
+        return q.all([
+            self.create(transaction, dbTransaction),
+            self.transactionLineDelegate.getTransactionLinesForItemId(callId)
+        ])
+            .then(
+            function transactionCreated(...args)
+            {
+                var transaction:Transaction = args[0][0];
+                var transactionLines:TransactionLine[] = args[0][1];
+
+                var amount:number = _.reduce(_.pluck(transactionLines, TransactionLine.AMOUNT), function (memo:number, num:number) { return memo + num; }, 0) * 100;
+                var cancellationAmount:number = amount * Config.get(Config.CALL_CANCELLATION_CHARGES_PERCENT) / 100;
+                var cancellationAmountUnit:MoneyUnit = transactionLines[0].getAmountUnit();
+
+                var cancellationLine = new TransactionLine();
+                cancellationLine.setAmount(cancellationAmount);
+                cancellationLine.setAmountUnit(cancellationAmountUnit);
+                cancellationLine.setItemId(callId);
+                cancellationLine.setItemType(ItemType.PHONE_CALL);
+                cancellationLine.setTransactionType(TransactionType.CANCELLATION);
+                cancellationLine.setTransactionId(transaction.getId());
+
+                return [transaction, self.transactionLineDelegate.create(cancellationLine, dbTransaction)];
+            })
+            .spread(
+            function transactionLineCreated(transaction, transactionLine)
+            {
+                return transaction;
+            });
     }
 
     applyCoupon(transactionId:number, code:string, dbTransaction?:Object):q.Promise<any>
