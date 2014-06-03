@@ -70,10 +70,10 @@ class SMSDelegate
 
         var smsTasks = [];
         var smsTemplate = _.template(LocalizationDelegate.get('sms.reminder'));
-        var smsMessage:string = smsTemplate({callId: call, minutes: Config.get(Config.CALL_REMINDER_LEAD_TIME_SECS) / 60});
+        var smsMessage:string = smsTemplate({call: call, minutes: Config.get(Config.CALL_REMINDER_LEAD_TIME_SECS) / 60});
 
-        if (call.getCallerPhone().getType() == PhoneType.MOBILE)
-            smsTasks.push(self.smsProvider.sendSMS(call.getCallerPhone().getCompleteNumber(), smsMessage));
+        if (call.getUserPhone().getType() == PhoneType.MOBILE)
+            smsTasks.push(self.smsProvider.sendSMS(call.getUserPhone().getCompleteNumber(), smsMessage));
 
         if (call.getExpertPhone().getType() == PhoneType.MOBILE)
             smsTasks.push(self.smsProvider.sendSMS(call.getExpertPhone().getCompleteNumber(), smsMessage));
@@ -129,7 +129,7 @@ class SMSDelegate
         var userMessage:string = userMessageTemplate({
             callId: call.getId(),
             duration: duration,
-            phoneNumber: Config.get(Config.KOOKOO_NUMBER)
+            phoneNumber: Config.get(Config.CALLBACK_NUMBER)
         });
 
         var expertMessage:string = expertMessageTemplate({
@@ -138,13 +138,13 @@ class SMSDelegate
         });
 
         return q.all([
-            self.smsProvider.sendSMS(call.getCallerPhone().getCompleteNumber(), userMessage),
+            self.smsProvider.sendSMS(call.getUserPhone().getCompleteNumber(), userMessage),
             self.smsProvider.sendSMS(call.getExpertPhone().getCompleteNumber(), expertMessage)
         ])
             .then(
             function smsSent()
             {
-                self.logger.info("Success SMS sent to user: %s & expert: %s", call.getCallerPhone().getCompleteNumber(), call.getExpertPhone().getCompleteNumber());
+                self.logger.info("Success SMS sent to user: %s & expert: %s", call.getUserPhone().getCompleteNumber(), call.getExpertPhone().getCompleteNumber());
             });
     }
 
@@ -165,7 +165,7 @@ class SMSDelegate
         });
 
         return q.all([
-            self.smsProvider.sendSMS(call.getCallerPhone().getCompleteNumber(), retryMessage),
+            self.smsProvider.sendSMS(call.getUserPhone().getCompleteNumber(), retryMessage),
             self.smsProvider.sendSMS(call.getExpertPhone().getCompleteNumber(), retryMessage)
         ]);
     }
@@ -182,17 +182,17 @@ class SMSDelegate
         var userFailureTemplate = _.template(LocalizationDelegate.get('sms.user.failure'));
         var expertFailureTemplate = _.template(LocalizationDelegate.get('sms.expert.failure'));
 
-        var userFailureMessage = userFailureTemplate({callId: call.getId()});
-        var expertFailureMessage = expertFailureTemplate({callId: call.getId()});
+        var userFailureMessage = userFailureTemplate({call: call, phoneNumber:Config.get(Config.CALLBACK_NUMBER), minutes:Config.get(Config.MAXIMUM_CALLBACK_DELAY)/60});
+        var expertFailureMessage = expertFailureTemplate({call: call});
 
         return q.all([
-            self.smsProvider.sendSMS(call.getCallerPhone().getCompleteNumber(), userFailureMessage),
+            self.smsProvider.sendSMS(call.getUserPhone().getCompleteNumber(), userFailureMessage),
             self.smsProvider.sendSMS(call.getExpertPhone().getCompleteNumber(), expertFailureMessage)
         ])
             .then(
             function smsSent()
             {
-                self.logger.info("Failure SMS sent to user number: " + call.getCallerPhone().getCompleteNumber());
+                self.logger.info("Failure SMS sent to user number: " + call.getUserPhone().getCompleteNumber());
                 self.logger.info("Failure SMS sent to expert number: " + call.getExpertPhone().getCompleteNumber());
             });
     }
@@ -208,16 +208,14 @@ class SMSDelegate
 
         var template:Function = _.template(LocalizationDelegate.get('sms.user.failure.user'));
         var message:string = template({
-            callId: call.getId(),
-            minutes: Math.ceil(Config.get(Config.CALL_RETRY_DELAY_SECS) / 60),
-            phoneNumber: Config.get(Config.KOOKOO_NUMBER)
+            call: call,
         });
 
-        return self.smsProvider.sendSMS(call.getCallerPhone().getCompleteNumber(), message)
+        return self.smsProvider.sendSMS(call.getUserPhone().getCompleteNumber(), message)
             .then(
             function smsSent()
             {
-                self.logger.info("Failure(User) SMS sent to user number: " + call.getCallerPhone().getCompleteNumber());
+                self.logger.info("Failure(User) SMS sent to user number: " + call.getUserPhone().getCompleteNumber());
             });
     }
 

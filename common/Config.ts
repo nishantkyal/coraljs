@@ -56,6 +56,9 @@ class Config
     static MAXIMUM_REATTEMPTS:string                    = 'maximum.reattempts';
     static MINIMUM_YEAR:string                          = 'minimum.year';
 
+    static CALLBACK_NUMBER:string                       = 'callback.number';
+    static MAXIMUM_CALLBACK_DELAY:string                = 'maximum.callback.delay';
+
     static CALL_NETWORK_CHARGES_PER_MIN_DOLLAR:string   = 'call.network_charges_per_min.dollar';
     static CALL_TAX_PERCENT:string                      = 'call.tax.percent';
     static CALL_CANCELLATION_CHARGES_PERCENT:string     = 'call.cancellation_charges.percent';

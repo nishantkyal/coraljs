@@ -447,7 +447,7 @@ class EmailDelegate
         if (Utils.getObjectType(call) == 'Number')
             return self.phoneCallDelegate.get(call).then(self.sendCallFailureEmail);
 
-        return null;
+        return q.resolve('OK');//TODO[ankit] create email
     }
 
     sendAccountVerificationEmail(user:User, verificationCode:string):q.Promise<any>

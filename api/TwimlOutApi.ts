@@ -131,7 +131,7 @@ class TwimlOutApi
                 if(args[0][0])
                 {
                     var fragmentStatus:CallFragmentStatus;
-                    if(Utils.getObjectType(args[0][0]) == 'String')
+                    if(Utils.getObjectType(args[0][0]) == 'String') // as there is no expert sid to get details, updateCallFragment function returns a string
                         fragmentStatus = CallFragmentStatus.FAILED_EXPERT_ERROR;
                     else
                         fragmentStatus = args[0][0].getCallFragmentStatus();
@@ -201,8 +201,8 @@ class TwimlOutApi
 
                 q.all([
                     self.twilioProvider.updateCallFragment(callFragment),
-                    self.phoneCallDelegate.get(callId)
-                    //self.notificationDelegate.sendCallFailureNotifications(callId)
+                    self.phoneCallDelegate.get(callId),
+                    self.notificationDelegate.sendCallFailureNotifications(callId)
                 ])
                 .then(
                 function (...args){
@@ -215,7 +215,7 @@ class TwimlOutApi
                     if(args[0][0])
                     {
                         var fragmentStatus:CallFragmentStatus;
-                        if(Utils.getObjectType(args[0][0]) == 'String')
+                        if(Utils.getObjectType(args[0][0]) == 'String') // as there is no expert sid to get details, updateCallFragment function returns a string
                             fragmentStatus = CallFragmentStatus.FAILED_USER_ERROR;
                         else
                             fragmentStatus = args[0][0].getCallFragmentStatus();
