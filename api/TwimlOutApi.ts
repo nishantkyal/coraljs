@@ -51,9 +51,11 @@ class TwimlOutApi
         var self = this;
 
         /*
-         * Called after User picks up the phone
-         * Need to send back expert phone details
-         */
+         The api is called when Twilio requests information to add a call to existing call.
+          -- Information is fetched from cache (cached at the time of scheduling)
+          -- actionURL is the url which is pinged when expert drops the call
+          -- message is the text played when expert is being added to call
+        */
         app.get(TwilioUrlDelegate.twimlJoinCall(), function (req:express.Request, res:express.Response)
         {
             var callId = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
@@ -76,7 +78,15 @@ class TwimlOutApi
                     res.render('twilio/TwilioXMLSay.jade', pageData);
                 })
         });
-
+        /*
+          The api is called when expert drops the call
+          -- create a call fragment to save information received in body of the call
+          -- based on dialCallStatus play a message to the user
+          -- If this was the first attempt and call failed then reschedule this call
+          -- save the call Fragment after getting information(of expert call for duration etc) from twilio --> done in updateCallFragment function
+          -- sendSMS based on call status
+          -- If this was second attempt then update call status in call table
+        */
         app.post(TwilioUrlDelegate.twimlJoinCall(), function (req:express.Request, res:express.Response)
         { // called after expert has hung up. saving details into call fragment here.
             var attemptCount = parseInt(req.query[TwilioProvider.ATTEMPTCOUNT]);
@@ -87,6 +97,8 @@ class TwimlOutApi
             var callId = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
             var pageData = {};
             var call:PhoneCall = new PhoneCall(); //to update cache
+
+            self.logger.info("Expert Call Drop Callback received for call Id: " + callId);
 
             var callFragment:CallFragment = new CallFragment(); //save information received in CaLLFragment
             callFragment.setCallId(callId);
@@ -150,7 +162,7 @@ class TwimlOutApi
                     }
 
                     if(attemptCount == 0 && fragmentStatus != CallFragmentStatus.SUCCESS)
-                        call.setDelay(Config.get(Config.CALL_RETRY_DELAY_SECS));
+                        call.setDelay((call.getDelay() || 0) + Config.get(Config.CALL_RETRY_DELAY_SECS));
 
                     tempCall.setDelay(call.getDelay());
                 }
@@ -162,7 +174,11 @@ class TwimlOutApi
             .then(
             function callCacheUpdated()
             {
-                self.phoneCallDelegate.queueCallForTriggering(callId);
+                if(call.getStatus() != CallStatus.COMPLETED && call.getStatus() != CallStatus.FAILED)
+                {
+                    self.phoneCallDelegate.queueCallForTriggering(callId);
+                    self.logger.info('Call with id %s to be retried', callId);
+                }
             })
             .fail (
             function (error){
@@ -170,7 +186,15 @@ class TwimlOutApi
             });
         });
 
-        /* Called after User hangs up the call */
+        /*
+          The api is called when user drops the call
+          -- Information is saved only when this call was not completed (i.e. not picked/unreachable/minimum duration fail)
+          -- If this was the first attempt and call failed then reschedule this call
+          -- save the call Fragment
+          -- sendSMS based on call status
+          -- If this was second attempt then update call status in call table
+        */
+
         app.post(TwilioUrlDelegate.twimlCallback(), function (req:express.Request, res:express.Response)
         {
             res.json('OK');
@@ -181,6 +205,8 @@ class TwimlOutApi
             var attemptCount = parseInt(req.query[TwilioProvider.ATTEMPTCOUNT]);
             var duration:number = parseInt(req.body[TwimlOutApi.DURATION]);
             attemptCount = attemptCount || 0;
+
+            self.logger.info("User call Drop Callback received for call Id: " + callId);
 
             var call:PhoneCall =  new PhoneCall();
 
@@ -232,7 +258,7 @@ class TwimlOutApi
                         }
 
                         if(attemptCount == 0 && fragmentStatus != CallFragmentStatus.SUCCESS)
-                            call.setDelay(Config.get(Config.CALL_RETRY_DELAY_SECS));
+                            call.setDelay((call.getDelay() || 0) +Config.get(Config.CALL_RETRY_DELAY_SECS));
 
                         tempCall.setDelay(call.getDelay());
                     }
@@ -244,7 +270,11 @@ class TwimlOutApi
                 .then(
                 function callCacheUpdated()
                 {
-                    self.phoneCallDelegate.queueCallForTriggering(callId);
+                    if(call.getStatus() != CallStatus.COMPLETED && call.getStatus() != CallStatus.FAILED)
+                    {
+                        self.phoneCallDelegate.queueCallForTriggering(callId);
+                        self.logger.info('Call with id %s to be retried', callId);
+                    }
                 })
                 .fail (
                 function (error){

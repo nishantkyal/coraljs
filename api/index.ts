@@ -13,6 +13,7 @@ import TokenApi                                         = require('./TokenApi');
 import TransactionApi                                   = require('./TransactionApi');
 import TwimlOutApi                                      = require('./TwimlOutApi');
 import ExotelApi                                        = require('./ExotelApi')
+import KookooApi                                        = require('./KookooApi');
 import UserApi                                          = require('./UserApi');
 import UserProfileApi                                   = require('./UserProfileApi');
 import UserEducationApi                                 = require('./UserEducationApi');
@@ -36,6 +37,7 @@ function init(app, secureApp?)
     new TokenApi(app, secureApp);
     new TransactionApi(app, secureApp);
     new TwimlOutApi(app, secureApp);
+    new KookooApi(app,secureApp);
     new ExotelApi(app, secureApp);
     new UserApi(app, secureApp);
     new UserProfileApi(app, secureApp);
