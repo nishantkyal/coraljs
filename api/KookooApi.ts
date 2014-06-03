@@ -33,7 +33,7 @@ class KookooApi
     private callFragmentDelegate;
     private phoneCallCache;
 
-    constructor(app)
+    constructor(app, secureApp)
     {
         var self = this;
         self.logger = log4js.getLogger(Utils.getClassName(this));
