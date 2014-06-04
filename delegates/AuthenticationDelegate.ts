@@ -155,6 +155,7 @@ class AuthenticationDelegate
                 user.setFirstName(profile.first_name);
                 user.setLastName(profile.last_name);
                 user.setEmail(profile.email);
+                user.setStatus(UserStatus.MOBILE_NOT_VERIFIED);
 
                 var userOauth = new UserOauth();
                 userOauth.setOauthUserId(profile.id);
@@ -212,6 +213,7 @@ class AuthenticationDelegate
 
                 var user = new User();
                 user.setEmail(profile.emailAddress); //setting email id for new user, if user exists then this will be discarded
+                user.setStatus(UserStatus.MOBILE_NOT_VERIFIED);
 
                 return new UserOAuthDelegate().addOrUpdateToken(userOauth, user)
                     .then(
