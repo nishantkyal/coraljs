@@ -145,7 +145,7 @@ class EmailDelegate
             {
                 if (error)
                 {
-                    EmailDelegate.logger.info('Error in sending Email to: %s, error: %s', to, JSON.stringify(error));
+                    EmailDelegate.logger.info('Error in sending email to: %s, error: %s', to, JSON.stringify(error));
                     deferred.reject(error);
                 }
                 else

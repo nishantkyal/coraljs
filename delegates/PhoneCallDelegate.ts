@@ -270,7 +270,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
             {
                 var isExpert = call.getIntegrationMember().getUser().getId() == requesterUserId;
 
-                return self.update(callId, Utils.createSimpleObject(isExpert ? PhoneCall.EXPERT_PHONE_ID: PhoneCall.CALLER_PHONE_ID, phoneNumberId));
+                return [call, self.update(callId, Utils.createSimpleObject(isExpert ? PhoneCall.EXPERT_PHONE_ID: PhoneCall.CALLER_PHONE_ID, phoneNumberId))];
             })
             .spread(
             function phoneNumberUpdated(call:PhoneCall, updateQueryResult:Object):any

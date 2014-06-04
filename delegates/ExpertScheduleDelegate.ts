@@ -1,12 +1,14 @@
-///<reference path='../_references.d.ts'/>
-import q                                            = require('q');
-import moment                                       = require('moment');
-import _                                            = require('underscore');
-import cron_parser                                  = require('cron-parser');
-import ExpertScheduleRuleDelegate                   = require('../delegates/ExpertScheduleRuleDelegate');
-import ExpertScheduleRule                           = require('../models/ExpertScheduleRule');
-import ExpertSchedule                               = require('../models/ExpertSchedule');
-import Utils                                        = require('../common/Utils');
+import q                                                                = require('q');
+import moment                                                           = require('moment');
+import _                                                                = require('underscore');
+import cron_parser                                                      = require('cron-parser');
+import ExpertScheduleRuleDelegate                                       = require('../delegates/ExpertScheduleRuleDelegate');
+import TimezoneDelegate                                                 = require('../delegates/TimezoneDelegate');
+import ExpertScheduleRule                                               = require('../models/ExpertScheduleRule');
+import IntegrationMember                                                = require('../models/IntegrationMember');
+import ExpertSchedule                                                   = require('../models/ExpertSchedule');
+import Utils                                                            = require('../common/Utils');
+import IncludeFlag                                                      = require('../enums/IncludeFlag');
 
 class ExpertScheduleDelegate
 {
@@ -16,37 +18,54 @@ class ExpertScheduleDelegate
         startTime = startTime || moment().valueOf();
         endTime = endTime || moment(startTime).add({days: 30}).valueOf();
 
-        return new ExpertScheduleRuleDelegate().getRulesByIntegrationMemberId(expertId, startTime, endTime)
+        var IntegrationMemberDelegate:any = require('../delegates/IntegrationMemberDelegate');
+
+        return q.all([
+            new ExpertScheduleRuleDelegate().getRulesByIntegrationMemberId(expertId, startTime, endTime),
+            new IntegrationMemberDelegate().get(expertId, null, [IncludeFlag.INCLUDE_USER])
             .then(
-            function rulesFetched(rules:ExpertScheduleRule[])
+                function expertFetched(expert:IntegrationMember)
+                {
+                    return new TimezoneDelegate().getTimezone(expert.getUser().getTimezone());
+                })
+        ])
+            .then(
+            function rulesFetched(...args)
             {
+                var rules:ExpertScheduleRule[] = args[0][0];
+                var timezone = args[0][1];
+                var offsetInSecs = timezone['gmt_offset'];
+                var offsetInMillis = offsetInSecs * 1000;
+
                 return q.all(_.map(rules, function (rule)
                 {
-                    return self.getSchedulesForRule(rule, startTime, endTime);
+                    return self.getSchedulesForRule(rule, startTime, endTime, offsetInMillis);
                 }));
             })
             .then(
             function schedulesGenerated(...args)
             {
-                try {
+                try
+                {
                     var allSchedules = _.reduce(args[0], function (a:any, b:any)
                     {
                         return a.concat(b);
                     }, []);
 
-                    var sortedSchedules = _.sortBy(allSchedules, function(schedule:ExpertSchedule)
+                    var sortedSchedules = _.sortBy(allSchedules, function (schedule:ExpertSchedule)
                     {
                         return schedule.getStartTime();
                     });
 
                     return sortedSchedules;
-                } catch (e) {
+                } catch (e)
+                {
                     return null;
                 }
             });
     }
 
-    getSchedulesForRule(rule:ExpertScheduleRule, startTime:number, endTime:number):q.Promise<any>
+    getSchedulesForRule(rule:ExpertScheduleRule, startTime:number, endTime:number, gmtOffsetInMillis:number):q.Promise<any>
     {
         var deferred = q.defer();
 
@@ -62,18 +81,20 @@ class ExpertScheduleDelegate
             else
             {
                 var t:Date, schedules:ExpertSchedule[] = [];
-                try {
+                try
+                {
                     while (t = interval.next())
                     {
                         var temp = new ExpertSchedule();
-                        temp.setStartTime(moment(t).valueOf());
+                        temp.setStartTime(moment(t).add({millis: gmtOffsetInMillis}).valueOf());
                         temp.setDuration(rule.getDuration());
                         temp.setScheduleRuleId(rule.getId());
                         temp.setPricePerMin(rule.getPricePerMin());
                         temp.setPriceUnit(rule.getPriceUnit());
                         schedules.push(temp);
                     }
-                } catch (e) {
+                } catch (e)
+                {
                 }
                 deferred.resolve(schedules);
             }

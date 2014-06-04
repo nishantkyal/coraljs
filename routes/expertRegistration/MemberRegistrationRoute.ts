@@ -164,8 +164,6 @@ class MemberRegistrationRoute
         var member = sessionData.getMember();
         var user:User = sessionData.getLoggedInUser();
         var userId:number = user.getId();
-        var profileId:number;
-        var integrationMemberId:number;
 
         var mobileVerificationUrl = Utils.addQueryToUrl(DashboardUrls.mobileVerification(), Utils.createSimpleObject(ApiConstants.CONTEXT, 'expertRegistration'));
         var redirectUrl = '';
@@ -187,6 +185,7 @@ class MemberRegistrationRoute
 
         // 1. Update role and redirect
         // 2. Delete invitation code
+        // Note: Can auto activate account if admin is registering but not doing it since admin may choose to take calls later
         //TODO: Schedule the mobile verification reminder notification
         q.all([
             self.verificationCodeDelegate.deleteInvitationCode(sessionData.getInvitationCode(), sessionData.getIntegrationId()),
@@ -216,6 +215,7 @@ class MemberRegistrationRoute
                     "schedule_rules": member[IncludeFlag.INCLUDE_SCHEDULE_RULES],
                     member: member
                 });
+
                 res.render(MemberRegistrationRoute.PAGE_COMPLETE, pageData);
             },
             function scheduleRulesFetchError(error) { res.send(500); });

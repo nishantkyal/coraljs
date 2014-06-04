@@ -40,6 +40,12 @@ include ../header
                                     label(for='confirm_password') Confirm Password
                                     input.form-control#confirm_password(type='password', name='confirm_password', data-toggle="tooltip", data-placement="bottom", autocomplete='off')
                                 .form-group
+                                    label(for='location') Location
+                                    input.form-control#location(type='text', name='location', data-toggle="tooltip", data-placement="bottom", autocomplete='off')
+                                .form-group
+                                    label(for='timezone') Timezone
+                                    input.form-control#timezone(type='text', name='timezone', data-toggle="tooltip", data-placement="bottom", autocomplete='off')
+                                .form-group
                                     .controls
                                         input(type='hidden', name='invitation_code', value=code)
                                         input.btn-primary.btn.btn-block(value='Register', type='submit')

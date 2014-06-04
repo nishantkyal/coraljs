@@ -69,7 +69,7 @@ class PhoneCallApi
                     .then(
                     function callAndSchedulingDetailsFetched(appointment)
                     {
-                        return phoneCallDelegate.processSchedulingRequest(callId, loggedInUser.getId(), appointment.startTimes, pickedTimeSlots, reason);
+                        return phoneCallDelegate.processSchedulingRequest(callId, loggedInUser.getId(), appointment.startTimes, pickedTimeSlots, reason, phoneId);
                     })
                     .then(
                     function callSchedulingDone()

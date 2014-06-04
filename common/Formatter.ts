@@ -65,7 +65,7 @@ class Formatter
     static formatDate(m:Date):string;
     static formatDate(m:string):string;
     static formatDate(m:number):string;
-    static formatDate(m:any, format:string = 'DD/MM/YYYY hh:mm a'):string
+    static formatDate(m:any, format:string = 'DD/MM/YYYY hh:mm a ZZ'):string
     {
         if (Utils.isNullOrEmpty(m))
             return m;

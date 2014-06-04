@@ -157,12 +157,12 @@ include ../header
                                     .current-status.status-ok Currently available
                                     .available-slot
                                         span.annotation Accepting calls till&nbsp;
-                                        | #{formatDate(next_available_schedule.start_time + next_available_schedule.duration, "HH:mm a")}
+                                        | #{formatDate(next_available_schedule.start_time + next_available_schedule.duration, "HH:mm a ZZ")}
                                 else
                                     .current-status.status-warning Not available at the moment
                                     .available-slot
                                         span.annotation Next available time:
-                                        | #{formatDate(next_available_schedule.start_time, "DD MMM YYYY [at] HH:MM a")}
+                                        | #{formatDate(next_available_schedule.start_time, "DD MMM YYYY [at] HH:MM a ZZ")}
                             .call-options
                                 .row
                                     .col-xs-12.col-sm-4.col-md-4.col-lg-4

@@ -1,4 +1,3 @@
-///<reference path='../_references.d.ts'/>
 import moment                                           = require('moment');
 import _                                                = require('underscore');
 import q                                                = require('q');
