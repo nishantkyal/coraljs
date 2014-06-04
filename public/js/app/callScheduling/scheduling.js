@@ -22,7 +22,7 @@ $('form#scheduling').validate({
             type: 'post',
             url: form.action,
             data: {
-                startTime: $('form#scheduling input#startTime').val() || $('form#scheduling input[name="startTime"]').val(),
+                startTime: $('form#scheduling input[name="startTime"]').val() || moment($('form#scheduling input#startTime').val()).valueOf(),
                 code: $('form#scheduling input[name="code"]').val(),
                 phoneNumberId: $('form#scheduling input[name="phoneNumberId"]').val()
             },

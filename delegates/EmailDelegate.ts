@@ -46,17 +46,17 @@ class EmailDelegate
     private static EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION:string   = 'EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION';
     private static EMAIL_EXPERT_SCHEDULING:string                   = 'EMAIL_EXPERT_SCHEDULING';
     private static EMAIL_EXPERT_SCHEDULED:string                    = 'EMAIL_EXPERT_SCHEDULED';
-    private static EMAIL_EXPERT_REMINDER:string                     = 'EMAIL_EXPERT_REMINDER';
+    private static EMAIL_EXPERT_CALL_REMINDER:string                = 'EMAIL_EXPERT_CALL_REMINDER';
     private static EMAIL_NEW_SLOTS_TO_EXPERT:string                 = 'EMAIL_NEW_SLOTS_TO_EXPERT';
     private static EMAIL_ACCOUNT_VERIFICATION:string                = 'EMAIL_ACCOUNT_VERIFICATION';
-    private static EMAIL_USER_REMINDER:string                       = 'EMAIL_USER_REMINDER';
+    private static EMAIL_USER_CALL_REMINDER:string                  = 'EMAIL_USER_CALL_REMINDER';
     private static EMAIL_USER_SCHEDULED:string                      = 'EMAIL_USER_SCHEDULED';
     private static EMAIL_USER_AGENDA_FAIL:string                    = 'EMAIL_USER_AGENDA_FAIL';
     private static EMAIL_SUGGESTED_TIME_TO_CALLER:string            = 'EMAIL_SUGGESTED_TIME_TO_CALLER';
     private static EMAIL_PROFILE_PENDING_APPROVAL:string            = 'EMAIL_PROFILE_PENDING_APPROVAL';
     private static EMAIL_PROFILE_APPROVED:string                    = 'EMAIL_PROFILE_APPROVED';
     private static EMAIL_EXPERT_REGISTRATION_SUCCESS:string         = 'EMAIL_EXPERT_REGISTRATION_SUCCESS';
-    private static EMAIL_USER_ACCOUNT_INCOMPLETE_REMINDER:string = 'EMAIL_USER_ACCOUNT_INCOMPLETE_REMINDER';
+    private static EMAIL_USER_ACCOUNT_INCOMPLETE_REMINDER:string    = 'EMAIL_USER_ACCOUNT_INCOMPLETE_REMINDER';
 
     private static templateCache:{[templateNameAndLocale:string]:{bodyTemplate:Function; subjectTemplate:Function}} = {};
     private static transport:nodemailer.Transport;
@@ -145,6 +145,7 @@ class EmailDelegate
             {
                 if (error)
                 {
+                    //TODO cache email and try again in sometime
                     EmailDelegate.logger.info('Error in sending Email to: %s, error: %s', to, JSON.stringify(error));
                     deferred.reject(error);
                 }
@@ -236,8 +237,8 @@ class EmailDelegate
                     caller: caller,
                     duration: duration,
                     appointments: appointments,
-                    suggestTimeUrl: Utils.addQueryToUrl(CallSchedulingUrls.suggestTimeSlot(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
-                    rejectUrl: Utils.addQueryToUrl(CallSchedulingUrls.reject(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
+                    suggestTimeUrl: Utils.addQueryToUrl(CallSchedulingUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
+                    rejectUrl: Utils.addQueryToUrl(CallSchedulingUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
                     appointmentUrls: _.map(appointments, function(startTime)
                     {
                         var query = {};
@@ -315,7 +316,7 @@ class EmailDelegate
                     acceptCode: code,
                     appointment: appointment,
                     appointmentUrl:appointmentUrl,
-                    suggestTimeUrl:Utils.addQueryToUrl(CallSchedulingUrls.pickTimeSlot(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code))
+                    suggestTimeUrl:Utils.addQueryToUrl(CallSchedulingUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code))
                 };
 
                 return q.all([
@@ -354,7 +355,7 @@ class EmailDelegate
                     acceptCode: code,
                     integration: integration,
                     appointments: appointments,
-                    suggestTimeUrl: Utils.addQueryToUrl(CallSchedulingUrls.suggestTimeSlot(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
+                    suggestTimeUrl: Utils.addQueryToUrl(CallSchedulingUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
                     appointmentUrls: _.map(appointments, function(startTime)
                     {
                         var query = {};
@@ -432,9 +433,17 @@ class EmailDelegate
                 return self.sendCallReminderEmail(fetchedCall);
             });
 
+        var integration = new IntegrationDelegate().getSync(call.getIntegrationMember().getIntegrationId());
+
+        var emailData = {
+            integration: integration,
+            call: call,
+            appointment: call.getStartTime()
+        };
+
         return q.all([
-            self.composeAndSend(EmailDelegate.EMAIL_USER_REMINDER, call.getUser().getEmail(), {call: call}),
-            self.composeAndSend(EmailDelegate.EMAIL_EXPERT_REMINDER, call.getIntegrationMember().getUser().getEmail(), {call: call})
+            self.composeAndSend(EmailDelegate.EMAIL_USER_CALL_REMINDER, call.getUser().getEmail(), emailData),
+            self.composeAndSend(EmailDelegate.EMAIL_EXPERT_CALL_REMINDER, call.getIntegrationMember().getUser().getEmail(), emailData)
         ]);
     }
 

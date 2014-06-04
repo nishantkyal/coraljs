@@ -83,7 +83,7 @@ class CallSchedulingRoute
                 var appointment = args[0][0];
                 var call:PhoneCall = args[0][1];
 
-                if (Utils.isNullOrEmpty(appointment) || !_.contains(appointment.startTimes, startTime) || appointment.from == loggedInUserId)
+                if (Utils.isNullOrEmpty(appointment) || (!Utils.isNullOrEmpty(startTime) && !_.contains(appointment.startTimes, startTime)) || appointment.from == loggedInUserId)
                     throw 'Invalid request. Please click on one of the links in the email';
 
                 var returnArray = [appointment.startTimes, call, self.transactionLineDelegate.getTransactionLinesForItemId(call.getId())];

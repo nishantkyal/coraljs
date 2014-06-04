@@ -264,22 +264,31 @@ class PhoneCallDelegate extends BaseDaoDelegate
         var notificationDelegate = new NotificationDelegate();
         var self = this;
 
+        var isRejection = !Utils.isNullOrEmpty(reason);
+        var isConfirmation = pickedSlots.length == 1 && _.contains(originalSlots, pickedSlots[0]);
+        var isSuggestion = _.intersection(originalSlots, pickedSlots).length == 0;
+
         return self.get(callId, null, [IncludeFlag.INCLUDE_USER, IncludeFlag.INCLUDE_INTEGRATION_MEMBER])
             .then(
             function callFetched(call:PhoneCall):any
             {
                 var isExpert = call.getIntegrationMember().getUser().getId() == requesterUserId;
-
-                return self.update(callId, Utils.createSimpleObject(isExpert ? PhoneCall.EXPERT_PHONE_ID: PhoneCall.CALLER_PHONE_ID, phoneNumberId));
+                if(!Utils.isNullOrEmpty(phoneNumberId))
+                {
+                    if(isExpert)
+                        call.setExpertPhoneId(phoneNumberId);
+                    else
+                        call.setCallerPhoneId(phoneNumberId);
+                    return [call, self.update(callId, Utils.createSimpleObject(isExpert ? PhoneCall.EXPERT_PHONE_ID: PhoneCall.CALLER_PHONE_ID, phoneNumberId))];
+                }
+                else
+                    return [call, true];
             })
             .spread(
             function phoneNumberUpdated(call:PhoneCall, updateQueryResult:Object):any
             {
                 var isExpert = call.getIntegrationMember().getUser().getId() == requesterUserId;
                 var isCaller = call.getCallerUserId() == requesterUserId;
-                var isConfirmation = pickedSlots.length == 1 && _.contains(originalSlots, pickedSlots[0]);
-                var isSuggestion = _.intersection(originalSlots, pickedSlots).length == 0;
-                var isRejection = !Utils.isNullOrEmpty(reason);
 
                 if (isRejection)
                 {

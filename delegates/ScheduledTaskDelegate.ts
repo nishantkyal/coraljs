@@ -56,7 +56,7 @@ class ScheduledTaskDelegate
         // Add task to index and persist
         ScheduledTaskDelegate.tasks[taskId] = {task: task, timeout: timeout};
 
-        this.logger.info('Task of type ' + task.getTaskType() + ' scheduled, startTime - ' + moment(task.getStartTime()) + ' id - ' + task.getId());
+        this.logger.info('Task of type ' + task.getTaskType() + ' scheduled, startTime - ' + moment(task.getStartTime(),'DD/MM/YYYY hh:mm a') + ' id - ' + task.getId());
 
         self.syncToRedis();
 
