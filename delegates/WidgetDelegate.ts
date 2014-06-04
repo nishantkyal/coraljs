@@ -105,6 +105,8 @@ class WidgetDelegate extends BaseDaoDelegate
             interpolate: /\{\{([\s\S]+?)\}\}/g
         };
         var widgetTemplate = _.template(widgetPartialHtml);
+
+        widgetSettings['googleAnalyticsTrackingId'] = Config.get(Config.GOOGLE_ANALYTICS_TRACKING_ID);
         var widgetHtml = widgetTemplate(widgetSettings);
 
         _.templateSettings = originalSettings;

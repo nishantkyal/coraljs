@@ -198,7 +198,7 @@ class VerificationCodeDelegate
         var code = Utils.getRandomString(20);
         var secondsInThreeDays:number = 60 * 60 * 24 * 3;
 
-        return CacheHelper.set('ev-' + user.getEmail(), code, secondsInThreeDays)
+        return CacheHelper.set('ev-' + code, user, secondsInThreeDays)
             .then(
             function codeCreated()
             {
@@ -206,19 +206,14 @@ class VerificationCodeDelegate
             });
     }
 
-    verifyEmailVerificationCode(email:string, code:string):q.Promise<boolean>
+    verifyEmailVerificationCode(code:string):q.Promise<any>
     {
-        return CacheHelper.get('ev-' + email)
-            .then(
-            function tokenSearched(result)
-            {
-                return result == code;
-            });
+        return CacheHelper.get('ev-' + code);
     }
 
-    deleteEmailVerificationCode(email:string):q.Promise<boolean>
+    deleteEmailVerificationCode(code:string):q.Promise<boolean>
     {
-        return CacheHelper.del('ev-' + email);
+        return CacheHelper.del('ev-' + code);
     }
 
     createAndSendPasswordResetCode(email:string):q.Promise<any>

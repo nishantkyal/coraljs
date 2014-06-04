@@ -69,6 +69,7 @@ class Config
     static PAY_ZIPPY_MERCHANT_KEY_ID:string             = "pay_zippy.merchant_key_id";
     static PAY_ZIPPY_SECRET_KEY:string                  = "pay_zippy.secret_key";
 
+    static GOOGLE_ANALYTICS_TRACKING_ID:string          = 'google_analytics.tracking_id';
     private static version:string;
 
     /* Static constructor workaround */

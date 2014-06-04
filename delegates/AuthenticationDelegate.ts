@@ -73,32 +73,47 @@ class AuthenticationDelegate
 
         return function (req, res:express.Response, next:Function)
         {
-            var user = new User(req.body);
-            if (user.isValid()
-                && !Utils.isNullOrEmpty(user.getPassword())
-                && !Utils.isNullOrEmpty(user.getFirstName()))
-            {
-                var userDelegate = new UserDelegate();
+            var code = req.body[ApiConstants.CODE] || req.query[ApiConstants.CODE];
+            var user = req.body[ApiConstants.USER];
+            var isUserValid = user.isValid() && !Utils.isNullOrEmpty(user.getPassword()) && !Utils.isNullOrEmpty(user.getFirstName())
+            var userDelegate = new UserDelegate();
+            var verificationCodeDelegate = new VerificationCodeDelegate();
 
-                userDelegate.create(user)
+            // 1. If no verification code, create one using user object from request and send
+            if (Utils.isNullOrEmpty(code) && isUserValid)
+                verificationCodeDelegate.createAndSendEmailVerificationCode(user)
+                    .then(
+                    function verificationCodeSent()
+                    {
+                        req.flash('info', "We've sent you an email with verification link to verify your email address. You may do it later but your account will not become active until then.");
+                        res.redirect(options.failureRedirect);
+                    },
+                    function verificationCodeSendError(error)
+                    {
+                        req.flash('info', JSON.stringify(error));
+                        res.redirect(options.failureRedirect);
+                    });
+
+            // 2. Else fetch user associated with code and create account
+            if (!Utils.isNullOrEmpty(code))
+                verificationCodeDelegate.verifyEmailVerificationCode(code)
+                    .then(
+                    function userFetched(result)
+                    {
+                        return userDelegate.create(new User(result));
+                    })
                     .then(
                     function userRegistered(user)
                     {
                         req.logIn(user, next)
-                        req.flash('info', "We've sent you an email with verification link to verify your email address. You may do it later but your account will not become active until then.");
-                        return new VerificationCodeDelegate().createAndSendEmailVerificationCode(user);
                     },
                     function registrationError(error)
                     {
-                        req.flash('info', error.message);
+                        req.flash('info', JSON.stringify(error));
                         res.redirect(options.failureRedirect);
                     });
-            }
-            else
-            {
-                req.flash('info', 'Please fill in all the details correctly');
-                res.redirect(options.failureRedirect);
-            }
+
+
         }
     }
 
@@ -151,8 +166,8 @@ class AuthenticationDelegate
                 var profile = profile['_json'];
 
                 var user:User = new User();
-                if(profile.name)
-                user.setFirstName(profile.first_name);
+                if (profile.name)
+                    user.setFirstName(profile.first_name);
                 user.setLastName(profile.last_name);
                 user.setEmail(profile.email);
                 user.setStatus(UserStatus.MOBILE_NOT_VERIFIED);
@@ -228,13 +243,13 @@ class AuthenticationDelegate
                         //check whether user is logged in or not
                         //if user is logged in then check whether user_id in created user (i.e. new user created or existing one returned by oauthDelegate)
                         //is same as loggedInUser. If not then give error as same oauth is associated with different account.
-                        if(req.user)
+                        if (req.user)
                         {
                             userId = req.user.id;
                         }
 
                         if (!Utils.isNullOrEmpty(createdUser) && createdUser.isValid())
-                            if(Utils.isNullOrEmpty(userId) || (createdUser.getId() == userId))
+                            if (Utils.isNullOrEmpty(userId) || (createdUser.getId() == userId))
                                 done(null, createdUser)
                             else
                                 done('This LinkedIn account is already associated with another SearchNTalk.com account.');

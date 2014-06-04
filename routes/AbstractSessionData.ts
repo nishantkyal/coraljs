@@ -1,9 +1,11 @@
 import ApiConstants                                         = require('../enums/ApiConstants');
 import User                                                 = require('../models/User');
+import Config                                               = require('../common/Config');
 
 class AbstractSessionData
 {
-    private static LOGGED_IN_USER:string = 'loggedInUser';
+    private static LOGGED_IN_USER:string                    = 'loggedInUser';
+    private static GOOGLE_ANALYTICS_TRACKING_ID:string      = 'googleAnalyticsTrackingId';
 
     private req;
     private data:Object;
@@ -11,6 +13,7 @@ class AbstractSessionData
     constructor(req)
     {
         this.data = this.data || req.session[this.getIdentifier()] || {};
+        this.data[AbstractSessionData.GOOGLE_ANALYTICS_TRACKING_ID] = Config.get(Config.GOOGLE_ANALYTICS_TRACKING_ID);
         this.req = req;
     }
 
