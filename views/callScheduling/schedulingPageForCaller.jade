@@ -54,7 +54,7 @@ include ../header
                                             else
                                                 p= '+' + phone.country_code + '-' + phone.phone
 
-                                input(type='hidden', name='phoneId', value=phone ? phone.id : null)
+                                input(type='hidden', name='phoneNumberId', value=phone ? phone.id : null)
                                 input(type='hidden', name='code', value=code)
                                 input.btn.btn-primary.btn-block(type='submit', value='Confirm')
                                 .call-reversal

@@ -2,7 +2,7 @@
 $('form#scheduling').validate({
     ignore: "",
     rules        : {
-        'phoneId': {
+        'phoneNumberId': {
             required: true
         },
         'startTime': {
@@ -24,7 +24,7 @@ $('form#scheduling').validate({
             data: {
                 startTime: $('form#scheduling input#startTime').val() || $('form#scheduling input[name="startTime"]').val(),
                 code: $('form#scheduling input[name="code"]').val(),
-                phoneId: $('form#scheduling input[name="phoneId"]').val()
+                phoneNumberId: $('form#scheduling input[name="phoneNumberId"]').val()
             },
             success: function(result)
             {
@@ -111,7 +111,7 @@ $('#verify-btn').click(function()
                     dataType: 'json',
                     success: function(result)
                     {
-                        $('form#scheduling input[name="phoneId"]').val(result.id);
+                        $('form#scheduling input[name="phoneNumberId"]').val(result.id);
                     },
                     error: function()
                     {

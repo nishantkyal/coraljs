@@ -53,6 +53,7 @@ class PhoneCallApi
             var loggedInUser:User = new User(req[ApiConstants.USER]);
             var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
             var appointmentCode:string = req.query[ApiConstants.CODE] || req.body[ApiConstants.CODE];
+            var phoneId:number = parseInt(req.body[ApiConstants.PHONE_NUMBER_ID]);
 
             var pickedTimeSlots:number[] = _.map([].concat(req.body[ApiConstants.START_TIME] || req.query[ApiConstants.START_TIME]), function(slot) { return parseInt(slot); });
             pickedTimeSlots = _.filter(pickedTimeSlots, function(slot:number)

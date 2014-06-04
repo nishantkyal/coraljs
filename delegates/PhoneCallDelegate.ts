@@ -71,7 +71,9 @@ class PhoneCallDelegate extends BaseDaoDelegate
     }
 
     update(criteria:Object, newValues:Object, transaction?:Object):q.Promise<any>;
+
     update(criteria:number, newValues:Object, transaction?:Object):q.Promise<any>;
+
     update(criteria:any, newValues:Object, transaction?:Object):q.Promise<any>
     {
         var newStatus = newValues.hasOwnProperty(PhoneCall.STATUS) ? newValues[PhoneCall.STATUS] : null;
@@ -141,7 +143,9 @@ class PhoneCallDelegate extends BaseDaoDelegate
 
     /* Queue the call for triggering */
     queueCallForTriggering(call:number);
+
     queueCallForTriggering(call:PhoneCall);
+
     queueCallForTriggering(call:any):q.Promise<any>
     {
         var self = this;
@@ -189,7 +193,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
         if (Utils.isNullOrEmpty(error))
         {
             scheduledTaskDelegate.scheduleAt(new TriggerPhoneCallTask(call.getId()), startTime);
-            if((call.getDelay() || 0) == 0) //send reminder only once
+            if ((call.getDelay() || 0) == 0) //send reminder only once
                 scheduledTaskDelegate.scheduleAt(new CallReminderNotificationScheduledTask(call.getId()), call.getStartTime() - parseInt(Config.get(Config.CALL_REMINDER_LEAD_TIME_SECS)) * 1000);
             return self.phoneCallCache.addCall(call, null, true);
         }
@@ -202,7 +206,9 @@ class PhoneCallDelegate extends BaseDaoDelegate
 
     /* Cancel call */
     cancelCall(call:number, cancelledByUser:number):q.Promise<any>;
+
     cancelCall(call:PhoneCall, cancelledByUser:number):q.Promise<any>;
+
     cancelCall(call:any, cancelledByUser:number):q.Promise<any>
     {
         var self = this;
@@ -253,15 +259,24 @@ class PhoneCallDelegate extends BaseDaoDelegate
      *  - Scheduled (if either party agrees to one of suggested)
      *  - Remain unchanged (if suggested slots are rejected and alternates suggested)
      * */
-    processSchedulingRequest(callId:number, requesterUserId:number, originalSlots:number[], pickedSlots:number[], reason?:string):q.Promise<CallStatus>
+    processSchedulingRequest(callId:number, requesterUserId:number, originalSlots:number[], pickedSlots:number[], reason?:string, phoneNumberId?:number):q.Promise<any>
     {
         var notificationDelegate = new NotificationDelegate();
         var self = this;
 
-        return this.get(callId, null, [IncludeFlag.INCLUDE_USER, IncludeFlag.INCLUDE_INTEGRATION_MEMBER])
+        return self.get(callId, null, [IncludeFlag.INCLUDE_USER, IncludeFlag.INCLUDE_INTEGRATION_MEMBER])
             .then(
-            function callFetched(call:PhoneCall)
+            function callFetched(call:PhoneCall):any
             {
+                var isExpert = call.getIntegrationMember().getUser().getId() == requesterUserId;
+
+                return self.update(callId, Utils.createSimpleObject(isExpert ? PhoneCall.EXPERT_PHONE_ID: PhoneCall.CALLER_PHONE_ID, phoneNumberId));
+            })
+            .spread(
+            function phoneNumberUpdated(call:PhoneCall, updateQueryResult:Object):any
+            {
+                var isExpert = call.getIntegrationMember().getUser().getId() == requesterUserId;
+                var isCaller = call.getCallerUserId() == requesterUserId;
                 var isConfirmation = pickedSlots.length == 1 && _.contains(originalSlots, pickedSlots[0]);
                 var isSuggestion = _.intersection(originalSlots, pickedSlots).length == 0;
                 var isRejection = !Utils.isNullOrEmpty(reason);
@@ -301,9 +316,6 @@ class PhoneCallDelegate extends BaseDaoDelegate
                 else if (isSuggestion && call.getStatus() == CallStatus.SCHEDULING)
                 {
                     // Send notification to other party
-                    var isExpert = call.getIntegrationMember().getUser().getId() == requesterUserId;
-                    var isCaller = call.getCallerUserId() == requesterUserId;
-
                     if (isCaller)
                         return notificationDelegate.sendNewTimeSlotsToExpert(call, pickedSlots, requesterUserId)
                             .then(
