@@ -73,47 +73,32 @@ class AuthenticationDelegate
 
         return function (req, res:express.Response, next:Function)
         {
-            var code = req.body[ApiConstants.CODE] || req.query[ApiConstants.CODE];
-            var user = req.body[ApiConstants.USER];
-            var isUserValid = user.isValid() && !Utils.isNullOrEmpty(user.getPassword()) && !Utils.isNullOrEmpty(user.getFirstName())
-            var userDelegate = new UserDelegate();
-            var verificationCodeDelegate = new VerificationCodeDelegate();
+            var user = new User(req.body);
+            if (user.isValid()
+                && !Utils.isNullOrEmpty(user.getPassword())
+                && !Utils.isNullOrEmpty(user.getFirstName()))
+            {
+                var userDelegate = new UserDelegate();
 
-            // 1. If no verification code, create one using user object from request and send
-            if (Utils.isNullOrEmpty(code) && isUserValid)
-                verificationCodeDelegate.createAndSendEmailVerificationCode(user)
-                    .then(
-                    function verificationCodeSent()
-                    {
-                        req.flash('info', "We've sent you an email with verification link to verify your email address. You may do it later but your account will not become active until then.");
-                        res.redirect(options.failureRedirect);
-                    },
-                    function verificationCodeSendError(error)
-                    {
-                        req.flash('info', JSON.stringify(error));
-                        res.redirect(options.failureRedirect);
-                    });
-
-            // 2. Else fetch user associated with code and create account
-            if (!Utils.isNullOrEmpty(code))
-                verificationCodeDelegate.verifyEmailVerificationCode(code)
-                    .then(
-                    function userFetched(result)
-                    {
-                        return userDelegate.create(new User(result));
-                    })
+                userDelegate.create(user)
                     .then(
                     function userRegistered(user)
                     {
                         req.logIn(user, next)
+                        req.flash('info', "We've sent you an email with verification link to verify your email address. You may do it later but your account will not become active until then.");
+                        return new VerificationCodeDelegate().createAndSendEmailVerificationCode(user);
                     },
                     function registrationError(error)
                     {
-                        req.flash('info', JSON.stringify(error));
+                        req.flash('info', error.message);
                         res.redirect(options.failureRedirect);
                     });
-
-
+            }
+            else
+            {
+                req.flash('info', 'Please fill in all the details correctly');
+                res.redirect(options.failureRedirect);
+            }
         }
     }
 

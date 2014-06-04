@@ -31,6 +31,7 @@ import CouponType                                   = require('./enums/CouponTyp
 import IntegrationMemberRole                        = require('./enums/IntegrationMemberRole');
 import TransactionType                              = require('./enums/TransactionType');
 import ScheduledTaskType                            = require('./enums/ScheduledTaskType');
+import TimeZone                                     = require('./enums/TimeZone');
 import CallFlowUrls                                 = require('./routes/callFlow/Urls');
 import CallSchedulingUrls                           = require('./routes/callScheduling/Urls');
 import DashboardUrls                                = require('./routes/dashboard/Urls');
@@ -73,6 +74,7 @@ var helpers =
     IntegrationMemberRole: Utils.enumToNormalText(IntegrationMemberRole),
     CountryCode: Utils.enumToNormalText(CountryCode),
     CountryName: Utils.enumToNormalText(CountryName),
+    TimeZone: Utils.enumToNormalText(TimeZone),
 
     minYear: Config.get(Config.MINIMUM_YEAR),
     currentYear: moment().format('YYYY')
