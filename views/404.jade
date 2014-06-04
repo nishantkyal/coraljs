@@ -1,8 +1,18 @@
+!!! 5
 include header
-block content
-    h3 What you're looking for isn't here.
-    div
-        | Do you wanna&nbsp;
-        a(href='javascript:history.back()') Go back
-        | &nbsp;or&nbsp;
-        a(href='/') Visit SearchNTalk.com
+.matter
+    .container
+        .row
+            .content.col-xs-12
+                .error-card
+                    .alert.alert-danger There was a problem with your request.
+                    .error-box
+                        h1
+                            strong 404
+                            | &nbsp;content not found
+                        p
+                            | If you followed a link to this page, the link is possibly outdated. You may visit the
+                            a(href='index.html') searchntalk homepage
+                            | to find what you are looking for.
+            // /.content
+include footer

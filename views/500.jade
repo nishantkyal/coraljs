@@ -1,8 +1,21 @@
+!!! 5
 include header
-h3 Oops!
-div
-    if error
-        strong #{error}
-    else
-        | If you're reading this message, we've made a mistake. Please drop us a line at&nbsp;
-        a(href='mail:contact@searchntalk.com') contact@searchntalk.com
+.matter
+    .container
+        .row
+            .content.col-xs-12
+                .error-card
+                    .alert.alert-danger There was a problem with your request.
+                    .error-box
+                        h1
+                            strong 500&nbsp;
+                            if error
+                                | #{error}
+                            else
+                                | An error occurred
+                        p
+                            | If you followed a link to this page, the link is possibly outdated. You may visit the
+                            a(href='index.html') searchntalk homepage
+                            | to find what you are looking for.
+            // /.content
+include footer
