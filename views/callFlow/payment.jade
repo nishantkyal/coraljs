@@ -92,18 +92,17 @@ title ST-#{formatName(user.first_name, user.last_name, user.title)} | Payment fo
                                                         .table-cell.title Discount Coupon #{coupon.code}&nbsp;
                                                             a.cancel-link(href=CallFlowUrls.removeCoupon()) Remove
                                                 .table-cell.amount= formatMoney(line.amount, line.amount_unit)
-                                    form.table-row#couponForm(action='/expert/call/payment/coupon', method='post')
+                                    .table-row
                                         .table-cell.title
                                             .input-group
                                                 input.form-control(type='text', name='code', placeholder='Discount Coupon #')
                                         .table-cell.amount
-                                            input.btn.btn-default(type='submit', value='Apply Coupon')
+                                            a.btn.btn-default#applyCoupon Apply Coupon
                                     .table-row.total
                                         .table-cell.title Total
                                         .table-cell.amount= formatMoney(total, currency)
-                            form.call-actions#checkout(action=CallFlowUrls.checkout(), method='POST')
-                                input#login(type='hidden')
-                                input.btn.btn-lg.btn-primary.first(type='submit', value='Proceed to Payment')
+                            call-actions
+                                input.btn.btn-lg.btn-primary.first#checkout(type='submit', value='Proceed to Payment')
             // /.content
 .modal.fade#login-modal
     .modal-dialog
