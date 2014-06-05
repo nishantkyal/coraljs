@@ -66,19 +66,16 @@ class Middleware
         }
     }
 
-    static ensureNotCallingSelf =
-        [
-            connect_ensure_login.ensureLoggedIn(),
-            function (req:express.Request, res:express.Response, next:Function)
-            {
-                var sessionData = new SessionData(req);
+    static ensureNotCallingSelf(req:express.Request, res:express.Response, next:Function)
+    {
+        var sessionData = new SessionData(req);
 
-                // Check that we're not calling a schedule with self
-                if (sessionData.getLoggedInUser() && sessionData.getLoggedInUser().getId() == sessionData.getExpert().getUserId())
-                    res.render('500', {error: "You can't call yourself!"});
-                else
-                    next();
-            }];
+        // Check that we're not calling a schedule with self
+        if (sessionData.getLoggedInUser() && sessionData.getLoggedInUser().getId() == sessionData.getExpert().getUserId())
+            res.render('500', {error: "You can't call yourself!"});
+        else
+            next();
+    }
 
 }
 export = Middleware
