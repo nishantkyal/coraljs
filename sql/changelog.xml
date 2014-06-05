@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet author="Ankit (generated)" id="1400588206033-1">
+        <createIndex indexName="integration_id_idx" tableName="integration_member" unique="false">
+            <column name="integration_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1400588206033-2">
+        <modifyDataType columnName="deleted" newDataType="boolean" tableName="email"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1400588206033-3">
+        <modifyDataType columnName="end_date" newDataType="bigint(19)" tableName="user_employment"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1400588206033-4">
+        <modifyDataType columnName="is_current" newDataType="boolean" tableName="user_employment"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1400588206033-5">
+        <modifyDataType columnName="recorded" newDataType="boolean" tableName="call"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1400588206033-6">
+        <modifyDataType columnName="start_date" newDataType="bigint(19)" tableName="user_employment"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1400588206033-7">
+        <modifyDataType columnName="verified" newDataType="boolean" tableName="user_phone"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1400588632767-1">
+        <modifyDataType columnName="deleted" newDataType="boolean" tableName="email"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1400588632767-2">
+        <addDefaultValue columnDataType="boolean" columnName="deleted" defaultValueNumeric="0" tableName="email"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1400588632767-3">
+        <modifyDataType columnName="is_current" newDataType="boolean" tableName="user_employment"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1400588632767-4">
+        <modifyDataType columnName="recorded" newDataType="boolean" tableName="call"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1400588632767-5">
+        <addDefaultValue columnDataType="boolean" columnName="recorded" defaultValueNumeric="0" tableName="call"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1400588632767-6">
+        <modifyDataType columnName="verified" newDataType="boolean" tableName="user_phone"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1400588632767-7">
+        <addDefaultValue columnDataType="boolean" columnName="verified" defaultValueNumeric="0" tableName="user_phone"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1400592456919-1">
+        <modifyDataType columnName="deleted" newDataType="boolean" tableName="email"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1400592456919-2">
+        <modifyDataType columnName="is_current" newDataType="boolean" tableName="user_employment"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1400592456919-3">
+        <modifyDataType columnName="recorded" newDataType="boolean" tableName="call"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1400592456919-4">
+        <modifyDataType columnName="verified" newDataType="boolean" tableName="user_phone"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1400675115416-1">
+        <addColumn tableName="user_oauth">
+            <column name="email" type="VARCHAR(45)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1400675115416-2">
+        <addForeignKeyConstraint baseColumnNames="integration_member_id" baseTableName="user_profile" constraintName="profile_integration_member_id" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="integration_member"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1400675115416-3">
+        <dropForeignKeyConstraint baseTableName="user_profile" constraintName="profile_user_id"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1400675115416-4">
+        <modifyDataType columnName="deleted" newDataType="boolean" tableName="email"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1400675115416-5">
+        <addDefaultValue columnDataType="boolean" columnName="deleted" defaultValueNumeric="0" tableName="email"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1400675115416-6">
+        <modifyDataType columnName="is_current" newDataType="boolean" tableName="user_employment"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1400675115416-7">
+        <modifyDataType columnName="recorded" newDataType="boolean" tableName="call"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1400675115416-8">
+        <addDefaultValue columnDataType="boolean" columnName="recorded" defaultValueNumeric="0" tableName="call"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1400675115416-9">
+        <modifyDataType columnName="verified" newDataType="boolean" tableName="user_phone"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1400675115416-10">
+        <addDefaultValue columnDataType="boolean" columnName="verified" defaultValueNumeric="0" tableName="user_phone"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1400740240237-2">
+        <dropColumn columnName="user_oauthcol" tableName="user_oauth"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1400740240237-3">
+        <addDefaultValue columnDataType="boolean" columnName="deleted" defaultValueNumeric="0" tableName="email"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1400740240237-4">
+        <modifyDataType columnName="email" newDataType="varchar(45)" tableName="user_oauth"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1400740240237-5">
+        <modifyDataType columnName="end_date" newDataType="bigint(19)" tableName="user_employment"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1400740240237-6">
+        <addDefaultValue columnDataType="boolean" columnName="recorded" defaultValueNumeric="0" tableName="call"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1400740240237-7">
+        <modifyDataType columnName="start_date" newDataType="bigint(19)" tableName="user_employment"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1400740240237-8">
+        <addDefaultValue columnDataType="boolean" columnName="verified" defaultValueNumeric="0" tableName="user_phone"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1401195409338-1">
+        <modifyDataType columnName="deleted" newDataType="bigint(19)" tableName="user_phone"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1401195409338-2">
+        <addDefaultValue columnDataType="bigint(19)" columnName="deleted" defaultValueNumeric="0" tableName="user_phone"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1401195409338-3">
+        <modifyDataType columnName="verified" newDataType="bigint(19)" tableName="user_phone"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1401195409338-4">
+        <dropDefaultValue columnDataType="bigint(19)" columnName="verified" tableName="user_phone"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1401196258865-1">
+        <addColumn tableName="payment">
+            <column name="amount_unit" type="INT(10)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1401196258865-2">
+        <addColumn tableName="coupon">
+            <column name="coupon_type" type="INT(10)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1401196258865-3">
+        <addColumn tableName="coupon">
+            <column name="expert_resource_id" type="INT(10)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1401196258865-4">
+        <addColumn tableName="payment">
+            <column name="gateway_response_code" type="VARCHAR(30)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1401196258865-5">
+        <addColumn tableName="transaction">
+            <column name="payment_id" type="INT(10)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1401196258865-6">
+        <addForeignKeyConstraint baseColumnNames="coupon_type" baseTableName="coupon" constraintName="FK_coupon" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="ref_coupon_type"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1401196258865-7">
+        <addForeignKeyConstraint baseColumnNames="payment_id" baseTableName="transaction" constraintName="FK_transaction" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="payment"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1401196258865-8">
+        <dropColumn columnName="expert_id" tableName="coupon"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1401196258865-9">
+        <dropColumn columnName="gateway_response" tableName="payment"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1401196258865-10">
+        <dropColumn columnName="ref_call_statuscol" tableName="ref_call_status"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1401196258865-11">
+        <dropColumn columnName="status" tableName="payment"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1401196258865-12">
+        <dropColumn columnName="total" tableName="transaction"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1401196258865-13">
+        <dropColumn columnName="total_unit" tableName="transaction"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1401196258865-14">
+        <dropColumn columnName="transaction_id" tableName="payment"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1401196258865-15">
+        <dropColumn columnName="waive_network_charges" tableName="coupon"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1401272071760-1">
+        <modifyDataType columnName="amount" newDataType="decimal(5,2)" tableName="transaction_line"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1401280903594-1">
+        <modifyDataType columnName="access_token" newDataType="varchar(200)" tableName="user_oauth"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1401280903594-2">
+        <modifyDataType columnName="deleted" newDataType="boolean" tableName="email"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1401280903594-3">
+        <modifyDataType columnName="is_current" newDataType="boolean" tableName="user_employment"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1401280903594-4">
+        <modifyDataType columnName="recorded" newDataType="boolean" tableName="call"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1401280903594-5">
+        <addDefaultValue columnDataType="bigint(19)" columnName="verified" defaultValueNumeric="0" tableName="user_phone"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1401445260337-1">
+        <createTable tableName="call_fragment">
+            <column name="id" type="INT(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="call_id" type="INT(10)"/>
+            <column name="start_time" type="BIGINT(19)"/>
+            <column name="duration" type="INT(10)"/>
+            <column name="from_number" type="VARCHAR(20)"/>
+            <column name="to_number" type="VARCHAR(20)"/>
+            <column name="agent_id" type="INT(10)"/>
+            <column name="agent_call_sid_user" type="VARCHAR(60)"/>
+            <column name="agent_call_sid_expert" type="VARCHAR(60)"/>
+            <column name="call_fragment_status" type="INT(10)"/>
+            <column name="created" type="BIGINT(19)"/>
+            <column name="updated" type="BIGINT(19)"/>
+            <column name="deleted" type="BIT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1401445260337-2">
+        <createTable tableName="ref_agent_type">
+            <column name="id" type="INT(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(45)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1401445260337-3">
+        <createTable tableName="ref_call_fragment_status">
+            <column name="id" type="INT(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(45)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1401445260337-4">
+        <addPrimaryKey columnNames="id" constraintName="PRIMARY" tableName="call_fragment"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1401445260337-5">
+        <addPrimaryKey columnNames="id" constraintName="PRIMARY" tableName="ref_agent_type"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1401445260337-6">
+        <addPrimaryKey columnNames="id" constraintName="PRIMARY" tableName="ref_call_fragment_status"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1401445260337-7">
+        <addForeignKeyConstraint baseColumnNames="agent_id" baseTableName="call_fragment" constraintName="fragment_agent_id" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="ref_agent_type"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1401445260337-8">
+        <addForeignKeyConstraint baseColumnNames="call_id" baseTableName="call_fragment" constraintName="fragment_call_id" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="call"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1401445260337-9">
+        <addForeignKeyConstraint baseColumnNames="call_fragment_status" baseTableName="call_fragment" constraintName="fragment_status" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="ref_call_fragment_status"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1401445260337-10">
+        <modifyDataType columnName="deleted" newDataType="boolean" tableName="email"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1401445260337-11">
+        <addDefaultValue columnDataType="boolean" columnName="deleted" defaultValueNumeric="0" tableName="email"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1401445260337-12">
+        <modifyDataType columnName="is_current" newDataType="boolean" tableName="user_employment"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1401445260337-13">
+        <modifyDataType columnName="recorded" newDataType="boolean" tableName="call"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1401445260337-14">
+        <addDefaultValue columnDataType="boolean" columnName="recorded" defaultValueNumeric="0" tableName="call"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1401713062034-1">
+        <addDefaultValue columnDataType="int(10)" columnName="delay" defaultValueNumeric="0" tableName="call"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1401713062034-2">
+        <modifyDataType columnName="deleted" newDataType="boolean" tableName="call_fragment"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1401713062034-3">
+        <modifyDataType columnName="deleted" newDataType="boolean" tableName="email"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1401713062034-4">
+        <modifyDataType columnName="duration" newDataType="int(10)" tableName="call"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1401713062034-5">
+        <modifyDataType columnName="is_current" newDataType="boolean" tableName="user_employment"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1401713062034-6">
+        <addDefaultValue columnDataType="int(10)" columnName="num_reattempts" defaultValueNumeric="0" tableName="call"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1401713062034-7">
+        <modifyDataType columnName="recorded" newDataType="boolean" tableName="call"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1401875743283-1">
+        <createTable tableName="country">
+            <column name="country_code" type="CHAR(2)"/>
+            <column name="country_name" type="VARCHAR(45)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1401875743283-2">
+        <createTable tableName="timezone">
+            <column name="zone_id" type="INT(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="abbreviation" type="VARCHAR(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="time_start" type="INT(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="gmt_offset" type="INT(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="dst" type="CHAR(1)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1401875743283-3">
+        <createTable tableName="zone">
+            <column autoIncrement="true" name="zone_id" type="INT(10)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="country_code" type="CHAR(2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="zone_name" type="VARCHAR(35)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1401875743283-4">
+        <createIndex indexName="idx_country_code" tableName="country" unique="false">
+            <column name="country_code"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1401875743283-5">
+        <createIndex indexName="idx_time_start" tableName="timezone" unique="false">
+            <column name="time_start"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1401875743283-6">
+        <createIndex indexName="idx_zone_id" tableName="timezone" unique="false">
+            <column name="zone_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1401875743283-7">
+        <createIndex indexName="idx_zone_name" tableName="zone" unique="false">
+            <column name="zone_name"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>
