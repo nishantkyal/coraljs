@@ -1,5 +1,6 @@
 import express                                              = require('express');
 import _                                                    = require('underscore');
+import connect_ensure_login                                 = require('connect-ensure-login');
 import ApiConstants                                         = require('../../enums/ApiConstants');
 import Utils                                                = require('../../common/Utils');
 import BaseModel                                            = require('../../models/BaseModel');
@@ -20,7 +21,7 @@ class Middleware
         var isCallNow = req.body[ApiConstants.CALL_NOW] || sessionData.getCallNow();
 
         if (!Utils.isNullOrEmpty(appointments) && Utils.getObjectType(appointments) == 'Array')
-            appointments = _.map(appointments, function(time:any) { return parseInt(time); });
+            appointments = _.map(appointments, function (time:any) { return parseInt(time); });
 
         sessionData.setCountryCode(countryCode);
         sessionData.setCallerPhone(callerPhone.toString());
@@ -30,9 +31,9 @@ class Middleware
         sessionData.setCallNow(isCallNow);
 
         if (!Utils.isNullOrEmpty(callerPhone)
-                && !Utils.isNullOrEmpty(agenda) && !Utils.isNullOrEmpty(duration)
-                    && (!Utils.isNullOrEmpty(appointments) || isCallNow)
-                        && (!Utils.isNullOrEmpty(expert) && expert.isValid()))
+            && !Utils.isNullOrEmpty(agenda) && !Utils.isNullOrEmpty(duration)
+            && (!Utils.isNullOrEmpty(appointments) || isCallNow)
+            && (!Utils.isNullOrEmpty(expert) && expert.isValid()))
         {
             next();
         }
@@ -64,6 +65,20 @@ class Middleware
             res.send(400, "This is strange, how did you land up here without selecting an expert");
         }
     }
+
+    static ensureNotCallingSelf =
+        [
+            connect_ensure_login.ensureLoggedIn(),
+            function (req:express.Request, res:express.Response, next:Function)
+            {
+                var sessionData = new SessionData(req);
+
+                // Check that we're not calling a schedule with self
+                if (sessionData.getLoggedInUser() && sessionData.getLoggedInUser().getId() == sessionData.getExpert().getUserId())
+                    res.render('500', {error: "You can't call yourself!"});
+                else
+                    next();
+            }];
 
 }
 export = Middleware
