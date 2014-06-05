@@ -106,6 +106,7 @@ class WidgetDelegate extends BaseDaoDelegate
         };
         var widgetTemplate = _.template(widgetPartialHtml);
 
+        widgetSettings = widgetSettings || {};
         widgetSettings['googleAnalyticsTrackingId'] = Config.get(Config.GOOGLE_ANALYTICS_TRACKING_ID);
         var widgetHtml = widgetTemplate(widgetSettings);
 
