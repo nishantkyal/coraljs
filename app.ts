@@ -86,6 +86,7 @@ _.templateSettings = {
     interpolate: /\{\{([\s\S]+?)\}\}/g
 };
 _.mixin(helpers);
+_.extend(_, helpers);
 
 app.use(
     function (req:express.Request, res, next)

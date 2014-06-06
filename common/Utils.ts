@@ -91,7 +91,7 @@ class Utils
     {
         snakeCasedString = snakeCasedString.replace(/_/g, ' ');
         snakeCasedString = snakeCasedString.toLowerCase();
-        snakeCasedString = snakeCasedString.replace(/(^[a-z]|\s[a-z])/g, function (m:string, p):string { return m.toUpperCase(); })
+        snakeCasedString = snakeCasedString.replace(/(^[a-z]|\s[a-z]|\/[a-z])/g, function (m:string, p):string { return m.toUpperCase(); })
         return snakeCasedString;
     }
 

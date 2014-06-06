@@ -1,4 +1,4 @@
-///<reference path='../_references.d.ts'/>
+import _                                                    = require('underscore');
 import q                                                    = require('q');
 import moment                                               = require('moment');
 import WidgetExpert                                         = require('../models/WidgetExpert');
@@ -7,6 +7,7 @@ import ExpertSchedule                                       = require('../models
 import WidgetExpertCache                                    = require('../caches/WidgetExpertCache');
 import IntegrationMemberDelegate                            = require('../delegates/IntegrationMemberDelegate');
 import ExpertScheduleDelegate                               = require('../delegates/ExpertScheduleDelegate');
+import TimezoneDelegate                                     = require('../delegates/TimezoneDelegate');
 import Utils                                                = require('../common/Utils');
 import IncludeFlag                                          = require('../enums/IncludeFlag');
 
@@ -45,6 +46,13 @@ class WidgetExpertDelegate
 
                 var widgetExpert = new WidgetExpert(expert);
                 self.widgetExpertCache.save(widgetExpert);
+
+                return [widgetExpert, new TimezoneDelegate().getTimezone(widgetExpert.getTimezone())];
+            })
+            .spread(
+            function timezoneFetched(widgetExpert:WidgetExpert, result)
+            {
+                widgetExpert.setTimezoneOffset(result['gmt_offset']);
                 return widgetExpert;
             });
     }

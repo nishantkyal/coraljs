@@ -7,6 +7,7 @@ import UserProfile                                          = require('../models
 import IndustryCode                                         = require('../enums/IndustryCode');
 import UserStatus                                           = require('../enums/UserStatus');
 import Salutation                                           = require('../enums/Salutation');
+import TimeZone                                             = require('../enums/TimeZone');
 
 class User extends BaseModel
 {
@@ -21,11 +22,10 @@ class User extends BaseModel
     static USER_PROFILE:string = 'user_profile';
     static DATE_OF_BIRTH:string = 'date_of_birth';
     static INDUSTRY:string = 'industry';
-    static LOCATION:string = 'location';
     static TIMEZONE:string = 'timezone';
     static DEFAULT_PROFILE_ID:string = 'default_profile_id';
 
-    static DEFAULT_FIELDS:string[] = [User.ID, User.TITLE, User.FIRST_NAME, User.LAST_NAME, User.EMAIL, User.INDUSTRY, User.LOCATION, User.STATUS, User.DATE_OF_BIRTH, User.DEFAULT_PROFILE_ID];
+    static DEFAULT_FIELDS:string[] = [User.ID, User.TITLE, User.FIRST_NAME, User.LAST_NAME, User.EMAIL, User.INDUSTRY, User.TIMEZONE, User.STATUS, User.DATE_OF_BIRTH, User.DEFAULT_PROFILE_ID];
 
     private title:Salutation;
     private first_name:string;
@@ -35,8 +35,7 @@ class User extends BaseModel
     private status:UserStatus;
     private date_of_birth:string;
     private industry:IndustryCode;
-    private location:string;
-    private timezone:string;
+    private timezone:TimeZone;
     private default_profile_id:number;
 
     private user_profile:UserProfile;
@@ -50,8 +49,7 @@ class User extends BaseModel
     getStatus():UserStatus                                      { return this.status; }
     getDateOfBirth():string                                     { return this.date_of_birth; }
     getIndustry():IndustryCode                                  { return this.industry; }
-    getLocation():string                                        { return this.location; }
-    getTimezone():string                                        { return this.timezone; }
+    getTimezone():TimeZone                                      { return this.timezone; }
     getDefaultProfileId():number                                { return this.default_profile_id; }
 
     getUserProfile():UserProfile                                { return this.user_profile; }
@@ -69,18 +67,9 @@ class User extends BaseModel
     setStatus(val:UserStatus)                                   { this.status = val; }
     setDateOfBirth(val:string)                                  { this.date_of_birth = val;}
     setIndustry(val:IndustryCode)                               { this.industry = val; }
-    setLocation(val:string)                                     { this.location = val; }
-    setTimezone(val:string)                                     { this.timezone = val; }
+    setTimezone(val:TimeZone)                                   { this.timezone = val; }
     setDefaultProfileId(val:number)                             { this.default_profile_id = val; }
 
     setUserProfile(val:UserProfile):void                        { this.user_profile = val; }
-
-    getFormattedName(includeTitle:boolean = true):string
-    {
-        if (includeTitle)
-            return Formatter.formatName(this.getFirstName(), this.getLastName(), this.getTitle());
-        else
-            return Formatter.formatName(this.getFirstName(), this.getLastName());
-    }
 }
 export = User

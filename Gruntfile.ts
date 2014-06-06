@@ -111,14 +111,14 @@ function init(grunt)
                 db: Config.get(Config.REF_DATABASE_NAME)
             }
         },
-        'update-master-data': {
+        /*'update-master-data': {
             originalDb: {
                 db: Config.get(Config.DATABASE_NAME)
             },
             refDb: {
                 db: Config.get(Config.REF_DATABASE_NAME)
             }
-        },
+        },*/
         'sync-changeLog': {
             target: {
 
@@ -179,7 +179,7 @@ function init(grunt)
         });
     });
 
-    grunt.registerMultiTask('update-master-data', function ()
+    /*grunt.registerMultiTask('update-master-data', function ()
     {
         var dbName = this.data.db;
         var dbUsername = Config.get(Config.DATABASE_USER);
@@ -199,7 +199,7 @@ function init(grunt)
             console.log(stderr);
             done();
         });
-    });
+    });*/
 
     /* Custom Task - changeLongSync for liquibase to apply generated change set to source database after generating changeset */
     grunt.registerMultiTask('sync-changeLog', function ()
