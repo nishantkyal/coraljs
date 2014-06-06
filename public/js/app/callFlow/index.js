@@ -2,6 +2,7 @@
 schedules = schedules || [moment()];
 var timeSlotsByDate = _.groupBy(schedules, function(schedule) { return moment(schedule.start_time).format('DD-MM-YYYY') });
 setMonth(schedules[0].start_time);
+var tzOffsetInMillis = new Date().getTimezoneOffset() * 60 * 1000;
 
 /* Duration select - Event handler */
 $('.duration li').click(function(event)
@@ -41,23 +42,20 @@ $('#monthSelector #next').click(function()
 /* Time slot selection - Event handler */
 $(document).on('click', '.timeslot-widget ul li span', function handleTimeSlotSelected(event)
 {
-        var selectedSlot = $(event.currentTarget).parent().data('slot');
-        var index = selectedTimeSlots.indexOf(selectedSlot);
-        if (index == -1)
-        {
-            if(selectedTimeSlots.length < 3)
-            {
-                $(event.currentTarget).addClass('checked');
-                selectedTimeSlots.push(selectedSlot);
-            }
+    var selectedSlot = $(event.currentTarget).parent().data('slot');
+    var index = selectedTimeSlots.indexOf(selectedSlot);
+    if (index == -1) {
+        if (selectedTimeSlots.length < 3) {
+            $(event.currentTarget).addClass('checked');
+            selectedTimeSlots.push(selectedSlot);
         }
-        else
-        {
-            selectedTimeSlots.splice(index, 1);
-            $(event.currentTarget).removeClass('checked');
-        }
+    }
+    else {
+        selectedTimeSlots.splice(index, 1);
+        $(event.currentTarget).removeClass('checked');
+    }
 
-        updateSelectedTimeSlots();
+    updateSelectedTimeSlots();
 });
 
 /* Date selection - Event handler */
@@ -162,13 +160,12 @@ function selectDate(selectedDate, dateElement)
     var schedulesForSelectedDate = timeSlotsByDate[moment(selectedDate).format('DD-MM-YYYY')];
     _.each(schedulesForSelectedDate, function(schedule)
     {
-        var slotTime = schedule.start_time;
+        var slotTime = schedule.start_time + tzOffsetInMillis;
         var selectedDurationInMillis = duration * 60 * 1000;
-        var jumpInMillis = 15 * 60 *1000;
+        var jumpInMillis = 15 * 60 * 1000;
         var maxSlotTime = schedule.start_time + schedule.duration - selectedDurationInMillis;
         while (slotTime < maxSlotTime) {
-            if(slotTime > moment().valueOf())
-            {
+            if (slotTime > moment().valueOf()) {
                 $('.timeslot-widget ul').append('<li class="timeslot" data-slot="' + slotTime + '">' + moment(slotTime).format('hh:mm A') + '<span class="checkbox"></span></li>');
                 if (selectedTimeSlots.indexOf(slotTime) != -1)
                     $('.timeslot-widget ul li:last-child span').addClass('checked');
