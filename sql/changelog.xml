@@ -343,4 +343,25 @@
             <column name="zone_name"/>
         </createIndex>
     </changeSet>
+    <changeSet author="Nishant (generated)" id="1402049049683-1">
+        <createTable tableName="ref_pricing_scheme">
+            <column name="id" type="INT(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(20)"/>
+            <column name="interval_in_mins" type="INT(10)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402049049683-2">
+        <addPrimaryKey columnNames="id" constraintName="PRIMARY" tableName="ref_pricing_scheme"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402049049683-3">
+        <addForeignKeyConstraint baseColumnNames="timezone" baseTableName="user" constraintName="FK_user" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="zone_id" referencedTableName="zone"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402049049683-4">
+        <dropColumn columnName="location" tableName="user"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402049049683-5">
+        <modifyDataType columnName="timezone" newDataType="int(10)" tableName="user"/>
+    </changeSet>
 </databaseChangeLog>

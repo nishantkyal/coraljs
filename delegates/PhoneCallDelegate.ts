@@ -76,6 +76,8 @@ class PhoneCallDelegate extends BaseDaoDelegate
     {
         var superCreate = super.create;
 
+        // TODO: Check that we're not scheduling a conflicting call
+
         if (!Utils.isNullOrEmpty(object[PhoneCall.CALLER_USER_ID]))
             return this.integrationMemberDelegate.get(object[PhoneCall.INTEGRATION_MEMBER_ID])
                 .then(
@@ -94,6 +96,8 @@ class PhoneCallDelegate extends BaseDaoDelegate
     update(criteria:number, newValues:Object, transaction?:Object):q.Promise<any>;
     update(criteria:any, newValues:Object, transaction?:Object):q.Promise<any>
     {
+        delete newValues[PhoneCall.START_TIME];
+
         var newStatus = newValues.hasOwnProperty(PhoneCall.STATUS) ? newValues[PhoneCall.STATUS] : null;
 
         // TODO: If updating caller user id, check that it's not the same as expert's user id
@@ -164,8 +168,8 @@ class PhoneCallDelegate extends BaseDaoDelegate
     }
 
     /* Queue the call for triggering */
-    queueCallForTriggering(call:number);
-    queueCallForTriggering(call:PhoneCall);
+    queueCallForTriggering(call:number):q.Promise<any>;
+    queueCallForTriggering(call:PhoneCall):q.Promise<any>;
     queueCallForTriggering(call:any):q.Promise<any>
     {
         var self = this;
