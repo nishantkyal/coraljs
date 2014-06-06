@@ -66,8 +66,11 @@ class ExpertScheduleRuleApi
 
         app.post(ApiUrlDelegate.scheduleRuleById(), function (req:express.Request, res:express.Response)
         {
-            var scheduleRule:ExpertScheduleRule = req.body[ApiConstants.SCHEDULE_RULE];
+            var data:any = req.body[ApiConstants.SCHEDULE_TIMESLOTS];
+            var expertId:number = parseInt(req.body[ApiConstants.EXPERT_ID]);
+            var scheduleRule:ExpertScheduleRule = expertScheduleRuleDelegate.createRuleFromTimeSlots(expertId,data);
             var scheduleRuleId:number = req.params[ApiConstants.SCHEDULE_RULE_ID];
+            scheduleRule.setId(scheduleRuleId);
 
             if(scheduleRule.isValid())
             {
@@ -89,6 +92,19 @@ class ExpertScheduleRuleApi
                 .then(
                 function updateScheduleRule(rule:ExpertScheduleException) { res.json(rule); },
                 function updateScheduleRuleError(error) { res.status(500).json(error) }
+            )
+        });
+
+        app.post(ApiUrlDelegate.scheduleRule(), function (req:express.Request, res:express.Response)
+        {
+            var data:any = req.body[ApiConstants.SCHEDULE_TIMESLOTS];
+            var expertId:number = parseInt(req.body[ApiConstants.EXPERT_ID]);
+            var scheduleRule:ExpertScheduleRule = expertScheduleRuleDelegate.createRuleFromTimeSlots(expertId,data);
+
+            expertScheduleRuleDelegate.create(scheduleRule)
+                .then(
+                function expertScheduleRuleCreated(schedule) { res.json(schedule.toJson()); },
+                function expertScheduleRuleCreateFailed(error) { res.send(500,error); }
             )
         });
     }

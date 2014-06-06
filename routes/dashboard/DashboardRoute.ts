@@ -21,6 +21,7 @@ import UserSkillDelegate                                = require('../../delegat
 import UserEmploymentDelegate                           = require('../../delegates/UserEmploymentDelegate');
 import RefSkillCodeDelegate                             = require('../../delegates/SkillCodeDelegate');
 import UserProfileDelegate                              = require('../../delegates/UserProfileDelegate');
+import ExpertScheduleRuleDelegate                       = require('../../delegates/ExpertScheduleRuleDelegate');
 import VerificationCodeDelegate                         = require('../../delegates/VerificationCodeDelegate');
 import MysqlDelegate                                    = require('../../delegates/MysqlDelegate');
 import UserUrlDelegate                                  = require('../../delegates/UserUrlDelegate');
@@ -39,6 +40,7 @@ import PhoneCall                                        = require('../../models/
 import UserProfile                                      = require('../../models/UserProfile');
 import Transaction                                      = require('../../models/Transaction');
 import TransactionLine                                  = require('../../models/TransactionLine');
+import ExpertScheduleRule                               = require('../../models/ExpertScheduleRule');
 import IntegrationMemberRole                            = require('../../enums/IntegrationMemberRole');
 import ApiConstants                                     = require('../../enums/ApiConstants');
 import SmsTemplate                                      = require('../../enums/SmsTemplate');
@@ -67,7 +69,8 @@ class DashboardRoute
     private static PAGE_PROFILE:string = 'dashboard/memberProfile';
     private static PAGE_ACCOUNT_VERIFICATION:string = 'dashboard/accountVerification';
     private static PAGE_PAYMENT_COMPLETE:string = 'dashboard/paymentComplete';
-    private static PAGE_CALL_DETAILS:string = 'dashboard/callDetails'
+    private static PAGE_CALL_DETAILS:string = 'dashboard/callDetails';
+    private static PAGE_SCHEDULE:string = 'dashboard/memberSchedule';
 
     private integrationDelegate = new IntegrationDelegate();
     private integrationMemberDelegate = new IntegrationMemberDelegate();
@@ -77,6 +80,7 @@ class DashboardRoute
     private userEmploymentDelegate = new UserEmploymentDelegate();
     private userSkillDelegate = new UserSkillDelegate();
     private userEducationDelegate = new UserEducationDelegate();
+    private expertScheduleRuleDelegate = new ExpertScheduleRuleDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
     private phoneCallDelegate = new PhoneCallDelegate();
     private notificationDelegate = new NotificationDelegate();
@@ -98,6 +102,7 @@ class DashboardRoute
         app.get(Urls.memberProfile(), this.editMemberProfile.bind(this));
         app.get(Urls.callDetails(), Middleware.allowMeOrAdmin, this.callDetails.bind(this));
         app.get(Urls.revenueDetails(), Middleware.allowMeOrAdmin, this.revenueDetails.bind(this));
+        app.get(Urls.scheduleDetails(), Middleware.allowOnlyMe, this.schedule.bind(this));
 
         app.get(Urls.logout(), this.logout.bind(this));
         app.post(Urls.paymentCallback(), this.paymentComplete.bind(this));
@@ -514,6 +519,25 @@ class DashboardRoute
     revenueDetails(req:express.Request, res:express.Response)
     {
         res.send(200);
+    }
+
+    schedule(req:express.Request, res:express.Response)
+    {
+        var self = this;
+        var memberId:number = parseInt(req.params[ApiConstants.MEMBER_ID]);
+        var sessionData = new SessionData(req);
+
+        self.expertScheduleRuleDelegate.getRulesByIntegrationMemberId(memberId)
+            .then(
+            function rulesFetched(rules:ExpertScheduleRule[]){
+                var pageData =  _.extend(sessionData.getData(), {
+                    rules: rules || [],
+                    memberId : memberId
+                });
+                res.render(DashboardRoute.PAGE_SCHEDULE,pageData);
+            },
+            function errorInFetching(error) { res.send(500, error)}
+            );
     }
 
     /* Logout and redirect to login page */

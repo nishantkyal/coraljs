@@ -11,11 +11,22 @@ import ExpertScheduleExceptionDao                       = require('../dao/Expert
 import ExpertScheduleRule                               = require('../models/ExpertScheduleRule');
 import ExpertScheduleException                          = require('../models/ExpertScheduleException');
 import ExpertSchedule                                   = require('../models/ExpertSchedule');
+import CronRule                                         = require('../models/CronRule');
+import DayName                                          = require('../enums/DayName');
 import Utils                                            = require('../common/Utils');
 
 class ExpertScheduleRuleDelegate extends BaseDaoDelegate
 {
     constructor() { super(new ExpertScheduleRuleDao()); }
+
+    private static DAY:string           = 'day';
+    private static START_HOUR:string    = 'startHour';
+    private static START_MINUTE:string  = 'startMinute';
+    private static END_HOUR:string      = 'endHour';
+    private static END_MINUTE:string    = 'endMinute';
+    private static PRICE_UNIT:string    = 'priceUnit';
+    private static PRICE_PER_MIN:string = 'pricePerMin';
+    private static TITLE:string         = 'title';
 
     create(newScheduleRule:any, transaction?:Object):q.Promise<any>
     {
@@ -39,7 +50,7 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
             {
                 self.logger.debug('Conflicts checked %s', hasConflicts);
                 if (hasConflicts)
-                    throw('Conflicts detected');
+                    return q.reject('Conflicts detected');
                 else
                     return createProxy.call(self, newScheduleRule, transaction);
             });
@@ -75,6 +86,41 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
                 throw(error);
             }
         );
+    }
+
+    createRuleFromTimeSlots(integration_member_id:number, slot:any):ExpertScheduleRule
+    {
+        var self = this;
+        var cronRule:CronRule = new CronRule();
+        var duration:number = (parseInt(slot[ExpertScheduleRuleDelegate.END_HOUR])*60 + parseInt(slot[ExpertScheduleRuleDelegate.END_MINUTE]))
+            - (parseInt(slot[ExpertScheduleRuleDelegate.START_HOUR])*60 + parseInt(slot[ExpertScheduleRuleDelegate.START_MINUTE]));;
+
+        var day:number = parseInt(slot[ExpertScheduleRuleDelegate.DAY]);
+        if (day >= DayName.SUNDAY && day <= DayName.SATURDAY)
+            cronRule.setDayOfWeek(slot[ExpertScheduleRuleDelegate.DAY]);
+        else if(day == DayName.WEEKDAYS)
+            cronRule.setDayOfWeek('1-5');
+        else if(day == DayName.WEEKENDS)
+            cronRule.setDayOfWeek('0,6');
+
+        cronRule.setHour(slot[ExpertScheduleRuleDelegate.START_HOUR]);
+        cronRule.setMinute(slot[ExpertScheduleRuleDelegate.START_MINUTE]);
+        cronRule.setSecond('0');
+
+        cronRule.setMonth('*');
+        cronRule.setDayOfMonth('*');
+
+        var scheduleRule:ExpertScheduleRule = new ExpertScheduleRule();
+        scheduleRule.setCronRule(cronRule.toString());
+        scheduleRule.setDuration(duration * 60 * 1000);
+        scheduleRule.setIntegrationMemberId(integration_member_id);
+        scheduleRule.setRepeatEnd(0);
+        scheduleRule.setRepeatStart(moment().valueOf());
+        scheduleRule.setPricePerMin(parseInt(slot[ExpertScheduleRuleDelegate.PRICE_PER_MIN]));
+        scheduleRule.setPriceUnit(parseInt(slot[ExpertScheduleRuleDelegate.PRICE_UNIT]));
+        scheduleRule.setTitle(slot[ExpertScheduleRuleDelegate.TITLE]);
+
+        return scheduleRule;
     }
 
     update(criteria:Object, updatedScheduleRule:ExpertScheduleRule, transaction?:Object):q.Promise<any>

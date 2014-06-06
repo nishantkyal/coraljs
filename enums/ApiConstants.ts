@@ -70,6 +70,7 @@ class ApiConstants
     static SCHEDULE:string                              = 'expertSchedule';
     static SCHEDULE_RULE:string                         = 'expertScheduleRule';
     static SCHEDULE_EXCEPTION:string                    = 'expertScheduleException';
+    static SCHEDULE_TIMESLOTS:string                    = 'scheduleTimeSlots';
     static SMS:string                                   = 'sms';
     static TRANSACTION:string                           = 'transaction';
     static NO_PAYMENT:string                            = 'noPayment';

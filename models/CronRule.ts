@@ -30,7 +30,7 @@ class CronRule
 
     toString():string
     {
-        return null;
+        return this.second + ' ' + this.minute + ' ' + this.hour + ' ' + this.day_of_month + ' ' + this.month + ' ' + this.day_of_week;
     }
 }
 export = CronRule
