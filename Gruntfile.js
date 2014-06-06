@@ -153,6 +153,27 @@ function init(grunt) {
         });
     });
 
+    /*grunt.registerMultiTask('update-master-data', function ()
+    {
+    var dbName = this.data.db;
+    var dbUsername = Config.get(Config.DATABASE_USER);
+    var dbPassword = Config.get(Config.DATABASE_PASS);
+    
+    var command = 'java -jar sql/liquibase.jar --classpath=sql/mysql-connector-java-5.1.30-bin.jar ' +
+    '--changeLogFile=sql/ref_data.changelog.xml --url="jdbc:mysql://localhost/' + dbName + '" --username=' + dbUsername + ' --password=' + dbPassword + ' update';
+    
+    var exec = childProcess.exec;
+    
+    console.log(command);
+    var done = this.async();
+    exec(command, function (error, stdout, stderr)
+    {
+    console.log(dbName + " updated");
+    console.log(stdout);
+    console.log(stderr);
+    done();
+    });
+    });*/
     /* Custom Task - changeLongSync for liquibase to apply generated change set to source database after generating changeset */
     grunt.registerMultiTask('sync-changeLog', function () {
         var dbName = Config.get(Config.DATABASE_NAME);
