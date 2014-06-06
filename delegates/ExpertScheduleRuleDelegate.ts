@@ -125,6 +125,7 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
 
     update(criteria:Object, updatedScheduleRule:ExpertScheduleRule, transaction?:Object):q.Promise<any>
     {
+        var self = this;
         var ruleId = updatedScheduleRule.getId();
         var updateProxy = super.update;
 
@@ -147,19 +148,25 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
                     if (temp.getId() != updatedScheduleRule.getId()) // exclude the rule which is being updated while checking for conflicts
                         schedules.push(temp);
                 });
-                if (!updatedScheduleRule.hasConflicts(schedules, options))
-                    return updateProxy.call(this, {'id': ruleId}, updatedScheduleRule, transaction);
-                else
-                    throw {
-                        'message': 'Conflicting schedule rules found',
-                        'conflicts': schedules
-                    };
+                updatedScheduleRule.hasConflicts(schedules, options)
+                .then(
+                function conflictsChecked(hasConflicts):any
+                {
+                    self.logger.debug('Conflicts checked %s', hasConflicts);
+                    if (hasConflicts)
+                        return q.reject('Conflicts detected');
+                    else
+                        return updateProxy.call(self, {'id': ruleId}, updatedScheduleRule, transaction);
+                });
             })
             .then(
             function ruleUpdated()
             {
                 var expertScheduleExceptionDelegate = new ExpertScheduleExceptionDelegate();
-                return expertScheduleExceptionDelegate.deleteByRuleId(ruleId, transaction);
+                return expertScheduleExceptionDelegate.deleteByRuleId(ruleId, transaction, false)
+                    .fail( function (error){
+                        self.logger.debug('Error in deleting exceptions for ruleId - ' + ruleId + error);
+                    })
             });
     }
 
@@ -174,12 +181,12 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
         if (Utils.isNullOrEmpty(transaction))
             return MysqlDelegate.executeInTransaction(this, arguments);
 
-        return super.delete(scheduleRuleId, transaction, true)
+        return super.delete(scheduleRuleId, transaction, false)
             .then(
             function ruleDeleted()
             {
                 var expertScheduleExceptionDelegate = new ExpertScheduleExceptionDelegate();
-                return expertScheduleExceptionDelegate.deleteByRuleId(scheduleRuleId, transaction);
+                return expertScheduleExceptionDelegate.deleteByRuleId(scheduleRuleId, transaction,false);
             });
     }
 

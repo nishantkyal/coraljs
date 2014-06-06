@@ -71,9 +71,9 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
         }));
     }
 
-    deleteByRuleId(ruleId:number, transaction?:Object):q.Promise<any>
+    deleteByRuleId(ruleId:number, transaction?:Object, softDelete?:boolean):q.Promise<any>
     {
-        return this.delete({'schedule_rule_id': ruleId}, transaction, true);
+        return this.delete({'schedule_rule_id': ruleId}, transaction, softDelete);
     }
 
     getExceptionsByIntegrationMemberId(expertId:number, startTime:number, endTime:number):q.Promise<any>

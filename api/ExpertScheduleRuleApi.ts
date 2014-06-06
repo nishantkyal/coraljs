@@ -69,7 +69,7 @@ class ExpertScheduleRuleApi
             var data:any = req.body[ApiConstants.SCHEDULE_TIMESLOTS];
             var expertId:number = parseInt(req.body[ApiConstants.EXPERT_ID]);
             var scheduleRule:ExpertScheduleRule = expertScheduleRuleDelegate.createRuleFromTimeSlots(expertId,data);
-            var scheduleRuleId:number = req.params[ApiConstants.SCHEDULE_RULE_ID];
+            var scheduleRuleId:number = parseInt(req.params[ApiConstants.SCHEDULE_RULE_ID]);
             scheduleRule.setId(scheduleRuleId);
 
             if(scheduleRule.isValid())

@@ -1,3 +1,5 @@
+$('select').selectpicker();
+
 $('#timepicker3').timepicker({
     minuteStep: 5,
     showInputs: false,
@@ -52,12 +54,6 @@ $(function(){
     }
 });
 
-$('#deleteSchedule').click(function(){
-    bootbox.confirm("Are you sure you want to delete this schedule?", function(result){
-
-    })
-});
-
 $('#AddSchedule form').validate({
     rules         : {
         title: { required: true},
@@ -78,31 +74,62 @@ $('#AddSchedule form').validate({
     },
     submitHandler : function()
     {
-        $.ajax({
-            url : '/rest/scheduleRule',
-            type: 'post',
-            data: {
-                expertId : memberId,
-                scheduleTimeSlots:{
-                    title:$('#AddSchedule form #title').val(),
-                    day:$('#AddSchedule form #day').val(),
-                    startHour:$('#AddSchedule form #startHour').val(),
-                    startMinute:$('#AddSchedule form #startMinute').val(),
-                    endHour:$('#AddSchedule form #endHour').val(),
-                    endMinute:$('#AddSchedule form #endMinute').val(),
-                    pricePerMin:$('#AddSchedule form #pricePerMin').val(),
-                    priceUnit:$('#AddSchedule form #priceUnit').val()
+        var ruleId = $('#AddSchedule form .btn-primary').attr('data-id');
+        if(ruleId)
+            $.ajax({
+                url : '/rest/scheduleRule/' + ruleId,
+                type: 'post',
+                data: {
+                    expertId : memberId,
+                    scheduleTimeSlots:{
+                        title:$('#AddSchedule form #title').val(),
+                        day:$('#AddSchedule form #day').val(),
+                        startHour:$('#AddSchedule form #startHour').val(),
+                        startMinute:$('#AddSchedule form #startMinute').val(),
+                        endHour:$('#AddSchedule form #endHour').val(),
+                        endMinute:$('#AddSchedule form #endMinute').val(),
+                        pricePerMin:$('#AddSchedule form #pricePerMin').val(),
+                        priceUnit:$('#AddSchedule form #priceUnit').val()
+                    }
+                },
+                success: function()
+                {
+                    location.reload();
+                },
+                error: function(error)
+                {
+                    bootbox.alert(error.responseText)
                 }
-            },
-            success: function()
-            {
-                location.reload();
-            },
-            error: function(error)
-            {
-                bootbox.alert(error.responseText)
-            }
-        })
+            })
+        else
+            $.ajax({
+                url : '/rest/scheduleRule',
+                type: 'post',
+                data: {
+                    expertId : memberId,
+                    scheduleTimeSlots:{
+                        title:$('#AddSchedule form #title').val(),
+                        day:$('#AddSchedule form #day').val(),
+                        startHour:$('#AddSchedule form #startHour').val(),
+                        startMinute:$('#AddSchedule form #startMinute').val(),
+                        endHour:$('#AddSchedule form #endHour').val(),
+                        endMinute:$('#AddSchedule form #endMinute').val(),
+                        pricePerMin:$('#AddSchedule form #pricePerMin').val(),
+                        priceUnit:$('#AddSchedule form #priceUnit').val()
+                    }
+                },
+                success: function()
+                {
+                    location.reload();
+                },
+                error: function(error)
+                {
+                    bootbox.alert(error.responseText, function () {
+                        location.reload();
+                    })
+                }
+            })
+
     }
 });
 
@@ -121,10 +148,32 @@ $(document).on('click','.editSchedule',function()
         $('#AddSchedule .btn-primary').attr('data-id', selectedRule.id);
         $('#AddSchedule form [name="title"]').val(selectedRule.title);
         $('#AddSchedule [name="pricePerMin"]').val(selectedRule.price_per_min);
-        $('#AddSchedule [name="startHour"]').attr('val', cronParts[2]);
-        $('#AddSchedule [name="startMinute"]').selectpicker('val', cronParts[1]);
+        $('#AddSchedule [name="day"]').selectpicker('val', parseInt(cronParts[5]));
+        $('#AddSchedule [name="startHour"]').selectpicker('val', parseInt(cronParts[2]));
+        $('#AddSchedule [name="startMinute"]').selectpicker('val', parseInt(cronParts[1]));
         $('#AddSchedule #endHour').selectpicker('val', Math.floor((startTime+duration)/60));
         $('#AddSchedule #endMinute').selectpicker('val', (startTime + duration)%60);
-        $('#AddSchedule [name="priceUnit"]').selectpicker('val', selectedRule.price_unit);
+        $('#AddSchedule [name="priceUnit"]').selectpicker('val', parseInt(selectedRule.price_unit));
     }
+});
+
+$(document).on('click','.deleteSchedule',function()
+{
+    var ruleId = $(this).data('id');
+    bootbox.confirm("Are you sure you want to delete this schedule?", function(result){
+        $.ajax({
+            url : '/rest/scheduleRule/' + ruleId,
+            type: 'delete',
+            success: function()
+            {
+                location.reload();
+            },
+            error: function(error)
+            {
+                bootbox.alert(error.responseText, function (){
+                    location.reload();
+                })
+            }
+        })
+    })
 });

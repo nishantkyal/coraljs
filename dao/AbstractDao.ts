@@ -219,7 +219,10 @@ class AbstractDao
             function updateComplete(result:mysql.OkPacket):any
             {
                 if (result.affectedRows == 0)
+                {
+                    self.logger.debug('Update did not change any rows in table - %s, for criteria - %s and values - %s', self.tableName, wheres.join(' AND') , values.join(','));
                     throw('No rows were updated');
+                }
                 else
                     return result;
             },
