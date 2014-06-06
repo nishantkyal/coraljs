@@ -85,8 +85,12 @@ class WidgetDelegate extends BaseDaoDelegate
             interpolate: /{%=([\s\S]+?)%}/g
         };
         var widgetTemplate = _.template(widgetPartialHtml);
-        var widgetHtml = widgetTemplate({experts: [].concat(widgetExpert)});
-
+        try
+        {
+            var widgetHtml = widgetTemplate({experts: [].concat(widgetExpert)});
+        } catch (e) {
+            this.logger.error('Error while rendering widget expert data. Error: %s', JSON.stringify(e));
+        }
         _.templateSettings = originalSettings;
 
         return widgetHtml;
@@ -106,8 +110,13 @@ class WidgetDelegate extends BaseDaoDelegate
         };
         var widgetTemplate = _.template(widgetPartialHtml);
 
+        widgetSettings = widgetSettings || {};
         widgetSettings['googleAnalyticsTrackingId'] = Config.get(Config.GOOGLE_ANALYTICS_TRACKING_ID);
-        var widgetHtml = widgetTemplate(widgetSettings);
+        try {
+            var widgetHtml = widgetTemplate(widgetSettings);
+        } catch (e) {
+            this.logger.error('Error while rendering widget settings. Error: %s', JSON.stringify(e));
+        }
 
         _.templateSettings = originalSettings;
 

@@ -246,9 +246,6 @@ h1 {
 .icon-searchntalk:before {
   content: '\2001';
 }
-.icon-searchntalk-empty:before {
-  content: '\200A';
-}
 .icon-searchntalk-logo:before {
   content: '\2009';
 }
@@ -296,9 +293,6 @@ h1 {
 }
 .icon-right-arrow:before {
   content: '\e080';
-}
-.icon-clock:before {
-  content: '\e023';
 }
 html,
 body {
@@ -409,8 +403,6 @@ body {
   z-index: 9996;
   font-size: 150px;
   line-height: 150px;
-  font-family: 'snticons';
-  content: '\e008';
 }
 .widget .avatar .status {
   position: absolute;

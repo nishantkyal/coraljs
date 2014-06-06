@@ -638,7 +638,7 @@ class DashboardRoute
             return;
         }
 
-        this.verificationCodeDelegate.verifyEmailVerificationCode(email, code)
+        this.verificationCodeDelegate.verifyEmailVerificationCode(code)
             .then(
             function verified(result):any
             {

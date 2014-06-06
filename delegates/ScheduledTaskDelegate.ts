@@ -1,4 +1,3 @@
-///<reference path='../_references.d.ts'/>
 import q                                                        = require('q');
 import _                                                        = require('underscore');
 import log4js                                                   = require('log4js');
@@ -56,7 +55,7 @@ class ScheduledTaskDelegate
         // Add task to index and persist
         ScheduledTaskDelegate.tasks[taskId] = {task: task, timeout: timeout};
 
-        this.logger.info('Task of type ' + task.getTaskType() + ' scheduled, startTime - ' + moment(task.getStartTime(),'DD/MM/YYYY hh:mm a') + ' id - ' + task.getId());
+        this.logger.info('Task of type %s scheduled, startTime: %s, id: %s', task.getTaskType(), moment(task.getStartTime()).format('DD/MM/YYYY hh:mm a'), task.getId());
 
         self.syncToRedis();
 

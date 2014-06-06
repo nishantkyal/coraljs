@@ -22,7 +22,7 @@ $('form#scheduling').validate({
             type: 'post',
             url: form.action,
             data: {
-                startTime: $('form#scheduling input[name="startTime"]').val() || moment($('form#scheduling input#startTime').val()).valueOf(),
+                startTime: $('form#scheduling input[name="startTime"]:radio:checked').val() || moment($('form#scheduling input#startTime').val()).valueOf(),
                 code: $('form#scheduling input[name="code"]').val(),
                 phoneNumberId: $('form#scheduling input[name="phoneNumberId"]').val()
             },
@@ -44,9 +44,9 @@ $('form#scheduling').validate({
                     window.close();
                 });
             },
-            error: function()
+            error: function(error)
             {
-                bootbox.alert('Request failed. Please click on the link in the email and try again');
+                bootbox.alert(error.responseText);
             }
         });
     }
@@ -128,9 +128,9 @@ $('#verify-btn').click(function()
 });
 
 /* Deselect start time radio button if alternate time entered */
-$('input#startTime').keydown(function(event)
+$(".datepicker").on("dp.change",function (e)
 {
-    $('input[name="startTime"]').removeAttr('checked');
+    $('input[name="startTime"]').prop('checked', false);
 });
 
 /* Empty startTime input if startTime slot selected */

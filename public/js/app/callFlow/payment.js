@@ -1,31 +1,31 @@
 // Make user login before applying coupon or checking out
 var loginContext;
-var isLoggedIn = false;
 
-$('form#couponForm,form#checkout').submit(function(event)
+$('#applyCoupon, #checkout').on('click', function(event)
 {
-    if (!isLoggedIn)
-    {
-        event.preventDefault();
+    loginContext = $(event.currentTarget).attr('id');
 
-        $.ajax({
-            url    : '/rest/user/authentication',
-            type   : 'GET',
-            success: function(data, textStatus, jqXHR)
+    $.ajax({
+        url    : '/rest/user/authentication',
+        type   : 'GET',
+        success: function(data, textStatus, jqXHR)
+        {
+            // If not logged in, stop event propagation and show modal
+            // Set loginContext so we know what to do after user signs in from the modal
+            if (!data)
             {
-                // If not logged in, stop event propagation and show modal
-                // Set loginContext so we know what to do after user signs in from the modal
-                isLoggedIn = data;
-                if (!data) {
-                    loginContext = $(event.currentTarget).attr('id');
-                    $('#login-modal').modal('show');
-                }
-                else {
-                    $(event.currentTarget).submit();
-                }
+                $('#login-modal').modal('show');
+                return;
             }
-        });
-    }
+
+            switch(loginContext)
+            {
+                case 'applyCoupon': applyCoupon(); break;
+                case 'checkout': checkout(); break;
+            }
+        }
+    });
+
 });
 
 /* Login handler */
@@ -43,9 +43,11 @@ $('#login-button').click(function()
         }),
         success    : function()
         {
-            isLoggedIn = true;
-            if (loginContext)
-                $('form#' + loginContext).submit();
+            switch(loginContext)
+            {
+                case 'applyCoupon': applyCoupon(); break;
+                case 'checkout': checkout(); break;
+            }
         },
         error      : function(jqXhr, textStatus, response)
         {
@@ -73,9 +75,11 @@ $('#register-button').click(function()
         }),
         success    : function()
         {
-            isLoggedIn = true;
-            if (loginContext)
-                $('form#' + loginContext).submit();
+            switch(loginContext)
+            {
+                case 'applyCoupon': applyCoupon(); break;
+                case 'checkout': checkout(); break;
+            }
         },
         error      : function(jqXhr, textStatus, response)
         {
@@ -91,3 +95,17 @@ $('#register-link,#login-link').click(function(event)
     $('.register').toggle($(event.currentTarget).attr('id') == 'register-link');
     $('.login').toggle($(event.currentTarget).attr('id') == 'login-link');
 });
+
+function applyCoupon()
+{
+    var form = $('<form action="/expert/call/payment/coupon" method="post"><input name="code" value=""/></form>');
+    $('body').append(form);
+    form.submit();
+}
+
+function checkout()
+{
+    var form = $('<form action="/expert/call/checkout" method="post"></form>');
+    $('body').append(form);
+    form.submit();
+}

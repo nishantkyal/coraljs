@@ -75,7 +75,7 @@ class CallSchedulingRoute
 
         q.all([
             this.verificationCodeDelegate.verifyAppointmentAcceptCode(appointmentCode),
-            self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_USER, IncludeFlag.INCLUDE_INTEGRATION_MEMBER])
+            self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_USER, IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_TRANSACTION_LINE])
         ])
             .then(
             function callAndSchedulingDetailsFetched(...args)
@@ -86,7 +86,7 @@ class CallSchedulingRoute
                 if (Utils.isNullOrEmpty(appointment) || (!Utils.isNullOrEmpty(startTime) && !_.contains(appointment.startTimes, startTime)) || appointment.from == loggedInUserId)
                     throw 'Invalid request. Please click on one of the links in the email';
 
-                var returnArray = [appointment.startTimes, call, self.transactionLineDelegate.getTransactionLinesForItemId(call.getId())];
+                var returnArray = [appointment.startTimes, call];
 
                 switch (loggedInUserId)
                 {
@@ -105,8 +105,9 @@ class CallSchedulingRoute
                 return returnArray;
             })
             .spread(
-            function expertPhonesFetched(startTimes:number[], call:PhoneCall, lines:TransactionLine[], phone:UserPhone):any
+            function expertPhonesFetched(startTimes:number[], call:PhoneCall, phone:UserPhone):any
             {
+                var lines = call.getTransactionLine();
                 var productLine = _.findWhere(lines, Utils.createSimpleObject(TransactionLine.TRANSACTION_TYPE, TransactionType.PRODUCT));
                 var revenueShare:number = call.getIntegrationMember().getRevenueShare();
                 var revenueShareUnit:MoneyUnit = call.getIntegrationMember().getRevenueShareUnit();
@@ -143,6 +144,9 @@ class CallSchedulingRoute
                     res.render(CallSchedulingRoute.SCHEDULING_PAGE_FOR_EXPERT, pageData);
                 else if (loggedInUserId == call.getCallerUserId())
                     res.render(CallSchedulingRoute.SCHEDULING_PAGE_FOR_CALLER, pageData);
+                else
+                    res.render('500', "You're not authorized to view this page");
+
             })
             .fail(function (error)
             {

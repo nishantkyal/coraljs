@@ -11,6 +11,7 @@ import UserPhoneDelegate                                                = requir
 import UserDelegate                                                     = require('../delegates/UserDelegate');
 import NotificationDelegate                                             = require('../delegates/NotificationDelegate');
 import TransactionDelegate                                              = require('../delegates/TransactionDelegate');
+import TransactionLineDelegate                                          = require('../delegates/TransactionLineDelegate');
 import CallStatus                                                       = require('../enums/CallStatus');
 import IncludeFlag                                                      = require('../enums/IncludeFlag');
 import PhoneType                                                        = require('../enums/PhoneType');
@@ -34,6 +35,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
     private userDelegate = new UserDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
     private transactionDelegate = new TransactionDelegate();
+    private transactionLineDelegate = new TransactionLineDelegate();
     private callProvider = new CallProviderFactory().getProvider();
     private phoneCallCache = new PhoneCallCache();
 
@@ -70,14 +72,37 @@ class PhoneCallDelegate extends BaseDaoDelegate
             });
     }
 
+    create(object:Object, dbTransaction?:Object):q.Promise<any>
+    {
+        var superCreate = super.create;
+
+        // TODO: Check that we're not scheduling a conflicting call
+
+        if (!Utils.isNullOrEmpty(object[PhoneCall.CALLER_USER_ID]))
+            return this.integrationMemberDelegate.get(object[PhoneCall.INTEGRATION_MEMBER_ID])
+                .then(
+                function expertFetched(expert:IntegrationMember)
+                {
+                    if (expert.getUserId() == object[PhoneCall.CALLER_USER_ID])
+                        throw("You can't call yourself!");
+                    else
+                        superCreate(object, dbTransaction);
+                });
+
+        return super.create(object, dbTransaction);
+    }
+
     update(criteria:Object, newValues:Object, transaction?:Object):q.Promise<any>;
-
     update(criteria:number, newValues:Object, transaction?:Object):q.Promise<any>;
-
     update(criteria:any, newValues:Object, transaction?:Object):q.Promise<any>
     {
+        delete newValues[PhoneCall.START_TIME];
+
         var newStatus = newValues.hasOwnProperty(PhoneCall.STATUS) ? newValues[PhoneCall.STATUS] : null;
 
+        // TODO: If updating caller user id, check that it's not the same as expert's user id
+
+        // Ensure we don't update to an invalid step (based on possible next steps)
         if (!Utils.isNullOrEmpty(newStatus))
         {
             if (Utils.getObjectType(criteria) == 'Number')
@@ -92,7 +117,6 @@ class PhoneCallDelegate extends BaseDaoDelegate
 
             if (allowedPreviousStatuses.length > 0)
                 criteria[PhoneCall.STATUS] = _.map(allowedPreviousStatuses, function (status:string) {return parseInt(status); });
-            ;
         }
 
         return super.update(criteria, newValues, transaction);
@@ -111,6 +135,8 @@ class PhoneCallDelegate extends BaseDaoDelegate
                 return self.userPhoneDelegate.get(result.getExpertPhoneId());
             case IncludeFlag.INCLUDE_USER_PHONE:
                 return self.userPhoneDelegate.get(result.getCallerPhoneId());
+            case IncludeFlag.INCLUDE_TRANSACTION_LINE:
+                return self.transactionLineDelegate.getTransactionLinesForItemId(result.getId());
         }
         return super.getIncludeHandler(include, result);
     }
@@ -142,10 +168,8 @@ class PhoneCallDelegate extends BaseDaoDelegate
     }
 
     /* Queue the call for triggering */
-    queueCallForTriggering(call:number);
-
-    queueCallForTriggering(call:PhoneCall);
-
+    queueCallForTriggering(call:number):q.Promise<any>;
+    queueCallForTriggering(call:PhoneCall):q.Promise<any>;
     queueCallForTriggering(call:any):q.Promise<any>
     {
         var self = this;
@@ -206,9 +230,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
 
     /* Cancel call */
     cancelCall(call:number, cancelledByUser:number):q.Promise<any>;
-
     cancelCall(call:PhoneCall, cancelledByUser:number):q.Promise<any>;
-
     cancelCall(call:any, cancelledByUser:number):q.Promise<any>
     {
         var self = this;

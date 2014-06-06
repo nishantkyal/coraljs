@@ -1,4 +1,3 @@
-///<reference path='../_references.d.ts'/>
 import moment                                                   = require('moment');
 import _                                                        = require('underscore');
 import IntegrationMember                                        = require('../models/IntegrationMember');
@@ -6,11 +5,12 @@ import User                                                     = require('../mo
 import ExpertSchedule                                           = require('../models/ExpertSchedule');
 import Salutation                                               = require('../enums/Salutation');
 import MoneyUnit                                                = require('../enums/MoneyUnit');
+import TimeZone                                                 = require('../enums/TimeZone');
 import Utils                                                    = require('../common/Utils');
 
 /**
  * Lean and compact version of expert data for caching
-*/
+ */
 class WidgetExpert
 {
     private expert_id:number;                                              // Same as expert_id or integration_member_id
@@ -18,10 +18,10 @@ class WidgetExpert
     private title:Salutation;
     private first_name:string;
     private last_name:string;
-    private location:string;
-    private tz:string;
-    private price:number = 1; // TODO: Remove default value for price and unit
-    private price_unit:MoneyUnit = MoneyUnit.DOLLAR;
+    private timezone:TimeZone;
+    private timezone_offset:number;
+    private price:number;
+    private price_unit:MoneyUnit;
     private user_rating:number;
     private editorial_rating:number;
     private summary:string;
@@ -33,6 +33,8 @@ class WidgetExpert
     constructor(expert:Object);
     constructor(expert:any)
     {
+        var self = this;
+
         if (Utils.getObjectType(expert) == 'IntegrationMember')
         {
             var member:IntegrationMember = expert;
@@ -43,10 +45,10 @@ class WidgetExpert
             this.title = user.getTitle();
             this.first_name = user.getFirstName();
             this.last_name = user.getLastName();
-            this.location = user.getLocation();
-            this.tz = user.getTimezone();
+            this.timezone = user.getTimezone();
 
-            var nextAvailableSchedule:ExpertSchedule = _.find(member.getSchedule(), function(schedule:ExpertSchedule):boolean {
+            var nextAvailableSchedule:ExpertSchedule = _.find(member.getSchedule(), function (schedule:ExpertSchedule):boolean
+            {
                 var scheduleEndTime = schedule.getStartTime() + schedule.getDuration();
                 return scheduleEndTime > moment().add({minutes: 15}).valueOf();
             });
@@ -63,9 +65,9 @@ class WidgetExpert
             this.user_id = expert.user_id;
             this.title = expert.title;
             this.first_name = expert.first_name;
-            this.last_name= expert.last_name;
-            this.location = expert.location;
-            this.tz = expert.tz;
+            this.last_name = expert.last_name;
+            this.timezone = expert.timezone;
+            this.timezone = expert.timezone;
             this.next_slot_start_time = expert.next_slot_start_time;
             this.next_slot_duration = expert.next_slot_duration;
         }
@@ -76,8 +78,8 @@ class WidgetExpert
     getTitle():Salutation                                           { return this.title; }
     getFirstName():string                                           { return this.first_name; }
     getLastName():string                                            { return this.last_name; }
-    getLocation():string                                            { return this.location; }
-    getTz():string                                                  { return this.tz; }
+    getTimezone():TimeZone                                          { return this.timezone; }
+    getTimezoneOffset():number                                      { return this.timezone_offset; }
     getPrice():number                                               { return this.price; }
     getPriceUnit():MoneyUnit                                        { return this.price_unit; }
     getUserRating():number                                          { return this.user_rating; }
@@ -87,6 +89,7 @@ class WidgetExpert
     getNextSlotStartTime():number                                   { return this.next_slot_start_time; }
     getNextSlotDuration():number                                    { return this.next_slot_duration; }
 
-
+    /* Setters */
+    setTimezoneOffset(val:number)                                   { this.timezone_offset = val; }
 }
 export = WidgetExpert

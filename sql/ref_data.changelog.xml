@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <!-- TimezoneDB - zone -->
+    <changeSet author="Nishant" id="1401875743290-1" runAlways="true" failOnError="false">
+        <sql>TRUNCATE TABLE `zone`</sql>
+    </changeSet>
+    <changeSet author="Nishant" id="1401875743290-2" runAlways="true" failOnError="false">
+        <loadData encoding="UTF-8"
+                  file="sql/zone.csv"
+                  separator=","
+                  tableName="zone">
+            <column name="zone_id"/>
+            <column name="country_code"/>
+            <column name="zone_name"/>
+        </loadData>
+    </changeSet>
+
+    <!-- TimezoneDB - timezone -->
+    <changeSet author="Nishant" id="1401875743290-3" runAlways="true" failOnError="false">
+        <sql>TRUNCATE TABLE `timezone`</sql>
+    </changeSet>
+    <changeSet author="Nishant" id="1401875743290-4" failOnError="false">
+        <loadData encoding="UTF-8"
+                  file="sql/timezone.csv"
+                  separator=","
+                  tableName="timezone">
+            <column name="zone_id"/>
+            <column name="abbreviation"/>
+            <column name="time_start"/>
+            <column name="gmt_offset"/>
+            <column name="dst"/>
+        </loadData>
+    </changeSet>
+
+    <!-- TimezoneDB - country -->
+    <changeSet author="Nishant" id="1401875743290-5" runAlways="true" failOnError="false">
+        <sql>TRUNCATE TABLE `country`</sql>
+    </changeSet>
+    <changeSet author="Nishant" id="1401875743290-6" failOnError="false">
+        <loadData encoding="UTF-8"
+                  file="sql/country.csv"
+                  separator=","
+                  tableName="country">
+            <column name="country_id"/>
+            <column name="country_name"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet author="Nishant" id="1401875743290-7" runAlways="true">
+        <sql
+                dbms="mysql"
+                endDelimiter="\nGO"
+                splitStatements="true"
+                stripComments="true">DELETE FROM `zone`;
+            LOAD DATA LOCAL INFILE 'zone.csv' INTO TABLE `zone` FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n';
+
+            DELETE FROM `timezone`;
+            LOAD DATA LOCAL INFILE 'timezone.csv' INTO TABLE `timezone` FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n';
+
+            DELETE FROM `country`;
+            LOAD DATA LOCAL INFILE 'country.csv' INTO TABLE `country` FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n';</sql>
+    </changeSet>
+
+</databaseChangeLog>

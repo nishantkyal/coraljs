@@ -14,7 +14,9 @@ import Utils                                                        = require('.
 class Formatter
 {
     static formatMoney(val:number, moneyUnit:MoneyUnit):string;
+
     static formatMoney(val:number[], moneyUnit:MoneyUnit):string;
+
     static formatMoney(val:any, moneyUnit:MoneyUnit):string
     {
         switch (moneyUnit)
@@ -63,17 +65,24 @@ class Formatter
     }
 
     static formatDate(m:Date):string;
+
     static formatDate(m:string):string;
+
     static formatDate(m:number):string;
+
     static formatDate(m:any, format:string = 'DD/MM/YYYY hh:mm a ZZ'):string
     {
+        var isNegative = false;
         if (Utils.isNullOrEmpty(m))
             return m;
 
+        var isNegative = Utils.getObjectType(m) == 'Number' && m < 0;
+        m = Math.abs(m);
+
         if (Utils.getObjectType(m) == 'String')
-            if(m.search(/^[0-9]+$/) != -1)
+            if (m.search(/^[0-9]+$/) != -1)
                 m = parseInt(m);
-        return moment(m).format(format).toString();
+        return (isNegative ? '-' : '') + moment(m).format(format).toString();
     }
 
     static formatUserStatus(status:UserStatus):string
@@ -96,7 +105,7 @@ class Formatter
     static formatEmail(email:string, firstName?:string, lastName?:string, title?:Salutation):string
     {
         if (!Utils.isNullOrEmpty(firstName))
-            return Formatter.formatName(firstName, lastName, title) + '<' + email+ '>';
+            return Formatter.formatName(firstName, lastName, title) + '<' + email + '>';
         return email;
     }
 
