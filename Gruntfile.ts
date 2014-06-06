@@ -17,65 +17,65 @@ function init(grunt)
     grunt.loadNpmTasks('grunt-git');
 
     grunt.initConfig({
-        pkg: grunt.file.readJSON('package.json'),
-        concat: {
-            css: {
-                src: [
+        "pkg": grunt.file.readJSON('package.json'),
+        "concat": {
+            "css": {
+                "src": [
                     'public/css/!(combined|main).css*'
                 ],
-                dest: 'public/css/combined.css'
+                "dest": 'public/css/combined.css'
             },
-            js: {
-                src: ['public/js/lib/jquery.js', 'public/js/lib/jquery.validate.js', 'public/js/lib/!(combined).js', 'public/js/lib/!(combined).js'],
-                dest: 'public/js/lib/combined.js'
+            "js": {
+                "src": ['public/js/lib/jquery.js', 'public/js/lib/jquery.validate.js', 'public/js/lib/!(combined).js', 'public/js/lib/!(combined).js'],
+                "dest": 'public/js/lib/combined.js'
             }
         },
-        uglify: {
-            js: {
-                files: {
+        "uglify": {
+            "js": {
+                "files": {
                     'public/js/lib/combined.min.js': ['public/js/lib/combined.js']
                 }
             }
         },
-        cssmin: {
-            css: {
-                src: 'public/css/combined.css',
-                dest: 'public/css/combined.min.css'
+        "cssmin": {
+            "css": {
+                "src": 'public/css/combined.css',
+                "dest": 'public/css/combined.min.css'
             }
         },
         "typescript": {
-            coral: {
-                src: ['app.ts'],
-                options: {
-                    module: 'commonjs', //or commonjs
-                    target: 'es5', //or es3
-                    basePath: '.',
-                    sourceMap: false,
-                    declaration: false
+            "coral": {
+                "src": ['app.ts'],
+                "options": {
+                    "module": 'commonjs', //or commonjs
+                    "target": 'es5', //or es3
+                    "basePath": '.',
+                    "sourceMap": false,
+                    "declaration": false
                 }
             }
         },
-        clean: {
-            typescript: ["app.js", "*/**/*.js", '!Gruntfile.js', '!public/**/*.js', '!node_modules/**/*.js']
+        "clean": {
+            typescript: ["app.js", "*/**/*.js", "!Gruntfile.js", "!public/**/*.js", "!node_modules/**/*.js"]
         },
-        bumpup: {
-            'files': ['package.json', 'bower.json']
+        "bumpup": {
+            "files": ["package.json", "bower.json"]
         },
-        prompt: {
-            bumpup: {
-                options: {
-                    questions: [
+        "prompt": {
+            "bumpup": {
+                "options": {
+                    "questions": [
                         {
-                            config: 'bumpup.type',
-                            type: 'list',
-                            message: 'How do you want to bump up the version number for this release?',
-                            default: 'patch',
-                            choices: [
-                                { name: 'patch', checked: true },
-                                { name: 'major'},
-                                { name: 'minor' },
-                                { name: 'prerelease' },
-                                { name: 'build' },
+                            "config": "bumpup.type",
+                            "type": "list",
+                            "message": "How do you want to bump up the version number for this release?",
+                            "default": "patch",
+                            "choices": [
+                                { "name": "patch", "checked": true },
+                                { "name": "major"},
+                                { "name": "minor" },
+                                { "name": "prerelease" },
+                                { "name": "build" },
                             ]
                         }
                     ]
@@ -91,39 +91,39 @@ function init(grunt)
             "bumpup": {
                 "message": "Released and bumped up project version",
                 "files": {
-                    'src': ['package.json', 'bower.json']
+                    "src": ["package.json", "bower.json"]
                 }
             }
         },
         "gitpush": {
             "bumpup": {}
         },
-        'create-alter-script': {
-            target: {
+        "create-alter-script": {
+            "target": {
 
             }
         },
-        'update-db': {
-            originalDb: {
-                db: Config.get(Config.DATABASE_NAME)
+        "update-db": {
+            "originalDb": {
+                "db": Config.get(Config.DATABASE_NAME)
             },
-            refDb: {
-                db: Config.get(Config.REF_DATABASE_NAME)
+            "refDb": {
+                "db": Config.get(Config.REF_DATABASE_NAME)
             }
         },
-        'sync-changeLog': {
-            target: {
+        "sync-changeLog": {
+            "target": {
 
             }
         }
     });
 
-    grunt.registerMultiTask('prompt_bumpup', function ()
+    grunt.registerMultiTask("prompt_bumpup", function ()
     {
-        grunt.task.run('bumpup:' + grunt.config('bumpup.type'));
+        grunt.task.run("bumpup:" + grunt.config("bumpup.type"));
     });
 
-    grunt.registerMultiTask('create-alter-script', function ()
+    grunt.registerMultiTask("create-alter-script", function ()
     {
         var dbUsername = Config.get(Config.DATABASE_USER);
         var dbPassword = Config.get(Config.DATABASE_PASS);
