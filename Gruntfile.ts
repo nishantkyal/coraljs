@@ -111,14 +111,6 @@ function init(grunt)
                 db: Config.get(Config.REF_DATABASE_NAME)
             }
         },
-        /*'update-master-data': {
-            originalDb: {
-                db: Config.get(Config.DATABASE_NAME)
-            },
-            refDb: {
-                db: Config.get(Config.REF_DATABASE_NAME)
-            }
-        },*/
         'sync-changeLog': {
             target: {
 
