@@ -9,11 +9,6 @@ class CronRule
 
     private _pattern:string;
 
-    constructor(pattern:string)
-    {
-
-    }
-
     getSecond():string                             { return this.second; }
     getMinute():string                             { return this.minute; }
     getHour():string                               { return this.hour; }
