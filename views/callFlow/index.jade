@@ -29,7 +29,7 @@ include ../header
                             p.floatright
                                 if expert.schedule[0].price_per_min
                                     strong= formatMoney(expert.schedule[0].price_per_min, expert.schedule[0].price_unit)
-                                    | /min.
+                                    | /#{expert.schedule[0].time_chunk_size} min.
                                 else
                                     strong Free
                 .schedule-options
@@ -138,7 +138,7 @@ include ../header
                                         | #{userProfile.short_desc}
                             if userSkill
                                 .hidden-xs.meta.meta-keywords
-                                    h5 Skills/Keywords
+                                    h5 Skills/Keyword
                                     ul
                                         for skill in userSkill
                                             li= skill.skill_name
@@ -147,7 +147,12 @@ include ../header
                                 p
                                     if expert.schedule[0].price_per_min
                                         strong= formatMoney(expert.schedule[0].price_per_min, expert.schedule[0].price_unit)
-                                        | /min.
+                                        | /
+                                        if expert.schedule[0].time_chunk_size > 1
+                                            span= expert.schedule[0].time_chunk_size
+                                                | &nbsp;mins.
+                                        else
+                                            | min.
                                     else
                                         strong Free
                     .col-md-6

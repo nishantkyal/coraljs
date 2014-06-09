@@ -1,8 +1,8 @@
 ///<reference path='./_references.d.ts'/>
 import _                                            = require('underscore');
 import express                                      = require('express');
-var connect                                         = require('connect');
-var RedisStore                                      = require('connect-redis')(connect);
+var connect = require('connect');
+var RedisStore = require('connect-redis')(connect);
 import connect_flash                                = require("connect-flash");
 import connect_ensure_login                         = require('connect-ensure-login');
 import http                                         = require('http');
@@ -36,7 +36,7 @@ import CallFlowUrls                                 = require('./routes/callFlow
 import CallSchedulingUrls                           = require('./routes/callScheduling/Urls');
 import DashboardUrls                                = require('./routes/dashboard/Urls');
 import MemberRegistrationUrls                       = require('./routes/expertRegistration/Urls');
-var pjson                                           = require('./package.json');
+var pjson = require('./package.json');
 
 log4js.configure('/var/searchntalk/config/log4js.json');
 Config.set(Config.VERSION, pjson.version);
@@ -51,9 +51,9 @@ var helpers =
     formatName: Formatter.formatName,
     formatSchedule: Formatter.formatSchedule,
     formatDate: Formatter.formatDate,
-    formatUserStatus:Formatter.formatUserStatus,
-    formatCallStatus:Formatter.formatCallStatus,
-    formatPhone:Formatter.formatPhone,
+    formatUserStatus: Formatter.formatUserStatus,
+    formatCallStatus: Formatter.formatCallStatus,
+    formatPhone: Formatter.formatPhone,
     moment: moment,
 
     ApiUrlDelegate: ApiUrlDelegate,
@@ -63,8 +63,8 @@ var helpers =
     MemberRegistrationUrls: MemberRegistrationUrls,
 
     Config: Config,
-    escapeObject:Utils.escapeObject,
-    unEscapeObject:Utils.unEscapeObject,
+    escapeObject: Utils.escapeObject,
+    unEscapeObject: Utils.unEscapeObject,
 
     IndustryCodes: Utils.enumToNormalText(IndustryCode),
     Salutation: Utils.enumToNormalText(Salutation),
@@ -137,17 +137,20 @@ api(app);
 routes(app);
 
 /* Error Pages */
-app.use(function(req, res, next){
+app.use(function (req, res, next)
+{
     res.status(404);
 
     // respond with html page
-    if (req.accepts('html')) {
+    if (req.accepts('html'))
+    {
         res.render('404', { url: req.url });
         return;
     }
 
     // respond with json
-    if (req.accepts('json')) {
+    if (req.accepts('json'))
+    {
         res.send({ error: 'Not found' });
         return;
     }
@@ -156,7 +159,8 @@ app.use(function(req, res, next){
     res.type('txt').send('Not found');
 });
 
-app.use(function(err, req, res, next){
+app.use(function (err, req, res, next)
+{
     // we may use properties of the error object
     // here and next(err) appropriately, or if
     // we possibly recovered from the error, simply next().
@@ -165,7 +169,7 @@ app.use(function(err, req, res, next){
 });
 
 
-app.configure('production', function()
+app.configure('production', function ()
 {
     app.enable('view cache');
 });

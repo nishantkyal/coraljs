@@ -1,25 +1,26 @@
 ///<reference path='../_references.d.ts'/>
-import q                                = require('q');
-import cron                             = require('cron');
-import _                                = require('underscore');
-import BaseModel                        = require('./BaseModel');
-import MoneyUnit                        = require('../enums/MoneyUnit');
-import Utils                            = require('../common/Utils')
-import ExpertSchedule                   = require('../models/ExpertSchedule');
-import ExpertScheduleException          = require('../models/ExpertScheduleException');
+import q                                                        = require('q');
+import cron                                                     = require('cron');
+import _                                                        = require('underscore');
+import BaseModel                                                = require('./BaseModel');
+import MoneyUnit                                                = require('../enums/MoneyUnit');
+import Utils                                                    = require('../common/Utils')
+import ExpertSchedule                                           = require('../models/ExpertSchedule');
+import ExpertScheduleException                                  = require('../models/ExpertScheduleException');
 
 class ExpertScheduleRule extends BaseModel
 {
     static TABLE_NAME = 'expert_schedule_rule';
 
     static INTEGRATION_MEMBER_ID:string = 'integration_member_id';
-    static TITLE:string = 'title';
-    static REPEAT_START:string = 'repeat_start';
-    static CRON_RULE:string = 'cron_rule';
-    static REPEAT_END:string = 'repeat_end';
-    static DURATION:string = 'duration';
-    static PRICE_PER_MIN:string = 'price_per_min';
-    static PRICE_UNIT:string = 'price_unit';
+    static TITLE:string                 = 'title';
+    static REPEAT_START:string          = 'repeat_start';
+    static CRON_RULE:string             = 'cron_rule';
+    static REPEAT_END:string            = 'repeat_end';
+    static DURATION:string              = 'duration';
+    static PRICE_PER_MIN:string         = 'price_per_min';
+    static PRICE_UNIT:string            = 'price_unit';
+    static TIME_CHUNK_SIZE:string       = 'time_chunk_size';
 
     private integration_member_id:number;
     private title:string;
@@ -29,6 +30,7 @@ class ExpertScheduleRule extends BaseModel
     private duration:number;
     private price_per_min:number;
     private price_unit:MoneyUnit;
+    private time_chunk_size:number;
 
     /* Getters */
     getIntegrationMemberId():number { return this.integration_member_id; }
@@ -39,6 +41,7 @@ class ExpertScheduleRule extends BaseModel
     getDuration():number { return this.duration; }
     getPricePerMin():number { return this.price_per_min; }
     getPriceUnit():MoneyUnit { return this.price_unit; }
+    getTimeChunkSize():number                               { return this.time_chunk_size; }
 
     /* Setters */
     setIntegrationMemberId(val:number):void { this.integration_member_id = val; }
@@ -49,6 +52,7 @@ class ExpertScheduleRule extends BaseModel
     setDuration(val:number):void { this.duration = val; }
     setPricePerMin(val:number):void { this.price_per_min = val; }
     setPriceUnit(val:MoneyUnit):void { this.price_unit = val; }
+    setTimeChunkSize(val:number):void                       { this.time_chunk_size = val; }
 
     isValid():boolean
     {

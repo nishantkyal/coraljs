@@ -13,7 +13,7 @@ title ST-#{formatName(user.first_name, user.last_name, user.title)} | Payment fo
                 .shadow
                 ul.nav.nav-pills.nav-justified.nav-stacked
                     li.completed
-                        a(href='')
+                        a(href=CallFlowUrls.callExpert(expert.id))
                             span.nav-label
                                 i.icon-schedule
                                 span.hidden-xs Schedule

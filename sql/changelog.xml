@@ -364,4 +364,9 @@
     <changeSet author="Nishant (generated)" id="1402049049683-5">
         <modifyDataType columnName="timezone" newDataType="int(10)" tableName="user"/>
     </changeSet>
+    <changeSet author="Nishant (generated)" id="1402314791074-1">
+        <addColumn tableName="expert_schedule_rule">
+            <column defaultValue="1" name="time_chunk_size" type="INT(10)"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>
