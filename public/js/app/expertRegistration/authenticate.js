@@ -1,3 +1,17 @@
+$('select').selectpicker();
+
+$(function(){
+    var offset = new Date().getTimezoneOffset();
+    $.ajax({
+        url : '/rest/timezone?offset=' + offset,
+        type: 'get',
+        success: function(timezone)
+        {
+            $('#timezone').selectpicker('val', timezone.zone_id);
+        }
+    })
+});
+
 $("#login-form").validate({
     onkeyup: false,
     rules: {

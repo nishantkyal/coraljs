@@ -41,9 +41,9 @@ include ../header
                                     input.form-control#confirm_password(type='password', name='confirm_password', data-toggle="tooltip", data-placement="bottom", autocomplete='off')
                                 .form-group
                                     label(for='timezone') Timezone
-                                    select#timezone
-                                        for zone in TimeZone
-                                            option= zone
+                                    select.selectpicker#timezone
+                                        each key,option in TimeZone
+                                            option(value="#{option}") #{key}
                                 .form-group
                                     .controls
                                         input(type='hidden', name='invitation_code', value=code)

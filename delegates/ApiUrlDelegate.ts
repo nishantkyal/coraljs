@@ -86,6 +86,8 @@ class ApiUrlDelegate
     static userSkill() { return this.get('/rest/user/skill'); }
     static userSkillById(skillId?:number) { return this.get('/rest/user/skill/:skillId(\\d+)', { skillId:skillId }); }
 
+    static timeZoneByOffset() { return this.get('/rest/timezone'); }
+
     /* URL patterns for coupons */
     static coupon():string { return this.get('/rest/coupon'); }
     static couponById(couponId?:number):string { return this.get('/rest/coupon/:couponId(\\d+)', {couponId: couponId}); }

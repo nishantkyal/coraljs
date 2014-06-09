@@ -80,6 +80,7 @@ class ApiConstants
     // Query Constants
     static MODE:string                                  = 'mode';
     static PUBLIC_MODE:string                           = 'public';
+    static OFFSET:string                                = 'offset';
 
 }
 export = ApiConstants

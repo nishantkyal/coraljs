@@ -36,6 +36,8 @@ block content
                         if userProfile.status == 1
                             div
                                 a.btn.btn-link#SendProfile() Send Profile for Approval
+                        div
+                            a.btn.btn-primary.btn-xs(href= DashboardUrls.scheduleDetails(member.id)) Change My Schedule
                         if adminOrOwner && userProfile.status == 2
                                 div
                                     a.btn.btn-link#publishProfile() Publish Profile

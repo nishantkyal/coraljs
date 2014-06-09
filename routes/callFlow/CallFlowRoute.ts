@@ -110,6 +110,7 @@ class CallFlowRoute
             },
             function handleExpertSearchFailed(error)
             {
+                self.logger.error('Error in getting expert details - ' +  error);
                 throw('No such expert exists!');
             })
             .then(
