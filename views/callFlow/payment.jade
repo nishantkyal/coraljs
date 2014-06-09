@@ -115,19 +115,29 @@ title ST-#{formatName(user.first_name, user.last_name, user.title)} | Payment fo
             .modal-body
                 form#authentication.form.col-md-12.center-block
                     .form-group
-                        input.form-control.input-lg(type='text', placeholder='Email', name='username')
+                        input.form-control.input-sm(type='text', placeholder='Email', name='username')
+                    .form-group.register
+                        select.form-control.input-sm
+                            - for title,id in Salutation
+                                option(value=id)= title
+                    .form-group.register
+                        input.form-control.input-sm(type='text', placeholder='First Name', name='first_name')
+                    .form-group.register
+                        input.form-control.input-sm(type='text', placeholder='Last Name', name='last_name')
                     .form-group
-                        input.form-control.input-lg(type='password', placeholder='Password', name='password')
+                        input.form-control.input-sm(type='password', placeholder='Password', name='password')
+                    .form-group.register
+                        input.form-control.input-sm(type='password', placeholder='Re-enter Password')
+                    .form-group
+                        input.btn.btn-primary.btn-sm.btn-block#login-button.login(type='submit', value='LOGIN')
+                        input.btn.btn-primary.btn-sm.btn-block#register-button.register(type='submit', value='CREATE ACCOUNT')
                     .form-group
                         a.btn.btn-facebook.btn-block(href=CallFlowUrls.facebookLogin()) Login with Facebook
                     .form-group
                         a.btn.btn-linkedin.btn-block(href=CallFlowUrls.linkedInLogin()) Login with LinkedIn
-                    .form-group
-                        input.btn.btn-primary.btn-lg.btn-block#login-button(type='submit', value='login')
                     span.pull-right
-                        a(href='#') Register
-                    span
-                        a(href='#') Continue without logging in?
+                        a#login-link.register(href='#') Login
+                        a#register-link.login(href='#') Register
             .modal-footer
         // /.modal-content
 script(src='/js/app/callFlow/payment.js')
