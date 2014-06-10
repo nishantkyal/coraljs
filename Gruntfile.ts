@@ -100,7 +100,11 @@ function init(grunt)
             }
         },
         "clean": {
-            typescript: ["app.js", "*/**/*.js", "!Gruntfile.js", "!public/**/*.js", "!node_modules/**/*.js"]
+            "options": {
+                "force": true
+            },
+            "typescript": ["app.js", "*/**/*.js", "!Gruntfile.js", "!public/**/*.js", "!node_modules/**/*.js"],
+            "release": "/var/searchntalk/releases/current"
         },
         "bumpup": {
             "files": ["package.json", "bower.json"]
@@ -241,7 +245,7 @@ function init(grunt)
     grunt.registerTask('generate-change-set', ['create-alter-script', 'update-db:refDb:db', 'sync-changeLog']);
 
     grunt.registerTask('default', ['concat:js', 'concat:css', 'cssmin:css']);
-    grunt.registerTask('release', ["clean:typescript", "typescript:coral", "prompt:bumpup", "prompt_bumpup", "rename:release", "copy:release", "symlink:release", "db_dump:release", "update-db:originalDb", "gitcommit:bumpup", "gitpush:bumpup"]);
+    grunt.registerTask('release', ["clean:typescript", "typescript:coral", "prompt:bumpup", "prompt_bumpup", "rename:release", "copy:release", "clean:release", "symlink:release", "db_dump:release", "update-db:originalDb", "gitcommit:bumpup", "gitpush:bumpup"]);
 
 }
 
