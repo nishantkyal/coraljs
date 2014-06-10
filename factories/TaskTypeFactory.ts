@@ -4,6 +4,7 @@ import TriggerPhoneCallTask                                     = require('../mo
 import PrintTimestampTask                                       = require('../models/tasks/PrintTimestampTask');
 import CallReminderNotificationScheduledTask                    = require('../models/tasks/CallReminderNotificationScheduledTask');
 import ScheduleCallsScheduledTask                               = require('../models/tasks/ScheduleCallsScheduledTask');
+import TimezoneRefreshTask                                      = require('../models/tasks/TimezoneRefreshTask');
 import SMSDelegate                                              = require('../delegates/SMSDelegate');
 
 class TaskTypeFactory
@@ -25,6 +26,9 @@ class TaskTypeFactory
 
             case ScheduledTaskType.CALL_SCHEDULE:
                 return new ScheduleCallsScheduledTask();
+
+            case ScheduledTaskType.TIMEZONE_REFRESH:
+                return new TimezoneRefreshTask()
 
             case ScheduledTaskType.TEST_TIMESTAMP_PRINT:
                 return new PrintTimestampTask(result[PrintTimestampTask.ts]);

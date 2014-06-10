@@ -1,11 +1,11 @@
 import q                                                = require('q');
-import TimeZone                                         = require('../enums/TimeZone');
+import _                                                = require('underscore');
 import MysqlDelegate                                    = require('../delegates/MysqlDelegate');
 
 class TimezoneDelegate
 {
-    static CurrentOffsets
-    getTimezone(timezoneId:TimeZone):q.Promise<any>
+    static currentOffsets;
+    getTimezone(timezoneId):q.Promise<any>
     {
         var query:string = 'SELECT z.country_code, z.zone_name, tz.abbreviation, tz.gmt_offset, tz.dst ' +
             'FROM `timezone` tz JOIN `zone` z ' +
@@ -24,7 +24,7 @@ class TimezoneDelegate
 
     getCurrentOffsets():q.Promise<any>
     {
-        var query:string = 'SELECT z.zone_id, max(tz.time_start),z.country_code, z.zone_name, tz.abbreviation, tz.gmt_offset, tz.dst ' +
+        var query:string = 'SELECT z.zone_id, max(tz.time_start), z.zone_name, tz.gmt_offset, tz.dst ' +
             'FROM `timezone` tz JOIN `zone` z ' +
             'ON tz.zone_id=z.zone_id ' +
             'WHERE tz.time_start < UNIX_TIMESTAMP(UTC_TIMESTAMP()) ' +
@@ -34,20 +34,7 @@ class TimezoneDelegate
             .then(
             function zoneFetched(result:Object[])
             {
-                return result ;
-            });
-    }
-
-    getClosestTimeZone(offset:number):q.Promise<any>
-    {
-        var query:string = 'SELECT z.zone_id, z.zone_name, tz.gmt_offset  FROM `timezone` tz JOIN `zone` z ' +
-            'ON tz.zone_id=z.zone_id WHERE z.zone_id  ORDER BY abs(? - tz.gmt_offset) LIMIT 1;';
-
-        return MysqlDelegate.executeQuery(query, [offset])
-            .then(
-            function zoneFetched(result:Object[])
-            {
-                return result && result.length == 1 ? result[0] : null;
+                TimezoneDelegate.currentOffsets = _.sortBy(result, function(zone:any){ return zone.gmt_offset});
             });
     }
 }

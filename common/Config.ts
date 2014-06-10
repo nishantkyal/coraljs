@@ -56,6 +56,8 @@ class Config
     static MAXIMUM_REATTEMPTS:string                    = 'maximum.reattempts';
     static MINIMUM_YEAR:string                          = 'minimum.year';
 
+    static TIMEZONE_REFRESH_INTERVAL_SECS:string        = 'timezone.refresh.interval';
+
     static CALLBACK_NUMBER:string                       = 'callback.number';
     static MAXIMUM_CALLBACK_DELAY:string                = 'maximum.callback.delay';
     static DELAY_AFTER_CALLBACK:string                  = 'delay.after.callback';

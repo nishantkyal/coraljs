@@ -9,7 +9,6 @@ import PayoutDetailApi                                  = require('./PayoutDetai
 import PhoneCallApi                                     = require('./PhoneCallApi');
 import ScheduledTaskApi                                 = require('./ScheduledTaskApi')
 import UserPhoneApi                                     = require('./UserPhoneApi');
-import TimeZoneApi                                      = require('./TimeZoneApi');
 import TokenApi                                         = require('./TokenApi');
 import TransactionApi                                   = require('./TransactionApi');
 import TwimlOutApi                                      = require('./TwimlOutApi');
@@ -35,7 +34,6 @@ function init(app, secureApp?)
     new PhoneCallApi(app, secureApp);
     new ScheduledTaskApi(app,  secureApp);
     new UserPhoneApi(app, secureApp);
-    new TimeZoneApi(app,  secureApp);
     new TokenApi(app, secureApp);
     new TransactionApi(app, secureApp);
     new TwimlOutApi(app, secureApp);

@@ -12,6 +12,7 @@ import passport                                     = require('passport');
 import log4js                                       = require('log4js');
 import moment                                       = require('moment');
 import ScheduleCallsScheduledTask                   = require('./models/tasks/ScheduleCallsScheduledTask');
+import TimezoneRefreshTask                          = require('./models/tasks/TimezoneRefreshTask');
 import Config                                       = require('./common/Config');
 import Formatter                                    = require('./common/Formatter');
 import Utils                                        = require('./common/Utils');
@@ -19,6 +20,7 @@ import ApiUrlDelegate                               = require('./delegates/ApiUr
 import MysqlDelegate                                = require('./delegates/MysqlDelegate');
 import IntegrationDelegate                          = require('./delegates/IntegrationDelegate');
 import ScheduledTaskDelegate                        = require('./delegates/ScheduledTaskDelegate');
+import TimezoneDelegate                             = require('./delegates/TimezoneDelegate');
 import RequestHandler                               = require('./middleware/RequestHandler');
 import api                                          = require('./api/index');
 import routes                                       = require('./routes/index');
@@ -31,7 +33,6 @@ import CouponType                                   = require('./enums/CouponTyp
 import IntegrationMemberRole                        = require('./enums/IntegrationMemberRole');
 import TransactionType                              = require('./enums/TransactionType');
 import ScheduledTaskType                            = require('./enums/ScheduledTaskType');
-import TimeZone                                     = require('./enums/TimeZone');
 import CallFlowUrls                                 = require('./routes/callFlow/Urls');
 import CallSchedulingUrls                           = require('./routes/callScheduling/Urls');
 import DashboardUrls                                = require('./routes/dashboard/Urls');
@@ -54,6 +55,7 @@ var helpers =
     formatUserStatus:Formatter.formatUserStatus,
     formatCallStatus:Formatter.formatCallStatus,
     formatPhone:Formatter.formatPhone,
+    formatTimezone:Formatter.formatTimezone,
     moment: moment,
 
     ApiUrlDelegate: ApiUrlDelegate,
@@ -74,7 +76,6 @@ var helpers =
     IntegrationMemberRole: Utils.enumToNormalText(IntegrationMemberRole),
     CountryCode: Utils.enumToNormalText(CountryCode),
     CountryName: Utils.enumToNormalText(CountryName),
-    TimeZone: Utils.enumToNormalText(TimeZone),
 
     minYear: Config.get(Config.MINIMUM_YEAR),
     currentYear: moment().format('YYYY')
@@ -97,7 +98,11 @@ app.use(
         var excludeRegex = /^\/(rest|css|js|images|img|fonts)/;
 
         if (Utils.isNullOrEmpty(req.path.match(excludeRegex)))
+        {
+
             _.extend(res.locals, helpers);
+            _.extend(res.locals,{Timezone:TimezoneDelegate.currentOffsets} )
+        }
 
         next();
     }
@@ -182,6 +187,7 @@ app.listen(app.get('port'), function ()
         {
             if (Utils.isNullOrEmpty(scheduledTaskDelegate.find(ScheduledTaskType.CALL_SCHEDULE)))
                 scheduledTaskDelegate.scheduleAfter(new ScheduleCallsScheduledTask(), 1);
+            scheduledTaskDelegate.scheduleAfter(new TimezoneRefreshTask(),1);
         });
 
     // Update integration cache

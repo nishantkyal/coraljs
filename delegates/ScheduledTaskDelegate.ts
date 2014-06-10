@@ -107,7 +107,12 @@ class ScheduledTaskDelegate
     private syncToRedis():q.Promise<any>
     {
         var self = this;
-        var tasksSaveArray = _.map(_.values(ScheduledTaskDelegate.tasks), function (timeoutAndTask:TimeoutAndTask)
+
+        var tasks = _.filter(_.values(ScheduledTaskDelegate.tasks), function (timeoutAndTask:TimeoutAndTask){
+            return timeoutAndTask.task.getTaskType() != ScheduledTaskType.TIMEZONE_REFRESH
+        }); // no need to sync TIMEZONE_REFRESH task to redis as we want to run it every time server starts
+
+        var tasksSaveArray = _.map(tasks, function (timeoutAndTask:TimeoutAndTask)
         {
             return timeoutAndTask.task.toJson();
         });

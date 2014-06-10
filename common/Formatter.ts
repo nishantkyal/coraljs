@@ -113,5 +113,17 @@ class Formatter
     {
         return phone.getCompleteNumber();
     }
+
+    static formatTimezone(offset):string
+    {
+        var min = Math.floor(Math.abs(offset)/60)%60;
+        var gmt_string:string;
+
+        gmt_string = 'GMT' + (offset > 0 ? ' + ' : ' - ') ;
+        gmt_string += Math.floor(Math.abs(offset)/3600) + ':';
+        gmt_string +=  min < 10 ? ('0' + min.toString()) : min.toString();
+
+        return gmt_string;
+    }
 }
 export = Formatter
