@@ -113,7 +113,9 @@ title ST-#{formatName(user.first_name, user.last_name, user.title)} | Payment fo
                     i.icon-scheduler
                     | Login to Search-n-Talk
             .modal-body
-                form#authentication.form.col-md-12.center-block
+                .alert
+                    .alert-danger(style="display: none; padding: 3px;")
+                #authentication.form.col-md-12.center-block
                     .form-group
                         input.form-control.input-sm(type='text', placeholder='Email', name='username')
                     .form-group.register
