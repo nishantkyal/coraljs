@@ -369,4 +369,19 @@
             <column defaultValue="1" name="time_chunk_size" type="INT(10)"/>
         </addColumn>
     </changeSet>
+    <changeSet author="Nishant (generated)" id="1402318808089-1">
+        <addColumn tableName="expert_schedule_rule">
+            <column defaultValue="0" name="min_duration" type="INT(10)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402318808089-2">
+        <addColumn tableName="expert_schedule_rule">
+            <column defaultValue="1" name="time_chunk_size" type="INT(10)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402377914482-1">
+        <addColumn tableName="expert_schedule_rule">
+            <column defaultValue="0" name="min_duration" type="INT(10)"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

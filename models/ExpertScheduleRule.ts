@@ -20,7 +20,7 @@ class ExpertScheduleRule extends BaseModel
     static DURATION:string              = 'duration';
     static PRICE_PER_MIN:string         = 'price_per_min';
     static PRICE_UNIT:string            = 'price_unit';
-    static TIME_CHUNK_SIZE:string       = 'time_chunk_size';
+    static MIN_DURATION:string          = 'min_duration';
 
     private integration_member_id:number;
     private title:string;
@@ -30,29 +30,29 @@ class ExpertScheduleRule extends BaseModel
     private duration:number;
     private price_per_min:number;
     private price_unit:MoneyUnit;
-    private time_chunk_size:number;
+    private min_duration:number;
 
     /* Getters */
-    getIntegrationMemberId():number { return this.integration_member_id; }
-    getTitle():string { return this.title; }
-    getRepeatStart():number { return this.repeat_start; }
-    getCronRule():string { return this.cron_rule; }
-    getRepeatEnd():number { return this.repeat_end; }
-    getDuration():number { return this.duration; }
-    getPricePerMin():number { return this.price_per_min; }
-    getPriceUnit():MoneyUnit { return this.price_unit; }
-    getTimeChunkSize():number                               { return this.time_chunk_size; }
+    getIntegrationMemberId():number                         { return this.integration_member_id; }
+    getTitle():string                                       { return this.title; }
+    getRepeatStart():number                                 { return this.repeat_start; }
+    getCronRule():string                                    { return this.cron_rule; }
+    getRepeatEnd():number                                   { return this.repeat_end; }
+    getDuration():number                                    { return this.duration; }
+    getPricePerMin():number                                 { return this.price_per_min; }
+    getPriceUnit():MoneyUnit                                { return this.price_unit; }
+    getMinDuration():number                                 { return this.min_duration; }
 
     /* Setters */
-    setIntegrationMemberId(val:number):void { this.integration_member_id = val; }
-    setTitle(val:string):void { this.title = val; }
-    setRepeatStart(val:number):void { this.repeat_start = val; }
-    setCronRule(val:string):void { this.cron_rule = val; }
-    setRepeatEnd(val:number):void { this.repeat_end = val; }
-    setDuration(val:number):void { this.duration = val; }
-    setPricePerMin(val:number):void { this.price_per_min = val; }
-    setPriceUnit(val:MoneyUnit):void { this.price_unit = val; }
-    setTimeChunkSize(val:number):void                       { this.time_chunk_size = val; }
+    setIntegrationMemberId(val:number):void                 { this.integration_member_id = val; }
+    setTitle(val:string):void                               { this.title = val; }
+    setRepeatStart(val:number):void                         { this.repeat_start = val; }
+    setCronRule(val:string):void                            { this.cron_rule = val; }
+    setRepeatEnd(val:number):void                           { this.repeat_end = val; }
+    setDuration(val:number):void                            { this.duration = val; }
+    setPricePerMin(val:number):void                         { this.price_per_min = val; }
+    setPriceUnit(val:MoneyUnit):void                        { this.price_unit = val; }
+    setMinDuration(val:number):void                         { this.min_duration= val; }
 
     isValid():boolean
     {

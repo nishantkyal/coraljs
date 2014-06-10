@@ -13,11 +13,7 @@ import Utils                                                        = require('.
 
 class Formatter
 {
-    static formatMoney(val:number, moneyUnit:MoneyUnit):string;
-
-    static formatMoney(val:number[], moneyUnit:MoneyUnit):string;
-
-    static formatMoney(val:any, moneyUnit:MoneyUnit):string
+    static formatMoney(val:number, moneyUnit:MoneyUnit):string
     {
         switch (moneyUnit)
         {
@@ -43,7 +39,7 @@ class Formatter
                     symbol: 'Points'
                 });
         }
-        return val;
+        return val.toString();
     }
 
     static formatRole(role:IntegrationMemberRole):string
@@ -65,11 +61,8 @@ class Formatter
     }
 
     static formatDate(m:Date):string;
-
     static formatDate(m:string):string;
-
     static formatDate(m:number):string;
-
     static formatDate(m:any, format:string = 'DD/MM/YYYY hh:mm a ZZ'):string
     {
         var isNegative = false;

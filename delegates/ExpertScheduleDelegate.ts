@@ -91,7 +91,7 @@ class ExpertScheduleDelegate
                         expertSchedule.setScheduleRuleId(rule.getId());
                         expertSchedule.setPricePerMin(rule.getPricePerMin());
                         expertSchedule.setPriceUnit(rule.getPriceUnit());
-                        expertSchedule.setTimeChunkSize(rule.getTimeChunkSize());
+                        expertSchedule.setMinDuration(rule.getMinDuration());
                         schedules.push(expertSchedule);
                     }
                 } catch (e)

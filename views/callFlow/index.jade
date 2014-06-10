@@ -1,4 +1,5 @@
 - var user = expert.user;
+- var minDuration = expert.schedule[0].min_duration
 title ST-#{formatName(user.first_name, user.last_name, user.title)}
 include ../header
 .modal.fade#scheduler
@@ -18,18 +19,22 @@ include ../header
                                 em (mins):
                         .col-xs-12.col-sm-8.col-md-9.col-lg-9
                             ul.floatleft.nav.nav-pills.duration
-                                li.active
-                                    a.well 15
-                                li
-                                    a.well 30
-                                li
-                                    a.well 45
-                                li
-                                    a.well 60
+                                if minDuration < 15
+                                    li.active
+                                        a.well 15
+                                if minDuration < 30
+                                    li
+                                        a.well 30
+                                if minDuration < 45
+                                    li
+                                        a.well 45
+                                if minDuration < 60
+                                    li
+                                        a.well 60
                             p.floatright
                                 if expert.schedule[0].price_per_min
                                     strong= formatMoney(expert.schedule[0].price_per_min, expert.schedule[0].price_unit)
-                                    | /#{expert.schedule[0].time_chunk_size} min.
+                                    | /min.
                                 else
                                     strong Free
                 .schedule-options
@@ -176,14 +181,18 @@ include ../header
                                             em (mins):
                                     .col-xs-12.col-sm-8.col-md-8.col-lg-8
                                         ul.nav.nav-pills.duration
-                                            li.active
-                                                a.well 15
-                                            li
-                                                a.well 30
-                                            li
-                                                a.well 45
-                                            li
-                                                a.well 60
+                                            if minDuration < 15
+                                                li.active
+                                                    a.well 15
+                                            if minDuration < 30
+                                                li
+                                                    a.well 30
+                                            if minDuration < 45
+                                                li
+                                                    a.well 45
+                                            if minDuration < 60
+                                                li
+                                                    a.well 60
                             .call-inputs
                                 .row.input-row
                                     h1

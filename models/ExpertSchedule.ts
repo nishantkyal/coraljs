@@ -3,17 +3,12 @@ import MoneyUnit                                            = require('../enums/
 
 class ExpertSchedule extends BaseModel
 {
-    public static START_TIME:string                         = 'start_time';
-    public static DURATION:string                           = 'duration';
-    public static PRICE_PER_MIN:string                      = 'price_per_min';
-    public static PRICE_UNIT:string                         = 'price_unit';
-
     private start_time:number;
     private duration:number;
     private schedule_rule_id:number;
     private price_per_min:number;
     private price_unit:MoneyUnit;
-    private time_chunk_size:number;
+    private min_duration:number;
 
     /* Getters */
     getScheduleRuleId():number                              { return this.schedule_rule_id; }
@@ -21,7 +16,7 @@ class ExpertSchedule extends BaseModel
     getDuration():number                                    { return this.duration; }
     getPricePerMin():number                                 { return this.price_per_min; }
     getPriceUnit():MoneyUnit                                { return this.price_unit; }
-    getTimeChunkSize():number                               { return this.time_chunk_size; }
+    getMinDuration():number                                 { return this.min_duration; }
 
     /* Setters */
     setScheduleRuleId(val:number)                           { this.schedule_rule_id = val; }
@@ -29,7 +24,7 @@ class ExpertSchedule extends BaseModel
     setDuration(val:number)                                 { this.duration = val; }
     setPricePerMin(val:number):void                         { this.price_per_min = val; }
     setPriceUnit(val:MoneyUnit):void                        { this.price_unit = val; }
-    setTimeChunkSize(val:number):void                       { this.time_chunk_size = val; }
+    setMinDuration(val:number):void                         { this.min_duration= val; }
 
     conflicts(schedule:ExpertSchedule):boolean
     {
