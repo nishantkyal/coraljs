@@ -3,6 +3,12 @@ import MoneyUnit                                            = require('../enums/
 
 class ExpertSchedule extends BaseModel
 {
+    public static START_TIME:string                         = 'start_time';
+    public static DURATION:string                           = 'duration';
+    public static PRICE_PER_MIN:string                      = 'price_per_min';
+    public static PRICE_UNIT:string                         = 'price_unit';
+    public static MIN_DURATION:string                       = 'min_duration';
+
     private start_time:number;
     private duration:number;
     private schedule_rule_id:number;
