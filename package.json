@@ -21,6 +21,7 @@
         "grunt-bumpup": "*",
         "grunt-contrib-clean": "*",
         "grunt-contrib-concat": "*",
+        "grunt-rename": "*",
         "grunt-contrib-copy": "*",
         "grunt-contrib-symlink": "*",
         "grunt-mysql-dump": "*",

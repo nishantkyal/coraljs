@@ -1,11 +1,16 @@
 ///<reference path='./_references.d.ts'/>
 import q                                                    = require('q');
 import childProcess                                         = require('child_process');
+import moment                                               = require('moment');
 import Config                                               = require('./common/Config');
 
 function init(grunt)
 {
     grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-rename');
+    grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-contrib-symlink');
+    grunt.loadNpmTasks('grunt-mysql-dump');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
@@ -17,7 +22,46 @@ function init(grunt)
     grunt.loadNpmTasks('grunt-git');
 
     grunt.initConfig({
-        "pkg": grunt.file.readJSON('package.json'),
+        "rename": {
+            "release": {
+                "options": {
+                    "ignore": true
+                },
+                "src": '/var/searchntalk/releases/release-' + grunt.file.readJSON('package.json').version,
+                "dest": '/var/searchntalk/releases/release-' + grunt.file.readJSON('package.json').version + "_" + moment().format('DD_MMM_YYYY_hh_mm_ss')
+            }
+        },
+        "copy": {
+            "release": {
+                "files": [
+                    {expand: true, src: ["public/**/*", "app.js", "*/**/*.js", "!Gruntfile.js", "!node_modules/**/*.js"], dest: '/var/searchntalk/releases/release-' + grunt.file.readJSON('package.json').version}
+                ]
+            }
+        },
+        "symlink": {
+            "options": {
+                "overwrite": true,
+                "force": true
+            },
+            "release": {
+                "src": "/var/searchntalk/releases/release-" + grunt.file.readJSON('package.json').version,
+                "dest": "/var/searchntalk/releases/current"
+            }
+        },
+        "db_dump": {
+            "release": {
+                "options": {
+                    "title": Config.get(Config.DATABASE_NAME),
+
+                    "database": Config.get(Config.DATABASE_NAME),
+                    "user": Config.get(Config.DATABASE_USER),
+                    "pass": Config.get(Config.DATABASE_PASS),
+                    "host": Config.get(Config.DATABASE_HOST),
+
+                    "backup_to": "/var/searchntalk/backups/" + moment().format('DD_MMM_YYYY_hh_mm_ss') + ".sql"
+                }
+            }
+        },
         "concat": {
             "css": {
                 "src": [
@@ -197,7 +241,7 @@ function init(grunt)
     grunt.registerTask('generate-change-set', ['create-alter-script', 'update-db:refDb:db', 'sync-changeLog']);
 
     grunt.registerTask('default', ['concat:js', 'concat:css', 'cssmin:css']);
-    grunt.registerTask('release', ['clean:typescript', 'typescript:coral', 'prompt:bumpup', 'prompt_bumpup', "gitcommit:bumpup", "gitpush:bumpup"]);
+    grunt.registerTask('release', ["clean:typescript", "typescript:coral", "prompt:bumpup", "prompt_bumpup", "rename:release", "copy:release", "symlink:release", "gitcommit:bumpup", "gitpush:bumpup", "db_dump:release", "update-db:originalDb"]);
 
 }
 
