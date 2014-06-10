@@ -241,7 +241,7 @@ function init(grunt)
     grunt.registerTask('generate-change-set', ['create-alter-script', 'update-db:refDb:db', 'sync-changeLog']);
 
     grunt.registerTask('default', ['concat:js', 'concat:css', 'cssmin:css']);
-    grunt.registerTask('release', ["clean:typescript", "typescript:coral", "prompt:bumpup", "prompt_bumpup", "rename:release", "copy:release", "symlink:release", "gitcommit:bumpup", "gitpush:bumpup", "db_dump:release", "update-db:originalDb"]);
+    grunt.registerTask('release', ["clean:typescript", "typescript:coral", "prompt:bumpup", "prompt_bumpup", "rename:release", "copy:release", "symlink:release", "db_dump:release", "update-db:originalDb", "gitcommit:bumpup", "gitpush:bumpup"]);
 
 }
 
