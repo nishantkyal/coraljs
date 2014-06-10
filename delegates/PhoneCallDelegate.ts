@@ -75,6 +75,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
     create(object:Object, dbTransaction?:Object):q.Promise<any>
     {
         var superCreate = super.create;
+        var self = this;
 
         // TODO: Check that we're not scheduling a conflicting call
 
@@ -86,7 +87,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
                     if (expert.getUserId() == object[PhoneCall.CALLER_USER_ID])
                         throw("You can't call yourself!");
                     else
-                        superCreate(object, dbTransaction);
+                        return superCreate.call(self, object, dbTransaction);
                 });
 
         return super.create(object, dbTransaction);
