@@ -6,6 +6,7 @@ import BaseDaoDelegate                              = require('../delegates/Base
 import MysqlDelegate                                = require('../delegates/MysqlDelegate');
 import ExpertScheduleDelegate                       = require('../delegates/ExpertScheduleDelegate');
 import IntegrationDelegate                          = require('../delegates/IntegrationDelegate');
+import ExpertScheduleRuleDelegate                   = require('../delegates/ExpertScheduleRuleDelegate');
 import IntegrationMemberDAO                         = require ('../dao/IntegrationMemberDao');
 import IntegrationMemberRole                        = require('../enums/IntegrationMemberRole');
 import IncludeFlag                                  = require('../enums/IncludeFlag');
@@ -15,7 +16,6 @@ import User                                         = require('../models/User');
 import UserProfile                                  = require('../models/UserProfile');
 import IntegrationMember                            = require('../models/IntegrationMember');
 import AccessTokenCache                             = require('../caches/AccessTokenCache');
-import ExpertScheduleRuleDelegate                   = require('../delegates/ExpertScheduleRuleDelegate');
 
 class IntegrationMemberDelegate extends BaseDaoDelegate
 {
@@ -147,8 +147,8 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
         {
             case IncludeFlag.INCLUDE_INTEGRATION:
                 return self.integrationDelegate.get(_.uniq(_.pluck(result, IntegrationMember.INTEGRATION_ID)));
-            case IncludeFlag.INCLUDE_USER:
 
+            case IncludeFlag.INCLUDE_USER:
                 if (Utils.getObjectType(result) == 'Array')
                     return self.userDelegate.get(_.uniq(_.pluck(result, IntegrationMember.USER_ID)));
                 else
@@ -156,16 +156,17 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
 
             case IncludeFlag.INCLUDE_USER_PROFILE:
                 return self.userProfileDelegate.search({'user_id': _.uniq(_.pluck(result, IntegrationMember.USER_ID))});
+
             case IncludeFlag.INCLUDE_SCHEDULES:
                 // Return schedules for next 4 months
                 var scheduleStartTime = moment().hours(0).valueOf();
                 var scheduleEndTime = moment().add({months: 4}).valueOf();
 
-                return self.expertScheduleDelegate.getSchedulesForExpert(result.getId(), scheduleStartTime, scheduleEndTime);
                 if (Utils.getObjectType(result) == 'Array')
-                    return self.userDelegate.get(_.uniq(_.pluck(result, IntegrationMember.USER_ID)));
+                    return self.expertScheduleDelegate.getSchedulesForExpert(_.uniq(_.pluck(result, IntegrationMember.ID)), scheduleStartTime, scheduleEndTime);
                 else
-                    return self.userDelegate.get(result.getUserId());
+                    return self.expertScheduleDelegate.getSchedulesForExpert(result.getId(), scheduleStartTime, scheduleEndTime)
+
             case IncludeFlag.INCLUDE_SCHEDULE_RULES:
                 return self.expertScheduleRuleDelegate.getRulesByIntegrationMemberId(result[0][IntegrationMember.ID]);
         }
