@@ -52,10 +52,10 @@ var helpers =
     formatName: Formatter.formatName,
     formatSchedule: Formatter.formatSchedule,
     formatDate: Formatter.formatDate,
-    formatUserStatus:Formatter.formatUserStatus,
-    formatCallStatus:Formatter.formatCallStatus,
-    formatPhone:Formatter.formatPhone,
-    formatTimezone:Formatter.formatTimezone,
+    formatUserStatus: Formatter.formatUserStatus,
+    formatCallStatus: Formatter.formatCallStatus,
+    formatPhone: Formatter.formatPhone,
+    formatTimezone: Formatter.formatTimezone,
     moment: moment,
 
     ApiUrlDelegate: ApiUrlDelegate,
@@ -65,8 +65,8 @@ var helpers =
     MemberRegistrationUrls: MemberRegistrationUrls,
 
     Config: Config,
-    escapeObject:Utils.escapeObject,
-    unEscapeObject:Utils.unEscapeObject,
+    escapeObject: Utils.escapeObject,
+    unEscapeObject: Utils.unEscapeObject,
 
     IndustryCodes: Utils.enumToNormalText(IndustryCode),
     Salutation: Utils.enumToNormalText(Salutation),
@@ -99,7 +99,6 @@ app.use(
 
         if (Utils.isNullOrEmpty(req.path.match(excludeRegex)))
         {
-
             _.extend(res.locals, helpers);
             _.extend(res.locals,{Timezone:TimezoneDelegate.currentOffsets} )
         }
@@ -142,17 +141,20 @@ api(app);
 routes(app);
 
 /* Error Pages */
-app.use(function(req, res, next){
+app.use(function (req, res, next)
+{
     res.status(404);
 
     // respond with html page
-    if (req.accepts('html')) {
+    if (req.accepts('html'))
+    {
         res.render('404', { url: req.url });
         return;
     }
 
     // respond with json
-    if (req.accepts('json')) {
+    if (req.accepts('json'))
+    {
         res.send({ error: 'Not found' });
         return;
     }
@@ -161,7 +163,8 @@ app.use(function(req, res, next){
     res.type('txt').send('Not found');
 });
 
-app.use(function(err, req, res, next){
+app.use(function (err, req, res, next)
+{
     // we may use properties of the error object
     // here and next(err) appropriately, or if
     // we possibly recovered from the error, simply next().
@@ -170,7 +173,7 @@ app.use(function(err, req, res, next){
 });
 
 
-app.configure('production', function()
+app.configure('production', function ()
 {
     app.enable('view cache');
 });

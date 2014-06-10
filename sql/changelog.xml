@@ -364,4 +364,17 @@
     <changeSet author="Nishant (generated)" id="1402049049683-4">
         <dropColumn columnName="location" tableName="user"/>
     </changeSet>
+    <changeSet author="Nishant (generated)" id="1402314791074-1">
+        <addColumn tableName="expert_schedule_rule">
+            <column defaultValue="1" name="time_chunk_size" type="INT(10)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402318808089-1">
+        <addColumn tableName="expert_schedule_rule">
+            <column defaultValue="0" name="min_duration" type="INT(10)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402384154289-1">
+        <dropColumn columnName="time_chunk_size" tableName="expert_schedule_rule"/>
+    </changeSet>
 </databaseChangeLog>

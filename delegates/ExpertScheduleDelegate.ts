@@ -85,16 +85,18 @@ class ExpertScheduleDelegate
                 {
                     while (t = interval.next())
                     {
-                        var temp = new ExpertSchedule();
-                        temp.setStartTime(moment(t).add({millis: gmtOffsetInMillis}).valueOf());
-                        temp.setDuration(rule.getDuration());
-                        temp.setScheduleRuleId(rule.getId());
-                        temp.setPricePerMin(rule.getPricePerMin());
-                        temp.setPriceUnit(rule.getPriceUnit());
-                        schedules.push(temp);
+                        var expertSchedule = new ExpertSchedule();
+                        expertSchedule.setStartTime(moment(t).add({millis: gmtOffsetInMillis}).valueOf());
+                        expertSchedule.setDuration(rule.getDuration());
+                        expertSchedule.setScheduleRuleId(rule.getId());
+                        expertSchedule.setPricePerMin(rule.getPricePerMin());
+                        expertSchedule.setPriceUnit(rule.getPriceUnit());
+                        expertSchedule.setMinDuration(rule.getMinDuration());
+                        schedules.push(expertSchedule);
                     }
                 } catch (e)
                 {
+                    // Not catching here since the ihe loops exit by crashing when the interval limit is reached
                 }
                 deferred.resolve(schedules);
             }

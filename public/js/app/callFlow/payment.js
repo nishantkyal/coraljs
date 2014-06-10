@@ -36,12 +36,11 @@ $('#login-button').click(function()
         type       : 'post',
         dataType   : 'json',
         contentType: 'application/json',
-        async      : false,
         data       : JSON.stringify({
             username: $('#authentication input[name="username"]').val(),
             password: $('#authentication input[name="password"]').val()
         }),
-        success    : function()
+        success    : function(response)
         {
             switch(loginContext)
             {
@@ -51,8 +50,8 @@ $('#login-button').click(function()
         },
         error      : function(jqXhr, textStatus, response)
         {
-            $('#login-modal .alert').show();
-            $('#login-modal .alert').text('Login Failed');
+            $('#login-modal .alert-danger').show();
+            $('#login-modal .alert-danger').text('Login Failed');
         }
     })
 });
@@ -73,7 +72,7 @@ $('#register-button').click(function()
             last_name  : $('#authentication input[name="last_name"]').val(),
             middle_name: $('#authentication input[name="middle_name"]').val()
         }),
-        success    : function()
+        success    : function(response)
         {
             switch(loginContext)
             {

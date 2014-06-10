@@ -1,25 +1,26 @@
 ///<reference path='../_references.d.ts'/>
-import q                                = require('q');
-import cron                             = require('cron');
-import _                                = require('underscore');
-import BaseModel                        = require('./BaseModel');
-import MoneyUnit                        = require('../enums/MoneyUnit');
-import Utils                            = require('../common/Utils')
-import ExpertSchedule                   = require('../models/ExpertSchedule');
-import ExpertScheduleException          = require('../models/ExpertScheduleException');
+import q                                                        = require('q');
+import cron                                                     = require('cron');
+import _                                                        = require('underscore');
+import BaseModel                                                = require('./BaseModel');
+import MoneyUnit                                                = require('../enums/MoneyUnit');
+import Utils                                                    = require('../common/Utils')
+import ExpertSchedule                                           = require('../models/ExpertSchedule');
+import ExpertScheduleException                                  = require('../models/ExpertScheduleException');
 
 class ExpertScheduleRule extends BaseModel
 {
     static TABLE_NAME = 'expert_schedule_rule';
 
     static INTEGRATION_MEMBER_ID:string = 'integration_member_id';
-    static TITLE:string = 'title';
-    static REPEAT_START:string = 'repeat_start';
-    static CRON_RULE:string = 'cron_rule';
-    static REPEAT_END:string = 'repeat_end';
-    static DURATION:string = 'duration';
-    static PRICE_PER_MIN:string = 'price_per_min';
-    static PRICE_UNIT:string = 'price_unit';
+    static TITLE:string                 = 'title';
+    static REPEAT_START:string          = 'repeat_start';
+    static CRON_RULE:string             = 'cron_rule';
+    static REPEAT_END:string            = 'repeat_end';
+    static DURATION:string              = 'duration';
+    static PRICE_PER_MIN:string         = 'price_per_min';
+    static PRICE_UNIT:string            = 'price_unit';
+    static MIN_DURATION:string          = 'min_duration';
 
     private integration_member_id:number;
     private title:string;
@@ -29,26 +30,29 @@ class ExpertScheduleRule extends BaseModel
     private duration:number;
     private price_per_min:number;
     private price_unit:MoneyUnit;
+    private min_duration:number;
 
     /* Getters */
-    getIntegrationMemberId():number { return this.integration_member_id; }
-    getTitle():string { return this.title; }
-    getRepeatStart():number { return this.repeat_start; }
-    getCronRule():string { return this.cron_rule; }
-    getRepeatEnd():number { return this.repeat_end; }
-    getDuration():number { return this.duration; }
-    getPricePerMin():number { return this.price_per_min; }
-    getPriceUnit():MoneyUnit { return this.price_unit; }
+    getIntegrationMemberId():number                         { return this.integration_member_id; }
+    getTitle():string                                       { return this.title; }
+    getRepeatStart():number                                 { return this.repeat_start; }
+    getCronRule():string                                    { return this.cron_rule; }
+    getRepeatEnd():number                                   { return this.repeat_end; }
+    getDuration():number                                    { return this.duration; }
+    getPricePerMin():number                                 { return this.price_per_min; }
+    getPriceUnit():MoneyUnit                                { return this.price_unit; }
+    getMinDuration():number                                 { return this.min_duration; }
 
     /* Setters */
-    setIntegrationMemberId(val:number):void { this.integration_member_id = val; }
-    setTitle(val:string):void { this.title = val; }
-    setRepeatStart(val:number):void { this.repeat_start = val; }
-    setCronRule(val:string):void { this.cron_rule = val; }
-    setRepeatEnd(val:number):void { this.repeat_end = val; }
-    setDuration(val:number):void { this.duration = val; }
-    setPricePerMin(val:number):void { this.price_per_min = val; }
-    setPriceUnit(val:MoneyUnit):void { this.price_unit = val; }
+    setIntegrationMemberId(val:number):void                 { this.integration_member_id = val; }
+    setTitle(val:string):void                               { this.title = val; }
+    setRepeatStart(val:number):void                         { this.repeat_start = val; }
+    setCronRule(val:string):void                            { this.cron_rule = val; }
+    setRepeatEnd(val:number):void                           { this.repeat_end = val; }
+    setDuration(val:number):void                            { this.duration = val; }
+    setPricePerMin(val:number):void                         { this.price_per_min = val; }
+    setPriceUnit(val:MoneyUnit):void                        { this.price_unit = val; }
+    setMinDuration(val:number):void                         { this.min_duration= val; }
 
     isValid():boolean
     {
