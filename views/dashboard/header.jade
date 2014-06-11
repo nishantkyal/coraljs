@@ -1,42 +1,51 @@
-doctype html
-include ../scriptsAndStyles
-meta(name='viewport', content='width=device-width, initial-scale=1')
-.container-fluid
-    .row-fluid
-        .col-md-2
-        .col-md-8
-            .row
-                .col-md-7
-                    h2
-                        | SearchNTalk
-                        small &nbsp;Alpha
-                .col-md-5
-                    p.pull-right
-                        if (loggedInUser)
-                            | Hey, #{loggedInUser.first_name}
-                            a.btn.btn-link(href='/logout') Logout
-                        else
-                            a.btn.btn-primary.btn-xs#loginInHeader(data-toggle='modal', href='#headerLoginModal') Login
-            hr
-            if integration
-                h4 #{integration.title}
-            block content
-        .col-md-2
-#headerLoginModal.modal.fade(style='display: none;')
-    .modal-dialog
-        .modal-content
-            .modal-header
-                .close(data-dismiss='modal', aria-hidden='true') x
-                h4.modal-title Login
-            form
-                .modal-body
-                    .form-group
-                        label.control-label(for='username') Email
-                        input.form-control#username(type='text', placeholder='Email', name='username', data-toggle="tooltip", data-placement="bottom")
-                    .form-group
-                        label.control-label(for='password') Password
-                        input.form-control#password(type='password', name='password', placeholder='Password', data-toggle="tooltip", data-placement="bottom")
-                .modal-footer
-                    button.btn.btn-default(data-dismiss='modal') Close
-                    input.btn.btn-primary(type='submit', value='OK')
-script(src='/js/app/dashboard/headerLogin.js')
+doctype !!!
+head
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    meta(name='viewport', content='width=device-width, initial-scale=1, user-scalable=false')
+
+    link(href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic', rel='stylesheet', type='text/css')
+    link(href='/css/bootstrap.min.css', rel='stylesheet')
+    link(href='/css/main.css', rel='stylesheet')
+
+    //if lt IE 9
+      script(src='https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js')
+      script(src='https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js')
+    script(src='/bower_dependencies/jquery/jquery.min.js')
+    script(src='/bower_dependencies/bootstrap/dist/bootstrap.min.js')
+
+    script.
+        $(document).ready(function() {
+            $(".user-control").hover(function() { $(".user-control .user-modal").show(); } , function() { $(".user-control .user-modal").hide(); });
+        });
+
+.masthead(role='banner')
+    .container
+        .masthead-brand
+            a.logo.hidden-xs(href='#')
+            a.icon.visible-xs(href='#')
+        .masthead-controls
+            if loggedInUser
+                .masthead-control-field.user-control
+                    .info
+                        .field-label
+                            | Logged In
+                        .field-info
+                            | #{formatName(loggedInUser.first_name, loggedInUser.last_name)}
+                    .avatar.avatar-small
+                        .shadow
+                        .placeholder
+                        img(src=ApiUrlDelegate.userProfilePicture(loggedInUser.id))
+                        .caret
+                    .user-modal(style='display: none;')
+                        .field-label
+                            | Language
+                        .field-menu
+                            select(name='ui_language')
+                                option(value='en', selected='')
+                                    | English
+                        ul
+                            li
+                                a.btn.btn-primary(href=DashboardUrls.logout()) Logout
+            .clearer
+        .clearer

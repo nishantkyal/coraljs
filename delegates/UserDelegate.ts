@@ -35,7 +35,35 @@ class UserDelegate extends BaseDaoDelegate
         if (!Utils.isNullOrEmpty(object) && object.hasOwnProperty(User.PASSWORD))
             object[User.PASSWORD] = this.computePasswordHash(object[User.EMAIL], object[User.PASSWORD]);
 
-        return super.create(object, transaction);
+        var self = this;
+
+        return super.create(object, transaction)
+            .then(
+            function userCreated(user:User)
+            {
+                var userProfile:UserProfile = new UserProfile();
+                userProfile.setStatus(ProfileStatus.INCOMPLETE);
+                userProfile.setUserId(user.getId());
+
+                return [user, self.userProfileDelegate.create(userProfile)];
+            })
+            .spread(
+            function userProfileCreated(user:User, profile:UserProfile)
+            {
+                return self.userProfileDelegate.fetchAllDetailsFromLinkedIn(user.getId(), profile.getId())
+                    .fail(
+                    function linkedInFetchFailed(error)
+                    {
+                        self.logger.debug('LinkedIn profile fetch failed for user id: %s, error: %s', user.getId(), JSON.stringify(error));
+                        return user;
+                    });
+            })
+            .then(
+            function profileDetailsFetched(user:User)
+            {
+                return user;
+            });
+
     }
 
     update(criteria:Object, newValues:any, transaction?:Object):q.Promise<any>;
@@ -63,7 +91,6 @@ class UserDelegate extends BaseDaoDelegate
 
     getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
     {
-        var user:User = result;
         var self = this;
 
         switch (include)
@@ -74,6 +101,8 @@ class UserDelegate extends BaseDaoDelegate
                 var IntegrationMemberDelegate:any = require('../delegates/IntegrationMemberDelegate');
                 var integrationMemberDelegate = new IntegrationMemberDelegate();
                 return integrationMemberDelegate.searchByUser(result.getId());
+            case IncludeFlag.INCLUDE_USER_PROFILE:
+                return self.userProfileDelegate.search({'user_id': _.uniq(_.pluck(result, User.ID))});
         }
         return super.getIncludeHandler(include, result);
     }
@@ -128,7 +157,7 @@ class UserDelegate extends BaseDaoDelegate
                 if (Utils.isNullOrEmpty(phone))
                     throw(UserStatus.MOBILE_NOT_VERIFIED);
                 else
-                    return self.userProfileDelegate.get(user.getDefaultProfileId(), null, null, transaction);
+                    return self.userProfileDelegate.find(Utils.createSimpleObject(UserProfile.USER_ID, user.getId()), null, null, transaction);
             })
             .then(
             function userProfileFound(profile:UserProfile)

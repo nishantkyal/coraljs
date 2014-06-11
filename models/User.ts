@@ -23,9 +23,8 @@ class User extends BaseModel
     static DATE_OF_BIRTH:string = 'date_of_birth';
     static INDUSTRY:string = 'industry';
     static TIMEZONE:string = 'timezone';
-    static DEFAULT_PROFILE_ID:string = 'default_profile_id';
 
-    static DEFAULT_FIELDS:string[] = [User.ID, User.TITLE, User.FIRST_NAME, User.LAST_NAME, User.EMAIL, User.INDUSTRY, User.TIMEZONE, User.STATUS, User.DATE_OF_BIRTH, User.DEFAULT_PROFILE_ID];
+    static DEFAULT_FIELDS:string[] = [User.ID, User.TITLE, User.FIRST_NAME, User.LAST_NAME, User.EMAIL, User.INDUSTRY, User.TIMEZONE, User.STATUS, User.DATE_OF_BIRTH];
 
     private title:Salutation;
     private first_name:string;
@@ -36,7 +35,6 @@ class User extends BaseModel
     private date_of_birth:string;
     private industry:IndustryCode;
     private timezone:TimeZone;
-    private default_profile_id:number;
 
     private user_profile:UserProfile;
 
@@ -50,7 +48,6 @@ class User extends BaseModel
     getDateOfBirth():string                                     { return this.date_of_birth; }
     getIndustry():IndustryCode                                  { return this.industry; }
     getTimezone():TimeZone                                      { return this.timezone; }
-    getDefaultProfileId():number                                { return this.default_profile_id; }
 
     getUserProfile():UserProfile                                { return this.user_profile; }
 
@@ -68,7 +65,6 @@ class User extends BaseModel
     setDateOfBirth(val:string)                                  { this.date_of_birth = val;}
     setIndustry(val:IndustryCode)                               { this.industry = val; }
     setTimezone(val:TimeZone)                                   { this.timezone = val; }
-    setDefaultProfileId(val:number)                             { this.default_profile_id = val; }
 
     setUserProfile(val:UserProfile):void                        { this.user_profile = val; }
 }

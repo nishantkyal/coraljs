@@ -135,8 +135,8 @@ h1 {
 }
 @font-face {
   font-family: 'snticons';
-  src: url('../fonts/snticons-regular-webfont.eot');
-  src: url('../fonts/snticons-regular-webfont.eot#iefix') format('embedded-opentype'), url('../fonts/snticons-regular-webfont.woff') format('woff'), url('../fonts/snticons-regular-webfont.ttf') format('truetype'), url('../fonts/snticons-regular-webfont.svg?#snticons') format('svg');
+  src: url('../fonts/SNTIcons-Regular.eot');
+  src: url('../fonts/SNTIcons-Regular.eot#iefix') format('embedded-opentype'), url('../fonts/SNTIcons-Regular.woff') format('woff'), url('../fonts/SNTIcons-Regular.ttf') format('truetype'), url('../fonts/SNTIcons-Regular.svg?#snticons') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -297,8 +297,26 @@ h1 {
 .icon-right-arrow:before {
   content: '\e080';
 }
+.icon-down-arrow:before {
+  content: '\e114';
+}
 .icon-clock:before {
   content: '\e023';
+}
+.icon-plus:before {
+  content: '\002b';
+}
+.icon-minus:before {
+  content: '\2212';
+}
+.icon-draggable:before {
+  content: '\e150';
+}
+.icon-pencil:before {
+  content: '\270f';
+}
+.icon-trash:before {
+  content: '\e020';
 }
 /*!
  * Datepicker for Bootstrap
@@ -1251,6 +1269,24 @@ a:hover {
   font-size: 20px;
   line-height: 30px;
 }
+.btn-with-icon {
+  text-align: left;
+}
+.btn-with-icon span {
+  float: left;
+}
+.btn-with-icon i {
+  float: right;
+}
+.badge-owner {
+  background: #8cc63f;
+}
+.badge-expert {
+  background: #0daeff;
+}
+.badge-session {
+  background: rgba(75, 93, 94, 0.5);
+}
 .ui-autocomplete {
   z-index: 9999;
 }
@@ -1274,6 +1310,21 @@ a:hover {
   background: #404f50;
   color: #ffffff;
   border-color: #404f50;
+}
+.btn-radio {
+  background: #eeeeee;
+  color: #888888;
+  border-color: #dddddd;
+}
+.btn-radio:hover {
+  background: #888888;
+  color: #ffffff;
+}
+.btn-radio:active,
+.btn-radio.active,
+.btn-radio:focus {
+  background: #8cc63f;
+  color: #ffffff;
 }
 .btn-primary {
   background: #f9af18;
@@ -1628,6 +1679,7 @@ a:hover {
 }
 .masthead {
   background: #ffffff;
+  position: relative;
 }
 .masthead .container {
   padding: 0px;
@@ -1635,7 +1687,82 @@ a:hover {
 .masthead .container .row {
   margin: 0px;
 }
+.navigation {
+  border-top: 1px solid #4b5d5e;
+}
+.navigation .container {
+  padding: 0px;
+}
+.navigation .container .row {
+  margin: 0px;
+}
+.navigation .navbar {
+  margin: 0px;
+  border: none;
+}
+.navigation .navbar-brand {
+  color: #f9af18;
+}
+.navigation .navbar-default {
+  background: #ffffff;
+}
+.navigation .navbar-default .navbar-nav .active a {
+  background: #eeeeee;
+  color: #000000;
+  border-left: 1px solid #dddddd;
+  border-right: 1px solid #dddddd;
+  -webkit-box-shadow: 0px 1px 0px #eeeeee;
+  -moz-box-shadow: 0px 1px 0px #eeeeee;
+  box-shadow: 0px 1px 0px #eeeeee;
+}
+@media (max-width: 767px) {
+  .navigation .navbar-default .navbar-nav .active a {
+    display: none;
+  }
+}
+.section-navbar {
+  margin-top: 10px;
+  margin-bottom: 0px;
+}
+.section-navbar .nav-pills {
+  margin: 10px 0px;
+}
+.section-navbar .nav-pills .badge {
+  margin: 0px 5px 0px 0px;
+}
+.section-navbar .nav-pills li a {
+  color: #888888;
+}
+.section-navbar .nav-pills li.active a {
+  background: rgba(75, 93, 94, 0.5);
+  color: #ffffff;
+}
+.section-navbar .nav-pills li.active .badge {
+  color: #4b5d5e;
+}
+.section-navbar i {
+  color: #888888;
+}
+.section-navbar i.icon-plus {
+  display: none;
+}
+.section-navbar i.icon-minus {
+  display: block;
+}
+.section-navbar .collapsed i.icon-plus {
+  display: block;
+}
+.section-navbar .collapsed i.icon-minus {
+  display: none;
+}
+@media (max-width: 767px) {
+  .section-navbar {
+    margin: 10px;
+  }
+}
 .matter {
+  border-top: 1px solid #dddddd;
+  border-bottom: 1px solid #dddddd;
   padding-bottom: 10px;
   background: #eeeeee;
   overflow: hidden;
@@ -1765,6 +1892,98 @@ a:hover {
 .content .row .row {
   margin: 0px -15px;
 }
+.content > .alert {
+  margin: 10px;
+}
+.avatar {
+  position: relative;
+  overflow: hidden;
+  width: 150px;
+  height: 150px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  background: #dddddd;
+  -webkit-box-shadow: 0px 1px 0px #ffffff;
+  -moz-box-shadow: 0px 1px 0px #ffffff;
+  box-shadow: 0px 1px 0px #ffffff;
+}
+.avatar .placeholder {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 9996;
+  font-size: 150px;
+  line-height: 150px;
+}
+.avatar .placeholder::before {
+  color: rgba(0, 0, 0, 0.1);
+  font-family: 'snticons';
+  content: '\e008';
+}
+.avatar .placeholder.placeholder-female::before {
+  content: '\202f';
+}
+.avatar img {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 9996;
+  font-size: 150px;
+  line-height: 150px;
+}
+.avatar .status {
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+  height: 5px;
+  z-index: 9998;
+  background: #888888;
+}
+.avatar .status.status-ok {
+  background: #8cc63f;
+}
+.avatar .status.status-warning {
+  background: #d68400;
+}
+.avatar .status.status-danger {
+  background: #b20000;
+}
+.avatar .shadow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  -webkit-box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.25);
+  -moz-box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.25);
+  box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.25);
+}
+.avatar .caret {
+  position: absolute;
+  z-index: 10000;
+  bottom: 4px;
+  right: 4px;
+  -webkit-box-shadow: 0px 0px 5px #ffffff;
+  -moz-box-shadow: 0px 0px 5px #ffffff;
+  box-shadow: 0px 0px 5px #ffffff;
+}
+.avatar.avatar-small {
+  float: left;
+  margin: 0px 5px 0px 0px;
+  width: 40px;
+  height: 40px;
+}
+.avatar.avatar-small .placeholder {
+  font-size: 40px;
+  line-height: 40px;
+}
+.avatar.avatar-small .status {
+  height: 4px;
+}
+.avatar.avatar-big {
+  width: 150px;
+  height: 150px;
+}
 .masthead-brand {
   float: left;
   padding: 10px;
@@ -1786,7 +2005,6 @@ a:hover {
 }
 .masthead-brand .icon {
   display: block;
-  margin: 0px 20px;
   width: 40px;
   height: 40px;
   background-image: url('../images/searchntalk_icon.gif');
@@ -1802,19 +2020,66 @@ a:hover {
 }
 .masthead-controls {
   float: right;
+}
+.masthead-controls .masthead-control-field {
+  float: left;
   padding: 10px;
+  margin: 0px 0px 0px 10px;
+  position: relative;
+}
+.masthead-controls .info {
+  float: left;
+  margin: 0px 10px 0px 0px;
+}
+.masthead-controls .avatar {
+  float: left;
 }
 .masthead-controls .field-label {
+  color: rgba(75, 93, 94, 0.5);
+  font-size: 12px;
   height: 20px;
   line-height: 20px;
 }
 .masthead-controls .field-menu {
-  height: 20px;
   line-height: 20px;
+}
+.masthead-controls .field-info {
+  max-width: 240px;
+  max-height: 20px;
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 20px;
+  color: #4b5d5e;
+}
+.masthead-controls .user-modal {
+  display: none;
+  position: absolute;
+  z-index: 9999999;
+  min-width: 200px;
+  top: 55px;
+  right: 15px;
+  padding: 10px;
+  background: #ffffff;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  -webkit-box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
+}
+.masthead-controls .user-modal a {
+  display: block;
+}
+.masthead-controls .user-modal .field-menu {
+  display: block;
+  margin: 0px 0px 10px 0px;
+  padding: 0px 0px 10px 0px;
+  border-bottom: 1px solid #dddddd;
 }
 @media (max-width: 767px) {
   .masthead-controls {
-    padding: 10px;
+    max-width: 260px;
   }
 }
 .user-profile,
@@ -1840,7 +2105,9 @@ a:hover {
 }
 .user-profile .info .info-upper,
 .call-profile .info .info-upper {
+  width: 140px;
   height: 90px;
+  word-wrap: break-word;
 }
 .user-profile .info .info-lower,
 .call-profile .info .info-lower {
@@ -1874,28 +2141,17 @@ a:hover {
   float: left;
   width: 120px;
   height: 120px;
-  background: #dddddd;
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
-  overflow: hidden;
-  position: relative;
 }
-.user-profile .avatar .shadow,
-.call-profile .avatar .shadow {
-  position: absolute;
-  z-index: 9999;
-  width: 100%;
-  height: 100%;
-  -webkit-box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
-  -moz-box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
-  box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
+.user-profile .avatar .placeholder,
+.call-profile .avatar .placeholder {
+  font-size: 120px;
+  line-height: 120px;
 }
 .user-profile .profile,
 .call-profile .profile {
   margin: 20px 0px 0px 0px;
-  font-size: 16px;
-  line-height: 20px;
+  font-size: 14px;
+  line-height: 18px;
 }
 .user-profile .meta,
 .call-profile .meta {
@@ -1904,7 +2160,7 @@ a:hover {
 .user-profile .meta h5,
 .call-profile .meta h5 {
   display: block;
-  font-size: 10px;
+  font-size: 12px;
   height: 15px;
   line-height: 15px;
   font-weight: 100;
@@ -1990,6 +2246,499 @@ a:hover {
   padding: 0px 0px 10px 0px;
   border-bottom: 1px solid #cfd8d9;
 }
+.section-header {
+  margin: 10px;
+  padding: 10px;
+  font-size: 18px;
+  line-height: 20px;
+  color: #888888;
+  text-shadow: 0px 1px 0px #ffffff;
+}
+@media (max-width: 991px) {
+  .section-header {
+    margin: 10px 10px 0px 10px;
+    padding: 0px 10px 0px 10px;
+  }
+}
+.card {
+  display: block;
+  background: #ffffff;
+  margin: 10px;
+  padding: 10px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  -webkit-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  -moz-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+.card .row {
+  background: #ffffff;
+}
+.card > div {
+  margin: 10px 0px 0px 0px;
+}
+.card .user-profile {
+  background: #ffffff;
+  margin: 10px 0px 0px 0px;
+  padding: 0px;
+}
+@media (max-width: 767px) {
+  .card .user-profile .info {
+    margin-left: 10px;
+  }
+  .card .user-profile .info .info-upper {
+    height: 90px;
+  }
+  .card .user-profile .info .info-lower {
+    height: 30px;
+  }
+}
+.card .item-dash {
+  margin: 0px;
+}
+.card .item-dash .user-profile {
+  margin: 0px;
+}
+.card .addit a,
+.card .addone a {
+  line-height: 30px;
+  display: block;
+  background: #eeeeee;
+  border: 2px dashed #dddddd;
+  text-align: center;
+  color: #888888;
+}
+.card .addit a i,
+.card .addone a i {
+  color: #dddddd;
+  margin: 0px 10px;
+}
+.card .addit a:hover,
+.card .addone a:hover {
+  background: #dddddd;
+  text-decoration: none;
+  color: #666666;
+}
+.card .addit a:hover i,
+.card .addone a:hover i {
+  color: #888888;
+}
+.card .addone {
+  margin: 0px;
+}
+.card .item {
+  margin-bottom: 20px;
+}
+.card .item > h5 {
+  padding: 9px 10px;
+  line-height: 12px;
+  font-weight: bold;
+  background: #4b5d5e;
+  color: #ffffff;
+}
+.card .item .row {
+  margin: 0px;
+}
+.card .item .row > h5 {
+  padding: 9px 10px;
+  line-height: 12px;
+  font-weight: bold;
+  background: #4b5d5e;
+  color: #ffffff;
+}
+.card .item .row > .inputs {
+  background: #4b5d5e;
+  color: #ffffff;
+  padding: 5px;
+}
+.card .item .row > .inputs input {
+  height: 20px;
+  font-size: 12px;
+  line-height: 20px;
+  padding: 0px 4px;
+}
+.card .item .header-link {
+  text-align: right;
+  font-size: 12px;
+  padding: 0px 5px 0px 10px;
+  height: 30px;
+  line-height: 30px;
+  font-weight: 100;
+  background: #4b5d5e;
+  color: #ffffff;
+}
+.card .item .header-link a {
+  font-size: 12px;
+  padding: 4px;
+  height: 22px;
+  color: #ffffff;
+}
+.card .item .header-link a:hover {
+  color: #f9af18;
+  text-decoration: none;
+}
+.card .item .header-link a.btn {
+  padding: 4px;
+  height: 22px;
+  border: none;
+}
+.card .item .header-link a.btn:hover {
+  color: #ffffff;
+}
+.card .item .header-link a.danger {
+  background: #b20000;
+  color: #ffffff;
+}
+.card .links {
+  margin: 20px 0px 0px 0px;
+}
+.card .links a {
+  display: block;
+  font-size: 12px;
+  color: #f9af18;
+}
+.card .links a i {
+  color: rgba(75, 93, 94, 0.4);
+  float: right;
+}
+.card .links:hover i {
+  color: rgba(75, 93, 94, 0.8);
+}
+.card .links:active i {
+  color: #4b5d5e;
+}
+.card .links-edit,
+.card .links-editing {
+  margin: 20px 0px 0px 0px;
+}
+.card .links-edit p,
+.card .links-editing p {
+  display: block;
+  font-size: 12px;
+  color: #4b5d5e;
+}
+.card .links-edit p .btn,
+.card .links-editing p .btn {
+  float: right;
+  height: 20px;
+  font-size: 12px;
+  line-height: 12px;
+  padding: 3px 20px;
+}
+.card .dragger {
+  color: #ffffff;
+  margin: 0px;
+  line-height: 20px;
+}
+.card .dragger .title {
+  float: left;
+  font-size: 16px;
+}
+.card .dragger i {
+  display: block;
+  width: 20px;
+  height: 20px;
+  font-size: 16px;
+  float: left;
+  color: rgba(75, 93, 94, 0.3);
+}
+.card .dragger .badge {
+  float: right;
+}
+.card .header {
+  color: #000000;
+  margin: 0px;
+  line-height: 30px;
+}
+.card .header .title {
+  float: left;
+  font-size: 20px;
+}
+.card .header i {
+  display: block;
+  width: 20px;
+  height: 20px;
+  font-size: 16px;
+  float: left;
+  color: rgba(75, 93, 94, 0.3);
+}
+.card .header .badge {
+  float: right;
+}
+.card .session-and-ratings {
+  margin: 10px 0px;
+}
+.card .session-and-ratings h1 {
+  font-size: 16px;
+}
+.card .session-and-ratings h2 {
+  line-height: 12px;
+  font-size: 12px;
+  font-weight: 100;
+}
+.card .session-and-ratings .badge {
+  padding: 10px;
+  text-align: left;
+}
+.card .session-and-ratings .session-info {
+  float: left;
+}
+.card .session-and-ratings .user-ratings {
+  float: right;
+  text-align: right;
+}
+.card .session-and-ratings .user-ratings ul {
+  margin: 5px 0px;
+}
+.card .session-and-ratings .user-ratings ul li {
+  float: left;
+}
+.card .session-and-ratings .user-ratings ul li i {
+  color: rgba(0, 0, 0, 0.15);
+  text-shadow: 0px 1px 0px #ffffff;
+}
+.card .session-and-ratings .user-ratings ul li i.icon-highlighted {
+  color: #f9af18;
+}
+.card .image-and-video {
+  background: #dddddd;
+  width: 100%;
+  min-height: 150px;
+  position: relative;
+  overflow: hidden;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+}
+.card .image-and-video .shadow {
+  position: absolute;
+  z-index: 9999;
+  width: 100%;
+  height: 100%;
+  -webkit-box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
+}
+.card .image-and-video img {
+  width: 100%;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
+.card .image-and-video .video-container {
+  position: absolute;
+  z-index: 10000;
+  top: 13px;
+  right: 13px;
+  width: 184px;
+  height: 124px;
+  background: #888888;
+  border: 2px solid #666666;
+}
+.card .summary-and-description {
+  font-size: 14px;
+}
+.card .balance-and-earnings {
+  margin: 0px;
+}
+.card .balance-and-earnings .row {
+  margin: 0px;
+  padding: 0px;
+}
+.card .balance-and-earnings .earnings {
+  padding: 0px;
+}
+.card .balance-and-earnings .earnings .details {
+  color: #888888;
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: bold;
+}
+.card .balance-and-earnings .balance {
+  padding: 0px 0px 0px 20px;
+}
+.card .balance-and-earnings .balance .details {
+  font-size: 30px;
+  line-height: 40px;
+  font-weight: bold;
+}
+.card .balance-and-earnings .balance .btn {
+  width: 100%;
+  margin: 10px 0px 0px 0px;
+}
+.card .billing-summary table {
+  width: 100%;
+  border: 1px solid #dddddd;
+  font-size: 12px;
+}
+.card .billing-summary table tr td,
+.card .billing-summary table tr th {
+  vertical-align: top;
+  padding: 5px;
+}
+.card .billing-summary table tr td.amount,
+.card .billing-summary table tr th.amount {
+  text-align: right;
+}
+.card .billing-summary table tr th {
+  background: #dddddd;
+  color: #888888;
+  font-weight: 100;
+}
+.card .billing-summary table tr td {
+  background: #ffffff;
+}
+.card .billing-summary table tr td a {
+  color: #f9af18;
+}
+.card .billing-summary table tr.alt td {
+  background: #eeeeee;
+}
+.card .schedule,
+.card .schedule-edit,
+.card .item-edit {
+  margin: 0px 0px 20px 0px;
+}
+.card .schedule h1,
+.card .schedule-edit h1,
+.card .item-edit h1 {
+  font-size: 16px;
+}
+.card .schedule h1 em,
+.card .schedule-edit h1 em,
+.card .item-edit h1 em {
+  font-weight: 100;
+  font-style: normal;
+}
+.card .schedule h2,
+.card .schedule-edit h2,
+.card .item-edit h2 {
+  line-height: 20px;
+  font-size: 12px;
+  font-weight: 100;
+}
+.card .schedule h3,
+.card .schedule-edit h3,
+.card .item-edit h3 {
+  margin: 10px 0px 0px 0px;
+  line-height: 20px;
+  font-size: 12px;
+  font-weight: 100;
+}
+.card .schedule li .well,
+.card .schedule-edit li .well,
+.card .item-edit li .well {
+  padding: 5px;
+  margin: 0px 1px;
+  font-size: 14px;
+  width: 32px;
+  text-align: center;
+  line-height: 20px;
+  color: #888888;
+}
+.card .schedule li.active .well,
+.card .schedule-edit li.active .well,
+.card .item-edit li.active .well {
+  font-weight: bold;
+  background: #8cc63f;
+  color: #ffffff;
+  border-color: #4b5d5e;
+}
+.card .schedule li.active a:focus,
+.card .schedule-edit li.active a:focus,
+.card .item-edit li.active a:focus,
+.card .schedule li.active a:hover,
+.card .schedule-edit li.active a:hover,
+.card .item-edit li.active a:hover {
+  background: #8cc63f;
+}
+.card .schedule .form-group,
+.card .schedule-edit .form-group,
+.card .item-edit .form-group {
+  margin-bottom: 0px;
+}
+.card .schedule .input-group-addon,
+.card .schedule-edit .input-group-addon,
+.card .item-edit .input-group-addon {
+  font-weight: 100;
+}
+.card .schedule .schedule-info h4,
+.card .schedule-edit .schedule-info h4,
+.card .item-edit .schedule-info h4 {
+  color: #888888;
+}
+.card .schedule .schedule-details,
+.card .schedule-edit .schedule-details,
+.card .item-edit .schedule-details {
+  margin: 0px -15px;
+}
+.card .meta {
+  padding: 10px 0px;
+}
+.card .meta h1 {
+  font-size: 16px;
+}
+.card .meta h5 {
+  display: block;
+  font-size: 12px;
+  padding: 0px 0px 20px 0px;
+  height: 15px;
+  line-height: 15px;
+  font-weight: 100;
+  color: #888888;
+  border-bottom: 1px solid #dddddd;
+}
+.card .meta p {
+  display: block;
+}
+.card .meta.meta-keywords ul,
+.card .meta.meta-schedule ul {
+  padding: 5px 0px;
+}
+.card .meta.meta-keywords ul li,
+.card .meta.meta-schedule ul li {
+  display: inline-block;
+  padding: 0px 5px;
+  margin: 0px 1px 0px 0px;
+  line-height: 20px;
+  background: rgba(75, 93, 94, 0.6);
+  color: #ffffff;
+}
+.card .meta.meta-schedule ul li {
+  margin: 0px 5px 0px 0px;
+}
+.card .meta.meta-schedule ul li.schedule-b {
+  background: rgba(75, 93, 94, 0.4);
+}
+.card .meta.meta-schedule ul li.schedule-c {
+  background: rgba(75, 93, 94, 0.2);
+}
+.card .meta.meta-price p {
+  color: #888888;
+  font-size: 20px;
+  line-height: 30px;
+  text-align: right;
+}
+.card .meta.meta-number .details {
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: bold;
+  word-wrap: break-word;
+}
+.card.trigger {
+  background: rgba(255, 255, 255, 0.5);
+  border: 2px dashed #dddddd;
+}
+.card.draggable:hover,
+.card.draggable.hover {
+  cursor: move;
+  border: 2px dashed #dddddd;
+}
+.card.draggable:hover .dragger i,
+.card.draggable.hover .dragger i {
+  color: #f9af18;
+}
 .call-card,
 .error-card {
   background: #ffffff;
@@ -2006,7 +2755,7 @@ a:hover {
 .error-card .row {
   background: #ffffff;
 }
-@media (max-width: 991px) {
+@media (max-width: 767px) {
   .call-card,
   .error-card {
     margin: 0px -15px;
@@ -2144,10 +2893,7 @@ a:hover {
 }
 .call-reversal .btn {
   display: block;
-  text-align: left;
-}
-.call-reversal .btn i {
-  float: right;
+  height: 34px;
 }
 .call-actions {
   padding: 10px;

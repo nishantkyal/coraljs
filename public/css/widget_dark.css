@@ -135,8 +135,8 @@ h1 {
 }
 @font-face {
   font-family: 'snticons';
-  src: url('../fonts/snticons-regular-webfont.eot');
-  src: url('../fonts/snticons-regular-webfont.eot#iefix') format('embedded-opentype'), url('../fonts/snticons-regular-webfont.woff') format('woff'), url('../fonts/snticons-regular-webfont.ttf') format('truetype'), url('../fonts/snticons-regular-webfont.svg?#snticons') format('svg');
+  src: url('../fonts/SNTIcons-Regular.eot');
+  src: url('../fonts/SNTIcons-Regular.eot#iefix') format('embedded-opentype'), url('../fonts/SNTIcons-Regular.woff') format('woff'), url('../fonts/SNTIcons-Regular.ttf') format('truetype'), url('../fonts/SNTIcons-Regular.svg?#snticons') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -246,6 +246,9 @@ h1 {
 .icon-searchntalk:before {
   content: '\2001';
 }
+.icon-searchntalk-empty:before {
+  content: '\200A';
+}
 .icon-searchntalk-logo:before {
   content: '\2009';
 }
@@ -293,6 +296,27 @@ h1 {
 }
 .icon-right-arrow:before {
   content: '\e080';
+}
+.icon-down-arrow:before {
+  content: '\e114';
+}
+.icon-clock:before {
+  content: '\e023';
+}
+.icon-plus:before {
+  content: '\002b';
+}
+.icon-minus:before {
+  content: '\2212';
+}
+.icon-draggable:before {
+  content: '\e150';
+}
+.icon-pencil:before {
+  content: '\270f';
+}
+.icon-trash:before {
+  content: '\e020';
 }
 html,
 body {
@@ -404,6 +428,8 @@ body {
   z-index: 9996;
   font-size: 150px;
   line-height: 150px;
+  font-family: 'snticons';
+  content: '\e008';
 }
 .widget .avatar .status {
   position: absolute;

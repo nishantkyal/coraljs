@@ -1,0 +1,118 @@
+include header
+title SearchNTalk - DashBoard
+.navigation
+    .container
+        .masthead-nav
+            nav.navbar.navbar-default(role='navigation')
+                .container-fluid
+                    // Brand and toggle get grouped for better mobile display
+                    .navbar-header
+                        button.navbar-toggle(type='button', data-toggle='collapse', data-target='#navbar-collapse')
+                            span.sr-only Toggle navigation
+                            span.icon-bar
+                            span.icon-bar
+                            span.icon-bar
+                        .visible-xs.navbar-brand Dashboard
+                    // Collect the nav links, forms, and other content for toggling
+                    #navbar-collapse.collapse.navbar-collapse
+                        ul.nav.navbar-nav.navbar-left
+                            li
+                                a(href=DashboardUrls.dashboard()) Dashboard
+                        ul.nav.navbar-nav.navbar-right
+                            li.active
+                                a(href='') Networks
+                            li
+                                a(href='/payments') Payments
+.matter
+    .container
+        .row
+            if members
+                .content.col-md-3
+                    .row
+                        nav.navbar.navbar-default.section-navbar(role='navigation')
+                            .navbar-header
+                                button.navbar-toggle.collapsed(type='button', data-toggle='collapse', data-target='#networks-collapse')
+                                    span.sr-only Toggle network navigation
+                                    i.icon-plus
+                                    i.icon-minus
+                                .visible-xs.navbar-brand.network-brand Forum B
+                            #networks-collapse.collapse.navbar-collapse
+                                ul.nav.nav-pills.nav-stacked
+                                    each member in members
+                                        li(class=member.integration_id == selectedMember.integration_id ? 'active' : '')
+                                            a(href=DashboardUrls.integration() + '?integrationId=' + member.integration_id)
+                                                span.badge= formatRole(member.role)
+                                                | #{member.integration.title}
+                // /.content
+                .content.col-md-5
+                    .row
+                        .card
+                            .header
+                                .title
+                                    h1 Members
+                                .clearer
+                            div.billing-summary
+                                table
+                                    thead
+                                        tr
+                                            th Name
+                                            th Role
+                                            th Status
+                                            th
+                                    tbody
+                                        each member in integrationMembers
+                                            if (member.user.status != 'Registered')
+                                                tr(class=((member.deleted == null || member.deleted == 0) ? (member.id != undefined ? '' : 'active') : 'danger'))
+                                                    td
+                                                        label= formatName(member.user.first_name, member.user.last_name)
+                                                        br
+                                                        small #{member.user.email}
+                                                    td= formatRole(member.role)
+                                                    td
+                                                        | #{member.user.status ? formatUserStatus(member.user.status) : 'Pending'}
+                                                        if (!member.user.status)
+                                                            a.btn.btn-xs.btn-default.sendAgain(data-emailid=member.user.email) Send Again
+                                                    td(style='text-align: center;')
+                                                        if (member.id != undefined && (member.deleted == null || member.deleted == 0))
+                                                            a.fa.fa-pencil.save(href=DashboardUrls.memberProfile(member.id))
+                            div.addit
+                                a(href='payments_addaccount.html')
+                                    | Invite more members
+                                    i.icon-plus
+
+                .content.col-md-4
+                    .row
+                        .card
+                            .header
+                                .title
+                                    h1 Coupons
+                                .clearer
+                            if coupons
+                            each coupon in coupons
+                                .item
+                                    .row
+                                        h5.col-xs-8= coupon.code
+                                        div.header-link.col-xs-4
+                                            a.btn.btn-primary(href='#')
+                                                i.icon-pencil
+                                        div.billing-summary
+                                            table
+                                                thead
+                                                    tr
+                                                        th Discount
+                                                        th Until
+                                                        th Expert
+                                                        th Items
+                                                        th Usage
+                                                tbody
+                                                        tr
+                                                            td= formatMoney(coupon.discount_amount, coupon.discount_unit)
+                                                            td= coupon.expiry_time != null ? formatDate(coupon.expiry_time, "ddd, DD MMM YYYY") : 'Forever'
+                                                            td= expert && coupon.expert_id == expert.id && expert.user_id == user.id ? formatName(user.first_name, user.last_name, user.title) : 'All'
+                                                            td= CouponType[coupon.coupon_type]
+                                                            td #{coupon.num_used} / #{coupon.max_coupons || 'Unlimited'}
+                            div.addit
+                                a(href='payments_addaccount.html')
+                                    | Create coupon
+                                    i.icon-plus
+include footer

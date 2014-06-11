@@ -1,0 +1,152 @@
+include header
+title SearchNTalk - DashBoard
+.navigation
+    .container
+        .masthead-nav
+            nav.navbar.navbar-default(role='navigation')
+                .container-fluid
+                    // Brand and toggle get grouped for better mobile display
+                    .navbar-header
+                        button.navbar-toggle(type='button', data-toggle='collapse', data-target='#navbar-collapse')
+                            span.sr-only Toggle navigation
+                            span.icon-bar
+                            span.icon-bar
+                            span.icon-bar
+                        .visible-xs.navbar-brand Dashboard
+                    // Collect the nav links, forms, and other content for toggling
+                    #navbar-collapse.collapse.navbar-collapse
+                        ul.nav.navbar-nav.navbar-left
+                            li.active
+                                a(href=DashboardUrls.dashboard()) Dashboard
+                        ul.nav.navbar-nav.navbar-right
+                            li
+                                a(href=DashboardUrls.integration()) Networks
+                            li
+                                a(href='/payments') Payments
+.matter
+    .container
+        .row
+            .content.col-md-4
+                .row
+                    .card
+                        .item.item-dash
+                            .user-profile
+                                .avatar
+                                    .shadow
+                                    .placeholder.placeholder-male
+                                    img(src=ApiUrlDelegate.userProfilePicture(loggedInUser.id))
+                                .info
+                                    .info-upper
+                                        .user-displayname Animesh Deshpandey
+                                        .user-age 32 yrs.
+                                    .info-lower
+                                        .user-locale New Delhi
+                                        .user-timezone GMT +5:30h
+                                .clearer
+                                .profile
+                                    p
+                                        | A freelance policy analyst since 1994, I specialize in policy for sustainability, planning and the urban environment in India, funding programmes, comparative research and good practice.
+                                .meta.meta-keywords
+                                    h5 Skills/Keywords
+                                    ul
+                                        li Social Policy
+                                        li Consulting
+                                        li Learning
+                                .meta.meta-price
+                                    h5 Charges
+                                    p
+                                        strong $1.00
+                                        | /min.
+            // /.content
+            .content.col-md-4
+                .row
+                    .card
+                        .item-dash
+                            .balance-and-earnings
+                                .row
+                                    .earnings.col-xs-6
+                                        .meta
+                                            h5 Total Earnings
+                                            .details
+                                                | $3493.00
+                                        .meta
+                                            h5 Earnings in past week
+                                            .details
+                                                | $93.00
+                                    .balance.col-xs-6
+                                        .meta
+                                            h5 Current Balance
+                                            .details
+                                                | $493.00
+                                            a.btn.btn-primary(href='#') Withdraw
+                            .billing-summary
+                                table
+                                    thead
+                                        tr
+                                            th Date
+                                            th Transaction Details
+                                            th.amount Credit
+                                            th.amount Debit
+                                            th.amount Balance
+                                    tbody
+                                        tr
+                                            td 17.03.2014
+                                            td
+                                                | Payment received for
+                                                a(href='#') Call 51512521
+                                            td.amount 15.00
+                                            td.amount 0.00
+                                            td.amount 493.00
+                                        tr.alt
+                                            td 12.03.2014
+                                            td
+                                                | Payment received for
+                                                a(href='#') Call 51512413
+                                            td.amount 15.00
+                                            td.amount 0.00
+                                            td.amount 388.00
+                    // /.card
+            // /.content
+            .content.col-md-4
+                .row
+                    .card.draggable
+                        .dragger
+                            i.icon-draggable
+                            .clearer
+                        .item
+                            .row
+                                h5.col-xs-12 Policy Training
+                            .session-and-ratings
+                                .badge.badge-session.session-info
+                                    h2 Session
+                                    h1 45 mins.
+                                .user-ratings
+                                    h2 User Ratings
+                                    ul
+                                        li
+                                            i.icon-star.icon-highlighted
+                                        li
+                                            i.icon-star.icon-highlighted
+                                        li
+                                            i.icon-star.icon-highlighted
+                                        li
+                                            i.icon-star
+                                        li
+                                            i.icon-star
+                                .clearer
+                            .image-and-video
+                                .video-container
+                                .shadow
+                            .meta.meta-keywords
+                                h5 Skills/Keywords
+                                ul
+                                    li Social Policy
+                                    li Consulting
+                                    li Learning
+                            .summary-and-description
+                                p
+                                    | Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam ultricies eget nibh ac sollicitudin. Donec at nunc aliquet felis molestie tincidunt. Duis volutpat, quam sit amet fringilla convallis, sapien mi elementum justo, vel aliquam ligula tellus ac turpis. Vivamus et tincidunt diam. Nullam tristique justo vitae metus scelerisque, eu imperdiet lacus rhoncus.
+                            .meta.meta-keywords
+                                h5 Experience
+                                h1 5 yrs.
+            // /.content

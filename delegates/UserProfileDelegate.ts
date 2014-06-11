@@ -84,7 +84,7 @@ class UserProfileDelegate extends BaseDaoDelegate
 
     }
 
-    fetchEducationDetailsFromLinkedIn(userId:number, integrationId:number, profileId:number, transaction?:Object):q.Promise<any>
+    fetchEducationDetailsFromLinkedIn(userId:number, profileId:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
 
@@ -120,7 +120,7 @@ class UserProfileDelegate extends BaseDaoDelegate
             })
     }
 
-    fetchEmploymentDetailsFromLinkedIn(userId:number, integrationId:number, profileId:number, transaction?:Object):q.Promise<any>
+    fetchEmploymentDetailsFromLinkedIn(userId:number, profileId:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
 
@@ -165,7 +165,7 @@ class UserProfileDelegate extends BaseDaoDelegate
             })
     }
 
-    fetchProfilePictureFromLinkedIn(userId:number, integrationId:number, profileId:number, transaction?:Object):q.Promise<any>
+    fetchProfilePictureFromLinkedIn(userId:number, profileId:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
 
@@ -197,7 +197,7 @@ class UserProfileDelegate extends BaseDaoDelegate
             })
     }
 
-    fetchSkillDetailsFromLinkedIn(userId:number, integrationId:number, profileId:number, transaction?:Object):q.Promise<any>
+    fetchSkillDetailsFromLinkedIn(userId:number, profileId:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
 
@@ -230,27 +230,21 @@ class UserProfileDelegate extends BaseDaoDelegate
             })
     }
 
-    fetchBasicDetailsFromLinkedIn(userId:number, integrationId:number, profileId:number, transaction?:Object):q.Promise<any>
+    fetchBasicDetailsFromLinkedIn(userId:number, profileId:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
 
         if (Utils.isNullOrEmpty(transaction))
             return MysqlDelegate.executeInTransaction(self, arguments);
 
-        return q.all([
-            self.fetchSelectedFieldsFromLinkedIn(userId, UserProfileDelegate.BASIC_FIELDS),
-            new IntegrationMemberDelegate().find({'user_id': userId, 'integration_id': integrationId}, null, null, transaction)
-        ])
+        return self.fetchSelectedFieldsFromLinkedIn(userId, UserProfileDelegate.BASIC_FIELDS)
             .then(
-            function basicDetailsFetched(...args)
+            function basicDetailsFetched(profile:any)
             {
-                var profile = args[0][0];
-                var integrationMember:IntegrationMember = args[0][1];
-
                 var userProfile:UserProfile = new UserProfile();
                 userProfile.setShortDesc(profile.headline || '');
                 userProfile.setLongDesc(profile.summary || '');
-                userProfile.setIntegrationMemberId(integrationMember.getId());
+                userProfile.setUserId(userId);
 
                 var user:User = new User();
                 user.setFirstName(profile.firstName);
@@ -279,7 +273,7 @@ class UserProfileDelegate extends BaseDaoDelegate
             })
     }
 
-    fetchAllDetailsFromLinkedIn(userId:number, integrationId:number, profileId:number, transaction?:Object):q.Promise<any>
+    fetchAllDetailsFromLinkedIn(userId:number, profileId:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
 
@@ -287,11 +281,11 @@ class UserProfileDelegate extends BaseDaoDelegate
             return MysqlDelegate.executeInTransaction(self, arguments);
 
         return q.all([
-            self.fetchBasicDetailsFromLinkedIn(userId, integrationId, profileId, transaction),
-            self.fetchEducationDetailsFromLinkedIn(userId, integrationId, profileId, transaction),
-            self.fetchEmploymentDetailsFromLinkedIn(userId, integrationId, profileId, transaction),
-            self.fetchProfilePictureFromLinkedIn(userId, integrationId, profileId, transaction),
-            self.fetchSkillDetailsFromLinkedIn(userId, integrationId, profileId, transaction)
+            self.fetchBasicDetailsFromLinkedIn(userId, profileId, transaction),
+            self.fetchEducationDetailsFromLinkedIn(userId, profileId, transaction),
+            self.fetchEmploymentDetailsFromLinkedIn(userId, profileId, transaction),
+            self.fetchProfilePictureFromLinkedIn(userId, profileId, transaction),
+            self.fetchSkillDetailsFromLinkedIn(userId, profileId, transaction)
         ]);
     }
 
@@ -316,7 +310,7 @@ class UserProfileDelegate extends BaseDaoDelegate
             .then(
             function deleted()
             {
-                return self.fetchEducationDetailsFromLinkedIn(userId, integrationId, profileId, transaction);
+                return self.fetchEducationDetailsFromLinkedIn(userId, profileId, transaction);
             })
     }
 
@@ -340,7 +334,7 @@ class UserProfileDelegate extends BaseDaoDelegate
             .then(
             function deleted()
             {
-                return self.fetchEmploymentDetailsFromLinkedIn(userId, integrationId, profileId, transaction);
+                return self.fetchEmploymentDetailsFromLinkedIn(userId, profileId, transaction);
             });
     }
 
@@ -364,7 +358,7 @@ class UserProfileDelegate extends BaseDaoDelegate
             .then(
             function deleted()
             {
-                return self.fetchSkillDetailsFromLinkedIn(userId, integrationId, profileId, transaction);
+                return self.fetchSkillDetailsFromLinkedIn(userId, profileId, transaction);
             });
     }
 
@@ -434,33 +428,5 @@ class UserProfileDelegate extends BaseDaoDelegate
             })
 
     }
-
-    create(object:any, transaction?:Object):q.Promise<any>
-    {
-        if (Utils.isNullOrEmpty(transaction))
-            return MysqlDelegate.executeInTransaction(this, arguments);
-
-        var createdProfile:UserProfile;
-
-        return super.create(object, transaction)
-            .then(
-            function profileCreated(userProfile:UserProfile)
-            {
-                createdProfile = userProfile;
-                return new IntegrationMemberDelegate().get(userProfile.getIntegrationMemberId(), null, null, transaction);
-            })
-            .then(
-            function memberFetched(member:IntegrationMember)
-            {
-                var UserDelegate = require('../delegates/UserDelegate');
-                return new UserDelegate().update(member.getUserId(), Utils.createSimpleObject(User.DEFAULT_PROFILE_ID, createdProfile.getId()), transaction)
-            })
-            .then(
-            function userDefaultProfileUpdated()
-            {
-                return createdProfile;
-            });
-    }
-
 }
 export = UserProfileDelegate

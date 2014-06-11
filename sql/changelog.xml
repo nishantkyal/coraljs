@@ -380,4 +380,24 @@
     <changeSet author="Nishant (generated)" id="1402467048117-1">
         <addNotNullConstraint columnDataType="int(10)" columnName="timezone" tableName="user"/>
     </changeSet>
+    <changeSet author="Nishant (generated)" id="1402512207614-1">
+        <addColumn tableName="user_profile">
+            <column name="integration_member_id" type="INT(10)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402512207614-2">
+        <addForeignKeyConstraint baseColumnNames="integration_member_id" baseTableName="user_profile" constraintName="profile_integration_member_id" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="integration_member"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402512207614-3">
+        <addUniqueConstraint columnNames="integration_member_id" constraintName="user_id_UNIQUE" deferrable="false" disabled="false" initiallyDeferred="false" tableName="user_profile"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402512207614-4">
+        <dropForeignKeyConstraint baseTableName="user_profile" constraintName="FK_user_profile"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402512207614-5">
+        <dropUniqueConstraint constraintName="user_id_UNIQUE" tableName="user_profile"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402512207614-6">
+        <dropColumn columnName="user_id" tableName="user_profile"/>
+    </changeSet>
 </databaseChangeLog>

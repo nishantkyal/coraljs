@@ -16,10 +16,11 @@ class Urls
     static publishProfile(memberId?:number) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/publishProfile', {memberId: memberId}); }
     static emailAccountVerification() { return ApiUrlDelegate.get('/email/verification'); }
     static mobileVerification():string { return ApiUrlDelegate.get('/phone/verification'); }
-    static integrations() { return ApiUrlDelegate.get('/integrations'); }
-    static integrationCoupons(integrationId?:number) { return ApiUrlDelegate.get('/integration/:integrationId(\\d+)/coupons', {integrationId: integrationId}); }
-    static integrationMembers(integrationId?:number) { return ApiUrlDelegate.get('/integration/:integrationId(\\d+)/members', {integrationId: integrationId}); }
+
+    static dashboard() { return ApiUrlDelegate.get('/dashboard'); }
+    static integration() { return ApiUrlDelegate.get('/network'); }
     static memberProfile(memberId?:number, baseUrl?:string) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/profile', {memberId: memberId}, baseUrl); }
+
     static logout() { return ApiUrlDelegate.get('/logout'); }
     static paymentCallback() { return ApiUrlDelegate.get('/payment/complete'); }
     static userProfileFromLinkedIn(profileId?:number):string { return ApiUrlDelegate.get('/member/profileFromLinkedIn/:profileId(\\d+)', {profileId: profileId}); }

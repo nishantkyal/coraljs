@@ -76,7 +76,7 @@ var helpers =
     IntegrationMemberRole: Utils.enumToNormalText(IntegrationMemberRole),
     CountryCode: Utils.enumToNormalText(CountryCode),
     CountryName: Utils.enumToNormalText(CountryName),
-    Timezone: TimezoneDelegate.currentOffsets,
+    Timezone: TimezoneDelegate.TIMEZONES,
 
     minYear: Config.get(Config.MINIMUM_YEAR),
     currentYear: moment().format('YYYY')

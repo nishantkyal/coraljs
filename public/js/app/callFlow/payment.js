@@ -97,7 +97,7 @@ $('#register-link,#login-link').click(function(event)
 
 function applyCoupon()
 {
-    var form = $('<form action="/expert/call/payment/coupon" method="post"><input name="code" value=""/></form>');
+    var form = $('<form action="/expert/call/payment/coupon" method="post"><input name="code" value="' + $("input[name='code']").val() + '"/></form>');
     $('body').append(form);
     form.submit();
 }

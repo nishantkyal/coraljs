@@ -143,7 +143,7 @@ class TransactionDelegate extends BaseDaoDelegate
 
                     switch (couponType)
                     {
-                        case CouponType.ALL:
+                        case CouponType.EVERYTHING:
                             return true;
 
                         case CouponType.PHONE_CALL:

@@ -63,9 +63,8 @@ class DashboardRoute
     private static PAGE_LOGIN:string = 'dashboard/login';
     private static PAGE_FORGOT_PASSWORD:string = 'dashboard/forgotPassword';
     private static PAGE_MOBILE_VERIFICATION:string = 'dashboard/mobileVerification';
-    private static PAGE_INTEGRATIONS:string = 'dashboard/integrations';
-    private static PAGE_USERS:string = 'dashboard/integrationUsers';
-    private static PAGE_COUPONS:string = 'dashboard/integrationCoupons';
+    private static PAGE_DASHBOARD:string = 'dashboard/dashboard';
+    private static PAGE_INTEGRATION:string = 'dashboard/integration';
     private static PAGE_PROFILE:string = 'dashboard/memberProfile';
     private static PAGE_ACCOUNT_VERIFICATION:string = 'dashboard/accountVerification';
     private static PAGE_PAYMENT_COMPLETE:string = 'dashboard/paymentComplete';
@@ -87,7 +86,6 @@ class DashboardRoute
     private userProfileDelegate = new UserProfileDelegate();
     private userUrlDelegate = new UserUrlDelegate();
     private transactionLineDelegate = new TransactionLineDelegate();
-    private transactionDelegate = new TransactionDelegate();
 
     constructor(app, secureApp)
     {
@@ -96,10 +94,12 @@ class DashboardRoute
         app.get(Urls.login(), this.login.bind(this));
         app.get(Urls.forgotPassword(), this.forgotPassword.bind(this));
         app.get(Urls.mobileVerification(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index(), setReturnTo: true}), this.verifyMobile.bind(this));
-        app.get(Urls.integrations(), connect_ensure_login.ensureLoggedIn(), this.integrations.bind(this));
-        app.get(Urls.integrationCoupons(), Middleware.allowOwnerOrAdmin, this.coupons.bind(this));
-        app.get(Urls.integrationMembers(), Middleware.allowOwnerOrAdmin, this.integrationUsers.bind(this));
-        app.get(Urls.memberProfile(), this.editMemberProfile.bind(this));
+
+        // Dashboard pages
+        app.get(Urls.dashboard(), connect_ensure_login.ensureLoggedIn(), this.dashboard.bind(this));
+        app.get(Urls.integration(), connect_ensure_login.ensureLoggedIn(), this.integration.bind(this));
+        app.get(Urls.memberProfile(), this.memberProfile.bind(this));
+
         app.get(Urls.callDetails(), Middleware.allowMeOrAdmin, this.callDetails.bind(this));
         app.get(Urls.revenueDetails(), Middleware.allowMeOrAdmin, this.revenueDetails.bind(this));
         app.get(Urls.scheduleDetails(), Middleware.allowOnlyMe, this.schedule.bind(this));
@@ -265,7 +265,7 @@ class DashboardRoute
                     });
 
                     sessionData.setMembers(correctedMembers);
-                    res.redirect(Urls.integrations());
+                    res.redirect(Urls.dashboard());
                 }
             },
             function integrationsFetchError(error)
@@ -275,37 +275,40 @@ class DashboardRoute
         );
     }
 
-    /* Integrations List page */
-    private integrations(req:express.Request, res:express.Response)
+    private dashboard(req:express.Request, res:express.Response)
     {
         var sessionData = new SessionData(req);
-        sessionData.setIntegration(null);
         var pageData = sessionData.getData();
-        res.render(DashboardRoute.PAGE_INTEGRATIONS, pageData);
+        res.render(DashboardRoute.PAGE_DASHBOARD, pageData);
     }
 
-    /* Integration Members page */
-    private integrationUsers(req:express.Request, res:express.Response)
+    /* Integration page */
+    private integration(req:express.Request, res:express.Response)
     {
-        var sessionData = new SessionData(req);
         var self = this;
+        var sessionData = new SessionData(req);
 
-        var integrationId = parseInt(req.params[ApiConstants.INTEGRATION_ID]);
-        var integration = this.integrationDelegate.getSync(integrationId);
-        sessionData.setIntegration(integration);
+        try
+        {
+            var integrationId:number = parseInt(req.query[ApiConstants.INTEGRATION_ID] || sessionData.getMembers()[0].getIntegrationId());
+        }
+        catch (e)
+        {
+            res.render(DashboardRoute.PAGE_INTEGRATION, sessionData.getData());
+            return;
+        }
 
-        // 1. Fetch all users for integration
-        // 2. Fetch all invited members for integration
-        // 3. Merge the two lists
         q.all([
             self.integrationMemberDelegate.search({integration_id: integrationId}, IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER]),
-            self.verificationCodeDelegate.getInvitationCodes(integrationId)
+            self.verificationCodeDelegate.getInvitationCodes(integrationId),
+            self.couponDelegate.search({integration_id: integrationId}, Coupon.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_EXPERT])
         ])
             .then(
-            function membersFetched(...results)
+            function integrationDetailsFetched(...results)
             {
                 var members = results[0][0];
                 var invitedMembers = [].concat(_.values(results[0][1]));
+                var coupons = [].concat(_.values(results[0][2]));
 
                 _.each(members, function (member:IntegrationMember)
                 {
@@ -323,49 +326,29 @@ class DashboardRoute
                         return invitedMember['user']['email'] == member.getUser().getEmail();
                     });
 
-                    if (!Utils.isNullOrEmpty(expertEntry))
-                        invitedMember.user['status'] = 'Registered';
-                    else
-                        invitedMember.user['status'] = 'Pending';
+                    invitedMember.user['status'] = (!Utils.isNullOrEmpty(expertEntry)) ? 'Registered' : 'Pending';
                 });
 
                 members = members.concat(_.map(invitedMembers, function (invited) { return new IntegrationMember(invited); }));
 
                 var pageData = _.extend(sessionData.getData(), {
-                    'members': members
-                });
-
-                res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
-                res.render(DashboardRoute.PAGE_USERS, pageData);
-            },
-            function usersFetchError(error) { res.send(500, error); });
-    }
-
-    /* Integration Coupons page */
-    private coupons(req:express.Request, res:express.Response)
-    {
-        var sessionData = new SessionData(req);
-
-        var integrationId = parseInt(req.params[ApiConstants.INTEGRATION_ID]);
-        var integration = this.integrationDelegate.getSync(integrationId);
-        sessionData.setIntegration(integration);
-
-        this.couponDelegate.search({integration_id: integrationId}, Coupon.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_EXPERT])
-            .then(
-            function couponsFetched(coupons:Coupon[])
-            {
-                var pageData = _.extend(sessionData.getData(), {
+                    'selectedMember': _.findWhere(sessionData.getMembers(), {'integration_id': integrationId}),
+                    'integrationMembers': members,
                     'coupons': coupons
                 });
 
-                res.render(DashboardRoute.PAGE_COUPONS, pageData);
-            },
-            function couponFetchError(error) { res.send(500); }
-        )
+                res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
+                res.render(DashboardRoute.PAGE_INTEGRATION, pageData);
+            })
+            .fail(
+            function handleFailure(error)
+            {
+                res.render('500', {error: JSON.stringify(error)});
+            });
     }
 
     /* Member Profile page */
-    private editMemberProfile(req:express.Request, res:express.Response)
+    private memberProfile(req:express.Request, res:express.Response)
     {
         var self = this;
         var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
@@ -484,7 +467,7 @@ class DashboardRoute
             .fail(function userUpdateError(error) { res.send(500); })
     }
 
-    publishProfile(req:express.Request, res:express.Response, transaction?:Object)
+    publishProfile(req:express.Request, res:express.Response)
     {
         var profileId:number = parseInt(req.body[ApiConstants.USER_PROFILE_ID]);
         var userId:number = parseInt(req.body[ApiConstants.USER_ID]);
@@ -531,15 +514,16 @@ class DashboardRoute
 
         self.expertScheduleRuleDelegate.getRulesByIntegrationMemberId(memberId)
             .then(
-            function rulesFetched(rules:ExpertScheduleRule[]){
-                var pageData =  _.extend(sessionData.getData(), {
+            function rulesFetched(rules:ExpertScheduleRule[])
+            {
+                var pageData = _.extend(sessionData.getData(), {
                     rules: rules || [],
-                    memberId : memberId
+                    memberId: memberId
                 });
-                res.render(DashboardRoute.PAGE_SCHEDULE,pageData);
+                res.render(DashboardRoute.PAGE_SCHEDULE, pageData);
             },
             function errorInFetching(error) { res.send(500, error)}
-            );
+        );
     }
 
     /* Logout and redirect to login page */
@@ -678,7 +662,7 @@ class DashboardRoute
             .then(
             function profileFetched(userProfile:UserProfile)
             {
-                return self.integrationMemberDelegate.get(userProfile.getIntegrationMemberId())
+                return self.integrationMemberDelegate.get(userProfile.getUserId())
             })
             .then(
             function (integrationMember:IntegrationMember)

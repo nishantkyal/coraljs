@@ -1,6 +1,6 @@
 enum CouponType
 {
-    ALL = 1,
+    EVERYTHING = 1,
     PHONE_CALL = 2,
     NETWORK_CHARGES = 3,
     PREPAID_DEPOSIT = 4,

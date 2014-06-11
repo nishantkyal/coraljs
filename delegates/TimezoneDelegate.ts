@@ -4,11 +4,11 @@ import MysqlDelegate                                    = require('../delegates/
 
 class TimezoneDelegate
 {
-    static currentOffsets;
+    static TIMEZONES:Object[];
 
     getTimezone(timezoneId:number):Object
     {
-        return TimezoneDelegate.currentOffsets[timezoneId];
+        return _.findWhere(TimezoneDelegate.TIMEZONES, {'zone_id': timezoneId});
     }
 
     updateTimezoneCache():q.Promise<any>
@@ -25,14 +25,14 @@ class TimezoneDelegate
             'WHERE tz.zone_id = max_tz.zone_id ' +
             'AND tz.time_start = max_tz.time_start) current_tz ' +
             'WHERE z.zone_id = current_tz.zone_id ' +
-            'ORDER BY z.zone_id;;';
+            'ORDER BY z.zone_id;';
 
         return MysqlDelegate.executeQuery(query)
             .then(
             function zoneFetched(result:Object[])
             {
-                TimezoneDelegate.currentOffsets = _.object(_.pluck(result, 'zone_id'), result);
-                return true;
+                TimezoneDelegate.TIMEZONES = result;
+                return TimezoneDelegate.TIMEZONES;
             });
     }
 }
