@@ -109,7 +109,7 @@ class CallFlowRoute
 
                 sessionData.setExpert(expert);
                 return q.all([
-                    self.userProfileDelegate.find({'integration_member_id': expert.getId()}),
+                    self.userProfileDelegate.find(Utils.createSimpleObject(UserProfile.USER_ID, user.getId)),
                     self.phoneCallDelegate.getScheduledCalls(user.getId()),
                     self.expertScheduleExceptionDelegate.search({'integration_member_id': expert.getId()},[ExpertSchedule.START_TIME,ExpertSchedule.DURATION])
                 ]);
@@ -136,7 +136,7 @@ class CallFlowRoute
                         return {duration:exception.getDuration(), start_time:exception.getStartTime()}
                     }));
 
-                return [userProfile,exceptions, q.all([
+                return [userProfile, exceptions, q.all([
                     self.userSkillDelegate.getSkillWithName(userProfile.getId()),
                     self.userEducationDelegate.search({'profileId': userProfile.getId()}),
                     self.userEmploymentDelegate.search({'profileId': userProfile.getId()})

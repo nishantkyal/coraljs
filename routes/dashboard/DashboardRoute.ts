@@ -117,7 +117,6 @@ class DashboardRoute
         // Auth
         app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
         app.post(Urls.register(), AuthenticationDelegate.register(), this.authSuccess.bind(this));
-        app.post(Urls.memberProfile(), Middleware.allowMeOrAdmin, this.memberProfileSave.bind(this));
         app.post(Urls.changePassword(), Middleware.allowMeOrAdmin, this.changePassword.bind(this));
 
         app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
@@ -348,24 +347,17 @@ class DashboardRoute
     private memberProfile(req:express.Request, res:express.Response)
     {
         var self = this;
-        var memberId = parseInt(req.params[ApiConstants.MEMBER_ID]);
+        var userId = parseInt(req.params[ApiConstants.USER_ID]);
         var mode = req.query[ApiConstants.MODE]
         var sessionData = new SessionData(req);
         var userProfile:UserProfile = new UserProfile();
         var member:IntegrationMember;
         var loggedInUser = sessionData.getLoggedInUser();
 
-        q.all([
-            self.integrationMemberDelegate.get(memberId, IntegrationMember.DASHBOARD_FIELDS),
-            self.userProfileDelegate.find({'integration_member_id': memberId})
-        ])
+        self.userProfileDelegate.find(Utils.createSimpleObject(UserProfile.USER_ID, loggedInUser.getId()))
             .then(
-            function memberFetched(...args)
+            function memberFetched(userProfile:UserProfile)
             {
-                member = args[0][0];
-                var userId:number = member.getUserId();
-
-                userProfile = args[0][1] || userProfile;
                 var profileInfoTasks = [self.userDelegate.get(userId)];
 
                 if (!Utils.isNullOrEmpty(userProfile) && userProfile.getId())
@@ -373,14 +365,7 @@ class DashboardRoute
                         self.userSkillDelegate.getSkillWithName(userProfile.getId()),
                         self.userEducationDelegate.search({'profileId': userProfile.getId()}),
                         self.userEmploymentDelegate.search({'profileId': userProfile.getId()}),
-                        self.userUrlDelegate.search({'profileId': userProfile.getId()}),
-                        Middleware.isSelf(loggedInUser, memberId),
-                        Middleware.isAdminOrOwner(loggedInUser, memberId)
-                    ]);
-
-                if (loggedInUser)
-                    profileInfoTasks = profileInfoTasks.concat([
-                        self.integrationMemberDelegate.find({integration_id: member.getIntegrationId(), user_id: loggedInUser.getId()})
+                        self.userUrlDelegate.search({'profileId': userProfile.getId()})
                     ]);
 
                 return q.all(profileInfoTasks);
@@ -394,11 +379,6 @@ class DashboardRoute
                 var userEmployment = args[0][3] || [];
                 var userUrl = args[0][4] || [];
                 var isEditable = args[0][5] || args[0][6] || false;
-                var tempMember = args[0][7];
-                var adminOrOwner;
-
-                if (tempMember && (tempMember.getRole() == IntegrationMemberRole.Owner || tempMember.getRole() == IntegrationMemberRole.Admin ))
-                    adminOrOwner = tempMember;
 
                 if (mode == ApiConstants.PUBLIC_MODE)
                     isEditable = false;
@@ -408,7 +388,6 @@ class DashboardRoute
                 var pageData = _.extend(sessionData.getData(), {
                     'profileId': profileId,
                     'member': member,
-                    'adminOrOwner': adminOrOwner,
                     'user': user,
                     'userSkill': _.sortBy(userSkill, function (skill) { return skill['skill_name'].length; }),
                     'userProfile': userProfile,
@@ -424,22 +403,6 @@ class DashboardRoute
             {
                 res.render('500', {error: error});
             });
-    }
-
-    private memberProfileSave(req:express.Request, res:express.Response)
-    {
-        var sessionData = new SessionData(req);
-        var user = req.body[ApiConstants.USER];
-        var userProfile = req.body[ApiConstants.USER_PROFILE];
-
-        q.all([
-            this.userDelegate.update({id: sessionData.getLoggedInUser().getId()}, user),
-            this.userProfileDelegate.update({id: userProfile.id}, userProfile)
-        ])
-            .then(
-            function userUpdated() { res.send(200); },
-            function userUpdateError(error) { res.send(500); }
-        );
     }
 
     callDetails(req:express.Request, res:express.Response)
