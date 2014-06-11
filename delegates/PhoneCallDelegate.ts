@@ -12,6 +12,7 @@ import UserDelegate                                                     = requir
 import NotificationDelegate                                             = require('../delegates/NotificationDelegate');
 import TransactionDelegate                                              = require('../delegates/TransactionDelegate');
 import TransactionLineDelegate                                          = require('../delegates/TransactionLineDelegate');
+import ExpertScheduleExceptionDelegate                                  = require('../delegates/ExpertScheduleExceptionDelegate');
 import CallStatus                                                       = require('../enums/CallStatus');
 import IncludeFlag                                                      = require('../enums/IncludeFlag');
 import PhoneType                                                        = require('../enums/PhoneType');
@@ -23,6 +24,7 @@ import IntegrationMember                                                = requir
 import AbstractScheduledTask                                            = require('../models/tasks/AbstractScheduledTask');
 import TriggerPhoneCallTask                                             = require('../models/tasks/TriggerPhoneCallTask');
 import CallReminderNotificationScheduledTask                            = require('../models/tasks/CallReminderNotificationScheduledTask');
+import ExpertSchedule                                                   = require('../models/ExpertSchedule');
 import UnscheduledCallsCache                                            = require('../caches/UnscheduledCallsCache');
 import PhoneCallCache                                                   = require('../caches/PhoneCallCache');
 import CallProviderFactory                                              = require('../factories/CallProviderFactory');
@@ -38,6 +40,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
     private transactionLineDelegate = new TransactionLineDelegate();
     private callProvider = new CallProviderFactory().getProvider();
     private phoneCallCache = new PhoneCallCache();
+    private expertScheduleExceptionDelegate = new ExpertScheduleExceptionDelegate();
 
     private static ctor = (() =>
     {
@@ -97,30 +100,71 @@ class PhoneCallDelegate extends BaseDaoDelegate
     update(criteria:number, newValues:Object, transaction?:Object):q.Promise<any>;
     update(criteria:any, newValues:Object, transaction?:Object):q.Promise<any>
     {
-        delete newValues[PhoneCall.START_TIME];
+        var self = this;
+        var updateProxy = super.update;
 
-        var newStatus = newValues.hasOwnProperty(PhoneCall.STATUS) ? newValues[PhoneCall.STATUS] : null;
-
-        // TODO: If updating caller user id, check that it's not the same as expert's user id
-
-        // Ensure we don't update to an invalid step (based on possible next steps)
-        if (!Utils.isNullOrEmpty(newStatus))
+        var callId:number;
+        if (Utils.getObjectType(criteria) == 'Number')
         {
-            if (Utils.getObjectType(criteria) == 'Number')
-                criteria = {id: criteria};
-
-            // Only return calls whose current status' next step can be the new status
-            // This is a better way to update status to a valid next status without querying for current status first
-            var allowedPreviousStatuses = _.filter(_.keys(PhoneCallDelegate.ALLOWED_NEXT_STATUS), function (status:any)
-            {
-                return _.contains(PhoneCallDelegate.ALLOWED_NEXT_STATUS[status], newStatus);
-            });
-
-            if (allowedPreviousStatuses.length > 0)
-                criteria[PhoneCall.STATUS] = _.map(allowedPreviousStatuses, function (status:string) {return parseInt(status); });
+            callId = criteria;
+            criteria = {id: criteria};
         }
+        else
+            callId = criteria[PhoneCall.ID];
 
-        return super.update(criteria, newValues, transaction);
+        return self.get(callId,null,[IncludeFlag.INCLUDE_INTEGRATION_MEMBER],transaction)
+            .then( function callFetched(call:PhoneCall){
+
+                // Ensure we don't update to an invalid step (based on possible next steps)
+                if (newValues.hasOwnProperty(PhoneCall.STATUS))
+                {
+                    var allowedStatus = PhoneCallDelegate.ALLOWED_NEXT_STATUS[call.getStatus()];
+
+                    var isNewStatusValid:boolean = false;
+                    _.each(allowedStatus, function(status){
+                        if (status == newValues[PhoneCall.STATUS])
+                            isNewStatusValid = true;
+                    })
+                    if(!isNewStatusValid)
+                        return q.reject('Status Cannot be updated as such a change in status is not allowed. Call Id - ' + callId);
+                }
+
+                //check that caller User Id is not same as expert as one can't schedule call with himself
+                if (newValues.hasOwnProperty(PhoneCall.CALLER_USER_ID))
+                {
+                    if (newValues[PhoneCall.CALLER_USER_ID] == call.getIntegrationMember().getUserId())
+                        return q.reject('Call with self is not allowed');
+                }
+
+                //Ensure that the schedule time of call doesn't conflict with expert exceptions
+                if (newValues.hasOwnProperty(PhoneCall.START_TIME))
+                {
+                    return  self.getScheduledCalls(call.getIntegrationMember().getUserId(),transaction)
+                        .then(
+                        function scheduledCallsFetched(calls:PhoneCall[]):any
+                        {
+                            var startTime = newValues[PhoneCall.START_TIME];
+                            var durationInMillis = call.getDuration()*1000;
+                            var isStartTimeValid:boolean = true;
+
+                            _.each(calls, function (call:PhoneCall)
+                            {
+                                if ( !(startTime > (call.getStartTime() + call.getDuration()*1000)) && !((startTime + durationInMillis) < call.getStartTime()) )
+                                    isStartTimeValid = false;
+                            });
+
+                            if (!isStartTimeValid)
+                                return q.reject('Expert is not available at the proposed time. Please select some other slot.')
+
+                            return q.resolve(true);
+                        })
+                }
+
+                return q.resolve(true); //return a promise in start_time check is not required
+            })
+            .then( function newValuesChecked(){
+                return updateProxy.call(self, criteria, newValues, transaction);
+            })
     }
 
     getIncludeHandler(include:IncludeFlag, result:PhoneCall):q.Promise<any>
