@@ -76,6 +76,7 @@ var helpers =
     IntegrationMemberRole: Utils.enumToNormalText(IntegrationMemberRole),
     CountryCode: Utils.enumToNormalText(CountryCode),
     CountryName: Utils.enumToNormalText(CountryName),
+    Timezone: TimezoneDelegate.currentOffsets,
 
     minYear: Config.get(Config.MINIMUM_YEAR),
     currentYear: moment().format('YYYY')
@@ -98,10 +99,7 @@ app.use(
         var excludeRegex = /^\/(rest|css|js|images|img|fonts)/;
 
         if (Utils.isNullOrEmpty(req.path.match(excludeRegex)))
-        {
             _.extend(res.locals, helpers);
-            _.extend(res.locals,{Timezone:TimezoneDelegate.currentOffsets} )
-        }
 
         next();
     }
@@ -190,7 +188,8 @@ app.listen(app.get('port'), function ()
         {
             if (Utils.isNullOrEmpty(scheduledTaskDelegate.find(ScheduledTaskType.CALL_SCHEDULE)))
                 scheduledTaskDelegate.scheduleAfter(new ScheduleCallsScheduledTask(), 1);
-            scheduledTaskDelegate.scheduleAfter(new TimezoneRefreshTask(),1);
+
+            scheduledTaskDelegate.scheduleAfter(new TimezoneRefreshTask(), 1);
         });
 
     // Update integration cache

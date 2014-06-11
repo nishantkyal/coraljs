@@ -24,6 +24,7 @@ import IntegrationMemberDelegate                                    = require('.
 import VerificationCodeDelegate                                     = require('../delegates/VerificationCodeDelegate');
 import FileWatcherDelegate                                          = require('../delegates/FileWatcherDelegate');
 import PhoneCallDelegate                                            = require('../delegates/PhoneCallDelegate');
+import TimezoneDelegate                                             = require('../delegates/TimezoneDelegate');
 import Utils                                                        = require('../common/Utils');
 import Config                                                       = require('../common/Config');
 import Formatter                                                    = require('../common/Formatter');
@@ -64,6 +65,7 @@ class EmailDelegate
     private phoneCallDelegate;
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private userDelegate = new UserDelegate();
+    private timezoneDelegate = new TimezoneDelegate();
 
     constructor()
     {
@@ -272,7 +274,7 @@ class EmailDelegate
 
         var emailData = {
             call: call,
-            appointment: appointment,
+            startTimeInCallerTZ: call.getStartTime() - self.timezoneDelegate.getTimezone(call.getUser().getTimezone())['gmt_offset'] * 1000,
             integration: integration
         };
 

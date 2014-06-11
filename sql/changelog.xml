@@ -377,4 +377,7 @@
     <changeSet author="Nishant (generated)" id="1402384154289-1">
         <dropColumn columnName="time_chunk_size" tableName="expert_schedule_rule"/>
     </changeSet>
+    <changeSet author="Nishant (generated)" id="1402467048117-1">
+        <addNotNullConstraint columnDataType="int(10)" columnName="timezone" tableName="user"/>
+    </changeSet>
 </databaseChangeLog>

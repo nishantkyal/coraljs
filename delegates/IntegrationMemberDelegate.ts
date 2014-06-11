@@ -142,6 +142,7 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
     getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
     {
         var self = this;
+        var member:IntegrationMember = result;
 
         switch (include)
         {
@@ -162,10 +163,12 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
                 var scheduleStartTime = moment().hours(0).valueOf();
                 var scheduleEndTime = moment().add({months: 4}).valueOf();
 
-                if (Utils.getObjectType(result) == 'Array')
-                    return self.expertScheduleDelegate.getSchedulesForExpert(_.uniq(_.pluck(result, IntegrationMember.ID)), scheduleStartTime, scheduleEndTime);
+                if (Utils.getObjectType(result) != 'Array')
+                    return self.expertScheduleDelegate.getSchedulesForExpert(member.getId(), scheduleStartTime, scheduleEndTime)
+/*
                 else
-                    return self.expertScheduleDelegate.getSchedulesForExpert(result.getId(), scheduleStartTime, scheduleEndTime)
+                    return self.expertScheduleDelegate.getSchedulesForExpert(_.uniq(_.pluck(result, IntegrationMember.ID)), scheduleStartTime, scheduleEndTime);
+*/
 
             case IncludeFlag.INCLUDE_SCHEDULE_RULES:
                 return self.expertScheduleRuleDelegate.getRulesByIntegrationMemberId(result[0][IntegrationMember.ID]);

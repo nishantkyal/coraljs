@@ -47,12 +47,9 @@ class WidgetExpertDelegate
                 var widgetExpert = new WidgetExpert(expert);
                 self.widgetExpertCache.save(widgetExpert);
 
-                return [widgetExpert, new TimezoneDelegate().getTimezone(widgetExpert.getTimezone())];
-            })
-            .spread(
-            function timezoneFetched(widgetExpert:WidgetExpert, result)
-            {
-                widgetExpert.setTimezoneOffset(result['gmt_offset']);
+                var timezone = new TimezoneDelegate().getTimezone(widgetExpert.getTimezone());
+                widgetExpert.setTimezoneOffset(timezone['gmt_offset']);
+
                 return widgetExpert;
             });
     }
