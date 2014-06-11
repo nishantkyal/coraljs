@@ -36,8 +36,8 @@ block content
                     td= formatMoney(member.revenue_share, member.revenue_share_unit)
                     td= formatRole(member.role)
                     td
-                        | #{member.user.status ? formatUserStatus(member.user.status) : 'Pending'}
-                        if (!member.user.status)
+                        | #{member.user.status != 'Pending' ? formatUserStatus(member.user.status) : 'Pending'}
+                        if (member.user.status == 'Pending')
                             a.btn.btn-xs.btn-default.sendAgain(data-emailid=member.user.email) Send Again
                     td(style='text-align: center;')
                         if (member.id != undefined && (member.deleted == null || member.deleted == 0))

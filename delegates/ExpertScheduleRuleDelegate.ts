@@ -194,12 +194,18 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
     {
         return _.filter(schedules, function (schedule:ExpertSchedule)
         {
-            _.each(exceptions, function (exception:ExpertScheduleException)
+            var applicableExceptions = _.filter(exceptions, function (exception:ExpertScheduleException)
             {
                 if (exception.conflicts(schedule))
+                    return true;
+                else
                     return false;
             });
-            return true;
+
+            if(!Utils.isNullOrEmpty(applicableExceptions) && applicableExceptions.length != 0)
+                return true;
+            else
+                return false;
         });
     }
 

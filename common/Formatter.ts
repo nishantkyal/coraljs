@@ -39,7 +39,10 @@ class Formatter
                     symbol: 'Points'
                 });
         }
-        return val.toString();
+        if (Utils.isNullOrEmpty(val))
+            return '';
+        else
+            return val.toString();
     }
 
     static formatRole(role:IntegrationMemberRole):string

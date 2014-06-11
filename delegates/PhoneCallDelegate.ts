@@ -368,7 +368,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
         return self.integrationMemberDelegate.search({user_id:userId},[IntegrationMember.ID],null,transaction)
             .then( function integrationMemberIdFetched(members){
                 var memberId:number[] = _.map(members,  function(member:any){ return member.getId(); })
-                return self.search({'id':memberId, 'status':[CallStatus.SCHEDULED,CallStatus.IN_PROGRESS]},[PhoneCall.START_TIME,PhoneCall.DURATION],null,transaction);
+                return self.search({'integration_member_id':memberId, 'status':[CallStatus.SCHEDULED,CallStatus.IN_PROGRESS]},[PhoneCall.START_TIME,PhoneCall.DURATION],null,transaction);
             })
     }
 

@@ -163,7 +163,8 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
                 var scheduleEndTime = moment().add({months: 4}).valueOf();
 
                 if (Utils.getObjectType(result) == 'Array')
-                    return self.expertScheduleDelegate.getSchedulesForExpert(_.uniq(_.pluck(result, IntegrationMember.ID)), scheduleStartTime, scheduleEndTime);
+                    return self.expertScheduleDelegate.getSchedulesForExpert(_.uniq(_.pluck(result, IntegrationMember.ID))[0], scheduleStartTime, scheduleEndTime);
+                    //TODO[ankit] handle array inout in getSchedulesForExpert---> remove [0]
                 else
                     return self.expertScheduleDelegate.getSchedulesForExpert(result.getId(), scheduleStartTime, scheduleEndTime)
 

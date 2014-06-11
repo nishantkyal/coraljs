@@ -325,6 +325,8 @@ class DashboardRoute
 
                     if (!Utils.isNullOrEmpty(expertEntry))
                         invitedMember.user['status'] = 'Registered';
+                    else
+                        invitedMember.user['status'] = 'Pending';
                 });
 
                 members = members.concat(_.map(invitedMembers, function (invited) { return new IntegrationMember(invited); }));

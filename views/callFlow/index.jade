@@ -231,6 +231,7 @@ include ../header
 include ../footer
 script.
     var schedules = JSON.parse( '!{JSON.stringify(expert.schedule)}' );
+    var exceptions = JSON.parse( '!{JSON.stringify(exception)}' );
     var duration = parseInt('#{duration}') || 15;
     var selectedTimeSlots = [];
     try {

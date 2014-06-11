@@ -1,6 +1,7 @@
 /* Index schedules */
 schedules = schedules || [moment()];
 var timeSlotsByDate = _.groupBy(schedules, function(schedule) { return moment(schedule.start_time).format('DD-MM-YYYY') });
+var exceptionsByDate = _.groupBy(exceptions, function(exception) { return moment(exception.start_time).format('DD-MM-YYYY') });
 setMonth(schedules[0].start_time);
 var tzOffsetInMillis = new Date().getTimezoneOffset() * 60 * 1000;
 
@@ -158,6 +159,8 @@ function selectDate(selectedDate, dateElement)
         $(dateElement).addClass('active');
 
     var schedulesForSelectedDate = timeSlotsByDate[moment(selectedDate).format('DD-MM-YYYY')];
+    var slots = [];
+
     _.each(schedulesForSelectedDate, function(schedule)
     {
         var slotTime = schedule.start_time + tzOffsetInMillis;
@@ -166,13 +169,46 @@ function selectDate(selectedDate, dateElement)
         var maxSlotTime = schedule.start_time + schedule.duration - selectedDurationInMillis;
         while (slotTime < maxSlotTime) {
             if (slotTime > moment().valueOf()) {
-                $('.timeslot-widget ul').append('<li class="timeslot" data-slot="' + slotTime + '">' + moment(slotTime).format('hh:mm A') + '<span class="checkbox"></span></li>');
-                if (selectedTimeSlots.indexOf(slotTime) != -1)
-                    $('.timeslot-widget ul li:last-child span').addClass('checked');
+                var tempSlot = {start_time:slotTime,duration:jumpInMillis/1000};
+                slots.push(tempSlot);
             }
             slotTime += jumpInMillis;
         }
     });
+
+    var exceptionsForSelectedDate = exceptionsByDate[moment(selectedDate).format('DD-MM-YYYY')];
+    slots = applyExceptions(slots,exceptionsForSelectedDate);
+
+    _.each(slots, function(slot){
+        var slotTime = slot.start_time;
+        $('.timeslot-widget ul').append('<li class="timeslot" data-slot="' + slotTime + '">' + moment(slotTime).format('hh:mm A') + '<span class="checkbox"></span></li>');
+        if (selectedTimeSlots.indexOf(slotTime) != -1)
+            $('.timeslot-widget ul li:last-child span').addClass('checked');
+    })
+
+}
+
+// Remove exceptions from schedulesForSelectedDate
+function applyExceptions(schedules,exceptions)
+{
+    if (!exceptions || exceptions.length == 0)
+        return schedules;
+    else
+        return _.filter(schedules, function (schedule)
+        {
+            var applicableExceptions = _.filter(exceptions, function (exception)
+            {
+                if ((schedule.start_time > (exception.start_time + exception.duration*1000)) || ((schedule.start_time + schedule.duration*1000) < exception.start_time))
+                    return true;
+                else
+                    return false;
+            });
+
+            if(applicableExceptions && applicableExceptions.length != 0)
+                return true;
+            else
+                return false;
+        });
 }
 
 /* Helper method to set displayed month in calendar */

@@ -23,6 +23,7 @@ import UserDelegate                                         = require('../../del
 import UserEducationDelegate                                = require('../../delegates/UserEducationDelegate');
 import UserSkillDelegate                                    = require('../../delegates/UserSkillDelegate');
 import UserEmploymentDelegate                               = require('../../delegates/UserEmploymentDelegate');
+import ExpertScheduleExceptionDelegate                      = require('../../delegates/ExpertScheduleExceptionDelegate');
 import CouponDelegate                                       = require('../../delegates/CouponDelegate');
 import PhoneCall                                            = require('../../models/PhoneCall');
 import ExpertSchedule                                       = require('../../models/ExpertSchedule');
@@ -67,6 +68,7 @@ class CallFlowRoute
     private userSkillDelegate = new UserSkillDelegate();
     private userEducationDelegate = new UserEducationDelegate();
     private couponDelegate = new CouponDelegate();
+    private expertScheduleExceptionDelegate = new ExpertScheduleExceptionDelegate();
 
     constructor(app, secureApp)
     {
@@ -106,7 +108,11 @@ class CallFlowRoute
                 }
 
                 sessionData.setExpert(expert);
-                return self.userProfileDelegate.find({'integration_member_id': expert.getId()});
+                return q.all([
+                    self.userProfileDelegate.find({'integration_member_id': expert.getId()}),
+                    self.phoneCallDelegate.getScheduledCalls(user.getId()),
+                    self.expertScheduleExceptionDelegate.search({'integration_member_id': expert.getId()},[ExpertSchedule.START_TIME,ExpertSchedule.DURATION])
+                ]);
             },
             function handleExpertSearchFailed(error)
             {
@@ -114,16 +120,30 @@ class CallFlowRoute
                 throw('No such expert exists!');
             })
             .then(
-            function userProfileFetched(userProfile:UserProfile):any
+            function userProfileFetched(...args):any
             {
-                return [userProfile, q.all([
+                var userProfile:UserProfile = args[0][0];
+
+                var exceptions = [];
+
+                if(!Utils.isNullOrEmpty(args[0][1]))
+                    exceptions = exceptions.concat(_.map(args[0][1], function(call:any){
+                        return {duration:call.getDuration(), start_time:call.getStartTime()}
+                    }));
+
+                if(!Utils.isNullOrEmpty(args[0][2]))
+                    exceptions = exceptions.concat( _.map(args[0][2], function(exception:any){
+                        return {duration:exception.getDuration(), start_time:exception.getStartTime()}
+                    }));
+
+                return [userProfile,exceptions, q.all([
                     self.userSkillDelegate.getSkillWithName(userProfile.getId()),
                     self.userEducationDelegate.search({'profileId': userProfile.getId()}),
                     self.userEmploymentDelegate.search({'profileId': userProfile.getId()})
                 ])];
             })
             .spread(
-            function profileDetailsFetched(userProfile, ...args)
+            function profileDetailsFetched(userProfile,exception, ...args)
             {
                 var userSkill = args[0][0] || [];
                 var userEducation = args[0][1] || [];
@@ -134,6 +154,7 @@ class CallFlowRoute
                     userProfile: userProfile,
                     userEducation: userEducation,
                     userEmployment: userEmployment,
+                    exception:exception,
                     messages: req.flash()
                 });
 

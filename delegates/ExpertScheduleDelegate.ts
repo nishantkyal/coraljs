@@ -13,7 +13,7 @@ import IncludeFlag                                                      = requir
 class ExpertScheduleDelegate
 {
     getSchedulesForExpert(expertId:number, startTime?:number, endTime?:number):q.Promise<any>
-    {
+    {//TODO[ankit] handle array inout in getSchedulesForExpert
         var self = this;
         startTime = startTime || moment().valueOf();
         endTime = endTime || moment(startTime).add({days: 30}).valueOf();
