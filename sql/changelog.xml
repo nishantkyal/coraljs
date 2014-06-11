@@ -400,4 +400,43 @@
     <changeSet author="Nishant (generated)" id="1402512207614-6">
         <dropColumn columnName="user_id" tableName="user_profile"/>
     </changeSet>
+    <changeSet author="Nishant (generated)" id="1402513082851-1">
+        <createTable tableName="ref_profile_status">
+            <column name="id" type="INT(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(45)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402513082851-2">
+        <addColumn tableName="user_profile">
+            <column name="status" type="INT(10)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402513082851-3">
+        <addPrimaryKey columnNames="id" constraintName="PRIMARY" tableName="ref_profile_status"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402513082851-4">
+        <addForeignKeyConstraint baseColumnNames="status" baseTableName="user_profile" constraintName="profile_status" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="ref_profile_status"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402513082851-5">
+        <addUniqueConstraint columnNames="integration_member_id" constraintName="user_id_UNIQUE" deferrable="false" disabled="false" initiallyDeferred="false" tableName="user_profile"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402513082851-6">
+        <dropForeignKeyConstraint baseTableName="user_profile" constraintName="FK_user_profile"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402513082851-7">
+        <dropUniqueConstraint constraintName="user_id_UNIQUE" tableName="user_profile"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402513082851-8">
+        <dropColumn columnName="user_id" tableName="user_profile"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402513082851-9">
+        <dropIndex tableName="user_profile"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402513082851-10">
+        <createIndex indexName="user_id_unique" tableName="user_profile">
+            <column name="integration_member_id"/>
+        </createIndex>
+    </changeSet>
 </databaseChangeLog>

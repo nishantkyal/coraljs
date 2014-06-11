@@ -29,7 +29,6 @@ import Config                                   = require('../common/Config');
 import Utils                                    = require('../common/Utils');
 import IndustryCodes                            = require('../enums/IndustryCode');
 import IncludeFlag                              = require('../enums/IncludeFlag');
-import ProfileStatus                            = require('../enums/ProfileStatus');
 
 class UserProfileDelegate extends BaseDaoDelegate
 {

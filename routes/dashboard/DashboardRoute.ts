@@ -46,7 +46,6 @@ import ApiConstants                                     = require('../../enums/A
 import SmsTemplate                                      = require('../../enums/SmsTemplate');
 import CallStatus                                       = require('../../enums/CallStatus');
 import IndustryCodes                                    = require('../../enums/IndustryCode');
-import ProfileStatus                                    = require('../../enums/ProfileStatus');
 import Utils                                            = require('../../common/Utils');
 import Formatter                                        = require('../../common/Formatter');
 import Config                                           = require('../../common/Config');

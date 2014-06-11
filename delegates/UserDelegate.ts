@@ -15,7 +15,6 @@ import UserProfile                                                      = requir
 import IncludeFlag                                                      = require('../enums/IncludeFlag');
 import ImageSize                                                        = require('../enums/ImageSize');
 import UserStatus                                                       = require('../enums/UserStatus');
-import ProfileStatus                                                    = require('../enums/ProfileStatus');
 import Config                                                           = require('../common/Config');
 import Utils                                                            = require('../common/Utils');
 
@@ -42,7 +41,6 @@ class UserDelegate extends BaseDaoDelegate
             function userCreated(user:User)
             {
                 var userProfile:UserProfile = new UserProfile();
-                userProfile.setStatus(ProfileStatus.INCOMPLETE);
                 userProfile.setUserId(user.getId());
 
                 return [user, self.userProfileDelegate.create(userProfile)];
@@ -158,16 +156,6 @@ class UserDelegate extends BaseDaoDelegate
                     throw(UserStatus.MOBILE_NOT_VERIFIED);
                 else
                     return self.userProfileDelegate.find(Utils.createSimpleObject(UserProfile.USER_ID, user.getId()), null, null, transaction);
-            })
-            .then(
-            function userProfileFound(profile:UserProfile)
-            {
-                if (Utils.isNullOrEmpty(profile) || Utils.getObjectType(profile) != 'UserProfile')
-                    throw(UserStatus.PROFILE_NOT_PUBLISHED);
-                else if (profile.getStatus() == ProfileStatus.INCOMPLETE || profile.getStatus() == ProfileStatus.PENDING_APPROVAL)
-                    throw(UserStatus.PROFILE_NOT_PUBLISHED);
-                else
-                    throw(UserStatus.ACTIVE);
             })
             .fail(
             function updateStatus(status)

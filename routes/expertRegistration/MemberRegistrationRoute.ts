@@ -23,7 +23,6 @@ import ApiConstants                                         = require('../../enu
 import IntegrationType                                      = require('../../enums/IntegrationType');
 import IncludeFlag                                          = require('../../enums/IncludeFlag');
 import IntegrationMemberRole                                = require('../../enums/IntegrationMemberRole');
-import ProfileStatus                                        = require('../../enums/ProfileStatus');
 import Config                                               = require('../../common/Config');
 import Utils                                                = require('../../common/Utils');
 import DashboardUrls                                        = require('../../routes/dashboard/Urls');
