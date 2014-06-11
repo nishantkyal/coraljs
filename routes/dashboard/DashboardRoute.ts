@@ -120,8 +120,6 @@ class DashboardRoute
         app.post(Urls.register(), AuthenticationDelegate.register(), this.authSuccess.bind(this));
         app.post(Urls.memberProfile(), Middleware.allowMeOrAdmin, this.memberProfileSave.bind(this));
         app.post(Urls.changePassword(), Middleware.allowMeOrAdmin, this.changePassword.bind(this));
-        app.post(Urls.changeProfileStatus(), Middleware.allowMeOrAdmin, this.changeProfileStatus.bind(this));
-        app.post(Urls.publishProfile(), Middleware.allowOwnerOrAdmin, this.publishProfile.bind(this));
 
         app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
         app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
@@ -443,44 +441,6 @@ class DashboardRoute
             function userUpdated() { res.send(200); },
             function userUpdateError(error) { res.send(500); }
         );
-    }
-
-    changeProfileStatus(req:express.Request, res:express.Response)
-    {
-        var self = this;
-
-        var profileId:number = parseInt(req.body[ApiConstants.USER_PROFILE_ID]);
-        var userProfile:UserProfile = new UserProfile();
-        var memberId:number = parseInt(req.params[ApiConstants.MEMBER_ID]);
-
-        userProfile.setStatus(ProfileStatus.PENDING_APPROVAL);
-        this.userProfileDelegate.update({id: profileId}, userProfile)
-            .then(
-            function userUpdated()
-            {
-                self.notificationDelegate.sendProfilePendingApprovalNotification(memberId)
-                    .then(
-                    function emailSent() { res.send(200); }
-                )
-            }
-        )
-            .fail(function userUpdateError(error) { res.send(500); })
-    }
-
-    publishProfile(req:express.Request, res:express.Response)
-    {
-        var profileId:number = parseInt(req.body[ApiConstants.USER_PROFILE_ID]);
-        var userId:number = parseInt(req.body[ApiConstants.USER_ID]);
-        var memberId:number = parseInt(req.params[ApiConstants.MEMBER_ID]);
-
-        q.all([
-            this.userProfileDelegate.publishProfile(profileId, userId),
-            this.notificationDelegate.sendProfileApprovedNotification(memberId)
-        ])
-            .then(
-            function profilePublished() { res.send(200); },
-            function profilePublishError(error) { res.send(500); }
-        )
     }
 
     callDetails(req:express.Request, res:express.Response)

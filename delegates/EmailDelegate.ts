@@ -54,8 +54,6 @@ class EmailDelegate
     private static EMAIL_USER_SCHEDULED:string                      = 'EMAIL_USER_SCHEDULED';
     private static EMAIL_USER_AGENDA_FAIL:string                    = 'EMAIL_USER_AGENDA_FAIL';
     private static EMAIL_SUGGESTED_TIME_TO_CALLER:string            = 'EMAIL_SUGGESTED_TIME_TO_CALLER';
-    private static EMAIL_PROFILE_PENDING_APPROVAL:string            = 'EMAIL_PROFILE_PENDING_APPROVAL';
-    private static EMAIL_PROFILE_APPROVED:string                    = 'EMAIL_PROFILE_APPROVED';
     private static EMAIL_EXPERT_REGISTRATION_SUCCESS:string         = 'EMAIL_EXPERT_REGISTRATION_SUCCESS';
     private static EMAIL_USER_ACCOUNT_INCOMPLETE_REMINDER:string    = 'EMAIL_USER_ACCOUNT_INCOMPLETE_REMINDER';
 
@@ -491,59 +489,6 @@ class EmailDelegate
         };
 
         return this.composeAndSend(EmailDelegate.EMAIL_PASSWORD_RESET, email, emailData);
-    }
-
-    sendProfilePendingApprovalEmail(memberId:number):q.Promise<any>
-    {
-        var self = this;
-        var integrationId:number;
-        var user:User;
-
-        return self.integrationMemberDelegate.get(memberId)
-            .then(function memberFetched(integrationMember:IntegrationMember)
-            {
-                integrationId = integrationMember.getIntegrationId();
-                return q.all([
-                    self.integrationMemberDelegate.find({integration_id: integrationId, 'role': IntegrationMemberRole.Owner}),
-                    self.userDelegate.get(integrationMember.getUserId())
-                ])
-            })
-            .then(function ownerFetched(...args)
-            {
-                var owner:IntegrationMember = args[0][0];
-                user = args[0][1];
-                return self.userDelegate.get(owner.getUserId())
-            })
-            .then(function ownerUserFetched(ownerUser:User)
-            {
-                var integration = new IntegrationDelegate().getSync(integrationId);
-                var emailData = {
-                    expert: user,
-                    integration: integration,
-                    memberId: memberId,
-                    profileUrl: DashboardUrls.memberProfile(memberId,  Config.get(Config.DASHBOARD_URI))
-                };
-                return self.composeAndSend(EmailDelegate.EMAIL_PROFILE_PENDING_APPROVAL, ownerUser.getEmail(), emailData);
-            })
-    }
-
-    sendProfileApprovedEmail(memberId:number):q.Promise<any>
-    {
-        var self = this;
-        var profileUrl = DashboardUrls.memberProfile(memberId, Config.get(Config.DASHBOARD_URI));
-        var callHandleUrl = CallFlowUrls.callExpert(memberId, Config.get(Config.DASHBOARD_URI));
-
-        return self.integrationMemberDelegate.get(memberId,null,[IncludeFlag.INCLUDE_USER])
-            .then(function memberFetched(integrationMember:IntegrationMember)
-            {
-                var integration = new IntegrationDelegate().getSync(integrationMember.getIntegrationId());
-                var emailData = {
-                    profileUrl: profileUrl,
-                    callHandleUrl: callHandleUrl,
-                    integration: integration
-                };
-                return self.composeAndSend(EmailDelegate.EMAIL_PROFILE_APPROVED, integrationMember.getUser().getEmail(), emailData);
-            })
     }
 
     sendExpertRegistrationCompleteEmail(expert:IntegrationMember):q.Promise<any>

@@ -111,19 +111,6 @@ class NotificationDelegate
         return this.emailDelegate.sendPasswordResetEmail(email, code);
     }
 
-    sendProfilePendingApprovalNotification(memberId:number):q.Promise<any>
-    {
-        return this.emailDelegate.sendProfilePendingApprovalEmail(memberId);
-    }
-
-    sendProfileApprovedNotification(memberId:number):q.Promise<any>
-    {
-        return q.all([
-            this.emailDelegate.sendProfileApprovedEmail(memberId),
-            this.smsDelegate.sendRegistrationAndProfileCompleteSMS(memberId)
-        ]);
-    }
-
     sendExpertRegistrationCompleteNotification(expert:IntegrationMember):q.Promise<any>
     {
         var self = this;

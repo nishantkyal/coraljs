@@ -12,8 +12,6 @@ class Urls
     static callDetails(memberId?:number) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/callDetails', {memberId: memberId}); }
     static revenueDetails(memberId?:number) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/revenueDetails', {memberId: memberId}); }
     static scheduleDetails(memberId?:number) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/schedule', {memberId: memberId}); }
-    static changeProfileStatus(memberId?:number) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/changeProfileStatus', {memberId: memberId}); }
-    static publishProfile(memberId?:number) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/publishProfile', {memberId: memberId}); }
     static emailAccountVerification() { return ApiUrlDelegate.get('/email/verification'); }
     static mobileVerification():string { return ApiUrlDelegate.get('/phone/verification'); }
 
