@@ -40,6 +40,26 @@ class UserProfileDelegate extends BaseDaoDelegate
 
     constructor() { super(new UserProfileDao()); }
 
+    find(criteria:Object, fields?:string[], includes:IncludeFlag[] = [], dbTransaction?:Object):q.Promise<any>
+    {
+        var self = this;
+
+        return super.find(criteria, fields, includes, dbTransaction)
+            .then(
+            function profileFetched(profile:UserProfile):any
+            {
+                if (Utils.isNullOrEmpty(profile) && criteria.hasOwnProperty(UserProfile.USER_ID))
+                {
+                    var profile = new UserProfile();
+                    profile.setUserId(criteria[UserProfile.USER_ID]);
+
+                    return self.create(profile, dbTransaction);
+                }
+                else
+                    return profile;
+            });
+    }
+
     fetchSelectedFieldsFromLinkedIn(userId:number, profileFields:string[]):q.Promise<any>
     {
         var fields:string = profileFields.join(',');
@@ -80,7 +100,6 @@ class UserProfileDelegate extends BaseDaoDelegate
 
                 return deferred.promise;
             });
-
     }
 
     fetchEducationDetailsFromLinkedIn(userId:number, profileId:number, transaction?:Object):q.Promise<any>
@@ -141,14 +160,14 @@ class UserProfileDelegate extends BaseDaoDelegate
                         tempUserEmployment.setCompany(position.company ? position.company.name : null);
 
                         if (!Utils.isNullOrEmpty(position.startDate))
-                            if(position.startDate.month && position.startDate.year)
-                                tempUserEmployment.setStartDate(moment(position.startDate.month + ' ' +position.startDate.year, 'MM YYYY').valueOf());
+                            if (position.startDate.month && position.startDate.year)
+                                tempUserEmployment.setStartDate(moment(position.startDate.month + ' ' + position.startDate.year, 'MM YYYY').valueOf());
                             else
                                 tempUserEmployment.setStartDate(-1);
 
                         if (!position.isCurrent && !Utils.isNullOrEmpty(position.endDate))
-                            if(position.endDate.month && position.endDate.year)
-                                tempUserEmployment.setEndDate(moment(position.endDate.month + ' ' +position.endDate.year, 'MM YYYY').valueOf());
+                            if (position.endDate.month && position.endDate.year)
+                                tempUserEmployment.setEndDate(moment(position.endDate.month + ' ' + position.endDate.year, 'MM YYYY').valueOf());
                             else
                                 tempUserEmployment.setEndDate(-1);
 
@@ -300,8 +319,8 @@ class UserProfileDelegate extends BaseDaoDelegate
             .then(
             function educationFetched(userEducation:UserEducation[]):any
             {
-                if(userEducation && userEducation.length>0)
-                    //TODO: Check if this can be done in one statement using the IN clause of SQL
+                if (userEducation && userEducation.length > 0)
+                //TODO: Check if this can be done in one statement using the IN clause of SQL
                     return userEducationDelegate.delete({id: _.pluck(userEducation, UserEducation.ID), profileId: profileId}, transaction, false);
                 else
                     return false;
@@ -325,7 +344,7 @@ class UserProfileDelegate extends BaseDaoDelegate
             .then(
             function EmploymentFetched(userEmployment:UserEmployment[]):any
             {
-                if(userEmployment && userEmployment.length > 0)
+                if (userEmployment && userEmployment.length > 0)
                     return userEmploymentDelegate.delete({id: _.pluck(userEmployment, UserEmployment.ID), profileId: profileId}, transaction, false);
                 else
                     return false;
@@ -349,7 +368,7 @@ class UserProfileDelegate extends BaseDaoDelegate
             .then(
             function SkillFetched(userSkills:UserSkill[]):any
             {
-                if(userSkills && userSkills.length > 0)
+                if (userSkills && userSkills.length > 0)
                     return userSkillDelegate.delete({id: _.pluck(userSkills, UserSkill.ID), profileId: profileId}, transaction, false);
                 else
                     return false;

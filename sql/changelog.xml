@@ -380,63 +380,33 @@
     <changeSet author="Nishant (generated)" id="1402467048117-1">
         <addNotNullConstraint columnDataType="int(10)" columnName="timezone" tableName="user"/>
     </changeSet>
-    <changeSet author="Nishant (generated)" id="1402512207614-1">
+    <changeSet author="Nishant (generated)" id="1402515426669-1">
         <addColumn tableName="user_profile">
-            <column name="integration_member_id" type="INT(10)"/>
+            <column name="user_id" type="INT(10)"/>
         </addColumn>
     </changeSet>
-    <changeSet author="Nishant (generated)" id="1402512207614-2">
-        <addForeignKeyConstraint baseColumnNames="integration_member_id" baseTableName="user_profile" constraintName="profile_integration_member_id" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="integration_member"/>
+    <changeSet author="Nishant (generated)" id="1402515426669-2">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="user_profile" constraintName="FK_user_profile" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="user"/>
     </changeSet>
-    <changeSet author="Nishant (generated)" id="1402512207614-3">
-        <addUniqueConstraint columnNames="integration_member_id" constraintName="user_id_UNIQUE" deferrable="false" disabled="false" initiallyDeferred="false" tableName="user_profile"/>
+    <changeSet author="Nishant (generated)" id="1402515426669-3">
+        <addUniqueConstraint columnNames="user_id" constraintName="user_id_UNIQUE" deferrable="false" disabled="false" initiallyDeferred="false" tableName="user_profile"/>
     </changeSet>
-    <changeSet author="Nishant (generated)" id="1402512207614-4">
-        <dropForeignKeyConstraint baseTableName="user_profile" constraintName="FK_user_profile"/>
+    <changeSet author="Nishant (generated)" id="1402515426669-4">
+        <dropForeignKeyConstraint baseTableName="user_profile" constraintName="profile_integration_member_id"/>
     </changeSet>
-    <changeSet author="Nishant (generated)" id="1402512207614-5">
+    <changeSet author="Nishant (generated)" id="1402515426669-5">
+        <dropForeignKeyConstraint baseTableName="user_profile" constraintName="profile_status"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402515426669-6">
         <dropUniqueConstraint constraintName="user_id_UNIQUE" tableName="user_profile"/>
     </changeSet>
-    <changeSet author="Nishant (generated)" id="1402512207614-6">
-        <dropColumn columnName="user_id" tableName="user_profile"/>
+    <changeSet author="Nishant (generated)" id="1402515426669-7">
+        <dropTable tableName="ref_profile_status"/>
     </changeSet>
-    <changeSet author="Nishant (generated)" id="1402513082851-1">
-        <createTable tableName="ref_profile_status">
-            <column name="id" type="INT(10)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="status" type="VARCHAR(45)"/>
-        </createTable>
+    <changeSet author="Nishant (generated)" id="1402515426669-8">
+        <dropColumn columnName="integration_member_id" tableName="user_profile"/>
     </changeSet>
-    <changeSet author="Nishant (generated)" id="1402513082851-2">
-        <addColumn tableName="user_profile">
-            <column name="status" type="INT(10)"/>
-        </addColumn>
-    </changeSet>
-    <changeSet author="Nishant (generated)" id="1402513082851-3">
-        <addPrimaryKey columnNames="id" constraintName="PRIMARY" tableName="ref_profile_status"/>
-    </changeSet>
-    <changeSet author="Nishant (generated)" id="1402513082851-4">
-        <addForeignKeyConstraint baseColumnNames="status" baseTableName="user_profile" constraintName="profile_status" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="ref_profile_status"/>
-    </changeSet>
-    <changeSet author="Nishant (generated)" id="1402513082851-5">
-        <addUniqueConstraint columnNames="integration_member_id" constraintName="user_id_UNIQUE" deferrable="false" disabled="false" initiallyDeferred="false" tableName="user_profile"/>
-    </changeSet>
-    <changeSet author="Nishant (generated)" id="1402513082851-6">
-        <dropForeignKeyConstraint baseTableName="user_profile" constraintName="FK_user_profile"/>
-    </changeSet>
-    <changeSet author="Nishant (generated)" id="1402513082851-7">
-        <dropUniqueConstraint constraintName="user_id_UNIQUE" tableName="user_profile"/>
-    </changeSet>
-    <changeSet author="Nishant (generated)" id="1402513082851-8">
-        <dropColumn columnName="user_id" tableName="user_profile"/>
-    </changeSet>
-    <changeSet author="Nishant (generated)" id="1402513082851-9">
-        <dropIndex tableName="user_profile"/>
-    </changeSet>
-    <changeSet author="Nishant (generated)" id="1402513082851-10">
-        <createIndex indexName="user_id_unique" tableName="user_profile">
-            <column name="integration_member_id"/>
-        </createIndex>
+    <changeSet author="Nishant (generated)" id="1402515426669-9">
+        <dropColumn columnName="status" tableName="user_profile"/>
     </changeSet>
 </databaseChangeLog>

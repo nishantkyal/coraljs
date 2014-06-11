@@ -109,7 +109,7 @@ class CallFlowRoute
 
                 sessionData.setExpert(expert);
                 return q.all([
-                    self.userProfileDelegate.find(Utils.createSimpleObject(UserProfile.USER_ID, user.getId)),
+                    self.userProfileDelegate.find(Utils.createSimpleObject(UserProfile.USER_ID, user.getId())),
                     self.phoneCallDelegate.getScheduledCalls(user.getId()),
                     self.expertScheduleExceptionDelegate.search({'integration_member_id': expert.getId()},[ExpertSchedule.START_TIME,ExpertSchedule.DURATION])
                 ]);
