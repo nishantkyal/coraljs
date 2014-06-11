@@ -25,11 +25,13 @@ class TimezoneRefreshTask extends AbstractScheduledTask
     {
         var self = this;
 
-        return this.timezoneDelegate.getCurrentOffsets()
-            .finally( function triggerAfterOneDay(){
+        return this.timezoneDelegate.updateTimezoneCache()
+            .finally(
+            function triggerAfterOneDay()
+            {
                 var millis:number = parseInt(Config.get(Config.TIMEZONE_REFRESH_INTERVAL_SECS)) * 1000;
                 self.scheduledTaskDelegate.scheduleAfter(new TimezoneRefreshTask(), millis);
-            })
+            });
     }
 
     isValid():boolean

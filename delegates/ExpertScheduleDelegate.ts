@@ -23,17 +23,14 @@ class ExpertScheduleDelegate
         return q.all([
             new ExpertScheduleRuleDelegate().getRulesByIntegrationMemberId(expertId, startTime, endTime),
             new IntegrationMemberDelegate().get(expertId, null, [IncludeFlag.INCLUDE_USER])
-            .then(
-                function expertFetched(expert:IntegrationMember)
-                {
-                    return new TimezoneDelegate().getTimezone(expert.getUser().getTimezone());
-                })
         ])
             .then(
             function rulesFetched(...args)
             {
                 var rules:ExpertScheduleRule[] = args[0][0];
-                var timezone = args[0][1];
+                var expert:IntegrationMember = args[0][1];
+
+                var timezone = new TimezoneDelegate().getTimezone(expert.getUser().getTimezone());
                 var offsetInSecs = timezone['gmt_offset'];
                 var offsetInMillis = offsetInSecs * 1000;
 
