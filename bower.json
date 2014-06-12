@@ -2,6 +2,7 @@
     "name": "SearchNTalk - Dashboard",
     "version": "0.1.0",
     "dependencies": {
+        "underscore": "1.6.0",
         "bootstrap": "3.1.1",
         "jquery": "~1.10.2",
         "eonasdan-bootstrap-datetimepicker": "3.0.0",
