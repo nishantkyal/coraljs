@@ -198,7 +198,7 @@ function applyExceptions(schedules,exceptions)
         {
             var applicableExceptions = _.filter(exceptions, function (exception)
             {
-                if ((schedule.start_time > (exception.start_time + exception.duration*1000)) || ((schedule.start_time + schedule.duration*1000) < exception.start_time))
+                if ((schedule.start_time > (exception.start_time + exception.duration)) || ((schedule.start_time + schedule.duration) < exception.start_time))
                     return true;
                 else
                     return false;

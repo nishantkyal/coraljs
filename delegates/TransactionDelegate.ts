@@ -180,8 +180,7 @@ class TransactionDelegate extends BaseDaoDelegate
 
                 // Create discount transaction line and increment coupons used counter
                 return q.all([
-                    //TODO[ankit] change mark used function
-                    //self.couponDelegate.markUsed(code, dbTransaction),
+                    self.couponDelegate.markUsed(code, dbTransaction),
                     self.transactionLineDelegate.create(discountLine, dbTransaction)
                 ]);
             },
