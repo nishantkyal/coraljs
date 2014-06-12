@@ -1,5 +1,4 @@
 *.js.map
-*.d.ts
 .DS_Store
 .idea
 *.js
