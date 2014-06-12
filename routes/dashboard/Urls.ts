@@ -17,7 +17,7 @@ class Urls
 
     static dashboard() { return ApiUrlDelegate.get('/dashboard'); }
     static integration() { return ApiUrlDelegate.get('/network'); }
-    static memberProfile(memberId?:number, baseUrl?:string) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/profile', {memberId: memberId}, baseUrl); }
+    static userProfile(userId?:number, baseUrl?:string) { return ApiUrlDelegate.get('/user/:userId(\\d+)/profile', {userId: userId}, baseUrl); }
 
     static logout() { return ApiUrlDelegate.get('/logout'); }
     static paymentCallback() { return ApiUrlDelegate.get('/payment/complete'); }

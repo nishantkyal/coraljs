@@ -495,7 +495,7 @@ class EmailDelegate
     {
         var self = this;
         var integration = new IntegrationDelegate().getSync(expert.getIntegrationId());
-        var profileUrl = DashboardUrls.memberProfile(expert.getId(), Config.get(Config.DASHBOARD_URI));
+        var profileUrl = DashboardUrls.userProfile(expert.getId(), Config.get(Config.DASHBOARD_URI));
         var callHandleUrl = CallFlowUrls.callExpert(expert.getId(), Config.get(Config.DASHBOARD_URI));
 
         var emailData = {

@@ -1,319 +1,61 @@
-extends header
-block content
-    title SearchNTalk - Profile
-    .row-fluid
-        include ../errorMessage
-    .row-fluid
-        .col-md-3
-            #profileimageUpload
-                img.img.img-polaroid.img-responsive.col-md-12#profileImage(src=ApiUrlDelegate.userProfilePicture(user.id))
-                if isEditable
-                    .text-center
-                        a.btn.btn-default.btn-xs#selectFileBtn Upload
-                    form#fileUploadForm(action=ApiUrlDelegate.userProfilePicture(user.id), method="post", enctype="multipart/form-data")
-                        input#selectFile(type='file', name='profile', style='display: none')
-                        input#selectFileSubmit(type='submit', style='display: none')
-            hr
-            .text-center
-                a.btn.btn-success(href=CallFlowUrls.callExpert(member.id), target="_blank")
-                    span.glyphicon.glyphicon-earphone(style='margin-right: 8px')
-                    | Call Now
-            if isEditable
-                hr
-                .panel.panel-info
-                    .panel-heading
-                        | Account settings
-                    .panel-body.text-center
-                        div
-                            a.btn.btn-danger.btn-xs(data-toggle='modal', href='#ChangePasswordModal') Change Password
-                        div
-                            a.btn.btn-primary.btn-xs(data-id=profileId, data-toggle='modal', href= '#FetchFromLinkedInModal')
-                                i.fa.fa-linkedin-square
-                                | &nbsp;Import From LinkedIn
-                        div
-                            a.btn.btn-link(href=DashboardUrls.memberProfile(member.id) + '?mode=public', target="_blank") View My Public Profile
-                        div
-                        if userProfile.status == 1
-                            div
-                                a.btn.btn-link#SendProfile() Send Profile for Approval
-                        div
-                            a.btn.btn-primary.btn-xs(href= DashboardUrls.scheduleDetails(member.id)) Change My Schedule
-                        if adminOrOwner && userProfile.status == 2
-                                div
-                                    a.btn.btn-link#publishProfile() Publish Profile
-        .col-md-9
-            .row-fluid
-                .col-md-6
-                    .panel.panel-info
-                        .panel-heading
-                            | Basic Info
-                            if isEditable
-                                .pull-right
-                                    button.btn.btn-default.btn-xs(data-id=profileId, data-toggle='modal', href='#EditUserProfileModal')
-                                        span.fa.fa-pencil
-                                    a.btn.btn-default.btn-xs#fetchBasic(title='Import basic profile from LinkedIn', data-id=profileId, data-toggle='modal')
-                                        span.fa.fa-linkedin
-                        .panel-body
-                            .form
-                                .form-group
-                                    label.control-label Name
-                                    .pull-right
-                                        .form-control-static= formatName(user.first_name, user.last_name, user.title)
-                                .form-group
-                                    label.control-label Date of birth
-                                    .pull-right
-                                        .form-control-static= formatDate(user.date_of_birth,'DD/MM/YYYY') || 'Not specified'
-                                .form-group
-                                    label.control-label Summary
-                                    .form-control-static= userProfile.short_desc
-                                .form-group
-                                    label.control-label Description
-                                    .pull-right
-                                        .form-control-static= userProfile.long_desc
-                                .form-group
-                                    label.control-label Industry
-                                    .pull-right
-                                        .form-control-static= IndustryCodes[user.industry]
-                                .form-group
-                                    label.control-label Role
-                                    .pull-right
-                                        .form-control-static= formatRole(member.role)
-                                .form-group
-                                    label.control-label Revenue share
-                                    .pull-right
-                                        .form-control-static
-                                            span= formatMoney(member.revenue_share, member.revenue_share_unit)
-                                            | /call
-                .col-md-6
-                    .panel.panel-danger
-                        .panel-heading
-                            | Skills
-                        if userSkill.length != 0
-                            ul.list-group
-                                li.list-group-item
-                                    each skill in userSkill
-                                        div
-                                            normal #{skill.skill_name}&nbsp
-                                            if isEditable
-                                                .pull-right
-                                                    a.fa.fa-pencil-square.editUserSkill(data-id=skill.id, data-toggle='modal', href='#EditUserSkillModal')
-                                                    a.fa.fa-times-circle.deleteUserSkill#deleteUserSkill(data-id=skill.id, data-toggle='modal')
-                        else
-                            .panel-body
-                                | No skills added yet
-                        if isEditable
-                            .panel-body
-                                a.btn.btn-primary.btn-xs#fetchSkill(data-id=profileId, data-toggle='modal', href= '#FetchSkillFromLinkedInModal')
-                                    i.fa.fa-linkedin-square
-                                    | &nbsp;Import from LinkedIn
-                                button.btn.btn-default.btn-xs#addSkillBtn(data-toggle='modal', href='#AddUserSkillModal') Add Skill
-                    .panel.panel-success
-                        .panel-heading
-                            | Education
-                        if userEducation.length != 0
-                            ul.list-group
-                                 li.list-group-item
-                                     each edu in userEducation
-                                         div
-                                             string #{edu.school_name}
-                                             if isEditable
-                                                 .pull-right
-                                                     a.fa.fa-pencil-square.editUserEducation(data-id=edu.id, data-toggle='modal', href='#EditUserEducationModal')
-                                                     a.fa.fa-times-circle.deleteUserEducation(data-id=edu.id, data-toggle='modal', href='#DeleteUserEducationModal')
-                                         div
-                                             if edu.degree
-                                                 small #{edu.degree}
-                                                 if edu.field_of_study
-                                                     small , #{edu.field_of_study}
-                                         div
-                                             if edu.start_year
-                                                 small #{edu.start_year}&nbsp
-                                             if edu.end_year
-                                                 small - #{edu.end_year}
-                        else
-                            .panel-body
-                                | No schools added yet
-                        if isEditable
-                            .panel-body
-                                a.btn.btn-primary.btn-xs#fetchEducation(data-id=profileId, data-toggle='modal', href= '#FetchEducationFromLinkedInModal')
-                                    i.fa.fa-linkedin-square
-                                    | &nbsp;Import from LinkedIn
-                                button.btn.btn-default.btn-xs#addEducationBtn(data-toggle='modal', href='#AddUserEducationModal') Add Education
-                            include memberEducation
-                    .panel.panel-warning
-                        .panel-heading
-                            | Work Experience
-                        if userEmployment.length != 0
-                            ul.list-group
-                                li.list-group-item
-                                    each emp in userEmployment
-                                        div
-                                            strong #{emp.title}
-                                            if isEditable
-                                                .pull-right
-                                                    a.fa.fa-pencil-square.editUserEmployment(data-id=emp.id, data-toggle='modal', href='#EditUserEmploymentModal')
-                                                    a.fa.fa-times-circle.deleteUserEmployment(data-id=emp.id, data-toggle='modal', href='#DeleteUserEmploymentModal')
-                                        div
-                                            if emp.company
-                                                normal #{emp.company}
-                                        div
-                                            if emp.start_date && emp.start_date != -1
-                                                small #{formatDate(emp.start_date, 'MM-YYYY')}
-                                            if emp.end_date && emp.end_date != -1
-                                                small - #{formatDate(emp.end_date, 'MM-YYYY')}
-                                        div
-                                            if emp.summary
-                                                small #{emp.summary}
-                        else
-                            .panel-body
-                                | No workplaces added yet
-                        if isEditable
-                            .panel-body
-                                a.btn.btn-primary.btn-xs#fetchEmployment(data-id=profileId, data-toggle='modal')
-                                    i.fa.fa-linkedin-square
-                                    | &nbsp;Import from LinkedIn
-                                button.btn.btn-default.btn-xs#addEmploymentBtn(data-toggle='modal', href='#AddUserEmploymentModal') Add Position
-                            include memberEmployment
-    if isEditable
-        #ChangePasswordModal.modal.fade(style='display: none;')
-            .modal-dialog
-                .modal-content
-                    .modal-header
-                        .close(data-dismiss='modal', aria-hidden='true') x
-                        h4.modal-title Change Password
-                    form
-                        .modal-body
-                            .form-group
-                                label.control-label(for='short_desc') Old Password
-                                input.form-control#oldPassword(type='password', name='oldPassword', autocomplete='off', data-toggle="tooltip", data-placement="bottom")
-                            .form-group
-                                label.control-label(for='short_desc') Password
-                                input.form-control#password(type='password', name='password', autocomplete='off', data-toggle="tooltip", data-placement="bottom")
-                            .form-group
-                                label.control-label(for='long_desc') Confirm Password
-                                input.form-control#confirm_password(type='password', name='confirm_password', autocomplete='off', data-toggle="tooltip", data-placement="bottom")
-                        .modal-footer
-                            button.btn.btn-default(data-dismiss='modal') Close
-                            input.btn.btn-primary(type='submit', value='OK')
-        #FetchFromLinkedInModal.modal.fade(style='display: none;')
-            .modal-dialog
-                .modal-content
-                    .modal-header
-                        .close(data-dismiss='modal', aria-hidden='true') x
-                        h4.modal-title Fetch Profile Details from LinkedIn
-                    form.form(method='GET', action=DashboardUrls.userProfileFromLinkedIn(userProfile.id))
-                        .modal-body
-                            .checkbox
-                                label
-                                    input(type="checkbox", name="fetchBasic")
-                                    | Fetch Basic Details
-                            .checkbox
-                                label
-                                    input(type="checkbox", name="fetchProfilePicture")
-                                    | Fetch Profile Picture
-                            .checkbox
-                                label
-                                    input(type="checkbox", name="fetchSkill")
-                                    | Fetch Skill Details
-                            .checkbox
-                                label
-                                    input(type="checkbox", name="fetchEducation")
-                                    | Fetch Education Details
-                            .checkbox
-                                label
-                                    input(type="checkbox", name="fetchEmployment")
-                                    input#basic(type="hidden", name="memberId", value = '#{member.id}')
-                                    | Fetch Employment Details
-                            em Please note that information in your profile will be replaced with information from LinkedIn
-                        .modal-footer
-                            button.btn.btn-default(data-dismiss='modal') Close
-                            input.btn.btn-primary(type='submit', value='OK')
-        #EditUserProfileModal.modal.fade(style='display: none;')
-            .modal-dialog
-                .modal-content
-                    .modal-header
-                        .close(data-dismiss='modal', aria-hidden='true') x
-                        h4.modal-title Edit Profile
-                    form
-                        .modal-body
+include header
+title SNT-#{formatName(user.first_name, user.last_name)} | Profile
+.matter
+    .container
+        .row
+            .content.col-md-4
+                .row
+                    nav.navbar.navbar-default.section-navbar(role='navigation')
+                        .navbar-header
+                            button.navbar-toggle.collapsed(type='button', data-toggle='collapse', data-target='#networks-collapse')
+                                span.sr-only Toggle profile navigation
+                                i.icon-plus
+                                i.icon-minus
+                            .visible-xs.navbar-brand.network-brand Basic Info
+                        #networks-collapse.collapse.navbar-collapse
+                            ul.nav.nav-pills.nav-stacked
+                                li.active
+                                    a(href='#') Basic Info
+                                li
+                                    a(href='profile_schedules.html') Schedules
+                                li
+                                    a(href='profile_expertise.html') Expertise
+            // /.content
+            .content.col-md-8
+                .row
+                    .card
+                        .item
                             .row
-                                .form-group.col-md-2
-                                    label(for='title').control-label Title
-                                    select#title(name='title', data-width='auto')
-                                        each key,option in Salutation
-                                            option(value="#{option}" selected = ('#{user.title}' == '#{option}')) #{key}
-                                .form-group.col-md-3
-                                    label.control-label(for='first_name') First Name
-                                    input.form-control#first_name(type='text', name='first_name', value=loggedInUser.first_name, data-toggle="tooltip", data-placement="bottom")
-                                .form-group.col-md-3
-                                    label.control-label(for='middle_name') Middle Name
-                                    input.form-control#middle_name(type='text', name='middle_name', value=loggedInUser.middle_name, data-toggle="tooltip", data-placement="bottom")
-                                .form-group.col-md-3
-                                    label.control-label(for='last_name') Last Name
-                                    input.form-control#last_name(type='text', name='last_name', value=loggedInUser.last_name, data-toggle="tooltip", data-placement="bottom")
-                            hr
-                            .form-group
-                                label.control-label(for='short_desc') Summary
-                                input.form-control#short_desc(type='text', name='short_desc', value=userProfile.short_desc, autocomplete='off', data-toggle="tooltip", data-placement="bottom")
-                            .form-group
-                                label.control-label(for='long_desc') Description
-                                textarea.form-control#long_desc(name='long_desc', data-toggle="tooltip", data-placement="bottom") #{userProfile.long_desc}
-                            .row
-                                .form-group.col-md-6
-                                    label.control-label(for='industry') Industry
-                                    select#industry(name='industry', data-width='auto')
-                                        each key,option in IndustryCodes
-                                            option(value="#{option}", selected = ('#{user.industry}' == '#{option}')) #{key}
-                                .form-group.col-md-3
-                                    label.control-label(for='birth_day') Birthday
-                                    input.form-control#birthDate(class="datepicker" value = '#{loggedInUser.date_of_birth}')
-                        .modal-footer
-                            button.btn.btn-default(data-dismiss='modal') Close
-                            input.btn.btn-primary(type='submit', value='Save')
-        #AddUserSkillModal.modal.fade(style='display: none;')
-            .modal-dialog
-                .modal-content
-                    .modal-header
-                        .close(data-dismiss='modal', aria-hidden='true') x
-                        h4.modal-title Add Skill
-                    form#editForm
-                        .modal-body
-                            .row
-                                .form-group.col-md-10
-                                    label.control-label(for='add_skill') Skill
-                            .row
-                                .form-group.col-md-10
-                                    input.form-control#skill_name(class='typeahead', type='text', name='skill_name', data-toggle="tooltip", data-placement="bottom", data-provide="typeahead", autocomplete="off")
-                                .form-group.col-md-2
-                                    img.pull-right#spinningWheel(alt="Loading", src="../../images/spinning_wheel.gif", class = " input form-control", height="42" ,width="42")
-                        .modal-footer
-                            button.btn.btn-default(data-dismiss='modal') Close
-                            input.btn.btn-primary(type='submit', value='Save')
-        #EditUserSkillModal.modal.fade(style='display: none;')
-            .modal-dialog
-                .modal-content
-                    .modal-header
-                        .close(data-dismiss='modal', aria-hidden='true') x
-                        h4.modal-title Edit Skill
-                    form
-                        .modal-body
-                            .row
-                                .form-group.col-md-10
-                                    label.control-label(for='edit_skill') Skill
-                            .row
-                                .form-group.col-md-10
-                                    input.form-control#skill_name(class='typeahead', type= 'text', name='skill_name', data-toggle="tooltip", data-placement="bottom", data-provide="typeahead", autocomplete="off")
-                                .form-group.col-md-2
-                                    img.pull-right#spinningWheel(alt="Loading", src="../../images/spinning_wheel.gif", class = " input form-control", height="42" ,width="42" , border="none")
-                        .modal-footer
-                            button.btn.btn-default(data-dismiss='modal') Close
-                            input.btn.btn-primary(type='submit', value='Update')
-        script.
-            var memberId = '!{member.id}';
-            var user = JSON.parse( '!{JSON.stringify(user)}' );
-            var userSkill = JSON.parse( '!{JSON.stringify(userSkill)}' );
-            var userProfile = JSON.parse ( '!{JSON.stringify(userProfile)}' );
-        script(src='/js/lib/bootstrap3-typeahead.js')
-        script(src='/js/lib/bloodhound.js')
-        script(src='/js/lib/moment.js')
-        script(src='/js/app/dashboard/memberProfile.js')
+                                h5.col-xs-8  
+                                .header-link.col-xs-4
+                                    a.btn.btn-primary(href='#')
+                                        i.icon-pencil
+                            .user-profile
+                                .avatar
+                                    .shadow
+                                    .placeholder.placeholder-male
+                                    img
+                                .info
+                                    .info-upper
+                                        .user-displayname Animesh Deshpandey
+                                        .user-age 32 yrs.
+                                    .info-lower
+                                        .user-locale New Delhi
+                                        .user-timezone GMT +5:30h
+                                .clearer
+                                .profile
+                                    p
+                                        | A freelance policy analyst since 1994, I specialize in policy for sustainability, planning and the urban environment in India, funding programmes, comparative research and good practice.
+                                .meta.meta-keywords
+                                    h5 Skills/Keywords
+                                    ul
+                                        li Social Policy
+                                        li Consulting
+                                        li Learning
+                                .meta.meta-price
+                                    h5 Charges
+                                    p
+                                        strong $1.00
+                                        | /min.
+            // /.content
+include footer

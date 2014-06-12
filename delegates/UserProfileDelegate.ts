@@ -57,6 +57,11 @@ class UserProfileDelegate extends BaseDaoDelegate
                 }
                 else
                     return profile;
+            })
+            .then(
+            function profileCreatedOrfetched(profile:UserProfile)
+            {
+                return self.fetchAllDetailsFromLinkedIn(profile.getUserId(), profile.getId(), dbTransaction);
             });
     }
 

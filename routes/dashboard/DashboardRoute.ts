@@ -97,7 +97,7 @@ class DashboardRoute
         // Dashboard pages
         app.get(Urls.dashboard(), connect_ensure_login.ensureLoggedIn(), this.dashboard.bind(this));
         app.get(Urls.integration(), connect_ensure_login.ensureLoggedIn(), this.integration.bind(this));
-        app.get(Urls.memberProfile(), this.memberProfile.bind(this));
+        app.get(Urls.userProfile(), this.userProfile.bind(this));
 
         app.get(Urls.callDetails(), Middleware.allowMeOrAdmin, this.callDetails.bind(this));
         app.get(Urls.revenueDetails(), Middleware.allowMeOrAdmin, this.revenueDetails.bind(this));
@@ -344,7 +344,7 @@ class DashboardRoute
     }
 
     /* Member Profile page */
-    private memberProfile(req:express.Request, res:express.Response)
+    private userProfile(req:express.Request, res:express.Response)
     {
         var self = this;
         var userId = parseInt(req.params[ApiConstants.USER_ID]);
@@ -354,7 +354,7 @@ class DashboardRoute
         var member:IntegrationMember;
         var loggedInUser = sessionData.getLoggedInUser();
 
-        self.userProfileDelegate.find(Utils.createSimpleObject(UserProfile.USER_ID, loggedInUser.getId()))
+        self.userProfileDelegate.find(Utils.createSimpleObject(UserProfile.USER_ID, userId))
             .then(
             function memberFetched(userProfile:UserProfile)
             {
@@ -613,7 +613,7 @@ class DashboardRoute
             .then(
             function profileFetched(...args)
             {
-                res.redirect(Urls.memberProfile(memberId));
+                res.redirect(Urls.userProfile(memberId));
             },
             function fetchError(error)
             {
