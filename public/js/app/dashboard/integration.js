@@ -91,7 +91,7 @@ $('#createCouponBtn').click(function()
     $('#couponDetailsCard').show();
 });
 
-$('#editCouponBtn').click(function(event)
+$('.editCouponBtn').click(function(event)
 {
     var couponId = $(event.currentTarget).data('id');
     var coupon = _.findWhere(coupons, {id: couponId});
@@ -170,3 +170,5 @@ $('#cancelCoupon').click(function()
     $('#couponCard').show();
     $('#couponDetailsCard').hide();
 });
+
+$('.datepicker').datetimepicker();
