@@ -21,6 +21,22 @@ class ScheduledTaskDelegate
 {
     logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
     private static tasks:{[id:number]: TimeoutAndTask} = {};
+    private static instance;
+    eventEmitter;
+
+    constructor()
+    {
+        var events = require('events');
+        this.eventEmitter = new events.EventEmitter();
+    }
+
+    static getInstance():ScheduledTaskDelegate
+    {
+        if(Utils.isNullOrEmpty(ScheduledTaskDelegate.instance))
+            ScheduledTaskDelegate.instance = new ScheduledTaskDelegate();
+
+        return ScheduledTaskDelegate.instance;
+    }
 
     /* Schedule task at specified time */
     scheduleAt(task:AbstractScheduledTask, timestamp:number):number
@@ -46,7 +62,10 @@ class ScheduledTaskDelegate
 
         var timeout:any = setTimeout(function ()
         {
-            task.execute();
+            task.execute()
+                .then( function taskExecuted(){
+                    self.eventEmitter.emit('taskCompletedEvent',task.getTaskType())
+                })
             self.cancel(task.getId());
         }, interval);
 

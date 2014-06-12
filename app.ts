@@ -76,7 +76,6 @@ var helpers =
     IntegrationMemberRole: Utils.enumToNormalText(IntegrationMemberRole),
     CountryCode: Utils.enumToNormalText(CountryCode),
     CountryName: Utils.enumToNormalText(CountryName),
-    Timezone: TimezoneDelegate.TIMEZONES,
 
     minYear: Config.get(Config.MINIMUM_YEAR),
     currentYear: moment().format('YYYY')
@@ -179,7 +178,7 @@ app.configure('production', function ()
 app.set('port', Config.get(Config.DASHBOARD_HTTP_PORT));
 app.listen(app.get('port'), function ()
 {
-    var scheduledTaskDelegate = new ScheduledTaskDelegate();
+    var scheduledTaskDelegate = ScheduledTaskDelegate.getInstance();
 
     // Sync scheduled tasks from cache and create the call scheduler task if doesn't already exist
     scheduledTaskDelegate.syncFromRedis()
@@ -192,6 +191,10 @@ app.listen(app.get('port'), function ()
             scheduledTaskDelegate.scheduleAfter(new TimezoneRefreshTask(), 1);
         });
 
+    scheduledTaskDelegate.eventEmitter.on('taskCompletedEvent', function(taskType:ScheduledTaskType){
+        if (taskType == ScheduledTaskType.TIMEZONE_REFRESH)
+            helpers['Timezone'] = TimezoneDelegate.TIMEZONES;
+    })
     // Update integration cache
     new IntegrationDelegate().updateCache();
 

@@ -25,7 +25,7 @@ class TimezoneDelegate
             'WHERE tz.zone_id = max_tz.zone_id ' +
             'AND tz.time_start = max_tz.time_start) current_tz ' +
             'WHERE z.zone_id = current_tz.zone_id ' +
-            'ORDER BY z.zone_id;';
+            'ORDER BY current_tz.gmt_offset;';
 
         return MysqlDelegate.executeQuery(query)
             .then(
