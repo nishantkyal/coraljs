@@ -293,7 +293,9 @@ class CallFlowRoute
         var sessionData:SessionData = new SessionData(req);
         var transaction = sessionData.getTransaction();
 
-        self.transactionDelegate.removeCoupon(transaction.getId())
+        var couponCode:string = req.query[ApiConstants.CODE];
+
+        self.transactionDelegate.removeCoupon(transaction.getId(),couponCode)
             .then(
             function couponRemoved() { res.redirect(Urls.callPayment()); },
             function couponRemoveFailed(error)

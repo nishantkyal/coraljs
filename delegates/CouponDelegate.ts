@@ -54,7 +54,8 @@ class CouponDelegate extends BaseDaoDelegate
     markUsed(criteria:any, transaction?:Object):q.Promise<any>
     {
         var self = this;
-        return self.dao.incrementCouponUsedCount(criteria, transaction);
+        var couponDao:any = self.dao;
+        return couponDao.incrementCouponUsedCount(criteria, transaction);
     }
 
     markRemoved(criteria:number, transaction?:Object):q.Promise<any>;
@@ -62,7 +63,8 @@ class CouponDelegate extends BaseDaoDelegate
     markRemoved(criteria:any, transaction?:Object):q.Promise<any>
     {
         var self = this;
-        return self.dao.decrementCouponUsedCount(criteria, transaction);
+        var couponDao:any = self.dao;
+        return couponDao.decrementCouponUsedCount(criteria, transaction);
     }
 
     getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
