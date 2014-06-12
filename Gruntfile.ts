@@ -103,7 +103,7 @@ function init(grunt)
             "options": {
                 "force": true
             },
-            "typescript": ["app.js", "*/**/*.js", "!Gruntfile.js", "!public/**/*.js", "!node_modules/**/*.js"],
+            "typescript": ["app.js", "*/**/*.js", "!Gruntfile.js", "!public/**/*.js", "!node_modules/**/*.js", "!common/Config.js"],
             "release": "/var/searchntalk/releases/current"
         },
         "bumpup": {
