@@ -370,10 +370,10 @@ class CallFlowRoute
             function transactionLinesFetched(lines:TransactionLine[])
             {
                 var payZippyProvider = new PayZippyProvider();
-                var amount:number = _.reduce(_.pluck(lines, TransactionLine.AMOUNT), function (memo:number, num:number) { return memo + num; }, 0) * 100
+                var amount:number = _.reduce(_.pluck(lines, TransactionLine.AMOUNT), function (memo:number, num:number) { return memo + num; }, 0) * 100;
 
                 if (amount > 0)
-                    res.redirect(payZippyProvider.getPaymentUrl(transaction, amount, sessionData.getLoggedInUser()));
+                    res.redirect(payZippyProvider.getPaymentUrl(transaction, parseFloat(amount.toFixed(2)), sessionData.getLoggedInUser()));
                 else
                     res.redirect(DashboardUrls.paymentCallback() + '?noPayment=true');
             },
