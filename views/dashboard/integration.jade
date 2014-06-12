@@ -22,6 +22,8 @@ title SearchNTalk - DashBoard
                             li.active
                                 a(href='') Networks
                             li
+                                a(href=DashboardUrls.userProfile(loggedInUser.id)) Profile
+                            li
                                 a(href='/payments') Payments
 .matter
     .container
@@ -46,10 +48,12 @@ title SearchNTalk - DashBoard
                 // /.content
                 .content.col-md-5
                     .row
-                        .card
+                        .card#members
                             .header
                                 .title
                                     h1 Members
+                                .pull-right
+                                    a.btn.btn-primary.btn-xs#inviteMemberBtn Invite members
                                 .clearer
                             div.billing-summary
                                 table
@@ -64,7 +68,8 @@ title SearchNTalk - DashBoard
                                             if (member.user.status != 'Registered')
                                                 tr(class=((member.deleted == null || member.deleted == 0) ? (member.id != undefined ? '' : 'active') : 'danger'))
                                                     td
-                                                        label= formatName(member.user.first_name, member.user.last_name)
+                                                        label
+                                                            a(href=DashboardUrls.userProfile(member.user.id))= formatName(member.user.first_name, member.user.last_name)
                                                         br
                                                         small #{member.user.email}
                                                     td= formatRole(member.role)
@@ -75,44 +80,79 @@ title SearchNTalk - DashBoard
                                                     td(style='text-align: center;')
                                                         if (member.id != undefined && (member.deleted == null || member.deleted == 0))
                                                             a.fa.fa-pencil.save(href=DashboardUrls.userProfile(member.user.id))
-                            div.addit
-                                a(href='payments_addaccount.html')
-                                    | Invite more members
-                                    i.icon-plus
-
-                .content.col-md-4
-                    .row
-                        .card
-                            .header
-                                .title
-                                    h1 Coupons
-                                .clearer
-                            if coupons
-                            each coupon in coupons
-                                .item
-                                    .row
-                                        h5.col-xs-8= coupon.code
-                                        div.header-link.col-xs-4
-                                            a.btn.btn-primary(href='#')
-                                                i.icon-pencil
-                                        div.billing-summary
-                                            table
-                                                thead
+                        .card#inviteMemberCard(style="display: none;")
+                            form#inviteUser
+                                .item-edit
+                                    .item
+                                        .row
+                                            h5.col-xs-8 Send Invite
+                                            div.header-link.col-xs-4
+                                                a.btn.btn-danger#cancelInvite
+                                                    i.icon-cancel
+                                    .alert-danger.alert(style="display: none;")
+                                    .item
+                                        .row
+                                            div
+                                                h3 Email:
+                                                .form-group
+                                                    input.form-control(type='text', placeholder='Email', name='email')
+                                                h3 Title:
+                                                .form-group
+                                                    select.form-control
+                                                        - for title,id in Salutation
+                                                            option(value=id)= title
+                                                h3 First Name:
+                                                .form-group
+                                                    input.form-control(type='text', placeholder='First Name', name='first_name')
+                                                h3 Last Name:
+                                                .form-group
+                                                    input.form-control(type='text', placeholder='Last Name', name='last_name')
+                                                h3 Role:
+                                                .form-group
+                                                    select.selectpicker.form-control#role(name='role')
+                                                        option(value='2') Admin
+                                                        option(value='3') Expert
+                                        .clearer
+                                    div.links-editing
+                                        p.edit-schedules
+                                            em Invites will be sent on your behalf
+                                            input.btn.btn-primary(type="submit", value="Send")
+            .content.col-md-4
+                .row
+                    .card
+                        .header
+                            .title
+                                h1 Coupons
+                            .clearer
+                        if coupons
+                        each coupon in coupons
+                            .item
+                                .row
+                                    h5.col-xs-8= coupon.code
+                                    div.header-link.col-xs-4
+                                        a.btn.btn-primary(href='#')
+                                            i.icon-pencil
+                                    div.billing-summary
+                                        table
+                                            thead
+                                                tr
+                                                    th Discount
+                                                    th Until
+                                                    th Expert
+                                                    th Items
+                                                    th Usage
+                                            tbody
                                                     tr
-                                                        th Discount
-                                                        th Until
-                                                        th Expert
-                                                        th Items
-                                                        th Usage
-                                                tbody
-                                                        tr
-                                                            td= formatMoney(coupon.discount_amount, coupon.discount_unit)
-                                                            td= coupon.expiry_time != null ? formatDate(coupon.expiry_time, "ddd, DD MMM YYYY") : 'Forever'
-                                                            td= expert && coupon.expert_id == expert.id && expert.user_id == user.id ? formatName(user.first_name, user.last_name, user.title) : 'All'
-                                                            td= CouponType[coupon.coupon_type]
-                                                            td #{coupon.num_used} / #{coupon.max_coupons || 'Unlimited'}
-                            div.addit
-                                a(href='payments_addaccount.html')
-                                    | Create coupon
-                                    i.icon-plus
+                                                        td= formatMoney(coupon.discount_amount, coupon.discount_unit)
+                                                        td= coupon.expiry_time != null ? formatDate(coupon.expiry_time, "ddd, DD MMM YYYY") : 'Forever'
+                                                        td= expert && coupon.expert_id == expert.id && expert.user_id == user.id ? formatName(user.first_name, user.last_name, user.title) : 'All'
+                                                        td= CouponType[coupon.coupon_type]
+                                                        td #{coupon.num_used} / #{coupon.max_coupons || 'Unlimited'}
+                        div.addit
+                            a(href='payments_addaccount.html')
+                                | Create coupon
+                                i.icon-plus
 include footer
+script.
+    var integrationId = '!{selectedMember.integration.id}';
+script(src='/js/app/dashboard/integration.js')

@@ -20,7 +20,6 @@ $('#inviteUserModal form').validate({
     errorPlacement: function(error, element)
     {
         $(element).attr('title', error[0].innerHTML);
-        $(element).tooltip('show');
     },
     highlight     : function(element)
     {

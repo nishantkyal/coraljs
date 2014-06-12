@@ -83,7 +83,7 @@ class Formatter
 
     static formatUserStatus(status:UserStatus):string
     {
-        return Utils.enumToNormalText(UserStatus)[status];
+        return Utils.enumToNormalText(UserStatus)[status] || status.toString();
     }
 
     static formatCallStatus(status:CallStatus):string
