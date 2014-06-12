@@ -74,7 +74,7 @@ title SearchNTalk - DashBoard
                                                             a.btn.btn-xs.btn-default.sendAgain(data-emailid=member.user.email) Send Again
                                                     td(style='text-align: center;')
                                                         if (member.id != undefined && (member.deleted == null || member.deleted == 0))
-                                                            a.fa.fa-pencil.save(href=DashboardUrls.memberProfile(member.id))
+                                                            a.fa.fa-pencil.save(href=DashboardUrls.userProfile(member.user.id))
                             div.addit
                                 a(href='payments_addaccount.html')
                                     | Invite more members

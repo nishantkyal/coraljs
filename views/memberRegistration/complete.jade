@@ -12,7 +12,7 @@ block content
         hr
         h4 Your Public Profile
         | We've created a profile page for you. Please take a moment to view it.&nbsp;
-        a.btn.btn-primary(href=DashboardUrls.memberProfile(member.id), target='_blank') Take me to my profile page
+        a.btn.btn-primary(href=DashboardUrls.userProfile(member.user.id), target='_blank') Take me to my profile page
         if schedule_rules
             hr
             h4 Your Availability Schedule

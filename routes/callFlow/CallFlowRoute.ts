@@ -92,7 +92,7 @@ class CallFlowRoute
     private index(req:express.Request, res:express.Response)
     {
         var self = this;
-        var expertId = req.params[ApiConstants.EXPERT_ID];
+        var expertId = parseInt(req.params[ApiConstants.EXPERT_ID]);
         var sessionData = new SessionData(req);
 
         this.integrationMemberDelegate.get(expertId, IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_SCHEDULES, IncludeFlag.INCLUDE_USER])
