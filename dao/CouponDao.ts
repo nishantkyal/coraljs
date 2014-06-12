@@ -29,7 +29,7 @@ class CouponDao extends AbstractDao
             },
             function updateError(error)
             {
-                return q.reject('UPDATE failed, error: %s', JSON.stringify(error));
+                return q.reject('UPDATE failed, error: ' + JSON.stringify(error));
             });
     }
 
@@ -51,7 +51,7 @@ class CouponDao extends AbstractDao
             },
             function updateError(error)
             {
-                return q.reject('UPDATE failed, error: %s', JSON.stringify(error));
+                return q.reject('UPDATE failed, error: ' + JSON.stringify(error));
             });
     }
 }

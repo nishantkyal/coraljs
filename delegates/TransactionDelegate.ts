@@ -225,11 +225,13 @@ class TransactionDelegate extends BaseDaoDelegate
             self.transactionLineDelegate.find(couponLinesSearch, [TransactionLine.ID, TransactionLine.ITEM_ID])
         ])
             .then(
-            function couponsFetched(lines:TransactionLine[])
+            function couponsFetched(...args)
             {
+                var couponLine:TransactionLine = args[0][1];
+
                 return q.all([
-                    self.couponDelegate.markRemoved(_.pluck(lines, TransactionLine.ITEM_ID), dbTransaction),
-                    self.transactionLineDelegate.delete({id: _.pluck(lines, TransactionLine.ID)}, dbTransaction)
+                    self.couponDelegate.markRemoved(couponLine.getItemId(), dbTransaction),
+                    self.transactionLineDelegate.delete(couponLine.getId(), dbTransaction)
                 ]);
             });
     }
