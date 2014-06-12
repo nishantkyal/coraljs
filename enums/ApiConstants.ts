@@ -81,6 +81,7 @@ class ApiConstants
     static MODE:string                                  = 'mode';
     static PUBLIC_MODE:string                           = 'public';
     static OFFSET:string                                = 'offset';
+    static ZONE:string                                  = 'zone'
 
 }
 export = ApiConstants

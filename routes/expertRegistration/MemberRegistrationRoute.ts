@@ -56,7 +56,7 @@ class MemberRegistrationRoute
         // Auth
         app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authenticationSuccess.bind(this));
         app.post(Urls.register(), AuthenticationDelegate.register({failureRedirect: Urls.register(), failureFlash: true}), this.authenticationSuccess.bind(this));
-        app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: Urls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
+        app.get(Urls.linkedInLogin(), this.putTimezoneInSession.bind(this), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: Urls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
         app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: Urls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}), this.authenticationSuccess.bind(this));
         app.post(Urls.authorizationDecision(), OAuthProviderDelegate.decision);
     }
@@ -218,6 +218,12 @@ class MemberRegistrationRoute
                 res.render(MemberRegistrationRoute.PAGE_COMPLETE, pageData);
             },
             function scheduleRulesFetchError(error) { res.send(500); });
+    }
+
+    private putTimezoneInSession(req:express.Request, res:express.Response, next:Function)
+    {
+        req.session[ApiConstants.ZONE] = parseInt(req.query[ApiConstants.ZONE]);
+        next();
     }
 }
 export = MemberRegistrationRoute

@@ -1,5 +1,10 @@
 $(function(){
-    var offset = new Date().getTimezoneOffset();
+    var offset = new Date().getTimezoneOffset() * -60;
+    var zone = _.find(Timezone, function(zone){
+        return zone.gmt_offset == offset;
+    });
+    $("#timezone").val(zone.zone_id).prop('selected',true);
+    $("#linkedInLink").attr('href', linkedInUrl + '?zone=' + zone.zone_id);
 });
 
 $("#login-form").validate({
