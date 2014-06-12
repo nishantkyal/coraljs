@@ -30,7 +30,9 @@ class WidgetExpert
     private next_slot_duration:number;
 
     constructor(expert:IntegrationMember);
+
     constructor(expert:Object);
+
     constructor(expert:any)
     {
         var self = this;
@@ -46,6 +48,12 @@ class WidgetExpert
             this.first_name = user.getFirstName();
             this.last_name = user.getLastName();
             this.timezone = user.getTimezone();
+
+            if (member.getSchedule() && member.getSchedule()[0])
+            {
+                this.price = member.getSchedule()[0].getPricePerMin();
+                this.price_unit = member.getSchedule()[0].getPriceUnit();
+            }
 
             var nextAvailableSchedule:ExpertSchedule = _.find(member.getSchedule(), function (schedule:ExpertSchedule):boolean
             {
@@ -67,29 +75,44 @@ class WidgetExpert
             this.first_name = expert.first_name;
             this.last_name = expert.last_name;
             this.timezone = expert.timezone;
-            this.timezone = expert.timezone;
+            this.timezone_offset = expert.timezone_offset;
             this.next_slot_start_time = expert.next_slot_start_time;
             this.next_slot_duration = expert.next_slot_duration;
+            this.price = expert.price;
+            this.price_unit = expert.price_unit;
         }
     }
 
     /* Getters */
-    getId():number                                                  { return this.expert_id; }
-    getTitle():Salutation                                           { return this.title; }
-    getFirstName():string                                           { return this.first_name; }
-    getLastName():string                                            { return this.last_name; }
-    getTimezone():TimeZone                                          { return this.timezone; }
-    getTimezoneOffset():number                                      { return this.timezone_offset; }
-    getPrice():number                                               { return this.price; }
-    getPriceUnit():MoneyUnit                                        { return this.price_unit; }
-    getUserRating():number                                          { return this.user_rating; }
-    getEditorialRating():number                                     { return this.editorial_rating; }
-    getSummary():string                                             { return this.summary; }
-    getKeywords():string[]                                          { return this.keywords; }
-    getNextSlotStartTime():number                                   { return this.next_slot_start_time; }
-    getNextSlotDuration():number                                    { return this.next_slot_duration; }
+    getId():number { return this.expert_id; }
+
+    getTitle():Salutation { return this.title; }
+
+    getFirstName():string { return this.first_name; }
+
+    getLastName():string { return this.last_name; }
+
+    getTimezone():TimeZone { return this.timezone; }
+
+    getTimezoneOffset():number { return this.timezone_offset; }
+
+    getPrice():number { return this.price; }
+
+    getPriceUnit():MoneyUnit { return this.price_unit; }
+
+    getUserRating():number { return this.user_rating; }
+
+    getEditorialRating():number { return this.editorial_rating; }
+
+    getSummary():string { return this.summary; }
+
+    getKeywords():string[] { return this.keywords; }
+
+    getNextSlotStartTime():number { return this.next_slot_start_time; }
+
+    getNextSlotDuration():number { return this.next_slot_duration; }
 
     /* Setters */
-    setTimezoneOffset(val:number)                                   { this.timezone_offset = val; }
+    setTimezoneOffset(val:number) { this.timezone_offset = val; }
 }
 export = WidgetExpert

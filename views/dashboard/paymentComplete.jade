@@ -31,7 +31,7 @@ title ST- Payment Complete
                         .call-profile
                             .hidden-xs.avatar
                                 .shadow
-                                    a(href=DashboardUrls.memberProfile(expert.id))
+                                    a(href=DashboardUrls.userProfile(user.id))
                                         img(src=ApiUrlDelegate.userProfilePicture(user.id), width='100%', height='100%')
                             .info
                                 .user-displayname= formatName(user.first_name, user.last_name, user.title)

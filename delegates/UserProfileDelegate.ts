@@ -40,6 +40,26 @@ class UserProfileDelegate extends BaseDaoDelegate
 
     constructor() { super(new UserProfileDao()); }
 
+    create(object:Object, dbTransaction?:Object):q.Promise<any>
+    {
+        var self = this;
+        var profile;
+
+        return super.create(object, dbTransaction)
+            .then(
+            function profileCreated(createdProfile:UserProfile)
+            {
+                profile = createdProfile;
+                return self.fetchAllDetailsFromLinkedIn(createdProfile.getUserId(), createdProfile.getId(), dbTransaction);
+            })
+            .fail(
+            function linkedInFetchFailed(error)
+            {
+                self.logger.debug('LinkedIn profile fetch failed for user id: %s, error: %s', profile.getUserId(), JSON.stringify(error));
+                return profile;
+            });
+    }
+
     find(criteria:Object, fields?:string[], includes:IncludeFlag[] = [], dbTransaction?:Object):q.Promise<any>
     {
         var self = this;
@@ -57,11 +77,6 @@ class UserProfileDelegate extends BaseDaoDelegate
                 }
                 else
                     return profile;
-            })
-            .then(
-            function profileCreatedOrfetched(profile:UserProfile)
-            {
-                return self.fetchAllDetailsFromLinkedIn(profile.getUserId(), profile.getId(), dbTransaction);
             });
     }
 
