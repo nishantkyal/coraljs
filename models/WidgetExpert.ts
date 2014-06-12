@@ -67,7 +67,7 @@ class WidgetExpert
             this.first_name = expert.first_name;
             this.last_name = expert.last_name;
             this.timezone = expert.timezone;
-            this.timezone = expert.timezone;
+            this.timezone_offset = expert.timezone_offset;
             this.next_slot_start_time = expert.next_slot_start_time;
             this.next_slot_duration = expert.next_slot_duration;
         }

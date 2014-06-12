@@ -32,6 +32,7 @@ class TimezoneDelegate
             function zoneFetched(result:Object[])
             {
                 TimezoneDelegate.TIMEZONES = result;
+                _.extend(_, {Timezone: result});
                 return TimezoneDelegate.TIMEZONES;
             });
     }

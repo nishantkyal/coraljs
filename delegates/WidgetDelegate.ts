@@ -108,11 +108,11 @@ class WidgetDelegate extends BaseDaoDelegate
             evaluate: /\{\[([\s\S]+?)\]\}/g,
             interpolate: /\{\{([\s\S]+?)\}\}/g
         };
-        var widgetTemplate = _.template(widgetPartialHtml);
 
         widgetSettings = widgetSettings || {};
         widgetSettings['googleAnalyticsTrackingId'] = Config.get(Config.GOOGLE_ANALYTICS_TRACKING_ID);
         try {
+            var widgetTemplate = _.template(widgetPartialHtml);
             var widgetHtml = widgetTemplate(widgetSettings);
         } catch (e) {
             this.logger.error('Error while rendering widget settings. Error: %s', JSON.stringify(e));
