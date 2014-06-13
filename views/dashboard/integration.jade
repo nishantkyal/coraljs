@@ -1,4 +1,4 @@
-include header
+include ../header
 title SearchNTalk - DashBoard
 .navigation
     .container
@@ -203,7 +203,7 @@ title SearchNTalk - DashBoard
                                         p.edit-schedules
                                             em Invites will be sent on your behalf
                                             input.btn.btn-primary#submit(type='submit', value='Save')
-include footer
+include ../footer
 script.
     var integrationId = '!{selectedMember.integration.id}';
     var coupons = JSON.parse('!{JSON.stringify(coupons)}');

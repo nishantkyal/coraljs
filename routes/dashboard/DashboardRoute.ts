@@ -95,7 +95,7 @@ class DashboardRoute
         app.get(Urls.mobileVerification(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index(), setReturnTo: true}), this.verifyMobile.bind(this));
 
         // Dashboard pages
-        app.get(Urls.dashboard(), connect_ensure_login.ensureLoggedIn(), this.dashboard.bind(this));
+        app.get(Urls.dashboard(), AuthenticationDelegate.checkLogin({failureRedirect: Urls.login()}), this.dashboard.bind(this));
         app.get(Urls.integration(), connect_ensure_login.ensureLoggedIn(), this.integration.bind(this));
         app.get(Urls.userProfile(), this.userProfile.bind(this));
 
@@ -115,12 +115,15 @@ class DashboardRoute
             failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}), this.linkedInCallBack.bind(this));
 
         // Auth
-        app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
-        app.post(Urls.register(), AuthenticationDelegate.register(), this.authSuccess.bind(this));
-        app.post(Urls.changePassword(), Middleware.allowMeOrAdmin, this.changePassword.bind(this));
-
+        app.get(Urls.checkLogin(), AuthenticationDelegate.checkLogin());
+        app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.login()}), this.authSuccess.bind(this));
+        app.post(Urls.register(), AuthenticationDelegate.register({failureRedirect: Urls.login()}), this.authSuccess.bind(this));
+        app.post(Urls.ajaxLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureFlash: true}));
+        app.post(Urls.ajaxRegister(), AuthenticationDelegate.register({failureFlash: true}));
         app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
         app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
+
+        app.post(Urls.changePassword(), Middleware.allowMeOrAdmin, this.changePassword.bind(this));
     }
 
     /* Login page */
@@ -267,8 +270,7 @@ class DashboardRoute
             function integrationsFetchError(error)
             {
                 res.send(500);
-            }
-        );
+            });
     }
 
     private dashboard(req:express.Request, res:express.Response)

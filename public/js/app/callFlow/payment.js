@@ -6,86 +6,131 @@ $('#applyCoupon, #checkout').on('click', function(event)
     loginContext = $(event.currentTarget).attr('id');
 
     $.ajax({
-        url    : '/rest/user/authentication',
-        type   : 'GET',
-        success: function(data, textStatus, jqXHR)
+        url        : '/checkLogin',
+        type       : 'GET',
+        dataType   : 'json',
+        contentType: 'application/json',
+        success    : function(data, textStatus, jqXHR)
         {
             // If not logged in, stop event propagation and show modal
             // Set loginContext so we know what to do after user signs in from the modal
-            if (!data)
-            {
+            if (!data.valid) {
                 $('#login-modal').modal('show');
                 return;
             }
 
-            switch(loginContext)
-            {
-                case 'applyCoupon': applyCoupon(); break;
-                case 'checkout': checkout(); break;
+            switch (loginContext) {
+                case 'applyCoupon':
+                    return applyCoupon();
+                case 'checkout':
+                    return checkout();
             }
         }
     });
 
 });
 
-/* Login handler */
-$('#login-button').click(function()
-{
-    $.ajax({
-        url        : '/login',
-        type       : 'post',
-        dataType   : 'json',
-        contentType: 'application/json',
-        data       : JSON.stringify({
-            username: $('#authentication input[name="username"]').val(),
-            password: $('#authentication input[name="password"]').val()
-        }),
-        success    : function(response)
-        {
-            switch(loginContext)
+$('form.login').bootstrapValidator({
+    submitHandler: function()
+    {
+        $.ajax({
+            url        : '/login',
+            type       : 'post',
+            dataType   : 'json',
+            contentType: 'application/json',
+            data       : JSON.stringify({
+                username: $('form.login input[name="email"]').val(),
+                password: $('form.login input[name="password"]').val()
+            }),
+            success    : function(response)
             {
-                case 'applyCoupon': applyCoupon(); break;
-                case 'checkout': checkout(); break;
+                switch (loginContext) {
+                    case 'applyCoupon':
+                        return applyCoupon();
+                    case 'checkout':
+                        return checkout();
+                }
+            },
+            error      : function(jqXhr, textStatus, response)
+            {
+                $('#login-modal .alert-danger').show();
+                $('#login-modal .alert-danger').text('Login Failed');
+            }
+        });
+    },
+    fields       : {
+        email   : {
+            validators: {
+                notEmpty    : { message: "This field is required"},
+                emailAddress: {message: "Please enter a valid email"}
             }
         },
-        error      : function(jqXhr, textStatus, response)
-        {
-            $('#login-modal .alert-danger').show();
-            $('#login-modal .alert-danger').text('Login Failed');
+        password: {
+            validators: {
+                notEmpty: { message: "This field is required"}
+            }
         }
-    })
+    }
 });
 
-/* Registration handler */
-$('#register-button').click(function()
-{
-    $.ajax({
-        url        : '/register',
-        type       : 'post',
-        dataType   : 'json',
-        contentType: 'application/json',
-        async      : false,
-        data       : JSON.stringify({
-            email      : $('#authentication input[name="username"]').val(),
-            password   : $('#authentication input[name="password"]').val(),
-            first_name : $('#authentication input[name="first_name"]').val(),
-            last_name  : $('#authentication input[name="last_name"]').val(),
-            middle_name: $('#authentication input[name="middle_name"]').val()
-        }),
-        success    : function(response)
-        {
-            switch(loginContext)
+$('form.register').bootstrapValidator({
+    submitHandler: function()
+    {
+        $.ajax({
+            url        : '/rest/register',
+            type       : 'post',
+            dataType   : 'json',
+            contentType: 'application/json',
+            async      : false,
+            data       : JSON.stringify({
+                user          : {
+                    email      : $('form.register input[name="email"]').val(),
+                    password   : $('form.register input[name="password"]').val(),
+                    first_name : $('form.register input[name="first_name"]').val(),
+                    last_name  : $('form.register input[name="last_name"]').val(),
+                    middle_name: $('form.register input[name="middle_name"]').val()
+                },
+                timezoneOffset: -new Date().getTimezoneOffset() * 60
+            }),
+            success    : function(response)
             {
-                case 'applyCoupon': applyCoupon(); break;
-                case 'checkout': checkout(); break;
+                switch (loginContext) {
+                    case 'applyCoupon':
+                        return applyCoupon();
+                    case 'checkout':
+                        return checkout();
+                }
+            },
+            error      : function(jqXhr, textStatus, response)
+            {
+                $('#login-modal .alert').show();
+                $('#login-modal .alert').text('Registration Failed');
+            }
+        });
+    },
+    fields       : {
+        email     : {
+            validators: {
+                notEmpty    : { message: "This field is required"},
+                emailAddress: {message: "Please enter a valid email"}
             }
         },
-        error      : function(jqXhr, textStatus, response)
-        {
-            $('#login-modal .alert').show();
-            $('#login-modal .alert').text('Registration Failed');
+        first_name: {
+            validators: {
+                notEmpty: { message: "This field is required"}
+            }
+        },
+        last_name : {
+            validators: {
+                notEmpty: { message: "This field is required"}
+            }
+        },
+        password  : {
+            validators: {
+                notEmpty: { message: "This field is required"}
+            }
         }
-    })
+    }
 });
 
 /* Switch login/register UI */
@@ -97,14 +142,14 @@ $('#register-link,#login-link').click(function(event)
 
 function applyCoupon()
 {
-    var form = $('<form action="/expert/call/payment/coupon" method="post"><input name="code" value="' + $("input[name='code']").val() + '"/></form>');
+    var form = $('<form action="/payment/coupon" method="post"><input name="code" value="' + $("input[name='code']").val() + '"/></form>');
     $('body').append(form);
     form.submit();
 }
 
 function checkout()
 {
-    var form = $('<form action="/expert/call/checkout" method="post"></form>');
+    var form = $('<form action="/checkout" method="post"></form>');
     $('body').append(form);
     form.submit();
 }

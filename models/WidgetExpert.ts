@@ -5,7 +5,6 @@ import User                                                     = require('../mo
 import ExpertSchedule                                           = require('../models/ExpertSchedule');
 import Salutation                                               = require('../enums/Salutation');
 import MoneyUnit                                                = require('../enums/MoneyUnit');
-import TimeZone                                                 = require('../enums/TimeZone');
 import Utils                                                    = require('../common/Utils');
 
 /**
@@ -18,7 +17,7 @@ class WidgetExpert
     private title:Salutation;
     private first_name:string;
     private last_name:string;
-    private timezone:TimeZone;
+    private timezone:number;
     private timezone_offset:number;
     private price:number;
     private price_unit:MoneyUnit;
@@ -31,9 +30,7 @@ class WidgetExpert
     private next_slot_duration:number;
 
     constructor(expert:IntegrationMember);
-
     constructor(expert:Object);
-
     constructor(expert:any)
     {
         var self = this;
@@ -91,7 +88,7 @@ class WidgetExpert
     getTitle():Salutation { return this.title; }
     getFirstName():string { return this.first_name; }
     getLastName():string { return this.last_name; }
-    getTimezone():TimeZone { return this.timezone; }
+    getTimezone():number { return this.timezone; }
     getTimezoneOffset():number { return this.timezone_offset; }
     getPrice():number { return this.price; }
     getPriceUnit():MoneyUnit { return this.price_unit; }

@@ -3,8 +3,11 @@ import ApiUrlDelegate                                       = require('../../del
 class Urls
 {
     static index() { return ApiUrlDelegate.get('/'); }
+    static checkLogin() { return ApiUrlDelegate.get('/checkLogin'); }
     static login() { return ApiUrlDelegate.get('/login'); }
     static register() { return ApiUrlDelegate.get('/register'); }
+    static ajaxLogin() { return ApiUrlDelegate.get('/rest/login'); }
+    static ajaxRegister() { return ApiUrlDelegate.get('/rest/register'); }
     static linkedInLogin() { return ApiUrlDelegate.get('/login/linkedin'); }
     static linkedInLoginCallback() { return ApiUrlDelegate.get('/login/linkedin/callback'); }
     static forgotPassword() { return ApiUrlDelegate.get('/forgotPassword'); }

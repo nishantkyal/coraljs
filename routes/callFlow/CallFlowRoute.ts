@@ -74,17 +74,17 @@ class CallFlowRoute
     {
         // Actual rendered pages
         app.get(Urls.callExpert(), this.index.bind(this));
-        app.get(Urls.callPayment(), Middleware.requireCallerAndCallDetails, Middleware.ensureNotCallingSelf, this.callPaymentPage.bind(this));
-        app.post(Urls.callPayment(), Middleware.requireCallerAndCallDetails, Middleware.ensureNotCallingSelf, this.callPayment.bind(this));
-        app.post(Urls.applyCoupon(), Middleware.ensureNotCallingSelf, Middleware.requireTransaction, this.applyCoupon.bind(this))
+        app.get(Urls.payment(), Middleware.requireCallerAndCallDetails, Middleware.ensureNotCallingSelf, this.callPaymentPage.bind(this));
+        app.post(Urls.payment(), Middleware.requireCallerAndCallDetails, Middleware.ensureNotCallingSelf, this.callPayment.bind(this));
+        app.post(Urls.coupon(), Middleware.ensureNotCallingSelf, Middleware.requireTransaction, this.applyCoupon.bind(this))
         app.post(Urls.checkout(), Middleware.ensureNotCallingSelf, Middleware.requireTransaction, this.checkout.bind(this));
         app.get(Urls.removeCoupon(), Middleware.ensureNotCallingSelf, Middleware.requireTransaction, this.removeCoupon.bind(this))
 
-        app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_CALL_LOGIN, {failureRedirect: Urls.callPayment(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
-        app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_CALL_LOGIN, {failureRedirect: Urls.callPayment(), failureFlash: true}), this.callPayment.bind(this));
+        app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_CALL_LOGIN, {failureRedirect: Urls.payment(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
+        app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_CALL_LOGIN, {failureRedirect: Urls.payment(), failureFlash: true}), this.callPayment.bind(this));
 
-        app.get(Urls.facebookLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {failureRedirect: Urls.callPayment(), failureFlash: true, scope: ['public_profile', 'email']}));
-        app.get(Urls.facebookLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {failureRedirect: Urls.callPayment(), failureFlash: true}), this.callPayment.bind(this));
+        app.get(Urls.facebookLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {failureRedirect: Urls.payment(), failureFlash: true, scope: ['public_profile', 'email']}));
+        app.get(Urls.facebookLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {failureRedirect: Urls.payment(), failureFlash: true}), this.callPayment.bind(this));
     }
 
     /* Render index with expert schedules */
@@ -171,7 +171,7 @@ class CallFlowRoute
      * Note: We're doing a POST so that user selected params don't appear in url*/
     private callPayment(req, res:express.Response)
     {
-        res.redirect(Urls.callPayment());
+        res.redirect(Urls.payment());
     }
 
     /* Validate request from caller and start a new transaction */
@@ -263,6 +263,7 @@ class CallFlowRoute
                     coupon: coupon
                 });
 
+                res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
                 res.render(CallFlowRoute.PAYMENT, pageData);
             },
             function handleError(error) { res.send(500); });
@@ -278,11 +279,11 @@ class CallFlowRoute
 
         self.transactionDelegate.applyCoupon(transaction.getId(), couponCode)
             .then(
-            function transactionLinesFetched() { res.redirect(Urls.callPayment()); },
+            function transactionLinesFetched() { res.redirect(Urls.payment()); },
             function couponApplyFailed(error)
             {
                 req.flash('error', JSON.stringify(error));
-                res.redirect(Urls.callPayment());
+                res.redirect(Urls.payment());
             });
     }
 
@@ -297,11 +298,11 @@ class CallFlowRoute
 
         self.transactionDelegate.removeCoupon(transaction.getId(),couponCode)
             .then(
-            function couponRemoved() { res.redirect(Urls.callPayment()); },
+            function couponRemoved() { res.redirect(Urls.payment()); },
             function couponRemoveFailed(error)
             {
                 req.flash('error', JSON.stringify(error));
-                res.redirect(Urls.callPayment());
+                res.redirect(Urls.payment());
             });
     }
 
@@ -380,7 +381,7 @@ class CallFlowRoute
             function handleError(error)
             {
                 req.flash({error: JSON.stringify(error)});
-                res.redirect(Urls.callPayment());
+                res.redirect(Urls.payment());
             });
     }
 }

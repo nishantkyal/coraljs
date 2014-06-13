@@ -3,13 +3,13 @@ import BaseModel         = require('./BaseModel');
 class ForeignKey
 {
     srcKey:string;
-    model:typeof BaseModel;
+    referenced_table:typeof BaseModel;
     targetKey:string;
 
-    constructor(srcKey:string, model:typeof BaseModel, targetKey:string)
+    constructor(srcKey:string, referenced_table:typeof BaseModel, targetKey:string)
     {
         this.srcKey = srcKey;
-        this.model = model;
+        this.referenced_table = referenced_table;
         this.targetKey = targetKey;
     }
 

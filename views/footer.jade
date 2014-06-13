@@ -1,6 +1,6 @@
-.footer
-    .container
-        .row
+div.footer
+    div.container
+        div.row
             nav.navbar.navbar-default
                 ul.nav.navbar-nav
                     li
@@ -8,11 +8,7 @@
                     li
                         a(href='#') Privacy Policy
                     li
-                        a(href='#') Contact Us
-        .row.copyright
-            .hidden-xs.col-sm-9
-            .col-sm-3
-                span.text-muted
-                    | © 2014 searchntalk.com (version:&nbsp;
-                    span= Config.get(Config.VERSION)
-                    | )
+        div.row.copyright
+            div.hidden-xs.col-sm-9
+            div.col-sm-3
+                span.text-muted © 2014 searchntalk.com (Version: #{Config.get(Config.VERSION)})

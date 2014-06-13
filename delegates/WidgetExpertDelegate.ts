@@ -47,7 +47,7 @@ class WidgetExpertDelegate
                 var widgetExpert = new WidgetExpert(expert);
                 self.widgetExpertCache.save(widgetExpert);
 
-                var timezone = new TimezoneDelegate().getTimezone(widgetExpert.getTimezone());
+                var timezone = new TimezoneDelegate().get(widgetExpert.getTimezone());
                 widgetExpert.setTimezoneOffset(timezone['gmt_offset']);
 
                 return widgetExpert;

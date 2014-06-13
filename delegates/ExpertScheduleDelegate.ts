@@ -30,7 +30,7 @@ class ExpertScheduleDelegate
                 var rules:ExpertScheduleRule[] = args[0][0];
                 var expert:IntegrationMember = args[0][1];
 
-                var timezone = new TimezoneDelegate().getTimezone(expert.getUser().getTimezone());
+                var timezone = new TimezoneDelegate().get(expert.getUser().getTimezone());
                 var offsetInSecs = timezone['gmt_offset'];
                 var offsetInMillis = offsetInSecs * 1000;
 

@@ -273,7 +273,7 @@ class EmailDelegate
 
         var emailData = {
             call: call,
-            startTimeInCallerTZ: call.getStartTime() - self.timezoneDelegate.getTimezone(call.getUser().getTimezone())['gmt_offset'] * 1000,
+            startTimeInCallerTZ: call.getStartTime() - self.timezoneDelegate.get(call.getUser().getTimezone())['gmt_offset'] * 1000,
             integration: integration
         };
 
