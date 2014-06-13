@@ -1,13 +1,25 @@
 $(function() {
-    $('#AddUserSkillModal form #spinningWheel').hide();
-    $('#EditUserSkillModal form #spinningWheel').hide();
+    $('form#AddUserSkillForm #spinningWheel').hide();
 });
 
-$('.datepicker').datepicker({
-    format: 'dd/mm/yyyy'
+$('.datepicker').datetimepicker();
+
+$('#addSkillbtn').click(function()
+{
+    $('#AddUserSkillCard').show();
+    $('#basicInfo').hide();
+
+    $('form#AddUserSkillForm').trigger('reset');
+    $('form#AddUserSkillForm').data('bootstrapValidator').resetForm();
 });
 
-$('#ChangePasswordModal form').validate({
+$('#cancelAddUserSkill').click(function()
+{
+    $('#basicInfo').show();
+    $('#AddUserSkillCard').hide();
+});
+
+$('#ChangePasswordModal form').bootstrapValidator({
     rules         : {
         oldPassword: {required: true },
         password: { required: true},
@@ -51,42 +63,7 @@ $('#ChangePasswordModal form').validate({
     }
 });
 
-$('#SendProfile').click(function(){
-    if(userProfile.status == 1)
-        bootbox.confirm("Are you sure you want to send your profile for approval?", function(result){
-            if(result)
-            {
-                $.ajax({
-                    url : '/member/' + memberId + '/changeProfileStatus',
-                    type: 'post',
-                    data: {profileId:userProfile.id},
-                    success: function()
-                    {
-                        location.reload();
-                    }
-                })
-            }
-        })
-});
-
-$('#publishProfile').click(function(){
-        bootbox.confirm("Are you sure you want to publish this profile?", function(result){
-            if(result)
-            {
-                $.ajax({
-                    url : '/member/' + memberId + '/publishProfile',
-                    type: 'post',
-                    data: {profileId:userProfile.id, userId:user.id},
-                    success: function()
-                    {
-                        location.reload();
-                    }
-                })
-            }
-        })
-});
-
-$('#EditUserProfileModal form').validate({
+$('#EditUserProfileModal form').bootstrapValidator({
     rules         : {
         first_name: { required: true},
         last_name : { required: true}
@@ -130,8 +107,6 @@ $('#EditUserProfileModal form').validate({
         })
     }
 });
-
-$('select').selectpicker();
 
 /* FILE UPLOAD */
 
@@ -250,7 +225,7 @@ var fetchedSkill = new Bloodhound({
 fetchedSkill.initialize();
 
 var count = 0;
-$('#AddUserSkillModal .typeahead').keypress(function(event)
+$('form#AddUserSkillForm .typeahead').keypress(function(event)
 {
     if(event.key == 'Backspace')
     {
@@ -260,12 +235,12 @@ $('#AddUserSkillModal .typeahead').keypress(function(event)
     else
         count++;
     if(count>0)
-        $('#AddUserSkillModal form #spinningWheel').show();
+        $('form#AddUserSkillForm #spinningWheel').show();
     else
-        $('#AddUserSkillModal form #spinningWheel').hide();
+        $('form#AddUserSkillForm #spinningWheel').hide();
 });
 
-$('#AddUserSkillModal .typeahead').typeahead(
+$('form#AddUserSkillForm .typeahead').typeahead(
     {
         items: 'all',
         name: 'skillName',
@@ -273,26 +248,10 @@ $('#AddUserSkillModal .typeahead').typeahead(
     }
 );
 
-$('#AddUserSkillModal form').validate({
-    rules         : {
-        skill_name : { required: true}
-    },
-    errorPlacement: function(error, element)
-    {
-        $(element).attr('title', error[0].innerHTML);
-        $(element).tooltip('show');
-    },
-    highlight     : function(element)
-    {
-        $(element).closest('.form-group').addClass('has-error');
-    },
-    unhighlight   : function(element)
-    {
-        $(element).closest('.form-group').removeClass('has-error');
-    },
+$('form#AddUserSkillForm').bootstrapValidator({
     submitHandler : function()
     {
-        var updatedSkill = $('#AddUserSkillModal [name="skill_name"]').val();
+        var updatedSkill = $('#AddUserSkillForm input[name="skill_name"]').val();
         var skillLkinCode;
         $.each(skillSet, function(key,skill){
             if(skill.value == updatedSkill)
@@ -313,98 +272,26 @@ $('#AddUserSkillModal form').validate({
                 location.reload();
             }
         })
-    }
-});
-
-var countEditSkill = 0;
-$('#EditUserSkillModal .typeahead').keypress(function(event)
-{
-    if(event.key == 'Backspace')
-    {
-        if(countEditSkill > 0)
-            countEditSkill--;
-    }
-    else
-        countEditSkill++;
-    if(countEditSkill>0)
-        $('#EditUserSkillModal form #spinningWheel').show();
-    else
-        $('#EditUserSkillModal form #spinningWheel').hide();
-});
-
-$('.editUserSkill').click(function()
-{
-    var selectedUserSkill;
-    var userSkillId = $(this).data('id');
-    for(var i = 0; i<userSkill.length; i++)
-        if(userSkill[i].id == userSkillId)
-            selectedUserSkill = userSkill[i];
-    if (selectedUserSkill) {
-        $('#EditUserSkillModal .btn-primary').attr('data-id', selectedUserSkill.id);
-        $('#EditUserSkillModal [name="skill_name"]').val(selectedUserSkill.skill_name);
-    }
-});
-
-$('#EditUserSkillModal .typeahead').typeahead(
-    {
-        items: 'all',
-        name: 'skills',
-        source : fetchedSkill.ttAdapter()
-    }
-);
-
-$('#EditUserSkillModal form').validate({
-    rules         : {
-        skill_name : { required: true}
     },
-    errorPlacement: function(error, element)
-    {
-        $(element).attr('title', error[0].innerHTML);
-        $(element).tooltip('show');
+    feedbackIcons: {
+        valid     : 'glyphicon glyphicon-ok',
+        invalid   : 'glyphicon glyphicon-remove',
+        validating: 'glyphicon glyphicon-refresh'
     },
-    highlight     : function(element)
-    {
-        $(element).closest('.form-group').addClass('has-error');
-    },
-    unhighlight   : function(element)
-    {
-        $(element).closest('.form-group').removeClass('has-error');
-    },
-    submitHandler : function()
-    {
-        var skillId = $('#EditUserSkillModal form .btn-primary').attr('data-id');
-        var updatedSkill = $('#EditUserSkillModal [name="skill_name"]').val();
-        var skillLkinCode;
-        $.each(skillSet, function(key,skill){
-            if(skill.value == updatedSkill)
-                skillLkinCode = skill.code;
-        });
-        $.ajax({
-            url : '/rest/user/skill/' + skillId,
-            type: 'post',
-            data: {
-                skill: {
-                    skill_linkedin_code              :   skillLkinCode,
-                    skill_name              :   updatedSkill
+    fields         : {
+        skill_name : {
+            validators: {
+                notEmpty: {
+                    message: 'This field is required and cannot be empty'
                 }
-            },
-            success: function()
-            {
-                location.reload();
             }
-        })
+        }
     }
 });
 
-$('.deleteUserSkill').click(function()
+$('[name="deleteUserSkill"]').click(function()
 {
-    var skillId = $(this).data('id');
-    $('#DeleteUserSkillModal .btn-primary').attr('data-id', skillId);
-});
-
-function handleSkillDeleteClicked(event)
-{
-    var skillId = $(event.currentTarget).attr('data-id');
+    var skillId = $(this).attr('data-id');
     $.ajax({
         url    : '/rest/user/skill/' + skillId,
         type   : 'DELETE',
@@ -417,7 +304,7 @@ function handleSkillDeleteClicked(event)
             location.reload();
         }
     });
-};
+});
 
 $('#fetchSkill,#fetchEmployment,#fetchEducation,#fetchBasic').click(function(event)
 {
@@ -429,5 +316,3 @@ $('#fetchSkill,#fetchEmployment,#fetchEducation,#fetchBasic').click(function(eve
       }
    });
 });
-
-$('#deleteUserSkill').click(handleSkillDeleteClicked);

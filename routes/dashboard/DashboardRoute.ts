@@ -350,13 +350,12 @@ class DashboardRoute
         var userId = parseInt(req.params[ApiConstants.USER_ID]);
         var mode = req.query[ApiConstants.MODE]
         var sessionData = new SessionData(req);
-        var userProfile:UserProfile = new UserProfile();
         var member:IntegrationMember;
         var loggedInUser = sessionData.getLoggedInUser();
 
         self.userProfileDelegate.find(Utils.createSimpleObject(UserProfile.USER_ID, userId))
             .then(
-            function memberFetched(userProfile:UserProfile)
+            function profileFetched(userProfile:UserProfile)
             {
                 var profileInfoTasks = [self.userDelegate.get(userId)];
 
@@ -368,17 +367,17 @@ class DashboardRoute
                         self.userUrlDelegate.search({'profileId': userProfile.getId()})
                     ]);
 
-                return q.all(profileInfoTasks);
+                return [userProfile,q.all(profileInfoTasks)];
             })
-            .then(
-            function memberDetailsFetched(...args)
+            .spread(
+            function userDetailsFetched(userProfile,...args)
             {
                 var user = args[0][0];
                 var userSkill = args[0][1] || [];
                 var userEducation = args[0][2] || [];
                 var userEmployment = args[0][3] || [];
                 var userUrl = args[0][4] || [];
-                var isEditable = args[0][5] || args[0][6] || false;
+                var isEditable = loggedInUser ? loggedInUser.getId()==user.getId() : false;
 
                 if (mode == ApiConstants.PUBLIC_MODE)
                     isEditable = false;

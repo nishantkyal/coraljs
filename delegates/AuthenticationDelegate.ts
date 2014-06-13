@@ -214,7 +214,9 @@ class AuthenticationDelegate
                 var user = new User();
                 user.setEmail(profile.emailAddress); //setting email id for new user, if user exists then this will be discarded
                 user.setStatus(UserStatus.MOBILE_NOT_VERIFIED);
-                user.setTimezone(req.session[ApiConstants.ZONE]);
+
+                if (!Utils.isNullOrEmpty(req.session[ApiConstants.ZONE]))
+                    user.setTimezone(req.session[ApiConstants.ZONE]);
 
                 return new UserOAuthDelegate().addOrUpdateToken(userOauth, user)
                     .then(
