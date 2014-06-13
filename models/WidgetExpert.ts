@@ -22,6 +22,7 @@ class WidgetExpert
     private timezone_offset:number;
     private price:number;
     private price_unit:MoneyUnit;
+    private min_duration:number;
     private user_rating:number;
     private editorial_rating:number;
     private summary:string;
@@ -53,6 +54,7 @@ class WidgetExpert
             {
                 this.price = member.getSchedule()[0].getPricePerMin();
                 this.price_unit = member.getSchedule()[0].getPriceUnit();
+                this.min_duration = member.getSchedule()[0].getMinDuration();
             }
 
             var nextAvailableSchedule:ExpertSchedule = _.find(member.getSchedule(), function (schedule:ExpertSchedule):boolean
@@ -80,37 +82,26 @@ class WidgetExpert
             this.next_slot_duration = expert.next_slot_duration;
             this.price = expert.price;
             this.price_unit = expert.price_unit;
+            this.min_duration = expert.min_duration;
         }
     }
 
     /* Getters */
     getId():number { return this.expert_id; }
-
     getTitle():Salutation { return this.title; }
-
     getFirstName():string { return this.first_name; }
-
     getLastName():string { return this.last_name; }
-
     getTimezone():TimeZone { return this.timezone; }
-
     getTimezoneOffset():number { return this.timezone_offset; }
-
     getPrice():number { return this.price; }
-
     getPriceUnit():MoneyUnit { return this.price_unit; }
-
     getUserRating():number { return this.user_rating; }
-
     getEditorialRating():number { return this.editorial_rating; }
-
     getSummary():string { return this.summary; }
-
     getKeywords():string[] { return this.keywords; }
-
     getNextSlotStartTime():number { return this.next_slot_start_time; }
-
     getNextSlotDuration():number { return this.next_slot_duration; }
+    getMinDuration():number { return this.min_duration; }
 
     /* Setters */
     setTimezoneOffset(val:number) { this.timezone_offset = val; }
