@@ -41,6 +41,7 @@ import CallSchedulingUrls                                           = require('.
  */
 class EmailDelegate
 {
+    private static EMAIL_TEST:string                                = 'EMAIL_TEST';
     private static EMAIL_PASSWORD_RESET:string                      = 'EMAIL_PASSWORD_RESET';
     private static EMAIL_EXPERT_INVITE:string                       = 'EMAIL_EXPERT_INVITE';
     private static EMAIL_EXPERT_WELCOME:string                      = 'EMAIL_EXPERT_WELCOME';
@@ -511,6 +512,11 @@ class EmailDelegate
             {
                 return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_REGISTRATION_SUCCESS, expertUser.getUser().getEmail(), emailData);
             });
+    }
+
+    sendTestEmail(to:string = 'nishant.kyal@gmail.com', data:Object = {})
+    {
+        return this.composeAndSend(EmailDelegate.EMAIL_TEST, to, data);
     }
 
 }
