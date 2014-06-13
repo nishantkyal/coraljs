@@ -1,14 +1,13 @@
 ///<reference path='../_references.d.ts'/>
-import _                                        = require('underscore');
-import Utils                                    = require('../common/Utils');
-import AbstractModel                            = require('./AbstractModel');
-
+import _                                                = require('underscore');
+import Utils                                            = require('../common/Utils');
+import AbstractModel                                    = require('./AbstractModel');
+import ForeignKey                                       = require('../models/ForeignKey');
 /*
  * Base class for Models
  */
 class BaseModel extends AbstractModel
 {
-
     static ID:string = 'id';
     static CREATED:string = 'created';
     static UPDATED:string = 'updated';
@@ -24,10 +23,11 @@ class BaseModel extends AbstractModel
 
 
     /* Getters */
-    getId():number { return this.id; }
-    getCreated():number { return this.created; }
-    getUpdated():number { return this.updated; }
-    getDeleted():boolean { return this.deleted; }
+    getId():number                                      { return this.id; }
+    getCreated():number                                 { return this.created; }
+    getUpdated():number                                 { return this.updated; }
+    getDeleted():boolean                                { return this.deleted; }
+
     /*get(propertyName:string):any
     {
         var thisProtoConstructor = this.__proto__.constructor;
@@ -37,10 +37,11 @@ class BaseModel extends AbstractModel
     }*/
 
     /* Setters */
-    setId(val:number):void { this.id = val; }
-    setCreated(val:number):void { this.created = val; }
-    setUpdated(val:number):void { this.updated = val; }
-    setDeleted(val:boolean):void { this.deleted = val; }
+    setId(val:number):void                              { this.id = val; }
+    setCreated(val:number):void                         { this.created = val; }
+    setUpdated(val:number):void                         { this.updated = val; }
+    setDeleted(val:boolean):void                        { this.deleted = val; }
+
     set(propertyName:string, val:any):void
     {
         var thisProtoConstructor = this.__proto__.constructor;
@@ -59,5 +60,16 @@ class BaseModel extends AbstractModel
 
     isValid():boolean { return true; }
 
+    /* Foreign key methods */
+    hasOne(fk:ForeignKey):void
+    {
+
+    }
+
+    hasMany(fk:ForeignKey):void
+    {
+        var thisProtoConstructor = this.__proto__.constructor;
+
+    }
 }
 export = BaseModel

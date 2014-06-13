@@ -134,7 +134,7 @@ function proceedToPayment()
         return;
     }
 
-    var form = $('<form action="/expert/call/payment" method="POST">' +
+    var form = $('<form action="/payment" method="POST">' +
         '<input type="hidden" name="agenda" value="' + agenda + '">' +
         '<input type="hidden" name="duration" value="' + duration + '">' +
         '<input type="hidden" name="countryCode" value="' + countryCode + '">' +

@@ -111,35 +111,40 @@ title ST-#{formatName(user.first_name, user.last_name, user.title)} | Payment fo
                 button.close(type='button', data-dismiss='modal', aria-hidden='true') ×
                 h4.modal-title
                     i.icon-scheduler
-                    | Login to Search-n-Talk
+                    | Login
             .modal-body
                 .alert
                     .alert-danger(style="display: none; padding: 3px;")
-                #authentication.form.col-md-12.center-block
-                    .form-group
-                        input.form-control.input-sm(type='text', placeholder='Email', name='username')
-                    .form-group.register
-                        select.form-control.input-sm
-                            - for title,id in Salutation
-                                option(value=id)= title
-                    .form-group.register
-                        input.form-control.input-sm(type='text', placeholder='First Name', name='first_name')
-                    .form-group.register
-                        input.form-control.input-sm(type='text', placeholder='Last Name', name='last_name')
-                    .form-group
-                        input.form-control.input-sm(type='password', placeholder='Password', name='password')
-                    .form-group.register
-                        input.form-control.input-sm(type='password', placeholder='Re-enter Password')
-                    .form-group
-                        input.btn.btn-primary.btn-sm.btn-block#login-button.login(type='submit', value='LOGIN')
-                        input.btn.btn-primary.btn-sm.btn-block#register-button.register(type='submit', value='CREATE ACCOUNT')
+                .form.col-md-12.center-block
+                    form.login
+                        .form-group
+                            input.form-control.input(type='text', placeholder='Email', name='email')
+                        .form-group
+                            input.form-control.input(type='password', placeholder='Password', name='password')
+                        .form-group
+                            input.btn.btn-primary.btn.btn-block(type='submit', value='LOGIN')
+                    form.register
+                        .form-group
+                            input.form-control.input(type='text', placeholder='Email', name='email')
+                        .form-group
+                            select.form-control.input
+                                - for title,id in Salutation
+                                    option(value=id)= title
+                        .form-group
+                            input.form-control.input(type='text', placeholder='First Name', name='first_name')
+                        .form-group
+                            input.form-control.input(type='text', placeholder='Last Name', name='last_name')
+                        .form-group
+                            input.form-control.input(type='password', placeholder='Password', name='password')
+                        .form-group
+                            input.btn.btn-primary.btn.btn-block(type='submit', value='CREATE ACCOUNT')
                     .form-group
                         a.btn.btn-facebook.btn-block(href=CallFlowUrls.facebookLogin()) Login with Facebook
                     .form-group
                         a.btn.btn-linkedin.btn-block(href=CallFlowUrls.linkedInLogin()) Login with LinkedIn
                     span.pull-right
-                        a#login-link.register(href='#') Login
-                        a#register-link.login(href='#') Register
+                        a#login-link.register(href='javascript:void(0)') Login
+                        a#register-link.login(href='javascript:void(0)') Register
             .modal-footer
         // /.modal-content
 script(src='/js/app/callFlow/payment.js')
