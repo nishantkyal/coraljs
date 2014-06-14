@@ -14,6 +14,10 @@ class BaseDaoDelegate
     logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
     dao:AbstractDao;
 
+    /** Can be constructed using just the model in case dao doesn't do anything special
+     * e.g. Execute custom queries which AbstractDao doesnt support
+     * @param dao
+     */
     constructor(dao:typeof BaseModel);
     constructor(dao:AbstractDao);
     constructor(dao:any)
