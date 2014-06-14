@@ -86,9 +86,7 @@ class ExpertScheduleDelegate
                         expertSchedule.setStartTime(moment(t).add({millis: gmtOffsetInMillis}).valueOf());
                         expertSchedule.setDuration(rule.getDuration());
                         expertSchedule.setScheduleRuleId(rule.getId());
-                        expertSchedule.setPricePerMin(rule.getPricePerMin());
-                        expertSchedule.setPriceUnit(rule.getPriceUnit());
-                        expertSchedule.setMinDuration(rule.getMinDuration());
+                        expertSchedule.setPricingSchemeId(rule.getPricingSchemeId());
                         schedules.push(expertSchedule);
                     }
                 } catch (e)

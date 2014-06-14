@@ -24,8 +24,6 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
     private static START_MINUTE:string  = 'startMinute';
     private static END_HOUR:string      = 'endHour';
     private static END_MINUTE:string    = 'endMinute';
-    private static PRICE_UNIT:string    = 'priceUnit';
-    private static PRICE_PER_MIN:string = 'pricePerMin';
     private static TITLE:string         = 'title';
 
     create(newScheduleRule:any, transaction?:Object):q.Promise<any>
@@ -116,8 +114,7 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
         scheduleRule.setIntegrationMemberId(integration_member_id);
         scheduleRule.setRepeatEnd(0);
         scheduleRule.setRepeatStart(moment().valueOf());
-        scheduleRule.setPricePerMin(parseInt(slot[ExpertScheduleRuleDelegate.PRICE_PER_MIN]));
-        scheduleRule.setPriceUnit(parseInt(slot[ExpertScheduleRuleDelegate.PRICE_UNIT]));
+        scheduleRule.setPricingSchemeId(parseInt(slot[ExpertScheduleRule.PRICING_SCHEME_ID]));
         scheduleRule.setTitle(slot[ExpertScheduleRuleDelegate.TITLE]);
 
         return scheduleRule;
