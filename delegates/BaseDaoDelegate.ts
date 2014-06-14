@@ -14,9 +14,11 @@ class BaseDaoDelegate
     logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
     dao:AbstractDao;
 
-    constructor(dao:AbstractDao)
+    constructor(dao:typeof BaseModel);
+    constructor(dao:AbstractDao);
+    constructor(dao:any)
     {
-        this.dao = dao;
+        this.dao = Utils.getObjectType(dao) == 'Object' ? dao : new AbstractDao(dao);
     }
 
     get(id:any, fields?:string[], includes:IncludeFlag[] = [], transaction?:Object):q.Promise<any>

@@ -16,7 +16,6 @@ import WidgetRuntimeData                                        = require('../mo
 import IncludeFlag                                              = require('../enums/IncludeFlag');
 import Config                                                   = require('../common/Config');
 import Utils                                                    = require('../common/Utils');
-import WidgetDao                                                = require('../dao/WidgetDao');
 
 class WidgetDelegate extends BaseDaoDelegate
 {
@@ -24,7 +23,7 @@ class WidgetDelegate extends BaseDaoDelegate
     private static logger:log4js.Logger = log4js.getLogger('WidgetDelegate');
     private widgetExpertDelegate = new WidgetExpertDelegate();
 
-    constructor() { super(new WidgetDao()); }
+    constructor() { super(Widget); }
 
     /* Static constructor workaround */
     private static ctor = (() =>

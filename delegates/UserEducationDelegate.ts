@@ -2,7 +2,6 @@
 import q                                                    = require('q');
 import BaseDaoDelegate                                      = require('./BaseDaoDelegate');
 import MysqlDelegate                                        = require('../delegates/MysqlDelegate');
-import UserEducationDao                                     = require('../dao/UserEducationDao');
 import MapProfileEducationDao                               = require('../dao/MapProfileEducationDao');
 import UserEducation                                        = require('../models/UserEducation');
 import MapProfileEducation                                  = require('../models/MapProfileEducation');
@@ -15,7 +14,7 @@ class UserEducationDelegate extends BaseDaoDelegate
 
     constructor()
     {
-        super(new UserEducationDao());
+        super(UserEducation);
         var IntegrationMemberDelegate = require('../delegates/IntegrationMemberDelegate');
         this.integrationMemberDelegate = new IntegrationMemberDelegate();
     }

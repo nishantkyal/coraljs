@@ -9,7 +9,6 @@ import MysqlDelegate                                                    = requir
 import UserProfileDelegate                                              = require('../delegates/UserProfileDelegate');
 import ImageDelegate                                                    = require('../delegates/ImageDelegate');
 import UserPhoneDelegate                                                = require('../delegates/UserPhoneDelegate');
-import UserDAO                                                          = require('../dao/UserDao')
 import User                                                             = require('../models/User');
 import UserProfile                                                      = require('../models/UserProfile');
 import IncludeFlag                                                      = require('../enums/IncludeFlag');
@@ -27,7 +26,7 @@ class UserDelegate extends BaseDaoDelegate
     private userProfileDelegate = new UserProfileDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
 
-    constructor() { super(new UserDAO()); }
+    constructor() { super(User); }
 
     create(object:any, dbTransaction?:Object):q.Promise<any>
     {

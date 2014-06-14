@@ -7,7 +7,6 @@ import MysqlDelegate                                = require('../delegates/Mysq
 import ExpertScheduleDelegate                       = require('../delegates/ExpertScheduleDelegate');
 import IntegrationDelegate                          = require('../delegates/IntegrationDelegate');
 import ExpertScheduleRuleDelegate                   = require('../delegates/ExpertScheduleRuleDelegate');
-import IntegrationMemberDAO                         = require ('../dao/IntegrationMemberDao');
 import IntegrationMemberRole                        = require('../enums/IntegrationMemberRole');
 import IncludeFlag                                  = require('../enums/IncludeFlag');
 import Integration                                  = require('../models/Integration');
@@ -24,7 +23,7 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
 
     constructor()
     {
-        super(new IntegrationMemberDAO());
+        super(IntegrationMember);
 
         var UserDelegate:any = require('../delegates/UserDelegate');
         this.userDelegate = new UserDelegate();

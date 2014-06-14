@@ -1,8 +1,8 @@
 import BaseDaoDelegate                                          = require('../delegates/BaseDaoDelegate');
-import PaymentDao                                               = require('../dao/PaymentDao');
+import Payment                                                  = require('../models/Payment');
 
 class PaymentDelegate extends BaseDaoDelegate
 {
-    constructor() { super(new PaymentDao()); }
+    constructor() { super(Payment); }
 }
 export = PaymentDelegate
