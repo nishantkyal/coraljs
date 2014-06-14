@@ -7,20 +7,19 @@ import MoneyUnit                                                = require('../en
 import Utils                                                    = require('../common/Utils')
 import ExpertSchedule                                           = require('../models/ExpertSchedule');
 import ExpertScheduleException                                  = require('../models/ExpertScheduleException');
+import PricingScheme                                            = require('../models/PricingScheme');
 
 class ExpertScheduleRule extends BaseModel
 {
     static TABLE_NAME = 'expert_schedule_rule';
 
-    static INTEGRATION_MEMBER_ID:string = 'integration_member_id';
-    static TITLE:string                 = 'title';
-    static REPEAT_START:string          = 'repeat_start';
-    static CRON_RULE:string             = 'cron_rule';
-    static REPEAT_END:string            = 'repeat_end';
-    static DURATION:string              = 'duration';
-    static PRICE_PER_MIN:string         = 'price_per_min';
-    static PRICE_UNIT:string            = 'price_unit';
-    static MIN_DURATION:string          = 'min_duration';
+    static INTEGRATION_MEMBER_ID:string                         = 'integration_member_id';
+    static TITLE:string                                         = 'title';
+    static REPEAT_START:string                                  = 'repeat_start';
+    static CRON_RULE:string                                     = 'cron_rule';
+    static REPEAT_END:string                                    = 'repeat_end';
+    static DURATION:string                                      = 'duration';
+    static PRICING_SCHEME_ID:string                             = 'pricing_scheme_id';
 
     private integration_member_id:number;
     private title:string;
@@ -28,31 +27,25 @@ class ExpertScheduleRule extends BaseModel
     private cron_rule:string;
     private repeat_end:number;
     private duration:number;
-    private price_per_min:number;
-    private price_unit:MoneyUnit;
-    private min_duration:number;
+    private pricing_scheme_id:number;
 
     /* Getters */
-    getIntegrationMemberId():number                         { return this.integration_member_id; }
-    getTitle():string                                       { return this.title; }
-    getRepeatStart():number                                 { return this.repeat_start; }
-    getCronRule():string                                    { return this.cron_rule; }
-    getRepeatEnd():number                                   { return this.repeat_end; }
-    getDuration():number                                    { return this.duration; }
-    getPricePerMin():number                                 { return this.price_per_min; }
-    getPriceUnit():MoneyUnit                                { return this.price_unit; }
-    getMinDuration():number                                 { return this.min_duration; }
+    getIntegrationMemberId():number                             { return this.integration_member_id; }
+    getTitle():string                                           { return this.title; }
+    getRepeatStart():number                                     { return this.repeat_start; }
+    getCronRule():string                                        { return this.cron_rule; }
+    getRepeatEnd():number                                       { return this.repeat_end; }
+    getDuration():number                                        { return this.duration; }
+    getPricingSchemeId():number                                 { return this.pricing_scheme_id; }
 
     /* Setters */
-    setIntegrationMemberId(val:number):void                 { this.integration_member_id = val; }
-    setTitle(val:string):void                               { this.title = val; }
-    setRepeatStart(val:number):void                         { this.repeat_start = val; }
-    setCronRule(val:string):void                            { this.cron_rule = val; }
-    setRepeatEnd(val:number):void                           { this.repeat_end = val; }
-    setDuration(val:number):void                            { this.duration = val; }
-    setPricePerMin(val:number):void                         { this.price_per_min = val; }
-    setPriceUnit(val:MoneyUnit):void                        { this.price_unit = val; }
-    setMinDuration(val:number):void                         { this.min_duration= val; }
+    setIntegrationMemberId(val:number):void                     { this.integration_member_id = val; }
+    setTitle(val:string):void                                   { this.title = val; }
+    setRepeatStart(val:number):void                             { this.repeat_start = val; }
+    setCronRule(val:string):void                                { this.cron_rule = val; }
+    setRepeatEnd(val:number):void                               { this.repeat_end = val; }
+    setDuration(val:number):void                                { this.duration = val; }
+    setPricingSchemeId(val:number):void                         { this.pricing_scheme_id = val; }
 
     isValid():boolean
     {

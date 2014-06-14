@@ -10,6 +10,7 @@ import UserOauth                        = require('../models/UserOauth');
 import Integration                      = require('../models/Integration');
 import IntegrationMember                = require('../models/IntegrationMember');
 import PhoneCall                        = require('../models/PhoneCall');
+import PricingScheme                    = require('../models/PricingScheme');
 import UserPhone                        = require('../models/UserPhone');
 import ExpertScheduleRule               = require('../models/ExpertScheduleRule');
 import ExpertScheduleException          = require('../models/ExpertScheduleException');
@@ -90,6 +91,9 @@ class RequestHandler
                     break;
                 case ApiConstants.WIDGET:
                     modelClass = Widget;
+                    break;
+                case ApiConstants.PRICING_SCHEME:
+                    modelClass = PricingScheme;
                     break;
             }
 
