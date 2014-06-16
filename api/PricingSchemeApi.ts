@@ -25,7 +25,7 @@ class PricingSchemeApi
             );
         });
 
-        app.post(ApiUrlDelegate.pricingSchemeById(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
+        app.post(ApiUrlDelegate.pricingSchemeById(), function(req:express.Request, res:express.Response)
         {
             var pricingScheme:any = req.body[ApiConstants.PRICING_SCHEME];
             var pricingSchemeId = parseInt(req.params[ApiConstants.PRICING_SCHEME_ID]);

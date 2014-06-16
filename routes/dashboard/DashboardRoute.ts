@@ -6,6 +6,7 @@ import connect_ensure_login                             = require('connect-ensur
 import express                                          = require('express');
 import log4js                                           = require('log4js');
 import accounting                                       = require('accounting');
+import PricingSchemeDelegate                            = require('../../delegates/PricingSchemeDelegate');
 import AuthenticationDelegate                           = require('../../delegates/AuthenticationDelegate');
 import UserDelegate                                     = require('../../delegates/UserDelegate');
 import IntegrationDelegate                              = require('../../delegates/IntegrationDelegate');
@@ -21,7 +22,7 @@ import UserSkillDelegate                                = require('../../delegat
 import UserEmploymentDelegate                           = require('../../delegates/UserEmploymentDelegate');
 import RefSkillCodeDelegate                             = require('../../delegates/SkillCodeDelegate');
 import UserProfileDelegate                              = require('../../delegates/UserProfileDelegate');
-import ScheduleRuleDelegate                       = require('../../delegates/ScheduleRuleDelegate');
+import ScheduleRuleDelegate                             = require('../../delegates/ScheduleRuleDelegate');
 import VerificationCodeDelegate                         = require('../../delegates/VerificationCodeDelegate');
 import MysqlDelegate                                    = require('../../delegates/MysqlDelegate');
 import UserUrlDelegate                                  = require('../../delegates/UserUrlDelegate');
@@ -40,8 +41,9 @@ import PhoneCall                                        = require('../../models/
 import UserProfile                                      = require('../../models/UserProfile');
 import Transaction                                      = require('../../models/Transaction');
 import TransactionLine                                  = require('../../models/TransactionLine');
-import ScheduleRule                               = require('../../models/ScheduleRule');
+import ScheduleRule                                     = require('../../models/ScheduleRule');
 import CronRule                                         = require('../../models/CronRule');
+import PricingScheme                                    = require('../../models/PricingScheme');
 import IntegrationMemberRole                            = require('../../enums/IntegrationMemberRole');
 import ApiConstants                                     = require('../../enums/ApiConstants');
 import SmsTemplate                                      = require('../../enums/SmsTemplate');
@@ -80,6 +82,7 @@ class DashboardRoute
     private userSkillDelegate = new UserSkillDelegate();
     private userEducationDelegate = new UserEducationDelegate();
     private scheduleRuleDelegate = new ScheduleRuleDelegate();
+    private pricingSchemeDelegate = new PricingSchemeDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
     private phoneCallDelegate = new PhoneCallDelegate();
     private notificationDelegate = new NotificationDelegate();
@@ -370,17 +373,17 @@ class DashboardRoute
                         self.userUrlDelegate.search({'profileId': userProfile.getId()})
                     ]);
 
-                return [userProfile,q.all(profileInfoTasks)];
+                return [userProfile, q.all(profileInfoTasks)];
             })
             .spread(
-            function userDetailsFetched(userProfile,...args)
+            function userDetailsFetched(userProfile, ...args)
             {
                 var user = args[0][0];
                 var userSkill = args[0][1] || [];
                 var userEducation = args[0][2] || [];
                 var userEmployment = args[0][3] || [];
                 var userUrl = args[0][4] || [];
-                var isEditable = loggedInUser ? loggedInUser.getId()==user.getId() : false;
+                var isEditable = loggedInUser ? loggedInUser.getId() == user.getId() : false;
 
                 if (mode == ApiConstants.PUBLIC_MODE)
                     isEditable = false;
@@ -436,16 +439,24 @@ class DashboardRoute
         var userId:number = parseInt(req.params[ApiConstants.USER_ID]);
         var sessionData = new SessionData(req);
 
-        self.scheduleRuleDelegate.getRulesByUser(userId)
+        q.all([
+            self.scheduleRuleDelegate.getRulesByUser(userId),
+            self.pricingSchemeDelegate.search(Utils.createSimpleObject(PricingScheme.USER_ID, userId))
+        ])
             .then(
-            function rulesFetched(rules:ScheduleRule[])
+            function rulesFetched(...args)
             {
-                _.each(rules || [], function(rule:ScheduleRule) {
+                var rules:ScheduleRule[] = args[0][0];
+                var pricingSchemes:PricingScheme[] = args[0][1];
+
+                _.each(rules || [], function (rule:ScheduleRule)
+                {
                     rule['values'] = CronRule.getValues(rule.getCronRule())
                 });
 
                 var pageData = _.extend(sessionData.getData(), {
-                    rules: rules || []
+                    rules: rules || [],
+                    scheme: pricingSchemes[0] || new PricingScheme()
                 });
                 res.render(DashboardRoute.PAGE_SCHEDULE, pageData);
             },

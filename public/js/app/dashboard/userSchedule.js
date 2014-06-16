@@ -110,3 +110,43 @@ function valuesToPattern(values)
         else
             return values;
 }
+
+$('form#pricingSchemeForm').bootstrapValidator({
+    fields: {
+        'charging_rate': {
+            validators: {
+                digits: {message: 'Please enter a valid number'},
+                required: {message: 'This is a required field'}
+            }
+        }
+    },
+    submitHandler: function()
+    {
+        var schemeId = $('form#pricingSchemeForm input[type=hidden]').val();
+        var method = schemeId ? 'post' : 'put';
+        var url = schemeId ? '/rest/pricingScheme/' + schemeId : '/rest/pricingScheme';
+
+        $.ajax({
+            url: url,
+            method: method,
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                pricingScheme: {
+                    charging_rate: $('form#pricingSchemeForm input[name=charging_rate]').val(),
+                    unit: $('form#pricingSchemeForm input[name=unit]').val(),
+                    min_duration: $('form#pricingSchemeForm input[name=min_duration]').val(),
+                    chunk_size: $('form#pricingSchemeForm input[name=chunk_size]').val()
+                }
+            }),
+            success: function()
+            {
+                location.reload();
+            },
+            error: function(jqXhr)
+            {
+                bootbox.alert(jqXhr.responseText);
+            }
+        });
+    }
+});

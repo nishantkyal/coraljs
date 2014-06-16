@@ -134,29 +134,35 @@ div.matter
                         .header
                             .title
                                 h1 Pricing
-                            .clearer
+                        .clearer
                         .item
-                            .row
-                                h3 Pulse Rate
-                                .form-group
-                                    select.form-control
-                                        option(value='1') 1 min.
-                                        option(value='15') 15 mins.
-                                        option(value='30') 30 mins.
-                                        option(value='45') 45 mins.
-                                        option(value='60') 60 mins.
-                                h3 Amount
-                                .form-group
-                                    .input-group
-                                        input(type='text').form-control
-                                        .input-group-btn
-                                            select.form-control
-                                                option $
-                                                option Rs.
-                                                option Points
-                                h3 Minimum duration (mins.)
-                                .form-group
-                                    input(type='text', placeholder='0').form-control
+                            form#pricingSchemeForm
+                                input(type='hidden', name='id', value=scheme.id)
+                                .row
+                                    h3 Pulse Rate
+                                    .form-group
+                                        select.form-control(name='chunk_size')
+                                            option(value='1', selected=scheme.chunk_size == 1) 1 min.
+                                            option(value='15', selected=scheme.chunk_size == 15) 15 mins.
+                                            option(value='30', selected=scheme.chunk_size == 30) 30 mins.
+                                            option(value='45', selected=scheme.chunk_size == 45) 45 mins.
+                                            option(value='60', selected=scheme.chunk_size == 60) 60 mins.
+                                    h3 Amount
+                                    .form-group
+                                        .input-group
+                                            input(type='text', value=scheme.charging_rate, name='charging_rate').form-control
+                                            .input-group-btn
+                                                select.form-control(name='unit')
+                                                    option(value='1', selected=scheme.unit == 1) Rs.
+                                                    option(value='2', selected=scheme.unit == 2) $
+                                                    option(value='3', selected=scheme.unit == 3) Points
+                                    h3 Minimum duration (mins.)
+                                    .form-group
+                                        input(type='text', placeholder='0', value=scheme.min_duration, name='min_duration').form-control
+                                .links-edit
+                                    p.edit-schedules
+                                        em Coming soon: Skill based pricing
+                                        input.btn.btn-primary.btn-lg(type='submit', value='Save')
 
 include ../footer
 script.
