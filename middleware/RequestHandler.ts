@@ -171,7 +171,6 @@ class RequestHandler
                     // Check to see if it's a parameter
                     switch (argName)
                     {
-                        case ApiConstants.COUPON_ID:
                         case ApiConstants.USER_ID:
                         case ApiConstants.USER_PROFILE_ID:
                         case ApiConstants.EXPERT_ID:

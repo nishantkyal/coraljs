@@ -127,8 +127,7 @@ class Formatter
 
     static formatAge(d:string, format?:string):string
     {
-        var date = Formatter.formatDate(d, format);
-        return (moment().get('year') - moment(date).get('year')).toString() + ' years';
+        return moment().diff(moment(d, format), 'years') + ' years';
     }
 }
 export = Formatter
