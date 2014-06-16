@@ -31,8 +31,8 @@ head
 .masthead(role='banner')
     .container
         .masthead-brand
-            a.logo.hidden-xs(href='#')
-            a.icon.visible-xs(href='#')
+            a.logo.hidden-xs(href='/')
+            a.icon.visible-xs(href='/')
         .masthead-controls
             if loggedInUser
                 .masthead-control-field.user-control
@@ -56,5 +56,8 @@ head
                         ul
                             li
                                 a.btn.btn-primary(href=DashboardUrls.logout()) Logout
+            else
+                .masthead-control-field.user-control
+                    a.btn.btn-primary Login
             .clearer
         .clearer

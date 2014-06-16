@@ -470,4 +470,18 @@
     <changeSet author="Nishant (generated)" id="1402895620650-7">
         <dropColumn columnName="price_unit" tableName="expert_schedule_rule"/>
     </changeSet>
+    <changeSet author="Nishant (generated)" id="1402921444862-1">
+        <addColumn tableName="pricing_scheme">
+            <column name="user_id" type="INT(10)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402921444862-2">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="pricing_scheme" constraintName="FK_pricing_scheme" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="user"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402921444862-3">
+        <dropForeignKeyConstraint baseTableName="pricing_scheme" constraintName="FK_pricing_scheme_integration_member"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402921444862-4">
+        <dropColumn columnName="integration_member_id" tableName="pricing_scheme"/>
+    </changeSet>
 </databaseChangeLog>
