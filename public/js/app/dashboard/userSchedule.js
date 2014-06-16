@@ -67,6 +67,10 @@ $('.done-editing-schedules').click(function()
         success    : function()
         {
             location.reload();
+        },
+        error: function()
+        {
+
         }
     })
 });

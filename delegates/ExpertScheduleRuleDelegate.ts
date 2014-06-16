@@ -41,7 +41,7 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
             {
                 self.logger.debug('Conflicts checked %s', hasConflicts);
                 if (hasConflicts)
-                    return q.reject('Conflicts detected');
+                    return q.reject('The rule settings entered conflict with an existing rule');
                 else
                     return createProxy.call(self, newScheduleRule, transaction);
             });
