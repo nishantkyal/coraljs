@@ -409,4 +409,65 @@
     <changeSet author="Nishant (generated)" id="1402515426669-9">
         <dropColumn columnName="status" tableName="user_profile"/>
     </changeSet>
+    <changeSet author="Nishant (generated)" id="1402856804629-1">
+        <createTable tableName="pricing_scheme">
+            <column name="id" type="INT(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="integration_member_id" type="INT(10)"/>
+            <column name="charging_rate" type="FLOAT(5, 2)"/>
+            <column name="unit" type="INT(10)"/>
+            <column name="chunk_size" type="INT(10)"/>
+            <column name="min_duration" type="INT(10)"/>
+            <column name="created" type="BIGINT(19)"/>
+            <column name="updated" type="BIGINT(19)"/>
+            <column name="deleted" type="BIGINT(19)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402856804629-2">
+        <addColumn tableName="expert_schedule_rule">
+            <column name="user_id" type="INT(10)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402856804629-3">
+        <addPrimaryKey columnNames="id" constraintName="PRIMARY" tableName="pricing_scheme"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402856804629-4">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="expert_schedule_rule" constraintName="FK_expert_schedule_rule_user" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="user"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402856804629-5">
+        <addForeignKeyConstraint baseColumnNames="integration_member_id" baseTableName="pricing_scheme" constraintName="FK_pricing_scheme_integration_member" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="integration_member"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402856804629-6">
+        <addForeignKeyConstraint baseColumnNames="unit" baseTableName="pricing_scheme" constraintName="FK_pricing_scheme_unit" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="ref_money_unit"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402856804629-7">
+        <dropForeignKeyConstraint baseTableName="expert_schedule_rule" constraintName="rule_integration_member_id"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402856804629-8">
+        <dropColumn columnName="integration_member_id" tableName="expert_schedule_rule"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402895620650-1">
+        <addColumn tableName="expert_schedule_rule">
+            <column name="pricing_scheme_id" type="INT(10)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402895620650-2">
+        <addForeignKeyConstraint baseColumnNames="pricing_scheme_id" baseTableName="expert_schedule_rule" constraintName="FK_expert_schedule_rule_pricing_scheme" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="pricing_scheme"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402895620650-3">
+        <dropForeignKeyConstraint baseTableName="expert_schedule_rule" constraintName="rule_price_unit"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402895620650-4">
+        <dropTable tableName="ref_pricing_scheme"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402895620650-5">
+        <dropColumn columnName="min_duration" tableName="expert_schedule_rule"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402895620650-6">
+        <dropColumn columnName="price_per_min" tableName="expert_schedule_rule"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1402895620650-7">
+        <dropColumn columnName="price_unit" tableName="expert_schedule_rule"/>
+    </changeSet>
 </databaseChangeLog>

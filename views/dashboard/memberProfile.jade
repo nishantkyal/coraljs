@@ -1,4 +1,4 @@
-include header
+include ../header
 title SNT-#{formatName(user.first_name, user.last_name)} | Profile
 .navigation
     .container
@@ -19,9 +19,9 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                     #navbar-collapse.collapse.navbar-collapse
                         ul.nav.navbar-nav
                             li.active
-                                a(href='#') Profile
+                                a(href=DashboardUrls.userProfile(user.id)) Profile
                             li
-                                a(href='networks.html') Networks
+                                a(href=DashboardUrls.integration()) Networks
                             li
                                 a(href='payments.html') Payments
                     //
@@ -45,9 +45,9 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                         #networks-collapse.collapse.navbar-collapse
                             ul.nav.nav-pills.nav-stacked
                                 li.active
-                                    a(href='#') Basic Info
+                                    a(href=DashboardUrls.userProfile(user.id)) Basic Info
                                 li
-                                    a(href='profile_schedules.html') Schedules
+                                    a(href=DashboardUrls.userSchedule(user.id)) Schedules and Pricing
                                 li
                                     a(href='profile_expertise.html') Expertise
             //
@@ -278,7 +278,7 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                                                 div.links-editing
                                                     p.edit-schedules
                                                         input.btn.btn-primary(type='submit', value='Save')
-include footer
+include ../footer
 if isEditable
     script.
         var userId = '!{user.id}';

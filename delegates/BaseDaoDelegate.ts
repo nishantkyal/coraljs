@@ -15,7 +15,7 @@ class BaseDaoDelegate
     dao:AbstractDao;
 
     /** Can be constructed using just the model in case dao doesn't do anything special
-     * e.g. Execute custom queries which AbstractDao doesnt support
+     * e.g. Execute custom queries which AbstractDao doesn't support
      * @param dao
      */
     constructor(dao:typeof BaseModel);

@@ -11,22 +11,23 @@ class ExpertScheduleRuleDao extends AbstractDao
 {
     constructor() { super(ExpertScheduleRule); }
 
-    getRulesByIntegrationMemberId(integrationMemberId:number, startTime?:number, endTime?:number, transaction?:Object):q.Promise<any>
+    getRulesByUser(userId:number, startTime?:number, endTime?:number, fields?:string[], transaction?:Object):q.Promise<any>
     {
         if (Utils.isNullOrEmpty(startTime) || Utils.isNullOrEmpty(endTime))
-            return this.search({'integration_member_id': integrationMemberId});
+            return this.search(Utils.createSimpleObject(ExpertScheduleRule.USER_ID, userId));
         else
         {
-            var query = 'SELECT * ' +
-                'FROM ' + this.modelClass.TABLE_NAME +
-                ' WHERE integration_member_id = ? AND id NOT IN ' +
+            var selectColumns:string = !Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
+            var query = 'SELECT ' + selectColumns + ' ' +
+                'FROM ' + this.modelClass.TABLE_NAME + ' ' +
+                'WHERE user_id = ? AND id NOT IN ' +
                 '   (SELECT id ' +
                 '   FROM ' + this.modelClass.TABLE_NAME +
-                '   WHERE integration_member_id = ? ' +
+                '   WHERE user_id = ? ' +
                 '       AND ((repeat_end != 0 AND repeat_end <= ?) OR repeat_start >= ?))';
 
 
-            return MysqlDelegate.executeQuery(query, [integrationMemberId, integrationMemberId, startTime, endTime], transaction)
+            return MysqlDelegate.executeQuery(query, [userId, userId, startTime, endTime], transaction)
                 .then(
                 function rulesFetched(rules:any)
                 {

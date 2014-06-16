@@ -4,16 +4,18 @@ import cron                                                     = require('cron'
 import _                                                        = require('underscore');
 import BaseModel                                                = require('./BaseModel');
 import MoneyUnit                                                = require('../enums/MoneyUnit');
+import DayName                                                  = require('../enums/DayName');
 import Utils                                                    = require('../common/Utils')
 import ExpertSchedule                                           = require('../models/ExpertSchedule');
 import ExpertScheduleException                                  = require('../models/ExpertScheduleException');
 import PricingScheme                                            = require('../models/PricingScheme');
+import CronRule                                                 = require('../models/CronRule');
 
 class ExpertScheduleRule extends BaseModel
 {
     static TABLE_NAME = 'expert_schedule_rule';
 
-    static INTEGRATION_MEMBER_ID:string                         = 'integration_member_id';
+    static USER_ID:string                                       = 'user_id';
     static TITLE:string                                         = 'title';
     static REPEAT_START:string                                  = 'repeat_start';
     static CRON_RULE:string                                     = 'cron_rule';
@@ -21,7 +23,10 @@ class ExpertScheduleRule extends BaseModel
     static DURATION:string                                      = 'duration';
     static PRICING_SCHEME_ID:string                             = 'pricing_scheme_id';
 
-    private integration_member_id:number;
+    static DEFAULT_FIELDS:string[] = [ExpertScheduleRule.USER_ID, ExpertScheduleRule.TITLE, ExpertScheduleRule.REPEAT_END, ExpertScheduleRule.REPEAT_START,
+        ExpertScheduleRule.CRON_RULE, ExpertScheduleRule.DURATION, ExpertScheduleRule.PRICING_SCHEME_ID];
+
+    private user_id:number;
     private title:string;
     private repeat_start:number;
     private cron_rule:string;
@@ -30,7 +35,7 @@ class ExpertScheduleRule extends BaseModel
     private pricing_scheme_id:number;
 
     /* Getters */
-    getIntegrationMemberId():number                             { return this.integration_member_id; }
+    getUserId():number                                          { return this.user_id; }
     getTitle():string                                           { return this.title; }
     getRepeatStart():number                                     { return this.repeat_start; }
     getCronRule():string                                        { return this.cron_rule; }
@@ -39,7 +44,7 @@ class ExpertScheduleRule extends BaseModel
     getPricingSchemeId():number                                 { return this.pricing_scheme_id; }
 
     /* Setters */
-    setIntegrationMemberId(val:number):void                     { this.integration_member_id = val; }
+    setUserId(val:number):void                                  { this.user_id = val; }
     setTitle(val:string):void                                   { this.title = val; }
     setRepeatStart(val:number):void                             { this.repeat_start = val; }
     setCronRule(val:string):void                                { this.cron_rule = val; }
@@ -61,7 +66,7 @@ class ExpertScheduleRule extends BaseModel
         return !Utils.isNullOrEmpty(this.getRepeatStart())
             && isCronExpressValid
             && !Utils.isNullOrEmpty(this.getDuration())
-            && !Utils.isNullOrEmpty(this.getIntegrationMemberId())
+            && !Utils.isNullOrEmpty(this.getUserId())
             && !Utils.isNullOrEmpty(this.getRepeatEnd())
             && (this.getRepeatEnd() > this.getRepeatStart() || this.getRepeatEnd() == 0);
     }
@@ -121,6 +126,5 @@ class ExpertScheduleRule extends BaseModel
                 return false;
             });
     }
-
 }
 export = ExpertScheduleRule

@@ -69,7 +69,7 @@ class ApiConstants
     static PHONE_NUMBER:string                          = 'phoneNumber';
     static PHONE_CALL:string                            = 'phoneCall';
     static SCHEDULE:string                              = 'expertSchedule';
-    static SCHEDULE_RULE:string                         = 'expertScheduleRule';
+    static SCHEDULE_RULE:string                         = 'scheduleRule';
     static SCHEDULE_EXCEPTION:string                    = 'expertScheduleException';
     static SCHEDULE_TIMESLOTS:string                    = 'scheduleTimeSlots';
     static SMS:string                                   = 'sms';

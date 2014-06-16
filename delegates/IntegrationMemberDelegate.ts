@@ -139,7 +139,7 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
 */
 
             case IncludeFlag.INCLUDE_SCHEDULE_RULES:
-                return self.expertScheduleRuleDelegate.getRulesByIntegrationMemberId(result[0][IntegrationMember.ID]);
+                return self.expertScheduleRuleDelegate.getRulesByUser(result[0][IntegrationMember.ID]);
         }
         return super.getIncludeHandler(include, result);
     }

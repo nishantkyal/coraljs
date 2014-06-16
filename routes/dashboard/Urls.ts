@@ -14,13 +14,13 @@ class Urls
     static changePassword(memberId?:number) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/changePassword', {memberId: memberId}); }
     static callDetails(memberId?:number) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/callDetails', {memberId: memberId}); }
     static revenueDetails(memberId?:number) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/revenueDetails', {memberId: memberId}); }
-    static scheduleDetails(memberId?:number) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/schedule', {memberId: memberId}); }
     static emailAccountVerification() { return ApiUrlDelegate.get('/email/verification'); }
     static mobileVerification():string { return ApiUrlDelegate.get('/phone/verification'); }
 
     static dashboard() { return ApiUrlDelegate.get('/dashboard'); }
     static integration() { return ApiUrlDelegate.get('/network'); }
     static userProfile(userId?:number, baseUrl?:string) { return ApiUrlDelegate.get('/user/:userId(\\d+)/profile', {userId: userId}, baseUrl); }
+    static userSchedule(userId?:number) { return ApiUrlDelegate.get('/user/:userId(\\d+)/schedule', {userId: userId}); }
 
     static logout() { return ApiUrlDelegate.get('/logout'); }
     static paymentCallback() { return ApiUrlDelegate.get('/payment/complete'); }

@@ -1,31 +1,46 @@
+///<reference path='../_references.d.ts'/>
+import _                                            = require('underscore');
+import Utils                                        = require('../common/Utils');
+
 class CronRule
 {
-    private second:string;
-    private minute:string;
-    private hour:string;
-    private day_of_month:string;
-    private month:string;
-    private day_of_week:string;
-
-    private _pattern:string;
-
-    getSecond():string                             { return this.second; }
-    getMinute():string                             { return this.minute; }
-    getHour():string                               { return this.hour; }
-    getDayOfMonth():string                         { return this.day_of_month; }
-    getMonth():string                              { return this.month; }
-    getDayOfWeek():string                          { return this.day_of_week; }
-
-    setSecond(val:string):void                     { this.second = val; }
-    setMinute(val:string):void                     { this.minute = val; }
-    setHour(val:string):void                       { this.hour = val; }
-    setDayOfMonth(val:string):void                 { this.day_of_month = val; }
-    setMonth(val:string):void                      { this.month = val; }
-    setDayOfWeek(val:string):void                  { this.day_of_week = val; }
-
-    toString():string
+    /* Get valid values for a cron pattern */
+    static getValues(ruleString:string):string[][]
     {
-        return this.second + ' ' + this.minute + ' ' + this.hour + ' ' + this.day_of_month + ' ' + this.month + ' ' + this.day_of_week;
+        return _.map(ruleString.split(' '), CronRule.patternToValues);
+    }
+
+    /* Helper method to get valid values for a single cron pattern part */
+    private static patternToValues(part:string):string[]
+    {
+        if (part.indexOf(',') != -1)
+            return part.split(',');
+        else if (part.indexOf('-') != -1)
+        {
+            var rangeValues = [];
+            for (var i:number = parseInt(part.split('-')[0]); i <= parseInt(part.split('-')[1]); i++)
+                rangeValues.push(i.toString());
+            return rangeValues;
+        } else if (part == '*')
+        // TODO: Compute correct allowed values based on the field
+            return null;
+        else
+            return [part];
+    }
+
+    /* Generate pattern from user input values */
+    static fromValues(values:string[][]):string
+    {
+        return _.map(values, function (vals:string[])
+        {
+            return CronRule.valuesToPattern(vals);
+        }).join(' ');
+    }
+
+    /* Helper method to convert a single cron part to pattenrn */
+    private static valuesToPattern(values:any[]):string
+    {
+        return Utils.isNullOrEmpty(values) ? '*' : values.join(',');
     }
 }
 export = CronRule

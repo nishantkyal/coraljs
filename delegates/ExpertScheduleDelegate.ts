@@ -21,7 +21,7 @@ class ExpertScheduleDelegate
         var IntegrationMemberDelegate:any = require('../delegates/IntegrationMemberDelegate');
 
         return q.all([
-            new ExpertScheduleRuleDelegate().getRulesByIntegrationMemberId(expertId, startTime, endTime),
+            new ExpertScheduleRuleDelegate().getRulesByUser(expertId, startTime, endTime),
             new IntegrationMemberDelegate().get(expertId, null, [IncludeFlag.INCLUDE_USER])
         ])
             .then(

@@ -24,7 +24,7 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
         var currentDate = moment().valueOf();
         var dateAfterOneYear = moment().add({year: 1}).valueOf();
 
-        return expertScheduleRuleDelegate.getRulesByIntegrationMemberId(newScheduleException.getIntegrationMemberId(), currentDate, dateAfterOneYear)
+        return expertScheduleRuleDelegate.getRulesByUser(newScheduleException.getIntegrationMemberId(), currentDate, dateAfterOneYear)
             .then(
             function createRecord(rules:ExpertScheduleRule[])
             {
@@ -95,7 +95,7 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
             endDate: moment().add('years', 1).toDate()
         };
 
-        return expertScheduleRuleDelegate.getRulesByIntegrationMemberId(updatedScheduleRuleException.getIntegrationMemberId(), options.startDate.getTime() / 1000, options.endDate.getTime() / 1000)
+        return expertScheduleRuleDelegate.getRulesByUser(updatedScheduleRuleException.getIntegrationMemberId(), options.startDate.getTime() / 1000, options.endDate.getTime() / 1000)
             .then(//TODO handle conversion to sec
             function createRecord(rawschedules:ExpertScheduleRule[])
             {

@@ -3,13 +3,14 @@ import q                                                    = require('q');
 import BaseDaoDelegate                                      = require('../delegates/BaseDaoDelegate');
 import MysqlDelegate                                        = require('../delegates/MysqlDelegate');
 import MapProfileEmploymentDao                              = require('../dao/MapProfileEmploymentDao');
+import UserEmploymentDao                                    = require('../dao/UserEmploymentDao');
 import UserEmployment                                       = require('../models/UserEmployment');
 import MapProfileEmployment                                 = require('../models/MapProfileEmployment');
 import Utils                                                = require('../common/Utils');
 
 class UserEmploymentDelegate extends BaseDaoDelegate
 {
-    constructor() { super(UserEmployment); }
+    constructor() { super(new UserEmploymentDao()); }
     private mapProfileEmploymentDao = new MapProfileEmploymentDao();
 
     createUserEmployment(userEmployment:UserEmployment, profileId:number, transaction?:Object):q.Promise<any>
