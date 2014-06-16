@@ -6,12 +6,12 @@ import BaseModel                                                = require('./Bas
 import MoneyUnit                                                = require('../enums/MoneyUnit');
 import DayName                                                  = require('../enums/DayName');
 import Utils                                                    = require('../common/Utils')
-import ExpertSchedule                                           = require('../models/ExpertSchedule');
-import ExpertScheduleException                                  = require('../models/ExpertScheduleException');
+import Schedule                                                 = require('Schedule');
+import ScheduleException                                        = require('ScheduleException');
 import PricingScheme                                            = require('../models/PricingScheme');
 import CronRule                                                 = require('../models/CronRule');
 
-class ExpertScheduleRule extends BaseModel
+class ScheduleRule extends BaseModel
 {
     static TABLE_NAME = 'expert_schedule_rule';
 
@@ -23,8 +23,8 @@ class ExpertScheduleRule extends BaseModel
     static DURATION:string                                      = 'duration';
     static PRICING_SCHEME_ID:string                             = 'pricing_scheme_id';
 
-    static DEFAULT_FIELDS:string[] = [ExpertScheduleRule.USER_ID, ExpertScheduleRule.TITLE, ExpertScheduleRule.REPEAT_END, ExpertScheduleRule.REPEAT_START,
-        ExpertScheduleRule.CRON_RULE, ExpertScheduleRule.DURATION, ExpertScheduleRule.PRICING_SCHEME_ID];
+    static DEFAULT_FIELDS:string[] = [ScheduleRule.USER_ID, ScheduleRule.TITLE, ScheduleRule.REPEAT_END, ScheduleRule.REPEAT_START,
+        ScheduleRule.CRON_RULE, ScheduleRule.DURATION, ScheduleRule.PRICING_SCHEME_ID];
 
     private user_id:number;
     private title:string;
@@ -71,7 +71,7 @@ class ExpertScheduleRule extends BaseModel
             && (this.getRepeatEnd() > this.getRepeatStart() || this.getRepeatEnd() == 0);
     }
 
-    conflicts(rule:ExpertScheduleRule, options):q.Promise<any>
+    conflicts(rule:ScheduleRule, options):q.Promise<any>
     {
         return this.checkForConflicts(rule, options)
             .fail(
@@ -81,7 +81,7 @@ class ExpertScheduleRule extends BaseModel
             });
     }
 
-    hasConflicts(rules:ExpertScheduleRule[], options):q.Promise<any>
+    hasConflicts(rules:ScheduleRule[], options):q.Promise<any>
     {
         var self = this;
 
@@ -99,25 +99,25 @@ class ExpertScheduleRule extends BaseModel
             });
     }
 
-    private checkForConflicts(rule:ExpertScheduleRule, options):q.Promise<any>
+    private checkForConflicts(rule:ScheduleRule, options):q.Promise<any>
     {
         // TODO: Handle cyclic dependencies in a better way
-        var ExpertScheduleDelegate = require('../delegates/ExpertScheduleDelegate');
-        var expertScheduleDelegate:any = new ExpertScheduleDelegate();
+        var ScheduleDelegate = require('../delegates/ScheduleDelegate');
+        var scheduleDelegate:any = new ScheduleDelegate();
 
         return q.all([
-                expertScheduleDelegate.getSchedulesForRule(rule, options.startDate, options.endDate),
-                expertScheduleDelegate.getSchedulesForRule(this, options.startDate, options.endDate)
+                scheduleDelegate.getSchedulesForRule(rule, options.startDate, options.endDate),
+                scheduleDelegate.getSchedulesForRule(this, options.startDate, options.endDate)
             ])
             .then(
             function schedulesGenerated(...args)
             {
-                var existingSchedules:ExpertSchedule[] = args[0][0];
-                var newSchedules:ExpertSchedule[] = args[0][1];
+                var existingSchedules:Schedule[] = args[0][0];
+                var newSchedules:Schedule[] = args[0][1];
 
-                _.each(existingSchedules, function (es:ExpertSchedule)
+                _.each(existingSchedules, function (es:Schedule)
                 {
-                    _.each(newSchedules, function (ns:ExpertSchedule)
+                    _.each(newSchedules, function (ns:Schedule)
                     {
                         if (es.conflicts(ns))
                             throw('Conflicting schedule found');
@@ -127,4 +127,4 @@ class ExpertScheduleRule extends BaseModel
             });
     }
 }
-export = ExpertScheduleRule
+export = ScheduleRule

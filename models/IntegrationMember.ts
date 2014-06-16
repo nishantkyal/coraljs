@@ -2,8 +2,6 @@ import BaseModel                                        = require('./BaseModel')
 import Integration                                      = require('./Integration');
 import User                                             = require('./User');
 import UserProfile                                      = require('./UserProfile');
-import ExpertSchedule                                   = require('./ExpertSchedule');
-import ExpertScheduleRule                               = require('./ExpertScheduleRule');
 import MoneyUnit                                        = require('../enums/MoneyUnit');
 import IntegrationMemberRole                            = require('../enums/IntegrationMemberRole');
 /*
@@ -26,8 +24,6 @@ class IntegrationMember extends BaseModel
 
     static INTEGRATION:string = 'integration';
     static USER:string = 'user';
-    static SCHEDULE:string = 'schedule';
-    static SCHEDULE_RULE:string = 'schedule_rule';
 
     static DEFAULT_FIELDS:string[] = [IntegrationMember.ID, IntegrationMember.INTEGRATION_ID, IntegrationMember.ROLE, IntegrationMember.USER_ID];
     static DASHBOARD_FIELDS:string[] = [IntegrationMember.ID, IntegrationMember.INTEGRATION_ID, IntegrationMember.ROLE, IntegrationMember.USER_ID, IntegrationMember.REVENUE_SHARE, IntegrationMember.REVENUE_SHARE_UNIT];
@@ -47,8 +43,6 @@ class IntegrationMember extends BaseModel
     private integration:Integration;
     private user:User;
     private user_profile:UserProfile;
-    private schedule:ExpertSchedule[];
-    private schedule_rule:ExpertScheduleRule[];
 
     /* Getters */
     getIntegrationId():number                           { return this.integration_id; }
@@ -66,8 +60,6 @@ class IntegrationMember extends BaseModel
     getIntegration():Integration                        { return this.integration ? new Integration(this.integration) : null; }
     getUser():User                                      { return this.user ? new User(this.user) : null; }
     getUserProfile():UserProfile                        { return this.user_profile ? new UserProfile(this.user_profile) : null; }
-    getSchedule():ExpertSchedule[]                      { return this.schedule; }
-    getScheduleRule():ExpertScheduleRule[]              { return this.schedule_rule; }
 
     isValid():boolean {
         return !isNaN(this.getIntegrationId()) && !isNaN(this.getRole());
@@ -89,7 +81,5 @@ class IntegrationMember extends BaseModel
     setIntegration(val:Integration):void                { this.integration = val; }
     setUser(val:User):void                              { this.user = val; }
     setUserProfile(val:UserProfile):void                { this.user_profile = val; }
-    setSchedule(val:ExpertSchedule[]):void              { this.schedule = val; }
-    setScheduleRule(val:ExpertScheduleRule[]):void      { this.schedule_rule = val; }
 }
 export = IntegrationMember

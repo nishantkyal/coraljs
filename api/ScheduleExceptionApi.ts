@@ -1,31 +1,30 @@
-///<reference path='../_references.d.ts'/>
 import express                          = require('express');
 import ApiConstants                     = require('../enums/ApiConstants');
 import ApiUrlDelegate                   = require('../delegates/ApiUrlDelegate');
-import ExpertScheduleRuleDelegate       = require('../delegates/ExpertScheduleRuleDelegate');
-import ExpertScheduleExceptionDelegate  = require('../delegates/ExpertScheduleExceptionDelegate');
+import ScheduleRuleDelegate             = require('../delegates/ScheduleRuleDelegate');
+import ScheduleExceptionDelegate        = require('../delegates/ScheduleExceptionDelegate');
 import AccessControl                    = require('../middleware/AccessControl');
 import IntegrationMember                = require('../models/IntegrationMember');
-import ExpertScheduleRule               = require('../models/ExpertScheduleRule');
-import ExpertScheduleException          = require('../models/ExpertScheduleException');
+import ScheduleRule                     = require('../models/ScheduleRule');
+import ScheduleException                = require('../models/ScheduleException');
 import Utils                            = require('../common/Utils');
 
 /*
  Rest Calls for expert schedule exceptions
  */
-class ExpertScheduleExceptionApi
+class ScheduleExceptionApi
 {
     constructor(app, secureApp)
     {
-        var expertScheduleExceptionDelegate = new ExpertScheduleExceptionDelegate();
+        var scheduleExceptionDelegate = new ScheduleExceptionDelegate();
 
         app.put(ApiUrlDelegate.scheduleException(), function (req:express.Request, res:express.Response)
         {
-            var scheduleException:ExpertScheduleException = req.body[ApiConstants.SCHEDULE_EXCEPTION];
+            var scheduleException:ScheduleException = req.body[ApiConstants.SCHEDULE_EXCEPTION];
 
             if(scheduleException.isValid())
             {
-                expertScheduleExceptionDelegate.createException(scheduleException)
+                scheduleExceptionDelegate.createException(scheduleException)
                     .then(
                     function expertScheduleRuleCreated(schedule) { res.json(schedule); },
                     function expertScheduleRuleCreateFailed(error) { res.status(500).json(error); }
@@ -39,9 +38,9 @@ class ExpertScheduleExceptionApi
         {
             var exceptionId:number = parseInt(req.params[ApiConstants.SCHEDULE_EXCEPTION_ID]);
 
-                expertScheduleExceptionDelegate.get(exceptionId)
+                scheduleExceptionDelegate.get(exceptionId)
                     .then(
-                    function getScheduleException(exceptions:ExpertScheduleException[]) { res.json(exceptions); },
+                    function getScheduleException(exceptions:ScheduleException[]) { res.json(exceptions); },
                     function getScheduleExceptionError(error) { res.status(500).json(error) }
                 )
         });
@@ -54,9 +53,9 @@ class ExpertScheduleExceptionApi
 
             if(!Utils.isNullOrEmpty(expertId) && !Utils.isNullOrEmpty(startTime) && !Utils.isNullOrEmpty(endTime))
             {
-                expertScheduleExceptionDelegate.getExceptionsByIntegrationMemberId(expertId, startTime, endTime)
+                scheduleExceptionDelegate.getExceptionsByIntegrationMemberId(expertId, startTime, endTime)
                     .then(
-                    function getScheduleException(exceptions:ExpertScheduleException[]) { res.json(exceptions); },
+                    function getScheduleException(exceptions:ScheduleException[]) { res.json(exceptions); },
                     function getScheduleExceptionError(error) { res.status(500).json(error) }
                 )
             }
@@ -66,13 +65,13 @@ class ExpertScheduleExceptionApi
 
         app.post(ApiUrlDelegate.scheduleException(), function (req:express.Request, res:express.Response)
         {
-            var scheduleException:ExpertScheduleException = req.body[ApiConstants.SCHEDULE_EXCEPTION];
+            var scheduleException:ScheduleException = req.body[ApiConstants.SCHEDULE_EXCEPTION];
 
             if(scheduleException.isValid())
             {
-                expertScheduleExceptionDelegate.updateException(scheduleException)
+                scheduleExceptionDelegate.updateException(scheduleException)
                     .then(
-                    function updateScheduleException(exception:ExpertScheduleException){ res.json(exception); },
+                    function updateScheduleException(exception:ScheduleException){ res.json(exception); },
                     function updateScheduleExceptionError(error){ res.status(500).json(error) }
                 )
             }
@@ -84,7 +83,7 @@ class ExpertScheduleExceptionApi
         {
             var exceptionId:number = parseInt(req.params[ApiConstants.SCHEDULE_EXCEPTION_ID]);
 
-            expertScheduleExceptionDelegate.delete(exceptionId)
+            scheduleExceptionDelegate.delete(exceptionId)
                 .then(
                 function exceptionDeleted(exceptionId) { res.json(exceptionId); },
                 function exceptionDeletedError(error) { res.status(500).json(error) }
@@ -93,4 +92,4 @@ class ExpertScheduleExceptionApi
     }
 
 }
-export = ExpertScheduleExceptionApi
+export = ScheduleExceptionApi

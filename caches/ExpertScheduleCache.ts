@@ -1,4 +1,4 @@
-import Schedule             = require('../models/ExpertSchedule');
+import Schedule             = require('../models/Schedule');
 import CacheHelper          = require('./CacheHelper');
 
 /*

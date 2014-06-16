@@ -9,6 +9,7 @@ class IncludeFlag
     static INCLUDE_EXPERT_PHONE:string = 'expert_phone';
     static INCLUDE_INTEGRATION_MEMBER:string = 'integration_member';
     static INCLUDE_INTEGRATION_MEMBER_USER:string = 'integration_member_user';
+    static INCLUDE_PRICING_SCHEMES:string = 'pricing_scheme';
     static INCLUDE_SCHEDULES:string = 'schedule';
     static INCLUDE_SCHEDULE_RULES:string = 'schedule_rule';
     static INCLUDE_TRANSACTION_LINE:String = 'transaction_line';

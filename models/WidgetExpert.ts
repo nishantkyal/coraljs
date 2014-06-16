@@ -2,7 +2,7 @@ import moment                                                   = require('momen
 import _                                                        = require('underscore');
 import IntegrationMember                                        = require('../models/IntegrationMember');
 import User                                                     = require('../models/User');
-import ExpertSchedule                                           = require('../models/ExpertSchedule');
+import Schedule                                                 = require('../models/Schedule');
 import PricingScheme                                            = require('../models/PricingScheme');
 import Salutation                                               = require('../enums/Salutation');
 import MoneyUnit                                                = require('../enums/MoneyUnit');
@@ -46,7 +46,7 @@ class WidgetExpert
             this.last_name = user.getLastName();
             this.timezone = user.getTimezone();
 
-            var nextAvailableSchedule:ExpertSchedule = _.find(member.getSchedule(), function (schedule:ExpertSchedule):boolean
+            var nextAvailableSchedule:Schedule = _.find(user.getSchedule(), function (schedule:Schedule):boolean
             {
                 var scheduleEndTime = schedule.getStartTime() + schedule.getDuration();
                 return scheduleEndTime > moment().add({minutes: 15}).valueOf();

@@ -1,7 +1,7 @@
 import BaseModel                                            = require('./BaseModel');
 import MoneyUnit                                            = require('../enums/MoneyUnit');
 
-class ExpertSchedule extends BaseModel
+class Schedule extends BaseModel
 {
     public static START_TIME:string                         = 'start_time';
     public static DURATION:string                           = 'duration';
@@ -26,7 +26,7 @@ class ExpertSchedule extends BaseModel
     setDuration(val:number)                                 { this.duration = val; }
     setPricingSchemeId(val:number)                          { this.pricing_scheme_id = val; }
 
-    conflicts(schedule:ExpertSchedule):boolean
+    conflicts(schedule:Schedule):boolean
     {
         var newScheduleStartTime = schedule.getStartTime();
         var newScheduleEndTime = schedule.getStartTime() + schedule.getDuration();
@@ -37,4 +37,4 @@ class ExpertSchedule extends BaseModel
         return !(newScheduleStartTime > existingScheduleEndTime || newScheduleEndTime < existingScheduleStartTime);
     }
 }
-export = ExpertSchedule
+export = Schedule

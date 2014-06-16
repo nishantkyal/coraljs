@@ -1,13 +1,13 @@
 import q                                                    = require('q');
 import AbstractDao                                          = require('./AbstractDao');
 import BaseModel                                            = require('../models/BaseModel');
-import ExpertScheduleException                              = require('../models/ExpertScheduleException');
+import ScheduleException                              = require('../models/ScheduleException');
 import MysqlDelegate                                        = require('../delegates/MysqlDelegate');
 import Utils                                                = require('../common/Utils');
 
-class ExpertScheduleExceptionDao extends AbstractDao
+class ScheduleExceptionDao extends AbstractDao
 {
-    constructor() { super(ExpertScheduleException); }
+    constructor() { super(ScheduleException); }
 
     getExceptionByIntegrationMemberId(expertId:number, startTime:number,  endTime:number):q.Promise<any>
     {
@@ -23,4 +23,4 @@ class ExpertScheduleExceptionDao extends AbstractDao
     }
 
 }
-export = ExpertScheduleExceptionDao
+export = ScheduleExceptionDao

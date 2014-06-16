@@ -3,18 +3,18 @@ import _                        = require('underscore');
 import AbstractDao              = require('./AbstractDao');
 import q                        = require('q');
 import BaseModel                = require('../models/BaseModel');
-import ExpertScheduleRule       = require('../models/ExpertScheduleRule');
+import ScheduleRule       = require('../models/ScheduleRule');
 import MysqlDelegate            = require('../delegates/MysqlDelegate');
 import Utils                    = require('../common/Utils');
 
-class ExpertScheduleRuleDao extends AbstractDao
+class ScheduleRuleDao extends AbstractDao
 {
-    constructor() { super(ExpertScheduleRule); }
+    constructor() { super(ScheduleRule); }
 
     getRulesByUser(userId:number, startTime?:number, endTime?:number, fields?:string[], transaction?:Object):q.Promise<any>
     {
         if (Utils.isNullOrEmpty(startTime) || Utils.isNullOrEmpty(endTime))
-            return this.search(Utils.createSimpleObject(ExpertScheduleRule.USER_ID, userId));
+            return this.search(Utils.createSimpleObject(ScheduleRule.USER_ID, userId));
         else
         {
             var selectColumns:string = !Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
@@ -33,11 +33,11 @@ class ExpertScheduleRuleDao extends AbstractDao
                 {
                     return _.map(rules, function (rule)
                     {
-                        return new ExpertScheduleRule(rule);
+                        return new ScheduleRule(rule);
                     });
                 });
         }
     }
 
 }
-export = ExpertScheduleRuleDao
+export = ScheduleRuleDao

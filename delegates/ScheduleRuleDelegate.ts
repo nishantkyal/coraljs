@@ -3,21 +3,21 @@ import _                                                = require('underscore');
 import q                                                = require('q');
 import parser                                           = require('cron-parser');
 import BaseDaoDelegate                                  = require('./BaseDaoDelegate');
-import ExpertScheduleExceptionDelegate                  = require('../delegates/ExpertScheduleExceptionDelegate');
+import ScheduleExceptionDelegate                        = require('../delegates/ScheduleExceptionDelegate');
 import IntegrationMemberDelegate                        = require('../delegates/IntegrationMemberDelegate');
 import MysqlDelegate                                    = require('../delegates/MysqlDelegate');
-import ExpertScheduleRuleDao                            = require('../dao/ExpertScheduleRuleDao');
-import ExpertScheduleExceptionDao                       = require('../dao/ExpertScheduleExceptionDao');
-import ExpertScheduleRule                               = require('../models/ExpertScheduleRule');
-import ExpertScheduleException                          = require('../models/ExpertScheduleException');
-import ExpertSchedule                                   = require('../models/ExpertSchedule');
+import ScheduleRuleDao                                  = require('../dao/ScheduleRuleDao');
+import ScheduleExceptionDao                             = require('../dao/ScheduleExceptionDao');
+import ScheduleRule                                     = require('../models/ScheduleRule');
+import ScheduleException                                = require('../models/ScheduleException');
+import Schedule                                         = require('../models/Schedule');
 import CronRule                                         = require('../models/CronRule');
 import DayName                                          = require('../enums/DayName');
 import Utils                                            = require('../common/Utils');
 
-class ExpertScheduleRuleDelegate extends BaseDaoDelegate
+class ScheduleRuleDelegate extends BaseDaoDelegate
 {
-    constructor() { super(new ExpertScheduleRuleDao()); }
+    constructor() { super(new ScheduleRuleDao()); }
 
     create(newScheduleRule:any, transaction?:Object):q.Promise<any>
     {
@@ -31,7 +31,7 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
 
         return this.getRulesByUser(newScheduleRule.getUserId(), options.startDate, options.endDate)
             .then(
-            function createRecord(rules:ExpertScheduleRule[])
+            function createRecord(rules:ScheduleRule[])
             {
                 self.logger.debug('Checking new rule for conflicts with old rules. options: %s', JSON.stringify(options));
                 return newScheduleRule.hasConflicts(rules, options);
@@ -41,7 +41,7 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
             {
                 self.logger.debug('Conflicts checked %s', hasConflicts);
                 if (hasConflicts)
-                    return q.reject('Conflicts detected');
+                    return q.reject('The rule settings entered conflict with an existing rule');
                 else
                     return createProxy.call(self, newScheduleRule, transaction);
             });
@@ -54,14 +54,14 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
 
         var self = this;
 
-        var weekdaysRule = new ExpertScheduleRule();
+        var weekdaysRule = new ScheduleRule();
         weekdaysRule.setTitle('Weekdays');
         weekdaysRule.setRepeatStart(moment().valueOf());
         weekdaysRule.setCronRule('0 0 11 * * 1-5');
         weekdaysRule.setDuration(8 * 3600 * 1000);
         weekdaysRule.setUserId(expertId);
 
-        var weekendRule = new ExpertScheduleRule();
+        var weekendRule = new ScheduleRule();
         weekendRule.setTitle('Weekend');
         weekendRule.setRepeatStart(moment().valueOf());
         weekendRule.setCronRule('0 0 2 * * 0,6');
@@ -79,7 +79,7 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
         );
     }
 
-    update(criteria:Object, updatedScheduleRule:ExpertScheduleRule, transaction?:Object):q.Promise<any>
+    update(criteria:Object, updatedScheduleRule:ScheduleRule, transaction?:Object):q.Promise<any>
     {
         var self = this;
         var ruleId = updatedScheduleRule.getId();
@@ -97,10 +97,10 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
             .then(
             function updateRecord(rawschedules)
             {
-                var schedules:ExpertScheduleRule[] = [];
+                var schedules:ScheduleRule[] = [];
                 _.each(rawschedules, function (schedule:any)
                 {
-                    var temp = new ExpertScheduleRule(schedule);
+                    var temp = new ScheduleRule(schedule);
                     if (temp.getId() != updatedScheduleRule.getId()) // exclude the rule which is being updated while checking for conflicts
                         schedules.push(temp);
                 });
@@ -118,8 +118,8 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
             .then(
             function ruleUpdated()
             {
-                var expertScheduleExceptionDelegate = new ExpertScheduleExceptionDelegate();
-                return expertScheduleExceptionDelegate.deleteByRuleId(ruleId, transaction, false)
+                var scheduleExceptionDelegate = new ScheduleExceptionDelegate();
+                return scheduleExceptionDelegate.deleteByRuleId(ruleId, transaction, false)
                     .fail(function (error)
                     {
                         self.logger.debug('Error in deleting exceptions for ruleId - ' + ruleId + error);
@@ -127,7 +127,7 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
             });
     }
 
-    getRulesByUser(userId:number, startTime?:number, endTime?:number, fields:string[] = ExpertScheduleRule.DEFAULT_FIELDS, transaction?:Object):q.Promise<any>
+    getRulesByUser(userId:number, startTime?:number, endTime?:number, fields:string[] = ScheduleRule.DEFAULT_FIELDS, transaction?:Object):q.Promise<any>
     {
         var expertScheduleRuleDao:any = this.dao;
         return expertScheduleRuleDao.getRulesByUser(userId, startTime, endTime, fields, transaction);
@@ -142,16 +142,16 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
             .then(
             function ruleDeleted()
             {
-                var expertScheduleExceptionDelegate = new ExpertScheduleExceptionDelegate();
-                return expertScheduleExceptionDelegate.deleteByRuleId(scheduleRuleId, transaction, false);
+                var scheduleExceptionDelegate = new ScheduleExceptionDelegate();
+                return scheduleExceptionDelegate.deleteByRuleId(scheduleRuleId, transaction, false);
             });
     }
 
-    applyExceptions(schedules:ExpertSchedule[], exceptions:ExpertScheduleException[]):ExpertSchedule[]
+    applyExceptions(schedules:Schedule[], exceptions:ScheduleException[]):Schedule[]
     {
-        return _.filter(schedules, function (schedule:ExpertSchedule)
+        return _.filter(schedules, function (schedule:Schedule)
         {
-            var applicableExceptions = _.filter(exceptions, function (exception:ExpertScheduleException)
+            var applicableExceptions = _.filter(exceptions, function (exception:ScheduleException)
             {
                 if (exception.conflicts(schedule))
                     return true;
@@ -167,4 +167,4 @@ class ExpertScheduleRuleDelegate extends BaseDaoDelegate
     }
 
 }
-export = ExpertScheduleRuleDelegate
+export = ScheduleRuleDelegate
