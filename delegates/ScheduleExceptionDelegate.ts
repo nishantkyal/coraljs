@@ -3,35 +3,35 @@ import moment                       = require('moment');
 import _                            = require('underscore');
 import q                            = require('q');
 import BaseDaoDelegate              = require('./BaseDaoDelegate');
-import ExpertScheduleExceptionDao   = require('../dao/ExpertScheduleExceptionDao');
-import ExpertSchedule               = require('../models/ExpertSchedule');
-import ExpertScheduleRule           = require('../models/ExpertScheduleRule');
-import ExpertScheduleException      = require('../models/ExpertScheduleException');
+import ScheduleExceptionDao         = require('../dao/ScheduleExceptionDao');
+import Schedule                     = require('../models/Schedule');
+import ScheduleRule                 = require('../models/ScheduleRule');
+import ScheduleException            = require('../models/ScheduleException');
 import IntegrationMemberDelegate    = require('../delegates/IntegrationMemberDelegate');
-import ExpertScheduleRuleDelegate   = require('../delegates/ExpertScheduleRuleDelegate');
+import ScheduleRuleDelegate         = require('ScheduleRuleDelegate');
 
-class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
+class ScheduleExceptionDelegate extends BaseDaoDelegate
 {
-    constructor() { super(new ExpertScheduleExceptionDao()); }
+    constructor() { super(new ScheduleExceptionDao()); }
 
-    createException(newScheduleException:ExpertScheduleException, transaction?:Object):q.Promise<any>
+    createException(newScheduleException:ScheduleException, transaction?:Object):q.Promise<any>
     {
         var self = this;
         // TODO: Handle cyclic dependencies in a better way
-        var ExpertScheduleRuleDelegate = require('../delegates/ExpertScheduleRuleDelegate');
-        var expertScheduleRuleDelegate = new ExpertScheduleRuleDelegate();
+        var ScheduleRuleDelegate = require('ScheduleRuleDelegate');
+        var scheduleRuleDelegate = new ScheduleRuleDelegate();
 
         var currentDate = moment().valueOf();
         var dateAfterOneYear = moment().add({year: 1}).valueOf();
 
-        return expertScheduleRuleDelegate.getRulesByUser(newScheduleException.getIntegrationMemberId(), currentDate, dateAfterOneYear)
+        return scheduleRuleDelegate.getRulesByUser(newScheduleException.getIntegrationMemberId(), currentDate, dateAfterOneYear)
             .then(
-            function createRecord(rules:ExpertScheduleRule[])
+            function createRecord(rules:ScheduleRule[])
             {
-                var schedules:ExpertScheduleRule[] = [];
+                var schedules:ScheduleRule[] = [];
                 _.each(rules, function (schedule:any)
                 {
-                    schedules.push(new ExpertScheduleRule(schedule));
+                    schedules.push(new ScheduleRule(schedule));
                 });
 
                 var options =
@@ -51,16 +51,16 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
         );
     }
 
-    validateException(scheduleRules:ExpertScheduleRule[], options, exception:ExpertScheduleException):q.Promise<any>
+    validateException(scheduleRules:ScheduleRule[], options, exception:ScheduleException):q.Promise<any>
     {
         return q.all(_.map(scheduleRules, function (rule)
         {
-            var ExpertScheduleDelegate = require('../delegates/ExpertScheduleDelegate');
-            var expertScheduleDelegate = new ExpertScheduleDelegate();
+            var ScheduleDelegate = require('ScheduleDelegate');
+            var scheduleDelegate = new ScheduleDelegate();
 
-            return expertScheduleDelegate.getSchedulesForRule(rule, moment(options.currentDate).valueOf(), moment(options.endDate).valueOf())
+            return scheduleDelegate.getSchedulesForRule(rule, moment(options.currentDate).valueOf(), moment(options.endDate).valueOf())
                 .then(
-                function schedulesGenerated(schedules:ExpertSchedule[])
+                function schedulesGenerated(schedules:Schedule[])
                 {
                     _.each(schedules, function(schedule)
                     {
@@ -78,16 +78,16 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
 
     getExceptionsByIntegrationMemberId(expertId:number, startTime:number, endTime:number):q.Promise<any>
     {
-        var expertScheduleExceptionDao:any = this.dao;
-        return expertScheduleExceptionDao.getExceptionByIntegrationMemberId(expertId, startTime, endTime);
+        var scheduleExceptionDao:any = this.dao;
+        return scheduleExceptionDao.getExceptionByIntegrationMemberId(expertId, startTime, endTime);
     }
 
-    updateException(updatedScheduleRuleException:ExpertScheduleException, transaction?:Object):q.Promise<any>
+    updateException(updatedScheduleRuleException:ScheduleException, transaction?:Object):q.Promise<any>
     {
         var self = this;
         // TODO: Handle cyclic dependencies in a better way
-        var ExpertScheduleRuleDelegate = require('../delegates/ExpertScheduleRuleDelegate');
-        var expertScheduleRuleDelegate = new ExpertScheduleRuleDelegate();
+        var ScheduleRuleDelegate = require('ScheduleRuleDelegate');
+        var scheduleRuleDelegate = new ScheduleRuleDelegate();
 
         var options =
         {
@@ -95,14 +95,14 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
             endDate: moment().add('years', 1).toDate()
         };
 
-        return expertScheduleRuleDelegate.getRulesByUser(updatedScheduleRuleException.getIntegrationMemberId(), options.startDate.getTime() / 1000, options.endDate.getTime() / 1000)
+        return scheduleRuleDelegate.getRulesByUser(updatedScheduleRuleException.getIntegrationMemberId(), options.startDate.getTime() / 1000, options.endDate.getTime() / 1000)
             .then(//TODO handle conversion to sec
-            function createRecord(rawschedules:ExpertScheduleRule[])
+            function createRecord(rawschedules:ScheduleRule[])
             {
-                var schedules:ExpertScheduleRule[] = [];
+                var schedules:ScheduleRule[] = [];
                 _.each(rawschedules, function (schedule:any)
                 {
-                    schedules.push(new ExpertScheduleRule(schedule));
+                    schedules.push(new ScheduleRule(schedule));
                 });
 
                 options.startDate = new Date(updatedScheduleRuleException.getStartTime() * 1000);
@@ -119,4 +119,4 @@ class ExpertScheduleExceptionDelegate extends BaseDaoDelegate
         );
     }
 }
-export = ExpertScheduleExceptionDelegate
+export = ScheduleExceptionDelegate

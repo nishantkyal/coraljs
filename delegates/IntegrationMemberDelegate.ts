@@ -4,9 +4,7 @@ import moment                                       = require('moment');
 import Utils                                        = require('../common/Utils');
 import BaseDaoDelegate                              = require('../delegates/BaseDaoDelegate');
 import MysqlDelegate                                = require('../delegates/MysqlDelegate');
-import ExpertScheduleDelegate                       = require('../delegates/ExpertScheduleDelegate');
 import IntegrationDelegate                          = require('../delegates/IntegrationDelegate');
-import ExpertScheduleRuleDelegate                   = require('../delegates/ExpertScheduleRuleDelegate');
 import IntegrationMemberRole                        = require('../enums/IntegrationMemberRole');
 import IncludeFlag                                  = require('../enums/IncludeFlag');
 import Integration                                  = require('../models/Integration');
@@ -16,8 +14,6 @@ import AccessTokenCache                             = require('../caches/AccessT
 
 class IntegrationMemberDelegate extends BaseDaoDelegate
 {
-    private expertScheduleRuleDelegate = new ExpertScheduleRuleDelegate();
-    private expertScheduleDelegate = new ExpertScheduleDelegate();
     private integrationDelegate = new IntegrationDelegate();
     private userDelegate;
 
@@ -40,18 +36,7 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
         // 3. Try fetching details from linkedin
         // Note: Not doing all this in transaction since it's a pretty long operation and lock wait times out
         //      Steps 2 and 3 are performed in their own transactions anyway
-        return super.create(integrationMember, dbTransaction)
-            .then(
-            function expertCreated(expert:IntegrationMember)
-            {
-                integrationMember.setId(expert.getId());
-                return self.expertScheduleRuleDelegate.createDefaultRules(expert.getId());
-            })
-            .then(
-            function memberCreated(...args)
-            {
-                return integrationMember;
-            });
+        return super.create(integrationMember, dbTransaction);
     }
 
     findValidAccessToken(accessToken:string, integrationMemberId?:string, role?:IntegrationMemberRole):q.Promise<any>
@@ -125,21 +110,6 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
                     return self.userDelegate.get(_.uniq(_.pluck(result, IntegrationMember.USER_ID)));
                 else
                     return self.userDelegate.get(result.getUserId());
-
-            case IncludeFlag.INCLUDE_SCHEDULES:
-                // Return schedules for next 4 months
-                var scheduleStartTime = moment().hours(0).valueOf();
-                var scheduleEndTime = moment().add({months: 4}).valueOf();
-
-                if (Utils.getObjectType(result) != 'Array')
-                    return self.expertScheduleDelegate.getSchedulesForExpert(member.getId(), scheduleStartTime, scheduleEndTime)
-/*
-                else
-                    return self.expertScheduleDelegate.getSchedulesForExpert(_.uniq(_.pluck(result, IntegrationMember.ID)), scheduleStartTime, scheduleEndTime);
-*/
-
-            case IncludeFlag.INCLUDE_SCHEDULE_RULES:
-                return self.expertScheduleRuleDelegate.getRulesByUser(result[0][IntegrationMember.ID]);
         }
         return super.getIncludeHandler(include, result);
     }

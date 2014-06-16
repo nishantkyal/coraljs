@@ -1,3 +1,4 @@
+import moment                                                           = require('moment');
 import validator                                                        = require('validator');
 import q                                                                = require('q');
 import _                                                                = require('underscore');
@@ -9,6 +10,8 @@ import MysqlDelegate                                                    = requir
 import UserProfileDelegate                                              = require('../delegates/UserProfileDelegate');
 import ImageDelegate                                                    = require('../delegates/ImageDelegate');
 import UserPhoneDelegate                                                = require('../delegates/UserPhoneDelegate');
+import ScheduleDelegate                                                 = require('../delegates/ScheduleDelegate');
+import ScheduleRuleDelegate                                             = require('../delegates/ScheduleRuleDelegate');
 import User                                                             = require('../models/User');
 import UserProfile                                                      = require('../models/UserProfile');
 import IncludeFlag                                                      = require('../enums/IncludeFlag');
@@ -25,6 +28,8 @@ class UserDelegate extends BaseDaoDelegate
     private imageDelegate = new ImageDelegate();
     private userProfileDelegate = new UserProfileDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
+    private scheduleRuleDelegate = new ScheduleRuleDelegate();
+    private scheduleDelegate = new ScheduleDelegate();
 
     constructor() { super(User); }
 
@@ -45,14 +50,13 @@ class UserDelegate extends BaseDaoDelegate
                 var userProfile:UserProfile = new UserProfile();
                 userProfile.setUserId(user.getId());
 
-                return [user, self.userProfileDelegate.create(userProfile, dbTransaction)];
+                return [user, self.userProfileDelegate.create(userProfile, dbTransaction), self.scheduleRuleDelegate.createDefaultRules(user.getId(), dbTransaction)];
             })
             .spread(
-            function userProfileCreated(user:User)
+            function userProfileCreated(...args)
             {
-                return user;
+                return args[0][0];
             });
-
     }
 
     update(criteria:Object, newValues:any, transaction?:Object):q.Promise<any>;
@@ -92,6 +96,21 @@ class UserDelegate extends BaseDaoDelegate
                 return integrationMemberDelegate.searchByUser(result.getId());
             case IncludeFlag.INCLUDE_USER_PROFILE:
                 return self.userProfileDelegate.search({'user_id': _.uniq(_.pluck(result, User.ID))});
+
+            case IncludeFlag.INCLUDE_SCHEDULES:
+                // Return schedules for next 4 months
+                var scheduleStartTime = moment().hours(0).valueOf();
+                var scheduleEndTime = moment().add({months: 4}).valueOf();
+
+                if (Utils.getObjectType(result) != 'Array')
+                    return self.scheduleDelegate.getSchedulesForUser(result.getId(), scheduleStartTime, scheduleEndTime)
+            /*
+             else
+             return self.scheduleDelegate.getSchedulesForExpert(_.uniq(_.pluck(result, IntegrationMember.ID)), scheduleStartTime, scheduleEndTime);
+             */
+
+            case IncludeFlag.INCLUDE_SCHEDULE_RULES:
+                return self.scheduleRuleDelegate.getRulesByUser(result[0][User.ID]);
         }
         return super.getIncludeHandler(include, result);
     }

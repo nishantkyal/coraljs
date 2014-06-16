@@ -23,16 +23,21 @@ import UserDelegate                                         = require('../../del
 import UserEducationDelegate                                = require('../../delegates/UserEducationDelegate');
 import UserSkillDelegate                                    = require('../../delegates/UserSkillDelegate');
 import UserEmploymentDelegate                               = require('../../delegates/UserEmploymentDelegate');
-import ExpertScheduleExceptionDelegate                      = require('../../delegates/ExpertScheduleExceptionDelegate');
+import ScheduleDelegate                                     = require('../../delegates/ScheduleDelegate');
+import ScheduleExceptionDelegate                            = require('../../delegates/ScheduleExceptionDelegate');
 import CouponDelegate                                       = require('../../delegates/CouponDelegate');
+import PricingSchemeDelegate                                = require('../../delegates/PricingSchemeDelegate');
 import PhoneCall                                            = require('../../models/PhoneCall');
-import ExpertSchedule                                       = require('../../models/ExpertSchedule');
+import Schedule                                             = require('../../models/Schedule');
 import Transaction                                          = require('../../models/Transaction');
 import Coupon                                               = require('../../models/Coupon');
 import UserPhone                                            = require('../../models/UserPhone');
 import IntegrationMember                                    = require('../../models/IntegrationMember');
 import TransactionLine                                      = require('../../models/TransactionLine');
 import UserProfile                                          = require('../../models/UserProfile');
+import ScheduleException                                    = require('../../models/ScheduleException');
+import User                                                 = require('../../models/User');
+import PricingScheme                                        = require('../../models/PricingScheme');
 import CallStatus                                           = require('../../enums/CallStatus');
 import ApiConstants                                         = require('../../enums/ApiConstants');
 import IncludeFlag                                          = require('../../enums/IncludeFlag');
@@ -68,7 +73,9 @@ class CallFlowRoute
     private userSkillDelegate = new UserSkillDelegate();
     private userEducationDelegate = new UserEducationDelegate();
     private couponDelegate = new CouponDelegate();
-    private expertScheduleExceptionDelegate = new ExpertScheduleExceptionDelegate();
+    private scheduleDelegate = new ScheduleDelegate();
+    private scheduleExceptionDelegate = new ScheduleExceptionDelegate();
+    private pricingSchemeDelegate = new PricingSchemeDelegate();
 
     constructor(app, secureApp)
     {
@@ -95,7 +102,7 @@ class CallFlowRoute
         var expertId = parseInt(req.params[ApiConstants.EXPERT_ID]);
         var sessionData = new SessionData(req);
 
-        this.integrationMemberDelegate.get(expertId, IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_SCHEDULES, IncludeFlag.INCLUDE_USER])
+        this.integrationMemberDelegate.get(expertId, IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER])
             .then(
             function expertFetched(expert:IntegrationMember):any
             {
@@ -108,10 +115,13 @@ class CallFlowRoute
                 }
 
                 sessionData.setExpert(expert);
+
                 return q.all([
                     self.userProfileDelegate.find(Utils.createSimpleObject(UserProfile.USER_ID, user.getId())),
                     self.phoneCallDelegate.getScheduledCalls(user.getId()),
-                    self.expertScheduleExceptionDelegate.search({'integration_member_id': expert.getId()},[ExpertSchedule.START_TIME,ExpertSchedule.DURATION])
+                    self.scheduleExceptionDelegate.search({'integration_member_id': expert.getId()}, [Schedule.START_TIME, Schedule.DURATION]),
+                    self.userDelegate.get(user.getId(), null, [IncludeFlag.INCLUDE_SCHEDULES]),
+                    self.pricingSchemeDelegate.search(Utils.createSimpleObject(PricingScheme.USER_ID, expert.getUserId()))
                 ]);
             },
             function handleExpertSearchFailed(error)
@@ -136,26 +146,34 @@ class CallFlowRoute
                         return {duration:exception.getDuration(), start_time:exception.getStartTime()}
                     }));
 
-                return [userProfile, exceptions, q.all([
+                var user:User = args[0][3];
+                var pricingSchemes:PricingScheme[] = args[0][4];
+
+                return [userProfile, exceptions, user, pricingSchemes, q.all([
                     self.userSkillDelegate.getSkillWithName(userProfile.getId()),
                     self.userEducationDelegate.search({'profileId': userProfile.getId()}),
                     self.userEmploymentDelegate.search({'profileId': userProfile.getId()})
                 ])];
             })
             .spread(
-            function profileDetailsFetched(userProfile,exception, ...args)
+            function profileDetailsFetched(userProfile:UserProfile, exceptions:ScheduleException[], user:User, pricingSchemes:PricingScheme[], ...args)
             {
                 var userSkill = args[0][0] || [];
                 var userEducation = args[0][1] || [];
                 var userEmployment = args[0][2] || [];
+
+                var expert = sessionData.getExpert();
+                expert.setUser(user);
+                sessionData.setExpert(expert);
 
                 var pageData = _.extend(sessionData.getData(), {
                     userSkill: _.sortBy(userSkill, function (skill) { return skill['skill_name'].length; }),
                     userProfile: userProfile,
                     userEducation: userEducation,
                     userEmployment: userEmployment,
-                    exception:exception,
-                    messages: req.flash()
+                    exception: exceptions,
+                    messages: req.flash(),
+                    pricing: pricingSchemes[0]
                 });
 
                 res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
@@ -207,8 +225,8 @@ class CallFlowRoute
             phoneCall.setStatus(CallStatus.PLANNING);
             phoneCall.setDuration(sessionData.getDuration());
             phoneCall.setAgenda(sessionData.getAgenda());
-            phoneCall.setPricePerMin(expert.getSchedule()[0][ExpertSchedule.PRICE_PER_MIN]);
-            phoneCall.setPriceCurrency(expert.getSchedule()[0][ExpertSchedule.PRICE_UNIT]);
+            phoneCall.setPricePerMin(expert.getUser().getSchedule()[0].getPricingSchemeId());
+            phoneCall.setPriceCurrency(expert.getUser().getSchedule()[0].getPricingSchemeId());
             phoneCall.setCallerUserId(loggedInUserId);
 
             var transaction = new Transaction();

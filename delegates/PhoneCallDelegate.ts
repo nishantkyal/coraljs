@@ -12,7 +12,7 @@ import UserDelegate                                                     = requir
 import NotificationDelegate                                             = require('../delegates/NotificationDelegate');
 import TransactionDelegate                                              = require('../delegates/TransactionDelegate');
 import TransactionLineDelegate                                          = require('../delegates/TransactionLineDelegate');
-import ExpertScheduleExceptionDelegate                                  = require('../delegates/ExpertScheduleExceptionDelegate');
+import ScheduleExceptionDelegate                                        = require('../delegates/ScheduleExceptionDelegate');
 import CallStatus                                                       = require('../enums/CallStatus');
 import IncludeFlag                                                      = require('../enums/IncludeFlag');
 import PhoneType                                                        = require('../enums/PhoneType');
@@ -24,7 +24,7 @@ import IntegrationMember                                                = requir
 import AbstractScheduledTask                                            = require('../models/tasks/AbstractScheduledTask');
 import TriggerPhoneCallTask                                             = require('../models/tasks/TriggerPhoneCallTask');
 import CallReminderNotificationScheduledTask                            = require('../models/tasks/CallReminderNotificationScheduledTask');
-import ExpertSchedule                                                   = require('../models/ExpertSchedule');
+import Schedule                                                         = require('../models/Schedule');
 import UnscheduledCallsCache                                            = require('../caches/UnscheduledCallsCache');
 import PhoneCallCache                                                   = require('../caches/PhoneCallCache');
 import CallProviderFactory                                              = require('../factories/CallProviderFactory');
@@ -40,7 +40,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
     private transactionLineDelegate = new TransactionLineDelegate();
     private callProvider = new CallProviderFactory().getProvider();
     private phoneCallCache = new PhoneCallCache();
-    private expertScheduleExceptionDelegate = new ExpertScheduleExceptionDelegate();
+    private scheduleExceptionDelegate = new ScheduleExceptionDelegate();
 
     private static ctor = (() =>
     {

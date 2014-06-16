@@ -1,7 +1,7 @@
 import CouponApi                                        = require('./CouponApi');
 import ExpertApi                                        = require('./ExpertApi');
-import ExpertScheduleRuleApi                            = require('./ExpertScheduleRuleApi');
-import ExpertScheduleExceptionApi                       = require('./ExpertScheduleExceptionApi')
+import ScheduleRuleApi                                  = require('./ScheduleRuleApi');
+import ScheduleExceptionApi                             = require('./ScheduleExceptionApi')
 import IntegrationApi                                   = require('./IntegrationApi');
 import IntegrationOwnerApi                              = require('./IntegrationOwnerApi');
 import PaymentApi                                       = require('./PaymentApi')
@@ -25,8 +25,8 @@ function init(app, secureApp?)
 {
     new CouponApi(app, secureApp);
     new ExpertApi(app, secureApp);
-    new ExpertScheduleRuleApi(app, secureApp);
-    new ExpertScheduleExceptionApi(app, secureApp);
+    new ScheduleRuleApi(app, secureApp);
+    new ScheduleExceptionApi(app, secureApp);
     new IntegrationApi(app, secureApp);
     new IntegrationOwnerApi(app, secureApp);
     new PaymentApi(app, secureApp);

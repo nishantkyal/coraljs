@@ -2,11 +2,11 @@
  * Created by Ankit on 14/02/14.
  */
 import BaseModel                = require('./BaseModel');
-import ExpertSchedule           = require('./ExpertSchedule');
+import Schedule                 = require('./Schedule');
 import MoneyUnit                = require('../enums/MoneyUnit');
 import Utils                    = require('../common/Utils');
 
-class ExpertScheduleException extends ExpertSchedule
+class ScheduleException extends Schedule
 {
     static TABLE_NAME = 'expert_schedule_exception';
 
@@ -24,4 +24,4 @@ class ExpertScheduleException extends ExpertSchedule
                     && !Utils.isNullOrEmpty(this.getIntegrationMemberId());
     }
 }
-export = ExpertScheduleException
+export = ScheduleException

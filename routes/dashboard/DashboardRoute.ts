@@ -21,7 +21,7 @@ import UserSkillDelegate                                = require('../../delegat
 import UserEmploymentDelegate                           = require('../../delegates/UserEmploymentDelegate');
 import RefSkillCodeDelegate                             = require('../../delegates/SkillCodeDelegate');
 import UserProfileDelegate                              = require('../../delegates/UserProfileDelegate');
-import ExpertScheduleRuleDelegate                       = require('../../delegates/ExpertScheduleRuleDelegate');
+import ScheduleRuleDelegate                       = require('../../delegates/ScheduleRuleDelegate');
 import VerificationCodeDelegate                         = require('../../delegates/VerificationCodeDelegate');
 import MysqlDelegate                                    = require('../../delegates/MysqlDelegate');
 import UserUrlDelegate                                  = require('../../delegates/UserUrlDelegate');
@@ -40,7 +40,7 @@ import PhoneCall                                        = require('../../models/
 import UserProfile                                      = require('../../models/UserProfile');
 import Transaction                                      = require('../../models/Transaction');
 import TransactionLine                                  = require('../../models/TransactionLine');
-import ExpertScheduleRule                               = require('../../models/ExpertScheduleRule');
+import ScheduleRule                               = require('../../models/ScheduleRule');
 import CronRule                                         = require('../../models/CronRule');
 import IntegrationMemberRole                            = require('../../enums/IntegrationMemberRole');
 import ApiConstants                                     = require('../../enums/ApiConstants');
@@ -79,7 +79,7 @@ class DashboardRoute
     private userEmploymentDelegate = new UserEmploymentDelegate();
     private userSkillDelegate = new UserSkillDelegate();
     private userEducationDelegate = new UserEducationDelegate();
-    private expertScheduleRuleDelegate = new ExpertScheduleRuleDelegate();
+    private scheduleRuleDelegate = new ScheduleRuleDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
     private phoneCallDelegate = new PhoneCallDelegate();
     private notificationDelegate = new NotificationDelegate();
@@ -436,11 +436,11 @@ class DashboardRoute
         var userId:number = parseInt(req.params[ApiConstants.USER_ID]);
         var sessionData = new SessionData(req);
 
-        self.expertScheduleRuleDelegate.getRulesByUser(userId)
+        self.scheduleRuleDelegate.getRulesByUser(userId)
             .then(
-            function rulesFetched(rules:ExpertScheduleRule[])
+            function rulesFetched(rules:ScheduleRule[])
             {
-                _.each(rules || [], function(rule:ExpertScheduleRule) {
+                _.each(rules || [], function(rule:ScheduleRule) {
                     rule['values'] = CronRule.getValues(rule.getCronRule())
                 });
 

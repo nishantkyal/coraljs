@@ -17,7 +17,7 @@ class UserPhoneApi
         var userPhoneDelegate = new UserPhoneDelegate();
 
         /* Add phone number */
-        app.put(ApiUrlDelegate.UserPhone(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
+        app.put(ApiUrlDelegate.userPhone(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
         {
             var UserPhone:UserPhone = req.body[ApiConstants.PHONE_NUMBER];
 
@@ -32,7 +32,7 @@ class UserPhoneApi
         });
 
         /* Search phone number */
-        app.get(ApiUrlDelegate.UserPhone(), function(req:express.Request, res:express.Response)
+        app.get(ApiUrlDelegate.userPhone(), function(req:express.Request, res:express.Response)
         {
             userPhoneDelegate.search(req.body[ApiConstants.PHONE_NUMBER])
                 .then(
@@ -42,7 +42,7 @@ class UserPhoneApi
         });
 
         /* Get phone number by id */
-        app.get(ApiUrlDelegate.UserPhoneById(), function(req:express.Request, res:express.Response)
+        app.get(ApiUrlDelegate.userPhoneById(), function(req:express.Request, res:express.Response)
         {
             var UserPhoneId = req.params[ApiConstants.PHONE_NUMBER_ID];
 
@@ -54,7 +54,7 @@ class UserPhoneApi
         });
 
         /* Update phone number */
-        app.post(ApiUrlDelegate.UserPhoneById(), function(req:express.Request, res:express.Response)
+        app.post(ApiUrlDelegate.userPhoneById(), function(req:express.Request, res:express.Response)
         {
             var userPhoneId:number = parseInt(req.params[ApiConstants.PHONE_NUMBER_ID]);
             var userPhone:UserPhone = req.body[ApiConstants.PHONE_NUMBER];
@@ -67,7 +67,7 @@ class UserPhoneApi
         });
 
         /* Delete phone number */
-        app.delete(ApiUrlDelegate.UserPhoneById(), function(req:express.Request, res:express.Response)
+        app.delete(ApiUrlDelegate.userPhoneById(), function(req:express.Request, res:express.Response)
         {
             var userPhoneId:number = parseInt(req.params[ApiConstants.PHONE_NUMBER_ID]);
 

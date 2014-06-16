@@ -4,6 +4,8 @@ import BaseModel                                            = require('./BaseMod
 import Utils                                                = require('../common/Utils');
 import Formatter                                            = require('../common/Formatter');
 import UserProfile                                          = require('../models/UserProfile');
+import Schedule                                             = require('./Schedule');
+import ScheduleRule                                         = require('./ScheduleRule');
 import IndustryCode                                         = require('../enums/IndustryCode');
 import UserStatus                                           = require('../enums/UserStatus');
 import Salutation                                           = require('../enums/Salutation');
@@ -23,6 +25,9 @@ class User extends BaseModel
     static INDUSTRY:string = 'industry';
     static TIMEZONE:string = 'timezone';
 
+    static SCHEDULE:string = 'schedule';
+    static SCHEDULE_RULE:string = 'schedule_rule';
+
     static DEFAULT_FIELDS:string[] = [User.ID, User.TITLE, User.FIRST_NAME, User.LAST_NAME, User.EMAIL, User.INDUSTRY, User.TIMEZONE, User.STATUS, User.DATE_OF_BIRTH];
 
     private title:Salutation;
@@ -36,6 +41,8 @@ class User extends BaseModel
     private timezone:number;
 
     private user_profile:UserProfile;
+    private schedule:Schedule[];
+    private schedule_rule:ScheduleRule[];
 
     /* Getters */
     getTitle():Salutation                                       { return this.title; }
@@ -49,6 +56,8 @@ class User extends BaseModel
     getTimezone():number                                        { return this.timezone; }
 
     getUserProfile():UserProfile                                { return this.user_profile; }
+    getSchedule():Schedule[]                                    { return this.schedule; }
+    getScheduleRule():ScheduleRule[]                            { return this.schedule_rule; }
 
     isValid():boolean {
         return !Utils.isNullOrEmpty(this.getEmail()) && validator.isEmail(this.getEmail());
@@ -66,5 +75,7 @@ class User extends BaseModel
     setTimezone(val:number)                                     { this.timezone = val; }
 
     setUserProfile(val:UserProfile):void                        { this.user_profile = val; }
+    setSchedule(val:Schedule[]):void                            { this.schedule = val; }
+    setScheduleRule(val:ScheduleRule[]):void                    { this.schedule_rule = val; }
 }
 export = User

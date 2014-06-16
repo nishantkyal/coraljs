@@ -1,5 +1,5 @@
 - var user = expert.user;
-- var minDuration = expert.schedule[0].min_duration
+- var minDuration = pricing.min_duration
 title ST-#{formatName(user.first_name, user.last_name, user.title)}
 include ../header
 .modal.fade#scheduler
@@ -32,8 +32,8 @@ include ../header
                                     li
                                         a.well 60
                             p.floatright
-                                if expert.schedule[0].price_per_min
-                                    strong= formatMoney(expert.schedule[0].price_per_min, expert.schedule[0].price_unit)
+                                if pricing
+                                    strong= formatMoney(pricing.charging_rate, pricing.unit)
                                     | /min.
                                 else
                                     strong Free
@@ -150,14 +150,20 @@ include ../header
                             .meta.meta-price
                                 h5 Charges
                                 p
-                                    if expert.schedule[0].price_per_min
-                                        strong= formatMoney(expert.schedule[0].price_per_min, expert.schedule[0].price_unit)
-                                        | /
-                                        if expert.schedule[0].time_chunk_size > 1
-                                            span= expert.schedule[0].time_chunk_size
-                                                | &nbsp;mins.
+                                    if pricing
+                                        strong= formatMoney(pricing.charging_rate, pricing.unit)
+                                        if pricing.chunk_size > 1
+                                            | &nbsp;for&nbsp;
+                                            span= pricing.chunk_size
+                                            | &nbsp;mins.
                                         else
-                                            | min.
+                                            | &nbsp;/ min.
+                                        if pricing.min_duration > 0
+                                            .pull-right
+                                                .small
+                                                    | &nbsp;(minimum &nbsp;
+                                                    span= pricing.min_duration
+                                                    | &nbsp;mins.)
                                     else
                                         strong Free
                     .col-md-6
@@ -230,7 +236,7 @@ include ../header
             // /.content
 include ../footer
 script.
-    var schedules = JSON.parse( '!{JSON.stringify(expert.schedule)}' );
+    var schedules = JSON.parse( '!{JSON.stringify(user.schedule)}' );
     var exceptions = JSON.parse( '!{JSON.stringify(exception)}' );
     var duration = parseInt('#{duration}') || 15;
     var selectedTimeSlots = [];
