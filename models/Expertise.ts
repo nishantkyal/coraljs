@@ -2,6 +2,8 @@ import BaseModel                                        = require('../models/Bas
 
 class Expertise extends BaseModel
 {
+    static TABLE_NAME:string                            = 'user_expertise';
+
     static USER_ID:string                               = 'user_id';
     static TITLE:string                                 = 'title';
     static PRICING_SCHEME_ID:string                     = 'pricing_scheme_id';

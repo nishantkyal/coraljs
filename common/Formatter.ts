@@ -124,10 +124,5 @@ class Formatter
 
         return gmt_string;
     }
-
-    static formatAge(d:string, format?:string):string
-    {
-        return moment().diff(moment(d, format), 'years') + ' years';
-    }
 }
 export = Formatter

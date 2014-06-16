@@ -67,7 +67,7 @@ class DashboardRoute
     private static PAGE_MOBILE_VERIFICATION:string = 'dashboard/mobileVerification';
     private static PAGE_DASHBOARD:string = 'dashboard/dashboard';
     private static PAGE_INTEGRATION:string = 'dashboard/integration';
-    private static PAGE_PROFILE:string = 'dashboard/memberProfile';
+    private static PAGE_PROFILE:string = 'dashboard/userProfile';
     private static PAGE_ACCOUNT_VERIFICATION:string = 'dashboard/accountVerification';
     private static PAGE_PAYMENT_COMPLETE:string = 'dashboard/paymentComplete';
     private static PAGE_CALL_DETAILS:string = 'dashboard/callDetails';

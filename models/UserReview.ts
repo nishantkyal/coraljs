@@ -2,6 +2,8 @@ import BaseModel                                        = require('../models/Bas
 
 class UserReview extends BaseModel
 {
+    static TABLE_NAME:string                            = 'user_review';
+
     static TARGET_USER_ID:string                        = 'target_user_id';
     static ITEM_ID:string                               = 'item_id';
     static RATING:string                                = 'rating';
