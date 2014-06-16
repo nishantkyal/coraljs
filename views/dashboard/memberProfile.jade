@@ -62,8 +62,8 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                                     if isEditable
                                         a.btn.btn-primary(data-id=userProfile.id, name = 'editUserProfile')
                                             i.icon-pencil
-                                        a.btn.btn-default.btn-xs#fetchBasic
-                                            i.icon-plus
+                                        a.btn.btn-defualt#fetchBasic
+                                            si.si-small.si-colored.si-linkedin
                             .user-profile
                                 .avatar
                                     .shadow
@@ -82,9 +82,9 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                                                     | #{formatTimezone(zone.gmt_offset)}
                                 .clearer
                                 if isEditable
-                                    a.btn.btn-default.btn-xs#selectFileBtn Upload
+                                    a.btn.btn-success.btn-xs#selectFileBtn Upload
                                     a.btn.btn-default.btn-xs#fetchProfilePicture
-                                        i.icon-plus
+                                        si.si-small.si-colored.si-linkedin
                                     form#fileUploadForm(action=ApiUrlDelegate.userProfilePicture(user.id), method="post", enctype="multipart/form-data")
                                         input#selectFile(type='file', name='profile', style='display: none')
                                         input#selectFileSubmit(type='submit', style='display: none')
@@ -93,29 +93,31 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                                         | #{userProfile.long_desc}
                         .item
                             .row
-                                h5.col-xs-8 Skills/Keywords
-                                .header-link.col-xs-4
+                                .meta.meta-keywords
                                     if isEditable
+                                        h5.col-xs-8 Skills/Keywords
                                         a.btn.btn-success.btn-xs#addSkillbtn Add Skill
                                         a.btn.btn-default.btn-xs#fetchSkill
-                                            i.icon-plus
-                                if userSkill.length != 0
-                                    .meta.meta-keywords
+                                            si.si-small.si-colored.si-linkedin
+                                    else
+                                        h5.col-xs-12 Skills/Keywords
+                                        .clearer
+                                    if userSkill.length != 0
                                         ul
-                                        each skill in userSkill
-                                            li #{skill.skill_name}&nbsp
-                                                if isEditable
-                                                    a(data-id=skill.id, name = 'deleteUserSkill')
-                                                        i.icon-cancel
-                                else
-                                    div No skills added yet
+                                            each skill in userSkill
+                                                li #{skill.skill_name}&nbsp
+                                                    if isEditable
+                                                        a(data-id=skill.id, name = 'deleteUserSkill')
+                                                            i.icon-cancel
+                                    else
+                                        div No skills added yet
                     if isEditable
                         .card#AddUserSkillCard(style='display: none;')
                             form#AddUserSkillForm
                                 .item-edit
                                     .item
                                         .row
-                                            h5.col-xs-8 Add Education
+                                            h5.col-xs-8 Add Skill
                                             .header-link.col-xs-4
                                                 a.btn.btn-danger#cancelAddUserSkill
                                                     i.icon-cancel
@@ -186,14 +188,16 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                     .content.col-md-6
                         .card#educationDetails
                             .header
-                                .title
-                                    h1 Education Details
-                                if isEditable
-                                    .pull-right
-                                        a.btn.btn-success.btn-xs#addeducationbtn Add Education
-                                        a.btn.btn-default.btn-xs#fetchEducation
-                                            i.icon-plus
-                            .clearer
+                                .meta.meta-keywords
+                                    if isEditable
+                                        h5.col-xs-8 Education Details
+                                        .pull-right
+                                            a.btn.btn-success.btn-xs#addeducationbtn Add Education
+                                            a.btn.btn-default.btn-xs#fetchEducation
+                                                si.si-small.si-colored.si-linkedin
+                                    else
+                                        h5.col-xs-12 Education Details
+                            br
                             if userEducation.length != 0
                                 each edu in userEducation
                                     .item
@@ -266,14 +270,16 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                     .content.col-md-6
                         .card#employmentDetails
                             .header
-                                .title
-                                    h1 Employment Details
-                                if isEditable
-                                    .pull-right
-                                        a.btn.btn-success.btn-xs#addEmploymentbtn Add Employment
-                                        a.btn.btn-default.btn-xs#fetchEmployment
-                                            i.icon-plus
-                            .clearer
+                                .meta.meta-keywords
+                                    if isEditable
+                                        h5.col-xs-7 Employment Details
+                                        .pull-right
+                                            a.btn.btn-success.btn-xs#addEmploymentbtn Add Employment
+                                            a.btn.btn-default.btn-xs#fetchEmployment
+                                                si.si-small.si-colored.si-linkedin
+                                    else
+                                        h5.col-xs-12 Employment Details
+                            br
                             if userEmployment.length != 0
                                 each emp in userEmployment
                                     .item
@@ -284,7 +290,7 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                                                     a.btn.btn-primary(data-id=emp.id, name = 'editUserEmployment')
                                                         i.icon-pencil
                                                     a.btn.btn-danger(data-id=emp.id, name = 'deleteUserEmployment')
-                                                        i.icon-trash
+                                                        si.icon-trash
                                             div
                                                 if emp.company
                                                     | #{emp.company}

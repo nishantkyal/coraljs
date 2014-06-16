@@ -108,13 +108,13 @@ $('form#editUserProfileForm').bootstrapValidator({
                     {
                         location.reload();
                     },
-                    error: function()
+                    error: function(error)
                     {
                         bootbox.alert(error.responseText);
                     }
                 })
             },
-            error: function()
+            error: function(error)
             {
                 bootbox.alert(error.responseText);
             }
@@ -241,8 +241,7 @@ var fetchedSkill = new Bloodhound({
             method: 'get'
         },
         filter: function(response) {
-            $('#AddUserSkillModal form #spinningWheel').hide();
-            $('#EditUserSkillModal form #spinningWheel').hide();
+            $('form#AddUserSkillForm #spinningWheel').hide();
             skillSet =  $.map(response.resultList, function (skill){
                 return {
                     value: skill.displayName,

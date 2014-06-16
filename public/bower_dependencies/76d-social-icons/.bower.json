@@ -1,0 +1,35 @@
+{
+  "name": "76d-social-icons",
+  "version": "1.0.3",
+  "authors": [
+    "Nick Edgar"
+  ],
+  "description": "Customizable library of social icons using SASS",
+  "main": "/assets/css/social-icons.css",
+  "keywords": [
+    "76d",
+    "social",
+    "icons",
+    "sass",
+    "customizable"
+  ],
+  "license": "MIT",
+  "homepage": "http://76design.com",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "_release": "1.0.3",
+  "_resolution": {
+    "type": "version",
+    "tag": "v1.0.3",
+    "commit": "55a6fac5fb447665745c865fe3750327e7e2ba37"
+  },
+  "_source": "git://github.com/76design/76d-social-icons.git",
+  "_target": "~1.0.3",
+  "_originalSource": "76d-social-icons",
+  "_direct": true
+}
