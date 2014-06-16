@@ -4,6 +4,7 @@ import BaseModel                                            = require('./BaseMod
 import Utils                                                = require('../common/Utils');
 import Formatter                                            = require('../common/Formatter');
 import UserProfile                                          = require('../models/UserProfile');
+import PricingScheme                                        = require('../models/PricingScheme');
 import Schedule                                             = require('./Schedule');
 import ScheduleRule                                         = require('./ScheduleRule');
 import IndustryCode                                         = require('../enums/IndustryCode');
@@ -26,6 +27,7 @@ class User extends BaseModel
     static TIMEZONE:string = 'timezone';
 
     static SCHEDULE:string = 'schedule';
+    static PRICING_SCHEME:string = 'pricing_scheme';
     static SCHEDULE_RULE:string = 'schedule_rule';
 
     static DEFAULT_FIELDS:string[] = [User.ID, User.TITLE, User.FIRST_NAME, User.LAST_NAME, User.EMAIL, User.INDUSTRY, User.TIMEZONE, User.STATUS, User.DATE_OF_BIRTH];
@@ -43,6 +45,7 @@ class User extends BaseModel
     private user_profile:UserProfile;
     private schedule:Schedule[];
     private schedule_rule:ScheduleRule[];
+    private pricing_scheme:PricingScheme[];
 
     /* Getters */
     getTitle():Salutation                                       { return this.title; }
@@ -58,6 +61,7 @@ class User extends BaseModel
     getUserProfile():UserProfile                                { return this.user_profile; }
     getSchedule():Schedule[]                                    { return this.schedule; }
     getScheduleRule():ScheduleRule[]                            { return this.schedule_rule; }
+    getPricingScheme():PricingScheme[]                          { return this.pricing_scheme; }
 
     isValid():boolean {
         return !Utils.isNullOrEmpty(this.getEmail()) && validator.isEmail(this.getEmail());
@@ -77,5 +81,6 @@ class User extends BaseModel
     setUserProfile(val:UserProfile):void                        { this.user_profile = val; }
     setSchedule(val:Schedule[]):void                            { this.schedule = val; }
     setScheduleRule(val:ScheduleRule[]):void                    { this.schedule_rule = val; }
+    setPricingScheme(val:PricingScheme[]):void                  { this.pricing_scheme = val; }
 }
 export = User

@@ -120,8 +120,7 @@ class CallFlowRoute
                     self.userProfileDelegate.find(Utils.createSimpleObject(UserProfile.USER_ID, user.getId())),
                     self.phoneCallDelegate.getScheduledCalls(user.getId()),
                     self.scheduleExceptionDelegate.search({'integration_member_id': expert.getId()}, [Schedule.START_TIME, Schedule.DURATION]),
-                    self.userDelegate.get(user.getId(), null, [IncludeFlag.INCLUDE_SCHEDULES]),
-                    self.pricingSchemeDelegate.search(Utils.createSimpleObject(PricingScheme.USER_ID, expert.getUserId()))
+                    self.userDelegate.get(user.getId(), null, [IncludeFlag.INCLUDE_SCHEDULES, IncludeFlag.INCLUDE_PRICING_SCHEMES])
                 ]);
             },
             function handleExpertSearchFailed(error)
@@ -147,16 +146,15 @@ class CallFlowRoute
                     }));
 
                 var user:User = args[0][3];
-                var pricingSchemes:PricingScheme[] = args[0][4];
 
-                return [userProfile, exceptions, user, pricingSchemes, q.all([
+                return [userProfile, exceptions, user, q.all([
                     self.userSkillDelegate.getSkillWithName(userProfile.getId()),
                     self.userEducationDelegate.search({'profileId': userProfile.getId()}),
                     self.userEmploymentDelegate.search({'profileId': userProfile.getId()})
                 ])];
             })
             .spread(
-            function profileDetailsFetched(userProfile:UserProfile, exceptions:ScheduleException[], user:User, pricingSchemes:PricingScheme[], ...args)
+            function profileDetailsFetched(userProfile:UserProfile, exceptions:ScheduleException[], user:User, ...args)
             {
                 var userSkill = args[0][0] || [];
                 var userEducation = args[0][1] || [];
@@ -172,8 +170,7 @@ class CallFlowRoute
                     userEducation: userEducation,
                     userEmployment: userEmployment,
                     exception: exceptions,
-                    messages: req.flash(),
-                    pricing: pricingSchemes[0]
+                    messages: req.flash()
                 });
 
                 res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
@@ -225,8 +222,8 @@ class CallFlowRoute
             phoneCall.setStatus(CallStatus.PLANNING);
             phoneCall.setDuration(sessionData.getDuration());
             phoneCall.setAgenda(sessionData.getAgenda());
-            phoneCall.setPricePerMin(expert.getUser().getSchedule()[0].getPricingSchemeId());
-            phoneCall.setPriceCurrency(expert.getUser().getSchedule()[0].getPricingSchemeId());
+            phoneCall.setPricePerMin(new PricingScheme(expert.getUser().getPricingScheme()[0]).getChargingRate());
+            phoneCall.setPriceCurrency(new PricingScheme(expert.getUser().getPricingScheme()[0]).getUnit());
             phoneCall.setCallerUserId(loggedInUserId);
 
             var transaction = new Transaction();

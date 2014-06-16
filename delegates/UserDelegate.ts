@@ -12,8 +12,10 @@ import ImageDelegate                                                    = requir
 import UserPhoneDelegate                                                = require('../delegates/UserPhoneDelegate');
 import ScheduleDelegate                                                 = require('../delegates/ScheduleDelegate');
 import ScheduleRuleDelegate                                             = require('../delegates/ScheduleRuleDelegate');
+import PricingSchemeDelegate                                            = require('../delegates/PricingSchemeDelegate');
 import User                                                             = require('../models/User');
 import UserProfile                                                      = require('../models/UserProfile');
+import PricingScheme                                                    = require('../models/PricingScheme');
 import IncludeFlag                                                      = require('../enums/IncludeFlag');
 import ImageSize                                                        = require('../enums/ImageSize');
 import UserStatus                                                       = require('../enums/UserStatus');
@@ -30,6 +32,7 @@ class UserDelegate extends BaseDaoDelegate
     private userPhoneDelegate = new UserPhoneDelegate();
     private scheduleRuleDelegate = new ScheduleRuleDelegate();
     private scheduleDelegate = new ScheduleDelegate();
+    private pricingSchemeDelegate = new PricingSchemeDelegate();
 
     constructor() { super(User); }
 
@@ -90,10 +93,15 @@ class UserDelegate extends BaseDaoDelegate
         {
             case IncludeFlag.INCLUDE_USER_PROFILE:
                 return self.userProfileDelegate.search({'user_id': result.getId()});
+
             case IncludeFlag.INCLUDE_INTEGRATION_MEMBER:
                 var IntegrationMemberDelegate:any = require('../delegates/IntegrationMemberDelegate');
                 var integrationMemberDelegate = new IntegrationMemberDelegate();
                 return integrationMemberDelegate.searchByUser(result.getId());
+
+            case IncludeFlag.INCLUDE_PRICING_SCHEMES:
+                return self.pricingSchemeDelegate.search(Utils.createSimpleObject(PricingScheme.USER_ID, result.getId()));
+
             case IncludeFlag.INCLUDE_USER_PROFILE:
                 return self.userProfileDelegate.search({'user_id': _.uniq(_.pluck(result, User.ID))});
 
