@@ -124,5 +124,11 @@ class Formatter
 
         return gmt_string;
     }
+
+    static formatAge(d:string, format?:string):string
+    {
+        var date = Formatter.formatDate(d, format);
+        return (moment().get('year') - moment(date).get('year')).toString() + ' years';
+    }
 }
 export = Formatter

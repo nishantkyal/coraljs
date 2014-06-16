@@ -484,4 +484,25 @@
     <changeSet author="Nishant (generated)" id="1402921444862-4">
         <dropColumn columnName="integration_member_id" tableName="pricing_scheme"/>
     </changeSet>
+    <changeSet author="Ankit (generated)" id="1402920852937-1">
+        <modifyDataType columnName="deleted" newDataType="boolean" tableName="call_fragment"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1402920852937-2">
+        <modifyDataType columnName="deleted" newDataType="boolean" tableName="email"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1402920852937-3">
+        <addDefaultValue columnDataType="boolean" columnName="deleted" defaultValueNumeric="0" tableName="email"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1402920852937-4">
+        <modifyDataType columnName="is_current" newDataType="boolean" tableName="user_employment"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1402920852937-5">
+        <modifyDataType columnName="long_desc" newDataType="varchar(500)" tableName="user_profile"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1402920852937-6">
+        <modifyDataType columnName="recorded" newDataType="boolean" tableName="call"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1402920852937-7">
+        <addDefaultValue columnDataType="boolean" columnName="recorded" defaultValueNumeric="0" tableName="call"/>
+    </changeSet>
 </databaseChangeLog>

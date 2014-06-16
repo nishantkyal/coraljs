@@ -56,6 +56,7 @@ var helpers =
     formatCallStatus: Formatter.formatCallStatus,
     formatPhone: Formatter.formatPhone,
     formatTimezone: Formatter.formatTimezone,
+    formatAge: Formatter.formatAge,
     moment: moment,
 
     ApiUrlDelegate: ApiUrlDelegate,
