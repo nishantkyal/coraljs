@@ -1,4 +1,29 @@
 include ../header
+.navigation
+    .container
+        .masthead-nav
+            nav.navbar.navbar-default(role='navigation')
+                .container-fluid
+                    // Brand and toggle get grouped for better mobile display
+                    .navbar-header
+                        button.navbar-toggle(type='button', data-toggle='collapse', data-target='#navbar-collapse')
+                            span.sr-only Toggle navigation
+                            span.icon-bar
+                            span.icon-bar
+                            span.icon-bar
+                        .visible-xs.navbar-brand Dashboard
+                    // Collect the nav links, forms, and other content for toggling
+                    #navbar-collapse.collapse.navbar-collapse
+                        ul.nav.navbar-nav.navbar-left
+                            li
+                                a(href=DashboardUrls.dashboard()) Dashboard
+                        ul.nav.navbar-nav.navbar-right
+                            li
+                                a(href=DashboardUrls.integration()) Networks
+                            li.active
+                                a(href=DashboardUrls.userProfile(loggedInUser.id)) Profile
+                            li
+                                a(href='/payments') Payments
 div.matter
     div.container
         div.row
@@ -29,13 +54,13 @@ div.matter
                             .clearer
                         .item
                             for rule in rules
-                                - var daysOfWeek = rule.values[5];
+                                - var daysOfWeek = rule.values[5] || ['0', '1', '2', '3', '4', '5', '6'];
                                 - var hour = rule.values[2];
                                 - var minutes = rule.values[1];
                                 div.schedule
                                     div.item
                                         div.row
-                                            h5.col-xs-8= rule.title
+                                            h5.col-xs-8= rule.title || 'Rule'
                                             div.header-link.col-xs-4
                                                 a.btn.btn-primary.editScheduleBtn(data-id=rule.id)
                                                     i.icon-pencil

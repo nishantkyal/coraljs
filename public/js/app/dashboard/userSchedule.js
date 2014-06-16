@@ -46,7 +46,7 @@ $('.done-editing-schedules').click(function()
             daysOfWeek.push(i);
     }
 
-    var values = ['*', minutes, hours, daysOfWeek, '*', '*'];
+    var values = ['*', minutes, hours, '*', '*', daysOfWeek];
     var cronPattern = fromValues(values);
 
     var scheduleRuleId = $('#scheduleDetails').data('id');

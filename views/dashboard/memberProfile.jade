@@ -5,31 +5,26 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
         .masthead-nav
             nav.navbar.navbar-default(role='navigation')
                 .container-fluid
-                    //
-                       Brand and toggle get grouped for better mobile display
+                    // Brand and toggle get grouped for better mobile display
                     .navbar-header
                         button.navbar-toggle(type='button', data-toggle='collapse', data-target='#navbar-collapse')
                             span.sr-only Toggle navigation
                             span.icon-bar
                             span.icon-bar
                             span.icon-bar
-                        .visible-xs.navbar-brand Profile
-                    //
-                       Collect the nav links, forms, and other content for toggling
+                        .visible-xs.navbar-brand Dashboard
+                    // Collect the nav links, forms, and other content for toggling
                     #navbar-collapse.collapse.navbar-collapse
-                        ul.nav.navbar-nav
-                            li.active
-                                a(href=DashboardUrls.userProfile(user.id)) Profile
+                        ul.nav.navbar-nav.navbar-left
+                            li
+                                a(href=DashboardUrls.dashboard()) Dashboard
+                        ul.nav.navbar-nav.navbar-right
                             li
                                 a(href=DashboardUrls.integration()) Networks
+                            li.active
+                                a(href=DashboardUrls.userProfile(loggedInUser.id)) Profile
                             li
-                                a(href='payments.html') Payments
-                    //
-                       /.navbar-collapse
-                //
-                   /.container-fluid
-//
-   /.navigation
+                                a(href='/payments') Payments
 .matter
     .container
         .row
@@ -41,11 +36,11 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                                 span.sr-only Toggle profile navigation
                                 i.icon-plus
                                 i.icon-minus
-                            .visible-xs.navbar-brand.network-brand Basic Info
+                            .visible-xs.navbar-brand.network-brand Profile
                         #networks-collapse.collapse.navbar-collapse
                             ul.nav.nav-pills.nav-stacked
                                 li.active
-                                    a(href=DashboardUrls.userProfile(user.id)) Basic Info
+                                    a(href=DashboardUrls.userProfile(user.id)) Profile
                                 li
                                     a(href=DashboardUrls.userSchedule(user.id)) Schedules and Pricing
                                 li

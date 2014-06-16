@@ -4,10 +4,12 @@ import moment                                               = require('moment');
 import WidgetExpert                                         = require('../models/WidgetExpert');
 import IntegrationMember                                    = require('../models/IntegrationMember');
 import Schedule                                             = require('../models/Schedule');
+import PricingScheme                                        = require('../models/PricingScheme');
 import WidgetExpertCache                                    = require('../caches/WidgetExpertCache');
 import IntegrationMemberDelegate                            = require('../delegates/IntegrationMemberDelegate');
 import ScheduleDelegate                                     = require('../delegates/ScheduleDelegate');
 import TimezoneDelegate                                     = require('../delegates/TimezoneDelegate');
+import PricingSchemeDelegate                                = require('../delegates/PricingSchemeDelegate');
 import Utils                                                = require('../common/Utils');
 import IncludeFlag                                          = require('../enums/IncludeFlag');
 
@@ -16,6 +18,7 @@ class WidgetExpertDelegate
     private widgetExpertCache = new WidgetExpertCache();
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private scheduleDelegate = new ScheduleDelegate();
+    private pricingSchemeDelegate = new PricingSchemeDelegate();
 
     get(expertId:number):q.Promise<any>
     {
@@ -37,10 +40,14 @@ class WidgetExpertDelegate
             .then(
             function expertFetched(expert:IntegrationMember):any
             {
-                return [expert, self.scheduleDelegate.getSchedulesForUser(expertId, moment().subtract({days: 1}).valueOf(), moment().add({days: 1}).valueOf())]
+                return [
+                    expert,
+                    self.scheduleDelegate.getSchedulesForUser(expert.getUserId(), moment().subtract({days: 1}).valueOf(), moment().add({days: 1}).valueOf()),
+                    self.pricingSchemeDelegate.search(Utils.createSimpleObject(PricingScheme.USER_ID, expert.getUserId()))
+                ];
             })
             .spread(
-            function schedulesFetched(expert:IntegrationMember, schedules:Schedule[])
+            function schedulesFetched(expert:IntegrationMember, schedules:Schedule[], schemes:PricingScheme[])
             {
                 expert.getUser().setSchedule(schedules);
 
@@ -49,6 +56,7 @@ class WidgetExpertDelegate
 
                 var timezone = new TimezoneDelegate().get(widgetExpert.getTimezone());
                 widgetExpert.setTimezoneOffset(timezone['gmt_offset']);
+                widgetExpert.setPricingScheme(schemes[0]);
 
                 return widgetExpert;
             });
