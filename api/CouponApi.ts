@@ -29,7 +29,7 @@ class CouponApi
 
         app.get(ApiUrlDelegate.couponById(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
         {
-            var couponId:number = parseInt(req.params[ApiConstants.COUPON_ID]);
+            var couponId:number = parseInt(req.params[ApiConstants.ID]);
 
             self.couponDelegate.get(couponId)
                 .then(
@@ -51,7 +51,7 @@ class CouponApi
 
         app.post(ApiUrlDelegate.couponById(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
         {
-            var couponId:number = parseInt(req.params[ApiConstants.COUPON_ID]);
+            var couponId:number = parseInt(req.params[ApiConstants.ID]);
             var coupon = req.body[ApiConstants.COUPON];
 
             self.couponDelegate.update({id: couponId}, coupon)
@@ -63,7 +63,7 @@ class CouponApi
 
         app.delete(ApiUrlDelegate.couponById(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
         {
-            var couponId:number = parseInt(req.params[ApiConstants.COUPON_ID]);
+            var couponId:number = parseInt(req.params[ApiConstants.ID]);
 
             self.couponDelegate.delete(couponId)
                 .then(
