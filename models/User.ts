@@ -7,7 +7,6 @@ import UserProfile                                          = require('../models
 import IndustryCode                                         = require('../enums/IndustryCode');
 import UserStatus                                           = require('../enums/UserStatus');
 import Salutation                                           = require('../enums/Salutation');
-import TimeZone                                             = require('../enums/TimeZone');
 
 class User extends BaseModel
 {
@@ -34,7 +33,7 @@ class User extends BaseModel
     private status:UserStatus;
     private date_of_birth:string;
     private industry:IndustryCode;
-    private timezone:TimeZone;
+    private timezone:number;
 
     private user_profile:UserProfile;
 
@@ -47,7 +46,7 @@ class User extends BaseModel
     getStatus():UserStatus                                      { return this.status; }
     getDateOfBirth():string                                     { return this.date_of_birth; }
     getIndustry():IndustryCode                                  { return this.industry; }
-    getTimezone():TimeZone                                      { return this.timezone; }
+    getTimezone():number                                        { return this.timezone; }
 
     getUserProfile():UserProfile                                { return this.user_profile; }
 
@@ -64,7 +63,7 @@ class User extends BaseModel
     setStatus(val:UserStatus)                                   { this.status = val; }
     setDateOfBirth(val:string)                                  { this.date_of_birth = val;}
     setIndustry(val:IndustryCode)                               { this.industry = val; }
-    setTimezone(val:TimeZone)                                   { this.timezone = val; }
+    setTimezone(val:number)                                     { this.timezone = val; }
 
     setUserProfile(val:UserProfile):void                        { this.user_profile = val; }
 }

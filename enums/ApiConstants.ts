@@ -22,6 +22,7 @@ class ApiConstants
     static SKILL_ID:string                              = 'skillId';
     static INTEGRATION_ID:string                        = 'integrationId';
     static TRANSACTION_ID:string                        = 'transactionId';
+    static PRICING_SCHEME_ID:string                     = 'pricingSchemeId';
     static TRANSACTION_LINE_ID:string                   = 'transactionLineId';
     static PROFILE_TYPE:string                          = 'profileType';
     static USERNAME:string                              = 'login';
@@ -68,7 +69,7 @@ class ApiConstants
     static PHONE_NUMBER:string                          = 'phoneNumber';
     static PHONE_CALL:string                            = 'phoneCall';
     static SCHEDULE:string                              = 'expertSchedule';
-    static SCHEDULE_RULE:string                         = 'expertScheduleRule';
+    static SCHEDULE_RULE:string                         = 'scheduleRule';
     static SCHEDULE_EXCEPTION:string                    = 'expertScheduleException';
     static SCHEDULE_TIMESLOTS:string                    = 'scheduleTimeSlots';
     static SMS:string                                   = 'sms';
@@ -76,11 +77,13 @@ class ApiConstants
     static NO_PAYMENT:string                            = 'noPayment';
     static PAGE_DATE:string                             = 'pageData';
     static WIDGET:string                                = 'widget';
+    static PRICING_SCHEME:string                        = 'pricingScheme';
 
     // Query Constants
     static MODE:string                                  = 'mode';
     static PUBLIC_MODE:string                           = 'public';
     static OFFSET:string                                = 'offset';
+    static ZONE:string                                  = 'zone'
 
 }
 export = ApiConstants

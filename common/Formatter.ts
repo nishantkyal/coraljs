@@ -73,7 +73,9 @@ class Formatter
             return m;
 
         var isNegative = Utils.getObjectType(m) == 'Number' && m < 0;
-        m = Math.abs(m);
+
+        if (isNegative)
+            m = Math.abs(m);
 
         if (Utils.getObjectType(m) == 'String')
             if (m.search(/^[0-9]+$/) != -1)

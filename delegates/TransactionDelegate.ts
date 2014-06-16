@@ -5,7 +5,6 @@ import BaseDaoDelegate                                      = require('./BaseDao
 import MysqlDelegate                                        = require('./MysqlDelegate');
 import TransactionLineDelegate                              = require('./TransactionLineDelegate');
 import CouponDelegate                                       = require('./CouponDelegate');
-import TransactionDAO                                       = require('../dao/TransactionDao');
 import Transaction                                          = require('../models/Transaction');
 import TransactionLine                                      = require('../models/TransactionLine');
 import PhoneCall                                            = require('../models/PhoneCall');
@@ -24,7 +23,7 @@ class TransactionDelegate extends BaseDaoDelegate
     private couponDelegate = new CouponDelegate();
     private transactionLineDelegate = new TransactionLineDelegate();
 
-    constructor() { super(new TransactionDAO()); }
+    constructor() { super(Transaction); }
 
     createPhoneCallTransaction(object:any, phonecall:PhoneCall, dbTransaction?:Object):q.Promise<any>
     {

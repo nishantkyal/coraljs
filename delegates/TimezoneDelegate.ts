@@ -1,14 +1,20 @@
 import q                                                = require('q');
 import _                                                = require('underscore');
 import MysqlDelegate                                    = require('../delegates/MysqlDelegate');
+import Timezone                                         = require('../models/Timezone');
 
 class TimezoneDelegate
 {
-    static TIMEZONES:Object[];
+    static TIMEZONES:Timezone[];
 
-    getTimezone(timezoneId:number):Object
+    get(timezoneId:number):Timezone
     {
         return _.findWhere(TimezoneDelegate.TIMEZONES, {'zone_id': timezoneId});
+    }
+
+    getZoneByOffset(offset:number):Timezone
+    {
+        return _.findWhere(TimezoneDelegate.TIMEZONES, {'gmt_offset': offset});
     }
 
     updateTimezoneCache():q.Promise<any>
@@ -25,13 +31,13 @@ class TimezoneDelegate
             'WHERE tz.zone_id = max_tz.zone_id ' +
             'AND tz.time_start = max_tz.time_start) current_tz ' +
             'WHERE z.zone_id = current_tz.zone_id ' +
-            'ORDER BY z.zone_id;';
+            'ORDER BY current_tz.gmt_offset;';
 
         return MysqlDelegate.executeQuery(query)
             .then(
             function zoneFetched(result:Object[])
             {
-                TimezoneDelegate.TIMEZONES = result;
+                TimezoneDelegate.TIMEZONES = _.map(result, function(obj) { return new Timezone(obj); });
                 _.extend(_, {Timezone: result});
                 return TimezoneDelegate.TIMEZONES;
             });

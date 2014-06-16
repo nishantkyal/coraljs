@@ -25,6 +25,6 @@
     "commit": "6ac71e475d0ce8b7676b5c03e83f2719cf8a2282"
   },
   "_source": "git://github.com/bassjobsen/Bootstrap-3-Typeahead.git",
-  "_target": "*",
+  "_target": "3.0.3",
   "_originalSource": "bootstrap3-typeahead"
 }

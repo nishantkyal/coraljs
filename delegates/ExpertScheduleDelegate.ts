@@ -21,7 +21,7 @@ class ExpertScheduleDelegate
         var IntegrationMemberDelegate:any = require('../delegates/IntegrationMemberDelegate');
 
         return q.all([
-            new ExpertScheduleRuleDelegate().getRulesByIntegrationMemberId(expertId, startTime, endTime),
+            new ExpertScheduleRuleDelegate().getRulesByUser(expertId, startTime, endTime),
             new IntegrationMemberDelegate().get(expertId, null, [IncludeFlag.INCLUDE_USER])
         ])
             .then(
@@ -30,7 +30,7 @@ class ExpertScheduleDelegate
                 var rules:ExpertScheduleRule[] = args[0][0];
                 var expert:IntegrationMember = args[0][1];
 
-                var timezone = new TimezoneDelegate().getTimezone(expert.getUser().getTimezone());
+                var timezone = new TimezoneDelegate().get(expert.getUser().getTimezone());
                 var offsetInSecs = timezone['gmt_offset'];
                 var offsetInMillis = offsetInSecs * 1000;
 
@@ -86,9 +86,7 @@ class ExpertScheduleDelegate
                         expertSchedule.setStartTime(moment(t).add({millis: gmtOffsetInMillis}).valueOf());
                         expertSchedule.setDuration(rule.getDuration());
                         expertSchedule.setScheduleRuleId(rule.getId());
-                        expertSchedule.setPricePerMin(rule.getPricePerMin());
-                        expertSchedule.setPriceUnit(rule.getPriceUnit());
-                        expertSchedule.setMinDuration(rule.getMinDuration());
+                        expertSchedule.setPricingSchemeId(rule.getPricingSchemeId());
                         schedules.push(expertSchedule);
                     }
                 } catch (e)

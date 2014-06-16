@@ -31,7 +31,7 @@ function init(grunt) {
         "copy": {
             "release": {
                 "files": [
-                    { expand: true, src: ["public/**/*", "app.js", "*/**/*.js", "!Gruntfile.js", "!node_modules/**/*.js"], dest: '/var/searchntalk/releases/release-' + grunt.file.readJSON('package.json').version }
+                    { expand: true, src: ["public/**/*", "app.js", "*/**/*.js", "!Gruntfile.js"], dest: '/var/searchntalk/releases/release-' + grunt.file.readJSON('package.json').version }
                 ]
             }
         },

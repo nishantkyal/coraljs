@@ -246,7 +246,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
             error = 'Call status not correct for queueing';
 
         var ScheduledTaskDelegate = require('../delegates/ScheduledTaskDelegate');
-        var scheduledTaskDelegate = new ScheduledTaskDelegate();
+        var scheduledTaskDelegate = ScheduledTaskDelegate.getInstance();
 
         // Check whether the call has been scheduled already
         var callsAlreadyScheduledTasks:AbstractScheduledTask[] = scheduledTaskDelegate.filter(ScheduledTaskType.CALL);
@@ -308,7 +308,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
             function callCancelled()
             {
                 var ScheduledTaskDelegate = require('../delegates/ScheduledTaskDelegate');
-                var scheduledTaskDelegate = new ScheduledTaskDelegate();
+                var scheduledTaskDelegate = ScheduledTaskDelegate.getInstance();
 
                 var callTriggeringScheduledTaskId = scheduledTaskDelegate.find(null);
                 if (!Utils.isNullOrEmpty(callTriggeringScheduledTaskId))

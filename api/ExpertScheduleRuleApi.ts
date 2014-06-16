@@ -1,5 +1,6 @@
 ///<reference path='../_references.d.ts'/>
 import express                          = require('express');
+import moment                           = require('moment');
 import ApiConstants                     = require('../enums/ApiConstants');
 import ApiUrlDelegate                   = require('../delegates/ApiUrlDelegate');
 import ExpertScheduleRuleDelegate       = require('../delegates/ExpertScheduleRuleDelegate');
@@ -21,7 +22,12 @@ class ExpertScheduleRuleApi
 
         app.put(ApiUrlDelegate.scheduleRule(), function (req:express.Request, res:express.Response)
         {
+            var userId:number = req[ApiConstants.USER].id;
+
             var scheduleRule:ExpertScheduleRule = req.body[ApiConstants.SCHEDULE_RULE];
+            scheduleRule.setRepeatStart(scheduleRule.getRepeatStart() || moment().valueOf());
+            scheduleRule.setRepeatEnd(scheduleRule.getRepeatEnd() || moment().add({years: 20}).valueOf());
+            scheduleRule.setUserId(userId);
 
             if(scheduleRule.isValid())
             {
@@ -37,13 +43,13 @@ class ExpertScheduleRuleApi
 
         app.get(ApiUrlDelegate.scheduleRule(), function (req:express.Request, res:express.Response)
         {
-            var expertId:number = parseInt(req.query[ApiConstants.EXPERT_ID]);
+            var userId:number = req[ApiConstants.USER_ID].id;
             var startTime:number = parseInt(req.query[ApiConstants.START_TIME]);
             var endTime:number = parseInt(req.query[ApiConstants.END_TIME]);
 
-            if(!Utils.isNullOrEmpty(expertId))
+            if(!Utils.isNullOrEmpty(userId))
             {
-                expertScheduleRuleDelegate.getRulesByIntegrationMemberId(expertId, startTime, endTime)
+                expertScheduleRuleDelegate.getRulesByUser(userId, startTime, endTime)
                     .then(
                     function expertScheduleGenerator(schedules) { res.json(schedules); },
                     function expertScheduleRuleCreateFailed(error) { res.status(500).json(error); }
@@ -66,11 +72,12 @@ class ExpertScheduleRuleApi
 
         app.post(ApiUrlDelegate.scheduleRuleById(), function (req:express.Request, res:express.Response)
         {
-            var data:any = req.body[ApiConstants.SCHEDULE_TIMESLOTS];
-            var expertId:number = parseInt(req.body[ApiConstants.EXPERT_ID]);
-            var scheduleRule:ExpertScheduleRule = expertScheduleRuleDelegate.createRuleFromTimeSlots(expertId,data);
+            var userId:number = req[ApiConstants.USER].id;
+            var scheduleRule:ExpertScheduleRule = req.body[ApiConstants.SCHEDULE_RULE];
+
             var scheduleRuleId:number = parseInt(req.params[ApiConstants.SCHEDULE_RULE_ID]);
             scheduleRule.setId(scheduleRuleId);
+            scheduleRule.setUserId(userId);
 
             if(scheduleRule.isValid())
             {
@@ -97,9 +104,10 @@ class ExpertScheduleRuleApi
 
         app.post(ApiUrlDelegate.scheduleRule(), function (req:express.Request, res:express.Response)
         {
-            var data:any = req.body[ApiConstants.SCHEDULE_TIMESLOTS];
-            var expertId:number = parseInt(req.body[ApiConstants.EXPERT_ID]);
-            var scheduleRule:ExpertScheduleRule = expertScheduleRuleDelegate.createRuleFromTimeSlots(expertId,data);
+            var userId:number = req[ApiConstants.USER].id;
+
+            var scheduleRule:ExpertScheduleRule = req[ApiConstants.SCHEDULE_RULE];
+            scheduleRule.setUserId(userId);
 
             expertScheduleRuleDelegate.create(scheduleRule)
                 .then(

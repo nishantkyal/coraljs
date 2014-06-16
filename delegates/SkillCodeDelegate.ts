@@ -3,13 +3,12 @@ import _                                                = require('underscore');
 import q                                                = require('q');
 import request                                          = require('request');
 import BaseDaoDelegate                                  = require('./BaseDaoDelegate');
-import SkillCodeDao                                     = require('../dao/SkillCodeDao');
 import SkillCode                                        = require('../models/SkillCode');
 import Utils                                            = require('../common/Utils');
 
 class SkillCodeDelegate extends BaseDaoDelegate
 {
-    constructor() { super(new SkillCodeDao()); }
+    constructor() { super(SkillCode); }
 
     getSkillCodeFromLinkedIn(skillName:string):q.Promise<any>
     {

@@ -1,135 +1,87 @@
-$.validator.addMethod("greaterThanStartYear",
-    function(value, element, params)
-    {
-        return value > params;
-    },'EndYear Must be greater then Start Year');
-
-$('.editUserEducation').click(function()
+$('#addeducationbtn').click(function()
 {
-    var selectedUserEducation;
-    var userEducationId = $(this).data('id');
-    for(var i = 0; i<userEducation.length; i++)
-        if(userEducation[i].id == userEducationId)
-            selectedUserEducation = userEducation[i];
-    if (selectedUserEducation) {
-        selectedUserEducation = unEscapeObject(selectedUserEducation);
-        $('#EditUserEducationModal .btn-primary').attr('data-id', selectedUserEducation.id);
-        $('#EditUserEducationModal [name="school_name"]').val(selectedUserEducation.school_name);
-        $('#EditUserEducationModal [name="field_of_study"]').val(selectedUserEducation.field_of_study);
-        $('#EditUserEducationModal [name="activities"]').val(selectedUserEducation.activities);
-        $('#EditUserEducationModal [name="degree"]').val(selectedUserEducation.degree);
-        $('#EditUserEducationModal [name="description"]').val(selectedUserEducation.notes);
-        $('#EditUserEducationModal #start_year').selectpicker('val', selectedUserEducation.start_year);
-        $('#EditUserEducationModal #end_year').selectpicker('val', selectedUserEducation.end_year);
-    }
+    $('#AddUserEducationCard').show();
+    $('#educationDetails').hide();
+
+    $('form#AddUserEducationForm').trigger('reset');
+    $('form#AddUserEducationForm .alert').hide();
+    $('form#AddUserEducationForm').data('bootstrapValidator').resetForm();
 });
 
-$('.deleteUserEducation').click(function()
-{
-    var memberEducationId = $(this).data('id');
-    $('#DeleteUserEducationModal .btn-primary').attr('data-id', memberEducationId);
-});
+$('form#AddUserEducationForm').bootstrapValidator({
+    submitHandler : function(form)
+    {
+        var educationId = $('form#AddUserEducationForm input[name="id"]').val();
+        var url = educationId ? '/rest/user/education/' + educationId : '/rest/user/education';
+        var method = educationId ? 'post' : 'put';
 
-$('#AddUserEducationModal form').validate({
-    rules         : {
-        school_name : { required: true},
-        end_year    : { greaterThanStartYear:$('#AddUserEducationModal form #start_year').val()}
-    },
-    errorPlacement: function(error, element)
-    {
-        $(element).attr('title', error[0].innerHTML);
-        $(element).tooltip('show');
-    },
-    highlight     : function(element)
-    {
-        $(element).closest('.form-group').addClass('has-error');
-    },
-    unhighlight   : function(element)
-    {
-        $(element).closest('.form-group').removeClass('has-error');
-    },
-    submitHandler : function()
-    {
         $.ajax({
-            url : '/rest/user/education',
-            type: 'put',
+            url : url,
+            type: method,
             data: {
                 education: {
-                    school_name     : $('#AddUserEducationModal form #school_name').val(),
-                    start_year      : $('#AddUserEducationModal form #start_year').val(),
-                    end_year        : $('#AddUserEducationModal form #end_year').val(),
-                    degree          : $('#AddUserEducationModal form #degree').val(),
-                    field_of_study  : $('#AddUserEducationModal form #field_of_study').val(),
-                    activities      : $('#AddUserEducationModal form #activities').val(),
-                    notes           : $('#AddUserEducationModal form #description').val()
+                    school_name     : $('#AddUserEducationForm input[name="school_name"]').val(),
+                    start_year      : $('#AddUserEducationForm select[name="start_year"]').val(),
+                    end_year        : $('#AddUserEducationForm select[name="end_year"]').val(),
+                    degree          : $('#AddUserEducationForm input[name="degree"]').val(),
+                    field_of_study  : $('#AddUserEducationForm input[name="field_of_study"]').val(),
+                    activities      : $('#AddUserEducationForm input[name="activities"]').val(),
+                    notes           : $('#AddUserEducationForm input[name="description"]').val()
                 },
-                profileId           : profileId
+                profileId           : userProfile.id
             },
             success: function()
             {
                 location.reload();
             }
         })
-    }
-});
-
-$('#EditUserEducationModal form').validate({
-    rules         : {
-        school_name : { required: true}
     },
-    errorPlacement: function(error, element)
-    {
-        $(element).attr('title', error[0].innerHTML);
-        $(element).tooltip('show');
+    feedbackIcons: {
+        valid     : 'glyphicon glyphicon-ok',
+        invalid   : 'glyphicon glyphicon-remove',
+        validating: 'glyphicon glyphicon-refresh'
     },
-    highlight     : function(element)
-    {
-        $(element).closest('.form-group').addClass('has-error');
-    },
-    unhighlight   : function(element)
-    {
-        $(element).closest('.form-group').removeClass('has-error');
-    },
-    submitHandler : function()
-    {
-        var educationId = $('#EditUserEducationModal form .btn-primary').attr('data-id');
-        $.ajax({
-            url : '/rest/user/education/' + educationId,
-            type: 'post',
-            data: {
-                education: {
-                    school_name     : $('#EditUserEducationModal form #school_name').val(),
-                    start_year      : $('#EditUserEducationModal form #start_year').val(),
-                    end_year        : $('#EditUserEducationModal form #end_year').val(),
-                    degree          : $('#EditUserEducationModal form #degree').val(),
-                    field_of_study  : $('#EditUserEducationModal form #field_of_study').val(),
-                    activities      : $('#EditUserEducationModal form #activities').val(),
-                    notes           : $('#EditUserEducationModal form #description').val()
+    fields         : {
+        school_name : {
+            validators: {
+                notEmpty: {
+                    message: 'This field is required and cannot be empty'
                 }
-            },
-            success: function()
-            {
-                location.reload();
             }
-        })
+        }
     }
 });
 
-function handleEducationDeleteClicked(event)
+$('#cancelAddUserEducation').click(function()
 {
-    var educationId = $(event.currentTarget).attr('data-id');
+    $('#educationDetails').show();
+    $('#AddUserEducationCard').hide();
+});
+
+$('[name="editUserEducation"]').click(function()
+{
+    $('#AddUserEducationCard').show();
+    $('#educationDetails').hide();
+
+    var educationId = $(this).data('id');
+    var education = _.findWhere(userEducation, {id: educationId});
+
+    populate($('form#AddUserEducationForm'), unEscapeObject(education));
+});
+
+$('[name="deleteUserEducation"]').click(function()
+{
+    var educationId = $(this).data('id');
     $.ajax({
         url    : '/rest/user/education/' + educationId,
         type   : 'DELETE',
         data: {
                 id              : educationId,
-            profileId           : profileId
+            profileId           : userProfile.id
         },
         success: function()
         {
             location.reload();
         }
     });
-};
-
-$('select').selectpicker();
+});

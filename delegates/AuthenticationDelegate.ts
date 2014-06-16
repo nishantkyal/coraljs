@@ -18,6 +18,7 @@ import MysqlDelegate                            = require('../delegates/MysqlDel
 import EmailDelegate                            = require('../delegates/EmailDelegate');
 import ApiUrlDelegate                           = require('../delegates/ApiUrlDelegate');
 import VerificationCodeDelegate                 = require('../delegates/VerificationCodeDelegate');
+import TimezoneDelegate                         = require('../delegates/TimezoneDelegate');
 import IntegrationMember                        = require('../models/IntegrationMember');
 import UserOauth                                = require('../models/UserOauth');
 import User                                     = require('../models/User');
@@ -69,11 +70,14 @@ class AuthenticationDelegate
     static register(options?:any)
     {
         options = options || {};
-        options.failureRedirect = options.failureRedirect || '/login';
 
         return function (req, res:express.Response, next:Function)
         {
-            var user = new User(req.body);
+            var user = new User(req.body[ApiConstants.USER]);
+            var timezoneOffset = req.body['timezoneOffset'];
+            var timezone = new TimezoneDelegate().getZoneByOffset(timezoneOffset);
+            user.setTimezone(timezone.getZoneId());
+
             if (user.isValid()
                 && !Utils.isNullOrEmpty(user.getPassword())
                 && !Utils.isNullOrEmpty(user.getFirstName()))
@@ -84,21 +88,56 @@ class AuthenticationDelegate
                     .then(
                     function userRegistered(user)
                     {
-                        req.logIn(user, next)
-                        req.flash('info', "We've sent you an email with verification link to verify your email address. You may do it later but your account will not become active until then.");
-                        return new VerificationCodeDelegate().createAndSendEmailVerificationCode(user);
+                        return new VerificationCodeDelegate().createAndSendEmailVerificationCode(user)
+                            .then(
+                            function verificationEmailSent()
+                            {
+                                req.flash('info', "We've sent you an email with verification link to verify your email address. You may do it later but your account will not become active until then.");
+                                req.logIn(user, function ()
+                                {
+                                    if (options.failureFlash)
+                                        res.send(200);
+                                    else if (options.failureRedirect)
+                                        res.redirect(req.originalUrl);
+                                });
+
+                            });
                     },
                     function registrationError(error)
                     {
-                        req.flash('info', error.message);
-                        res.redirect(options.failureRedirect);
+                        if (options.failureFlash)
+                        {
+                            req.flash('error', error.message);
+                            res.send(200);
+                        }
+                        else if (options.failureRedirect)
+                            res.redirect(options.failureRedirect);
                     });
             }
             else
             {
-                req.flash('info', 'Please fill in all the details correctly');
+                req.flash('error', 'Please fill in all the details correctly');
                 res.redirect(options.failureRedirect);
             }
+        }
+    }
+
+    /* Check login method with support for ajax requests */
+    static checkLogin(options:any = {})
+    {
+        options.failureRedirect = options.failureRedirect || '/login';
+
+        return function (req, res:express.Response, next:Function):any
+        {
+            var isLoggedIn = req.isAuthenticated && req.isAuthenticated();
+            var isAjax = req.get('content-type') && req.get('content-type').indexOf('application/json') != -1;
+
+            if (isAjax)
+                return res.send(200, {valid: isLoggedIn});
+            else if (isLoggedIn)
+                next();
+            else
+                return res.redirect(DashboardUrls.login());
         }
     }
 
@@ -214,6 +253,9 @@ class AuthenticationDelegate
                 var user = new User();
                 user.setEmail(profile.emailAddress); //setting email id for new user, if user exists then this will be discarded
                 user.setStatus(UserStatus.MOBILE_NOT_VERIFIED);
+
+                if (!Utils.isNullOrEmpty(req.session[ApiConstants.ZONE]))
+                    user.setTimezone(req.session[ApiConstants.ZONE]);
 
                 return new UserOAuthDelegate().addOrUpdateToken(userOauth, user)
                     .then(

@@ -15,7 +15,6 @@ import UserOAuthDelegate                        = require('../delegates/UserOAut
 import ImageDelegate                            = require('../delegates/ImageDelegate');
 import IntegrationMemberDelegate                = require('../delegates/IntegrationMemberDelegate');
 import MysqlDelegate                            = require('../delegates/MysqlDelegate');
-import UserProfileDao                           = require('../dao/UserProfileDao');
 import UserProfile                              = require('../models/UserProfile');
 import UserSkill                                = require('../models/UserSkill');
 import UserEmployment                           = require('../models/UserEmployment');
@@ -38,7 +37,7 @@ class UserProfileDelegate extends BaseDaoDelegate
     static SKILL_FIELDS:string[] = ['skills'];
     static IMAGE_FIELDS:string[] = ['picture-urls::(original)'];
 
-    constructor() { super(new UserProfileDao()); }
+    constructor() { super(UserProfile); }
 
     create(object:Object, dbTransaction?:Object):q.Promise<any>
     {
@@ -275,6 +274,8 @@ class UserProfileDelegate extends BaseDaoDelegate
         if (Utils.isNullOrEmpty(transaction))
             return MysqlDelegate.executeInTransaction(self, arguments);
 
+        self.logger.debug('Fetching basic details for userId: %s', userId);
+
         return self.fetchSelectedFieldsFromLinkedIn(userId, UserProfileDelegate.BASIC_FIELDS)
             .then(
             function basicDetailsFetched(profile:any)
@@ -317,6 +318,8 @@ class UserProfileDelegate extends BaseDaoDelegate
 
         if (Utils.isNullOrEmpty(transaction))
             return MysqlDelegate.executeInTransaction(self, arguments);
+
+        self.logger.debug('Fetching all details for userId: %s', userId);
 
         return q.all([
             self.fetchBasicDetailsFromLinkedIn(userId, profileId, transaction),

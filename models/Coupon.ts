@@ -32,6 +32,8 @@ class Coupon extends BaseModel
     private integration_id:number;
     private expert_resource_id:number;
 
+    private expert:IntegrationMember;
+
     /* Getters */
     getCode():string                                        { return this.code.toUpperCase(); }
     getNumUsed():number                                     { return this.num_used; }
@@ -43,6 +45,8 @@ class Coupon extends BaseModel
     getIntegrationId():number                               { return this.integration_id; }
     getExpertResourceId():number                            { return this.expert_resource_id; }
 
+    getExpert():IntegrationMember                           { return this.expert; }
+
     /* Setters */
     setCode(val:string):void                                { this.code = val.toUpperCase(); }
     setNumUsed(val:number):void                             { this.num_used = val; }
@@ -53,6 +57,8 @@ class Coupon extends BaseModel
     setExpiryTime(val:number):void                          { this.expiry_time = val; }
     setIntegrationId(val:number):void                       { this.integration_id = val; }
     setExpertResourceId(val:number):void                    { this.expert_resource_id = val; }
+
+    setExpert(val:IntegrationMember):void                   { this.expert = val; }
 
     isValid():boolean
     {

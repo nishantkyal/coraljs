@@ -41,6 +41,7 @@ import UserProfile                                      = require('../../models/
 import Transaction                                      = require('../../models/Transaction');
 import TransactionLine                                  = require('../../models/TransactionLine');
 import ExpertScheduleRule                               = require('../../models/ExpertScheduleRule');
+import CronRule                                         = require('../../models/CronRule');
 import IntegrationMemberRole                            = require('../../enums/IntegrationMemberRole');
 import ApiConstants                                     = require('../../enums/ApiConstants');
 import SmsTemplate                                      = require('../../enums/SmsTemplate');
@@ -68,7 +69,7 @@ class DashboardRoute
     private static PAGE_ACCOUNT_VERIFICATION:string = 'dashboard/accountVerification';
     private static PAGE_PAYMENT_COMPLETE:string = 'dashboard/paymentComplete';
     private static PAGE_CALL_DETAILS:string = 'dashboard/callDetails';
-    private static PAGE_SCHEDULE:string = 'dashboard/memberSchedule';
+    private static PAGE_SCHEDULE:string = 'dashboard/userSchedule';
 
     private integrationDelegate = new IntegrationDelegate();
     private integrationMemberDelegate = new IntegrationMemberDelegate();
@@ -95,13 +96,13 @@ class DashboardRoute
         app.get(Urls.mobileVerification(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index(), setReturnTo: true}), this.verifyMobile.bind(this));
 
         // Dashboard pages
-        app.get(Urls.dashboard(), connect_ensure_login.ensureLoggedIn(), this.dashboard.bind(this));
+        app.get(Urls.dashboard(), AuthenticationDelegate.checkLogin({failureRedirect: Urls.login()}), this.dashboard.bind(this));
         app.get(Urls.integration(), connect_ensure_login.ensureLoggedIn(), this.integration.bind(this));
         app.get(Urls.userProfile(), this.userProfile.bind(this));
+        app.get(Urls.userSchedule(), this.schedule.bind(this));
 
         app.get(Urls.callDetails(), Middleware.allowMeOrAdmin, this.callDetails.bind(this));
         app.get(Urls.revenueDetails(), Middleware.allowMeOrAdmin, this.revenueDetails.bind(this));
-        app.get(Urls.scheduleDetails(), Middleware.allowOnlyMe, this.schedule.bind(this));
 
         app.get(Urls.logout(), this.logout.bind(this));
         app.post(Urls.paymentCallback(), this.paymentComplete.bind(this));
@@ -115,12 +116,15 @@ class DashboardRoute
             failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}), this.linkedInCallBack.bind(this));
 
         // Auth
-        app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
-        app.post(Urls.register(), AuthenticationDelegate.register(), this.authSuccess.bind(this));
-        app.post(Urls.changePassword(), Middleware.allowMeOrAdmin, this.changePassword.bind(this));
-
+        app.get(Urls.checkLogin(), AuthenticationDelegate.checkLogin());
+        app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.login()}), this.authSuccess.bind(this));
+        app.post(Urls.register(), AuthenticationDelegate.register({failureRedirect: Urls.login()}), this.authSuccess.bind(this));
+        app.post(Urls.ajaxLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureFlash: true}));
+        app.post(Urls.ajaxRegister(), AuthenticationDelegate.register({failureFlash: true}));
         app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
         app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
+
+        app.post(Urls.changePassword(), Middleware.allowMeOrAdmin, this.changePassword.bind(this));
     }
 
     /* Login page */
@@ -267,8 +271,7 @@ class DashboardRoute
             function integrationsFetchError(error)
             {
                 res.send(500);
-            }
-        );
+            });
     }
 
     private dashboard(req:express.Request, res:express.Response)
@@ -350,13 +353,12 @@ class DashboardRoute
         var userId = parseInt(req.params[ApiConstants.USER_ID]);
         var mode = req.query[ApiConstants.MODE]
         var sessionData = new SessionData(req);
-        var userProfile:UserProfile = new UserProfile();
         var member:IntegrationMember;
         var loggedInUser = sessionData.getLoggedInUser();
 
         self.userProfileDelegate.find(Utils.createSimpleObject(UserProfile.USER_ID, userId))
             .then(
-            function memberFetched(userProfile:UserProfile)
+            function profileFetched(userProfile:UserProfile)
             {
                 var profileInfoTasks = [self.userDelegate.get(userId)];
 
@@ -368,17 +370,17 @@ class DashboardRoute
                         self.userUrlDelegate.search({'profileId': userProfile.getId()})
                     ]);
 
-                return q.all(profileInfoTasks);
+                return [userProfile,q.all(profileInfoTasks)];
             })
-            .then(
-            function memberDetailsFetched(...args)
+            .spread(
+            function userDetailsFetched(userProfile,...args)
             {
                 var user = args[0][0];
                 var userSkill = args[0][1] || [];
                 var userEducation = args[0][2] || [];
                 var userEmployment = args[0][3] || [];
                 var userUrl = args[0][4] || [];
-                var isEditable = args[0][5] || args[0][6] || false;
+                var isEditable = loggedInUser ? loggedInUser.getId()==user.getId() : false;
 
                 if (mode == ApiConstants.PUBLIC_MODE)
                     isEditable = false;
@@ -431,16 +433,19 @@ class DashboardRoute
     schedule(req:express.Request, res:express.Response)
     {
         var self = this;
-        var memberId:number = parseInt(req.params[ApiConstants.MEMBER_ID]);
+        var userId:number = parseInt(req.params[ApiConstants.USER_ID]);
         var sessionData = new SessionData(req);
 
-        self.expertScheduleRuleDelegate.getRulesByIntegrationMemberId(memberId)
+        self.expertScheduleRuleDelegate.getRulesByUser(userId)
             .then(
             function rulesFetched(rules:ExpertScheduleRule[])
             {
+                _.each(rules || [], function(rule:ExpertScheduleRule) {
+                    rule['values'] = CronRule.getValues(rule.getCronRule())
+                });
+
                 var pageData = _.extend(sessionData.getData(), {
-                    rules: rules || [],
-                    memberId: memberId
+                    rules: rules || []
                 });
                 res.render(DashboardRoute.PAGE_SCHEDULE, pageData);
             },

@@ -15,7 +15,6 @@ class ApiUrlDelegate
 
     /* URL patterns for user API */
     static user():string { return this.get('/rest/user'); }
-    static userAuthentication():string { return this.get('/rest/user/authentication'); }
     static userById(userId?:number):string { return this.get('/rest/user/:userId(\\d+)', {userId: userId}); }
     static userProfilePicture(userId?:number, baseUrl?:string):string { return this.get('/rest/user/:userId(\\d+)/picture', {userId: userId}, baseUrl); }
 

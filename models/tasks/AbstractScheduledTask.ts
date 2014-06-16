@@ -26,7 +26,7 @@ class AbstractScheduledTask
     execute():q.Promise<any>
     {
         throw('Implement this method');
-        return null;
+        return q.reject('Implement this method');
     }
 
     isValid():boolean

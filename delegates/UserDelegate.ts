@@ -9,7 +9,6 @@ import MysqlDelegate                                                    = requir
 import UserProfileDelegate                                              = require('../delegates/UserProfileDelegate');
 import ImageDelegate                                                    = require('../delegates/ImageDelegate');
 import UserPhoneDelegate                                                = require('../delegates/UserPhoneDelegate');
-import UserDAO                                                          = require('../dao/UserDao')
 import User                                                             = require('../models/User');
 import UserProfile                                                      = require('../models/UserProfile');
 import IncludeFlag                                                      = require('../enums/IncludeFlag');
@@ -27,37 +26,29 @@ class UserDelegate extends BaseDaoDelegate
     private userProfileDelegate = new UserProfileDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
 
-    constructor() { super(new UserDAO()); }
+    constructor() { super(User); }
 
-    create(object:any, transaction?:Object):q.Promise<any>
+    create(object:any, dbTransaction?:Object):q.Promise<any>
     {
+        if (Utils.isNullOrEmpty(dbTransaction))
+            return MysqlDelegate.executeInTransaction(this, arguments);
+
         if (!Utils.isNullOrEmpty(object) && object.hasOwnProperty(User.PASSWORD))
             object[User.PASSWORD] = this.computePasswordHash(object[User.EMAIL], object[User.PASSWORD]);
 
         var self = this;
 
-        return super.create(object, transaction)
+        return super.create(object, dbTransaction)
             .then(
             function userCreated(user:User)
             {
                 var userProfile:UserProfile = new UserProfile();
                 userProfile.setUserId(user.getId());
 
-                return [user, self.userProfileDelegate.create(userProfile)];
+                return [user, self.userProfileDelegate.create(userProfile, dbTransaction)];
             })
             .spread(
-            function userProfileCreated(user:User, profile:UserProfile)
-            {
-                return self.userProfileDelegate.fetchAllDetailsFromLinkedIn(user.getId(), profile.getId())
-                    .fail(
-                    function linkedInFetchFailed(error)
-                    {
-                        self.logger.debug('LinkedIn profile fetch failed for user id: %s, error: %s', user.getId(), JSON.stringify(error));
-                        return user;
-                    });
-            })
-            .then(
-            function profileDetailsFetched(user:User)
+            function userProfileCreated(user:User)
             {
                 return user;
             });

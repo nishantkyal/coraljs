@@ -6,7 +6,6 @@ import BaseDaoDelegate                              = require('../delegates/Base
 import PhoneCallDelegate                            = require('../delegates/PhoneCallDelegate');
 import TransactionLine                              = require('../models/TransactionLine');
 import PhoneCall                                    = require('../models/PhoneCall');
-import TransactionLineDao                           = require('../dao/TransactionLineDao');
 import ItemType                                     = require('../enums/ItemType');
 import TransactionType                              = require('../enums/TransactionType');
 import Config                                       = require('../common/Config');
@@ -14,7 +13,7 @@ import Utils                                        = require('../common/Utils')
 
 class TransactionLineDelegate extends BaseDaoDelegate
 {
-    constructor() { super(new TransactionLineDao()); }
+    constructor() { super(TransactionLine); }
 
     createPhoneCallTransactionLines(transactionId:number, call:PhoneCall, transaction?:Object):q.Promise<any>
     {

@@ -92,11 +92,6 @@ class UserApi
                 res.redirect('/img/no_photo-icon.gif');
         });
 
-        app.get(ApiUrlDelegate.userAuthentication(), function (req, res:express.Response)
-        {
-            res.send(req.isAuthenticated());
-        });
-
     }
 }
 export = UserApi

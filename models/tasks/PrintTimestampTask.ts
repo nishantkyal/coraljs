@@ -21,7 +21,7 @@ class PrintTimestampTask extends AbstractScheduledTask
     execute():q.Promise<any>
     {
         console.log(this.ts + ' current time =  ', moment().valueOf());
-        return null;
+        return q.resolve('');
     }
 
     isValid():boolean

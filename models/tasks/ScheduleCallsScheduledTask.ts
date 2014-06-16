@@ -28,7 +28,7 @@ class ScheduleCallsScheduledTask extends AbstractScheduledTask
     execute():q.Promise<any>
     {
         var self = this;
-        var scheduledTaskDelegate = new ScheduledTaskDelegate();
+        var scheduledTaskDelegate = ScheduledTaskDelegate.getInstance();
         var phoneCallCache = new PhoneCallCache();
         var notificationDelegate = new NotificationDelegate();
 
@@ -70,7 +70,7 @@ class ScheduleCallsScheduledTask extends AbstractScheduledTask
             function triggerAfterOneHour()
             {
                 var millis:number = parseInt(Config.get(Config.PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS)) * 1000;
-                scheduledTaskDelegate.scheduleAfter(new ScheduleCallsScheduledTask(), millis);
+                return q.resolve(scheduledTaskDelegate.scheduleAfter(new ScheduleCallsScheduledTask(), millis));
             });
     }
 
