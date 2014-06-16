@@ -330,7 +330,7 @@ class UserProfileDelegate extends BaseDaoDelegate
         ]);
     }
 
-    fetchAndReplaceEducation(userId:number, integrationId:number, profileId:number, transaction?:Object):q.Promise<any>
+    fetchAndReplaceEducation(userId:number, profileId:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
         var userEducationDelegate = new UserEducationDelegate();
@@ -355,7 +355,7 @@ class UserProfileDelegate extends BaseDaoDelegate
             })
     }
 
-    fetchAndReplaceEmployment(userId:number, integrationId:number, profileId:number, transaction?:Object):q.Promise<any>
+    fetchAndReplaceEmployment(userId:number, profileId:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
         var userEmploymentDelegate = new UserEmploymentDelegate();
@@ -379,7 +379,7 @@ class UserProfileDelegate extends BaseDaoDelegate
             });
     }
 
-    fetchAndReplaceSkill(userId:number, integrationId:number, profileId:number, transaction?:Object):q.Promise<any>
+    fetchAndReplaceSkill(userId:number, profileId:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
 

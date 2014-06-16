@@ -59,23 +59,20 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                             .row
                                 h5.col-xs-8 Basic Info
                                 .header-link.col-xs-4
-                                    a.btn.btn-primary(href='#')
-                                        i.icon-pencil
+                                    if isEditable
+                                        a.btn.btn-primary(data-id=userProfile.id, name = 'editUserProfile')
+                                            i.icon-pencil
+                                        a.btn.btn-default.btn-xs#fetchBasic
+                                            i.icon-plus
                             .user-profile
                                 .avatar
                                     .shadow
                                     .placeholder.placeholder-male
                                     img(src=ApiUrlDelegate.userProfilePicture(user.id))
-                                    if isEditable
-                                        .text-center
-                                            a.btn.btn-default.btn-xs#selectFileBtn Upload
-                                        form#fileUploadForm(action=ApiUrlDelegate.userProfilePicture(user.id), method="post", enctype="multipart/form-data")
-                                            input#selectFile(type='file', name='profile', style='display: none')
-                                            input#selectFileSubmit(type='submit', style='display: none')
                                 .info
                                     .info-upper
                                         .user-displayname #{formatName(user.first_name, user.last_name, user.title)}
-                                        .user-age #{formatDate(user.date_of_birth,'DD-MM-YYYY') || 'Not specified'}
+                                        .user-age #{formatAge(user.date_of_birth,'DD-MM-YYYY') || 'Not specified'}
                                         .user-desc #{userProfile.short_desc}
                                     .info-lower
                                         .user-locale New Delhi
@@ -84,6 +81,13 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                                                 if zone.zone_id == user.timezone
                                                     | #{formatTimezone(zone.gmt_offset)}
                                 .clearer
+                                if isEditable
+                                    a.btn.btn-default.btn-xs#selectFileBtn Upload
+                                    a.btn.btn-default.btn-xs#fetchProfilePicture
+                                        i.icon-plus
+                                    form#fileUploadForm(action=ApiUrlDelegate.userProfilePicture(user.id), method="post", enctype="multipart/form-data")
+                                        input#selectFile(type='file', name='profile', style='display: none')
+                                        input#selectFileSubmit(type='submit', style='display: none')
                                 .profile
                                     p
                                         | #{userProfile.long_desc}
@@ -93,6 +97,8 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                                 .header-link.col-xs-4
                                     if isEditable
                                         a.btn.btn-success.btn-xs#addSkillbtn Add Skill
+                                        a.btn.btn-default.btn-xs#fetchSkill
+                                            i.icon-plus
                                 if userSkill.length != 0
                                     .meta.meta-keywords
                                         ul
@@ -123,7 +129,59 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                                             .clearer
                                                 div.links-editing
                                                     p.edit-schedules
-                                                        input.btn.btn-primary(type='submit', value='Update')
+                                                        input.btn.btn-primary(type='submit', value='Save')
+                    if isEditable
+                        .card#editUserProfileCard(style='display: none;')
+                            form#editUserProfileForm
+                                .item-edit
+                                    .item
+                                        .row
+                                            h5.col-xs-8 Edit Basic Info
+                                            .header-link.col-xs-4
+                                                a.btn.btn-danger#cancelEditUserProfile
+                                                    i.icon-cancel
+                                    .item
+                                        .row
+                                            .form-group.col-md-2x
+                                                h3 Title
+                                                select#title(name='title', data-width='auto')
+                                                    each key,option in Salutation
+                                                        option(value="#{option}" selected = ('#{user.title}' == '#{option}')) #{key}
+                                            .form-group.col-md-3
+                                                h3 First Name
+                                                input.form-control(type='text', name='first_name', value=loggedInUser.first_name)
+                                            .form-group.col-md-3
+                                                h3 Middle Name
+                                                input.form-control(type='text', name='middle_name', value=loggedInUser.middle_name)
+                                            .form-group.col-md-3
+                                                h3 Last Name
+                                                input.form-control(type='text', name='last_name', value=loggedInUser.last_name)
+                                        .row
+                                            .form-group
+                                                h3 Summary
+                                                input.form-control(type='text', name='short_desc', value=userProfile.short_desc, autocomplete='off')
+                                            .form-group
+                                                h3 Description
+                                                input.form-control(name='long_desc', value= userProfile.long_desc)
+                                        .row
+                                            .form-group.col-md-5
+                                                h3 Industry
+                                                select(name='industry')
+                                                    each key,option in IndustryCodes
+                                                        option(value="#{option}", selected = ('#{user.industry}' == '#{option}')) #{key}
+                                            .form-group.col-md-2
+                                                h3 Birthday
+                                                input.form-control(type='text', class="datepicker" value = loggedInUser.date_of_birth, name= "birthDate")
+                                        .row
+                                            .form-group.col-md-2
+                                                h3 TimeZone
+                                                select(name='timezone')
+                                                    each zone in Timezone
+                                                        option(value="#{zone.zone_id}", selected = ('#{zone.zone_id}' == '#{user.timezone}')) (#{formatTimezone(zone.gmt_offset)}) #{zone.zone_name}
+                                            .clearer
+                                                div.links-editing
+                                                    p.edit-schedules
+                                                        input.btn.btn-primary(type='submit', value='Save')
                 .row
                     .content.col-md-6
                         .card#educationDetails
@@ -133,6 +191,8 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                                 if isEditable
                                     .pull-right
                                         a.btn.btn-success.btn-xs#addeducationbtn Add Education
+                                        a.btn.btn-default.btn-xs#fetchEducation
+                                            i.icon-plus
                             .clearer
                             if userEducation.length != 0
                                 each edu in userEducation
@@ -195,10 +255,10 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                                                     input.form-control(type='text', name='field_of_study')
                                                 .form-group
                                                     h3 Activities and Socities
-                                                    textarea.form-control(type='text', name='activities')
+                                                    input.form-control(type='text', name='activities')
                                                 .form-group
                                                     h3 Description
-                                                    textarea.form-control(type='text', name='description')
+                                                    input.form-control(type='text', name='description')
                                                 .clearer
                                                 div.links-editing
                                                     p.edit-schedules
@@ -211,6 +271,8 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                                 if isEditable
                                     .pull-right
                                         a.btn.btn-success.btn-xs#addEmploymentbtn Add Employment
+                                        a.btn.btn-default.btn-xs#fetchEmployment
+                                            i.icon-plus
                             .clearer
                             if userEmployment.length != 0
                                 each emp in userEmployment

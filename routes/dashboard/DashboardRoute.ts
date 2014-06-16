@@ -583,42 +583,30 @@ class DashboardRoute
 
         var fetchFields = req.session[ApiConstants.LINKEDIN_FETCH_FIELDS];
         var profileId:number = req.session[ApiConstants.USER_PROFILE_ID];
-        var memberId:number = req.session[ApiConstants.MEMBER_ID];
+        var userId:number = req.session[ApiConstants.USER_ID];
 
-        self.userProfileDelegate.get(profileId)
-            .then(
-            function profileFetched(userProfile:UserProfile)
-            {
-                return self.integrationMemberDelegate.get(userProfile.getUserId())
-            })
-            .then(
-            function (integrationMember:IntegrationMember)
-            {
-                var fetchTasks = [];
-                var integration_id:number = integrationMember.getIntegrationId();
-                var userId:number = integrationMember.getUserId();
+        var fetchTasks = [];
 
-                if (fetchFields[ApiConstants.FETCH_PROFILE_PICTURE])
-                    fetchTasks.push(self.userProfileDelegate.fetchProfilePictureFromLinkedIn(userId, integration_id, profileId));
+        if (fetchFields[ApiConstants.FETCH_PROFILE_PICTURE])
+            fetchTasks.push(self.userProfileDelegate.fetchProfilePictureFromLinkedIn(userId, profileId));
 
-                if (fetchFields[ApiConstants.FETCH_BASIC])
-                    fetchTasks.push(self.userProfileDelegate.fetchBasicDetailsFromLinkedIn(userId, integration_id, profileId));
+        if (fetchFields[ApiConstants.FETCH_BASIC])
+            fetchTasks.push(self.userProfileDelegate.fetchBasicDetailsFromLinkedIn(userId, profileId));
 
-                if (fetchFields[ApiConstants.FETCH_EDUCATION])
-                    fetchTasks.push(self.userProfileDelegate.fetchAndReplaceEducation(userId, integration_id, profileId));
+        if (fetchFields[ApiConstants.FETCH_EDUCATION])
+            fetchTasks.push(self.userProfileDelegate.fetchAndReplaceEducation(userId, profileId));
 
-                if (fetchFields[ApiConstants.FETCH_EMPLOYMENT])
-                    fetchTasks.push(self.userProfileDelegate.fetchAndReplaceEmployment(userId, integration_id, profileId));
+        if (fetchFields[ApiConstants.FETCH_EMPLOYMENT])
+            fetchTasks.push(self.userProfileDelegate.fetchAndReplaceEmployment(userId, profileId));
 
-                if (fetchFields[ApiConstants.FETCH_SKILL])
-                    fetchTasks.push(self.userProfileDelegate.fetchAndReplaceSkill(userId, integration_id, profileId));
+        if (fetchFields[ApiConstants.FETCH_SKILL])
+            fetchTasks.push(self.userProfileDelegate.fetchAndReplaceSkill(userId, profileId));
 
-                return q.all(fetchTasks);
-            })
+        q.all(fetchTasks)
             .then(
             function profileFetched(...args)
             {
-                res.redirect(Urls.userProfile(memberId));
+                res.redirect(Urls.userProfile(userId));
             },
             function fetchError(error)
             {
@@ -637,7 +625,7 @@ class DashboardRoute
         var fetchSkill:boolean = req.query[ApiConstants.FETCH_SKILL] == 'on' ? true : false;
         req.session[ApiConstants.LINKEDIN_FETCH_FIELDS] = {fetchBasic: fetchBasic, fetchEducation: fetchEducation, fetchEmployment: fetchEmployment, fetchProfilePicture: fetchProfilePicture, fetchSkill: fetchSkill};
         req.session[ApiConstants.USER_PROFILE_ID] = profileId;
-        req.session[ApiConstants.MEMBER_ID] = parseInt(req.query[ApiConstants.MEMBER_ID]);
+        req.session[ApiConstants.USER_ID] = parseInt(req.query[ApiConstants.USER_ID]);
         next();
     }
 }
