@@ -1,5 +1,6 @@
 - var user = expert.user;
-
+- var pricing = expert.user.pricing_scheme[0]
+- var minDuration = pricing.min_duration
 style.
     #login-modal .register {
         display: none;
@@ -44,9 +45,20 @@ title ST-#{formatName(user.first_name, user.last_name, user.title)} | Payment fo
                             .meta.meta-price
                                 h5 Charges
                                 p
-                                    if expert.schedule[0].price_per_min
-                                        strong= formatMoney(expert.schedule[0].price_per_min, expert.schedule[0].price_unit)
-                                        | /min.
+                                    if pricing
+                                        strong= formatMoney(pricing.charging_rate, pricing.unit)
+                                        if pricing.chunk_size > 1
+                                            | &nbsp;for&nbsp;
+                                            span= pricing.chunk_size
+                                            | &nbsp;mins.
+                                        else
+                                            | &nbsp;/ min.
+                                        if pricing.min_duration > 0
+                                            .pull-right
+                                                .small
+                                                    | &nbsp;(minimum &nbsp;
+                                                    span= pricing.min_duration
+                                                    | &nbsp;mins.)
                                     else
                                         strong Free
                             .meta.meta-schedule
@@ -83,7 +95,7 @@ title ST-#{formatName(user.first_name, user.last_name, user.title)} | Payment fo
                                             .table-row
                                                 case line.transaction_type
                                                     when 1
-                                                        .table-cell.title Call duration: #{duration} mins @ #{formatMoney(expert.schedule[0].price_per_min, expert.schedule[0].price_unit)} / min
+                                                        .table-cell.title Call duration: #{duration} mins @ #{formatMoney(pricing.charging_rate, pricing.unit)} / min
                                                     when 2
                                                         .table-cell.title Network charges
                                                     when 3

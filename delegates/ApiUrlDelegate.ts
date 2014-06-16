@@ -32,7 +32,7 @@ class ApiUrlDelegate
 
     /* URL patterns for expert schedule exceptions */
     static scheduleException():string { return this.get('/rest/scheduleException')}
-    static scheduleExceptionById(scheduleExceptionId?:number):string { return this.get('/rest/scheduleException/:scheduleExceptionId(\\d+)', {scheduleExceptionId:scheduleExceptionId})}
+    static scheduleExceptionById(scheduleExceptionId?:number):string { return this.get('/rest/scheduleException/:scheduleExceptionId(\\d+)', {scheduleExceptionId: scheduleExceptionId})}
 
     /* URL patterns for third party integration */
     static integration():string { return this.get('/rest/integration'); }
@@ -60,8 +60,8 @@ class ApiUrlDelegate
     static scheduleTask():string { return this.get('/rest/scheduledTask')}
 
     /** URL patterns for phone numbers **/
-    static UserPhone():string { return this.get('/rest/phone-number'); }
-    static UserPhoneById(UserPhoneId?:number):string { return this.get('/rest/phone-number/:UserPhoneId', {UserPhoneId: UserPhoneId}); }
+    static userPhone():string { return this.get('/rest/phone-number'); }
+    static userPhoneById(UserPhoneId?:number):string { return this.get('/rest/phone-number/:UserPhoneId', {UserPhoneId: UserPhoneId}); }
 
     /* URL patterns for transaction */
     static transaction():string { return this.get('/rest/transaction'); }
@@ -69,31 +69,40 @@ class ApiUrlDelegate
     static transactionItem(transactionId?:number):string { return this.get('/rest/transaction/:transactionId(\\d+)/item', {transactionId: transactionId}); }
     static transactionItemById(itemId?:number):string { return this.get('/rest/item/:itemId(\\d+)', {itemId: itemId}); }
 
-    /* URL patterns for email */
-    static expertInviteEmail():string { return this.get('/rest/email/expert/invitation'); }
-
     /* URL patterns for user profile */
     static userProfile():string { return this.get('/rest/user/profile'); }
     static userProfileById(profileId?:number):string { return this.get('/rest/user/profile/:profileId(\\d+)', {profileId: profileId}); }
 
+    /* URL patterns for user education */
     static userEducation() { return this.get('/rest/user/education'); }
-    static userEducationById(educationId?:number) { return this.get('/rest/user/education/:educationId(\\d+)', { educationId:educationId }); }
+    static userEducationById(educationId?:number) { return this.get('/rest/user/education/:educationId(\\d+)', { educationId: educationId }); }
 
+    /* URL patterns for user employment */
     static userEmployment() { return this.get('/rest/user/employment'); }
-    static userEmploymentById(employmentId?:number) { return this.get('/rest/user/employment/:employmentId(\\d+)', { employmentId:employmentId }); }
+    static userEmploymentById(employmentId?:number) { return this.get('/rest/user/employment/:employmentId(\\d+)', { employmentId: employmentId }); }
 
+    /* URL patterns for user pricing scheme */
+    static pricingScheme() { return this.get('/rest/pricingScheme'); }
+    static pricingSchemeById(pricingSchemeId?:number) { return this.get('/rest/pricingScheme/:pricingSchemeId(\\d+)', { pricingSchemeId: pricingSchemeId }); }
+
+    /* URL patterns for user review */
+    static review() { return this.get('/rest/review'); }
+    static reviewById(reviewId?:number) { return this.get('/rest/review/:reviewId(\\d+)', { reviewId: reviewId }); }
+
+    /* URL patterns for user skill */
     static userSkill() { return this.get('/rest/user/skill'); }
-    static userSkillById(skillId?:number) { return this.get('/rest/user/skill/:skillId(\\d+)', { skillId:skillId }); }
+    static userSkillById(skillId?:number) { return this.get('/rest/user/skill/:skillId(\\d+)', { skillId: skillId }); }
 
-    static timeZoneByOffset() { return this.get('/rest/timezone'); }
+    /* URL patterns for user expertise */
+    static expertise() { return this.get('/rest/user/expertise'); }
+    static expertiseById(expertiseId?:number) { return this.get('/rest/user/expertise/:expertiseId(\\d+)', { expertiseId: expertiseId }); }
 
     /* URL patterns for coupons */
     static coupon():string { return this.get('/rest/coupon'); }
-    static couponById(couponId?:number):string { return this.get('/rest/coupon/:couponId(\\d+)', {couponId: couponId}); }
+    static couponById(id?:number):string { return this.get('/rest/coupon/:id(\\d+)', {id: id}); }
     static couponValidation():string { return this.get('/rest/coupon/validation'); }
 
-    /* URL patterns for Twilio */
-
+    /* URL patterns for Exotel  */
     static exotel():string { return this.get('/rest/exotel'); }
     static exotelAddExpert():string { return this.get('/rest/exotelAddExpert'); }
 

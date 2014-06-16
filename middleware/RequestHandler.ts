@@ -12,8 +12,8 @@ import IntegrationMember                = require('../models/IntegrationMember')
 import PhoneCall                        = require('../models/PhoneCall');
 import PricingScheme                    = require('../models/PricingScheme');
 import UserPhone                        = require('../models/UserPhone');
-import ExpertScheduleRule               = require('../models/ExpertScheduleRule');
-import ExpertScheduleException          = require('../models/ExpertScheduleException');
+import ScheduleRule                     = require('../models/ScheduleRule');
+import ScheduleException                = require('../models/ScheduleException');
 import UserProfile                      = require('../models/UserProfile');
 import Transaction                      = require('../models/Transaction');
 import Widget                           = require('../models/Widget');
@@ -81,10 +81,10 @@ class RequestHandler
                     modelClass = UserProfile;
                     break;
                 case ApiConstants.SCHEDULE_RULE:
-                    modelClass = ExpertScheduleRule;
+                    modelClass = ScheduleRule;
                     break;
                 case ApiConstants.SCHEDULE_EXCEPTION:
-                    modelClass = ExpertScheduleException;
+                    modelClass = ScheduleException;
                     break;
                 case ApiConstants.TRANSACTION:
                     modelClass = Transaction;
@@ -155,10 +155,10 @@ class RequestHandler
                         modelClass = UserProfile;
                         break;
                     case ApiConstants.SCHEDULE_RULE:
-                        modelClass = ExpertScheduleRule;
+                        modelClass = ScheduleRule;
                         break;
                     case ApiConstants.SCHEDULE_EXCEPTION:
-                        modelClass = ExpertScheduleException;
+                        modelClass = ScheduleException;
                         break;
                     case ApiConstants.TRANSACTION:
                         modelClass = Transaction;
@@ -171,7 +171,6 @@ class RequestHandler
                     // Check to see if it's a parameter
                     switch (argName)
                     {
-                        case ApiConstants.COUPON_ID:
                         case ApiConstants.USER_ID:
                         case ApiConstants.USER_PROFILE_ID:
                         case ApiConstants.EXPERT_ID:

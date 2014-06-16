@@ -1,8 +1,8 @@
 import BaseDaoDelegate                                          = require('../delegates/BaseDaoDelegate');
-import PricingSchemeDao                                         = require('../dao/PricingSchemeDao');
+import PricingScheme                                            = require('../models/PricingScheme');
 
 class PricingSchemeDelegate extends BaseDaoDelegate
 {
-    constructor() { super(new PricingSchemeDao()); }
+    constructor() { super(PricingScheme); }
 }
 export = PricingSchemeDelegate

@@ -19,6 +19,19 @@ $('#cancelAddUserSkill').click(function()
     $('#AddUserSkillCard').hide();
 });
 
+$('[name="editUserProfile"]').click(function()
+{
+    $('#editUserProfileCard').show();
+    $('#basicInfo').hide();
+
+});
+
+$('#cancelEditUserProfile').click(function()
+{
+    $('#basicInfo').show();
+    $('#editUserProfileCard').hide();
+});
+
 $('#ChangePasswordModal form').bootstrapValidator({
     rules         : {
         oldPassword: {required: true },
@@ -63,48 +76,70 @@ $('#ChangePasswordModal form').bootstrapValidator({
     }
 });
 
-$('#EditUserProfileModal form').bootstrapValidator({
-    rules         : {
-        first_name: { required: true},
-        last_name : { required: true}
-    },
-    errorPlacement: function(error, element)
-    {
-        $(element).attr('title', error[0].innerHTML);
-        $(element).tooltip('show');
-    },
-    highlight     : function(element)
-    {
-        $(element).closest('.form-group').addClass('has-error');
-    },
-    unhighlight   : function(element)
-    {
-        $(element).closest('.form-group').removeClass('has-error');
-    },
+$('form#editUserProfileForm').bootstrapValidator({
     submitHandler : function()
     {
         $.ajax({
-            url : '/member/' + memberId + '/profile',
+            url : '/rest/user/' + user.id,
             type: 'post',
             data: {
                 user: {
-                    title           : $('#EditUserProfileModal form #title').val(),
-                    first_name      : $('#EditUserProfileModal form #first_name').val(),
-                    last_name       : $('#EditUserProfileModal form #last_name').val(),
-                    industry        : $('#EditUserProfileModal form #industry').val(),
-                    date_of_birth   : $('#EditUserProfileModal form #birthDate').val()
-                },
-                userProfile: {
-                    id              : userProfile.id,
-                    short_desc      : $('#EditUserProfileModal form #short_desc').val(),
-                    long_desc       : $('#EditUserProfileModal form #long_desc').val()
+                    title           : $('form#editUserProfileForm select[name="title"]').val(),
+                    first_name      : $('form#editUserProfileForm input[name="first_name"]').val(),
+                    last_name       : $('form#editUserProfileForm input[name="last_name"]').val(),
+                    industry        : $('form#editUserProfileForm select[name="industry"]').val(),
+                    timezone        : $('form#editUserProfileForm select[name="timezone"]').val(),
+                    date_of_birth   : $('form#editUserProfileForm input[name="birthDate"]').val()
                 }
             },
             success: function()
             {
-                location.reload();
+                $.ajax({
+                    url : '/rest/user/profile/' + userProfile.id,
+                    type: 'post',
+                    data: {
+                        userProfile: {
+                            id              : userProfile.id,
+                            short_desc      : $('form#editUserProfileForm input[name="short_desc"]').val(),
+                            long_desc       : $('form#editUserProfileForm input[name="long_desc"]').val()
+                        }
+                    },
+                    success: function()
+                    {
+                        location.reload();
+                    },
+                    error: function(error)
+                    {
+                        bootbox.alert(error.responseText);
+                    }
+                })
+            },
+            error: function(error)
+            {
+                bootbox.alert(error.responseText);
             }
         })
+    },
+    feedbackIcons: {
+        valid     : 'glyphicon glyphicon-ok',
+        invalid   : 'glyphicon glyphicon-remove',
+        validating: 'glyphicon glyphicon-refresh'
+    },
+    fields         : {
+        first_name : {
+            validators: {
+                notEmpty: {
+                    message: 'This field is required and cannot be empty'
+                }
+            }
+        },
+        last_name : {
+            validators: {
+                notEmpty: {
+                    message: 'This field is required and cannot be empty'
+                }
+            }
+        }
     }
 });
 
@@ -206,8 +241,7 @@ var fetchedSkill = new Bloodhound({
             method: 'get'
         },
         filter: function(response) {
-            $('#AddUserSkillModal form #spinningWheel').hide();
-            $('#EditUserSkillModal form #spinningWheel').hide();
+            $('form#AddUserSkillForm #spinningWheel').hide();
             skillSet =  $.map(response.resultList, function (skill){
                 return {
                     value: skill.displayName,
@@ -306,13 +340,13 @@ $('[name="deleteUserSkill"]').click(function()
     });
 });
 
-$('#fetchSkill,#fetchEmployment,#fetchEducation,#fetchBasic').click(function(event)
+$('#fetchProfilePicture,#fetchSkill,#fetchEmployment,#fetchEducation,#fetchBasic').click(function(event)
 {
    bootbox.confirm('Are you sure you want to replace the current information with information from LinkedIn?', function(result)
    {
       if (result)
       {
-          location.href = '/member/profileFromLinkedIn/' + userProfile.id + '?memberId=' + memberId + '&' + $(event.currentTarget).attr('id')+ '=on';
+          location.href = '/member/profileFromLinkedIn/' + userProfile.id + '?userId=' + user.id + '&' + $(event.currentTarget).attr('id')+ '=on';
       }
    });
 });

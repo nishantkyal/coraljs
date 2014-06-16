@@ -2105,7 +2105,7 @@ a:hover {
 }
 .user-profile .info .info-upper,
 .call-profile .info .info-upper {
-  width: 140px;
+  width: 100%;
   height: 90px;
   word-wrap: break-word;
 }

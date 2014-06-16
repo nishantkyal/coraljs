@@ -6,9 +6,10 @@ import IntegrationMemberRole                                        = require('.
 import UserStatus                                                   = require('../enums/UserStatus');
 import CallStatus                                                   = require('../enums/CallStatus');
 import Salutation                                                   = require('../enums/Salutation');
-import ExpertSchedule                                               = require('../models/ExpertSchedule');
+import Schedule                                                     = require('../models/Schedule');
 import User                                                         = require('../models/User');
 import UserPhone                                                    = require('../models/UserPhone');
+import PricingScheme                                                = require('../models/PricingScheme');
 import Utils                                                        = require('../common/Utils');
 
 class Formatter
@@ -55,7 +56,7 @@ class Formatter
         return [Salutation[title], firstName, lastName].join(' ');
     }
 
-    static formatSchedule(schedule:ExpertSchedule):string
+    static formatSchedule(schedule:Schedule):string
     {
         var endTime = moment(schedule['start_time']).add('seconds', schedule['duration']).format('h:mm A');
         var startTime = moment(schedule['start_time']).format('DD-MM-YYYY h:mm A');

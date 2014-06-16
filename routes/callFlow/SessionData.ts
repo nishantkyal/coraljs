@@ -6,7 +6,7 @@ import PhoneCall                                        = require('../../models/
 import Integration                                      = require('../../models/Integration');
 import IntegrationMember                                = require('../../models/IntegrationMember');
 import Transaction                                      = require('../../models/Transaction');
-import ExpertSchedule                                   = require('../../models/ExpertSchedule');
+import ExpertSchedule                                   = require('../../models/Schedule');
 import Utils                                            = require('../../common/Utils');
 
 class SessionData extends AbstractSessionData
@@ -57,11 +57,11 @@ class SessionData extends AbstractSessionData
     setCallerPhone(val:string)                          { this.set(SessionData.CALLER_PHONE, val); }
     setAgenda(val:string)                               { this.set(SessionData.AGENDA, val); }
 
-    private computeAvailability()
+    computeAvailability()
     {
-        if (this.getExpert() && this.getExpert().isValid() && this.getExpert().getSchedule())
+        if (this.getExpert() && this.getExpert().isValid() && this.getExpert().getUser().getSchedule())
         {
-            var nextAvailableSchedule:ExpertSchedule = _.find(this.getExpert().getSchedule(), function (schedule):boolean
+            var nextAvailableSchedule:ExpertSchedule = _.find(this.getExpert().getUser().getSchedule(), function (schedule):boolean
             {
                 var scheduleEndTime = schedule[ExpertSchedule.START_TIME] + schedule[ExpertSchedule.DURATION];
                 return scheduleEndTime > moment().add({minutes: 15}).valueOf();

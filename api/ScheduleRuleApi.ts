@@ -3,35 +3,35 @@ import express                          = require('express');
 import moment                           = require('moment');
 import ApiConstants                     = require('../enums/ApiConstants');
 import ApiUrlDelegate                   = require('../delegates/ApiUrlDelegate');
-import ExpertScheduleRuleDelegate       = require('../delegates/ExpertScheduleRuleDelegate');
-import ExpertScheduleExceptionDelegate  = require('../delegates/ExpertScheduleExceptionDelegate');
+import ScheduleRuleDelegate             = require('../delegates/ScheduleRuleDelegate');
+import ScheduleExceptionDelegate        = require('../delegates/ScheduleExceptionDelegate');
 import AccessControl                    = require('../middleware/AccessControl');
 import IntegrationMember                = require('../models/IntegrationMember');
-import ExpertScheduleRule               = require('../models/ExpertScheduleRule');
-import ExpertScheduleException          = require('../models/ExpertScheduleException');
+import ScheduleRule                     = require('../models/ScheduleRule');
+import ScheduleException                = require('../models/ScheduleException');
 import Utils                            = require('../common/Utils');
 
 /*
  Rest Calls for expert schedule rules
  */
-class ExpertScheduleRuleApi
+class ScheduleRuleApi
 {
     constructor(app, secureApp)
     {
-        var expertScheduleRuleDelegate = new ExpertScheduleRuleDelegate();
+        var scheduleRuleDelegate = new ScheduleRuleDelegate();
 
         app.put(ApiUrlDelegate.scheduleRule(), function (req:express.Request, res:express.Response)
         {
             var userId:number = req[ApiConstants.USER].id;
 
-            var scheduleRule:ExpertScheduleRule = req.body[ApiConstants.SCHEDULE_RULE];
+            var scheduleRule:ScheduleRule = req.body[ApiConstants.SCHEDULE_RULE];
             scheduleRule.setRepeatStart(scheduleRule.getRepeatStart() || moment().valueOf());
             scheduleRule.setRepeatEnd(scheduleRule.getRepeatEnd() || moment().add({years: 20}).valueOf());
             scheduleRule.setUserId(userId);
 
             if(scheduleRule.isValid())
             {
-                expertScheduleRuleDelegate.create(scheduleRule)
+                scheduleRuleDelegate.create(scheduleRule)
                     .then(
                     function expertScheduleRuleCreated(schedule) { res.json(schedule.toJson()); },
                     function expertScheduleRuleCreateFailed(error) { res.status(500).json(error); }
@@ -43,13 +43,13 @@ class ExpertScheduleRuleApi
 
         app.get(ApiUrlDelegate.scheduleRule(), function (req:express.Request, res:express.Response)
         {
-            var userId:number = req[ApiConstants.USER_ID].id;
+            var userId:number = req[ApiConstants.USER].id;
             var startTime:number = parseInt(req.query[ApiConstants.START_TIME]);
             var endTime:number = parseInt(req.query[ApiConstants.END_TIME]);
 
             if(!Utils.isNullOrEmpty(userId))
             {
-                expertScheduleRuleDelegate.getRulesByUser(userId, startTime, endTime)
+                scheduleRuleDelegate.getRulesByUser(userId, startTime, endTime)
                     .then(
                     function expertScheduleGenerator(schedules) { res.json(schedules); },
                     function expertScheduleRuleCreateFailed(error) { res.status(500).json(error); }
@@ -63,7 +63,7 @@ class ExpertScheduleRuleApi
         {
             var scheduleId:number = parseInt(req.params[ApiConstants.SCHEDULE_RULE_ID]);
 
-            expertScheduleRuleDelegate.get(scheduleId)
+            scheduleRuleDelegate.get(scheduleId)
                 .then(
                 function expertScheduleRuleCreate(schedules) { res.json(schedules); },
                 function expertScheduleRuleCreateFailed(error) { res.status(500).json(error); }
@@ -73,7 +73,7 @@ class ExpertScheduleRuleApi
         app.post(ApiUrlDelegate.scheduleRuleById(), function (req:express.Request, res:express.Response)
         {
             var userId:number = req[ApiConstants.USER].id;
-            var scheduleRule:ExpertScheduleRule = req.body[ApiConstants.SCHEDULE_RULE];
+            var scheduleRule:ScheduleRule = req.body[ApiConstants.SCHEDULE_RULE];
 
             var scheduleRuleId:number = parseInt(req.params[ApiConstants.SCHEDULE_RULE_ID]);
             scheduleRule.setId(scheduleRuleId);
@@ -81,9 +81,9 @@ class ExpertScheduleRuleApi
 
             if(scheduleRule.isValid())
             {
-                expertScheduleRuleDelegate.update(scheduleRuleId, scheduleRule)
+                scheduleRuleDelegate.update(scheduleRuleId, scheduleRule)
                     .then(
-                    function updateScheduleRule(rule:ExpertScheduleException) { res.json(rule); },
+                    function updateScheduleRule(rule:ScheduleException) { res.json(rule); },
                     function updateScheduleRuleError(error) { res.status(500).json(error) }
                 )
             }
@@ -95,9 +95,9 @@ class ExpertScheduleRuleApi
         {
             var scheduleRuleId:number = parseInt(req.params[ApiConstants.SCHEDULE_RULE_ID]);
 
-            expertScheduleRuleDelegate.delete(scheduleRuleId)
+            scheduleRuleDelegate.delete(scheduleRuleId)
                 .then(
-                function updateScheduleRule(rule:ExpertScheduleException) { res.json(rule); },
+                function updateScheduleRule(rule:ScheduleException) { res.json(rule); },
                 function updateScheduleRuleError(error) { res.status(500).json(error) }
             )
         });
@@ -106,10 +106,10 @@ class ExpertScheduleRuleApi
         {
             var userId:number = req[ApiConstants.USER].id;
 
-            var scheduleRule:ExpertScheduleRule = req[ApiConstants.SCHEDULE_RULE];
+            var scheduleRule:ScheduleRule = req[ApiConstants.SCHEDULE_RULE];
             scheduleRule.setUserId(userId);
 
-            expertScheduleRuleDelegate.create(scheduleRule)
+            scheduleRuleDelegate.create(scheduleRule)
                 .then(
                 function expertScheduleRuleCreated(schedule) { res.json(schedule.toJson()); },
                 function expertScheduleRuleCreateFailed(error) { res.send(500,error); }
@@ -118,4 +118,4 @@ class ExpertScheduleRuleApi
     }
 
 }
-export = ExpertScheduleRuleApi
+export = ScheduleRuleApi

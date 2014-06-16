@@ -12,13 +12,15 @@ class ApiConstants
     static LOGIN_FROM_HEADER:string                     = 'loginFromHeader';
 
     /* Param constants */
-    static COUPON_ID:string                             = 'couponId';
+    static ID:string                                    = 'id';
     static USER_ID:string                               = 'userId';
     static USER_PROFILE_ID:string                       = 'profileId';
     static EXPERT_ID:string                             = 'expertId';
     static MEMBER_ID:string                             = 'memberId';
     static EDUCATION_ID:string                          = 'educationId';
     static EMPLOYMENT_ID:string                         = 'employmentId';
+    static EXPERTISE_ID:string                          = 'expertiseId';
+    static REVIEW_ID:string                             = 'reviewId';
     static SKILL_ID:string                              = 'skillId';
     static INTEGRATION_ID:string                        = 'integrationId';
     static TRANSACTION_ID:string                        = 'transactionId';
@@ -60,6 +62,8 @@ class ApiConstants
     static USER:string                                  = 'user';
     static USER_PROFILE:string                          = 'userProfile';
     static USER_EDUCATION:string                        = 'education';
+    static USER_REVIEW:string                           = 'review';
+    static USER_EXPERTISE:string                        = 'expertise';
     static USER_EMPLOYMENT:string                       = 'employment';
     static USER_SKILL:string                            = 'skill';
     static OAUTH:string                                 = 'oauth';
@@ -70,7 +74,7 @@ class ApiConstants
     static PHONE_CALL:string                            = 'phoneCall';
     static SCHEDULE:string                              = 'expertSchedule';
     static SCHEDULE_RULE:string                         = 'scheduleRule';
-    static SCHEDULE_EXCEPTION:string                    = 'expertScheduleException';
+    static SCHEDULE_EXCEPTION:string                    = 'scheduleException';
     static SCHEDULE_TIMESLOTS:string                    = 'scheduleTimeSlots';
     static SMS:string                                   = 'sms';
     static TRANSACTION:string                           = 'transaction';

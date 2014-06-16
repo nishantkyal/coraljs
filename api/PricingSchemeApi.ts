@@ -14,15 +14,6 @@ class PricingSchemeApi
     {
         var self = this;
 
-        app.get(ApiUrlDelegate.pricingScheme(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
-        {
-            self.pricingSchemeDelegate.get(pricingScheme)
-                .then(
-                function userUpdated() { res.send(200); },
-                function userUpdateError(error) { res.send(500); }
-            );
-        });
-
         app.get(ApiUrlDelegate.pricingSchemeById(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
         {
             var pricingSchemeId:number = parseInt(req.body[ApiConstants.PRICING_SCHEME]);
@@ -34,7 +25,7 @@ class PricingSchemeApi
             );
         });
 
-        app.post(ApiUrlDelegate.pricingSchemeById(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
+        app.post(ApiUrlDelegate.pricingSchemeById(), function(req:express.Request, res:express.Response)
         {
             var pricingScheme:any = req.body[ApiConstants.PRICING_SCHEME];
             var pricingSchemeId = parseInt(req.params[ApiConstants.PRICING_SCHEME_ID]);

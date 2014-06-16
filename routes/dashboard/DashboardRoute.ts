@@ -6,6 +6,7 @@ import connect_ensure_login                             = require('connect-ensur
 import express                                          = require('express');
 import log4js                                           = require('log4js');
 import accounting                                       = require('accounting');
+import PricingSchemeDelegate                            = require('../../delegates/PricingSchemeDelegate');
 import AuthenticationDelegate                           = require('../../delegates/AuthenticationDelegate');
 import UserDelegate                                     = require('../../delegates/UserDelegate');
 import IntegrationDelegate                              = require('../../delegates/IntegrationDelegate');
@@ -21,7 +22,7 @@ import UserSkillDelegate                                = require('../../delegat
 import UserEmploymentDelegate                           = require('../../delegates/UserEmploymentDelegate');
 import RefSkillCodeDelegate                             = require('../../delegates/SkillCodeDelegate');
 import UserProfileDelegate                              = require('../../delegates/UserProfileDelegate');
-import ExpertScheduleRuleDelegate                       = require('../../delegates/ExpertScheduleRuleDelegate');
+import ScheduleRuleDelegate                             = require('../../delegates/ScheduleRuleDelegate');
 import VerificationCodeDelegate                         = require('../../delegates/VerificationCodeDelegate');
 import MysqlDelegate                                    = require('../../delegates/MysqlDelegate');
 import UserUrlDelegate                                  = require('../../delegates/UserUrlDelegate');
@@ -40,8 +41,9 @@ import PhoneCall                                        = require('../../models/
 import UserProfile                                      = require('../../models/UserProfile');
 import Transaction                                      = require('../../models/Transaction');
 import TransactionLine                                  = require('../../models/TransactionLine');
-import ExpertScheduleRule                               = require('../../models/ExpertScheduleRule');
+import ScheduleRule                                     = require('../../models/ScheduleRule');
 import CronRule                                         = require('../../models/CronRule');
+import PricingScheme                                    = require('../../models/PricingScheme');
 import IntegrationMemberRole                            = require('../../enums/IntegrationMemberRole');
 import ApiConstants                                     = require('../../enums/ApiConstants');
 import SmsTemplate                                      = require('../../enums/SmsTemplate');
@@ -65,7 +67,7 @@ class DashboardRoute
     private static PAGE_MOBILE_VERIFICATION:string = 'dashboard/mobileVerification';
     private static PAGE_DASHBOARD:string = 'dashboard/dashboard';
     private static PAGE_INTEGRATION:string = 'dashboard/integration';
-    private static PAGE_PROFILE:string = 'dashboard/memberProfile';
+    private static PAGE_PROFILE:string = 'dashboard/userProfile';
     private static PAGE_ACCOUNT_VERIFICATION:string = 'dashboard/accountVerification';
     private static PAGE_PAYMENT_COMPLETE:string = 'dashboard/paymentComplete';
     private static PAGE_CALL_DETAILS:string = 'dashboard/callDetails';
@@ -79,7 +81,8 @@ class DashboardRoute
     private userEmploymentDelegate = new UserEmploymentDelegate();
     private userSkillDelegate = new UserSkillDelegate();
     private userEducationDelegate = new UserEducationDelegate();
-    private expertScheduleRuleDelegate = new ExpertScheduleRuleDelegate();
+    private scheduleRuleDelegate = new ScheduleRuleDelegate();
+    private pricingSchemeDelegate = new PricingSchemeDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
     private phoneCallDelegate = new PhoneCallDelegate();
     private notificationDelegate = new NotificationDelegate();
@@ -370,17 +373,17 @@ class DashboardRoute
                         self.userUrlDelegate.search({'profileId': userProfile.getId()})
                     ]);
 
-                return [userProfile,q.all(profileInfoTasks)];
+                return [userProfile, q.all(profileInfoTasks)];
             })
             .spread(
-            function userDetailsFetched(userProfile,...args)
+            function userDetailsFetched(userProfile, ...args)
             {
                 var user = args[0][0];
                 var userSkill = args[0][1] || [];
                 var userEducation = args[0][2] || [];
                 var userEmployment = args[0][3] || [];
                 var userUrl = args[0][4] || [];
-                var isEditable = loggedInUser ? loggedInUser.getId()==user.getId() : false;
+                var isEditable = loggedInUser ? loggedInUser.getId() == user.getId() : false;
 
                 if (mode == ApiConstants.PUBLIC_MODE)
                     isEditable = false;
@@ -436,16 +439,24 @@ class DashboardRoute
         var userId:number = parseInt(req.params[ApiConstants.USER_ID]);
         var sessionData = new SessionData(req);
 
-        self.expertScheduleRuleDelegate.getRulesByUser(userId)
+        q.all([
+            self.scheduleRuleDelegate.getRulesByUser(userId),
+            self.pricingSchemeDelegate.search(Utils.createSimpleObject(PricingScheme.USER_ID, userId))
+        ])
             .then(
-            function rulesFetched(rules:ExpertScheduleRule[])
+            function rulesFetched(...args)
             {
-                _.each(rules || [], function(rule:ExpertScheduleRule) {
+                var rules:ScheduleRule[] = args[0][0];
+                var pricingSchemes:PricingScheme[] = args[0][1];
+
+                _.each(rules || [], function (rule:ScheduleRule)
+                {
                     rule['values'] = CronRule.getValues(rule.getCronRule())
                 });
 
                 var pageData = _.extend(sessionData.getData(), {
-                    rules: rules || []
+                    rules: rules || [],
+                    scheme: pricingSchemes[0] || new PricingScheme()
                 });
                 res.render(DashboardRoute.PAGE_SCHEDULE, pageData);
             },
@@ -583,42 +594,30 @@ class DashboardRoute
 
         var fetchFields = req.session[ApiConstants.LINKEDIN_FETCH_FIELDS];
         var profileId:number = req.session[ApiConstants.USER_PROFILE_ID];
-        var memberId:number = req.session[ApiConstants.MEMBER_ID];
+        var userId:number = req.session[ApiConstants.USER_ID];
 
-        self.userProfileDelegate.get(profileId)
-            .then(
-            function profileFetched(userProfile:UserProfile)
-            {
-                return self.integrationMemberDelegate.get(userProfile.getUserId())
-            })
-            .then(
-            function (integrationMember:IntegrationMember)
-            {
-                var fetchTasks = [];
-                var integration_id:number = integrationMember.getIntegrationId();
-                var userId:number = integrationMember.getUserId();
+        var fetchTasks = [];
 
-                if (fetchFields[ApiConstants.FETCH_PROFILE_PICTURE])
-                    fetchTasks.push(self.userProfileDelegate.fetchProfilePictureFromLinkedIn(userId, integration_id, profileId));
+        if (fetchFields[ApiConstants.FETCH_PROFILE_PICTURE])
+            fetchTasks.push(self.userProfileDelegate.fetchProfilePictureFromLinkedIn(userId, profileId));
 
-                if (fetchFields[ApiConstants.FETCH_BASIC])
-                    fetchTasks.push(self.userProfileDelegate.fetchBasicDetailsFromLinkedIn(userId, integration_id, profileId));
+        if (fetchFields[ApiConstants.FETCH_BASIC])
+            fetchTasks.push(self.userProfileDelegate.fetchBasicDetailsFromLinkedIn(userId, profileId));
 
-                if (fetchFields[ApiConstants.FETCH_EDUCATION])
-                    fetchTasks.push(self.userProfileDelegate.fetchAndReplaceEducation(userId, integration_id, profileId));
+        if (fetchFields[ApiConstants.FETCH_EDUCATION])
+            fetchTasks.push(self.userProfileDelegate.fetchAndReplaceEducation(userId, profileId));
 
-                if (fetchFields[ApiConstants.FETCH_EMPLOYMENT])
-                    fetchTasks.push(self.userProfileDelegate.fetchAndReplaceEmployment(userId, integration_id, profileId));
+        if (fetchFields[ApiConstants.FETCH_EMPLOYMENT])
+            fetchTasks.push(self.userProfileDelegate.fetchAndReplaceEmployment(userId, profileId));
 
-                if (fetchFields[ApiConstants.FETCH_SKILL])
-                    fetchTasks.push(self.userProfileDelegate.fetchAndReplaceSkill(userId, integration_id, profileId));
+        if (fetchFields[ApiConstants.FETCH_SKILL])
+            fetchTasks.push(self.userProfileDelegate.fetchAndReplaceSkill(userId, profileId));
 
-                return q.all(fetchTasks);
-            })
+        q.all(fetchTasks)
             .then(
             function profileFetched(...args)
             {
-                res.redirect(Urls.userProfile(memberId));
+                res.redirect(Urls.userProfile(userId));
             },
             function fetchError(error)
             {
@@ -637,7 +636,7 @@ class DashboardRoute
         var fetchSkill:boolean = req.query[ApiConstants.FETCH_SKILL] == 'on' ? true : false;
         req.session[ApiConstants.LINKEDIN_FETCH_FIELDS] = {fetchBasic: fetchBasic, fetchEducation: fetchEducation, fetchEmployment: fetchEmployment, fetchProfilePicture: fetchProfilePicture, fetchSkill: fetchSkill};
         req.session[ApiConstants.USER_PROFILE_ID] = profileId;
-        req.session[ApiConstants.MEMBER_ID] = parseInt(req.query[ApiConstants.MEMBER_ID]);
+        req.session[ApiConstants.USER_ID] = parseInt(req.query[ApiConstants.USER_ID]);
         next();
     }
 }
