@@ -169,6 +169,8 @@ class ScheduledTaskDelegate
                         self.syncToRedis();
                     }
                 });
+
+                return true;
             },
             function tasksFetchError(error)
             {
