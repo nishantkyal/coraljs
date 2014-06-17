@@ -1,10 +1,8 @@
-///<reference path='../../_references.d.ts'/>
 import q                                                        = require('q');
 import _                                                        = require('underscore');
 import moment                                                   = require('moment');
 import log4js                                                   = require('log4js');
 import AbstractScheduledTask                                    = require('./AbstractScheduledTask');
-import ScheduledTaskDelegate                                    = require('../../delegates/ScheduledTaskDelegate');
 import PhoneCallDelegate                                        = require('../../delegates/PhoneCallDelegate');
 import PhoneCall                                                = require('../../models/PhoneCall');
 import Config                                                   = require('../../common/Config');
@@ -25,7 +23,6 @@ class ScheduleCallsScheduledTask extends AbstractScheduledTask
     execute():q.Promise<any>
     {
         var self = this;
-        var scheduledTaskDelegate = ScheduledTaskDelegate.getInstance();
 
         // Add tasks for
         // 1. Triggering call
@@ -65,7 +62,9 @@ class ScheduleCallsScheduledTask extends AbstractScheduledTask
             function triggerAfterOneHour()
             {
                 var millis:number = parseInt(Config.get(Config.PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS)) * 1000;
-                return scheduledTaskDelegate.scheduleAfter(new ScheduleCallsScheduledTask(), millis);
+
+                var ScheduledTaskDelegate = require('../../delegates/ScheduledTaskDelegate');
+                return ScheduledTaskDelegate.getInstance().scheduleAfter(new ScheduleCallsScheduledTask(), millis);
             });
     }
 
