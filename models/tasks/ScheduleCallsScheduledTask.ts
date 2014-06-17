@@ -6,12 +6,9 @@ import log4js                                                   = require('log4j
 import AbstractScheduledTask                                    = require('./AbstractScheduledTask');
 import ScheduledTaskDelegate                                    = require('../../delegates/ScheduledTaskDelegate');
 import PhoneCallDelegate                                        = require('../../delegates/PhoneCallDelegate');
-import NotificationDelegate                                     = require('../../delegates/NotificationDelegate');
-import TriggerPhoneCallTask                                     = require('./TriggerPhoneCallTask');
 import PhoneCall                                                = require('../../models/PhoneCall');
 import Config                                                   = require('../../common/Config');
 import Utils                                                    = require('../../common/Utils');
-import PhoneCallCache                                           = require('../../caches/PhoneCallCache');
 import ScheduledTaskType                                        = require('../../enums/ScheduledTaskType');
 import IncludeFlag                                              = require('../../enums/IncludeFlag');
 
@@ -29,8 +26,6 @@ class ScheduleCallsScheduledTask extends AbstractScheduledTask
     {
         var self = this;
         var scheduledTaskDelegate = ScheduledTaskDelegate.getInstance();
-        var phoneCallCache = new PhoneCallCache();
-        var notificationDelegate = new NotificationDelegate();
 
         // Add tasks for
         // 1. Triggering call
@@ -70,7 +65,7 @@ class ScheduleCallsScheduledTask extends AbstractScheduledTask
             function triggerAfterOneHour()
             {
                 var millis:number = parseInt(Config.get(Config.PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS)) * 1000;
-                return q.resolve(scheduledTaskDelegate.scheduleAfter(new ScheduleCallsScheduledTask(), millis));
+                return scheduledTaskDelegate.scheduleAfter(new ScheduleCallsScheduledTask(), millis);
             });
     }
 

@@ -261,10 +261,15 @@ class PhoneCallDelegate extends BaseDaoDelegate
         // If no error, SCHEDULE!
         if (Utils.isNullOrEmpty(error))
         {
-            scheduledTaskDelegate.scheduleAt(new TriggerPhoneCallTask(call.getId()), startTime);
+            var tasks = [
+                scheduledTaskDelegate.scheduleAt(new TriggerPhoneCallTask(call.getId()), startTime),
+                self.phoneCallCache.addCall(call, null, true)
+            ];
+
             if ((call.getDelay() || 0) == 0) //send reminder only once
-                scheduledTaskDelegate.scheduleAt(new CallReminderNotificationScheduledTask(call.getId()), call.getStartTime() - parseInt(Config.get(Config.CALL_REMINDER_LEAD_TIME_SECS)) * 1000);
-            return self.phoneCallCache.addCall(call, null, true);
+                tasks.push(scheduledTaskDelegate.scheduleAt(new CallReminderNotificationScheduledTask(call.getId()), call.getStartTime() - parseInt(Config.get(Config.CALL_REMINDER_LEAD_TIME_SECS)) * 1000));
+
+            return q.all(tasks);
         }
         else
         {

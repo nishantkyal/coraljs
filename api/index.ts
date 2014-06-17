@@ -20,6 +20,8 @@ import UserEducationApi                                 = require('./UserEducati
 import UserEmploymentApi                                = require('./UserEmploymentApi');
 import UserSkillApi                                     = require('./UserSkillApi');
 import WidgetApi                                        = require('./WidgetApi');
+import ExpertiseApi                                     = require('./ExpertiseApi');
+import UserReviewApi                                    = require('./UserReviewApi');
 
 function init(app, secureApp?)
 {
@@ -45,5 +47,7 @@ function init(app, secureApp?)
     new UserEmploymentApi(app, secureApp);
     new UserSkillApi(app, secureApp);
     new WidgetApi(app, secureApp);
+    new ExpertiseApi(app, secureApp);
+    new UserReviewApi(app, secureApp);
 }
 export = init

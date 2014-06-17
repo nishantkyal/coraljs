@@ -5,12 +5,9 @@ import PrintTimestampTask                                       = require('../mo
 import CallReminderNotificationScheduledTask                    = require('../models/tasks/CallReminderNotificationScheduledTask');
 import ScheduleCallsScheduledTask                               = require('../models/tasks/ScheduleCallsScheduledTask');
 import TimezoneRefreshTask                                      = require('../models/tasks/TimezoneRefreshTask');
-import SMSDelegate                                              = require('../delegates/SMSDelegate');
 
 class TaskTypeFactory
 {
-    private static tasks:{[id:number]: AbstractScheduledTask} = {};
-
     static getTask(result:any):AbstractScheduledTask
     {
         switch(result[AbstractScheduledTask.TASKTYPE])

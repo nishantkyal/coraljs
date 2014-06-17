@@ -1,3 +1,4 @@
+import events                                                   = require('events');
 import q                                                        = require('q');
 import _                                                        = require('underscore');
 import log4js                                                   = require('log4js');
@@ -5,11 +6,10 @@ import moment                                                   = require('momen
 import GlobalIdDelegate                                         = require('../delegates/GlobalIDDelegate');
 import Utils                                                    = require('../common/Utils');
 import Config                                                   = require('../common/Config');
-import PhoneCall                                                = require('../models/PhoneCall');
 import AbstractScheduledTask                                    = require('../models/tasks/AbstractScheduledTask');
-import PhoneCallCache                                           = require('../caches/PhoneCallCache');
 import CacheHelper                                              = require('../caches/CacheHelper');
 import ScheduledTaskType                                        = require('../enums/ScheduledTaskType');
+import TaskTypeFactory                                          = require('../factories/TaskTypeFactory');
 
 interface TimeoutAndTask
 {
@@ -17,29 +17,22 @@ interface TimeoutAndTask
     timeout:any;
 }
 
-class ScheduledTaskDelegate
+class ScheduledTaskDelegate extends events.EventEmitter
 {
     logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
     private static tasks:{[id:number]: TimeoutAndTask} = {};
     private static instance;
-    eventEmitter;
-
-    constructor()
-    {
-        var events = require('events');
-        this.eventEmitter = new events.EventEmitter();
-    }
 
     static getInstance():ScheduledTaskDelegate
     {
-        if(Utils.isNullOrEmpty(ScheduledTaskDelegate.instance))
+        if (Utils.isNullOrEmpty(ScheduledTaskDelegate.instance))
             ScheduledTaskDelegate.instance = new ScheduledTaskDelegate();
 
         return ScheduledTaskDelegate.instance;
     }
 
     /* Schedule task at specified time */
-    scheduleAt(task:AbstractScheduledTask, timestamp:number):number
+    scheduleAt(task:AbstractScheduledTask, timestamp:number):q.Promise<number>
     {
         var self = this;
         var currentTime = moment().valueOf();
@@ -48,7 +41,7 @@ class ScheduledTaskDelegate
     }
 
     /* Schedule task after an interval */
-    scheduleAfter(task:AbstractScheduledTask, interval:number):number
+    scheduleAfter(task:AbstractScheduledTask, interval:number):q.Promise<number>
     {
         var self = this;
         var taskId:number = new GlobalIdDelegate().generate('ScheduleTask');
@@ -63,8 +56,9 @@ class ScheduledTaskDelegate
         var timeout:any = setTimeout(function ()
         {
             task.execute()
-                .then( function taskExecuted(){
-                    self.eventEmitter.emit('taskCompletedEvent',task.getTaskType())
+                .then(function taskExecuted()
+                {
+                    self.emit('taskCompletedEvent', task.getTaskType())
                 })
             self.cancel(task.getId());
         }, interval);
@@ -74,11 +68,19 @@ class ScheduledTaskDelegate
         // Add task to index and persist
         ScheduledTaskDelegate.tasks[taskId] = {task: task, timeout: timeout};
 
-        this.logger.info('Task of type %s scheduled, startTime: %s, id: %s', task.getTaskType(), moment(task.getStartTime()).format('DD/MM/YYYY hh:mm a'), task.getId());
 
-        self.syncToRedis();
-
-        return taskId;
+        return self.syncToRedis()
+            .then(
+            function tasksSynced():any
+            {
+                self.logger.info('Task of type %s scheduled, startTime: %s, id: %s', task.getTaskType(), moment(task.getStartTime()).format('DD/MM/YYYY hh:mm a'), task.getId());
+                return taskId;
+            },
+            function taskSyncFailed()
+            {
+                self.logger.warn('Task of type %s scheduled, startTime: %s, id: %s', task.getTaskType(), moment(task.getStartTime()).format('DD/MM/YYYY hh:mm a'), task.getId());
+                self.cancel(taskId);
+            });
     }
 
     getAll():AbstractScheduledTask[]
@@ -94,7 +96,7 @@ class ScheduledTaskDelegate
     /* Return id of task matching search */
     find(type:ScheduledTaskType):number
     {
-        return _.find(_.keys(ScheduledTaskDelegate.tasks), function(taskId:number)
+        return _.find(_.keys(ScheduledTaskDelegate.tasks), function (taskId:number)
         {
             var taskAndTimeout:TimeoutAndTask = ScheduledTaskDelegate.tasks[taskId];
             return taskAndTimeout.task.getTaskType() == type;
@@ -103,7 +105,7 @@ class ScheduledTaskDelegate
 
     filter(type:ScheduledTaskType):AbstractScheduledTask[]
     {
-        return _.pluck(_.filter(_.values(ScheduledTaskDelegate.tasks), function(task:TimeoutAndTask)
+        return _.pluck(_.filter(_.values(ScheduledTaskDelegate.tasks), function (task:TimeoutAndTask)
         {
             return task.task.getTaskType() == type;
         }), 'task');
@@ -117,7 +119,7 @@ class ScheduledTaskDelegate
 
     cancel(taskId:number):q.Promise<any>
     {
-        this.logger.info('Task with id - ' + taskId + ' completed' );
+        this.logger.info('Task with id - ' + taskId + ' completed');
         clearTimeout(ScheduledTaskDelegate.tasks[taskId].timeout);
         delete ScheduledTaskDelegate.tasks[taskId];
         return this.syncToRedis();
@@ -127,7 +129,8 @@ class ScheduledTaskDelegate
     {
         var self = this;
 
-        var tasks = _.filter(_.values(ScheduledTaskDelegate.tasks), function (timeoutAndTask:TimeoutAndTask){
+        var tasks = _.filter(_.values(ScheduledTaskDelegate.tasks), function (timeoutAndTask:TimeoutAndTask)
+        {
             return timeoutAndTask.task.getTaskType() != ScheduledTaskType.TIMEZONE_REFRESH
         }); // no need to sync TIMEZONE_REFRESH task to redis as we want to run it every time server starts
 
@@ -156,20 +159,27 @@ class ScheduledTaskDelegate
 
         return CacheHelper.get('ScheduledTasks')
             .then(
-            function tasksFetched(results)
+            function tasksFetched(results):any
             {
-                _.each(results, function (result:any)
+                results = results || [];
+
+                self.logger.debug("Tasks fetched from redis, total: %s", results.length);
+
+                return _.map(results, function (result:any)
                 {
-                    var TaskTypeFactory = require('../factories/TaskTypeFactory');
                     if (result[AbstractScheduledTask.START_TIME] > moment().valueOf())
-                        self.scheduleAt(TaskTypeFactory.getTask(result), result[AbstractScheduledTask.START_TIME]);
+                    {
+                        self.logger.debug("Task reinstantiated from redis, task: %s", JSON.stringify(result));
+                        return self.scheduleAt(TaskTypeFactory.getTask(result), result[AbstractScheduledTask.START_TIME]);
+                    }
                     else
                     {
                         self.logger.error("Task Missed - " + JSON.stringify(result));
-                        self.syncToRedis();
+                        return self.syncToRedis();
                     }
                 });
-            },
+            })
+            .fail(
             function tasksFetchError(error)
             {
                 self.logger.error("Error in Syncing Scheduled Tasks From Redis");

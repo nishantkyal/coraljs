@@ -43,7 +43,7 @@ class ScheduleRuleApi
 
         app.get(ApiUrlDelegate.scheduleRule(), function (req:express.Request, res:express.Response)
         {
-            var userId:number = req[ApiConstants.USER_ID].id;
+            var userId:number = req[ApiConstants.USER].id;
             var startTime:number = parseInt(req.query[ApiConstants.START_TIME]);
             var endTime:number = parseInt(req.query[ApiConstants.END_TIME]);
 

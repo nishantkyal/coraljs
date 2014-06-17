@@ -1,5 +1,7 @@
 ///<reference path='./_references.d.ts'/>
 import _                                            = require('underscore');
+import q                                            = require('q');
+import repl                                         = require('repl');
 import express                                      = require('express');
 var connect                                         = require('connect');
 var RedisStore                                      = require('connect-redis')(connect);
@@ -56,7 +58,6 @@ var helpers =
     formatCallStatus: Formatter.formatCallStatus,
     formatPhone: Formatter.formatPhone,
     formatTimezone: Formatter.formatTimezone,
-    formatAge: Formatter.formatAge,
     moment: moment,
 
     ApiUrlDelegate: ApiUrlDelegate,
@@ -182,22 +183,31 @@ app.listen(app.get('port'), function ()
     var scheduledTaskDelegate = ScheduledTaskDelegate.getInstance();
 
     // Sync scheduled tasks from cache and create the call scheduler task if doesn't already exist
+    log4js.getDefaultLogger().debug('Fetching tasks from redis');
+
     scheduledTaskDelegate.syncFromRedis()
-        .then(
+        .done(
         function tasksSynced()
         {
-            if (Utils.isNullOrEmpty(scheduledTaskDelegate.find(ScheduledTaskType.CALL_SCHEDULE)))
-                scheduledTaskDelegate.scheduleAfter(new ScheduleCallsScheduledTask(), 1);
+            log4js.getDefaultLogger().debug('Tasks synced from redis. Scheduling timezone and call scheduler tasks');
 
-            scheduledTaskDelegate.scheduleAfter(new TimezoneRefreshTask(), 1);
+            var newTasks = [scheduledTaskDelegate.scheduleAfter(new TimezoneRefreshTask(), 1)];
+
+            if (Utils.isNullOrEmpty(scheduledTaskDelegate.find(ScheduledTaskType.CALL_SCHEDULE)))
+                newTasks.push(scheduledTaskDelegate.scheduleAfter(new ScheduleCallsScheduledTask(), 1));
+
+            return q.all(newTasks);
         });
 
-    scheduledTaskDelegate.eventEmitter.on('taskCompletedEvent', function(taskType:ScheduledTaskType){
+    scheduledTaskDelegate.on('taskCompletedEvent', function(taskType:ScheduledTaskType){
         if (taskType == ScheduledTaskType.TIMEZONE_REFRESH)
+        {
+            log4js.getDefaultLogger().debug('Timezones updated');
             helpers['Timezone'] = TimezoneDelegate.TIMEZONES;
+        }
     })
     // Update integration cache
     new IntegrationDelegate().updateCache();
 
-    console.log("SearchNTalk started on port %d in %s mode", app.get('port'), app.settings.env);
+    log4js.getDefaultLogger().debug("SearchNTalk started on port %d in %s mode", app.get('port'), app.settings.env);
 });

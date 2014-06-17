@@ -22,8 +22,12 @@ class ScheduledTaskApi
         app.post(ApiUrlDelegate.scheduleTask(), function(req:express.Request, res:express.Response)
         {
             var task:any = req.body['task'];
-            new ScheduleTaskDelegate().scheduleAt(new PrintTimestampTask(task.startTime), task.startTime);
-            res.send(200);
+            new ScheduleTaskDelegate().scheduleAt(new PrintTimestampTask(task.startTime), task.startTime)
+            .then(
+                function taskScheduled() { res.send(200); },
+                function taskSchedulingFailed() { res.send(500); }
+            );
+
         });
 
     }

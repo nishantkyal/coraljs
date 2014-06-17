@@ -85,13 +85,21 @@ class ApiUrlDelegate
     static pricingScheme() { return this.get('/rest/pricingScheme'); }
     static pricingSchemeById(pricingSchemeId?:number) { return this.get('/rest/pricingScheme/:pricingSchemeId(\\d+)', { pricingSchemeId: pricingSchemeId }); }
 
+    /* URL patterns for user review */
+    static review() { return this.get('/rest/review'); }
+    static reviewById(reviewId?:number) { return this.get('/rest/review/:reviewId(\\d+)', { reviewId: reviewId }); }
+
     /* URL patterns for user skill */
     static userSkill() { return this.get('/rest/user/skill'); }
     static userSkillById(skillId?:number) { return this.get('/rest/user/skill/:skillId(\\d+)', { skillId: skillId }); }
 
+    /* URL patterns for user expertise */
+    static expertise() { return this.get('/rest/user/expertise'); }
+    static expertiseById(expertiseId?:number) { return this.get('/rest/user/expertise/:expertiseId(\\d+)', { expertiseId: expertiseId }); }
+
     /* URL patterns for coupons */
     static coupon():string { return this.get('/rest/coupon'); }
-    static couponById(couponId?:number):string { return this.get('/rest/coupon/:couponId(\\d+)', {couponId: couponId}); }
+    static couponById(id?:number):string { return this.get('/rest/coupon/:id(\\d+)', {id: id}); }
     static couponValidation():string { return this.get('/rest/coupon/validation'); }
 
     /* URL patterns for Exotel  */
