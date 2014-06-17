@@ -162,11 +162,17 @@ class ScheduledTaskDelegate extends events.EventEmitter
             .then(
             function tasksFetched(results):any
             {
+                self.logger.debug("Tasks fetched from redis, total: %s", results.length);
+
                 return _.map(results, function (result:any)
                 {
                     var TaskTypeFactory = require('../factories/TaskTypeFactory');
+
                     if (result[AbstractScheduledTask.START_TIME] > moment().valueOf())
+                    {
+                        self.logger.debug("Task reinstantiated from redis, task: %s", JSON.stringify(result));
                         return self.scheduleAt(TaskTypeFactory.getTask(result), result[AbstractScheduledTask.START_TIME]);
+                    }
                     else
                     {
                         self.logger.error("Task Missed - " + JSON.stringify(result));
