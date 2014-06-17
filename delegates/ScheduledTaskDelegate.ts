@@ -11,6 +11,7 @@ import AbstractScheduledTask                                    = require('../mo
 import PhoneCallCache                                           = require('../caches/PhoneCallCache');
 import CacheHelper                                              = require('../caches/CacheHelper');
 import ScheduledTaskType                                        = require('../enums/ScheduledTaskType');
+import TaskTypeFactory                                          = require('../factories/TaskTypeFactory');
 
 interface TimeoutAndTask
 {
@@ -166,7 +167,6 @@ class ScheduledTaskDelegate extends events.EventEmitter
 
                 return _.map(results, function (result:any)
                 {
-                    var TaskTypeFactory = require('../factories/TaskTypeFactory');
 
                     if (result[AbstractScheduledTask.START_TIME] > moment().valueOf())
                     {
