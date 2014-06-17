@@ -202,7 +202,7 @@ app.listen(app.get('port'), function ()
     // Update integration cache
     new IntegrationDelegate().updateCache();
 
-    console.log("SearchNTalk started on port %d in %s mode", app.get('port'), app.settings.env);
+    log4js.getDefaultLogger().debug("SearchNTalk started on port %d in %s mode", app.get('port'), app.settings.env);
 });
 
 /* Awesome REPL to enable debugging in prod */
