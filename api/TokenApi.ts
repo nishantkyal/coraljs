@@ -7,7 +7,7 @@ import ApiUrlDelegate                                       = require('../delega
 import VerificationCodeDelegate                             = require('../delegates/VerificationCodeDelegate');
 import EmailDelegate                                        = require('../delegates/EmailDelegate');
 import UserDelegate                                         = require('../delegates/UserDelegate');
-import PhoneNumberDelegate                                  = require('../delegates/UserPhoneDelegate');
+import UserPhoneDelegate                                    = require('../delegates/UserPhoneDelegate');
 import TemporaryTokenType                                   = require('../enums/TemporaryTokenType');
 import ApiConstants                                         = require('../enums/ApiConstants');
 import PhoneType                                            = require('../enums/PhoneType');
@@ -22,6 +22,7 @@ class TokenApi
     {
         var verificationCodeDelegate = new VerificationCodeDelegate();
         var userDelegate = new UserDelegate();
+        var userPhoneDelegate = new UserPhoneDelegate();
 
         /* Create mobile verification code */
         app.post(ApiUrlDelegate.mobileVerificationCode(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
@@ -41,20 +42,32 @@ class TokenApi
         {
             var code:string = req.query[ApiConstants.CODE];
             var phoneNumber:UserPhone = new UserPhone(req.query[ApiConstants.PHONE_NUMBER]);
-            phoneNumber.setUserId(req['user'].id);
 
             verificationCodeDelegate.verifyMobileCode(code, phoneNumber)
                 .then(
                 function codeVerified(newUserPhone)
                 {
+                    if (Utils.isNullOrEmpty(phoneNumber.getId()))
+                    {
+                        phoneNumber.setUserId(req['user'].id);
+                        return userPhoneDelegate.create(phoneNumber);
+                    }
+                    else
+                        return userPhoneDelegate.update({id:phoneNumber.getId()},phoneNumber);
+                })
+                .then (
+                function userPhoneUpdated(){
                     var returnTo:string = req.flash()[ApiConstants.RETURN_TO];
                     if (!Utils.isNullOrEmpty(returnTo))
                         res.redirect(returnTo);
                     else
-                        res.send(newUserPhone.toJson());
-                },
-                function codeVerificationError(error) { res.send(500, error); }
-            )
+                        res.send(phoneNumber.toJson());
+                })
+                .fail (
+                function codeVerificationError(error)
+                {
+                    res.send(500, error);
+                })
         });
 
         /* Create and send expert invitation code */

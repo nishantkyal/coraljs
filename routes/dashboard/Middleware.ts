@@ -59,17 +59,12 @@ class Middleware
             function (req:express.Request, res:express.Response, next:Function)
             {
                 var sessionData = new SessionData(req);
-                var integrationMembers = sessionData.getMembers();
-                var memberId:number = parseInt(req.params[ApiConstants.MEMBER_ID]);
+                var userId:number = parseInt(req.params[ApiConstants.USER_ID]);
                 var loggedInUser = sessionData.getLoggedInUser();
-
-                Middleware.isSelf(loggedInUser, memberId)
-                    .then( function checked(isSelf){
-                        if (isSelf)
-                            next();
-                        else
-                            res.send(401);
-                    })
+                if (userId == loggedInUser.getId())
+                    next();
+                else
+                    res.send(401);
             }];
 
     static allowMeOrAdmin =

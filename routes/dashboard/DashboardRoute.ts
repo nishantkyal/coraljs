@@ -70,6 +70,7 @@ class DashboardRoute
     private static PAGE_PAYMENT_COMPLETE:string = 'dashboard/paymentComplete';
     private static PAGE_CALL_DETAILS:string = 'dashboard/callDetails';
     private static PAGE_SCHEDULE:string = 'dashboard/userSchedule';
+    private static PAGE_SETTING:string  = 'dashboard/userSetting';
 
     private integrationDelegate = new IntegrationDelegate();
     private integrationMemberDelegate = new IntegrationMemberDelegate();
@@ -97,9 +98,10 @@ class DashboardRoute
 
         // Dashboard pages
         app.get(Urls.dashboard(), AuthenticationDelegate.checkLogin({failureRedirect: Urls.login()}), this.dashboard.bind(this));
-        app.get(Urls.integration(), connect_ensure_login.ensureLoggedIn(), this.integration.bind(this));
+        app.get(Urls.integration(), Middleware.allowOwnerOrAdmin, this.integration.bind(this));
         app.get(Urls.userProfile(), this.userProfile.bind(this));
-        app.get(Urls.userSchedule(), this.schedule.bind(this));
+        app.get(Urls.userSchedule(), Middleware.allowOnlyMe, this.schedule.bind(this));
+        app.get(Urls.userSetting(), Middleware.allowOnlyMe, this.setting.bind(this));
 
         app.get(Urls.callDetails(), Middleware.allowMeOrAdmin, this.callDetails.bind(this));
         app.get(Urls.revenueDetails(), Middleware.allowMeOrAdmin, this.revenueDetails.bind(this));
@@ -123,8 +125,6 @@ class DashboardRoute
         app.post(Urls.ajaxRegister(), AuthenticationDelegate.register({failureFlash: true}));
         app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
         app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
-
-        app.post(Urls.changePassword(), Middleware.allowMeOrAdmin, this.changePassword.bind(this));
     }
 
     /* Login page */
@@ -156,25 +156,6 @@ class DashboardRoute
         };
 
         res.render(DashboardRoute.PAGE_FORGOT_PASSWORD, pageData);
-    }
-
-    private changePassword(req:express.Request, res:express.Response)
-    {
-        var self = this;
-        var sessionData = new SessionData(req);
-        var password:string = req.body[ApiConstants.PASSWORD];
-        var oldPassword:string = req.body[ApiConstants.OLD_PASSWORD];
-        var user = sessionData.getLoggedInUser();
-
-        var hashedPassword:string = self.userDelegate.computePasswordHash(user.getEmail(), oldPassword);
-        if (hashedPassword != user.getPassword())
-            res.send('Error in changing password. Old Password did not match').status(412);
-        else
-            self.userDelegate.update({id: sessionData.getLoggedInUser().getId()}, {password: password})
-                .then(
-                function passwordUpdated() { res.send('Password Changed Successfully').status(200); },
-                function PasswordUpdateError(error) { res.send('Password Change Failed. Internal Server Error').status(500); }
-            )
     }
 
     /**
@@ -453,6 +434,24 @@ class DashboardRoute
         );
     }
 
+    setting(req:express.Request, res:express.Response)
+    {
+        var self = this;
+        var userId:number = parseInt(req.params[ApiConstants.USER_ID]);
+        var sessionData = new SessionData(req);
+
+        self.userPhoneDelegate.search({user_id:userId})
+            .then( function phoneFetched(userPhone:UserPhone[])
+            {
+                var pageData = _.extend(sessionData.getData(), {
+                    userPhone : userPhone[0],
+                });
+                res.render(DashboardRoute.PAGE_SETTING, pageData);
+            })
+            .fail( function (error){
+                res.send(500, error)
+            })
+    }
     /* Logout and redirect to login page */
     private logout(req, res)
     {

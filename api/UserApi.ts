@@ -52,19 +52,38 @@ class UserApi
             var user:User = req.body[ApiConstants.USER];
             var userProfile:UserProfile = req.body[ApiConstants.USER_PROFILE];
 
-            userDelegate.update({'id': userId}, user)
-                .then(
-                function userUpdated(result):any
-                {
-                    if (userProfile)
-                        return userProfileDelegate.update({'user_id': userId, 'locale': userProfile.getLocale()}, userProfile)
-                    else
-                        return res.json(result);
-                })
-                .then(
-                function userProfileUpdated(result) { res.send(result); },
-                function updateFailed(err) { res.status(500).json(err); }
-            );
+            var password:string = req.body[ApiConstants.PASSWORD];
+            var oldPassword:string = req.body[ApiConstants.OLD_PASSWORD];
+
+            //if password exists then we are not updating any other fields
+            if (!Utils.isNullOrEmpty(password) && !Utils.isNullOrEmpty(oldPassword))
+            {
+                var hashedPassword:string = userDelegate.computePasswordHash(user.getEmail(), oldPassword);
+                if (hashedPassword != user.getPassword())
+                    res.send('Error in changing password. Old Password did not match').status(412);
+                else
+                    userDelegate.update({id: userId}, {password: password})
+                        .then(
+                        function passwordUpdated() { res.send('Password Changed Successfully').status(200); },
+                        function PasswordUpdateError(error) { res.send('Password Change Failed. Internal Server Error').status(500); }
+                    )
+            }
+            else
+            {
+                userDelegate.update({'id': userId}, user)
+                    .then(
+                    function userUpdated(result):any
+                    {
+                        if (userProfile)
+                            return userProfileDelegate.update({'user_id': userId, 'locale': userProfile.getLocale()}, userProfile)
+                        else
+                            return res.json(result);
+                    })
+                    .then(
+                    function userProfileUpdated(result) { res.send(result); },
+                    function updateFailed(err) { res.status(500).json(err); }
+                    )
+            }
         });
 
         /* Profile image */

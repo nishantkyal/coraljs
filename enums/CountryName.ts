@@ -1,209 +1,212 @@
 class CountryName
 {
-    static AF = 'Afghanistan';
-    static AL = 'Albania';
-    static DZ = 'Algeria';
-    static AD = 'Andorra';
-    static AO = 'Angola';
-    static AQ = 'Antarctica';
-    static AR = 'Argentina';
-    static AM = 'Armenia';
-    static AW = 'Aruba';
-    static AU = 'Australia';
-    static AT = 'Austria';
-    static AZ = 'Azerbaijan';
-    static BH = 'Bahrain';
-    static BD = 'Bangladesh';
-    static BY = 'Belarus';
-    static BE = 'Belgium';
-    static BZ = 'Belize';
-    static BJ = 'Benin';
-    static BT = 'Bhutan';
-    static BO = 'Bolivia; Plurinational State Of';
-    static BA = 'Bosnia And Herzegovina';
-    static BW = 'Botswana';
-    static BR = 'Brazil';
-    static BN = 'Brunei Darussalam';
-    static BG = 'Bulgaria';
-    static BF = 'Burkina Faso';
-    static MM = 'Myanmar';
-    static BI = 'Burundi';
-    static KH = 'Cambodia';
-    static CM = 'Cameroon';
-    static CA = 'Canada';
-    static CV = 'Cape Verde';
-    static CF = 'Central African Republic';
-    static TD = 'Chad';
-    static CL = 'Chile';
-    static CN = 'China';
-    static CX = 'Christmas Island';
-    static CC = 'Cocos (keeling) Islands';
-    static CO = 'Colombia';
-    static KM = 'Comoros';
-    static CG = 'Congo';
-    static CD = 'Congo; The Democratic Republic Of The';
-    static CK = 'Cook Islands';
-    static CR = 'Costa Rica';
-    static HR = 'Croatia';
-    static CU = 'Cuba';
-    static CY = 'Cyprus';
-    static CZ = 'Czech Republic';
-    static DK = 'Denmark';
-    static DJ = 'Djibouti';
-    static TL = 'Timor-leste';
-    static EC = 'Ecuador';
-    static EG = 'Egypt';
-    static SV = 'El Salvador';
-    static GQ = 'Equatorial Guinea';
-    static ER = 'Eritrea';
-    static EE = 'Estonia';
-    static ET = 'Ethiopia';
-    static FK = 'Falkland Islands (malvinas)';
-    static FO = 'Faroe Islands';
-    static FJ = 'Fiji';
-    static FI = 'Finland';
-    static FR = 'France';
-    static PF = 'French Polynesia';
-    static GA = 'Gabon';
-    static GM = 'Gambia';
-    static GE = 'Georgia';
-    static DE = 'Germany';
-    static GH = 'Ghana';
-    static GI = 'Gibraltar';
-    static GR = 'Greece';
-    static GL = 'Greenland';
-    static GT = 'Guatemala';
-    static GN = 'Guinea';
-    static GW = 'Guinea-bissau';
-    static GY = 'Guyana';
-    static HT = 'Haiti';
-    static HN = 'Honduras';
-    static HK = 'Hong Kong';
-    static HU = 'Hungary';
-    static IN = 'India';
-    static ID = 'Indonesia';
-    static IR = 'Iran; Islamic Republic Of';
-    static IQ = 'Iraq';
-    static IE = 'Ireland';
-    static IM = 'Isle Of Man';
-    static IL = 'Israel';
-    static IT = 'Italy';
-    static CI = 'Côte D&apos;ivoire';
-    static JP = 'Japan';
-    static JO = 'Jordan';
-    static KZ = 'Kazakhstan';
-    static KE = 'Kenya';
-    static KI = 'Kiribati';
-    static KW = 'Kuwait';
-    static KG = 'Kyrgyzstan';
-    static LA = 'Lao People&apos;s Democratic Republic';
-    static LV = 'Latvia';
-    static LB = 'Lebanon';
-    static LS = 'Lesotho';
-    static LR = 'Liberia';
-    static LY = 'Libya';
-    static LI = 'Liechtenstein';
-    static LT = 'Lithuania';
-    static LU = 'Luxembourg';
-    static MO = 'Macao';
-    static MK = 'Macedonia; The Former Yugoslav Republic Of';
-    static MG = 'Madagascar';
-    static MW = 'Malawi';
-    static MY = 'Malaysia';
-    static MV = 'Maldives';
-    static ML = 'Mali';
-    static MT = 'Malta';
-    static MH = 'Marshall Islands';
-    static MR = 'Mauritania';
-    static MU = 'Mauritius';
-    static YT = 'Mayotte';
-    static MX = 'Mexico';
-    static FM = 'Micronesia; Federated States Of';
-    static MD = 'Moldova; Republic Of';
-    static MC = 'Monaco';
-    static MN = 'Mongolia';
-    static ME = 'Montenegro';
-    static MA = 'Morocco';
-    static MZ = 'Mozambique';
-    static NA = 'Namibia';
-    static NR = 'Nauru';
-    static NP = 'Nepal';
-    static NL = 'Netherlands';
-    static NC = 'New Caledonia';
-    static NZ = 'New Zealand';
-    static NI = 'Nicaragua';
-    static NE = 'Niger';
-    static NG = 'Nigeria';
-    static NU = 'Niue';
-    static KP = 'Korea; Democratic People&apos;s Republic Of';
-    static NO = 'Norway';
-    static OM = 'Oman';
-    static PK = 'Pakistan';
-    static PW = 'Palau';
-    static PA = 'Panama';
-    static PG = 'Papua New Guinea';
-    static PY = 'Paraguay';
-    static PE = 'Peru';
-    static PH = 'Philippines';
-    static PN = 'Pitcairn';
-    static PL = 'Poland';
-    static PT = 'Portugal';
-    static PR = 'Puerto Rico';
-    static QA = 'Qatar';
-    static RO = 'Romania';
-    static RU = 'Russian Federation';
-    static RW = 'Rwanda';
-    static BL = 'Saint Barthélemy';
-    static WS = 'Samoa';
-    static SM = 'San Marino';
-    static ST = 'Sao Tome And Principe';
-    static SA = 'Saudi Arabia';
-    static SN = 'Senegal';
-    static RS = 'Serbia';
-    static SC = 'Seychelles';
-    static SL = 'Sierra Leone';
-    static SG = 'Singapore';
-    static SK = 'Slovakia';
-    static SI = 'Slovenia';
-    static SB = 'Solomon Islands';
-    static SO = 'Somalia';
-    static ZA = 'South Africa';
-    static KR = 'Korea; Republic Of';
-    static ES = 'Spain';
-    static LK = 'Sri Lanka';
-    static SH = 'Saint Helena; Ascension And Tristan Da Cunha';
-    static PM = 'Saint Pierre And Miquelon';
-    static SD = 'Sudan';
-    static SR = 'Suriname';
-    static SZ = 'Swaziland';
-    static SE = 'Sweden';
-    static CH = 'Switzerland';
-    static SY = 'Syrian Arab Republic';
-    static TW = 'Taiwan; Province Of China';
-    static TJ = 'Tajikistan';
-    static TZ = 'Tanzania; United Republic Of';
-    static TH = 'Thailand';
-    static TG = 'Togo';
-    static TK = 'Tokelau';
-    static TO = 'Tonga';
-    static TN = 'Tunisia';
-    static TR = 'Turkey';
-    static TM = 'Turkmenistan';
-    static TV = 'Tuvalu';
-    static AE = 'United Arab Emirates';
-    static UG = 'Uganda';
-    static GB = 'United Kingdom';
-    static UA = 'Ukraine';
-    static UY = 'Uruguay';
-    static US = 'United States';
-    static UZ = 'Uzbekistan';
-    static VU = 'Vanuatu';
-    static VA = 'Holy See (vatican City State)';
-    static VE = 'Venezuela; Bolivarian Republic Of';
-    static VN = 'Viet Nam';
-    static WF = 'Wallis And Futuna';
-    static YE = 'Yemen';
-    static ZM = 'Zambia';
-    static ZW = 'Zimbabwe';
+    static CountryName =
+    {
+        AF:'Afghanistan',
+        AL:'Albania',
+        DZ:'Algeria',
+        AD:'Andorra',
+        AO:'Angola',
+        AQ:'Antarctica',
+        AR:'Argentina',
+        AM:'Armenia',
+        AW:'Aruba',
+        AU:'Australia',
+        AT:'Austria',
+        AZ:'Azerbaijan',
+        BH:'Bahrain',
+        BD:'Bangladesh',
+        BY:'Belarus',
+        BE:'Belgium',
+        BZ:'Belize',
+        BJ:'Benin',
+        BT:'Bhutan',
+        BO:'Bolivia, Plurinational State Of',
+        BA:'Bosnia And Herzegovina',
+        BW:'Botswana',
+        BR:'Brazil',
+        BN:'Brunei Darussalam',
+        BG:'Bulgaria',
+        BF:'Burkina Faso',
+        MM:'Myanmar',
+        BI:'Burundi',
+        KH:'Cambodia',
+        CM:'Cameroon',
+        CA:'Canada',
+        CV:'Cape Verde',
+        CF:'Central African Republic',
+        TD:'Chad',
+        CL:'Chile',
+        CN:'China',
+        CX:'Christmas Island',
+        CC:'Cocos (keeling) Islands',
+        CO:'Colombia',
+        KM:'Comoros',
+        CG:'Congo',
+        CD:'Congo, The Democratic Republic Of The',
+        CK:'Cook Islands',
+        CR:'Costa Rica',
+        HR:'Croatia',
+        CU:'Cuba',
+        CY:'Cyprus',
+        CZ:'Czech Republic',
+        DK:'Denmark',
+        DJ:'Djibouti',
+        TL:'Timor-leste',
+        EC:'Ecuador',
+        EG:'Egypt',
+        SV:'El Salvador',
+        GQ:'Equatorial Guinea',
+        ER:'Eritrea',
+        EE:'Estonia',
+        ET:'Ethiopia',
+        FK:'Falkland Islands (malvinas)',
+        FO:'Faroe Islands',
+        FJ:'Fiji',
+        FI:'Finland',
+        FR:'France',
+        PF:'French Polynesia',
+        GA:'Gabon',
+        GM:'Gambia',
+        GE:'Georgia',
+        DE:'Germany',
+        GH:'Ghana',
+        GI:'Gibraltar',
+        GR:'Greece',
+        GL:'Greenland',
+        GT:'Guatemala',
+        GN:'Guinea',
+        GW:'Guinea-bissau',
+        GY:'Guyana',
+        HT:'Haiti',
+        HN:'Honduras',
+        HK:'Hong Kong',
+        HU:'Hungary',
+        IN:'India',
+        ID:'Indonesia',
+        IR:'Iran, Islamic Republic Of',
+        IQ:'Iraq',
+        IE:'Ireland',
+        IM:'Isle Of Man',
+        IL:'Israel',
+        IT:'Italy',
+        CI:'Côte D&apos,ivoire',
+        JP:'Japan',
+        JO:'Jordan',
+        KZ:'Kazakhstan',
+        KE:'Kenya',
+        KI:'Kiribati',
+        KW:'Kuwait',
+        KG:'Kyrgyzstan',
+        LA:'Lao People&apos,s Democratic Republic',
+        LV:'Latvia',
+        LB:'Lebanon',
+        LS:'Lesotho',
+        LR:'Liberia',
+        LY:'Libya',
+        LI:'Liechtenstein',
+        LT:'Lithuania',
+        LU:'Luxembourg',
+        MO:'Macao',
+        MK:'Macedonia, The Former Yugoslav Republic Of',
+        MG:'Madagascar',
+        MW:'Malawi',
+        MY:'Malaysia',
+        MV:'Maldives',
+        ML:'Mali',
+        MT:'Malta',
+        MH:'Marshall Islands',
+        MR:'Mauritania',
+        MU:'Mauritius',
+        YT:'Mayotte',
+        MX:'Mexico',
+        FM:'Micronesia, Federated States Of',
+        MD:'Moldova, Republic Of',
+        MC:'Monaco',
+        MN:'Mongolia',
+        ME:'Montenegro',
+        MA:'Morocco',
+        MZ:'Mozambique',
+        NA:'Namibia',
+        NR:'Nauru',
+        NP:'Nepal',
+        NL:'Netherlands',
+        NC:'New Caledonia',
+        NZ:'New Zealand',
+        NI:'Nicaragua',
+        NE:'Niger',
+        NG:'Nigeria',
+        NU:'Niue',
+        KP:'Korea, Democratic People&apos,s Republic Of',
+        NO:'Norway',
+        OM:'Oman',
+        PK:'Pakistan',
+        PW:'Palau',
+        PA:'Panama',
+        PG:'Papua New Guinea',
+        PY:'Paraguay',
+        PE:'Peru',
+        PH:'Philippines',
+        PN:'Pitcairn',
+        PL:'Poland',
+        PT:'Portugal',
+        PR:'Puerto Rico',
+        QA:'Qatar',
+        RO:'Romania',
+        RU:'Russian Federation',
+        RW:'Rwanda',
+        BL:'Saint Barthélemy',
+        WS:'Samoa',
+        SM:'San Marino',
+        ST:'Sao Tome And Principe',
+        SA:'Saudi Arabia',
+        SN:'Senegal',
+        RS:'Serbia',
+        SC:'Seychelles',
+        SL:'Sierra Leone',
+        SG:'Singapore',
+        SK:'Slovakia',
+        SI:'Slovenia',
+        SB:'Solomon Islands',
+        SO:'Somalia',
+        ZA:'South Africa',
+        KR:'Korea, Republic Of',
+        ES:'Spain',
+        LK:'Sri Lanka',
+        SH:'Saint Helena, Ascension And Tristan Da Cunha',
+        PM:'Saint Pierre And Miquelon',
+        SD:'Sudan',
+        SR:'Suriname',
+        SZ:'Swaziland',
+        SE:'Sweden',
+        CH:'Switzerland',
+        SY:'Syrian Arab Republic',
+        TW:'Taiwan, Province Of China',
+        TJ:'Tajikistan',
+        TZ:'Tanzania, United Republic Of',
+        TH:'Thailand',
+        TG:'Togo',
+        TK:'Tokelau',
+        TO:'Tonga',
+        TN:'Tunisia',
+        TR:'Turkey',
+        TM:'Turkmenistan',
+        TV:'Tuvalu',
+        AE:'United Arab Emirates',
+        UG:'Uganda',
+        GB:'United Kingdom',
+        UA:'Ukraine',
+        UY:'Uruguay',
+        US:'United States',
+        UZ:'Uzbekistan',
+        VU:'Vanuatu',
+        VA:'Holy See (vatican City State)',
+        VE:'Venezuela, Bolivarian Republic Of',
+        VN:'Viet Nam',
+        WF:'Wallis And Futuna',
+        YE:'Yemen',
+        ZM:'Zambia',
+        ZW:'Zimbabwe'
+    }
 }
 export = CountryName

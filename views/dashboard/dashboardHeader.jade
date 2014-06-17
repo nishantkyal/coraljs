@@ -1,0 +1,29 @@
+if loggedInUser
+    script(src='/js/app/dashboard/dashboardHeader.js')
+    .navigation
+        .container
+            .masthead-nav
+                nav.navbar.navbar-default(role='navigation')
+                    .container-fluid
+                        // Brand and toggle get grouped for better mobile display
+                        .navbar-header
+                            button.navbar-toggle(type='button', data-toggle='collapse', data-target='#navbar-collapse')
+                                span.sr-only Toggle navigation
+                                span.icon-bar
+                                span.icon-bar
+                                span.icon-bar
+                            .visible-xs.navbar-brand Dashboard
+                        // Collect the nav links, forms, and other content for toggling
+                        #navbar-collapse.collapse.navbar-collapse
+                            ul.nav.navbar-nav.navbar-left
+                                li(name = 'dashboard')
+                                    a(href=DashboardUrls.dashboard()) Dashboard
+                            ul.nav.navbar-nav.navbar-right
+                                li(name= 'networks')
+                                    a(href='') Networks
+                                li(name= 'profile')
+                                    a(href=loggedInUser ? DashboardUrls.userProfile(loggedInUser.id) :'') Profile
+                                li(name= 'payments')
+                                    a(href='/payments') Payments
+                                li(name= 'settings')
+                                    a(href=loggedInUser ? DashboardUrls.userSetting(loggedInUser.id) :'') Settings

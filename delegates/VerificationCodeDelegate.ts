@@ -9,7 +9,6 @@ import PhoneCall                                                = require('../mo
 import IntegrationMemberDelegate                                = require('../delegates/IntegrationMemberDelegate');
 import SMSDelegate                                              = require('../delegates/SMSDelegate');
 import UserDelegate                                             = require('../delegates/UserDelegate');
-import UserPhoneDelegate                                        = require('../delegates/UserPhoneDelegate');
 import Utils                                                    = require('../common/Utils');
 import IncludeFlag                                              = require('../enums/IncludeFlag');
 import SmsTemplate                                              = require('../enums/SmsTemplate');
@@ -22,7 +21,6 @@ class VerificationCodeDelegate
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private emailDelegate;
     private smsDelegate = new SMSDelegate();
-    private userPhoneDelegate = new UserPhoneDelegate();
     private userDelegate = new UserDelegate();
     private notificationDelegate;
 
@@ -156,7 +154,7 @@ class VerificationCodeDelegate
         );
     }
 
-    verifyMobileCode(code:string, phoneNumber:UserPhone):q.Promise<UserPhone>
+    verifyMobileCode(code:string, phoneNumber:UserPhone):q.Promise<any>
     {
         var self = this;
 
@@ -165,7 +163,7 @@ class VerificationCodeDelegate
             function tokenSearched(result)
             {
                 if (result == code)
-                    return self.userPhoneDelegate.create(phoneNumber);
+                    return q.resolve(true);
                 else
                     throw ('Invalid code entered');
             });

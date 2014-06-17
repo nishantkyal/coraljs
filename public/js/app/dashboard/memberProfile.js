@@ -32,50 +32,6 @@ $('#cancelEditUserProfile').click(function()
     $('#editUserProfileCard').hide();
 });
 
-$('#ChangePasswordModal form').bootstrapValidator({
-    rules         : {
-        oldPassword: {required: true },
-        password: { required: true},
-        confirm_password : { required: true, equalTo: "#password"}
-    },
-    errorPlacement: function(error, element)
-    {
-        $(element).attr('title', error[0].innerHTML);
-        $(element).tooltip('show');
-    },
-    highlight     : function(element)
-    {
-        $(element).closest('.form-group').addClass('has-error');
-    },
-    unhighlight   : function(element)
-    {
-        $(element).closest('.form-group').removeClass('has-error');
-    },
-    submitHandler : function()
-    {
-        $.ajax({
-            url : '/member/' + memberId + '/changePassword',
-            type: 'post',
-            data: {
-                oldPass: $('#ChangePasswordModal form #oldPassword').val(),
-                pass: $('#ChangePasswordModal form #password').val()
-            },
-            success: function(res)
-            {
-                bootbox.alert(res, function(){
-                    location.reload();
-                });
-            },
-            error: function(error)
-            {
-                bootbox.alert(error.responseText, function(){
-                    location.reload();
-                });
-            }
-        })
-    }
-});
-
 $('form#editUserProfileForm').bootstrapValidator({
     submitHandler : function()
     {

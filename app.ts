@@ -75,8 +75,8 @@ var helpers =
     ItemType: Utils.enumToNormalText(ItemType),
     TransactionType: Utils.enumToNormalText(TransactionType),
     IntegrationMemberRole: Utils.enumToNormalText(IntegrationMemberRole),
-    CountryCode: Utils.enumToNormalText(CountryCode),
-    CountryName: Utils.enumToNormalText(CountryName),
+    CountryCode: CountryCode,
+    CountryName: Utils.enumToNormalText(CountryName.CountryName),
 
     minYear: Config.get(Config.MINIMUM_YEAR),
     currentYear: moment().format('YYYY')

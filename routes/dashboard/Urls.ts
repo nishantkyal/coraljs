@@ -11,7 +11,6 @@ class Urls
     static linkedInLogin() { return ApiUrlDelegate.get('/login/linkedin'); }
     static linkedInLoginCallback() { return ApiUrlDelegate.get('/login/linkedin/callback'); }
     static forgotPassword() { return ApiUrlDelegate.get('/forgotPassword'); }
-    static changePassword(memberId?:number) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/changePassword', {memberId: memberId}); }
     static callDetails(memberId?:number) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/callDetails', {memberId: memberId}); }
     static revenueDetails(memberId?:number) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/revenueDetails', {memberId: memberId}); }
     static emailAccountVerification() { return ApiUrlDelegate.get('/email/verification'); }
@@ -20,6 +19,7 @@ class Urls
     static dashboard() { return ApiUrlDelegate.get('/dashboard'); }
     static integration() { return ApiUrlDelegate.get('/network'); }
     static userProfile(userId?:number, baseUrl?:string) { return ApiUrlDelegate.get('/user/:userId(\\d+)/profile', {userId: userId}, baseUrl); }
+    static userSetting(userId?:number, baseUrl?:string) { return ApiUrlDelegate.get('/user/:userId(\\d+)/setting', {userId: userId}, baseUrl); }
     static userSchedule(userId?:number) { return ApiUrlDelegate.get('/user/:userId(\\d+)/schedule', {userId: userId}); }
 
     static logout() { return ApiUrlDelegate.get('/logout'); }

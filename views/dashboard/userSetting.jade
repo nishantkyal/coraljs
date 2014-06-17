@@ -1,0 +1,107 @@
+include ../header
+include dashboardHeader
+title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setting
+.matter
+    .container
+        .row
+            .content.col-md-4
+                .row
+                    nav.navbar.navbar-default.section-navbar(role='navigation')
+                        .navbar-header
+                            button.navbar-toggle.collapsed(type='button', data-toggle='collapse', data-target='#networks-collapse')
+                                span.sr-only Toggle profile navigation
+                                i.icon-plus
+                                i.icon-minus
+                            .visible-xs.navbar-brand.network-brand Profile
+                        #networks-collapse.collapse.navbar-collapse
+                            ul.nav.nav-pills.nav-stacked
+                                li.active(name='phoneDetailsLink')
+                                    a Phone Details
+                                li(name='changePasswordLink')
+                                    a Change Password
+            //
+               /.content
+            .content.col-md-8
+                .row
+                    .card#phoneDetails
+                        .item
+                            .row
+                                h5.col-xs-8 Phone details
+                                .header-link.col-xs-4
+                                    a.btn.btn-primary(data-id=userPhone.id, name = 'editUserPhone')
+                                        i.icon-pencil
+                        .item
+                            .row
+                                div
+                                    if userPhone
+                                        div Current Phone numnber -
+                                            big #{formatPhone(userPhone)}
+                    .card#editUserPhoneCard(style='display: none;')
+                        form#editUserPhoneForm
+                            .item-edit
+                                .item
+                                    .row
+                                        h5.col-xs-8 Edit Phone Details
+                                        .header-link.col-xs-4
+                                            a.btn.btn-danger#cancelEditUserPhone
+                                                i.icon-cancel
+                                .item
+                                    .row
+                                        .form-group
+                                        .row
+                                            .col-xs-4
+                                                select.form-control(name='countryCode')
+                                                    for name,abb in CountryName
+                                                        -var code = CountryCode[abb];
+                                                        option(value=code, selected=code == userPhone.country_code)= name + ' (+' + code + ')'
+                                            .col-xs-8
+                                                input.form-control.phone-number(type='text', placeholder='Phone Number', name='phoneNumber', id=userPhone.id)
+                                        .clearer
+                                            div.links-editing
+                                                p.edit-schedules
+                                                    input.btn.btn-primary(type='submit', value='Verify and Update', name='update')
+                    .card#verifyUserPhoneCard(style='display: none;')
+                        form#verifyUserPhoneForm
+                            .item-edit
+                                .item
+                                    .row
+                                        h5.col-xs-8 Verify Phone Details
+                                        .header-link.col-xs-4
+                                            a.btn.btn-danger#cancelVerifyUserPhone
+                                                i.icon-cancel
+                                .item
+                                    .row
+                                        .form-group
+                                            label Verification code
+                                            input.form-control(type='text', name='verificationCode', id=userPhone.id)
+                                        .clearer
+                                            div.links-editing
+                                                p.edit-schedules
+                                                    input.btn.btn-primary(type='submit', value='Verify', name='verify')
+                    .card#changePasswordCard(style='display: none;')
+                        form#changePasswordForm
+                            .item-edit
+                                .item
+                                    .row
+                                        h5.col-xs-8 ChangePassword
+                                        .header-link.col-xs-4
+                                            a.btn.btn-danger#cancelChangePassword
+                                                i.icon-cancel
+                                .item
+                                    .row
+                                        .form-group
+                                            label Old Password
+                                            input.form-control(type='password', name='oldPassword')
+                                        .form-group
+                                            label New Password
+                                            input.form-control(type='password', name='newPassword')
+                                        .form-group
+                                            label Confirm Password
+                                            input.form-control(type='password', name='confirmPassword')
+                                        .clearer
+                                            div.links-editing
+                                                p.edit-schedules
+                                                    input.btn.btn-primary(type='submit', value='Change', name='changePassword')
+script.
+    var user = JSON.parse( '!{JSON.stringify(loggedInUser)}' );
+script(src='/js/app/dashboard/userSetting.js')
