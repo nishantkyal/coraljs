@@ -195,7 +195,7 @@ app.listen(app.get('port'), function ()
             return q.all(newTasks);
         });
 
-    scheduledTaskDelegate.eventEmitter.on('taskCompletedEvent', function(taskType:ScheduledTaskType){
+    scheduledTaskDelegate.on('taskCompletedEvent', function(taskType:ScheduledTaskType){
         if (taskType == ScheduledTaskType.TIMEZONE_REFRESH)
         {
             log4js.getDefaultLogger().debug('Timezones updated');

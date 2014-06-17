@@ -1,3 +1,4 @@
+import events                                                   = require('events');
 import q                                                        = require('q');
 import _                                                        = require('underscore');
 import log4js                                                   = require('log4js');
@@ -17,18 +18,11 @@ interface TimeoutAndTask
     timeout:any;
 }
 
-class ScheduledTaskDelegate
+class ScheduledTaskDelegate extends events.EventEmitter
 {
     logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
     private static tasks:{[id:number]: TimeoutAndTask} = {};
     private static instance;
-    eventEmitter;
-
-    constructor()
-    {
-        var events = require('events');
-        this.eventEmitter = new events.EventEmitter();
-    }
 
     static getInstance():ScheduledTaskDelegate
     {
@@ -65,7 +59,7 @@ class ScheduledTaskDelegate
             task.execute()
                 .then(function taskExecuted()
                 {
-                    self.eventEmitter.emit('taskCompletedEvent', task.getTaskType())
+                    self.emit('taskCompletedEvent', task.getTaskType())
                 })
             self.cancel(task.getId());
         }, interval);
