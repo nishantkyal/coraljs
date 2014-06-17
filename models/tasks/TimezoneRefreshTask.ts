@@ -5,19 +5,22 @@ import moment                                                   = require('momen
 import log4js                                                   = require('log4js');
 import AbstractScheduledTask                                    = require('./AbstractScheduledTask');
 import TimezoneDelegate                                         = require('../../delegates/TimezoneDelegate');
-import ScheduledTaskDelegate                                    = require('../../delegates/ScheduledTaskDelegate');
 import Config                                                   = require('../../common/Config');
 import Utils                                                    = require('../../common/Utils');
 import ScheduledTaskType                                        = require('../../enums/ScheduledTaskType');
 
 class TimezoneRefreshTask extends AbstractScheduledTask
 {
-    timezoneDelegate = new TimezoneDelegate();
-    scheduledTaskDelegate = ScheduledTaskDelegate.getInstance();
+    private timezoneDelegate = new TimezoneDelegate();
+    private scheduledTaskDelegate;
 
     constructor()
     {
         super();
+
+        var ScheduledTaskDelegate = require('../../delegates/ScheduledTaskDelegate');
+        this.scheduledTaskDelegate = ScheduledTaskDelegate.getInstance();
+
         this.setTaskType(ScheduledTaskType.TIMEZONE_REFRESH);
     }
 

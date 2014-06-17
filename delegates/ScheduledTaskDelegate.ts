@@ -6,9 +6,7 @@ import moment                                                   = require('momen
 import GlobalIdDelegate                                         = require('../delegates/GlobalIDDelegate');
 import Utils                                                    = require('../common/Utils');
 import Config                                                   = require('../common/Config');
-import PhoneCall                                                = require('../models/PhoneCall');
 import AbstractScheduledTask                                    = require('../models/tasks/AbstractScheduledTask');
-import PhoneCallCache                                           = require('../caches/PhoneCallCache');
 import CacheHelper                                              = require('../caches/CacheHelper');
 import ScheduledTaskType                                        = require('../enums/ScheduledTaskType');
 import TaskTypeFactory                                          = require('../factories/TaskTypeFactory');
@@ -163,11 +161,12 @@ class ScheduledTaskDelegate extends events.EventEmitter
             .then(
             function tasksFetched(results):any
             {
+                results = results || [];
+
                 self.logger.debug("Tasks fetched from redis, total: %s", results.length);
 
                 return _.map(results, function (result:any)
                 {
-
                     if (result[AbstractScheduledTask.START_TIME] > moment().valueOf())
                     {
                         self.logger.debug("Task reinstantiated from redis, task: %s", JSON.stringify(result));
@@ -179,7 +178,8 @@ class ScheduledTaskDelegate extends events.EventEmitter
                         return self.syncToRedis();
                     }
                 });
-            },
+            })
+            .fail(
             function tasksFetchError(error)
             {
                 self.logger.error("Error in Syncing Scheduled Tasks From Redis");

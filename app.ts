@@ -186,7 +186,7 @@ app.listen(app.get('port'), function ()
     log4js.getDefaultLogger().debug('Fetching tasks from redis');
 
     scheduledTaskDelegate.syncFromRedis()
-        .then(
+        .done(
         function tasksSynced()
         {
             log4js.getDefaultLogger().debug('Tasks synced from redis. Scheduling timezone and call scheduler tasks');
