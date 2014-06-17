@@ -28,6 +28,7 @@ import MysqlDelegate                                    = require('../../delegat
 import UserUrlDelegate                                  = require('../../delegates/UserUrlDelegate');
 import TransactionDelegate                              = require('../../delegates/TransactionDelegate');
 import TransactionLineDelegate                          = require('../../delegates/TransactionLineDelegate');
+import ExpertiseDelegate                                = require('../../delegates/ExpertiseDelegate');
 import MoneyUnit                                        = require('../../enums/MoneyUnit');
 import IncludeFlag                                      = require('../../enums/IncludeFlag');
 import TransactionType                                  = require('../../enums/TransactionType');
@@ -44,6 +45,7 @@ import TransactionLine                                  = require('../../models/
 import ScheduleRule                                     = require('../../models/ScheduleRule');
 import CronRule                                         = require('../../models/CronRule');
 import PricingScheme                                    = require('../../models/PricingScheme');
+import Expertise                                        = require('../../models/Expertise');
 import IntegrationMemberRole                            = require('../../enums/IntegrationMemberRole');
 import ApiConstants                                     = require('../../enums/ApiConstants');
 import SmsTemplate                                      = require('../../enums/SmsTemplate');
@@ -74,7 +76,6 @@ class DashboardRoute
     private static PAGE_SCHEDULE:string = 'dashboard/userSchedule';
     private static PAGE_SETTING:string  = 'dashboard/userSetting';
 
-    private integrationDelegate = new IntegrationDelegate();
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private userDelegate = new UserDelegate();
     private verificationCodeDelegate = new VerificationCodeDelegate();
@@ -90,6 +91,7 @@ class DashboardRoute
     private userProfileDelegate = new UserProfileDelegate();
     private userUrlDelegate = new UserUrlDelegate();
     private transactionLineDelegate = new TransactionLineDelegate();
+    private expertiseDelegate = new ExpertiseDelegate();
 
     constructor(app, secureApp)
     {
@@ -350,7 +352,8 @@ class DashboardRoute
                         self.userSkillDelegate.getSkillWithName(userProfile.getId()),
                         self.userEducationDelegate.search({'profileId': userProfile.getId()}),
                         self.userEmploymentDelegate.search({'profileId': userProfile.getId()}),
-                        self.userUrlDelegate.search({'profileId': userProfile.getId()})
+                        self.userUrlDelegate.search({'profileId': userProfile.getId()}),
+                        self.expertiseDelegate.search(Utils.createSimpleObject(Expertise.USER_ID, userId))
                     ]);
 
                 return [userProfile, q.all(profileInfoTasks)];
@@ -363,6 +366,8 @@ class DashboardRoute
                 var userEducation = args[0][2] || [];
                 var userEmployment = args[0][3] || [];
                 var userUrl = args[0][4] || [];
+                var expertise = args[0][5] || [];
+
                 var isEditable = loggedInUser ? loggedInUser.getId() == user.getId() : false;
 
                 if (mode == ApiConstants.PUBLIC_MODE)
@@ -378,6 +383,7 @@ class DashboardRoute
                     'userProfile': userProfile,
                     'userEducation': userEducation,
                     'userEmployment': userEmployment,
+                    'userExpertise': expertise,
                     'userUrl': userUrl,
                     'messages': req.flash(),
                     'isEditable': isEditable

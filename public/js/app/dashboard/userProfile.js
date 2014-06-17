@@ -33,44 +33,44 @@ $('#cancelEditUserProfile').click(function()
 });
 
 $('form#editUserProfileForm').bootstrapValidator({
-    submitHandler : function()
+    submitHandler: function()
     {
         $.ajax({
-            url : '/rest/user/' + user.id,
-            type: 'post',
-            data: {
+            url    : '/rest/user/' + user.id,
+            type   : 'post',
+            data   : {
                 user: {
-                    title           : $('form#editUserProfileForm select[name="title"]').val(),
-                    first_name      : $('form#editUserProfileForm input[name="first_name"]').val(),
-                    last_name       : $('form#editUserProfileForm input[name="last_name"]').val(),
-                    industry        : $('form#editUserProfileForm select[name="industry"]').val(),
-                    timezone        : $('form#editUserProfileForm select[name="timezone"]').val(),
-                    date_of_birth   : $('form#editUserProfileForm input[name="birthDate"]').val()
+                    title        : $('form#editUserProfileForm select[name="title"]').val(),
+                    first_name   : $('form#editUserProfileForm input[name="first_name"]').val(),
+                    last_name    : $('form#editUserProfileForm input[name="last_name"]').val(),
+                    industry     : $('form#editUserProfileForm select[name="industry"]').val(),
+                    timezone     : $('form#editUserProfileForm select[name="timezone"]').val(),
+                    date_of_birth: $('form#editUserProfileForm input[name="birthDate"]').val()
                 }
             },
             success: function()
             {
                 $.ajax({
-                    url : '/rest/user/profile/' + userProfile.id,
-                    type: 'post',
-                    data: {
+                    url    : '/rest/user/profile/' + userProfile.id,
+                    type   : 'post',
+                    data   : {
                         userProfile: {
-                            id              : userProfile.id,
-                            short_desc      : $('form#editUserProfileForm input[name="short_desc"]').val(),
-                            long_desc       : $('form#editUserProfileForm input[name="long_desc"]').val()
+                            id        : userProfile.id,
+                            short_desc: $('form#editUserProfileForm input[name="short_desc"]').val(),
+                            long_desc : $('form#editUserProfileForm input[name="long_desc"]').val()
                         }
                     },
                     success: function()
                     {
                         location.reload();
                     },
-                    error: function(error)
+                    error  : function(error)
                     {
                         bootbox.alert(error.responseText);
                     }
                 })
             },
-            error: function(error)
+            error  : function(error)
             {
                 bootbox.alert(error.responseText);
             }
@@ -81,8 +81,8 @@ $('form#editUserProfileForm').bootstrapValidator({
         invalid   : 'glyphicon glyphicon-remove',
         validating: 'glyphicon glyphicon-refresh'
     },
-    fields         : {
-        first_name : {
+    fields       : {
+        first_name: {
             validators: {
                 notEmpty: {
                     message: 'This field is required and cannot be empty'
@@ -102,7 +102,8 @@ $('form#editUserProfileForm').bootstrapValidator({
 /* FILE UPLOAD */
 
 // Proxy for file upload control
-$('#selectFileBtn').click(function() {
+$('#selectFileBtn').click(function()
+{
     $('#selectFile').click();
 });
 
@@ -121,21 +122,21 @@ $('#selectFile').change(function uploadFiles(event)
     });
 
     $.ajax({
-        url: $('#fileUploadForm').attr('action'),
-        type: 'POST',
-        data: data,
-        cache: false,
-        dataType: 'json',
+        url        : $('#fileUploadForm').attr('action'),
+        type       : 'POST',
+        data       : data,
+        cache      : false,
+        dataType   : 'json',
         processData: false, // Don't process the files
         contentType: false, // Set content type to false as jQuery will tell the server its a query string request
-        success: function(data, textStatus, jqXHR)
+        success    : function(data, textStatus, jqXHR)
         {
-            if(typeof data.error === 'undefined')
+            if (typeof data.error === 'undefined')
                 $('#profileImage').attr('src', data.url + '?' + Math.random());
             else
                 console.log('ERRORS: ' + data.error);
         },
-        error: function(jqXHR, textStatus, errorThrown)
+        error      : function(jqXHR, textStatus, errorThrown)
         {
             // Handle errors here
             console.log('ERRORS: ' + textStatus);
@@ -159,19 +160,19 @@ function submitForm(event, data)
     });
 
     $.ajax({
-        url: 'submit.php',
-        type: 'POST',
-        data: formData,
-        cache: false,
+        url     : 'submit.php',
+        type    : 'POST',
+        data    : formData,
+        cache   : false,
         dataType: 'json',
-        success: function(data, textStatus, jqXHR)
+        success : function(data, textStatus, jqXHR)
         {
-            if(typeof data.error === 'undefined')
+            if (typeof data.error === 'undefined')
                 $('#profileImage').attr('src', data.url);
             else
                 console.log('ERRORS: ' + data.error);
         },
-        error: function(jqXHR, textStatus, errorThrown)
+        error   : function(jqXHR, textStatus, errorThrown)
         {
             console.log('ERRORS: ' + textStatus);
         },
@@ -186,25 +187,29 @@ var skillSet = [];
 var fetchedSkill = new Bloodhound({
     datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
     queryTokenizer: Bloodhound.tokenizers.whitespace,
-    limit:10,
-    remote: {
-        url     : 'http://www.linkedin.com/ta/skill?query=',
-        replace: function(url, query) {
+    limit         : 10,
+    remote        : {
+        url    : 'http://www.linkedin.com/ta/skill?query=',
+        replace: function(url, query)
+        {
             return url + query;
         },
-        ajax:{
+        ajax   : {
             dataType: 'jsonp',
-            method: 'get'
+            method  : 'get'
         },
-        filter: function(response) {
+        filter : function(response)
+        {
             $('form#AddUserSkillForm #spinningWheel').hide();
-            skillSet =  $.map(response.resultList, function (skill){
+            skillSet = $.map(response.resultList, function(skill)
+            {
                 return {
                     value: skill.displayName,
                     code: skill.id
                 };
             });
             var skillString = $.map(skillSet,  function(skill){
+            {
                 return skill.value
             });
             return skillString;
@@ -217,14 +222,13 @@ fetchedSkill.initialize();
 var count = 0;
 $('form#AddUserSkillForm .typeahead').keypress(function(event)
 {
-    if(event.key == 'Backspace')
-    {
-        if(count > 0)
+    if (event.key == 'Backspace') {
+        if (count > 0)
             count--;
     }
     else
         count++;
-    if(count>0)
+    if (count > 0)
         $('form#AddUserSkillForm #spinningWheel').show();
     else
         $('form#AddUserSkillForm #spinningWheel').hide();
@@ -232,28 +236,29 @@ $('form#AddUserSkillForm .typeahead').keypress(function(event)
 
 $('form#AddUserSkillForm .typeahead').typeahead(
     {
-        items: 'all',
-        name: 'skillName',
-        source : fetchedSkill.ttAdapter()
+        items : 'all',
+        name  : 'skillName',
+        source: fetchedSkill.ttAdapter()
     }
 );
 
 $('form#AddUserSkillForm').bootstrapValidator({
-    submitHandler : function()
+    submitHandler: function()
     {
         var updatedSkill = $('#AddUserSkillForm input[name="skill_name"]').val();
         var skillLkinCode;
-        $.each(skillSet, function(key,skill){
-            if(skill.value == updatedSkill)
+        $.each(skillSet, function(key, skill)
+        {
+            if (skill.value == updatedSkill)
                 skillLkinCode = skill.code;
         });
         $.ajax({
-            url : '/rest/user/skill',
-            type: 'put',
-            data: {
-                skill: {
-                    skill_linkedin_code     :   skillLkinCode,
-                    skill_name              :   updatedSkill
+            url    : '/rest/user/skill',
+            type   : 'put',
+            data   : {
+                skill    : {
+                    skill_linkedin_code: skillLkinCode,
+                    skill_name         : updatedSkill
                 },
                 profileId: userProfile.id
             },
@@ -268,8 +273,8 @@ $('form#AddUserSkillForm').bootstrapValidator({
         invalid   : 'glyphicon glyphicon-remove',
         validating: 'glyphicon glyphicon-refresh'
     },
-    fields         : {
-        skill_name : {
+    fields       : {
+        skill_name: {
             validators: {
                 notEmpty: {
                     message: 'This field is required and cannot be empty'
@@ -285,9 +290,9 @@ $('[name="deleteUserSkill"]').click(function()
     $.ajax({
         url    : '/rest/user/skill/' + skillId,
         type   : 'DELETE',
-        data: {
-            id              : skillId,
-            profileId       : userProfile.id
+        data   : {
+            id       : skillId,
+            profileId: userProfile.id
         },
         success: function()
         {
@@ -298,16 +303,74 @@ $('[name="deleteUserSkill"]').click(function()
 
 $('#fetchProfilePicture,#fetchSkill,#fetchEmployment,#fetchEducation,#fetchBasic').click(function(event)
 {
-   bootbox.confirm('Are you sure you want to replace the current information with information from LinkedIn?', function(result)
-   {
-      if (result)
-      {
-          location.href = '/member/profileFromLinkedIn/' + userProfile.id + '?userId=' + user.id + '&' + $(event.currentTarget).attr('id')+ '=on';
-      }
-   });
+    bootbox.confirm('Are you sure you want to replace the current information with information from LinkedIn?', function(result)
+    {
+        if (result) {
+            location.href = '/member/profileFromLinkedIn/' + userProfile.id + '?userId=' + user.id + '&' + $(event.currentTarget).attr('id') + '=on';
+        }
+    });
+});
+
+$('form#expertiseDetails').bootstrapValidator({
+    fields: {
+        'title'            : {
+            validators: {
+                required: { message: 'This field is required'}
+            }
+        },
+        charging_rate      : {
+            validators: {
+
+            }
+        },
+        chunk_size         : {
+            validators: {
+
+            }
+        },
+        min_duration       : {
+            validators: {
+                callback
+            }
+        },
+        description        : {
+            validators: {
+                required: { message: 'This field is required'}
+            }
+        },
+        years_of_experience: {
+            validators: {
+                digits: { message: 'This field is required'}
+            }
+        }
+    }
 });
 
 $('#addExpertiseBtn').click(function()
 {
+    $('form#expertiseDetails').trigger('reset');
+    $('form#expertiseDetails').data('bootstrapValidator').resetForm();
 
+    $('#expertiseDetails').show();
+});
+
+$('#editExpertiseBtn').click(function()
+{
+    var expertiseId = '';
+    var expertise = _.findWhere(expertiseList, {id: expertiseId});
+
+    populateForm($('form#userExpertise'), expertise);
+    $('form#expertiseDetails').data('bootstrapValidator').resetForm();
+
+    $('#expertiseDetails').show();
+});
+
+$('#cancelExpertiseDetails').click(function()
+{
+    $('#expertiseDetails').hide();
+});
+
+$('#sessionToggle input').change(function()
+{
+    $('#expertiseDetails #pricing').toggle($('#sessionToggle input[name=pricing_scheme_id]:checked').val() != '0');
 });
