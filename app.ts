@@ -183,10 +183,14 @@ app.listen(app.get('port'), function ()
     var scheduledTaskDelegate = ScheduledTaskDelegate.getInstance();
 
     // Sync scheduled tasks from cache and create the call scheduler task if doesn't already exist
+    log4js.getDefaultLogger().debug('Fetching tasks from redis');
+
     scheduledTaskDelegate.syncFromRedis()
         .then(
         function tasksSynced()
         {
+            log4js.getDefaultLogger().debug('Tasks synced from redis. Scheduling timezone and call scheduler tasks');
+
             var newTasks = [scheduledTaskDelegate.scheduleAfter(new TimezoneRefreshTask(), 1)];
 
             if (Utils.isNullOrEmpty(scheduledTaskDelegate.find(ScheduledTaskType.CALL_SCHEDULE)))
