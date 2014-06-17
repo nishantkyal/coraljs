@@ -233,8 +233,9 @@ include ../header
                                         .row
                                             .col-xs-4
                                                 select.form-control#country-code
-                                                    for code,country in CountryCode
-                                                        option(value=country, selected=country==country_code)= CountryName[code.toUpperCase()] + ' (+' + country + ')'
+                                                    for name,abb in CountryName
+                                                        -var code = CountryCode[abb];
+                                                        option(value=code, selected=code ==country_code)= name + ' (+' + code + ')'
                                             .col-xs-8
                                                 input.form-control.phone-number#caller-phone(type='text', placeholder='Phone Number', value=caller_phone)
                                 .row.input-row

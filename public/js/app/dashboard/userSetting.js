@@ -1,23 +1,72 @@
+var cards = ['#schedule','#scheduleDetails','#pricing','#changePasswordCard','#phoneDetails','#editUserPhoneCard','#verifyUserPhoneCard'];
+function showAndHideCards(cardsToShow)
+{
+    _.each(cardsToShow, function(showCard){ $(showCard).show(); })
+
+    var temp = _.filter(cards, function(hideCard){
+        return _.find(cardsToShow, function(showCard){ return hideCard == showCard; }) ? false : true;
+    });
+
+    _.each(temp,
+        function(card){
+            $(card).hide();
+        })
+}
+
+$(function(){
+    showAndHideCards(['#phoneDetails']);
+})
+
 $('[name="phoneDetailsLink"]').click(function()
 {
-    if(!$('[name="phoneDetails"]').hasClass('active'))
+    if(!$('[name="phoneDetailsLink"]').hasClass('active'))
     {
-        $('[name="phoneDetails"]').addClass('active').siblings().removeClass('active');
-        $('#changePasswordCard').hide();
-        $('#phoneDetails').show();
+        $('[name="phoneDetailsLink"]').addClass('active').siblings().removeClass('active');
+        showAndHideCards(['#phoneDetails'])
     }
 });
 
-$('[name="editUserPhone"]').click(function()
+$('[name="scheduleAndPricingLink"]').click(function()
 {
-    $('#editUserPhoneCard').show();
-    $('#phoneDetails').hide();
+    if(!$('[name="scheduleAndPricingLink"]').hasClass('active'))
+    {
+        $('[name="scheduleAndPricingLink"]').addClass('active').siblings().removeClass('active');
+        showAndHideCards(['#schedule','#pricing']);
+    }
+});
+
+$('[name="changePasswordLink"]').click(function()
+{
+    showAndHideCards(['#changePasswordCard']);
+    $('[name="changePasswordLink"]').addClass('active').siblings().removeClass('active');
+
+    $('form#changePasswordForm').trigger('reset');
+    $('form#changePasswordForm').data('bootstrapValidator').resetForm();
 });
 
 $('#cancelEditUserPhone').click(function()
 {
     $('#phoneDetails').show();
     $('#editUserPhoneCard').hide();
+});
+
+$('#cancelVerifyUserPhone').click(function()
+{
+    $('#phoneDetails').show();
+    $('#verifyUserPhoneCard').hide();
+});
+
+$('#cancelChangePassword').click(function()
+{
+    $('#phoneDetails').show();
+    $('[name="phoneDetailsLink"]').addClass('active').siblings().removeClass('active');
+    $('#changePasswordCard').hide();
+});
+
+$('[name="editUserPhone"]').click(function()
+{
+    $('#editUserPhoneCard').show();
+    $('#phoneDetails').hide();
 });
 
 $('form#editUserPhoneForm').bootstrapValidator({
@@ -96,31 +145,6 @@ $('form#verifyUserPhoneForm').bootstrapValidator({
             }
         }
     }
-});
-
-$('#cancelVerifyUserPhone').click(function()
-{
-    $('#phoneDetails').show();
-    $('#verifyUserPhoneCard').hide();
-});
-
-$('[name="changePasswordLink"]').click(function()
-{
-    $('#editUserPhoneCard').hide();
-    $('#phoneDetails').hide();
-    $('#verifyUserPhoneCard').hide();
-    $('#changePasswordCard').show();
-
-    $('[name="changePassword"]').addClass('active').siblings().removeClass('active');
-
-    $('form#changePasswordForm').trigger('reset');
-    $('form#changePasswordForm').data('bootstrapValidator').resetForm();
-});
-
-$('#cancelChangePassword').click(function()
-{
-    $('#phoneDetails').show();
-    $('#changePasswordCard').hide();
 });
 
 $('form#changePasswordForm').bootstrapValidator({

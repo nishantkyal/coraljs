@@ -20,7 +20,6 @@ class Urls
     static integration() { return ApiUrlDelegate.get('/network'); }
     static userProfile(userId?:number, baseUrl?:string) { return ApiUrlDelegate.get('/user/:userId(\\d+)/profile', {userId: userId}, baseUrl); }
     static userSetting(userId?:number, baseUrl?:string) { return ApiUrlDelegate.get('/user/:userId(\\d+)/setting', {userId: userId}, baseUrl); }
-    static userSchedule(userId?:number) { return ApiUrlDelegate.get('/user/:userId(\\d+)/schedule', {userId: userId}); }
 
     static logout() { return ApiUrlDelegate.get('/logout'); }
     static paymentCallback() { return ApiUrlDelegate.get('/payment/complete'); }

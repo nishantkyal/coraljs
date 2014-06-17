@@ -103,7 +103,6 @@ class DashboardRoute
         app.get(Urls.dashboard(), AuthenticationDelegate.checkLogin({failureRedirect: Urls.login()}), this.dashboard.bind(this));
         app.get(Urls.integration(), Middleware.allowOwnerOrAdmin, this.integration.bind(this));
         app.get(Urls.userProfile(), this.userProfile.bind(this));
-        app.get(Urls.userSchedule(), Middleware.allowOnlyMe, this.schedule.bind(this));
         app.get(Urls.userSetting(), Middleware.allowOnlyMe, this.setting.bind(this));
 
         app.get(Urls.callDetails(), Middleware.allowMeOrAdmin, this.callDetails.bind(this));
@@ -414,7 +413,7 @@ class DashboardRoute
         res.send(200);
     }
 
-    schedule(req:express.Request, res:express.Response)
+    setting(req:express.Request, res:express.Response)
     {
         var self = this;
         var userId:number = parseInt(req.params[ApiConstants.USER_ID]);
@@ -422,13 +421,14 @@ class DashboardRoute
 
         q.all([
             self.scheduleRuleDelegate.getRulesByUser(userId),
-            self.pricingSchemeDelegate.search(Utils.createSimpleObject(PricingScheme.USER_ID, userId))
+            self.pricingSchemeDelegate.search(Utils.createSimpleObject(PricingScheme.USER_ID, userId)),
+            self.userPhoneDelegate.search({user_id:userId})
         ])
-            .then(
-            function rulesFetched(...args)
+            .then( function detailsFetched(...args)
             {
                 var rules:ScheduleRule[] = args[0][0];
                 var pricingSchemes:PricingScheme[] = args[0][1];
+                var userPhone:UserPhone[] = args[0][2];
 
                 _.each(rules || [], function (rule:ScheduleRule)
                 {
@@ -436,26 +436,9 @@ class DashboardRoute
                 });
 
                 var pageData = _.extend(sessionData.getData(), {
-                    rules: rules || [],
-                    scheme: pricingSchemes[0] || new PricingScheme()
-                });
-                res.render(DashboardRoute.PAGE_SCHEDULE, pageData);
-            },
-            function errorInFetching(error) { res.send(500, error)}
-        );
-    }
-
-    setting(req:express.Request, res:express.Response)
-    {
-        var self = this;
-        var userId:number = parseInt(req.params[ApiConstants.USER_ID]);
-        var sessionData = new SessionData(req);
-
-        self.userPhoneDelegate.search({user_id:userId})
-            .then( function phoneFetched(userPhone:UserPhone[])
-            {
-                var pageData = _.extend(sessionData.getData(), {
                     userPhone : userPhone[0],
+                    rules: rules || [],
+                    scheme: pricingSchemes? pricingSchemes[0] : new PricingScheme()
                 });
                 res.render(DashboardRoute.PAGE_SETTING, pageData);
             })

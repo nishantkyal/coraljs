@@ -17,11 +17,14 @@ title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setti
                             ul.nav.nav-pills.nav-stacked
                                 li.active(name='phoneDetailsLink')
                                     a Phone Details
+                                li(name='scheduleAndPricingLink')
+                                    a Schedules and Pricing
                                 li(name='changePasswordLink')
                                     a Change Password
             //
                /.content
             .content.col-md-8
+                include userSchedule
                 .row
                     .card#phoneDetails
                         .item

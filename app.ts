@@ -42,7 +42,7 @@ import MemberRegistrationUrls                       = require('./routes/expertRe
 var pjson                                           = require('./package.json');
 
 log4js.configure('/var/searchntalk/config/log4js.json');
-Config.set(Config.VERSION, pjson.version);
+Config.set(Config.VERSION, pjson['version']);
 
 var app:express.Application = express();
 
