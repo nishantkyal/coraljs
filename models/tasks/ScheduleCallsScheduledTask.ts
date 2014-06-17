@@ -70,7 +70,7 @@ class ScheduleCallsScheduledTask extends AbstractScheduledTask
             function triggerAfterOneHour()
             {
                 var millis:number = parseInt(Config.get(Config.PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS)) * 1000;
-                return q.resolve(scheduledTaskDelegate.scheduleAfter(new ScheduleCallsScheduledTask(), millis));
+                return scheduledTaskDelegate.scheduleAfter(new ScheduleCallsScheduledTask(), millis);
             });
     }
 

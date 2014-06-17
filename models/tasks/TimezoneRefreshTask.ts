@@ -30,7 +30,7 @@ class TimezoneRefreshTask extends AbstractScheduledTask
             function triggerAfterOneDay()
             {
                 var millis:number = parseInt(Config.get(Config.TIMEZONE_REFRESH_INTERVAL_SECS)) * 1000;
-                return q.resolve(self.scheduledTaskDelegate.scheduleAfter(new TimezoneRefreshTask(), millis));
+                return self.scheduledTaskDelegate.scheduleAfter(new TimezoneRefreshTask(), millis);
             });
     }
 

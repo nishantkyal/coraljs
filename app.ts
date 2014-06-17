@@ -1,5 +1,6 @@
 ///<reference path='./_references.d.ts'/>
 import _                                            = require('underscore');
+import q                                            = require('q');
 import repl                                         = require('repl');
 import express                                      = require('express');
 var connect                                         = require('connect');
@@ -186,10 +187,12 @@ app.listen(app.get('port'), function ()
         .then(
         function tasksSynced()
         {
-            if (Utils.isNullOrEmpty(scheduledTaskDelegate.find(ScheduledTaskType.CALL_SCHEDULE)))
-                scheduledTaskDelegate.scheduleAfter(new ScheduleCallsScheduledTask(), 1);
+            var newTasks = [scheduledTaskDelegate.scheduleAfter(new TimezoneRefreshTask(), 1)];
 
-            scheduledTaskDelegate.scheduleAfter(new TimezoneRefreshTask(), 1);
+            if (Utils.isNullOrEmpty(scheduledTaskDelegate.find(ScheduledTaskType.CALL_SCHEDULE)))
+                newTasks.push(scheduledTaskDelegate.scheduleAfter(new ScheduleCallsScheduledTask(), 1));
+
+            return q.all(newTasks);
         });
 
     scheduledTaskDelegate.eventEmitter.on('taskCompletedEvent', function(taskType:ScheduledTaskType){
@@ -204,7 +207,3 @@ app.listen(app.get('port'), function ()
 
     log4js.getDefaultLogger().debug("SearchNTalk started on port %d in %s mode", app.get('port'), app.settings.env);
 });
-
-/* Awesome REPL to enable debugging in prod */
-var local = repl.start("node::local> ");
-//local.context.helpers = helpers;
