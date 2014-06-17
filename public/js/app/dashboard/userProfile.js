@@ -306,3 +306,8 @@ $('#fetchProfilePicture,#fetchSkill,#fetchEmployment,#fetchEducation,#fetchBasic
       }
    });
 });
+
+$('#addExpertiseBtn').click(function()
+{
+
+});

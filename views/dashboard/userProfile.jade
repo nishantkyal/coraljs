@@ -1,371 +1,384 @@
 include ../header
+include dashboardHeader
 title SNT-#{formatName(user.first_name, user.last_name)} | Profile
-.navigation
-    .container
-        .masthead-nav
-            nav.navbar.navbar-default(role='navigation')
-                .container-fluid
-                    // Brand and toggle get grouped for better mobile display
-                    .navbar-header
-                        button.navbar-toggle(type='button', data-toggle='collapse', data-target='#navbar-collapse')
-                            span.sr-only Toggle navigation
-                            span.icon-bar
-                            span.icon-bar
-                            span.icon-bar
-                        .visible-xs.navbar-brand Dashboard
-                    // Collect the nav links, forms, and other content for toggling
-                    #navbar-collapse.collapse.navbar-collapse
-                        ul.nav.navbar-nav.navbar-left
-                            li
-                                a(href=DashboardUrls.dashboard()) Dashboard
-                        ul.nav.navbar-nav.navbar-right
-                            li
-                                a(href=DashboardUrls.integration()) Networks
-                            li.active
-                                a(href=DashboardUrls.userProfile(loggedInUser.id)) Profile
-                            li
-                                a(href='/payments') Payments
 .matter
     .container
         .row
-            .content.col-md-12
-                .row
-                    .col-md-4
-                        .card#basicInfo
-                            .item
-                                .row
-                                    h5.col-xs-8 Basic Info
-                                    .header-link.col-xs-4
-                                        if isEditable
-                                            a.btn.btn-primary(data-id=userProfile.id, name = 'editUserProfile')
-                                                i.icon-pencil
-                                            a.btn.btn-defualt#fetchBasic
-                                                si.si-small.si-colored.si-linkedin
-                                .user-profile
-                                    .avatar
-                                        .shadow
-                                        .placeholder.placeholder-male
-                                        img(src=ApiUrlDelegate.userProfilePicture(user.id))
-                                    .info
-                                        .info-upper
-                                            .user-displayname= formatName(user.first_name, user.last_name, user.title)
-                                            if user.date_of_birth
-                                                .user-age= moment(parseInt(user.date_of_birth)).fromNow(true)
-                                            .user-desc #{userProfile.short_desc}
-                                        .info-lower
-                                            .user-locale New Delhi
-                                            .user-timezone
-                                                each zone in Timezone
-                                                    if zone.zone_id == user.timezone
-                                                        | #{formatTimezone(zone.gmt_offset)}
+            .col-md-4.content
+                .card#basicInfo
+                    .item
+                        .row
+                            h5.col-xs-8 Basic Info
+                            .header-link.col-xs-4
+                                if isEditable
+                                    a.btn.btn-primary(data-id=userProfile.id, name = 'editUserProfile')
+                                        i.icon-pencil
+                                    a.btn.btn-defualt#fetchBasic
+                                        si.si-small.si-colored.si-linkedin
+                        .user-profile
+                            .avatar
+                                .shadow
+                                .placeholder.placeholder-male
+                                img(src=ApiUrlDelegate.userProfilePicture(user.id))
+                            .info
+                                .info-upper
+                                    .user-displayname= formatName(user.first_name, user.last_name, user.title)
+                                    if user.date_of_birth
+                                        .user-age= moment(parseInt(user.date_of_birth)).fromNow(true)
+                                    .user-desc #{userProfile.short_desc}
+                                .info-lower
+                                    .user-locale New Delhi
+                                    .user-timezone
+                                        each zone in Timezone
+                                            if zone.zone_id == user.timezone
+                                                | #{formatTimezone(zone.gmt_offset)}
+                            .clearer
+                            if isEditable
+                                a.btn.btn-success.btn-xs#selectFileBtn Upload
+                                a.btn.btn-default.btn-xs#fetchProfilePicture
+                                    si.si-small.si-colored.si-linkedin
+                                form#fileUploadForm(action=ApiUrlDelegate.userProfilePicture(user.id), method="post", enctype="multipart/form-data")
+                                    input#selectFile(type='file', name='profile', style='display: none')
+                                    input#selectFileSubmit(type='submit', style='display: none')
+                            .profile
+                                p
+                                    | #{userProfile.long_desc}
+                    .item
+                        .row
+                            .meta.meta-keywords
+                                if isEditable
+                                    h5.col-xs-8 Skills/Keywords
+                                    a.btn.btn-success.btn-xs#addSkillbtn Add Skill
+                                    a.btn.btn-default.btn-xs#fetchSkill
+                                        si.si-small.si-colored.si-linkedin
+                                else
+                                    h5.col-xs-12 Skills/Keywords
                                     .clearer
-                                    if isEditable
-                                        a.btn.btn-success.btn-xs#selectFileBtn Upload
-                                        a.btn.btn-default.btn-xs#fetchProfilePicture
-                                            si.si-small.si-colored.si-linkedin
-                                        form#fileUploadForm(action=ApiUrlDelegate.userProfilePicture(user.id), method="post", enctype="multipart/form-data")
-                                            input#selectFile(type='file', name='profile', style='display: none')
-                                            input#selectFileSubmit(type='submit', style='display: none')
-                                    .profile
-                                        p
-                                            | #{userProfile.long_desc}
-                            .item
+                                if userSkill.length != 0
+                                    ul
+                                        each skill in userSkill
+                                            li #{skill.skill_name}&nbsp
+                                                if isEditable
+                                                    a(data-id=skill.id, name = 'deleteUserSkill')
+                                                        i.icon-cancel
+                                else
+                                    div No skills added yet
+                if isEditable
+                    .card#AddUserSkillCard(style='display: none;')
+                        form#AddUserSkillForm
+                            .item-edit
+                                .item
+                                    .row
+                                        h5.col-xs-8 Add Skill
+                                        .header-link.col-xs-4
+                                            a.btn.btn-danger#cancelAddUserSkill
+                                                i.icon-cancel
+                                .item
+                                    .row
+                                        .form-group
+                                            .form-group.col-md-10
+                                                input.form-control#skill_name(class='typeahead', type= 'text', name='skill_name', data-toggle="tooltip", data-placement="bottom", data-provide="typeahead", autocomplete="off")
+                                            .form-group.col-md-2
+                                                img.pull-right#spinningWheel(alt="Loading", src="../../images/spinning_wheel.gif", class = " input form-control", height="42" ,width="42" , border="none")
+                                        .clearer
+                                            div.links-editing
+                                                p.edit-schedules
+                                                    input.btn.btn-primary(type='submit', value='Save')
+                if isEditable
+                    .card#editUserProfileCard(style='display: none;')
+                        form#editUserProfileForm
+                            .item-edit
+                                .item
+                                    .row
+                                        h5.col-xs-8 Edit Basic Info
+                                        .header-link.col-xs-4
+                                            a.btn.btn-danger#cancelEditUserProfile
+                                                i.icon-cancel
+                                .item
+                                    .row
+                                        .form-group.col-md-2x
+                                            h3 Title
+                                            select#title(name='title', data-width='auto')
+                                                each key,option in Salutation
+                                                    option(value="#{option}" selected = ('#{user.title}' == '#{option}')) #{key}
+                                        .form-group.col-md-3
+                                            h3 First Name
+                                            input.form-control(type='text', name='first_name', value=loggedInUser.first_name)
+                                        .form-group.col-md-3
+                                            h3 Middle Name
+                                            input.form-control(type='text', name='middle_name', value=loggedInUser.middle_name)
+                                        .form-group.col-md-3
+                                            h3 Last Name
+                                            input.form-control(type='text', name='last_name', value=loggedInUser.last_name)
+                                    .row
+                                        .form-group
+                                            h3 Summary
+                                            input.form-control(type='text', name='short_desc', value=userProfile.short_desc, autocomplete='off')
+                                        .form-group
+                                            h3 Description
+                                            input.form-control(name='long_desc', value= userProfile.long_desc)
+                                    .row
+                                        .form-group.col-md-5
+                                            h3 Industry
+                                            select(name='industry')
+                                                each key,option in IndustryCodes
+                                                    option(value="#{option}", selected = ('#{user.industry}' == '#{option}')) #{key}
+                                        .form-group.col-md-2
+                                            h3 Birthday
+                                            input.form-control(type='text', class="datepicker" value = loggedInUser.date_of_birth, name= "birthDate")
+                                    .row
+                                        .form-group.col-md-2
+                                            h3 TimeZone
+                                            select(name='timezone')
+                                                each zone in Timezone
+                                                    option(value="#{zone.zone_id}", selected = ('#{zone.zone_id}' == '#{user.timezone}')) (#{formatTimezone(zone.gmt_offset)}) #{zone.zone_name}
+                                        .clearer
+                                            div.links-editing
+                                                p.edit-schedules
+                                                    input.btn.btn-primary(type='submit', value='Save')
+            .col-md-8.content
+                if isEditable
+                    .alert.alert-success
+                        div
+                            strong You can reorder your expertise list!
+                            br
+                            | Arrange your expertise list in the order you would like it to be displayed on your profile.
+                        div
+                            a.btn.btn-link#addExpertiseBtn
+                                i.icon-plus
+                                | &nbsp;Add an expertise
+                    .card
+                        .item
+                            .item-edit
                                 .row
-                                    .meta.meta-keywords
-                                        if isEditable
-                                            h5.col-xs-8 Skills/Keywords
-                                            a.btn.btn-success.btn-xs#addSkillbtn Add Skill
-                                            a.btn.btn-default.btn-xs#fetchSkill
+                                    .inputs.col-xs-8
+                                        .input-group
+                                            input.form-control(type='text', placeholder='Expertise Title', value='Policy Training')
+                                    .header-link.col-xs-4
+                                        a.btn.btn-danger(href='#')
+                                            i.icon-trash
+                                div
+                                    h3 Session:
+                                    .btn-group(data-toggle='buttons')
+                                        label.btn.btn-radio.active
+                                            input#1(type='radio', name='session_option', checked='')
+                                            | Yes
+                                        label.btn.btn-radio
+                                            input#0(type='radio', name='session_option')
+                                            | No
+                                    h3 Skills/Keywords:
+                                    .form-group
+                                        input.form-control(type='text')
+                                    h3 Description:
+                                    .form-group
+                                        textarea.form-control(rows='4')
+                        .links-edit
+                            p
+                                | Editing Expertise
+                                a.btn.btn-primary.done-editing-schedules(href='profile_expertise.html') Done
+                .row
+                    div.card
+                        div.item
+                            div.row
+                                h5.col-xs-8 Policy Training
+                                div.header-link.col-xs-4
+                                    a.btn.btn-primary(href='profile_editexpertise.html')
+                                        i.icon-pencil
+                            div.session-and-ratings
+                                div.badge.badge-session.session-info
+                                    h2 Session
+                                    h1 45 mins.
+                                div.user-ratings
+                                    h2 User Ratings
+                                    ul
+                                        li
+                                            i.icon-star.icon-highlighted
+                                        li
+                                            i.icon-star.icon-highlighted
+                                        li
+                                            i.icon-star.icon-highlighted
+                                        li
+                                            i.icon-star
+                                        li
+                                            i.icon-star
+                                div.clearer
+                            div.image-and-video
+                                div.video-container
+                                div.shadow
+                            div.meta.meta-keywords
+                                h5 Skills/Keywords
+                                ul
+                                    li Social Policy
+                                    li Consulting
+                                    li Learning
+                            div.summary-and-description
+                                p
+                                    | Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam ultricies eget nibh ac sollicitudin. Donec at nunc aliquet felis molestie tincidunt. Duis volutpat, quam sit amet fringilla convallis, sapien mi elementum justo, vel aliquam ligula tellus ac turpis. Vivamus et tincidunt diam. Nullam tristique justo vitae metus scelerisque, eu imperdiet lacus rhoncus.
+                            div.meta.meta-keywords
+                                h5 Experience
+                                h1 5 yrs.
+                .row
+                    .content.col-md-6
+                        .card#educationDetails
+                            .header
+                                .meta.meta-keywords
+                                    if isEditable
+                                        h5.col-xs-8 Education Details
+                                        .pull-right
+                                            a.btn.btn-success.btn-xs#addeducationbtn Add Education
+                                            a.btn.btn-default.btn-xs#fetchEducation
                                                 si.si-small.si-colored.si-linkedin
-                                        else
-                                            h5.col-xs-12 Skills/Keywords
-                                            .clearer
-                                        if userSkill.length != 0
-                                            ul
-                                                each skill in userSkill
-                                                    li #{skill.skill_name}&nbsp
-                                                        if isEditable
-                                                            a(data-id=skill.id, name = 'deleteUserSkill')
-                                                                i.icon-cancel
-                                        else
-                                            div No skills added yet
+                                    else
+                                        h5.col-xs-12 Education Details
+                            br
+                            if userEducation.length != 0
+                                each edu in userEducation
+                                    .item
+                                        .row
+                                            h5.col-xs-8 #{edu.school_name}
+                                            .header-link.col-xs-4
+                                                if isEditable
+                                                    a.btn.btn-primary(data-id=edu.id, name = 'editUserEducation')
+                                                        i.icon-pencil
+                                                    a.btn.btn-danger(data-id=edu.id, name = 'deleteUserEducation')
+                                                        i.icon-trash
+                                            div
+                                            if edu.degree
+                                                | #{edu.degree}
+                                                if edu.field_of_study
+                                                    | , #{edu.field_of_study}
+                                                    br
+                                            if edu.start_year
+                                                | #{edu.start_year}&nbsp
+                                                if edu.end_year
+                                                    | - #{edu.end_year}
+                                                    br
+                            else
+                                .item
+                                    .row
+                                        div No schools added yet
                         if isEditable
-                            .card#AddUserSkillCard(style='display: none;')
-                                form#AddUserSkillForm
+                            .card#AddUserEducationCard(style='display: none;')
+                                form#AddUserEducationForm
+                                    input.form-control(type="hidden", name="id")
                                     .item-edit
                                         .item
                                             .row
-                                                h5.col-xs-8 Add Skill
+                                                h5.col-xs-8 Add Education
                                                 .header-link.col-xs-4
-                                                    a.btn.btn-danger#cancelAddUserSkill
+                                                    a.btn.btn-danger#cancelAddUserEducation
                                                         i.icon-cancel
                                         .item
                                             .row
                                                 .form-group
-                                                    .form-group.col-md-10
-                                                        input.form-control#skill_name(class='typeahead', type= 'text', name='skill_name', data-toggle="tooltip", data-placement="bottom", data-provide="typeahead", autocomplete="off")
-                                                    .form-group.col-md-2
-                                                        img.pull-right#spinningWheel(alt="Loading", src="../../images/spinning_wheel.gif", class = " input form-control", height="42" ,width="42" , border="none")
-                                                .clearer
-                                                    div.links-editing
-                                                        p.edit-schedules
-                                                            input.btn.btn-primary(type='submit', value='Save')
-                        if isEditable
-                            .card#editUserProfileCard(style='display: none;')
-                                form#editUserProfileForm
-                                    .item-edit
-                                        .item
-                                            .row
-                                                h5.col-xs-8 Edit Basic Info
-                                                .header-link.col-xs-4
-                                                    a.btn.btn-danger#cancelEditUserProfile
-                                                        i.icon-cancel
-                                        .item
-                                            .row
-                                                .form-group.col-md-2x
-                                                    h3 Title
-                                                    select#title(name='title', data-width='auto')
-                                                        each key,option in Salutation
-                                                            option(value="#{option}" selected = ('#{user.title}' == '#{option}')) #{key}
-                                                .form-group.col-md-3
-                                                    h3 First Name
-                                                    input.form-control(type='text', name='first_name', value=loggedInUser.first_name)
-                                                .form-group.col-md-3
-                                                    h3 Middle Name
-                                                    input.form-control(type='text', name='middle_name', value=loggedInUser.middle_name)
-                                                .form-group.col-md-3
-                                                    h3 Last Name
-                                                    input.form-control(type='text', name='last_name', value=loggedInUser.last_name)
-                                            .row
+                                                    h3 School
+                                                    input.form-control(type='text', name='school_name')
                                                 .form-group
-                                                    h3 Summary
-                                                    input.form-control(type='text', name='short_desc', value=userProfile.short_desc, autocomplete='off')
+                                                    h3 Dates Attended
+                                                    .controls
+                                                        select(name='start_year', data-width='auto')
+                                                            - for (var i = currentYear; i >= minYear; i--){
+                                                                option(value="#{i}" selected = (currentYear == '#{i}')) #{i}
+                                                            -}
+                                                        select(name='end_year', data-width='auto')
+                                                            - for( var i=currentYear; i>=minYear; i--){
+                                                                option(value="#{i}" selected = (currentYear == '#{i}')) #{i}
+                                                            -}
+                                                .form-group
+                                                    h3 Degree
+                                                    input.form-control(type='text', name='degree')
+                                                .form-group
+                                                    h3 Field of Study
+                                                    input.form-control(type='text', name='field_of_study')
+                                                .form-group
+                                                    h3 Activities and Socities
+                                                    input.form-control(type='text', name='activities')
                                                 .form-group
                                                     h3 Description
-                                                    input.form-control(name='long_desc', value= userProfile.long_desc)
-                                            .row
-                                                .form-group.col-md-5
-                                                    h3 Industry
-                                                    select(name='industry')
-                                                        each key,option in IndustryCodes
-                                                            option(value="#{option}", selected = ('#{user.industry}' == '#{option}')) #{key}
-                                                .form-group.col-md-2
-                                                    h3 Birthday
-                                                    input.form-control(type='text', class="datepicker" value = loggedInUser.date_of_birth, name= "birthDate")
-                                            .row
-                                                .form-group.col-md-2
-                                                    h3 TimeZone
-                                                    select(name='timezone')
-                                                        each zone in Timezone
-                                                            option(value="#{zone.zone_id}", selected = ('#{zone.zone_id}' == '#{user.timezone}')) (#{formatTimezone(zone.gmt_offset)}) #{zone.zone_name}
+                                                    input.form-control(type='text', name='description')
                                                 .clearer
-                                                    div.links-editing
-                                                        p.edit-schedules
-                                                            input.btn.btn-primary(type='submit', value='Save')
-                    .col-md-8
-                        .row
-                            div.card
-                                div.item
-                                    div.row
-                                        h5.col-xs-8 Policy Training
-                                        div.header-link.col-xs-4
-                                            a.btn.btn-primary(href='profile_editexpertise.html')
-                                                i.icon-pencil
-                                    div.session-and-ratings
-                                        div.badge.badge-session.session-info
-                                            h2 Session
-                                            h1 45 mins.
-                                        div.user-ratings
-                                            h2 User Ratings
-                                            ul
-                                                li
-                                                    i.icon-star.icon-highlighted
-                                                li
-                                                    i.icon-star.icon-highlighted
-                                                li
-                                                    i.icon-star.icon-highlighted
-                                                li
-                                                    i.icon-star
-                                                li
-                                                    i.icon-star
-                                        div.clearer
-                                    div.image-and-video
-                                        div.video-container
-                                        div.shadow
-                                    div.meta.meta-keywords
-                                        h5 Skills/Keywords
-                                        ul
-                                            li Social Policy
-                                            li Consulting
-                                            li Learning
-                                    div.summary-and-description
-                                        p
-                                            | Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam ultricies eget nibh ac sollicitudin. Donec at nunc aliquet felis molestie tincidunt. Duis volutpat, quam sit amet fringilla convallis, sapien mi elementum justo, vel aliquam ligula tellus ac turpis. Vivamus et tincidunt diam. Nullam tristique justo vitae metus scelerisque, eu imperdiet lacus rhoncus.
-                                    div.meta.meta-keywords
-                                        h5 Experience
-                                        h1 5 yrs.
-                        .row
-                            .content.col-md-6
-                                .card#educationDetails
-                                    .header
-                                        .meta.meta-keywords
-                                            if isEditable
-                                                h5.col-xs-8 Education Details
-                                                .pull-right
-                                                    a.btn.btn-success.btn-xs#addeducationbtn Add Education
-                                                    a.btn.btn-default.btn-xs#fetchEducation
-                                                        si.si-small.si-colored.si-linkedin
-                                            else
-                                                h5.col-xs-12 Education Details
-                                    br
-                                    if userEducation.length != 0
-                                        each edu in userEducation
-                                            .item
-                                                .row
-                                                    h5.col-xs-8 #{edu.school_name}
-                                                    .header-link.col-xs-4
-                                                        if isEditable
-                                                            a.btn.btn-primary(data-id=edu.id, name = 'editUserEducation')
-                                                                i.icon-pencil
-                                                            a.btn.btn-danger(data-id=edu.id, name = 'deleteUserEducation')
-                                                                i.icon-trash
-                                                    div
-                                                    if edu.degree
-                                                        | #{edu.degree}
-                                                        if edu.field_of_study
-                                                            | , #{edu.field_of_study}
-                                                            br
-                                                    if edu.start_year
-                                                        | #{edu.start_year}&nbsp
-                                                        if edu.end_year
-                                                            | - #{edu.end_year}
-                                                            br
+                                                div.links-editing
+                                                    p.edit-schedules
+                                                        input.btn.btn-primary(type='submit', value='Save')
+                    .content.col-md-6
+                        .card#employmentDetails
+                            .header
+                                .meta.meta-keywords
+                                    if isEditable
+                                        h5.col-xs-7 Employment Details
+                                        .pull-right
+                                            a.btn.btn-success.btn-xs#addEmploymentbtn Add Employment
+                                            a.btn.btn-default.btn-xs#fetchEmployment
+                                                si.si-small.si-colored.si-linkedin
                                     else
+                                        h5.col-xs-12 Employment Details
+                            br
+                            if userEmployment.length != 0
+                                each emp in userEmployment
+                                    .item
+                                        .row
+                                            h5.col-xs-8 #{emp.title}
+                                            .header-link.col-xs-4
+                                                if isEditable
+                                                    a.btn.btn-primary(data-id=emp.id, name = 'editUserEmployment')
+                                                        i.icon-pencil
+                                                    a.btn.btn-danger(data-id=emp.id, name = 'deleteUserEmployment')
+                                                        si.icon-trash
+                                            div
+                                                if emp.company
+                                                    | #{emp.company}
+                                                    br
+                                                if emp.start_date && emp.start_date != -1
+                                                    | #{formatDate(emp.start_date, 'MM-YYYY')}
+                                                if emp.end_date && emp.end_date != -1
+                                                    | - #{formatDate(emp.end_date, 'MM-YYYY')}
+                                                    br
+                                                if emp.summary
+                                                    | #{emp.summary}
+                            else
+                                .item
+                                    .row
+                                        div No workplaces added yet
+                        if isEditable
+                            .card#AddUserEmploymentCard(style='display: none;')
+                                form#AddUserEmploymentForm
+                                    input.form-control(type="hidden", name="id")
+                                    .item-edit
                                         .item
                                             .row
-                                                div No schools added yet
-                                if isEditable
-                                    .card#AddUserEducationCard(style='display: none;')
-                                        form#AddUserEducationForm
-                                            input.form-control(type="hidden", name="id")
-                                            .item-edit
-                                                .item
-                                                    .row
-                                                        h5.col-xs-8 Add Education
-                                                        .header-link.col-xs-4
-                                                            a.btn.btn-danger#cancelAddUserEducation
-                                                                i.icon-cancel
-                                                .item
-                                                    .row
-                                                        .form-group
-                                                            h3 School
-                                                            input.form-control(type='text', name='school_name')
-                                                        .form-group
-                                                            h3 Dates Attended
-                                                            .controls
-                                                                select(name='start_year', data-width='auto')
-                                                                    - for (var i = currentYear; i >= minYear; i--){
-                                                                        option(value="#{i}" selected = (currentYear == '#{i}')) #{i}
-                                                                    -}
-                                                                select(name='end_year', data-width='auto')
-                                                                    - for( var i=currentYear; i>=minYear; i--){
-                                                                        option(value="#{i}" selected = (currentYear == '#{i}')) #{i}
-                                                                    -}
-                                                        .form-group
-                                                            h3 Degree
-                                                            input.form-control(type='text', name='degree')
-                                                        .form-group
-                                                            h3 Field of Study
-                                                            input.form-control(type='text', name='field_of_study')
-                                                        .form-group
-                                                            h3 Activities and Socities
-                                                            input.form-control(type='text', name='activities')
-                                                        .form-group
-                                                            h3 Description
-                                                            input.form-control(type='text', name='description')
-                                                        .clearer
-                                                        div.links-editing
-                                                            p.edit-schedules
-                                                                input.btn.btn-primary(type='submit', value='Save')
-                            .content.col-md-6
-                                .card#employmentDetails
-                                    .header
-                                        .meta.meta-keywords
-                                            if isEditable
-                                                h5.col-xs-7 Employment Details
-                                                .pull-right
-                                                    a.btn.btn-success.btn-xs#addEmploymentbtn Add Employment
-                                                    a.btn.btn-default.btn-xs#fetchEmployment
-                                                        si.si-small.si-colored.si-linkedin
-                                            else
-                                                h5.col-xs-12 Employment Details
-                                    br
-                                    if userEmployment.length != 0
-                                        each emp in userEmployment
-                                            .item
-                                                .row
-                                                    h5.col-xs-8 #{emp.title}
-                                                    .header-link.col-xs-4
-                                                        if isEditable
-                                                            a.btn.btn-primary(data-id=emp.id, name = 'editUserEmployment')
-                                                                i.icon-pencil
-                                                            a.btn.btn-danger(data-id=emp.id, name = 'deleteUserEmployment')
-                                                                si.icon-trash
-                                                    div
-                                                        if emp.company
-                                                            | #{emp.company}
-                                                            br
-                                                        if emp.start_date && emp.start_date != -1
-                                                            | #{formatDate(emp.start_date, 'MM-YYYY')}
-                                                        if emp.end_date && emp.end_date != -1
-                                                            | - #{formatDate(emp.end_date, 'MM-YYYY')}
-                                                            br
-                                                        if emp.summary
-                                                            | #{emp.summary}
-                                    else
+                                                h5.col-xs-8 Add Position Details
+                                                .header-link.col-xs-4
+                                                    a.btn.btn-danger#cancelAddUserEmployment
+                                                        i.icon-cancel
                                         .item
                                             .row
-                                                div No workplaces added yet
-                                if isEditable
-                                    .card#AddUserEmploymentCard(style='display: none;')
-                                        form#AddUserEmploymentForm
-                                            input.form-control(type="hidden", name="id")
-                                            .item-edit
-                                                .item
+                                                .form-group
+                                                    h3 Title
+                                                    input.form-control(type='text', name='title')
+                                                .form-group
+                                                    h3 Company
+                                                    input.form-control(type='text', name='company')
+                                                .form-group
+                                                    h3 Time Period
                                                     .row
-                                                        h5.col-xs-8 Add Position Details
-                                                        .header-link.col-xs-4
-                                                            a.btn.btn-danger#cancelAddUserEmployment
-                                                                i.icon-cancel
-                                                .item
-                                                    .row
-                                                        .form-group
-                                                            h3 Title
-                                                            input.form-control(type='text', name='title')
-                                                        .form-group
-                                                            h3 Company
-                                                            input.form-control(type='text', name='company')
-                                                        .form-group
-                                                            h3 Time Period
-                                                            .row
-                                                                .col-md-4
-                                                                    input.form-control.datepicker(type='text', name ="start_date", data-date-format="MM/YYYY")
-                                                                .col-md-1
-                                                                    | to
-                                                                .col-md-4
-                                                                    input.form-control.datepicker(type='text', name="end_date", data-date-format="MM/YYYY")
-                                                        .form-group
-                                                            h3 Summary
-                                                            input.form-control(type='text', name='summary')
-                                                        .form-group
-                                                            h3 Is Current? &nbsp&nbsp
-                                                            select#(name='is_current', data-width='auto', name='is_current')
-                                                                option(value="1" selected = (currentYear == '#{i}')) Yes
-                                                                option(value="0" selected = (currentYear == '#{i}')) No
-                                                    .clearer
-                                                        div.links-editing
-                                                            p.edit-schedules
-                                                                input.btn.btn-primary(type='submit', value='Save')
+                                                        .col-md-4
+                                                            input.form-control.datepicker(type='text', name ="start_date", data-date-format="MM/YYYY")
+                                                        .col-md-1
+                                                            | to
+                                                        .col-md-4
+                                                            input.form-control.datepicker(type='text', name="end_date", data-date-format="MM/YYYY")
+                                                .form-group
+                                                    h3 Summary
+                                                    input.form-control(type='text', name='summary')
+                                                .form-group
+                                                    h3 Is Current? &nbsp&nbsp
+                                                    select#(name='is_current', data-width='auto', name='is_current')
+                                                        option(value="1" selected = (currentYear == '#{i}')) Yes
+                                                        option(value="0" selected = (currentYear == '#{i}')) No
+                                            .clearer
+                                                div.links-editing
+                                                    p.edit-schedules
+                                                        input.btn.btn-primary(type='submit', value='Save')
 include ../footer
 if isEditable
     script.
