@@ -1,5 +1,6 @@
 ///<reference path='./_references.d.ts'/>
 import _                                            = require('underscore');
+import repl                                         = require('repl');
 import express                                      = require('express');
 var connect                                         = require('connect');
 var RedisStore                                      = require('connect-redis')(connect);
@@ -193,10 +194,17 @@ app.listen(app.get('port'), function ()
 
     scheduledTaskDelegate.eventEmitter.on('taskCompletedEvent', function(taskType:ScheduledTaskType){
         if (taskType == ScheduledTaskType.TIMEZONE_REFRESH)
+        {
+            log4js.getDefaultLogger().debug('Timezones updated');
             helpers['Timezone'] = TimezoneDelegate.TIMEZONES;
+        }
     })
     // Update integration cache
     new IntegrationDelegate().updateCache();
 
     console.log("SearchNTalk started on port %d in %s mode", app.get('port'), app.settings.env);
 });
+
+/* Awesome REPL to enable debugging in prod */
+var local = repl.start("node::local> ");
+//local.context.helpers = helpers;
