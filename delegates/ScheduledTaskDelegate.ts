@@ -156,7 +156,7 @@ class ScheduledTaskDelegate
 
         return CacheHelper.get('ScheduledTasks')
             .then(
-            function tasksFetched(results)
+            function tasksFetched(results):any
             {
                 _.each(results, function (result:any)
                 {
