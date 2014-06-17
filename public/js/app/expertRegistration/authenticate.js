@@ -3,60 +3,78 @@ $(function(){
     var zone = _.find(Timezone, function(zone){
         return zone.gmt_offset == offset;
     });
-    $("#timezone").val(zone.zone_id).prop('selected',true);
+    $('[name="timezone"]').val(zone.zone_id).prop('selected',true);
     $("#linkedInLink").attr('href', linkedInUrl + '?zone=' + zone.zone_id);
 });
 
-$("#login-form").validate({
-    onkeyup: false,
-    rules: {
-        username: {
-            required: true,
-            email: true
+$("#login-form").bootstrapValidator({
+    feedbackIcons: {
+        valid     : 'glyphicon glyphicon-ok',
+        invalid   : 'glyphicon glyphicon-remove',
+        validating: 'glyphicon glyphicon-refresh'
+    },
+    fields         : {
+        username : {
+            validators: {
+                notEmpty: {
+                    message: 'This field is required and cannot be empty'
+                },
+                emailAddress: {
+                    message: 'This field should be a valid Email Address'
+                }
+            }
         },
-        login_password: {
-            required: true
+        login_password : {
+            validators: {
+                notEmpty: {
+                    message: 'This field is required and cannot be empty'
+                }
+            }
         }
-    },
-    errorPlacement: function(error, element) {
-        $(element).attr('title', error[0].innerHTML);
-        $(element).tooltip('show');
-    },
-    highlight: function(element) {
-        $(element).closest('.form-group').addClass('has-error');
-    },
-    unhighlight: function(element) {
-        $(element).closest('.form-group').removeClass('has-error');
     }
 });
 
-$("#registration-form").validate({
-    onkeyup: false,
-    rules: {
-        email: {
-            required: true,
-            email: true
+$("#registration-form").bootstrapValidator({
+    feedbackIcons: {
+        valid     : 'glyphicon glyphicon-ok',
+        invalid   : 'glyphicon glyphicon-remove',
+        validating: 'glyphicon glyphicon-refresh'
+    },
+    fields         : {
+        email : {
+            validators: {
+                notEmpty: {
+                    message: 'This field is required and cannot be empty'
+                },
+                emailAddress: {
+                    message: 'This field should be a valid Email Address'
+                }
+            }
         },
-        first_name: {
-            required: true
+        first_name : {
+            validators: {
+                notEmpty: {
+                    message: 'This field is required and cannot be empty'
+                }
+            }
         },
         password: {
-            required: true
+            validators: {
+                notEmpty: {
+                    message: 'This field is required and cannot be empty'
+                }
+            }
         },
         confirm_password: {
-            required:true,
-            equalTo: '#password'
+            validators: {
+                identical: {
+                    field:'password',
+                    message:'Please re-enter same password'
+                },
+                notEmpty: {
+                    message: 'This field is required and cannot be empty'
+                }
+            }
         }
-
-    },
-    errorPlacement: function(error, element) {
-        $(element).attr('title', error[0].innerHTML);
-        $(element).tooltip('show');
-    },
-    highlight: function(element) {
-        $(element).closest('.form-group').addClass('has-error');
-    },
-    unhighlight: function(element) {
-        $(element).closest('.form-group').removeClass('has-error');
     }
 });

@@ -73,10 +73,7 @@ class AuthenticationDelegate
 
         return function (req, res:express.Response, next:Function)
         {
-            var user = new User(req.body[ApiConstants.USER]);
-            var timezoneOffset = req.body['timezoneOffset'];
-            var timezone = new TimezoneDelegate().getZoneByOffset(timezoneOffset);
-            user.setTimezone(timezone.getZoneId());
+            var user = new User(req.body);
 
             if (user.isValid()
                 && !Utils.isNullOrEmpty(user.getPassword())
@@ -95,7 +92,7 @@ class AuthenticationDelegate
                                 req.flash('info', "We've sent you an email with verification link to verify your email address. You may do it later but your account will not become active until then.");
                                 req.logIn(user, function ()
                                 {
-                                    if (options.failureFlash)
+                                        if (options.failureFlash)
                                         res.send(200);
                                     else if (options.failureRedirect)
                                         res.redirect(req.originalUrl);

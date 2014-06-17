@@ -58,7 +58,7 @@ class UserDelegate extends BaseDaoDelegate
             .spread(
             function userProfileCreated(...args)
             {
-                return args[0][0];
+                return args[0];
             });
     }
 
