@@ -9,7 +9,6 @@ class ApiConstants
     static ROLE:string                                  = 'role';
     static RETURN_TO:string                             = 'returnTo';
     static CONTEXT:string                               = 'context';
-    static LOGIN_FROM_HEADER:string                     = 'loginFromHeader';
 
     /* Param constants */
     static ID:string                                    = 'id';
@@ -72,14 +71,11 @@ class ApiConstants
     static EXPERT:string                                = 'expert';
     static PHONE_NUMBER:string                          = 'phoneNumber';
     static PHONE_CALL:string                            = 'phoneCall';
-    static SCHEDULE:string                              = 'expertSchedule';
     static SCHEDULE_RULE:string                         = 'scheduleRule';
     static SCHEDULE_EXCEPTION:string                    = 'scheduleException';
-    static SCHEDULE_TIMESLOTS:string                    = 'scheduleTimeSlots';
     static SMS:string                                   = 'sms';
     static TRANSACTION:string                           = 'transaction';
     static NO_PAYMENT:string                            = 'noPayment';
-    static PAGE_DATE:string                             = 'pageData';
     static WIDGET:string                                = 'widget';
     static PRICING_SCHEME:string                        = 'pricingScheme';
 
