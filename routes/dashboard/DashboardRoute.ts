@@ -434,9 +434,9 @@ class DashboardRoute
         ])
             .then( function detailsFetched(...args)
             {
-                var rules:ScheduleRule[] = args[0][0];
+                var rules:ScheduleRule[] = [].concat(args[0][0]);
                 var pricingSchemes:PricingScheme[] = args[0][1];
-                var userPhone:UserPhone[] = args[0][2];
+                var userPhone:UserPhone[] = [].concat(args[0][2]);
 
                 _.each(rules || [], function (rule:ScheduleRule)
                 {
@@ -446,7 +446,7 @@ class DashboardRoute
                 var pageData = _.extend(sessionData.getData(), {
                     userPhone : userPhone[0],
                     rules: rules || [],
-                    scheme: pricingSchemes? pricingSchemes[0] : new PricingScheme()
+                    scheme: pricingSchemes ? pricingSchemes[0] : new PricingScheme()
                 });
                 res.render(DashboardRoute.PAGE_SETTING, pageData);
             })
