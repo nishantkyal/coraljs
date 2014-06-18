@@ -1,6 +1,8 @@
-extends header
-include ../scriptsAndStyles
-
-block content
-    h4 Your email has been verified!
-    a.btn.btn-primary.btn-xs(href=DashboardUrls.login()) Click here to login
+include  ../header
+.matter
+    .container
+        .row
+            .content.col-xs-12
+                h4 Your email has been verified!
+                a.btn.btn-primary.btn-xs(href=DashboardUrls.login()) Click here to login
+include ../footer

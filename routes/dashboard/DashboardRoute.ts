@@ -436,7 +436,7 @@ class DashboardRoute
             {
                 var rules:ScheduleRule[] = [].concat(args[0][0]);
                 var pricingSchemes:PricingScheme[] = args[0][1];
-                var userPhone:UserPhone[] = [].concat(args[0][2]);
+                var userPhone:UserPhone[] = args[0][2] || [new UserPhone()];
 
                 _.each(rules || [], function (rule:ScheduleRule)
                 {
@@ -549,7 +549,7 @@ class DashboardRoute
 
         if (Utils.isNullOrEmpty(code) || Utils.isNullOrEmpty(email))
         {
-            res.send(400, 'Invalid code or email');
+            res.render('500', {error: 'Invalid code or email'});
             return;
         }
 
@@ -564,9 +564,12 @@ class DashboardRoute
                     return email;
                 }
                 else
-                    res.send(500, 'Account verification failed. Invalid code or email');
+                    res.render('500', {error: 'Account verification failed. Invalid code or email'});
             },
-            function verificationFailed(error) { res.send(500); })
+            function verificationFailed(error)
+            {
+                res.render('500', {error: error.message});
+            })
             .then(
             function responseSent()
             {
