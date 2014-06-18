@@ -291,9 +291,9 @@ class DashboardRoute
             {
                 self.logger.debug('Data fetched for network page');
 
-                var members = [].concat(results[0][0]);
+                var members = results[0][0];
                 var invitedMembers = [].concat(_.values(results[0][1]));
-                var coupons = [].concat(_.values(results[0][2]));
+                var coupons = results[0][2];
 
                 _.each(members, function (member:IntegrationMember)
                 {
