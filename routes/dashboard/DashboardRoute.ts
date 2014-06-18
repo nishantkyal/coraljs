@@ -326,7 +326,7 @@ class DashboardRoute
             .fail(
             function handleFailure(error)
             {
-                res.render('500', {error: JSON.stringify(error)});
+                res.render('500', {error: error.message});
             });
     }
 
