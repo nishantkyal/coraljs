@@ -9,7 +9,6 @@ import accounting                                       = require('accounting');
 import PricingSchemeDelegate                            = require('../../delegates/PricingSchemeDelegate');
 import AuthenticationDelegate                           = require('../../delegates/AuthenticationDelegate');
 import UserDelegate                                     = require('../../delegates/UserDelegate');
-import IntegrationDelegate                              = require('../../delegates/IntegrationDelegate');
 import IntegrationMemberDelegate                        = require('../../delegates/IntegrationMemberDelegate');
 import EmailDelegate                                    = require('../../delegates/EmailDelegate');
 import SMSDelegate                                      = require('../../delegates/SMSDelegate');

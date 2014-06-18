@@ -20,7 +20,7 @@ if loggedInUser
                                     a(href=DashboardUrls.dashboard()) Dashboard
                             ul.nav.navbar-nav.navbar-right
                                 li(name= 'networks')
-                                    a(href='') Networks
+                                    a(href=DashboardUrls.integration()) Networks
                                 li(name= 'profile')
                                     a(href=loggedInUser ? DashboardUrls.userProfile(loggedInUser.id) :'') Profile
                                 li(name= 'payments')

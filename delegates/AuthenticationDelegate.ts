@@ -96,7 +96,7 @@ class AuthenticationDelegate
                                 req.logIn(user, function ()
                                 {
                                     if (options.failureFlash)
-                                        res.send(200);
+                                        next();
                                     else if (options.failureRedirect)
                                         res.redirect(req.originalUrl);
                                 });

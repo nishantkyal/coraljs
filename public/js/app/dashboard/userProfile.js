@@ -330,7 +330,10 @@ $('form#expertiseDetails').bootstrapValidator({
         },
         min_duration       : {
             validators: {
-                callback
+                callback: function()
+                {
+
+                }
             }
         },
         description        : {
@@ -343,7 +346,32 @@ $('form#expertiseDetails').bootstrapValidator({
                 digits: { message: 'This field is required'}
             }
         }
+    },
+    submitHandler: function()
+    {
+        var expertiseId = '';
+        var method = expertiseId ? 'post' : 'put';
+        var expertiseUrl = expertiseId ? '/rest/expertise/' + expertiseId : '/rest/expertise';
+
+        $.ajax({
+            url: expertiseUrl,
+            method: method,
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({
+               expertise: {
+                    title:,
+                    description,
+                    years_of_experience
+                }
+            }),
+            success: function()
+            {
+
+            }
+        })
     }
+}
 });
 
 $('#addExpertiseBtn').click(function()

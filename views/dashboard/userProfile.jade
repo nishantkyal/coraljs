@@ -138,88 +138,108 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                                                     input.btn.btn-primary(type='submit', value='Save')
             .col-md-8.content
                 if isEditable
-                    .alert.alert-success
-                        div
-                            strong You can reorder your expertise list!
-                            br
-                            | Arrange your expertise list in the order you would like it to be displayed on your profile.
-                        div
-                            a.btn.btn-link#addExpertiseBtn
+                    div.card
+                        div.addone
+                            a(href='javascript:void()')#addExpertiseBtn
+                                | Add an expertise
                                 i.icon-plus
-                                | &nbsp;Add an expertise
-                    .card
+
+                form.card#expertiseDetails(style='display: none;')
                         .item
                             .item-edit
                                 .row
                                     .inputs.col-xs-8
                                         .input-group
-                                            input.form-control(type='text', placeholder='Expertise Title', value='Policy Training')
+                                            input.form-control(type='text', placeholder='Expertise Title', name='title')
                                     .header-link.col-xs-4
-                                        a.btn.btn-danger(href='#')
+                                        a.btn.btn-danger#cancelExpertiseDetails
                                             i.icon-trash
                                 div
-                                    h3 Session:
-                                    .btn-group(data-toggle='buttons')
-                                        label.btn.btn-radio.active
-                                            input#1(type='radio', name='session_option', checked='')
-                                            | Yes
-                                        label.btn.btn-radio
-                                            input#0(type='radio', name='session_option')
-                                            | No
+                                    div#sessionToggle
+                                        h3 Session:
+                                        .btn-group(data-toggle='buttons')
+                                            label.btn.btn-radio.active
+                                                input(type='radio', name='pricing_scheme_id', value='1')
+                                                | Yes
+                                            label.btn.btn-radio
+                                                input(type='radio', name='pricing_scheme_id', value='0')
+                                                | No
+                                    div#pricing
+                                        h3 Pricing:
+                                        .form-group
+                                            .row
+                                                .col-md-2
+                                                    input.form-control(type='text', name='session_pricing', placeholder='0 = Free')
+                                                .col-md-2
+                                                    select.form-control(name='session_price_unit')
+                                                        option $
+                                                .col-md-1 for
+                                                .col-md-3
+                                                    .input-group
+                                                        input.form-control(type='text', name='session_duration', placeholder='Session length')
+                                                        .input-group-addon
+                                                            span mins.
+                                    .clearer
                                     h3 Skills/Keywords:
                                     .form-group
                                         input.form-control(type='text')
                                     h3 Description:
                                     .form-group
-                                        textarea.form-control(rows='4')
+                                        textarea.form-control(name='description', rows='4')
+                                    h3 Years of experience:
+                                    .form-group
+                                        input.form-control(name='years_of_experience', type='text')
                         .links-edit
                             p
                                 | Editing Expertise
-                                a.btn.btn-primary.done-editing-schedules(href='profile_expertise.html') Done
+                                input.btn.btn-primary.done-editing-schedules(type='submit', value='Save')
                 .row
-                    div.card
-                        div.item
-                            div.row
-                                h5.col-xs-8 Policy Training
-                                div.header-link.col-xs-4
-                                    a.btn.btn-primary(href='profile_editexpertise.html')
-                                        i.icon-pencil
-                            div.session-and-ratings
-                                div.badge.badge-session.session-info
-                                    h2 Session
-                                    h1 45 mins.
-                                div.user-ratings
-                                    h2 User Ratings
+                    for expertise in userExpertise
+                        div.card
+                            div.item
+                                div.row
+                                    h5.col-xs-8 Policy Training
+                                    div.header-link.col-xs-4
+                                        a.btn.btn-primary#editExpertiseBtn
+                                            i.icon-pencil
+                                div.session-and-ratings
+                                    if expertise.pricing_scheme
+                                        div.badge.badge-session.session-info
+                                            h2 Session
+                                            h1= expertise.pricing_scheme.chunk_size
+                                                | &nbsp;mins.
+                                    div.user-ratings
+                                        h2 User Ratings
+                                        ul
+                                            li
+                                                i.icon-star.icon-highlighted
+                                            li
+                                                i.icon-star.icon-highlighted
+                                            li
+                                                i.icon-star.icon-highlighted
+                                            li
+                                                i.icon-star
+                                            li
+                                                i.icon-star
+                                    div.clearer
+                                div.image-and-video
+                                    div.video-container
+                                    div.shadow
+                                div.meta.meta-keywords
+                                    h5 Skills/Keywords
                                     ul
-                                        li
-                                            i.icon-star.icon-highlighted
-                                        li
-                                            i.icon-star.icon-highlighted
-                                        li
-                                            i.icon-star.icon-highlighted
-                                        li
-                                            i.icon-star
-                                        li
-                                            i.icon-star
-                                div.clearer
-                            div.image-and-video
-                                div.video-container
-                                div.shadow
-                            div.meta.meta-keywords
-                                h5 Skills/Keywords
-                                ul
-                                    li Social Policy
-                                    li Consulting
-                                    li Learning
-                            div.summary-and-description
-                                p
-                                    | Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam ultricies eget nibh ac sollicitudin. Donec at nunc aliquet felis molestie tincidunt. Duis volutpat, quam sit amet fringilla convallis, sapien mi elementum justo, vel aliquam ligula tellus ac turpis. Vivamus et tincidunt diam. Nullam tristique justo vitae metus scelerisque, eu imperdiet lacus rhoncus.
-                            div.meta.meta-keywords
-                                h5 Experience
-                                h1 5 yrs.
+                                        li Social Policy
+                                        li Consulting
+                                        li Learning
+                                div.summary-and-description
+                                    p= expertise.description
+                                div.meta.meta-keywords
+                                    h5 Experience
+                                    h1= expertise.years_of_experience
+                                        | &nbsp;yrs.
                 .row
                     .content.col-md-6
-                        .card#educationDetails
+                        div.card#educationDetails
                             .header
                                 .meta.meta-keywords
                                     if isEditable
@@ -258,7 +278,7 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                                     .row
                                         div No schools added yet
                         if isEditable
-                            .card#AddUserEducationCard(style='display: none;')
+                            div.card#AddUserEducationCard(style='display: none;')
                                 form#AddUserEducationForm
                                     input.form-control(type="hidden", name="id")
                                     .item-edit
@@ -301,7 +321,7 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                                                     p.edit-schedules
                                                         input.btn.btn-primary(type='submit', value='Save')
                     .content.col-md-6
-                        .card#employmentDetails
+                        div.card#employmentDetails
                             .header
                                 .meta.meta-keywords
                                     if isEditable
@@ -340,7 +360,7 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                                     .row
                                         div No workplaces added yet
                         if isEditable
-                            .card#AddUserEmploymentCard(style='display: none;')
+                            div.card#AddUserEmploymentCard(style='display: none;')
                                 form#AddUserEmploymentForm
                                     input.form-control(type="hidden", name="id")
                                     .item-edit
@@ -388,6 +408,7 @@ if isEditable
         var userProfile = JSON.parse ( '!{JSON.stringify(userProfile)}' );
         var userEducation = JSON.parse( '!{JSON.stringify(escapeObject(userEducation))}' );
         var userEmployment = JSON.parse( '!{JSON.stringify(escapeObject(userEmployment))}' );
+        var userExpertise = JSON.parse( '!{JSON.stringify(escapeObject(userExpertise))}' );
         var unEscapeObject = !{unEscapeObject};
     script(src='/js/app/dashboard/userProfile.js')
     script(src='/js/app/dashboard/memberEducation.js')
