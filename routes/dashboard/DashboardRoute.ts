@@ -1,9 +1,9 @@
-///<reference path='../../_references.d.ts'/>
 import q                                                = require('q');
 import _                                                = require('underscore');
 import passport                                         = require('passport');
 import connect_ensure_login                             = require('connect-ensure-login');
 import express                                          = require('express');
+import log4js                                           = require('log4js');
 import log4js                                           = require('log4js');
 import accounting                                       = require('accounting');
 import PricingSchemeDelegate                            = require('../../delegates/PricingSchemeDelegate');
@@ -91,6 +91,7 @@ class DashboardRoute
     private userUrlDelegate = new UserUrlDelegate();
     private transactionLineDelegate = new TransactionLineDelegate();
     private expertiseDelegate = new ExpertiseDelegate();
+    private logger = log4js.getLogger(Utils.getClassName(this));
 
     constructor(app, secureApp)
     {
@@ -289,6 +290,8 @@ class DashboardRoute
             .then(
             function integrationDetailsFetched(...results)
             {
+                self.logger.debug('Data fetched for network page');
+
                 var members = [].concat(results[0][0]);
                 var invitedMembers = [].concat(_.values(results[0][1]));
                 var coupons = [].concat(_.values(results[0][2]));
@@ -320,6 +323,7 @@ class DashboardRoute
                     'coupons': coupons
                 });
 
+                self.logger.debug('Rendering network page, data: %s', JSON.stringify(pageData));
                 res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
                 res.render(DashboardRoute.PAGE_INTEGRATION, pageData);
             })
