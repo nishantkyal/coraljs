@@ -1,12 +1,18 @@
-$(function() {
-    $('form#AddUserSkillForm #spinningWheel').hide();
+$('#editUserProfileBtn').click(function()
+{
+   $('#basicInfo').hide();
+   $('#editBasicInfo').show();
 });
 
-$('.datepicker').datetimepicker();
+$('#cancelEditUserProfile').click(function()
+{
+    $('#basicInfo').show();
+    $('#editBasicInfo').hide();
+});
 
 $('#addSkillbtn').click(function()
 {
-    $('#AddUserSkillCard').show();
+    $('#editBasicInfo').show();
     $('#basicInfo').hide();
 
     $('form#AddUserSkillForm').trigger('reset');
@@ -16,21 +22,9 @@ $('#addSkillbtn').click(function()
 $('#cancelAddUserSkill').click(function()
 {
     $('#basicInfo').show();
-    $('#AddUserSkillCard').hide();
+    $('#editBasicInfo').hide();
 });
 
-$('[name="editUserProfile"]').click(function()
-{
-    $('#editUserProfileCard').show();
-    $('#basicInfo').hide();
-
-});
-
-$('#cancelEditUserProfile').click(function()
-{
-    $('#basicInfo').show();
-    $('#editUserProfileCard').hide();
-});
 
 $('form#editUserProfileForm').bootstrapValidator({
     submitHandler: function()
@@ -201,18 +195,15 @@ var fetchedSkill = new Bloodhound({
         filter : function(response)
         {
             $('form#AddUserSkillForm #spinningWheel').hide();
-            skillSet = $.map(response.resultList, function(skill)
+            skillSet = _.map(response.resultList, function(skill)
             {
                 return {
                     value: skill.displayName,
                     code: skill.id
                 };
             });
-            var skillString = $.map(skillSet,  function(skill){
-            {
-                return skill.value
-            });
-            return skillString;
+
+            return _.pluck(skillSet, 'value');
         }
     }
 });
@@ -330,9 +321,10 @@ $('form#expertiseDetails').bootstrapValidator({
         },
         min_duration       : {
             validators: {
-                callback: function()
+                callback: function(event)
                 {
-
+                    if ($('form#expertiseDetails input[name=session_toggle]:checked').val() == '1')
+                        return true;
                 }
             }
         },
@@ -360,9 +352,7 @@ $('form#expertiseDetails').bootstrapValidator({
             contentType: 'application/json',
             data: JSON.stringify({
                expertise: {
-                    title:,
-                    description,
-                    years_of_experience
+
                 }
             }),
             success: function()
@@ -371,7 +361,6 @@ $('form#expertiseDetails').bootstrapValidator({
             }
         })
     }
-}
 });
 
 $('#addExpertiseBtn').click(function()

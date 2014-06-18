@@ -1,0 +1,59 @@
+.card
+    .item
+        .row
+            h5.col-xs-4 Basic Info
+            .header-link.col-xs-8
+                if isEditable
+                    a.btn.btn-primary#editUserProfileBtn(data-id=userProfile.id)
+                        i.icon-pencil
+                    a.btn.btn-default#fetchBasic
+                        si.si-small.si-colored.si-linkedin
+                        | &nbsp;Fetch from LinkedIn
+        .user-profile
+            .avatar
+                .shadow
+                .placeholder.placeholder-male
+                img(src=ApiUrlDelegate.userProfilePicture(user.id))
+            .info
+                .info-upper
+                    .user-displayname= formatName(user.first_name, user.last_name, user.title)
+                    if user.date_of_birth
+                        .user-age= moment(parseInt(user.date_of_birth)).fromNow(true)
+                    .user-desc #{userProfile.short_desc}
+                .info-lower
+                    .user-locale New Delhi
+                    .user-timezone
+                        each zone in Timezone
+                            if zone.zone_id == user.timezone
+                                | #{formatTimezone(zone.gmt_offset)}
+            .clearer
+            if isEditable
+                a.btn.btn-success.btn-xs#selectFileBtn Upload
+                a.btn.btn-default.btn-xs#fetchProfilePicture
+                    si.si-small.si-colored.si-linkedin
+                form#fileUploadForm(action=ApiUrlDelegate.userProfilePicture(user.id), method="post", enctype="multipart/form-data")
+                    input#selectFile(type='file', name='profile', style='display: none')
+                    input#selectFileSubmit(type='submit', style='display: none')
+            .profile
+                p
+                    | #{userProfile.long_desc}
+    .item
+        .row
+            .meta.meta-keywords
+                if isEditable
+                    h5.col-xs-8 Skills/Keywords
+                    a.btn.btn-success.btn-xs#addSkillbtn Add Skill
+                    a.btn.btn-default.btn-xs#fetchSkill
+                        si.si-small.si-colored.si-linkedin
+                else
+                    h5.col-xs-12 Skills/Keywords
+                    .clearer
+                if userSkill.length != 0
+                    ul
+                        each skill in userSkill
+                            li #{skill.skill_name}&nbsp
+                                if isEditable
+                                    a(data-id=skill.id, name = 'deleteUserSkill')
+                                        i.icon-cancel
+                else
+                    div No skills added yet

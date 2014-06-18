@@ -1,0 +1,49 @@
+.card
+    form#editUserProfileForm
+        .item-edit
+            .item
+                .row
+                    h5.col-xs-8 Edit Basic Info
+                    .header-link.col-xs-4
+                        a.btn.btn-danger#cancelEditUserProfile
+                            i.icon-cancel
+            .item
+                .row
+                    .form-group
+                        h3 Title
+                        select.form-control(name='title')
+                            each key,option in Salutation
+                                option(value="#{option}" selected = ('#{user.title}' == '#{option}')) #{key}
+                    .form-group
+                        h3 First Name
+                        input.form-control(type='text', name='first_name', value=loggedInUser.first_name)
+                    .form-group
+                        h3 Middle Name
+                        input.form-control(type='text', name='middle_name', value=loggedInUser.middle_name)
+                    .form-group
+                        h3 Last Name
+                        input.form-control(type='text', name='last_name', value=loggedInUser.last_name)
+                    .form-group
+                        h3 Summary
+                        input.form-control(type='text', name='short_desc', value=userProfile.short_desc, autocomplete='off')
+                    .form-group
+                        h3 Description
+                        input.form-control(name='long_desc', value= userProfile.long_desc)
+                    .form-group
+                        h3 Industry
+                        select.form-control(name='industry')
+                            each key,option in IndustryCodes
+                                option(value="#{option}", selected = ('#{user.industry}' == '#{option}')) #{key}
+                                .form-group.col-md-2
+                    .form-group
+                        h3 Birthday
+                        input.form-control(type='text', class="datepicker" value = loggedInUser.date_of_birth, name= "birthDate")
+                    .form-group
+                        h3 TimeZone
+                        select.form-control(name='timezone')
+                            each zone in Timezone
+                                option(value="#{zone.zone_id}", selected = ('#{zone.zone_id}' == '#{user.timezone}')) (#{formatTimezone(zone.gmt_offset)}) #{zone.zone_name}
+                        .clearer
+                div.links-editing
+                    p.edit-schedules
+                        input.btn.btn-primary(type='submit', value='Save')

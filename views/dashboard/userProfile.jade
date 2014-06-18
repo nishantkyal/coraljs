@@ -5,137 +5,13 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
     .container
         .row
             .col-md-4.content
-                .card#basicInfo
-                    .item
-                        .row
-                            h5.col-xs-8 Basic Info
-                            .header-link.col-xs-4
-                                if isEditable
-                                    a.btn.btn-primary(data-id=userProfile.id, name = 'editUserProfile')
-                                        i.icon-pencil
-                                    a.btn.btn-defualt#fetchBasic
-                                        si.si-small.si-colored.si-linkedin
-                        .user-profile
-                            .avatar
-                                .shadow
-                                .placeholder.placeholder-male
-                                img(src=ApiUrlDelegate.userProfilePicture(user.id))
-                            .info
-                                .info-upper
-                                    .user-displayname= formatName(user.first_name, user.last_name, user.title)
-                                    if user.date_of_birth
-                                        .user-age= moment(parseInt(user.date_of_birth)).fromNow(true)
-                                    .user-desc #{userProfile.short_desc}
-                                .info-lower
-                                    .user-locale New Delhi
-                                    .user-timezone
-                                        each zone in Timezone
-                                            if zone.zone_id == user.timezone
-                                                | #{formatTimezone(zone.gmt_offset)}
-                            .clearer
-                            if isEditable
-                                a.btn.btn-success.btn-xs#selectFileBtn Upload
-                                a.btn.btn-default.btn-xs#fetchProfilePicture
-                                    si.si-small.si-colored.si-linkedin
-                                form#fileUploadForm(action=ApiUrlDelegate.userProfilePicture(user.id), method="post", enctype="multipart/form-data")
-                                    input#selectFile(type='file', name='profile', style='display: none')
-                                    input#selectFileSubmit(type='submit', style='display: none')
-                            .profile
-                                p
-                                    | #{userProfile.long_desc}
-                    .item
-                        .row
-                            .meta.meta-keywords
-                                if isEditable
-                                    h5.col-xs-8 Skills/Keywords
-                                    a.btn.btn-success.btn-xs#addSkillbtn Add Skill
-                                    a.btn.btn-default.btn-xs#fetchSkill
-                                        si.si-small.si-colored.si-linkedin
-                                else
-                                    h5.col-xs-12 Skills/Keywords
-                                    .clearer
-                                if userSkill.length != 0
-                                    ul
-                                        each skill in userSkill
-                                            li #{skill.skill_name}&nbsp
-                                                if isEditable
-                                                    a(data-id=skill.id, name = 'deleteUserSkill')
-                                                        i.icon-cancel
-                                else
-                                    div No skills added yet
+                #basicInfo
+                    include cards/BasicInfoCard
                 if isEditable
-                    .card#AddUserSkillCard(style='display: none;')
-                        form#AddUserSkillForm
-                            .item-edit
-                                .item
-                                    .row
-                                        h5.col-xs-8 Add Skill
-                                        .header-link.col-xs-4
-                                            a.btn.btn-danger#cancelAddUserSkill
-                                                i.icon-cancel
-                                .item
-                                    .row
-                                        .form-group
-                                            .form-group.col-md-10
-                                                input.form-control#skill_name(class='typeahead', type= 'text', name='skill_name', data-toggle="tooltip", data-placement="bottom", data-provide="typeahead", autocomplete="off")
-                                            .form-group.col-md-2
-                                                img.pull-right#spinningWheel(alt="Loading", src="../../images/spinning_wheel.gif", class = " input form-control", height="42" ,width="42" , border="none")
-                                        .clearer
-                                            div.links-editing
-                                                p.edit-schedules
-                                                    input.btn.btn-primary(type='submit', value='Save')
-                if isEditable
-                    .card#editUserProfileCard(style='display: none;')
-                        form#editUserProfileForm
-                            .item-edit
-                                .item
-                                    .row
-                                        h5.col-xs-8 Edit Basic Info
-                                        .header-link.col-xs-4
-                                            a.btn.btn-danger#cancelEditUserProfile
-                                                i.icon-cancel
-                                .item
-                                    .row
-                                        .form-group.col-md-2x
-                                            h3 Title
-                                            select#title(name='title', data-width='auto')
-                                                each key,option in Salutation
-                                                    option(value="#{option}" selected = ('#{user.title}' == '#{option}')) #{key}
-                                        .form-group.col-md-3
-                                            h3 First Name
-                                            input.form-control(type='text', name='first_name', value=loggedInUser.first_name)
-                                        .form-group.col-md-3
-                                            h3 Middle Name
-                                            input.form-control(type='text', name='middle_name', value=loggedInUser.middle_name)
-                                        .form-group.col-md-3
-                                            h3 Last Name
-                                            input.form-control(type='text', name='last_name', value=loggedInUser.last_name)
-                                    .row
-                                        .form-group
-                                            h3 Summary
-                                            input.form-control(type='text', name='short_desc', value=userProfile.short_desc, autocomplete='off')
-                                        .form-group
-                                            h3 Description
-                                            input.form-control(name='long_desc', value= userProfile.long_desc)
-                                    .row
-                                        .form-group.col-md-5
-                                            h3 Industry
-                                            select(name='industry')
-                                                each key,option in IndustryCodes
-                                                    option(value="#{option}", selected = ('#{user.industry}' == '#{option}')) #{key}
-                                        .form-group.col-md-2
-                                            h3 Birthday
-                                            input.form-control(type='text', class="datepicker" value = loggedInUser.date_of_birth, name= "birthDate")
-                                    .row
-                                        .form-group.col-md-2
-                                            h3 TimeZone
-                                            select(name='timezone')
-                                                each zone in Timezone
-                                                    option(value="#{zone.zone_id}", selected = ('#{zone.zone_id}' == '#{user.timezone}')) (#{formatTimezone(zone.gmt_offset)}) #{zone.zone_name}
-                                        .clearer
-                                            div.links-editing
-                                                p.edit-schedules
-                                                    input.btn.btn-primary(type='submit', value='Save')
+                    #editBasicInfo(style='display: none;')
+                        include cards/EditBasicInfoCard
+                    #addSkill(style='display: none;')
+                        include cards/AddSkill
             .col-md-8.content
                 if isEditable
                     div.card
@@ -159,10 +35,10 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                                         h3 Session:
                                         .btn-group(data-toggle='buttons')
                                             label.btn.btn-radio.active
-                                                input(type='radio', name='pricing_scheme_id', value='1')
+                                                input(type='radio', name='session_toggle', value='1')
                                                 | Yes
                                             label.btn.btn-radio
-                                                input(type='radio', name='pricing_scheme_id', value='0')
+                                                input(type='radio', name='session_toggle', value='0')
                                                 | No
                                     div#pricing
                                         h3 Pricing:

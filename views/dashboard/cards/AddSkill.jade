@@ -1,0 +1,20 @@
+.card
+    form#AddUserSkillForm
+        .item-edit
+            .item
+                .row
+                    h5.col-xs-8 Add Skill
+                    .header-link.col-xs-4
+                        a.btn.btn-danger#cancelAddUserSkill
+                            i.icon-cancel
+            .item
+                .row
+                    .form-group
+                        .form-group.col-md-10
+                            input.form-control#skill_name(class='typeahead', type= 'text', name='skill_name', data-toggle="tooltip", data-placement="bottom", data-provide="typeahead", autocomplete="off")
+                        .form-group.col-md-2
+                            img.pull-right#spinningWheel(alt="Loading", src="../../images/spinning_wheel.gif", class = " input form-control", height="42" ,width="42" , border="none")
+                    .clearer
+                        div.links-editing
+                            p.edit-schedules
+                                input.btn.btn-primary(type='submit', value='Save')
