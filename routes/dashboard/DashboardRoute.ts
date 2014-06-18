@@ -71,7 +71,7 @@ class DashboardRoute
     private static PAGE_ACCOUNT_VERIFICATION:string = 'dashboard/accountVerification';
     private static PAGE_PAYMENT_COMPLETE:string = 'dashboard/paymentComplete';
     private static PAGE_CALL_DETAILS:string = 'dashboard/callDetails';
-    private static PAGE_SETTING:string  = 'dashboard/userSetting';
+    private static PAGE_SETTING:string = 'dashboard/userSetting';
 
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private userDelegate = new UserDelegate();
@@ -101,12 +101,9 @@ class DashboardRoute
 
         // Dashboard pages
         app.get(Urls.dashboard(), AuthenticationDelegate.checkLogin({failureRedirect: Urls.login()}), this.dashboard.bind(this));
-        app.get(Urls.integration(), Middleware.allowOwnerOrAdmin, this.integration.bind(this));
+        app.get(Urls.integration(), this.integration.bind(this));
         app.get(Urls.userProfile(), this.userProfile.bind(this));
         app.get(Urls.userSetting(), Middleware.allowOnlyMe, this.setting.bind(this));
-
-        app.get(Urls.callDetails(), Middleware.allowMeOrAdmin, this.callDetails.bind(this));
-        app.get(Urls.revenueDetails(), Middleware.allowMeOrAdmin, this.revenueDetails.bind(this));
 
         app.get(Urls.logout(), this.logout.bind(this));
         app.post(Urls.paymentCallback(), this.paymentComplete.bind(this));
@@ -221,40 +218,7 @@ class DashboardRoute
             res.redirect(returnToUrl);
             return;
         }
-
-        // 1. Fetch member entries for user
-        // 2. If multiple entries, show integrations list
-        // 3. If single entry and I'm owner, show members page
-        // 4. Else redirect to memberProfile
-        this.integrationMemberDelegate.search({user_id: sessionData.getLoggedInUser().getId()}, null, [IncludeFlag.INCLUDE_INTEGRATION, IncludeFlag.INCLUDE_USER])
-            .then(
-            function integrationsFetched(integrationMembers)
-            {
-                if (Utils.isNullOrEmpty(integrationMembers))
-                {
-                    req.logout();
-                    res.send(401, 'Seems like you don\'t have an account yet.');
-                }
-                else
-                {
-                    // TODO: Clean up data because we haven't implemented foreign keys correctly
-                    var correctedMembers = _.map(integrationMembers, function (member:IntegrationMember)
-                    {
-                        var users:User[] = member[IntegrationMember.USER];
-                        var integrations:Integration[] = member[IntegrationMember.INTEGRATION];
-                        member.setUser(_.findWhere(users, {'id': member.getUserId()}));
-                        member.setIntegration(_.findWhere(integrations, {'id': member.getIntegrationId()}));
-                        return member;
-                    });
-
-                    sessionData.setMembers(correctedMembers);
-                    res.redirect(Urls.dashboard());
-                }
-            },
-            function integrationsFetchError(error)
-            {
-                res.send(500);
-            });
+        res.redirect(Urls.dashboard());
     }
 
     private dashboard(req:express.Request, res:express.Response)
@@ -270,31 +234,40 @@ class DashboardRoute
         var self = this;
         var sessionData = new SessionData(req);
 
-        try
-        {
-            var integrationId:number = parseInt(req.query[ApiConstants.INTEGRATION_ID] || sessionData.getMembers()[0].getIntegrationId());
-        }
-        catch (e)
-        {
-            res.render(DashboardRoute.PAGE_INTEGRATION, sessionData.getData());
-            return;
-        }
-
-        q.all([
-            self.integrationMemberDelegate.search({integration_id: integrationId}, IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER]),
-            self.verificationCodeDelegate.getInvitationCodes(integrationId),
-            self.couponDelegate.search({integration_id: integrationId}, Coupon.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_EXPERT])
-        ])
+        this.integrationMemberDelegate.search({user_id: sessionData.getLoggedInUser().getId()}, null, [IncludeFlag.INCLUDE_INTEGRATION, IncludeFlag.INCLUDE_USER])
             .then(
-            function integrationDetailsFetched(...results)
+            function integrationsFetched(integrationMembers:IntegrationMember[])
+            {
+                // TODO: Clean up data because we haven't implemented foreign keys correctly
+                var correctedMembers = _.map(integrationMembers, function (member:IntegrationMember)
+                {
+                    var users:User[] = member[IntegrationMember.USER];
+                    var integrations:Integration[] = member[IntegrationMember.INTEGRATION];
+                    member.setUser(_.findWhere(users, {'id': member.getUserId()}));
+                    member.setIntegration(_.findWhere(integrations, {'id': member.getIntegrationId()}));
+                    return member;
+                });
+
+                if (correctedMembers.length != 0)
+                {
+                    var integrationId = correctedMembers[0].getIntegrationId();
+                    return [integrationId, correctedMembers, q.all([
+                        self.integrationMemberDelegate.search({integration_id: integrationId}, IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER]),
+                        self.verificationCodeDelegate.getInvitationCodes(integrationId),
+                        self.couponDelegate.search({integration_id: integrationId}, Coupon.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_EXPERT])
+                    ])];
+                }
+            })
+            .spread(
+            function integrationDetailsFetched(integrationId:number, members:IntegrationMember[], ...results)
             {
                 self.logger.debug('Data fetched for network page');
 
-                var members = results[0][0];
+                var integrationMembers = results[0][0];
                 var invitedMembers = [].concat(_.values(results[0][1]));
                 var coupons = results[0][2];
 
-                _.each(members, function (member:IntegrationMember)
+                _.each(integrationMembers, function (member:IntegrationMember)
                 {
                     if (Utils.getObjectType(member[IntegrationMember.USER]) == 'Array')
                     // TODO: Implement foreign keys to get rid if this goofiness
@@ -305,7 +278,7 @@ class DashboardRoute
                 // since this means they haven't completed the registration process
                 _.each(invitedMembers, function (invitedMember)
                 {
-                    var expertEntry = _.find(members, function (member:IntegrationMember)
+                    var expertEntry = _.find(integrationMembers, function (member:IntegrationMember)
                     {
                         return invitedMember['user']['email'] == member.getUser().getEmail();
                     });
@@ -313,11 +286,12 @@ class DashboardRoute
                     invitedMember.user['status'] = (!Utils.isNullOrEmpty(expertEntry)) ? 'Registered' : 'Pending';
                 });
 
-                members = members.concat(_.map(invitedMembers, function (invited) { return new IntegrationMember(invited); }));
+                integrationMembers = integrationMembers.concat(_.map(invitedMembers, function (invited) { return new IntegrationMember(invited); }));
 
                 var pageData = _.extend(sessionData.getData(), {
-                    'selectedMember': _.findWhere(sessionData.getMembers(), {'integration_id': integrationId}),
-                    'integrationMembers': members,
+                    'members': members,
+                    'selectedMember': _.findWhere(members, {'integration_id': integrationId}),
+                    'integrationMembers': integrationMembers,
                     'coupons': coupons
                 });
 
@@ -398,29 +372,6 @@ class DashboardRoute
             });
     }
 
-    callDetails(req:express.Request, res:express.Response)
-    {
-        var self = this;
-        var memberId:number = parseInt(req.params[ApiConstants.MEMBER_ID]);
-        var sessionData = new SessionData(req);
-
-        self.phoneCallDelegate.search({'integration_member_id': memberId})
-            .then(
-            function callDetailsFetched(calls)
-            {
-                var pageData = _.extend(sessionData.getData(), {
-                    calls: calls || []
-                });
-                res.render(DashboardRoute.PAGE_CALL_DETAILS, pageData);
-            })
-            .fail(function CallDetailsFetchError(error) { res.send(500); })
-    }
-
-    revenueDetails(req:express.Request, res:express.Response)
-    {
-        res.send(200);
-    }
-
     setting(req:express.Request, res:express.Response)
     {
         var self = this;
@@ -430,9 +381,9 @@ class DashboardRoute
         q.all([
             self.scheduleRuleDelegate.getRulesByUser(userId),
             self.pricingSchemeDelegate.search(Utils.createSimpleObject(PricingScheme.USER_ID, userId)),
-            self.userPhoneDelegate.search({user_id:userId})
+            self.userPhoneDelegate.search({user_id: userId})
         ])
-            .then( function detailsFetched(...args)
+            .then(function detailsFetched(...args)
             {
                 var rules:ScheduleRule[] = [].concat(args[0][0]);
                 var pricingSchemes:PricingScheme[] = args[0][1];
@@ -444,17 +395,19 @@ class DashboardRoute
                 });
 
                 var pageData = _.extend(sessionData.getData(), {
-                    userPhone : userPhone[0],
+                    userPhone: userPhone[0],
                     rules: rules || [],
                     scheme: pricingSchemes ? pricingSchemes[0] : new PricingScheme()
                 });
                 res.render(DashboardRoute.PAGE_SETTING, pageData);
             })
             .fail(
-            function (error){
+            function (error)
+            {
                 res.render('500', error.message)
             });
     }
+
     /* Logout and redirect to login page */
     private logout(req, res)
     {
