@@ -71,7 +71,6 @@ class DashboardRoute
     private static PAGE_ACCOUNT_VERIFICATION:string = 'dashboard/accountVerification';
     private static PAGE_PAYMENT_COMPLETE:string = 'dashboard/paymentComplete';
     private static PAGE_CALL_DETAILS:string = 'dashboard/callDetails';
-    private static PAGE_SCHEDULE:string = 'dashboard/userSchedule';
     private static PAGE_SETTING:string  = 'dashboard/userSetting';
 
     private integrationMemberDelegate = new IntegrationMemberDelegate();
@@ -322,6 +321,7 @@ class DashboardRoute
                     'coupons': coupons
                 });
 
+
                 self.logger.debug('Rendering network page, data: %s', JSON.stringify(pageData));
                 res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
                 res.render(DashboardRoute.PAGE_INTEGRATION, pageData);
@@ -450,9 +450,10 @@ class DashboardRoute
                 });
                 res.render(DashboardRoute.PAGE_SETTING, pageData);
             })
-            .fail( function (error){
-                res.send(500, error)
-            })
+            .fail(
+            function (error){
+                res.render('500', error.message)
+            });
     }
     /* Logout and redirect to login page */
     private logout(req, res)
