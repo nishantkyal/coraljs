@@ -505,4 +505,34 @@
     <changeSet author="Ankit (generated)" id="1402920852937-7">
         <addDefaultValue columnDataType="boolean" columnName="recorded" defaultValueNumeric="0" tableName="call"/>
     </changeSet>
+    <changeSet author="Nishant (generated)" id="1403075709910-1">
+        <createTable tableName="user_expertise">
+            <column name="id" type="INT(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="INT(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="title" type="VARCHAR(30)"/>
+            <column name="description" type="VARCHAR(100)"/>
+            <column name="video_url" type="VARCHAR(50)"/>
+            <column name="own_rating" type="FLOAT(1, 1)"/>
+            <column name="years_of_experience" type="INT(10)"/>
+            <column name="session_duration" type="INT(10)"/>
+            <column name="session_price" type="FLOAT(3, 2)"/>
+            <column name="session_price_unit" type="INT(10)"/>
+            <column name="created" type="BIGINT(19)"/>
+            <column name="updated" type="BIGINT(19)"/>
+            <column name="deleted" type="BIGINT(19)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1403075709910-2">
+        <addPrimaryKey columnNames="id" constraintName="PRIMARY" tableName="user_expertise"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1403075709910-3">
+        <addForeignKeyConstraint baseColumnNames="session_price_unit" baseTableName="user_expertise" constraintName="FK_user_expertise_session_price_unit" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="ref_money_unit"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1403075709910-4">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="user_expertise" constraintName="FK_user_expertise_user" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="user"/>
+    </changeSet>
 </databaseChangeLog>
