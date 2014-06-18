@@ -2,28 +2,27 @@ import ApiUrlDelegate                                       = require('../../del
 
 class Urls
 {
-    static index() { return ApiUrlDelegate.get('/'); }
-    static checkLogin() { return ApiUrlDelegate.get('/checkLogin'); }
-    static login() { return ApiUrlDelegate.get('/login'); }
-    static register() { return ApiUrlDelegate.get('/register'); }
-    static ajaxLogin() { return ApiUrlDelegate.get('/rest/login'); }
-    static ajaxRegister() { return ApiUrlDelegate.get('/rest/register'); }
-    static linkedInLogin() { return ApiUrlDelegate.get('/login/linkedin'); }
-    static linkedInLoginCallback() { return ApiUrlDelegate.get('/login/linkedin/callback'); }
-    static forgotPassword() { return ApiUrlDelegate.get('/forgotPassword'); }
-    static callDetails(memberId?:number) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/callDetails', {memberId: memberId}); }
-    static revenueDetails(memberId?:number) { return ApiUrlDelegate.get('/member/:memberId(\\d+)/revenueDetails', {memberId: memberId}); }
-    static emailAccountVerification() { return ApiUrlDelegate.get('/email/verification'); }
-    static mobileVerification():string { return ApiUrlDelegate.get('/phone/verification'); }
+    static checkLogin() { return '/checkLogin'; }
+    static login() { return '/login'; }
+    static register() { return '/register'; }
+    static ajaxLogin() { return '/rest/login'; }
+    static ajaxRegister() { return '/rest/register'; }
+    static linkedInLogin() { return '/login/linkedin'; }
+    static linkedInLoginCallback() { return '/login/linkedin/callback'; }
+    static forgotPassword() { return '/forgotPassword'; }
+    static emailAccountVerification() { return '/email/verification'; }
+    static mobileVerification():string { return '/phone/verification'; }
 
-    static dashboard() { return ApiUrlDelegate.get('/dashboard'); }
-    static integration() { return ApiUrlDelegate.get('/network'); }
+    static index() { return '/'; }
+    static dashboard() { return '/dashboard'; }
+    static integration() { return '/network'; }
     static userProfile(userId?:number, baseUrl?:string) { return ApiUrlDelegate.get('/user/:userId(\\d+)/profile', {userId: userId}, baseUrl); }
     static userSetting(userId?:number, baseUrl?:string) { return ApiUrlDelegate.get('/user/:userId(\\d+)/setting', {userId: userId}, baseUrl); }
 
-    static logout() { return ApiUrlDelegate.get('/logout'); }
-    static paymentCallback() { return ApiUrlDelegate.get('/payment/complete'); }
+    static logout() { return '/logout'; }
+
+    static paymentCallback() { return '/payment/complete'; }
     static userProfileFromLinkedIn(profileId?:number):string { return ApiUrlDelegate.get('/member/profileFromLinkedIn/:profileId(\\d+)', {profileId: profileId}); }
-    static userProfileFromLinkedInCallback():string { return ApiUrlDelegate.get('/member/profileFromLinkedInCallback'); }
+    static userProfileFromLinkedInCallback():string { return '/member/profileFromLinkedInCallback'; }
 }
 export = Urls;
