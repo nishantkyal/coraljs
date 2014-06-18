@@ -4,7 +4,6 @@ import passport                                         = require('passport');
 import connect_ensure_login                             = require('connect-ensure-login');
 import express                                          = require('express');
 import log4js                                           = require('log4js');
-import log4js                                           = require('log4js');
 import accounting                                       = require('accounting');
 import PricingSchemeDelegate                            = require('../../delegates/PricingSchemeDelegate');
 import AuthenticationDelegate                           = require('../../delegates/AuthenticationDelegate');
