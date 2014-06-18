@@ -289,7 +289,7 @@ class DashboardRoute
             .then(
             function integrationDetailsFetched(...results)
             {
-                var members = results[0][0];
+                var members = [].concat(results[0][0]);
                 var invitedMembers = [].concat(_.values(results[0][1]));
                 var coupons = [].concat(_.values(results[0][2]));
 
