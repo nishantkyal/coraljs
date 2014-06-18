@@ -23,33 +23,35 @@ include ../header
                                     dd We connect the calls without disclosing your number
                     .col-md-6
                         .call-card
-                            form#registration-form(method='POST')
-                                .form-group
-                                    label(for='email') Email
-                                    input.form-control(name='email', type='email', data-toggle="tooltip", data-placement="bottom", value=member.user.email, autocomplete='off')
-                                .form-group
-                                    label(for='first_name') First Name
-                                    input.form-control(name='first_name', type='text', data-toggle="tooltip", data-placement="bottom", value=member.user.first_name, autocomplete='off')
-                                .form-group
-                                    label(for='last_name') Last Name
-                                    input.form-control(name='last_name', type='text', data-toggle="tooltip", data-placement="bottom", value=member.user.last_name, autocomplete='off')
-                                .form-group
-                                    label(for='password') Password
-                                    input.form-control(type='password', name='password', data-toggle="tooltip", data-placement="bottom", autocomplete='off')
-                                .form-group
-                                    label(for='confirm_password') Confirm Password
-                                    input.form-control(type='password', name='confirm_password', data-toggle="tooltip", data-placement="bottom", autocomplete='off')
-                                .form-group
-                                    label(for='timezone') Timezone
-                                    select.form-control(name='timezone')
-                                        each zone in Timezone
-                                            option(value="#{zone.zone_id}") (#{formatTimezone(zone.gmt_offset)}) #{zone.zone_name}
-                                .form-group
-                                    .controls
-                                        input(type='hidden', name='invitation_code', value=code)
-                                        input.btn-primary.btn.btn-block(value='Register', type='submit')
-                                a.btn-linkedin.btn#linkedInLink() Login with LinkedIn
-                                a.btn.btn-link(href=MemberRegistrationUrls.login()) Login
+                            include ../errorMessage
+                            .item
+                                form#registration-form(method='POST')
+                                    .form-group
+                                        label(for='email') Email
+                                        input.form-control(name='email', type='email', data-toggle="tooltip", data-placement="bottom", value=member.user.email, autocomplete='off')
+                                    .form-group
+                                        label(for='first_name') First Name
+                                        input.form-control(name='first_name', type='text', data-toggle="tooltip", data-placement="bottom", value=member.user.first_name, autocomplete='off')
+                                    .form-group
+                                        label(for='last_name') Last Name
+                                        input.form-control(name='last_name', type='text', data-toggle="tooltip", data-placement="bottom", value=member.user.last_name, autocomplete='off')
+                                    .form-group
+                                        label(for='password') Password
+                                        input.form-control(type='password', name='password', data-toggle="tooltip", data-placement="bottom", autocomplete='off')
+                                    .form-group
+                                        label(for='confirm_password') Confirm Password
+                                        input.form-control(type='password', name='confirm_password', data-toggle="tooltip", data-placement="bottom", autocomplete='off')
+                                    .form-group
+                                        label(for='timezone') Timezone
+                                        select.form-control(name='timezone')
+                                            each zone in Timezone
+                                                option(value="#{zone.zone_id}") (#{formatTimezone(zone.gmt_offset)}) #{zone.zone_name}
+                                    .form-group
+                                        .controls
+                                            input(type='hidden', name='invitation_code', value=code)
+                                            input.btn-primary.btn.btn-block(value='Register', type='submit')
+                                    a.btn-linkedin.btn#linkedInLink() Login with LinkedIn
+                                    a.btn.btn-link(href=MemberRegistrationUrls.login()) Login
             // /.content
 include ../footer
 script.

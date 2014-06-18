@@ -103,12 +103,9 @@ class AuthenticationDelegate
                     function registrationError(error)
                     {
                         if (options.failureFlash)
-                        {
                             req.flash('error', error.message);
-                            res.send(200);
-                        }
-                        else if (options.failureRedirect)
-                            res.redirect(options.failureRedirect);
+
+                        res.redirect(options.failureRedirect || req.originalUrl);
                     });
             }
             else

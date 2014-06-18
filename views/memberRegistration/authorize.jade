@@ -1,12 +1,20 @@
 title SnT | #{integration.title} | #{formatRole(member.role)} registration
-include ../scriptsAndStyles
-extends header
-block content
-    .row-fluid
-            p By registering as an expert for #{integration.title}, you also agree to <a href='#'>SearchNTalk.com Terms and Conditions</a>
-            p You will receive requests for scheduling phone calls from people who are seeking your expert advice.
-            form(action=MemberRegistrationUrls.authorizationDecision(), method="post")
-                input(name="transaction_id", type="hidden", value="#{transactionID}")
-                .controls
-                    input.btn-primary.btn(type="submit" value="Yes, Continue" id="allow")
-                    input.btn.btn-danger(type="submit", value="Deny", name="cancel", id="deny")
+include ../header
+.matter
+    .container
+        .row
+            .content.col-xs-9.col-sm-9.col-md-6.col-lg-6
+                .user-profile
+                    h2 Title
+            .content.col-xs-9.col-sm-9.col-md-6.col-lg-6
+                .card
+                    .item
+                        p By registering as an expert for #{integration.title}, you also agree to <a href='#'>SearchNTalk.com Terms and Conditions</a>
+                        p You will receive requests for scheduling phone calls from people who are seeking your expert advice.
+                    .item
+                        form(action=MemberRegistrationUrls.authorizationDecision(), method="post")
+                            input(name="transaction_id", type="hidden", value="#{transactionID}")
+                            .controls
+                                input.btn-primary.btn.btn-block(type="submit" value="Yes, Continue" id="allow")
+                                input.btn.btn-danger.btn-block(type="submit", value="Deny", name="cancel", id="deny")
+include ../footer
