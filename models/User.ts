@@ -22,6 +22,7 @@ class User extends BaseModel
     static DATE_OF_BIRTH:string                             = 'date_of_birth';
     static INDUSTRY:string                                  = 'industry';
     static TIMEZONE:string                                  = 'timezone';
+    static EMAIL_VERIFIED:string                            = 'email_verified';
     static ACTIVE:string                                    = 'active';
     static VERIFIED:string                                  = 'verified';
 
@@ -31,7 +32,7 @@ class User extends BaseModel
     static SCHEDULE_RULE:string                             = 'schedule_rule';
 
     static DEFAULT_FIELDS:string[] = [User.ID, User.TITLE, User.FIRST_NAME, User.LAST_NAME, User.EMAIL,
-        User.INDUSTRY, User.TIMEZONE, User.DATE_OF_BIRTH];
+        User.INDUSTRY, User.TIMEZONE, User.DATE_OF_BIRTH, User.EMAIL_VERIFIED, User.ACTIVE, User.VERIFIED];
 
     private title:Salutation;
     private first_name:string;
@@ -42,6 +43,7 @@ class User extends BaseModel
     private date_of_birth:string;
     private industry:IndustryCode;
     private timezone:number;
+    private email_verified:boolean;
     private active:boolean;
     private verified:boolean;
 
@@ -60,6 +62,7 @@ class User extends BaseModel
     getDateOfBirth():string                                     { return this.date_of_birth; }
     getIndustry():IndustryCode                                  { return this.industry; }
     getTimezone():number                                        { return this.timezone; }
+    getEmailVerified():boolean                                  { return this.email_verified; }
     getActive():boolean                                         { return this.active; }
     getVerified():boolean                                       { return this.verified; }
 
@@ -82,6 +85,7 @@ class User extends BaseModel
     setDateOfBirth(val:string)                                  { this.date_of_birth = val;}
     setIndustry(val:IndustryCode)                               { this.industry = val; }
     setTimezone(val:number)                                     { this.timezone = val; }
+    setEmailVerified(val:boolean)                               { this.email_verified = val; }
     setActive(val:boolean)                                      { this.active = val; }
     setVerified(val:boolean)                                    { this.verified = val; }
 

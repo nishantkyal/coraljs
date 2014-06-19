@@ -204,9 +204,14 @@ class VerificationCodeDelegate
             });
     }
 
-    verifyEmailVerificationCode(code:string):q.Promise<any>
+    verifyEmailVerificationCode(code:string, email:string):q.Promise<boolean>
     {
-        return CacheHelper.get('ev-' + code);
+        return CacheHelper.get('ev-' + code)
+            .then(
+            function codeFetched(user:User)
+            {
+                return user && user.getEmail() == email;
+            });
     }
 
     deleteEmailVerificationCode(code:string):q.Promise<boolean>

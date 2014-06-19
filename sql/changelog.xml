@@ -574,4 +574,9 @@
     <changeSet author="Nishant (generated)" id="1403206236234-8">
         <modifyDataType columnName="short_desc" newDataType="varchar(200)" tableName="user_profile"/>
     </changeSet>
+    <changeSet author="Nishant (generated)" id="1403208119457-1">
+        <addColumn tableName="user">
+            <column defaultValue="0" name="email_verified" type="INT(10)"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

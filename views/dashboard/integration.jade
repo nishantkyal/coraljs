@@ -41,21 +41,21 @@ title SearchNTalk - DashBoard
                                             th
                                     tbody
                                         each member in integrationMembers
-                                            if (member.user.status != 'Registered')
-                                                tr(class=((member.deleted == null || member.deleted == 0) ? (member.id != undefined ? '' : 'active') : 'danger'))
-                                                    td
-                                                        label
-                                                            a(href=DashboardUrls.userProfile(member.user.id))= formatName(member.user.first_name, member.user.last_name)
-                                                        br
-                                                        small #{member.user.email}
-                                                    td= formatRole(member.role)
-                                                    td
-                                                        | #{member.user.status ? formatUserStatus(member.user.status) : 'Pending'}
-                                                        if (!member.user.status)
-                                                            a.btn.btn-xs.btn-default.sendAgain(data-emailid=member.user.email) Send Again
-                                                    td(style='text-align: center;')
-                                                        if (member.id != undefined && (member.deleted == null || member.deleted == 0))
-                                                            a.fa.fa-pencil.save(href=DashboardUrls.userProfile(member.user.id))
+                                            tr(class=member.id != undefined ? '' : 'active')
+                                                td
+                                                    strong
+                                                        a(href=DashboardUrls.userProfile(member.user.id))= formatName(member.user.first_name, member.user.last_name)
+                                                    .clearer
+                                                    small #{member.user.email}
+                                                td= formatRole(member.role)
+                                                td
+                                                    | #{member.user.active ? 'Active' : 'Invited'}
+                                                    if (!member.user.active)
+                                                        div
+                                                            a.sendAgain(href='javascript:void(0)', data-emailid=member.user.email) Send Again
+                                                td(style='text-align: center;')
+                                                    if (member.id != undefined && (member.deleted == null || member.deleted == 0))
+                                                        a.fa.fa-pencil.save(href=DashboardUrls.userProfile(member.user.id))
                         .card#inviteMemberCard(style="display: none;")
                             form#inviteUser
                                 .item-edit

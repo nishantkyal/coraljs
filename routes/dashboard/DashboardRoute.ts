@@ -243,6 +243,8 @@ class DashboardRoute
         var sessionData = new SessionData(req);
         var selectedIntegrationId = parseInt(req.query[ApiConstants.INTEGRATION_ID]);
 
+        // 1. Get all member entries associated with the user
+        // 2. Get coupons and members for the selected integration
         this.integrationMemberDelegate.search({user_id: sessionData.getLoggedInUser().getId()}, null, [IncludeFlag.INCLUDE_INTEGRATION, IncludeFlag.INCLUDE_USER])
             .then(
             function integrationsFetched(integrationMembers:IntegrationMember[])
@@ -279,32 +281,19 @@ class DashboardRoute
 
                 _.each(integrationMembers, function (member:IntegrationMember)
                 {
+                    // TODO: Implement foreign keys to get rid of this goofiness
                     if (Utils.getObjectType(member[IntegrationMember.USER]) == 'Array')
-                    // TODO: Implement foreign keys to get rid if this goofiness
                         member[IntegrationMember.USER] = _.findWhere(member[IntegrationMember.USER], {id: member.getUserId()});
-                });
-
-                // Mark members who have an expert entry as well as an invited entry as inactive
-                // since this means they haven't completed the registration process
-                _.each(invitedMembers, function (invitedMember)
-                {
-                    var expertEntry = _.find(integrationMembers, function (member:IntegrationMember)
-                    {
-                        return invitedMember['user']['email'] == member.getUser().getEmail();
-                    });
-
-                    invitedMember.user['status'] = (!Utils.isNullOrEmpty(expertEntry)) ? 'Registered' : 'Pending';
                 });
 
                 integrationMembers = integrationMembers.concat(_.map(invitedMembers, function (invited) { return new IntegrationMember(invited); }));
 
-                var pageData = _.extend(sessionData.getData(), {
+                var pageData = _.extend(    sessionData.getData(), {
                     'members': members,
                     'selectedMember': _.findWhere(members, {'integration_id': integrationId}),
                     'integrationMembers': integrationMembers,
                     'coupons': coupons
                 });
-
 
                 self.logger.debug('Rendering network page, data: %s', JSON.stringify(pageData));
                 res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
@@ -432,32 +421,36 @@ class DashboardRoute
         var email:string = req.query[ApiConstants.EMAIL];
 
         if (Utils.isNullOrEmpty(code) || Utils.isNullOrEmpty(email))
-        {
-            res.render('500', {error: 'Invalid code or email'});
-            return;
-        }
+            return res.render('500', {error: 'Invalid code or email'});
 
-        this.verificationCodeDelegate.verifyEmailVerificationCode(code)
+        this.verificationCodeDelegate.verifyEmailVerificationCode(code, email)
             .then(
-            function verified(result):any
+            function verified(result:boolean):any
             {
                 if (result)
                 {
-                    req.logout();
-                    res.render(DashboardRoute.PAGE_ACCOUNT_VERIFICATION);
-                    return email;
+                    var userActivationUpdate = {};
+                    userActivationUpdate[User.ACTIVE] =
+                        userActivationUpdate[User.EMAIL_VERIFIED] = true;
+                    return self.userDelegate.update(Utils.createSimpleObject(User.EMAIL, true), userActivationUpdate);
                 }
                 else
-                    res.render('500', {error: 'Account verification failed. Invalid code or email'});
-            },
-            function verificationFailed(error)
+                    return res.render('500', {error: 'Account verification failed. Invalid code or email'});
+            })
+            .then(
+            function userActivated()
             {
-                res.render('500', {error: error.message});
+                return res.render(DashboardRoute.PAGE_ACCOUNT_VERIFICATION);
             })
             .then(
             function responseSent()
             {
                 return self.verificationCodeDelegate.deleteEmailVerificationCode(email);
+            })
+            .fail(
+            function verificationFailed(error)
+            {
+                res.render('500', {error: error.message});
             });
     }
 
@@ -495,8 +488,7 @@ class DashboardRoute
             function fetchError(error)
             {
                 res.send(500);
-            }
-        );
+            });
     }
 
     private putLinkedInFieldsInSession(req:express.Request, res:express.Response, next:Function)
