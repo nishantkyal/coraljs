@@ -17,11 +17,10 @@ class Urls
     static dashboard() { return '/dashboard'; }
     static integration() { return '/network'; }
     static userProfile(userId?:number, baseUrl?:string) { return ApiUrlDelegate.get('/user/:userId(\\d+)/profile', {userId: userId}, baseUrl); }
-    static userSetting(userId?:number, baseUrl?:string) { return ApiUrlDelegate.get('/user/:userId(\\d+)/setting', {userId: userId}, baseUrl); }
+    static userSetting(userId?:number) { return ApiUrlDelegate.get('/user/:userId(\\d+)/setting', {userId: userId}); }
 
     static logout() { return '/logout'; }
 
-    static paymentCallback() { return '/payment/complete'; }
     static userProfileFromLinkedIn(profileId?:number):string { return ApiUrlDelegate.get('/member/profileFromLinkedIn/:profileId(\\d+)', {profileId: profileId}); }
     static userProfileFromLinkedInCallback():string { return '/member/profileFromLinkedInCallback'; }
 }

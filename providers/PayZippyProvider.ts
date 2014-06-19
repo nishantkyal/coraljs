@@ -10,7 +10,7 @@ import TransactionLine                                      = require('../models
 import Payment                                              = require('../models/Payment');
 import Config                                               = require('../common/Config');
 import Utils                                                = require('../common/Utils');
-import DashboardUrls                                        = require('../routes/dashboard/Urls');
+import PaymentUrls                                          = require('../routes/payment/Urls');
 import TransactionDelegate                                  = require('../delegates/TransactionDelegate');
 import PaymentDelegate                                      = require('../delegates/PaymentDelegate');
 import TransactionStatus                                    = require('../enums/TransactionStatus');
@@ -48,7 +48,7 @@ class PayZippyProvider
         var data = {
             buyer_email_address: user.getEmail(),
             buyer_unique_id: user.getId(),
-            callback_url: url.resolve(Config.get(Config.DASHBOARD_URI), DashboardUrls.paymentCallback()),
+            callback_url: url.resolve(Config.get(Config.DASHBOARD_URI), PaymentUrls.paymentCallback()),
             currency: "INR",
             hash_method: 'MD5',
             is_user_logged_in: true,

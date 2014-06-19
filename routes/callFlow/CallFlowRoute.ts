@@ -58,40 +58,26 @@ import SessionData                                          = require('./Session
 
 class CallFlowRoute
 {
-    private static INDEX:string = 'callFlow/index';
-    private static PAYMENT:string = 'callFlow/payment';
+    private static INDEX:string                             = 'callFlow/index';
+    private static SCHEDULING_PAGE_FOR_EXPERT:string        = 'callFlow/schedulingPageForExpert';
+    private static SCHEDULING_PAGE_FOR_CALLER:string        = 'callFlow/schedulingPageForCaller';
 
     private logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
     private integrationMemberDelegate = new IntegrationMemberDelegate();
-    private transactionDelegate = new TransactionDelegate();
-    private transactionLineDelegate = new TransactionLineDelegate();
     private phoneCallDelegate = new PhoneCallDelegate();
-    private userPhoneDelegate = new UserPhoneDelegate();
     private userProfileDelegate = new UserProfileDelegate();
+    private userPhoneDelegate = new UserPhoneDelegate();
     private userDelegate = new UserDelegate();
     private userEmploymentDelegate = new UserEmploymentDelegate();
     private userSkillDelegate = new UserSkillDelegate();
     private userEducationDelegate = new UserEducationDelegate();
-    private couponDelegate = new CouponDelegate();
-    private scheduleDelegate = new ScheduleDelegate();
     private scheduleExceptionDelegate = new ScheduleExceptionDelegate();
-    private pricingSchemeDelegate = new PricingSchemeDelegate();
+    private verificationCodeDelegate = new VerificationCodeDelegate();
 
     constructor(app, secureApp)
     {
-        // Actual rendered pages
         app.get(Urls.callExpert(), this.index.bind(this));
-        app.get(Urls.payment(), Middleware.requireCallerAndCallDetails, Middleware.ensureNotCallingSelf, this.callPaymentPage.bind(this));
-        app.post(Urls.payment(), Middleware.requireCallerAndCallDetails, Middleware.ensureNotCallingSelf, this.callPayment.bind(this));
-        app.post(Urls.coupon(), Middleware.ensureNotCallingSelf, Middleware.requireTransaction, this.applyCoupon.bind(this))
-        app.post(Urls.checkout(), Middleware.ensureNotCallingSelf, Middleware.requireTransaction, this.checkout.bind(this));
-        app.get(Urls.removeCoupon(), Middleware.ensureNotCallingSelf, Middleware.requireTransaction, this.removeCoupon.bind(this))
-
-        app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_CALL_LOGIN, {failureRedirect: Urls.payment(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
-        app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_CALL_LOGIN, {failureRedirect: Urls.payment(), failureFlash: true}), this.callPayment.bind(this));
-
-        app.get(Urls.facebookLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {failureRedirect: Urls.payment(), failureFlash: true, scope: ['public_profile', 'email']}));
-        app.get(Urls.facebookLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {failureRedirect: Urls.payment(), failureFlash: true}), this.callPayment.bind(this));
+        app.get(Urls.scheduling(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: DashboardUrls.login()}), this.scheduling.bind(this));
     }
 
     /* Render index with expert schedules */
@@ -182,221 +168,107 @@ class CallFlowRoute
             });
     }
 
-    /* Redirect to convert post to get
-     * Note: We're doing a POST so that user selected params don't appear in url*/
-    private callPayment(req, res:express.Response)
+    /**
+     * Invoked when expert/caller clicks on accept appointment link in email
+     **/
+    private scheduling(req:express.Request, res:express.Response)
     {
-        res.redirect(Urls.payment());
-    }
-
-    /* Validate request from caller and start a new transaction */
-    private callPaymentPage(req, res:express.Response)
-    {
-        var sessionData = new SessionData(req);
         var self = this;
-        var expert = sessionData.getExpert();
-        var loggedInUserId = req.isAuthenticated() ? sessionData.getLoggedInUser().getId() : null;
-        var tasks = [];
+        var startTime:number = parseInt(req.query[ApiConstants.START_TIME]);
+        var appointmentCode:string = req.query[ApiConstants.CODE];
+        var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
+        var loggedInUserId = req[ApiConstants.USER].id;
 
-        // Delete transaction and call if anything was changed
-        var transactionExists:boolean = !Utils.isNullOrEmpty(sessionData.getTransaction());
-        if (transactionExists)
+        // 0. Check that selected start time hasn't already passed (expert reads the email too late)
+        // 1. Validate the code
+        //      a. verify that selected slot is one of the original slots
+        //      b. Verify that request was not sent by me
+        // 2. Fetch call details
+        // 3. If expert, check that we've a verified mobile number else ask to verify
+        if (startTime < moment().valueOf())
         {
-            var isExpertChanged = sessionData.getCall().getIntegrationMemberId() != sessionData.getExpert().getId();
-            var isDurationChanged = sessionData.getCall().getDuration() != sessionData.getDuration();
-            var isAgendaChanged = sessionData.getCall().getAgenda() != sessionData.getAgenda();
-
-            if (isExpertChanged || isDurationChanged || isAgendaChanged)
-            {
-                tasks.push(self.transactionDelegate.delete(sessionData.getTransaction().getId()));
-                tasks.push(self.phoneCallDelegate.delete(sessionData.getCall().getId()));
-            }
+            res.render('500', {error: 'The selected start time(' + Formatter.formatDate(startTime) + ') has already passed. Please choose another slot from the suggested slots or suggest a new one'});
+            return;
         }
 
-        // Create transaction and call if anything was changed or if transaction wasn't already started
-        if (!transactionExists || isExpertChanged || isDurationChanged || isAgendaChanged)
-        {
-            var phoneCall = new PhoneCall();
-            phoneCall.setIntegrationMemberId(sessionData.getExpert().getId());
-            phoneCall.setDelay(0);
-            phoneCall.setStatus(CallStatus.PLANNING);
-            phoneCall.setDuration(sessionData.getDuration());
-            phoneCall.setAgenda(sessionData.getAgenda());
-            phoneCall.setPricePerMin(new PricingScheme(expert.getUser().getPricingScheme()[0]).getChargingRate());
-            phoneCall.setPriceCurrency(new PricingScheme(expert.getUser().getPricingScheme()[0]).getUnit());
-            phoneCall.setCallerUserId(loggedInUserId);
-
-            var transaction = new Transaction();
-            transaction.setUserId(loggedInUserId);
-            transaction.setStatus(TransactionStatus.CREATED);
-
-            tasks.push(self.phoneCallDelegate.create(phoneCall)
-                .then(
-                function phoneCallCreated(createdCall:PhoneCall)
-                {
-                    sessionData.setCall(createdCall);
-                    return self.transactionDelegate.createPhoneCallTransaction(transaction, createdCall);
-                })
-                .then(
-                function transactionCreated(createdTransaction:Transaction)
-                {
-                    sessionData.setTransaction(createdTransaction);
-                    return true;
-                }));
-        }
-
-        // Execute all tasks and render
-        q.all(tasks)
+        q.all([
+            self.verificationCodeDelegate.verifyAppointmentAcceptCode(appointmentCode),
+            self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_USER, IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_TRANSACTION_LINE])
+        ])
             .then(
-            function allDone(...args)
+            function callAndSchedulingDetailsFetched(...args)
             {
-                return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, sessionData.getTransaction().getId()));
-            }).
-            then(function transactionLinesFetched(lines:TransactionLine[])
-            {
-                lines = _.sortBy(lines, function (line:TransactionLine)
-                {
-                    return line.getTransactionType();
-                });
+                var appointment = args[0][0];
+                var call:PhoneCall = args[0][1];
 
-                // If discount applied, fetch coupon name
-                var discountLine = _.findWhere(lines, Utils.createSimpleObject(TransactionLine.TRANSACTION_TYPE, TransactionType.DISCOUNT));
-                if (Utils.isNullOrEmpty(discountLine))
-                    return [lines];
-                else
-                    return [lines, self.couponDelegate.get(discountLine.getItemId())];
+                if (Utils.isNullOrEmpty(appointment) || (!Utils.isNullOrEmpty(startTime) && !_.contains(appointment.startTimes, startTime)) || appointment.from == loggedInUserId)
+                    throw 'Invalid request. Please click on one of the links in the email';
+
+                var returnArray = [appointment.startTimes, call];
+
+                switch (loggedInUserId)
+                {
+                    // If viewer == expert
+                    case call.getIntegrationMember().getUser().getId():
+                        if (!Utils.isNullOrEmpty(call.getExpertPhoneId()))
+                            returnArray.push(self.userPhoneDelegate.get(call.getExpertPhoneId()));
+                        else
+                            returnArray.push(self.userPhoneDelegate.find(Utils.createSimpleObject(UserPhone.USER_ID, call.getIntegrationMember().getUserId())));
+
+                    // If viewer == caller
+                    case call.getCallerUserId():
+                        returnArray.push(self.userPhoneDelegate.get(call.getCallerPhoneId()));
+                }
+
+                return returnArray;
             })
             .spread(
-            function linesAndCouponFetched(...args)
+            function expertPhonesFetched(startTimes:number[], call:PhoneCall, phone:UserPhone):any
             {
-                var lines = args[0];
-                var coupon = args[1];
+                var lines = call.getTransactionLine();
+                var productLine = _.findWhere(lines, Utils.createSimpleObject(TransactionLine.TRANSACTION_TYPE, TransactionType.PRODUCT));
+                var revenueShare:number = call.getIntegrationMember().getRevenueShare();
+                var revenueShareUnit:MoneyUnit = call.getIntegrationMember().getRevenueShareUnit();
 
-                var pageData = _.extend(sessionData.getData(), {
-                    messages: req.flash(),
-                    transactionLines: lines,
-                    coupon: coupon
-                });
+                var earning:number = 0;
+                var earningUnit:MoneyUnit = revenueShareUnit;
 
-                res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
-                res.render(CallFlowRoute.PAYMENT, pageData);
-            },
-            function handleError(error) { res.send(500); });
-    }
+                switch(revenueShareUnit)
+                {
+                    case MoneyUnit.PERCENT:
+                        earning = revenueShare * productLine.getAmount() / 100;
+                        break;
 
-    /* Apply coupon and send back discount details */
-    private applyCoupon(req:express.Request, res:express.Response)
-    {
-        var self = this;
-        var couponCode:string = req.body[ApiConstants.CODE];
-        var sessionData:SessionData = new SessionData(req);
-        var transaction = sessionData.getTransaction();
+                    default:
+                        // TODO: Handle currency conversion if different currencies
+                        if (revenueShareUnit == productLine.getAmountUnit())
+                            earning = Math.min(productLine.getAmount(), revenueShare);
+                        break;
+                }
 
-        self.transactionDelegate.applyCoupon(transaction.getId(), couponCode)
-            .then(
-            function transactionLinesFetched() { res.redirect(Urls.payment()); },
-            function couponApplyFailed(error)
-            {
-                req.flash('error', JSON.stringify(error));
-                res.redirect(Urls.payment());
-            });
-    }
+                var pageData = {
+                    call: call,
+                    startTimes: startTimes,
+                    selectedStartTime: startTime,
+                    phone: phone,
+                    code: appointmentCode,
+                    lines: lines,
+                    loggedInUserId: loggedInUserId,
+                    earning: earning,
+                    earningUnit: earningUnit
+                };
 
-    private removeCoupon(req:express.Request, res:express.Response)
-    {
-        var self = this;
-
-        var sessionData:SessionData = new SessionData(req);
-        var transaction = sessionData.getTransaction();
-
-        var couponCode:string = req.query[ApiConstants.CODE];
-
-        self.transactionDelegate.removeCoupon(transaction.getId(),couponCode)
-            .then(
-            function couponRemoved() { res.redirect(Urls.payment()); },
-            function couponRemoveFailed(error)
-            {
-                req.flash('error', JSON.stringify(error));
-                res.redirect(Urls.payment());
-            });
-    }
-
-    /* Redirect to gateway for payment */
-    private checkout(req, res:express.Response)
-    {
-        var self = this;
-        var sessionData = new SessionData(req);
-        var transaction = sessionData.getTransaction();
-        var call = sessionData.getCall();
-        var dbTransaction:Object;
-
-        // Check that we've a valid call for scheduling
-        var isCallValid = !Utils.isNullOrEmpty(call.getAgenda())
-            && !Utils.isNullOrEmpty(sessionData.getAppointments())
-
-        if (!isCallValid)
-        {
-            res.render('500', {error: 'An error occurred while scheduling your call. Please try again.'});
-            return null;
-        }
-
-        var userPhone = new UserPhone();
-        userPhone.setCountryCode(sessionData.getCountryCode());
-        userPhone.setPhone(sessionData.getCallerPhone());
-        userPhone.setUserId(sessionData.getLoggedInUser().getId());
-        userPhone.setType(PhoneType.MOBILE);
-
-        // 1. Begin sql transaction
-        // 2. Create phone number entry
-        // 3. Associate logged in user with call and transaction
-        // 4. Associate phone number with call
-        // 5. Redirect to checkout
-        MysqlDelegate.beginTransaction()
-            .then(
-            function transactionStarted(t)
-            {
-                dbTransaction = t;
-                return self.userPhoneDelegate.create(userPhone, dbTransaction);
-            })
-            .then(
-            function phoneNumberCreated(createdPhone:UserPhone)
-            {
-                var userId = sessionData.getLoggedInUser().getId();
-
-                var phoneCallUpdates = {};
-                phoneCallUpdates[PhoneCall.CALLER_PHONE_ID] = createdPhone.getId();
-                phoneCallUpdates[PhoneCall.CALLER_USER_ID] = userId;
-
-                return q.all([
-                    self.phoneCallDelegate.update(call.getId(), phoneCallUpdates, dbTransaction),
-                    self.transactionDelegate.update(transaction.getId(), Utils.createSimpleObject(Transaction.USER_ID, userId), dbTransaction)
-                ]);
-            })
-            .then(
-            function transactionAndCallUpdated()
-            {
-                return MysqlDelegate.commit(dbTransaction);
-            })
-            .then(
-            function transactionCommitted()
-            {
-                return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, transaction.getId()), null, null, dbTransaction);
-            })
-            .then(
-            function transactionLinesFetched(lines:TransactionLine[])
-            {
-                var payZippyProvider = new PayZippyProvider();
-                var amount:number = _.reduce(_.pluck(lines, TransactionLine.AMOUNT), function (memo:number, num:number) { return memo + num; }, 0) * 100;
-
-                if (amount > 0)
-                    res.redirect(payZippyProvider.getPaymentUrl(transaction, parseFloat(amount.toFixed(2)), sessionData.getLoggedInUser()));
+                if (loggedInUserId == call.getIntegrationMember().getUser().getId())
+                    res.render(CallFlowRoute.SCHEDULING_PAGE_FOR_EXPERT, pageData);
+                else if (loggedInUserId == call.getCallerUserId())
+                    res.render(CallFlowRoute.SCHEDULING_PAGE_FOR_CALLER, pageData);
                 else
-                    res.redirect(DashboardUrls.paymentCallback() + '?noPayment=true');
-            },
-            function handleError(error)
+                    res.render('500', "You're not authorized to view this page");
+
+            })
+            .fail(function (error)
             {
-                req.flash({error: JSON.stringify(error)});
-                res.redirect(Urls.payment());
+                res.render('500', {error: error});
             });
     }
 }

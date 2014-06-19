@@ -4,6 +4,7 @@ import connect_ensure_login                                 = require('connect-e
 import ApiConstants                                         = require('../../enums/ApiConstants');
 import Utils                                                = require('../../common/Utils');
 import BaseModel                                            = require('../../models/BaseModel');
+import VerificationCodeDelegate                             = require('../../delegates/VerificationCodeDelegate');
 import Urls                                                 = require('./Urls');
 import SessionData                                          = require('./SessionData');
 
@@ -75,6 +76,20 @@ class Middleware
             res.render('500', {error: "You can't call yourself!"});
         else
             next();
+    }
+
+    verifyAppointmentCode(req:express.Request, res:express.Response, next:Function)
+    {
+        var code:string = req.query[ApiConstants.CODE] || req.body[ApiConstants.CODE];
+        new VerificationCodeDelegate().verifyAppointmentAcceptCode(code)
+            .then(
+            function schedulingDetailsFetched(result)
+            {
+                if (Utils.isNullOrEmpty(result))
+                    res.render('500', {error: 'Invalid request. Please click on one of the links in the email.'});
+                else
+                    next();
+            });
     }
 
 }

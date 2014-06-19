@@ -31,7 +31,6 @@ import Formatter                                                    = require('.
 import ExpertRegistrationUrls                                       = require('../routes/expertRegistration/Urls');
 import DashboardUrls                                                = require('../routes/dashboard/Urls');
 import CallFlowUrls                                                 = require('../routes/callFlow/Urls');
-import CallSchedulingUrls                                           = require('../routes/callScheduling/Urls');
 
 /*
  Delegate class for managing email
@@ -230,7 +229,7 @@ class EmailDelegate
             .then(
             function invitationAcceptCodeCreated(code:string)
             {
-                var schedulingUrl:string = CallSchedulingUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI));
+                var schedulingUrl:string = CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI));
 
                 var emailData = {
                     call: call,
@@ -238,8 +237,8 @@ class EmailDelegate
                     caller: caller,
                     duration: duration,
                     appointments: appointments,
-                    suggestTimeUrl: Utils.addQueryToUrl(CallSchedulingUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
-                    rejectUrl: Utils.addQueryToUrl(CallSchedulingUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
+                    suggestTimeUrl: Utils.addQueryToUrl(CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
+                    rejectUrl: Utils.addQueryToUrl(CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
                     appointmentUrls: _.map(appointments, function(startTime)
                     {
                         var query = {};
@@ -305,7 +304,7 @@ class EmailDelegate
             .then(
             function invitationAcceptCodeCreated(code:string)
             {
-                var schedulingUrl:string = CallSchedulingUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI));
+                var schedulingUrl:string = CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI));
                 var query = {};
                 query[ApiConstants.CODE] = code;
                 query[ApiConstants.START_TIME] = appointment;
@@ -317,7 +316,7 @@ class EmailDelegate
                     acceptCode: code,
                     appointment: appointment,
                     appointmentUrl:appointmentUrl,
-                    suggestTimeUrl:Utils.addQueryToUrl(CallSchedulingUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code))
+                    suggestTimeUrl:Utils.addQueryToUrl(CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code))
                 };
 
                 return q.all([
@@ -348,7 +347,7 @@ class EmailDelegate
             .then(
             function invitationAcceptCodeCreated(code:string)
             {
-                var schedulingUrl:string = CallSchedulingUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI));
+                var schedulingUrl:string = CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI));
                 var expert:IntegrationMember = call.getIntegrationMember();
                 var integration = new IntegrationDelegate().getSync(expert.getIntegrationId());
                 var emailData = {
@@ -356,7 +355,7 @@ class EmailDelegate
                     acceptCode: code,
                     integration: integration,
                     appointments: appointments,
-                    suggestTimeUrl: Utils.addQueryToUrl(CallSchedulingUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
+                    suggestTimeUrl: Utils.addQueryToUrl(CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
                     appointmentUrls: _.map(appointments, function(startTime)
                     {
                         var query = {};
@@ -439,7 +438,8 @@ class EmailDelegate
         var emailData = {
             integration: integration,
             call: call,
-            appointment: call.getStartTime()
+            appointment: call.getStartTime(),
+            callerTzOffset: new TimezoneDelegate().get(call.getUser().getTimezone()).getGmtOffset()
         };
 
         return q.all([

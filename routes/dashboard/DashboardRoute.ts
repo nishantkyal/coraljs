@@ -14,7 +14,6 @@ import SMSDelegate                                      = require('../../delegat
 import CouponDelegate                                   = require('../../delegates/CouponDelegate');
 import UserPhoneDelegate                                = require('../../delegates/UserPhoneDelegate');
 import PhoneCallDelegate                                = require('../../delegates/PhoneCallDelegate');
-import NotificationDelegate                             = require('../../delegates/NotificationDelegate');
 import UserEducationDelegate                            = require('../../delegates/UserEducationDelegate');
 import UserSkillDelegate                                = require('../../delegates/UserSkillDelegate');
 import UserEmploymentDelegate                           = require('../../delegates/UserEmploymentDelegate');
@@ -69,8 +68,6 @@ class DashboardRoute
     private static PAGE_INTEGRATION:string = 'dashboard/integration';
     private static PAGE_PROFILE:string = 'dashboard/userProfile';
     private static PAGE_ACCOUNT_VERIFICATION:string = 'dashboard/accountVerification';
-    private static PAGE_PAYMENT_COMPLETE:string = 'dashboard/paymentComplete';
-    private static PAGE_CALL_DETAILS:string = 'dashboard/callDetails';
     private static PAGE_SETTING:string = 'dashboard/userSetting';
 
     private integrationMemberDelegate = new IntegrationMemberDelegate();
@@ -84,10 +81,8 @@ class DashboardRoute
     private pricingSchemeDelegate = new PricingSchemeDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
     private phoneCallDelegate = new PhoneCallDelegate();
-    private notificationDelegate = new NotificationDelegate();
     private userProfileDelegate = new UserProfileDelegate();
     private userUrlDelegate = new UserUrlDelegate();
-    private transactionLineDelegate = new TransactionLineDelegate();
     private expertiseDelegate = new ExpertiseDelegate();
     private logger = log4js.getLogger(Utils.getClassName(this));
 
@@ -106,8 +101,6 @@ class DashboardRoute
         app.get(Urls.userSetting(), Middleware.allowOnlyMe, this.setting.bind(this));
 
         app.get(Urls.logout(), this.logout.bind(this));
-        app.post(Urls.paymentCallback(), this.paymentComplete.bind(this));
-        app.get(Urls.paymentCallback(), this.paymentComplete.bind(this));
         app.get(Urls.emailAccountVerification(), this.emailAccountVerification.bind(this));
 
         // Fetch profile details from linkedin
@@ -430,85 +423,6 @@ class DashboardRoute
     {
         req.logout();
         res.redirect(Urls.index());
-    }
-
-    /* Handle payment response from gateway */
-    private paymentComplete(req:express.Request, res:express.Response)
-    {
-        var self = this;
-        var sessionData = new SessionData(req);
-        var callFlowSessionData = new CallFlowSessionData(req);
-        var payZippyProvider = new PayZippyProvider();
-        var noPayment = req.query[ApiConstants.NO_PAYMENT];
-
-        // 1. Fetch transaction lines for the successful transaction
-        // 2. Update transaction status
-        // 3. Take next actions based on products in the transaction
-        payZippyProvider.handleResponse(req)
-            .then(
-            function responseProcessed(transactionId:number)
-            {
-                return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, transactionId))
-            },
-            function responseProcessingFailed(error)
-            {
-                if (error == 'HASH_MISMATCH' && noPayment)
-                {
-                    var transactionId = callFlowSessionData.getTransaction().getId();
-                    return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, transactionId))
-                }
-                else
-                    throw(error);
-            })
-            .then(
-            function transactionLinesFetched(lines:TransactionLine[])
-            {
-                // Assumption: We only have one call on the transaction
-                var callId = _.findWhere(lines, {item_type: ItemType.PHONE_CALL}).getItemId();
-                return [lines, self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER])];
-            })
-            .spread(
-            function callFetched(lines:TransactionLine[], call:PhoneCall)
-            {
-                lines = _.sortBy(lines, function (line:TransactionLine)
-                {
-                    return line.getTransactionType();
-                });
-
-                // 1. Update call status
-                // 2. Send notifications
-                return q.all([
-                    self.phoneCallDelegate.update(call.getId(), {status: CallStatus.SCHEDULING}),
-                    self.notificationDelegate.sendNewCallRequestNotifications(call.getId(), callFlowSessionData.getAppointments(), call.getDuration(), sessionData.getLoggedInUser())
-                ])
-                    .then(
-                    function renderPage()
-                    {
-                        var pageData = _.extend(callFlowSessionData.getData(), {
-                            transactionLines: lines,
-                            call: call
-                        });
-                        callFlowSessionData.setTransaction(null);
-                        callFlowSessionData.setCall(null);
-                        callFlowSessionData.setAppointments([]);
-
-                        delete req.session[CallFlowSessionData.IDENTIFIER]
-                        res.render(DashboardRoute.PAGE_PAYMENT_COMPLETE, pageData);
-                    });
-            })
-            .fail(
-            function handleError(error)
-            {
-                var pageData = _.extend(callFlowSessionData.getData(), {
-                    error: error
-                });
-
-                callFlowSessionData.setTransaction(null);
-                callFlowSessionData.setCall(null);
-                callFlowSessionData.setAppointments([]);
-
-                res.render(DashboardRoute.PAGE_PAYMENT_COMPLETE, pageData);
-            });
     }
 
     private emailAccountVerification(req, res:express.Response)

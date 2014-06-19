@@ -30,6 +30,7 @@ import UserStatus                               = require('../enums/UserStatus')
 import ExpertRegistrationUrls                   = require('../routes/expertRegistration/Urls')
 import DashboardUrls                            = require('../routes/dashboard/Urls')
 import CallFlowUrls                             = require('../routes/callFlow/Urls');
+import PaymentUrls                              = require('../routes/payment/Urls');
 
 class AuthenticationDelegate
 {
@@ -53,13 +54,13 @@ class AuthenticationDelegate
 
         /* Facebook login */
         AuthenticationDelegate.configureFacebookStrategy(AuthenticationDelegate.STRATEGY_FACEBOOK, url.resolve(Config.get(Config.DASHBOARD_URI), '/login/fb/callback'));
-        AuthenticationDelegate.configureFacebookStrategy(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, url.resolve(Config.get(Config.DASHBOARD_URI), CallFlowUrls.facebookLoginCallback()));
+        AuthenticationDelegate.configureFacebookStrategy(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, url.resolve(Config.get(Config.DASHBOARD_URI), PaymentUrls.facebookLoginCallback()));
 
         /* Linkedin login */
         AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN, url.resolve(Config.get(Config.DASHBOARD_URI), DashboardUrls.linkedInLoginCallback()));
         AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, url.resolve(Config.get(Config.DASHBOARD_URI), ExpertRegistrationUrls.linkedInLoginCallback()));
         AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN_FETCH, url.resolve(Config.get(Config.DASHBOARD_URI), DashboardUrls.userProfileFromLinkedInCallback()));
-        AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN_CALL_LOGIN, url.resolve(Config.get(Config.DASHBOARD_URI), CallFlowUrls.linkedInLoginCallback()));
+        AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN_CALL_LOGIN, url.resolve(Config.get(Config.DASHBOARD_URI), PaymentUrls.linkedInLoginCallback()));
 
         // Serialize-Deserialize user
         passport.serializeUser(function (user, done) { done(null, user); });

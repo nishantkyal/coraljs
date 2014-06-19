@@ -2,11 +2,11 @@ import ApiUrlDelegate                           = require('../../delegates/ApiUr
 
 class Urls
 {
-    static login():string { return ApiUrlDelegate.get('/login'); }
-    static register():string { return ApiUrlDelegate.get('/register'); }
-    static fbLogin():string { return ApiUrlDelegate.get('/login/fb'); }
-    static linkedinLogin():string { return ApiUrlDelegate.get('/login/linkedin'); }
-    static fbLoginCallBack():string { return ApiUrlDelegate.get('/login/fb/callback'); }
-    static linkedinLoginCallBack():string { return ApiUrlDelegate.get('/login/linkedin/callback'); }
+    static login():string                       { return '/login'; }
+    static register():string                    { return '/register'; }
+    static fbLogin():string                     { return '/login/fb'; }
+    static linkedInLogin():string               { return '/login/linkedin'; }
+    static fbLoginCallBack():string             { return '/login/fb/callback'; }
+    static linkedinLoginCallBack():string       { return '/login/linkedin/callback'; }
 }
 export = Urls

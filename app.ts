@@ -36,8 +36,8 @@ import IntegrationMemberRole                        = require('./enums/Integrati
 import TransactionType                              = require('./enums/TransactionType');
 import ScheduledTaskType                            = require('./enums/ScheduledTaskType');
 import CallFlowUrls                                 = require('./routes/callFlow/Urls');
-import CallSchedulingUrls                           = require('./routes/callScheduling/Urls');
 import DashboardUrls                                = require('./routes/dashboard/Urls');
+import PaymentUrls                                  = require('./routes/payment/Urls');
 import MemberRegistrationUrls                       = require('./routes/expertRegistration/Urls');
 var pjson                                           = require('./package.json');
 
@@ -62,8 +62,8 @@ var helpers =
 
     ApiUrlDelegate: ApiUrlDelegate,
     CallFlowUrls: CallFlowUrls,
-    CallSchedulingUrls: CallSchedulingUrls,
     DashboardUrls: DashboardUrls,
+    PaymentUrls: PaymentUrls,
     MemberRegistrationUrls: MemberRegistrationUrls,
 
     Config: Config,
