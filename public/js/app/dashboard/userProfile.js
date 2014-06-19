@@ -10,7 +10,7 @@ $('#cancelEditUserProfile').click(function()
     $('#editBasicInfo').hide();
 });
 
-$('#addSkillbtn').click(function()
+$('#addSkillBtn').click(function()
 {
     $('#addSkill').show();
     $('#basicInfo').hide();
