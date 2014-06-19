@@ -101,7 +101,7 @@ class DashboardRoute
 
         // Dashboard pages
         app.get(Urls.dashboard(), AuthenticationDelegate.checkLogin({failureRedirect: Urls.login()}), this.dashboard.bind(this));
-        app.get(Urls.integration(), this.integration.bind(this));
+        app.get(Urls.integration(), AuthenticationDelegate.checkLogin({failureRedirect: Urls.login()}), this.integration.bind(this));
         app.get(Urls.userProfile(), this.userProfile.bind(this));
         app.get(Urls.userSetting(), Middleware.allowOnlyMe, this.setting.bind(this));
 
@@ -223,9 +223,24 @@ class DashboardRoute
 
     private dashboard(req:express.Request, res:express.Response)
     {
+        var self = this;
         var sessionData = new SessionData(req);
         var pageData = sessionData.getData();
-        res.render(DashboardRoute.PAGE_DASHBOARD, pageData);
+        var userId = parseInt(req.params[ApiConstants.USER_ID]);
+
+        q.all([
+            self.expertiseDelegate.search(Utils.createSimpleObject(Expertise.USER_ID, userId))
+        ])
+            .then(
+            function dashboardDetailsFetched(...args)
+            {
+                res.render(DashboardRoute.PAGE_DASHBOARD, pageData);
+            })
+            .fail(
+            function handleError(error)
+            {
+                res.render('500', {error: error.message});
+            })
     }
 
     /* Integration page */
@@ -312,7 +327,7 @@ class DashboardRoute
     {
         var self = this;
         var userId = parseInt(req.params[ApiConstants.USER_ID]);
-        var mode = req.query[ApiConstants.MODE]
+        var mode = req.query[ApiConstants.MODE];
         var sessionData = new SessionData(req);
         var member:IntegrationMember;
         var loggedInUser = sessionData.getLoggedInUser();

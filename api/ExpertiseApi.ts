@@ -27,9 +27,9 @@ class ExpertiseApi
 
         app.put(ApiUrlDelegate.expertise(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
         {
-            var loggedInUser = req['user'];
+            var loggedInUser = req[ApiConstants.USER];
             var expertise:Expertise = req.body[ApiConstants.USER_EXPERTISE];
-            var profileId = req.body[ApiConstants.USER_PROFILE_ID];
+            expertise.setUserId(loggedInUser.id);
 
             self.expertiseDelegate.create(expertise)
                 .then(

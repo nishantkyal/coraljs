@@ -1,7 +1,7 @@
 $('#editUserProfileBtn').click(function()
 {
-   $('#basicInfo').hide();
-   $('#editBasicInfo').show();
+    $('#basicInfo').hide();
+    $('#editBasicInfo').show();
 });
 
 $('#cancelEditUserProfile').click(function()
@@ -12,9 +12,10 @@ $('#cancelEditUserProfile').click(function()
 
 $('#addSkillbtn').click(function()
 {
-    $('#editBasicInfo').show();
+    $('#addSkill').show();
     $('#basicInfo').hide();
 
+    $('form#AddUserSkillForm').trigger('reset');
     $('form#AddUserSkillForm').trigger('reset');
     $('form#AddUserSkillForm').data('bootstrapValidator').resetForm();
 });
@@ -24,7 +25,6 @@ $('#cancelAddUserSkill').click(function()
     $('#basicInfo').show();
     $('#editBasicInfo').hide();
 });
-
 
 $('form#editUserProfileForm').bootstrapValidator({
     submitHandler: function()
@@ -199,7 +199,7 @@ var fetchedSkill = new Bloodhound({
             {
                 return {
                     value: skill.displayName,
-                    code: skill.id
+                    code : skill.id
                 };
             });
 
@@ -303,28 +303,41 @@ $('#fetchProfilePicture,#fetchSkill,#fetchEmployment,#fetchEducation,#fetchBasic
 });
 
 $('form#expertiseDetails').bootstrapValidator({
-    fields: {
+    fields       : {
         'title'            : {
             validators: {
                 required: { message: 'This field is required'}
             }
         },
-        charging_rate      : {
+        session_price      : {
             validators: {
-
-            }
-        },
-        chunk_size         : {
-            validators: {
-
-            }
-        },
-        min_duration       : {
-            validators: {
-                callback: function(event)
-                {
-                    if ($('form#expertiseDetails input[name=session_toggle]:checked').val() == '1')
+                digits  : {
+                    message: "Please enter a valid number"
+                },
+                callback: {
+                    message : 'This field is required to define a session',
+                    callback: function(val)
+                    {
+                        if ($('form#expertiseDetails input[name=session_toggle]:checked').val() == '1')
+                            return val && parseFloat(val) > 0;
                         return true;
+                    }
+                }
+            }
+        },
+        session_duration   : {
+            validators: {
+                digits  : {
+                    message: "Please enter a valid number"
+                },
+                callback: {
+                    message : 'This field is required to define a session',
+                    callback: function(val)
+                    {
+                        if ($('form#expertiseDetails input[name=session_toggle]:checked').val() == '1')
+                            return val && parseFloat(val) > 0;
+                        return true;
+                    }
                 }
             }
         },
@@ -343,21 +356,26 @@ $('form#expertiseDetails').bootstrapValidator({
     {
         var expertiseId = '';
         var method = expertiseId ? 'post' : 'put';
-        var expertiseUrl = expertiseId ? '/rest/expertise/' + expertiseId : '/rest/expertise';
+        var expertiseUrl = expertiseId ? '/rest/user/expertise/' + expertiseId : '/rest/user/expertise';
 
         $.ajax({
-            url: expertiseUrl,
-            method: method,
-            dataType: 'json',
+            url        : expertiseUrl,
+            method     : method,
+            dataType   : 'json',
             contentType: 'application/json',
-            data: JSON.stringify({
-               expertise: {
-
+            data       : JSON.stringify({
+                expertise: {
+                    session_duration: $('form#expertiseDetails input[name=session_duration]').val(),
+                    session_price: $('form#expertiseDetails input[name=session_price]').val(),
+                    session_price_unit: $('form#expertiseDetails input[name=session_price_unit]').val(),
+                    title: $('form#expertiseDetails input[name=title]').val(),
+                    description: $('form#expertiseDetails input[name=description]').val(),
+                    years_of_experience: $('form#expertiseDetails input[name=years_of_experience]').val()
                 }
             }),
-            success: function()
+            success    : function()
             {
-
+                location.reload();
             }
         })
     }
@@ -390,4 +408,5 @@ $('#cancelExpertiseDetails').click(function()
 $('#sessionToggle input').change(function()
 {
     $('#expertiseDetails #pricing').toggle($('#sessionToggle input[name=pricing_scheme_id]:checked').val() != '0');
+    $('form#expertiseDetails').data('bootstrapValidator').validate();
 });

@@ -42,18 +42,18 @@
             .meta.meta-keywords
                 if isEditable
                     h5.col-xs-8 Skills/Keywords
-                    a.btn.btn-success.btn-xs#addSkillbtn Add Skill
                     a.btn.btn-default.btn-xs#fetchSkill
                         si.si-small.si-colored.si-linkedin
                 else
                     h5.col-xs-12 Skills/Keywords
                     .clearer
-                if userSkill.length != 0
-                    ul
-                        each skill in userSkill
-                            li #{skill.skill_name}&nbsp
-                                if isEditable
-                                    a(data-id=skill.id, name = 'deleteUserSkill')
-                                        i.icon-cancel
-                else
-                    div No skills added yet
+                ul
+                    if userSkill.length != 0
+                            each skill in userSkill
+                                li #{skill.skill_name}&nbsp
+                                    if isEditable
+                                        a(data-id=skill.id, name = 'deleteUserSkill')
+                                            i.icon-cancel
+                    li Add Skill&nbsp;
+                        a#addSkillBtn
+                            i.icon-plus

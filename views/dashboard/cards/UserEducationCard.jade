@@ -1,0 +1,33 @@
+div.card
+    div.header
+        div.title
+            h1 Education
+        div.pull-right
+            a#addUserEducationBtn.btn.btn-success.btn-xs Add
+        div.clearer
+    if userEducation.length != 0
+        each edu in userEducation
+            .item
+                .row
+                    h5.col-xs-8 #{edu.school_name}
+                    .header-link.col-xs-4
+                        if isEditable
+                            a.btn.btn-link.editUserEducation(data-id=edu.id)
+                                i.icon-pencil
+                            a.btn.btn-link.deleteUserEducation(data-id=edu.id)
+                                i.icon-trash
+                    div
+                    if edu.degree
+                        | #{edu.degree}
+                        if edu.field_of_study
+                            | , #{edu.field_of_study}
+                            br
+                    if edu.start_year
+                        | #{edu.start_year}&nbsp
+                        if edu.end_year
+                            | - #{edu.end_year}
+                            br
+    else
+        .item
+            .row
+                div No schools added yet

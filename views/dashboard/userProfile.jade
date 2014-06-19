@@ -74,29 +74,16 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                         div.card
                             div.item
                                 div.row
-                                    h5.col-xs-8 Policy Training
+                                    h5.col-xs-8= expertise.title
                                     div.header-link.col-xs-4
                                         a.btn.btn-primary#editExpertiseBtn
                                             i.icon-pencil
                                 div.session-and-ratings
-                                    if expertise.pricing_scheme
+                                    if expertise.session_duration
                                         div.badge.badge-session.session-info
                                             h2 Session
-                                            h1= expertise.pricing_scheme.chunk_size
+                                            h1= expertise.session_duration
                                                 | &nbsp;mins.
-                                    div.user-ratings
-                                        h2 User Ratings
-                                        ul
-                                            li
-                                                i.icon-star.icon-highlighted
-                                            li
-                                                i.icon-star.icon-highlighted
-                                            li
-                                                i.icon-star.icon-highlighted
-                                            li
-                                                i.icon-star
-                                            li
-                                                i.icon-star
                                     div.clearer
                                 div.image-and-video
                                     div.video-container
@@ -115,87 +102,11 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                                         | &nbsp;yrs.
                 .row
                     .content.col-md-6
-                        div.card#educationDetails
-                            .header
-                                .meta.meta-keywords
-                                    if isEditable
-                                        h5.col-xs-8 Education Details
-                                        .pull-right
-                                            a.btn.btn-success.btn-xs#addeducationbtn Add Education
-                                            a.btn.btn-default.btn-xs#fetchEducation
-                                                si.si-small.si-colored.si-linkedin
-                                    else
-                                        h5.col-xs-12 Education Details
-                            br
-                            if userEducation.length != 0
-                                each edu in userEducation
-                                    .item
-                                        .row
-                                            h5.col-xs-8 #{edu.school_name}
-                                            .header-link.col-xs-4
-                                                if isEditable
-                                                    a.btn.btn-primary(data-id=edu.id, name = 'editUserEducation')
-                                                        i.icon-pencil
-                                                    a.btn.btn-danger(data-id=edu.id, name = 'deleteUserEducation')
-                                                        i.icon-trash
-                                            div
-                                            if edu.degree
-                                                | #{edu.degree}
-                                                if edu.field_of_study
-                                                    | , #{edu.field_of_study}
-                                                    br
-                                            if edu.start_year
-                                                | #{edu.start_year}&nbsp
-                                                if edu.end_year
-                                                    | - #{edu.end_year}
-                                                    br
-                            else
-                                .item
-                                    .row
-                                        div No schools added yet
+                        #userEducation
+                            include cards/UserEducationCard
                         if isEditable
-                            div.card#AddUserEducationCard(style='display: none;')
-                                form#AddUserEducationForm
-                                    input.form-control(type="hidden", name="id")
-                                    .item-edit
-                                        .item
-                                            .row
-                                                h5.col-xs-8 Add Education
-                                                .header-link.col-xs-4
-                                                    a.btn.btn-danger#cancelAddUserEducation
-                                                        i.icon-cancel
-                                        .item
-                                            .row
-                                                .form-group
-                                                    h3 School
-                                                    input.form-control(type='text', name='school_name')
-                                                .form-group
-                                                    h3 Dates Attended
-                                                    .controls
-                                                        select(name='start_year', data-width='auto')
-                                                            - for (var i = currentYear; i >= minYear; i--){
-                                                                option(value="#{i}" selected = (currentYear == '#{i}')) #{i}
-                                                            -}
-                                                        select(name='end_year', data-width='auto')
-                                                            - for( var i=currentYear; i>=minYear; i--){
-                                                                option(value="#{i}" selected = (currentYear == '#{i}')) #{i}
-                                                            -}
-                                                .form-group
-                                                    h3 Degree
-                                                    input.form-control(type='text', name='degree')
-                                                .form-group
-                                                    h3 Field of Study
-                                                    input.form-control(type='text', name='field_of_study')
-                                                .form-group
-                                                    h3 Activities and Socities
-                                                    input.form-control(type='text', name='activities')
-                                                .form-group
-                                                    h3 Description
-                                                    input.form-control(type='text', name='description')
-                                                .clearer
-                                                div.links-editing
-                                                    p.edit-schedules
-                                                        input.btn.btn-primary(type='submit', value='Save')
+                            #userEducationDetails(style='display: none;')
+                                include cards/EditUserEducation
                     .content.col-md-6
                         div.card#employmentDetails
                             .header

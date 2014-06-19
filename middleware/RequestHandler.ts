@@ -17,7 +17,7 @@ import ScheduleException                = require('../models/ScheduleException')
 import UserProfile                      = require('../models/UserProfile');
 import Transaction                      = require('../models/Transaction');
 import Widget                           = require('../models/Widget');
-
+import Expertise                        = require('../models/Expertise');
 class RequestHandler
 {
     static requireFilters(req, res, next)
@@ -94,6 +94,9 @@ class RequestHandler
                     break;
                 case ApiConstants.PRICING_SCHEME:
                     modelClass = PricingScheme;
+                    break;
+                case ApiConstants.USER_EXPERTISE:
+                    modelClass = Expertise;
                     break;
             }
 
