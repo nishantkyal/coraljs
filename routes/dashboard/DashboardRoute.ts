@@ -240,7 +240,7 @@ class DashboardRoute
             function handleError(error)
             {
                 res.render('500', {error: error.message});
-            })
+            });
     }
 
     /* Integration page */

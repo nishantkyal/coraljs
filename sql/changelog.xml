@@ -535,4 +535,13 @@
     <changeSet author="Nishant (generated)" id="1403075709910-4">
         <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="user_expertise" constraintName="FK_user_expertise_user" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="user"/>
     </changeSet>
+    <changeSet author="Nishant (generated)" id="1403152910335-1">
+        <dropDefaultValue columnDataType="boolean" columnName="deleted" tableName="email"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1403152910335-2">
+        <modifyDataType columnName="long_desc" newDataType="varchar(45)" tableName="user_profile"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1403152910335-3">
+        <dropDefaultValue columnDataType="boolean" columnName="recorded" tableName="call"/>
+    </changeSet>
 </databaseChangeLog>
