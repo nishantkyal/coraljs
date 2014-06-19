@@ -457,11 +457,6 @@ class DashboardRoute
             .then(
             function responseSent()
             {
-                return self.userDelegate.recalculateStatus({email: email});
-            })
-            .then(
-            function statusUpdated()
-            {
                 return self.verificationCodeDelegate.deleteEmailVerificationCode(email);
             });
     }

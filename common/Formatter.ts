@@ -3,7 +3,6 @@ import moment                                                       = require('m
 import accounting                                                   = require('accounting');
 import MoneyUnit                                                    = require('../enums/MoneyUnit');
 import IntegrationMemberRole                                        = require('../enums/IntegrationMemberRole');
-import UserStatus                                                   = require('../enums/UserStatus');
 import CallStatus                                                   = require('../enums/CallStatus');
 import Salutation                                                   = require('../enums/Salutation');
 import Schedule                                                     = require('../models/Schedule');
@@ -82,11 +81,6 @@ class Formatter
             if (m.search(/^[0-9]+$/) != -1)
                 m = parseInt(m);
         return (isNegative ? '-' : '') + moment(m).format(format).toString();
-    }
-
-    static formatUserStatus(status:UserStatus):string
-    {
-        return Utils.enumToNormalText(UserStatus)[status] || status.toString();
     }
 
     static formatCallStatus(status:CallStatus):string

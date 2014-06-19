@@ -42,7 +42,6 @@ import CallStatus                                           = require('../../enu
 import ApiConstants                                         = require('../../enums/ApiConstants');
 import IncludeFlag                                          = require('../../enums/IncludeFlag');
 import MoneyUnit                                            = require('../../enums/MoneyUnit');
-import UserStatus                                           = require('../../enums/UserStatus');
 import PhoneType                                            = require('../../enums/PhoneType');
 import TransactionStatus                                    = require('../../enums/TransactionStatus');
 import TransactionType                                      = require('../../enums/TransactionType');
@@ -93,13 +92,6 @@ class CallFlowRoute
             function expertFetched(expert:IntegrationMember):any
             {
                 var user = expert.getUser();
-
-                if (user.getStatus() != UserStatus.ACTIVE)
-                {
-                    var errorMessage = Formatter.formatName(user.getFirstName(), user.getLastName(), user.getTitle()) + '\'s account has not been setup completely. Please visit us again later.'
-                    throw (errorMessage);
-                }
-
                 sessionData.setExpert(expert);
 
                 return q.all([

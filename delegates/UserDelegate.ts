@@ -18,7 +18,6 @@ import UserProfile                                                      = requir
 import PricingScheme                                                    = require('../models/PricingScheme');
 import IncludeFlag                                                      = require('../enums/IncludeFlag');
 import ImageSize                                                        = require('../enums/ImageSize');
-import UserStatus                                                       = require('../enums/UserStatus');
 import Config                                                           = require('../common/Config');
 import Utils                                                            = require('../common/Utils');
 
@@ -148,38 +147,6 @@ class UserDelegate extends BaseDaoDelegate
          {
          self.logger.debug('Image resize failed because %s', error);
          });*/
-    }
-
-    recalculateStatus(criteria:number):q.Promise<any>;
-    recalculateStatus(criteria:Object):q.Promise<any>;
-    recalculateStatus(criteria:any, transaction?:Object):q.Promise<any>
-    {
-        var self = this;
-        var user:User;
-
-        if (Utils.getObjectType(criteria) == 'Number')
-            criteria = {id: criteria};
-
-        return this.find(criteria)
-            .then(
-            function userFound(u)
-            {
-                user = u;
-                return self.userPhoneDelegate.find({user_id: user.getId(), verified: true}, null, null, transaction);
-            })
-            .then(
-            function phoneFound(phone)
-            {
-                if (Utils.isNullOrEmpty(phone))
-                    throw(UserStatus.MOBILE_NOT_VERIFIED);
-                else
-                    return self.userProfileDelegate.find(Utils.createSimpleObject(UserProfile.USER_ID, user.getId()), null, null, transaction);
-            })
-            .fail(
-            function updateStatus(status)
-            {
-                return self.update({id: user.getId()}, {status: status}, transaction);
-            });
     }
 
     computePasswordHash(email:string, textPassword:string)

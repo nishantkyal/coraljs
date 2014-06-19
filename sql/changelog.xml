@@ -544,4 +544,34 @@
     <changeSet author="Nishant (generated)" id="1403152910335-3">
         <dropDefaultValue columnDataType="boolean" columnName="recorded" tableName="call"/>
     </changeSet>
+    <changeSet author="Nishant (generated)" id="1403206236234-1">
+        <addColumn tableName="user">
+            <column defaultValue="0" name="active" type="INT(10)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1403206236234-2">
+        <addColumn tableName="user">
+            <column name="middle_name" type="VARCHAR(30)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1403206236234-3">
+        <addColumn tableName="user">
+            <column defaultValue="0" name="verified" type="INT(10)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1403206236234-4">
+        <dropForeignKeyConstraint baseTableName="user" constraintName="user_status"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1403206236234-5">
+        <dropTable tableName="ref_user_status"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1403206236234-6">
+        <dropColumn columnName="status" tableName="user"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1403206236234-7">
+        <modifyDataType columnName="long_desc" newDataType="varchar(800)" tableName="user_profile"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1403206236234-8">
+        <modifyDataType columnName="short_desc" newDataType="varchar(200)" tableName="user_profile"/>
+    </changeSet>
 </databaseChangeLog>

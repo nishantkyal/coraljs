@@ -26,7 +26,6 @@ import Config                                   = require('../common/Config');
 import Utils                                    = require('../common/Utils');
 import ApiConstants                             = require('../enums/ApiConstants');
 import IndustryCodes                            = require('../enums/IndustryCode');
-import UserStatus                               = require('../enums/UserStatus');
 import ExpertRegistrationUrls                   = require('../routes/expertRegistration/Urls')
 import DashboardUrls                            = require('../routes/dashboard/Urls')
 import CallFlowUrls                             = require('../routes/callFlow/Urls');
@@ -192,7 +191,6 @@ class AuthenticationDelegate
                     user.setFirstName(profile.first_name);
                 user.setLastName(profile.last_name);
                 user.setEmail(profile.email);
-                user.setStatus(UserStatus.MOBILE_NOT_VERIFIED);
 
                 var userOauth = new UserOauth();
                 userOauth.setOauthUserId(profile.id);
@@ -250,7 +248,6 @@ class AuthenticationDelegate
 
                 var user = new User();
                 user.setEmail(profile.emailAddress); //setting email id for new user, if user exists then this will be discarded
-                user.setStatus(UserStatus.MOBILE_NOT_VERIFIED);
 
                 if (!Utils.isNullOrEmpty(req.session[ApiConstants.ZONE]))
                     user.setTimezone(req.session[ApiConstants.ZONE]);

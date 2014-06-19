@@ -54,7 +54,6 @@ var helpers =
     formatName: Formatter.formatName,
     formatSchedule: Formatter.formatSchedule,
     formatDate: Formatter.formatDate,
-    formatUserStatus: Formatter.formatUserStatus,
     formatCallStatus: Formatter.formatCallStatus,
     formatPhone: Formatter.formatPhone,
     formatTimezone: Formatter.formatTimezone,
