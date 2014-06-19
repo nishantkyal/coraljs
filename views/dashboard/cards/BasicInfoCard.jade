@@ -19,7 +19,6 @@
                     .user-displayname= formatName(user.first_name, user.last_name, user.title)
                     if user.date_of_birth
                         .user-age= moment(parseInt(user.date_of_birth)).fromNow(true)
-                    .user-desc #{userProfile.short_desc}
                 .info-lower
                     .user-locale New Delhi
                     .user-timezone
@@ -35,8 +34,7 @@
                     input#selectFile(type='file', name='profile', style='display: none')
                     input#selectFileSubmit(type='submit', style='display: none')
             .profile
-                p
-                    | #{userProfile.long_desc}
+                p= userProfile.long_desc
     .item
         .row
             .meta.meta-keywords
