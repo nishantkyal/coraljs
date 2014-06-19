@@ -1,4 +1,6 @@
 - var user = expert.user;
+- var pricing = expert.user.pricing_scheme[0]
+- var minDuration = pricing.min_duration
 
 include ../header
 // /.masthead
@@ -86,7 +88,7 @@ title ST- Payment Complete
                                                 .table-row
                                                     case line.transaction_type
                                                         when 1
-                                                            .table-cell.title Call duration: #{duration} mins @ #{formatMoney(expert.schedule[0].price_per_min, expert.schedule[0].price_unit)} / min
+                                                            .table-cell.title Call duration: #{duration} mins @ #{formatMoney(pricing.charging_rate, pricing.unit)} / min
                                                         when 2
                                                             .table-cell.title Network charges
                                                         when 3
