@@ -226,7 +226,7 @@ class DashboardRoute
         var self = this;
         var sessionData = new SessionData(req);
         var pageData = sessionData.getData();
-        var userId = parseInt(req[ApiConstants.USER]);
+        var userId = parseInt(req[ApiConstants.USER].id);
 
         q.all([
             self.expertiseDelegate.search(Utils.createSimpleObject(Expertise.USER_ID, userId))
