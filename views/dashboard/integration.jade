@@ -13,7 +13,7 @@ title SearchNTalk - DashBoard
                                     span.sr-only Toggle network navigation
                                     i.icon-plus
                                     i.icon-minus
-                                .visible-xs.navbar-brand.network-brand Forum B
+                                .visible-xs.navbar-brand.network-brand= selectedMember.integration.title
                             #networks-collapse.collapse.navbar-collapse
                                 ul.nav.nav-pills.nav-stacked
                                     each member in members
