@@ -34,14 +34,14 @@ import PaymentUrls                              = require('../routes/payment/Url
 
 class AuthenticationDelegate
 {
-    static STRATEGY_OAUTH:string = 'oauth';
-    static STRATEGY_LOGIN:string = 'login';
-    static STRATEGY_FACEBOOK:string = 'facebook';
-    static STRATEGY_LINKEDIN:string = 'linkedin';
-    static STRATEGY_FACEBOOK_CALL_FLOW:string = 'facebook-call';
+    static STRATEGY_OAUTH:string                = 'oauth';
+    static STRATEGY_LOGIN:string                = 'login';
+    static STRATEGY_FACEBOOK:string             = 'facebook';
+    static STRATEGY_LINKEDIN:string             = 'linkedin';
+    static STRATEGY_FACEBOOK_CALL_FLOW:string   = 'facebook-call';
     static STRATEGY_LINKEDIN_EXPERT_REGISTRATION:string = 'linkedin-expert';
-    static STRATEGY_LINKEDIN_FETCH = 'linkedin-fetch';
-    static STRATEGY_LINKEDIN_CALL_LOGIN = 'linkedin-call-login';
+    static STRATEGY_LINKEDIN_FETCH              = 'linkedin-fetch';
+    static STRATEGY_LINKEDIN_CALL_LOGIN         = 'linkedin-call-login';
 
     private static logger = log4js.getLogger('AuthenticationDelegate');
 
