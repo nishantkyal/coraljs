@@ -33,14 +33,14 @@ import PaymentUrls                              = require('../routes/payment/Url
 
 class AuthenticationDelegate
 {
-    static STRATEGY_OAUTH:string                = 'oauth';
-    static STRATEGY_LOGIN:string                = 'login';
-    static STRATEGY_FACEBOOK:string             = 'facebook';
-    static STRATEGY_LINKEDIN:string             = 'linkedin';
-    static STRATEGY_FACEBOOK_CALL_FLOW:string   = 'facebook-call';
+    static STRATEGY_OAUTH:string = 'oauth';
+    static STRATEGY_LOGIN:string = 'login';
+    static STRATEGY_FACEBOOK:string = 'facebook';
+    static STRATEGY_LINKEDIN:string = 'linkedin';
+    static STRATEGY_FACEBOOK_CALL_FLOW:string = 'facebook-call';
     static STRATEGY_LINKEDIN_EXPERT_REGISTRATION:string = 'linkedin-expert';
-    static STRATEGY_LINKEDIN_FETCH              = 'linkedin-fetch';
-    static STRATEGY_LINKEDIN_CALL_LOGIN         = 'linkedin-call-login';
+    static STRATEGY_LINKEDIN_FETCH = 'linkedin-fetch';
+    static STRATEGY_LINKEDIN_CALL_LOGIN = 'linkedin-call-login';
 
     private static logger = log4js.getLogger('AuthenticationDelegate');
 
@@ -73,6 +73,7 @@ class AuthenticationDelegate
 
         return function (req, res:express.Response, next:Function)
         {
+            var isAjax = req.get('content-type') && req.get('content-type').indexOf('application/json') != -1;
             var user = new User(req.body);
 
             if (user.isValid()
@@ -89,29 +90,43 @@ class AuthenticationDelegate
                             .then(
                             function verificationEmailSent()
                             {
-                                req.flash('info', "We've sent you an email with verification link to verify your email address. You may do it later but your account will not become active until then.");
                                 req.logIn(user, function ()
                                 {
-                                    if (options.failureFlash)
-                                        next();
-                                    else if (options.failureRedirect)
-                                        res.redirect(req.originalUrl);
-                                });
+                                    if (options.successFlash)
+                                        req.flash('info', "We've sent you an email with verification link to verify your email address. You may do it later but your account will not become active until then.");
 
+                                    if (isAjax)
+                                        res.send(200);
+                                    else if (options.successRedirect)
+                                        res.redirect(options.successRedirect);
+                                    else
+                                        next();
+                                });
                             });
                     },
                     function registrationError(error)
                     {
-                        if (options.failureFlash)
-                            req.flash('error', error.message);
-
-                        res.redirect(options.failureRedirect || req.originalUrl);
+                        if (isAjax)
+                            res.send(500, JSON.stringify(error));
+                        else
+                        {
+                            if (options.failureFlash)
+                                req.flash('error', error.message);
+                            res.redirect(options.failureRedirect || req.originalUrl);
+                        }
                     });
             }
             else
             {
-                req.flash('error', 'Please fill in all the details correctly');
-                res.redirect(options.failureRedirect);
+
+                if (isAjax)
+                    res.send(400, 'Please fill in all the details correctly');
+                else
+                {
+                    if (options.failureFlash)
+                        req.flash('error', 'Please fill in all the details correctly');
+                    res.redirect(options.failureRedirect || req.originalUrl);
+                }
             }
         }
     }
