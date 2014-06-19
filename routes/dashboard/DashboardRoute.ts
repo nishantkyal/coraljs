@@ -248,6 +248,7 @@ class DashboardRoute
     {
         var self = this;
         var sessionData = new SessionData(req);
+        var selectedIntegrationId = parseInt(req.query[ApiConstants.INTEGRATION_ID]);
 
         this.integrationMemberDelegate.search({user_id: sessionData.getLoggedInUser().getId()}, null, [IncludeFlag.INCLUDE_INTEGRATION, IncludeFlag.INCLUDE_USER])
             .then(
@@ -265,7 +266,8 @@ class DashboardRoute
 
                 if (correctedMembers.length != 0)
                 {
-                    var integrationId = correctedMembers[0].getIntegrationId();
+                    var integrationId = selectedIntegrationId || correctedMembers[0].getIntegrationId();
+
                     return [integrationId, correctedMembers, q.all([
                         self.integrationMemberDelegate.search({integration_id: integrationId}, IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER]),
                         self.verificationCodeDelegate.getInvitationCodes(integrationId),
