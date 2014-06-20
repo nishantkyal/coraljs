@@ -64,6 +64,7 @@ class AuthenticationDelegate
 
     })();
 
+    /* Register method with support for ajax requests */
     static register(options:any = {})
     {
         return function (req, res:express.Response, next:Function)
@@ -124,7 +125,6 @@ class AuthenticationDelegate
     }
 
     /* Check login method with support for ajax requests */
-    //TODO: TEST THIS
     static checkLogin(options:any = {})
     {
         options.failureRedirect = options.failureRedirect || '/login';
@@ -146,7 +146,7 @@ class AuthenticationDelegate
         }
     }
 
-    //TODO: TEST THIS
+    /* Login method with support for ajax requests */
     static login(options:any = {})
     {
         return function (req, res:express.Response, next:Function)

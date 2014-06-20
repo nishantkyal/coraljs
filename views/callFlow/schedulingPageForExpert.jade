@@ -8,6 +8,7 @@ head
     link(href='/bower_dependencies/bootstrap/dist/css/bootstrap.min.css')
     link(href='/css/bootstrap.min.css', rel='stylesheet')
     link(href='/css/main.css', rel='stylesheet')
+    link(href='/css/style.css', rel='stylesheet')
     link(href='/bower_dependencies/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css', rel='stylesheet')
     //link(href='/css/style.css', rel='stylesheet')
     script(src='/bower_dependencies/jquery/jquery.js')
@@ -33,9 +34,9 @@ head
 .matter
     .container
         .row
-            .content.col-xs-9.col-sm-9.col-md-12.col-lg-12
-                .row
-                    .col-md-6
+            .content
+                .col-md-6
+                    .row
                         .call-profile
                             h1
                                 | Call request from&nbsp;
@@ -50,60 +51,47 @@ head
                                 h5 Duration
                                 p= call.duration
                                     | &nbsp; mins.
-                    .col-md-6
-                        .call-card
-                            form#scheduling(action=ApiUrlDelegate.phoneCallScheduling(call.id))
-                                .payment-summary.call-inputs
-                                    h1
-                                        i.icon-scheduler
-                                        | Suggested Time
-                                    h3 Pick one of the suggested slots
+            .content.col-md-6
+                .row
+                    .card
+                        form#scheduling(action=ApiUrlDelegate.phoneCallScheduling(call.id))
+                            .payment-summary.call-inputs
+                                h1
+                                    i.icon-scheduler
+                                    | Requested Time Slots
+                                ul
                                     for slot in startTimes
-                                        p.title
-                                            input(type='radio', name='startTime', value=slot, checked=selectedStartTime == slot)
-                                            label= formatDate(slot)
-                                    h3 Or Suggest another time convenient to you
+                                        li.radio(data-id=slot.id)
+                                            .checkbox.inverted.active
+                                            span= formatDate(slot)
+                                .form-group
+                                    input.form-control.datepicker(type='text', placeholder='Suggest alternate time slot', readonly=true, style='background-color: white; cursor: default;')
+                            .payment-summary.call-inputs
+                                h1
+                                    i.icon-phone
+                                    | Your Phone
+                                .form-group
                                     .row
-                                        .col-md-8
-                                            .form-group
-                                                .input-group.date.datepicker
-                                                    input.form-control#startTime(type='text', disabled=true)
-                                                    span.input-group-addon
-                                                        span.glyphicon-calendar.glyphicon
+                                        .col-xs-4
+                                            select#country-code.form-control
+                                                for name,abb in CountryName
+                                                    -var code = CountryCode[abb];
+                                                    option(value=code, selected=code ==country_code)= name + ' (+' + code + ')'
+                                        .col-xs-8
+                                            input#caller-phone.form-control.phone-number(type='text', placeholder='Phone Number')
+                            if earning > 0
                                 .payment-summary.call-inputs
                                     h1
-                                        i.icon-phone
-                                        | Your phone number
-                                        .row
-                                            if !phone
-                                                .input-group
-                                                    .input-group-btn
-                                                        select.form-control#country-code
-                                                            for code,country in CountryCode
-                                                                option(value=country, selected=country == phone.country_code)= CountryName[code.toUpperCase()] + ' (+' + country + ')'
-                                                    input.form-control#phone(type='text', value=phone ? phone.phone : null)
-                                                    .input-group-btn
-                                                        a.btn.btn-success#verify-btn Verify
-                                            else
-                                                p= '+' + phone.country_code + '-' + phone.phone
-
-                                if earning > 0
-                                    .payment-summary.call-inputs
-                                        h1
-                                            i.icon-bill
-                                            | Your earnings
-                                            .row
-                                                p= formatMoney(earning, earningUnit)
-
-
-                                input(type='hidden', name='phoneNumberId', value=phone ? phone.id : null)
-                                input(type='hidden', name='code', value=code)
-                                input.btn.btn-primary.btn-block(type='submit', value='Confirm')
-                                .call-reversal
-                                    a.btn.btn-danger#reject-call
-                                        | Cancel
-                                        i.icon-cancel
-
+                                        i.icon-bill
+                                        | You Earn
+                                    .form-group
+                                        .form-control-static= formatMoney(earning, earningUnit)
+                            input(type='hidden', name='phoneNumberId', value=phone ? phone.id : null)
+                            input(type='hidden', name='code', value=code)
+                            input.btn.btn-primary.btn-block(type='submit', value='Confirm')
+                            a.btn.btn-danger.btn-block#reject-call
+                                | Cancel
+                                i.icon-cancel
 include ../footer
 script.
     var callId = '!{call.id}';

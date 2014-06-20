@@ -28,3 +28,21 @@
 {
     height: 34px;
 }
+
+.checkbox.inverted::before
+{
+    color: rgb(167, 167, 167);
+}
+
+.radio
+{
+    display: block;
+    height: 30px;
+    line-height: 20px;
+    padding: 5px;
+}
+
+.radio span
+{
+    margin-left: 5px;
+}
