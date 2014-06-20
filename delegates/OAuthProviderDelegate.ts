@@ -1,7 +1,6 @@
-///<reference path='../_references.d.ts'/>
-import connect_ensure_login                                         = require('connect-ensure-login');
 import oauth2orize                                                  = require('oauth2orize');
 import log4js                                                       = require('log4js');
+import AuthenticationDelegate                                       = require('../delegates/AuthenticationDelegate');
 import IntegrationDelegate                                          = require('../delegates/IntegrationDelegate');
 import IntegrationMemberDelegate                                    = require('../delegates/IntegrationMemberDelegate');
 import NotificationDelegate                                         = require('../delegates/NotificationDelegate');
@@ -20,7 +19,7 @@ class OAuthProviderDelegate
     private static logger:log4js.Logger = log4js.getLogger('OAuthProviderDelegate');
 
     static authorization = [
-        connect_ensure_login.ensureLoggedIn(),
+        AuthenticationDelegate.checkLogin(),
         OAuthProviderDelegate.server.authorization(
             function checkIntegration(integrationId, redirectURI, done)
             {
@@ -51,7 +50,7 @@ class OAuthProviderDelegate
     ]
 
     static decision = [
-        connect_ensure_login.ensureLoggedIn(),
+        AuthenticationDelegate.checkLogin(),
         OAuthProviderDelegate.server.decision()
     ]
 

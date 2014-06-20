@@ -1,3 +1,4 @@
+import crypto                                                           = require('crypto');
 import validator                                            = require('validator');
 import BaseModel                                            = require('./BaseModel')
 import Utils                                                = require('../common/Utils');
@@ -93,5 +94,11 @@ class User extends BaseModel
     setSchedule(val:Schedule[]):void                            { this.schedule = val; }
     setScheduleRule(val:ScheduleRule[]):void                    { this.schedule_rule = val; }
     setPricingScheme(val:PricingScheme[]):void                  { this.pricing_scheme = val; }
+
+    getPasswordHash(email?:string, password?:string):string
+    {
+        var md5sum = crypto.createHash('md5');
+        return md5sum.update((this.email || email) + ':' + (this.password || password)).digest('hex');
+    }
 }
 export = User

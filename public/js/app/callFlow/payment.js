@@ -39,7 +39,7 @@ $('form.login').bootstrapValidator({
             dataType   : 'json',
             contentType: 'application/json',
             data       : JSON.stringify({
-                username: $('form.login input[name="email"]').val(),
+                email : $('form.login input[name="email"]').val(),
                 password: $('form.login input[name="password"]').val()
             }),
             success    : function(response)
@@ -54,7 +54,7 @@ $('form.login').bootstrapValidator({
             error      : function(jqXhr, textStatus, response)
             {
                 $('#login-modal .alert-danger').show();
-                $('#login-modal .alert-danger').text('Login Failed');
+                $('#login-modal .alert-danger').text(jqXhr.responseText);
             }
         });
     },

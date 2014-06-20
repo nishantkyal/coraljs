@@ -1,8 +1,8 @@
 import _                                                    = require('underscore');
 import moment                                               = require('moment');
 import express                                              = require('express');
-import connect_ensure_login                                 = require('connect-ensure-login');
 import ApiConstants                                         = require('../enums/ApiConstants');
+import AuthenticationDelegate                               = require('../delegates/AuthenticationDelegate');
 import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
 import PhoneCallDelegate                                    = require('../delegates/PhoneCallDelegate');
 import VerificationCodeDelegate                             = require('../delegates/VerificationCodeDelegate');
@@ -22,7 +22,7 @@ class PhoneCallApi
         var phoneCallDelegate = new PhoneCallDelegate();
         var verificationCodeDelegate = new VerificationCodeDelegate();
 
-        app.put(ApiUrlDelegate.phoneCall(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
+        app.put(ApiUrlDelegate.phoneCall(), AuthenticationDelegate.checkLogin(), function (req:express.Request, res:express.Response)
         {
             var phoneCall:PhoneCall = req.body[ApiConstants.PHONE_CALL];
 
@@ -33,7 +33,7 @@ class PhoneCallApi
             )
         });
 
-        app.post(ApiUrlDelegate.phoneCallById(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
+        app.post(ApiUrlDelegate.phoneCallById(), AuthenticationDelegate.checkLogin(), function (req:express.Request, res:express.Response)
         {
             var phoneCallId:number = req.params[ApiConstants.PHONE_CALL_ID];
             var phoneCall:PhoneCall = req.body[ApiConstants.PHONE_CALL];
@@ -91,7 +91,7 @@ class PhoneCallApi
                 res.send(400, 'Invalid request');
         });
 
-        app.get(ApiUrlDelegate.phoneCallById(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
+        app.get(ApiUrlDelegate.phoneCallById(), AuthenticationDelegate.checkLogin(), function (req:express.Request, res:express.Response)
         {
             var phoneCallId:number = req.params[ApiConstants.PHONE_CALL_ID];
 
@@ -102,7 +102,7 @@ class PhoneCallApi
             )
         });
 
-        app.get(ApiUrlDelegate.phoneCall(), RequestHandler.requireFilters, connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
+        app.get(ApiUrlDelegate.phoneCall(), RequestHandler.requireFilters, AuthenticationDelegate.checkLogin(), function (req:express.Request, res:express.Response)
         {
             var filters = req.body[ApiConstants.FILTERS];
 

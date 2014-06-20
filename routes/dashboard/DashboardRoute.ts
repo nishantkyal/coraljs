@@ -1,7 +1,6 @@
 import q                                                = require('q');
 import _                                                = require('underscore');
 import passport                                         = require('passport');
-import connect_ensure_login                             = require('connect-ensure-login');
 import express                                          = require('express');
 import log4js                                           = require('log4js');
 import accounting                                       = require('accounting');
@@ -89,10 +88,10 @@ class DashboardRoute
     constructor(app, secureApp)
     {
         // Pages
-        app.get(Urls.index(), connect_ensure_login.ensureLoggedIn(), this.authSuccess.bind(this));
+        app.get(Urls.index(), AuthenticationDelegate.checkLogin(), this.authSuccess.bind(this));
         app.get(Urls.login(), this.login.bind(this));
         app.get(Urls.forgotPassword(), this.forgotPassword.bind(this));
-        app.get(Urls.mobileVerification(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index(), setReturnTo: true}), this.verifyMobile.bind(this));
+        app.get(Urls.mobileVerification(), AuthenticationDelegate.checkLogin({failureRedirect: Urls.index(), setReturnTo: true}), this.verifyMobile.bind(this));
 
         // Dashboard pages
         app.get(Urls.dashboard(), AuthenticationDelegate.checkLogin({failureRedirect: Urls.login()}), this.dashboard.bind(this));
@@ -111,10 +110,8 @@ class DashboardRoute
 
         // Auth
         app.get(Urls.checkLogin(), AuthenticationDelegate.checkLogin());
-        app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.login()}), this.authSuccess.bind(this));
+        app.post(Urls.login(), AuthenticationDelegate.login({failureRedirect: Urls.login()}), this.authSuccess.bind(this));
         app.post(Urls.register(), AuthenticationDelegate.register({failureRedirect: Urls.login()}), this.authSuccess.bind(this));
-        app.post(Urls.ajaxLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureFlash: true}));
-        app.post(Urls.ajaxRegister(), AuthenticationDelegate.register({failureFlash: true}));
         app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
         app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
     }

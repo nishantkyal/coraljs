@@ -1,7 +1,7 @@
 import q                                                    = require('q');
 import express                                              = require('express');
-import connect_ensure_login                                 = require('connect-ensure-login');
 import AccessControl                                        = require('../middleware/AccessControl');
+import AuthenticationDelegate                               = require('../delegates/AuthenticationDelegate');
 import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
 import UserSkillDelegate                                    = require('../delegates/UserSkillDelegate');
 import ApiConstants                                         = require('../enums/ApiConstants');
@@ -17,7 +17,7 @@ class UserSkillApi
         this.userSkillDelegate = new UserSkillDelegate();
 
 
-        app.post(ApiUrlDelegate.userSkillById(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
+        app.post(ApiUrlDelegate.userSkillById(), AuthenticationDelegate.checkLogin(), function(req:express.Request, res:express.Response)
         {
             var skill:any = req.body[ApiConstants.USER_SKILL];
             var skillId = parseInt(req.params[ApiConstants.SKILL_ID]);
@@ -30,7 +30,7 @@ class UserSkillApi
             )
         });
 
-        app.put(ApiUrlDelegate.userSkill(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
+        app.put(ApiUrlDelegate.userSkill(), AuthenticationDelegate.checkLogin(), function(req:express.Request, res:express.Response)
         {
             var loggedInUser = req['user'];
             var skill = req.body[ApiConstants.USER_SKILL];
@@ -45,7 +45,7 @@ class UserSkillApi
             )
         });
 
-        app.delete(ApiUrlDelegate.userSkillById(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
+        app.delete(ApiUrlDelegate.userSkillById(), AuthenticationDelegate.checkLogin(), function(req:express.Request, res:express.Response)
         {
             var skillId:number = parseInt(req.params[ApiConstants.SKILL_ID]);
             var profileId:number = parseInt(req.body[ApiConstants.USER_PROFILE_ID]);

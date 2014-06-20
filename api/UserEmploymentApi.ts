@@ -1,6 +1,6 @@
 import express                                              = require('express');
-import connect_ensure_login                                 = require('connect-ensure-login');
 import AccessControl                                        = require('../middleware/AccessControl');
+import AuthenticationDelegate                               = require('../delegates/AuthenticationDelegate');
 import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
 import UserEmploymentDelegate                               = require('../delegates/UserEmploymentDelegate');
 import ApiConstants                                         = require('../enums/ApiConstants');
@@ -14,7 +14,7 @@ class UserEmploymentApi
         var self = this;
         this.userEmploymentDelegate = new UserEmploymentDelegate();
 
-        app.post(ApiUrlDelegate.userEmploymentById(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
+        app.post(ApiUrlDelegate.userEmploymentById(), AuthenticationDelegate.checkLogin(), function(req:express.Request, res:express.Response)
         {
             var employment:any = req.body[ApiConstants.USER_EMPLOYMENT];
             var employmentId = parseInt(req.params[ApiConstants.EMPLOYMENT_ID]);
@@ -25,7 +25,7 @@ class UserEmploymentApi
             );
         });
 
-        app.put(ApiUrlDelegate.userEmployment(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
+        app.put(ApiUrlDelegate.userEmployment(), AuthenticationDelegate.checkLogin(), function(req:express.Request, res:express.Response)
         {
             var loggedInUser = req['user'];
             var employment:UserEmployment = new UserEmployment();
@@ -39,7 +39,7 @@ class UserEmploymentApi
             );
         });
 
-        app.delete(ApiUrlDelegate.userEmploymentById(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
+        app.delete(ApiUrlDelegate.userEmploymentById(), AuthenticationDelegate.checkLogin(), function(req:express.Request, res:express.Response)
         {
             var employmentId = parseInt(req.params[ApiConstants.EMPLOYMENT_ID]);
             var profileId:number = parseInt(req.body[ApiConstants.USER_PROFILE_ID]);

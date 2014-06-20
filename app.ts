@@ -6,7 +6,6 @@ import express                                      = require('express');
 var connect                                         = require('connect');
 var RedisStore                                      = require('connect-redis')(connect);
 import connect_flash                                = require("connect-flash");
-import connect_ensure_login                         = require('connect-ensure-login');
 import http                                         = require('http');
 import https                                        = require('https');
 import path                                         = require('path');

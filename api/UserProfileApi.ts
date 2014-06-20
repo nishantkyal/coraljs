@@ -1,8 +1,6 @@
-///<reference path='../_references.d.ts'/>
 import q                                                    = require('q');
 import express                                              = require('express');
 import passport                                             = require('passport');
-import connect_ensure_login                                 = require('connect-ensure-login');
 import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
 import UserProfileDelegate                                  = require('../delegates/UserProfileDelegate');
 import IntegrationMemberDelegate                            = require('../delegates/IntegrationMemberDelegate');
@@ -19,7 +17,7 @@ class UserProfileApi
         var userProfileDelegate = new UserProfileDelegate();
         var integrationMemberDelegate = new IntegrationMemberDelegate();
 
-        app.get(ApiUrlDelegate.userProfileById(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
+        app.get(ApiUrlDelegate.userProfileById(), AuthenticationDelegate.checkLogin(), function(req:express.Request, res:express.Response)
         {
             var userProfileId:number = parseInt(req.params[ApiConstants.USER_PROFILE_ID]);
 
@@ -30,7 +28,7 @@ class UserProfileApi
             );
         });
 
-        app.get(ApiUrlDelegate.userProfile(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
+        app.get(ApiUrlDelegate.userProfile(), AuthenticationDelegate.checkLogin(), function (req:express.Request, res:express.Response)
         {
             var userProfile = req.body[ApiConstants.USER_PROFILE];
 
@@ -41,7 +39,7 @@ class UserProfileApi
             );
         });
 
-        app.post(ApiUrlDelegate.userProfileById(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
+        app.post(ApiUrlDelegate.userProfileById(), AuthenticationDelegate.checkLogin(), function (req:express.Request, res:express.Response)
         {
             var userProfile = req.body[ApiConstants.USER_PROFILE];
             var userProfileId:number = parseInt(req.params[ApiConstants.USER_PROFILE_ID]);
@@ -53,7 +51,7 @@ class UserProfileApi
             );
         });
 
-        app.put(ApiUrlDelegate.userProfile(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
+        app.put(ApiUrlDelegate.userProfile(), AuthenticationDelegate.checkLogin(), function (req:express.Request, res:express.Response)
         {
             var userProfile = req.body[ApiConstants.USER_PROFILE];
 
@@ -64,7 +62,7 @@ class UserProfileApi
             );
         });
 
-        app.delete(ApiUrlDelegate.userProfileById(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
+        app.delete(ApiUrlDelegate.userProfileById(), AuthenticationDelegate.checkLogin(), function (req:express.Request, res:express.Response)
         {
             var userProfileId = req.params[ApiConstants.USER_PROFILE_ID];
 

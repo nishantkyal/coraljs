@@ -49,7 +49,6 @@
         "passport-facebook": "*",
         "passport-http-bearer": "1.0.1",
         "passport-linkedin": "0.1.3",
-        "passport-local": "*",
         "q": "0.9.7",
         "q-io": "*",
         "redis": "0.10.0",

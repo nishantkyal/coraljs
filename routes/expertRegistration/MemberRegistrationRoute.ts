@@ -1,8 +1,6 @@
-///<reference path='../../_references.d.ts'/>
 import q                                                    = require('q');
 import express                                              = require('express');
 import passport                                             = require('passport');
-import connect_ensure_login                                 = require('connect-ensure-login');
 import url                                                  = require('url');
 import _                                                    = require('underscore');
 import RequestHandler                                       = require('../../middleware/RequestHandler');
@@ -47,14 +45,14 @@ class MemberRegistrationRoute
     {
         // Pages
         app.get(Urls.index(), this.index.bind(this));
-        app.get(Urls.login(), Middleware.requireInvitationCode, this.login.bind(this));
-        app.get(Urls.register(), Middleware.requireInvitationCode, this.register.bind(this));
-        app.get(Urls.authorization(), Middleware.ensureNotAlreadyRegistered, OAuthProviderDelegate.authorization, this.authorize.bind(this));
+        app.get(Urls.login(), this.login.bind(this));
+        app.get(Urls.register(), this.register.bind(this));
+        app.get(Urls.authorization(), Middleware.requireInvitationCode, Middleware.ensureNotAlreadyRegistered, OAuthProviderDelegate.authorization, this.authorize.bind(this));
         app.get(Urls.authorizationRedirect(), this.authorizationRedirect.bind(this));
-        app.get(Urls.complete(), connect_ensure_login.ensureLoggedIn({failureRedirect: Urls.index()}), this.expertComplete.bind(this));
+        app.get(Urls.complete(), AuthenticationDelegate.checkLogin({failureRedirect: Urls.index()}), this.expertComplete.bind(this));
 
         // Auth
-        app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authenticationSuccess.bind(this));
+        app.post(Urls.login(), AuthenticationDelegate.login({failureRedirect: Urls.login(), failureFlash: true}), this.authenticationSuccess.bind(this));
         app.post(Urls.register(), AuthenticationDelegate.register({failureRedirect: Urls.register(), failureFlash: true}), this.authenticationSuccess.bind(this));
         app.get(Urls.linkedInLogin(), this.putTimezoneInSession.bind(this), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: Urls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
         app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: Urls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}), this.authenticationSuccess.bind(this));

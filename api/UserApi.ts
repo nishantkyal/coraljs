@@ -1,10 +1,9 @@
-///<reference path='../_references.d.ts'/>
 import q                                    = require('q');
 import fs                                   = require('fs');
 import express                              = require('express');
 import _                                    = require('underscore');
-import connect_ensure_login                 = require('connect-ensure-login');
 import ApiConstants                         = require('../enums/ApiConstants');
+import AuthenticationDelegate               = require('../delegates/AuthenticationDelegate');
 import ApiUrlDelegate                       = require('../delegates/ApiUrlDelegate');
 import UserDelegate                         = require('../delegates/UserDelegate');
 import UserProfileDelegate                  = require('../delegates/UserProfileDelegate');
@@ -46,7 +45,7 @@ class UserApi
         });
 
         /* Update settings */
-        app.post(ApiUrlDelegate.userById(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
+        app.post(ApiUrlDelegate.userById(), AuthenticationDelegate.checkLogin(), function (req:express.Request, res:express.Response)
         {
             var userId:string = req.params[ApiConstants.USER_ID];
             var user:User = req.body[ApiConstants.USER];
@@ -58,7 +57,7 @@ class UserApi
             //if password exists then we are not updating any other fields
             if (!Utils.isNullOrEmpty(password) && !Utils.isNullOrEmpty(oldPassword))
             {
-                var hashedPassword:string = userDelegate.computePasswordHash(user.getEmail(), oldPassword);
+                var hashedPassword:string = user.getPasswordHash(user.getEmail(), oldPassword);
                 if (hashedPassword != user.getPassword())
                     res.send('Error in changing password. Old Password did not match').status(412);
                 else
@@ -87,7 +86,7 @@ class UserApi
         });
 
         /* Profile image */
-        app.post(ApiUrlDelegate.userProfilePicture(), connect_ensure_login.ensureLoggedIn(), express.bodyParser({uploadDir: Config.get(Config.PROFILE_IMAGE_PATH)}), function (req:express.Request, res:express.Response)
+        app.post(ApiUrlDelegate.userProfilePicture(), AuthenticationDelegate.checkLogin(), express.bodyParser({uploadDir: Config.get(Config.PROFILE_IMAGE_PATH)}), function (req:express.Request, res:express.Response)
         {
             var uploadedFile = req.files['image'];
             var userId = parseInt(req.params[ApiConstants.USER_ID]);

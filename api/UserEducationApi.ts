@@ -1,6 +1,6 @@
 import express                                              = require('express');
-import connect_ensure_login                                 = require('connect-ensure-login');
 import AccessControl                                        = require('../middleware/AccessControl');
+import AuthenticationDelegate                               = require('../delegates/AuthenticationDelegate');
 import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
 import UserEducationDelegate                                = require('../delegates/UserEducationDelegate');
 import ApiConstants                                         = require('../enums/ApiConstants');
@@ -14,7 +14,7 @@ class UserEducationApi
         var self = this;
         this.userEducationDelegate = new UserEducationDelegate();
 
-        app.post(ApiUrlDelegate.userEducationById(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
+        app.post(ApiUrlDelegate.userEducationById(), AuthenticationDelegate.checkLogin(), function(req:express.Request, res:express.Response)
         {
             var education:any = req.body[ApiConstants.USER_EDUCATION];
             var educationId = parseInt(req.params[ApiConstants.EDUCATION_ID]);
@@ -25,7 +25,7 @@ class UserEducationApi
             );
         });
 
-        app.put(ApiUrlDelegate.userEducation(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
+        app.put(ApiUrlDelegate.userEducation(), AuthenticationDelegate.checkLogin(), function(req:express.Request, res:express.Response)
         {
             var loggedInUser = req['user'];
             var education:UserEducation = req.body[ApiConstants.USER_EDUCATION];
@@ -38,7 +38,7 @@ class UserEducationApi
             );
         });
 
-        app.delete(ApiUrlDelegate.userEducationById(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
+        app.delete(ApiUrlDelegate.userEducationById(), AuthenticationDelegate.checkLogin(), function(req:express.Request, res:express.Response)
         {
             var educationId = parseInt(req.params[ApiConstants.EDUCATION_ID]);
             var profileId:number = parseInt(req.body[ApiConstants.USER_PROFILE_ID]);

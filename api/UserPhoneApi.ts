@@ -1,7 +1,7 @@
 import express                                              = require('express');
-import connect_ensure_login                                 = require('connect-ensure-login');
 import ApiConstants                                         = require('../enums/ApiConstants');
 import AccessControl                                        = require('../middleware/AccessControl');
+import AuthenticationDelegate                               = require('../delegates/AuthenticationDelegate');
 import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
 import UserPhoneDelegate                                    = require('../delegates/UserPhoneDelegate');
 import UserPhone                                            = require('../models/UserPhone');
@@ -17,7 +17,7 @@ class UserPhoneApi
         var userPhoneDelegate = new UserPhoneDelegate();
 
         /* Add phone number */
-        app.put(ApiUrlDelegate.userPhone(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
+        app.put(ApiUrlDelegate.userPhone(), AuthenticationDelegate.checkLogin(), function(req:express.Request, res:express.Response)
         {
             var UserPhone:UserPhone = req.body[ApiConstants.PHONE_NUMBER];
 

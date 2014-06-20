@@ -1,6 +1,5 @@
 import express                                              = require('express');
 import _                                                    = require('underscore');
-import connect_ensure_login                                 = require('connect-ensure-login');
 import ApiConstants                                         = require('../../enums/ApiConstants');
 import Utils                                                = require('../../common/Utils');
 import BaseModel                                            = require('../../models/BaseModel');

@@ -1,7 +1,5 @@
-///<reference path='../_references.d.ts'/>
 import q                                            = require('q');
 import express                                      = require('express');
-import connect_ensure_login                         = require('connect-ensure-login');
 import ApiConstants                                 = require('../enums/ApiConstants');
 import AuthenticationDelegate                       = require('../delegates/AuthenticationDelegate');
 import ApiUrlDelegate                               = require('../delegates/ApiUrlDelegate');
@@ -124,7 +122,7 @@ class IntegrationApi
         });
 
         /* Search integrations */
-        app.get(ApiUrlDelegate.integration(), connect_ensure_login.ensureLoggedIn(), function (req:express.Request, res:express.Response)
+        app.get(ApiUrlDelegate.integration(), AuthenticationDelegate.checkLogin(), function (req:express.Request, res:express.Response)
         {
             var userId:number = parseInt(req.query[ApiConstants.USER_ID]);
             var self = this;

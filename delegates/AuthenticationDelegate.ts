@@ -8,7 +8,6 @@ import q                                        = require('q');
 import passport_http_bearer                     = require('passport-http-bearer');
 import passport_facebook                        = require('passport-facebook');
 import passport_linkedin                        = require('passport-linkedin');
-import passport_local                           = require('passport-local');
 import log4js                                   = require('log4js');
 import IntegrationMemberDelegate                = require('../delegates/IntegrationMemberDelegate');
 import UserDelegate                             = require('../delegates/UserDelegate');
@@ -34,7 +33,6 @@ import PaymentUrls                              = require('../routes/payment/Url
 class AuthenticationDelegate
 {
     static STRATEGY_OAUTH:string = 'oauth';
-    static STRATEGY_LOGIN:string = 'login';
     static STRATEGY_FACEBOOK:string = 'facebook';
     static STRATEGY_LINKEDIN:string = 'linkedin';
     static STRATEGY_FACEBOOK_CALL_FLOW:string = 'facebook-call';
@@ -47,9 +45,8 @@ class AuthenticationDelegate
     /* Static constructor workaround */
     private static ctor = (() =>
     {
-        // Username password strategy
+        // Oauth strategy
         AuthenticationDelegate.configureOauthStrategy();
-        AuthenticationDelegate.configureLocalStrategy();
 
         /* Facebook login */
         AuthenticationDelegate.configureFacebookStrategy(AuthenticationDelegate.STRATEGY_FACEBOOK, url.resolve(Config.get(Config.DASHBOARD_URI), '/login/fb/callback'));
@@ -67,10 +64,8 @@ class AuthenticationDelegate
 
     })();
 
-    static register(options?:any)
+    static register(options:any = {})
     {
-        options = options || {};
-
         return function (req, res:express.Response, next:Function)
         {
             var isAjax = req.get('content-type') && req.get('content-type').indexOf('application/json') != -1;
@@ -80,9 +75,7 @@ class AuthenticationDelegate
                 && !Utils.isNullOrEmpty(user.getPassword())
                 && !Utils.isNullOrEmpty(user.getFirstName()))
             {
-                var userDelegate = new UserDelegate();
-
-                userDelegate.create(user)
+                new UserDelegate().create(user)
                     .then(
                     function userRegistered(user)
                     {
@@ -96,7 +89,7 @@ class AuthenticationDelegate
                                         req.flash('info', "We've sent you an email with verification link to verify your email address. You may do it later but your account will not become active until then.");
 
                                     if (isAjax)
-                                        res.send(200);
+                                        res.send(200, {valid: true});
                                     else if (options.successRedirect)
                                         res.redirect(options.successRedirect);
                                     else
@@ -118,7 +111,6 @@ class AuthenticationDelegate
             }
             else
             {
-
                 if (isAjax)
                     res.send(400, 'Please fill in all the details correctly');
                 else
@@ -132,6 +124,7 @@ class AuthenticationDelegate
     }
 
     /* Check login method with support for ajax requests */
+    //TODO: TEST THIS
     static checkLogin(options:any = {})
     {
         options.failureRedirect = options.failureRedirect || '/login';
@@ -146,33 +139,74 @@ class AuthenticationDelegate
             else
             {
                 if (isAjax)
-                    return res.send(200, {valid: isLoggedIn});
+                    return res.json(200, {valid: isLoggedIn});
                 else
                     return res.redirect(DashboardUrls.login());
             }
         }
     }
 
-    private static configureLocalStrategy()
+    //TODO: TEST THIS
+    static login(options:any = {})
     {
-        passport.use(AuthenticationDelegate.STRATEGY_LOGIN, new passport_local.Strategy(function (username, password, done)
+        return function (req, res:express.Response, next:Function)
+        {
+            var isAjax = req.get('content-type') && req.get('content-type').indexOf('application/json') != -1;
+            var user = new User(req.body);
+
+            if (Utils.isNullOrEmpty(user.getEmail()) || Utils.isNullOrEmpty(user.getPassword()))
             {
-                var userDelegate = new UserDelegate();
-                userDelegate.find({email: username}, User.DEFAULT_FIELDS.concat(User.PASSWORD))
-                    .then(
-                    function authComplete(user)
-                    {
-                        var hashedPassword = userDelegate.computePasswordHash(username, password);
-                        if (Utils.isNullOrEmpty(user))
-                            done(null, false, {message: 'Invalid email'});
-                        else if (hashedPassword != user.getPassword())
-                            done(null, false, {message: 'Invalid password'});
-                        else
-                            done(null, user);
-                    },
-                    function authFailed(error) { done(error); });
+                if (isAjax)
+                    res.send(400, 'Please fill in all the details correctly');
+                else
+                {
+                    if (options.failureFlash)
+                        req.flash('error', 'Please fill in all the details correctly');
+                    res.redirect(options.failureRedirect || req.originalUrl);
+                }
             }
-        ));
+
+            var userDelegate = new UserDelegate();
+            userDelegate.find(Utils.createSimpleObject(User.EMAIL, user.getEmail()), User.DEFAULT_FIELDS.concat(User.PASSWORD))
+                .then(
+                function authComplete(matchingUser:User)
+                {
+                    var hashedPassword = user.getPasswordHash();
+                    var reason;
+
+                    if (Utils.isNullOrEmpty(matchingUser))
+                        reason = 'Invalid email';
+                    else if (hashedPassword != matchingUser.getPassword())
+                        reason = 'Invalid password';
+
+                    if (!Utils.isNullOrEmpty(reason))
+                        throw new Error(reason);
+                    else
+                    {
+                        req.logIn(matchingUser, function ()
+                        {
+                            if (isAjax)
+                                res.json(200, {valid: true});
+                            else if (options.successRedirect)
+                                res.redirect(options.successRedirect);
+                            else
+                                next();
+                        });
+                    }
+                })
+                .fail(
+                function authFailed(error)
+                {
+                    if (isAjax)
+                        res.send(500, error.message);
+                    else
+                    {
+                        if (options.failureFlash)
+                            req.flash('error', error.message);
+                        res.redirect(options.failureRedirect || req.originalUrl);
+                    }
+                });
+        }
     }
 
     private static configureOauthStrategy()

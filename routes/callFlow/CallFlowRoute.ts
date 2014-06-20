@@ -1,5 +1,3 @@
-///<reference path='../../_references.d.ts'/>
-import connect_ensure_login                                 = require('connect-ensure-login');
 import q                                                    = require('q');
 import _                                                    = require('underscore');
 import moment                                               = require('moment');
@@ -76,7 +74,7 @@ class CallFlowRoute
     constructor(app, secureApp)
     {
         app.get(Urls.callExpert(), this.index.bind(this));
-        app.get(Urls.scheduling(), connect_ensure_login.ensureLoggedIn({setReturnTo: true, failureRedirect: DashboardUrls.login()}), this.scheduling.bind(this));
+        app.get(Urls.scheduling(), AuthenticationDelegate.checkLogin({setReturnTo: true, failureRedirect: DashboardUrls.login()}), this.scheduling.bind(this));
     }
 
     /* Render index with expert schedules */

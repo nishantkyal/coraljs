@@ -4,7 +4,6 @@ import q                                                                = requir
 import _                                                                = require('underscore');
 import fs                                                               = require('fs');
 import passport                                                         = require('passport');
-import crypto                                                           = require('crypto');
 import BaseDaoDelegate                                                  = require('../delegates/BaseDaoDelegate');
 import MysqlDelegate                                                    = require('../delegates/MysqlDelegate');
 import UserProfileDelegate                                              = require('../delegates/UserProfileDelegate');
@@ -41,7 +40,10 @@ class UserDelegate extends BaseDaoDelegate
             return MysqlDelegate.executeInTransaction(this, arguments);
 
         if (!Utils.isNullOrEmpty(object) && object.hasOwnProperty(User.PASSWORD))
-            object[User.PASSWORD] = this.computePasswordHash(object[User.EMAIL], object[User.PASSWORD]);
+        {
+            object = new User(object);
+            object.setPassword(object.getPasswordHash());
+        }
 
         var self = this;
 
@@ -76,7 +78,7 @@ class UserDelegate extends BaseDaoDelegate
                 .then(
                 function userFetched(user:User)
                 {
-                    user.setPassword(self.computePasswordHash(user.getEmail(), newValues[User.PASSWORD]));
+                    user.setPassword(user.getPasswordHash(user.getEmail(), newValues[User.PASSWORD]));
                     return superUpdate(criteria, user, transaction);
                 });
         }
@@ -148,12 +150,5 @@ class UserDelegate extends BaseDaoDelegate
          self.logger.debug('Image resize failed because %s', error);
          });*/
     }
-
-    computePasswordHash(email:string, textPassword:string)
-    {
-        var md5sum = crypto.createHash('md5');
-        return md5sum.update(email + ':' + textPassword).digest('hex');
-    }
-
 }
 export = UserDelegate

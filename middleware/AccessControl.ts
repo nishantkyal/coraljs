@@ -1,9 +1,7 @@
-///<reference path='../_references.d.ts'/>
 import q                                                    = require('q');
 import express                                              = require('express');
 import log4js                                               = require('log4js');
 import _                                                    = require('underscore');
-import connect_ensure_login                                 = require('connect-ensure-login');
 import IntegrationMember                                    = require('../models/IntegrationMember');
 import User                                                 = require('../models/User');
 import IntegrationMemberDelegate                            = require('../delegates/IntegrationMemberDelegate');

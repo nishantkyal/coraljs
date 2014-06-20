@@ -13,7 +13,6 @@
 ///<reference path='../DefinitelyTyped/passportjs/passport-facebook.d.ts'/>
 ///<reference path='../DefinitelyTyped/passportjs/passport-linkedin.d.ts'/>
 ///<reference path='../DefinitelyTyped/passportjs/passport-linkedin-oauth2.d.ts'/>
-///<reference path='../DefinitelyTyped/passportjs/passport-local.d.ts'/>
 ///<reference path='../DefinitelyTyped/node-mysql/mysql.d.ts'/>
 ///<reference path='../DefinitelyTyped/twilio/twilio.d.ts'/>
 ///<reference path='../DefinitelyTyped/oauth/oauth.d.ts'/>
@@ -26,7 +25,6 @@
 ///<reference path='../DefinitelyTyped/jade/jade.d.ts'/>
 ///<reference path='../DefinitelyTyped/watch/watch.d.ts'/>
 ///<reference path='../DefinitelyTyped/moment/moment.d.ts'/>
-///<reference path='../DefinitelyTyped/connect-ensure-login/connect-ensure-login.d.ts'/>
 ///<reference path='../DefinitelyTyped/validator/validator.d.ts'/>
 ///<reference path='../DefinitelyTyped/accounting/accounting.d.ts'/>
 ///<reference path='../DefinitelyTyped/cheerio/cheerio.d.ts'/>

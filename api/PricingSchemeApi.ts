@@ -1,6 +1,6 @@
 import express                                              = require('express');
-import connect_ensure_login                                 = require('connect-ensure-login');
 import AccessControl                                        = require('../middleware/AccessControl');
+import AuthenticationDelegate                               = require('../delegates/AuthenticationDelegate');
 import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
 import PricingSchemeDelegate                                = require('../delegates/PricingSchemeDelegate');
 import ApiConstants                                         = require('../enums/ApiConstants');
@@ -14,7 +14,7 @@ class PricingSchemeApi
     {
         var self = this;
 
-        app.get(ApiUrlDelegate.pricingSchemeById(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
+        app.get(ApiUrlDelegate.pricingSchemeById(), AuthenticationDelegate.checkLogin(), function(req:express.Request, res:express.Response)
         {
             var pricingSchemeId:number = parseInt(req.body[ApiConstants.PRICING_SCHEME]);
 
@@ -37,7 +37,7 @@ class PricingSchemeApi
             );
         });
 
-        app.put(ApiUrlDelegate.pricingScheme(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
+        app.put(ApiUrlDelegate.pricingScheme(), AuthenticationDelegate.checkLogin(), function(req:express.Request, res:express.Response)
         {
             var pricingScheme:PricingScheme = req.body[ApiConstants.PRICING_SCHEME];
 
@@ -48,7 +48,7 @@ class PricingSchemeApi
             );
         });
 
-        app.delete(ApiUrlDelegate.pricingSchemeById(), connect_ensure_login.ensureLoggedIn(), function(req:express.Request, res:express.Response)
+        app.delete(ApiUrlDelegate.pricingSchemeById(), AuthenticationDelegate.checkLogin(), function(req:express.Request, res:express.Response)
         {
             var pricingSchemeId = parseInt(req.params[ApiConstants.PRICING_SCHEME_ID]);
 

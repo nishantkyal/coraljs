@@ -5,8 +5,6 @@ class Urls
     static checkLogin() { return '/checkLogin'; }
     static login() { return '/login'; }
     static register() { return '/register'; }
-    static ajaxLogin() { return '/rest/login'; }
-    static ajaxRegister() { return '/rest/register'; }
     static linkedInLogin() { return '/login/linkedin'; }
     static linkedInLoginCallback() { return '/login/linkedin/callback'; }
     static forgotPassword() { return '/forgotPassword'; }

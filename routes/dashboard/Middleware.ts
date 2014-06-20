@@ -1,20 +1,19 @@
-///<reference path='../../_references.d.ts'/>
 import q                                                            = require('q');
 import _                                                            = require('underscore');
 import express                                                      = require('express');
-import connect_ensure_login                                         = require('connect-ensure-login');
 import IntegrationMemberRole                                        = require('../../enums/IntegrationMemberRole');
 import ApiConstants                                                 = require('../../enums/ApiConstants');
 import Utils                                                        = require('../../common/Utils');
 import Urls                                                         = require('./Urls');
 import SessionData                                                  = require('./SessionData');
+import AuthenticationDelegate                                       = require('../../delegates/AuthenticationDelegate');
 import IntegrationMemberDelegate                                    = require('../../delegates/IntegrationMemberDelegate');
 
 class Middleware
 {
     static allowOnlyMe =
         [
-            connect_ensure_login.ensureLoggedIn(),
+            AuthenticationDelegate.checkLogin(),
             function (req:express.Request, res:express.Response, next:Function)
             {
                 var sessionData = new SessionData(req);
