@@ -1,4 +1,4 @@
-var cards = ['#schedule','#scheduleDetails','#pricing','#changePasswordCard','#phoneDetails','#editUserPhoneCard','#verifyUserPhoneCard'];
+var cards = ['#schedule','#scheduleDetails','#pricing','#changePasswordCard','#phoneDetails','#editUserPhoneCard','#verifyUserPhoneCard','#widgetCard'];
 function showAndHideCards(cardsToShow)
 {
     _.each(cardsToShow, function(showCard){ $(showCard).show(); })
@@ -42,6 +42,12 @@ $('[name="changePasswordLink"]').click(function()
 
     $('form#changePasswordForm').trigger('reset');
     $('form#changePasswordForm').data('bootstrapValidator').resetForm();
+});
+
+$('[name="widgetLink"]').click(function()
+{
+    showAndHideCards(['#widgetCard']);
+    $('[name="widgetLink"]').addClass('active').siblings().removeClass('active');
 });
 
 $('#cancelEditUserPhone').click(function()

@@ -23,7 +23,7 @@ $('#addSkillBtn').click(function()
 $('#cancelAddUserSkill').click(function()
 {
     $('#basicInfo').show();
-    $('#editBasicInfo').hide();
+    $('#addSkill').hide();
 });
 
 $('form#editUserProfileForm').bootstrapValidator({

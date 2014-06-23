@@ -136,7 +136,8 @@ $('form#pricingSchemeForm').bootstrapValidator({
                     charging_rate: $('form#pricingSchemeForm input[name=charging_rate]').val(),
                     unit: $('form#pricingSchemeForm input[name=unit]').val(),
                     min_duration: $('form#pricingSchemeForm input[name=min_duration]').val(),
-                    chunk_size: $('form#pricingSchemeForm input[name=chunk_size]').val()
+                    chunk_size: $('form#pricingSchemeForm input[name=chunk_size]').val(),
+                    user_id:userId
                 }
             }),
             success: function()

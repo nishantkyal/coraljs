@@ -579,4 +579,16 @@
             <column defaultValue="0" name="email_verified" type="INT(10)"/>
         </addColumn>
     </changeSet>
+    <changeSet author="Ankit (generated)" id="1403501387327-1">
+        <modifyDataType columnName="deleted" newDataType="boolean" tableName="call_fragment"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1403501387327-2">
+        <modifyDataType columnName="deleted" newDataType="boolean" tableName="email"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1403501387327-3">
+        <modifyDataType columnName="is_current" newDataType="boolean" tableName="user_employment"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1403501387327-4">
+        <modifyDataType columnName="recorded" newDataType="boolean" tableName="call"/>
+    </changeSet>
 </databaseChangeLog>

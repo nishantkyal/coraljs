@@ -25,6 +25,7 @@ import UserUrlDelegate                                  = require('../../delegat
 import TransactionDelegate                              = require('../../delegates/TransactionDelegate');
 import TransactionLineDelegate                          = require('../../delegates/TransactionLineDelegate');
 import ExpertiseDelegate                                = require('../../delegates/ExpertiseDelegate');
+import WidgetDelegate                                   = require('../../delegates/WidgetDelegate');
 import MoneyUnit                                        = require('../../enums/MoneyUnit');
 import IncludeFlag                                      = require('../../enums/IncludeFlag');
 import TransactionType                                  = require('../../enums/TransactionType');
@@ -42,6 +43,7 @@ import ScheduleRule                                     = require('../../models/
 import CronRule                                         = require('../../models/CronRule');
 import PricingScheme                                    = require('../../models/PricingScheme');
 import Expertise                                        = require('../../models/Expertise');
+import Widget                                           = require('../../models/Widget');
 import IntegrationMemberRole                            = require('../../enums/IntegrationMemberRole');
 import ApiConstants                                     = require('../../enums/ApiConstants');
 import SmsTemplate                                      = require('../../enums/SmsTemplate');
@@ -83,6 +85,7 @@ class DashboardRoute
     private userProfileDelegate = new UserProfileDelegate();
     private userUrlDelegate = new UserUrlDelegate();
     private expertiseDelegate = new ExpertiseDelegate();
+    private widgetDelegate = new WidgetDelegate();
     private logger = log4js.getLogger(Utils.getClassName(this));
 
     constructor(app, secureApp)
@@ -377,13 +380,15 @@ class DashboardRoute
         q.all([
             self.scheduleRuleDelegate.getRulesByUser(userId),
             self.pricingSchemeDelegate.search(Utils.createSimpleObject(PricingScheme.USER_ID, userId)),
-            self.userPhoneDelegate.search({user_id: userId})
+            self.userPhoneDelegate.search(Utils.createSimpleObject(UserPhone.USER_ID, userId)),
+            self.widgetDelegate.search(Utils.createSimpleObject(Widget.EXPERT_ID,1828697599)) //TODO[ankit]
         ])
             .then(function detailsFetched(...args)
             {
                 var rules:ScheduleRule[] = [].concat(args[0][0]);
                 var pricingSchemes:PricingScheme[] = args[0][1];
                 var userPhone:UserPhone[] = args[0][2] || [new UserPhone()];
+                var widget:Widget[] = _.sortBy(args[0][3] || [], function(w:any){return w.template});
 
                 _.each(rules || [], function (rule:ScheduleRule)
                 {
@@ -393,7 +398,19 @@ class DashboardRoute
                 var pageData = _.extend(sessionData.getData(), {
                     userPhone: userPhone[0],
                     rules: rules || [],
-                    scheme: pricingSchemes ? pricingSchemes[0] : new PricingScheme()
+                    scheme: pricingSchemes ? pricingSchemes[0] : new PricingScheme(),
+                    widgets:widget || []
+                });
+
+                return [pageData,q.all(
+                    _.map(widget,function(w){
+                        return self.widgetDelegate.render(w.getId());
+                    })
+                )];
+            })
+            .spread(function widgetRendered(pageData,...args){
+                pageData = _.extend(pageData, {
+                    widgetsHtml: args[0] || []
                 });
                 res.render(DashboardRoute.PAGE_SETTING, pageData);
             })
