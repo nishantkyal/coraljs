@@ -212,15 +212,12 @@ class EmailDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER])
+            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_EXPERT_USER])
                 .then(
                 function (fetchedCall:PhoneCall)
                 {
                     return self.sendNewCallRequestNotifications(fetchedCall, appointments, duration, caller);
                 });
-
-        var expert:IntegrationMember = call.getIntegrationMember();
-        var integration = new IntegrationDelegate().getSync(expert.getIntegrationId());
 
         var VerificationCodeDelegate:any = require('../delegates/VerificationCodeDelegate');
         var verificationCodeDelegate = new VerificationCodeDelegate();
@@ -233,7 +230,6 @@ class EmailDelegate
 
                 var emailData = {
                     call: call,
-                    integration: integration,
                     caller: caller,
                     duration: duration,
                     appointments: appointments,
@@ -249,7 +245,7 @@ class EmailDelegate
                     })
                 };
 
-                return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_SCHEDULING, expert.getUser().getEmail(), emailData);
+                return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_SCHEDULING, call.getExpertUser().getEmail(), emailData);
             });
     }
 

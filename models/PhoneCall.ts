@@ -14,7 +14,7 @@ class PhoneCall extends BaseModel
     static TABLE_NAME:string = 'call';
 
     static CALLER_USER_ID:string                        = 'caller_user_id';
-    static INTEGRATION_MEMBER_ID:string                 = 'integration_member_id';
+    static EXPERT_USER_ID:string                        = 'expert_user_id';
     static CALLER_PHONE_ID:string                       = 'caller_phone_id';
     static EXPERT_PHONE_ID:string                       = 'expert_phone_id';
     static START_TIME:string                            = 'start_time';
@@ -30,14 +30,14 @@ class PhoneCall extends BaseModel
     static DELAY:string                                 = 'delay';
 
     static USER:string                                  = 'user';
-    static INTEGRATION_MEMBER:string                    = 'integration_member';
+    static EXPERT_USER:string                           = 'expert_user';
     static CALLER_PHONE:string                          = 'user_phone';
     static EXPERT_PHONE:string                          = 'expert_phone';
 
-    static DEFAULT_FIELDS:string[] = [PhoneCall.ID, PhoneCall.CALLER_USER_ID, PhoneCall.INTEGRATION_MEMBER_ID, PhoneCall.CALLER_PHONE_ID, PhoneCall.EXPERT_PHONE_ID,
-                                      PhoneCall.START_TIME, PhoneCall.DURATION, PhoneCall.STATUS, PhoneCall.AGENDA];
+    static DEFAULT_FIELDS:string[] = [PhoneCall.ID, PhoneCall.CALLER_USER_ID, PhoneCall.CALLER_PHONE_ID, PhoneCall.EXPERT_PHONE_ID,
+                                      PhoneCall.START_TIME, PhoneCall.DURATION, PhoneCall.STATUS, PhoneCall.AGENDA, PhoneCall.EXPERT_USER_ID];
     private caller_user_id:number;
-    private integration_member_id:number;
+    private expert_user_id:number;
     private caller_phone_id:number;
     private expert_phone_id:number;
     private start_time:number;
@@ -53,14 +53,14 @@ class PhoneCall extends BaseModel
     private num_reattempts:number;
 
     private user:User;
-    private integration_member:IntegrationMember;
+    private expert_user:User;
     private user_phone:UserPhone;
     private expert_phone:UserPhone;
     private transaction_line:TransactionLine[];
 
     /* Getters */
     getCallerUserId():number                            { return this.caller_user_id; }
-    getIntegrationMemberId():number                     { return this.integration_member_id; }
+    getExpertUserId():number                            { return this.expert_user_id; }
     getCallerPhoneId():number                           { return this.caller_phone_id; }
     getExpertPhoneId():number                           { return this.expert_phone_id; }
     getStartTime():number                               { return this.start_time; }
@@ -76,14 +76,14 @@ class PhoneCall extends BaseModel
     getNumReattempts():number                           { return this.num_reattempts; }
 
     getUser():User                                      { return this.user ? new User(this.user) : null; }
-    getIntegrationMember():IntegrationMember            { return this.integration_member ? new IntegrationMember(this.integration_member) : null; }
+    getExpertUser():User                                { return this.expert_user ? new User(this.expert_user) : null; }
     getUserPhone():UserPhone                            { return this.user_phone ? new UserPhone(this.user_phone) : null; }
     getExpertPhone():UserPhone                          { return this.expert_phone ? new UserPhone(this.expert_phone) : null; }
     getTransactionLine():TransactionLine[]              { return this.transaction_line; }
 
     /* Setters */
     setCallerUserId(val:number):void                    { this.caller_user_id = val; }
-    setIntegrationMemberId(val:number):void             { this.integration_member_id = val; }
+    setExpertUserId(val:number):void                    { this.expert_user_id = val; }
     setCallerPhoneId(val:number):void                   { this.caller_phone_id = val; }
     setExpertPhoneId(val:number):void                   { this.expert_phone_id = val; }
     setStartTime(val:number):void                       { this.start_time = val; }
@@ -99,14 +99,14 @@ class PhoneCall extends BaseModel
     setNumReattempts(val:number):void                   { this.num_reattempts = val; }
 
     setUser(val:User):void                              { this.user = val; }
-    setIntegrationMember(val:IntegrationMember):void    { this.integration_member = val; }
+    setExpertUser(val:User):void                        { this.expert_user = val; }
     setUserPhone(val:UserPhone):void                    { this.user_phone = val; }
     setExpertPhone(val:UserPhone):void                  { this.expert_phone = val; }
     setTransactionLine(val:TransactionLine[]):void      { this.transaction_line = val; }
 
     isValid():boolean
     {
-        return !Utils.isNullOrEmpty(this.getIntegrationMemberId())
+        return !Utils.isNullOrEmpty(this.getExpertUserId())
                     && !Utils.isNullOrEmpty(this.getDuration())
                         && !Utils.isNullOrEmpty(this.getCallerPhoneId())
                             && !Utils.isNullOrEmpty(this.getCallerUserId());

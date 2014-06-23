@@ -77,21 +77,12 @@ class PhoneCallDelegate extends BaseDaoDelegate
 
     create(object:Object, dbTransaction?:Object):q.Promise<any>
     {
-        var superCreate = super.create;
         var self = this;
 
         // TODO: Check that we're not scheduling a conflicting call
 
-        if (!Utils.isNullOrEmpty(object[PhoneCall.CALLER_USER_ID]))
-            return this.integrationMemberDelegate.get(object[PhoneCall.INTEGRATION_MEMBER_ID])
-                .then(
-                function expertFetched(expert:IntegrationMember)
-                {
-                    if (expert.getUserId() == object[PhoneCall.CALLER_USER_ID])
-                        throw("You can't call yourself!");
-                    else
-                        return superCreate.call(self, object, dbTransaction);
-                });
+        if (object[PhoneCall.EXPERT_USER_ID] == object[PhoneCall.CALLER_USER_ID])
+            throw new Error("You can't call yourself!");
 
         return super.create(object, dbTransaction);
     }
@@ -112,7 +103,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
         else
             callId = criteria[PhoneCall.ID];
 
-        return self.get(callId,null,[IncludeFlag.INCLUDE_INTEGRATION_MEMBER],transaction)
+        return self.get(callId,null,null,transaction)
             .then( function callFetched(call:PhoneCall){
 
                 // Ensure we don't update to an invalid step (based on possible next steps)
@@ -132,14 +123,14 @@ class PhoneCallDelegate extends BaseDaoDelegate
                 //check that caller User Id is not same as expert as one can't schedule call with himself
                 if (newValues.hasOwnProperty(PhoneCall.CALLER_USER_ID))
                 {
-                    if (newValues[PhoneCall.CALLER_USER_ID] == call.getIntegrationMember().getUserId())
+                    if (newValues[PhoneCall.CALLER_USER_ID] == call.getExpertUserId())
                         return q.reject('Call with self is not allowed');
                 }
 
                 //Ensure that the schedule time of call doesn't conflict with expert exceptions
                 if (newValues.hasOwnProperty(PhoneCall.START_TIME))
                 {
-                    return  self.getScheduledCalls(call.getIntegrationMember().getUserId(),transaction)
+                    return  self.getScheduledCalls(call.getExpertUserId(),transaction)
                         .then(
                         function scheduledCallsFetched(calls:PhoneCall[]):any
                         {
@@ -172,8 +163,8 @@ class PhoneCallDelegate extends BaseDaoDelegate
         var self = this;
         switch (include)
         {
-            case IncludeFlag.INCLUDE_INTEGRATION_MEMBER:
-                return self.integrationMemberDelegate.get(result.getIntegrationMemberId(), IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER]);
+            case IncludeFlag.INCLUDE_EXPERT_USER:
+                return self.userDelegate.get(result.getExpertUserId());
             case IncludeFlag.INCLUDE_USER:
                 return self.userDelegate.get(result.getCallerUserId());
             case IncludeFlag.INCLUDE_EXPERT_PHONE:
@@ -344,7 +335,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
             .then(
             function callFetched(call:PhoneCall):any
             {
-                var isExpert = call.getIntegrationMember().getUser().getId() == requesterUserId;
+                var isExpert = call.getExpertUserId() == requesterUserId;
                 if(!Utils.isNullOrEmpty(phoneNumberId))
                 {
                     if(isExpert)
@@ -359,7 +350,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
             .spread(
             function phoneNumberUpdated(call:PhoneCall, updateQueryResult:Object):any
             {
-                var isExpert = call.getIntegrationMember().getUser().getId() == requesterUserId;
+                var isExpert = call.getExpertUserId() == requesterUserId;
                 var isCaller = call.getCallerUserId() == requesterUserId;
 
                 if (isRejection)
@@ -414,11 +405,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
     getScheduledCalls(userId:number, transaction?:any):q.Promise<any>
     {
         var self = this;
-        return self.integrationMemberDelegate.search({user_id:userId},[IntegrationMember.ID],null,transaction)
-            .then( function integrationMemberIdFetched(members){
-                var memberId:number[] = _.map(members,  function(member:any){ return member.getId(); })
-                return self.search({'integration_member_id':memberId, 'status':[CallStatus.SCHEDULED,CallStatus.IN_PROGRESS]},[PhoneCall.START_TIME,PhoneCall.DURATION],null,transaction);
-            })
+        return self.search({'expert_user_id':userId, 'status':[CallStatus.SCHEDULED,CallStatus.IN_PROGRESS]},[PhoneCall.START_TIME,PhoneCall.DURATION],null,transaction);
     }
 
     constructor() { super(new PhoneCallDao()); }

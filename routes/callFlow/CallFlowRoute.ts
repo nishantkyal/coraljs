@@ -56,7 +56,7 @@ import SessionData                                          = require('./Session
 class CallFlowRoute
 {
     private static INDEX:string                             = 'callFlow/index';
-    private static SCHEDULING_PAGE_FOR_EXPERT:string        = 'callFlow/schedulingPageForExpert';
+    private static SCHEDULING_PAGE_FOR_EXPERT:string        = 'callFlow/schedulingPageForExpert';x
     private static SCHEDULING_PAGE_FOR_CALLER:string        = 'callFlow/schedulingPageForCaller';
 
     private logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
@@ -82,30 +82,26 @@ class CallFlowRoute
     private index(req:express.Request, res:express.Response)
     {
         var self = this;
-        var expertId = parseInt(req.params[ApiConstants.EXPERT_ID]);
+        var userId = parseInt(req.params[ApiConstants.USER_ID]);
         var sessionData = new SessionData(req);
 
-        this.integrationMemberDelegate.get(expertId, IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER])
+        this.userDelegate.get(userId,null, [IncludeFlag.INCLUDE_SCHEDULES, IncludeFlag.INCLUDE_PRICING_SCHEMES])
             .then(
-            function expertFetched(expert:IntegrationMember):any
+            function expertFetched(user:User):any
             {
-                var user = expert.getUser();
-                sessionData.setExpert(expert);
-
-                return q.all([
+                return [user, q.all([
                     self.userProfileDelegate.find(Utils.createSimpleObject(UserProfile.USER_ID, user.getId())),
                     self.phoneCallDelegate.getScheduledCalls(user.getId()),
-                    self.scheduleExceptionDelegate.search({'integration_member_id': expert.getId()}, [Schedule.START_TIME, Schedule.DURATION]),
-                    self.userDelegate.get(user.getId(), null, [IncludeFlag.INCLUDE_SCHEDULES, IncludeFlag.INCLUDE_PRICING_SCHEMES])
-                ]);
+                    self.scheduleExceptionDelegate.search(Utils.createSimpleObject(ScheduleException.USER_ID, user.getId()), [Schedule.START_TIME, Schedule.DURATION])
+                ])];
             },
             function handleExpertSearchFailed(error)
             {
                 self.logger.error('Error in getting expert details - ' +  error);
                 throw('No such expert exists!');
             })
-            .then(
-            function userProfileFetched(...args):any
+            .spread(
+            function userProfileFetched(user:User, ...args):any
             {
                 var userProfile:UserProfile = args[0][0];
 
@@ -121,8 +117,6 @@ class CallFlowRoute
                         return {duration:exception.getDuration(), start_time:exception.getStartTime()}
                     }));
 
-                var user:User = args[0][3];
-
                 return [userProfile, exceptions, user, q.all([
                     self.userSkillDelegate.getSkillWithName(userProfile.getId()),
                     self.userEducationDelegate.search({'profileId': userProfile.getId()}),
@@ -136,9 +130,7 @@ class CallFlowRoute
                 var userEducation = args[0][1] || [];
                 var userEmployment = args[0][2] || [];
 
-                var expert = sessionData.getExpert();
-                expert.setUser(user);
-                sessionData.setExpert(expert);
+                sessionData.setUser(user);
 
                 var pageData = _.extend(sessionData.getData(), {
                     userSkill: _.sortBy(userSkill, function (skill) { return skill['skill_name'].length; }),
@@ -199,11 +191,11 @@ class CallFlowRoute
                 switch (loggedInUserId)
                 {
                     // If viewer == expert
-                    case call.getIntegrationMember().getUser().getId():
+                    case call.getExpertUserId():
                         if (!Utils.isNullOrEmpty(call.getExpertPhoneId()))
                             returnArray.push(self.userPhoneDelegate.get(call.getExpertPhoneId()));
                         else
-                            returnArray.push(self.userPhoneDelegate.find(Utils.createSimpleObject(UserPhone.USER_ID, call.getIntegrationMember().getUserId())));
+                            returnArray.push(self.userPhoneDelegate.find(Utils.createSimpleObject(UserPhone.USER_ID, call.getExpertUserId)));
 
                     // If viewer == caller
                     case call.getCallerUserId():
@@ -216,8 +208,8 @@ class CallFlowRoute
             function expertPhonesFetched(startTimes:number[], call:PhoneCall, phone:UserPhone):any
             {
                 var lines = call.getTransactionLine();
-                var productLine = _.findWhere(lines, Utils.createSimpleObject(TransactionLine.TRANSACTION_TYPE, TransactionType.PRODUCT));
-                var revenueShare:number = call.getIntegrationMember().getRevenueShare();
+                var productLine:TransactionLine = _.findWhere(lines, Utils.createSimpleObject(TransactionLine.TRANSACTION_TYPE, TransactionType.PRODUCT));
+                /*var revenueShare:number = call.getIntegrationMember().getRevenueShare();
                 var revenueShareUnit:MoneyUnit = call.getIntegrationMember().getRevenueShareUnit();
 
                 var earning:number = 0;
@@ -234,7 +226,7 @@ class CallFlowRoute
                         if (revenueShareUnit == productLine.getAmountUnit())
                             earning = Math.min(productLine.getAmount(), revenueShare);
                         break;
-                }
+                }*/
 
                 var pageData = {
                     call: call,
@@ -243,12 +235,10 @@ class CallFlowRoute
                     phone: phone,
                     code: appointmentCode,
                     lines: lines,
-                    loggedInUserId: loggedInUserId,
-                    earning: earning,
-                    earningUnit: earningUnit
+                    loggedInUserId: loggedInUserId
                 };
 
-                if (loggedInUserId == call.getIntegrationMember().getUser().getId())
+                if (loggedInUserId == call.getExpertUserId())
                     res.render(CallFlowRoute.SCHEDULING_PAGE_FOR_EXPERT, pageData);
                 else if (loggedInUserId == call.getCallerUserId())
                     res.render(CallFlowRoute.SCHEDULING_PAGE_FOR_CALLER, pageData);

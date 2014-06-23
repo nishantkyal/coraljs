@@ -1,5 +1,4 @@
-- var user = expert.user;
-- var pricing = expert.user.pricing_scheme[0]
+- var pricing = user.pricing_scheme[0]
 - var minDuration = pricing.min_duration
 
 include ../header
@@ -51,7 +50,7 @@ title ST- Payment Complete
                                 p +91-#{caller_phone}
                             .meta
                                 h5 Call Agenda
-                                p #{phoneCall.agenda}
+                                p #{call.agenda}
                     .col-md-6
                         .call-card
                             if error
@@ -64,7 +63,7 @@ title ST- Payment Complete
                                         br
                                         | You may try again with a new schedule.
                                 .call-reversal
-                                    a.btn.btn-default(href=CallFlowUrls.callExpert(expert.id))
+                                    a.btn.btn-default(href=CallFlowUrls.callExpert(call.expert_user_id))
                                         | Try scheduling again
                                         i.icon-left-arrow
                             else

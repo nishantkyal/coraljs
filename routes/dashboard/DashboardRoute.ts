@@ -112,7 +112,7 @@ class DashboardRoute
             failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}), this.linkedInCallBack.bind(this));
 
         // Auth
-        app.get(Urls.checkLogin(), AuthenticationDelegate.checkLogin());
+        app.get(Urls.checkLogin(), AuthenticationDelegate.checkLogin({justCheck:true}));
         app.post(Urls.login(), AuthenticationDelegate.login({failureRedirect: Urls.login()}), this.authSuccess.bind(this));
         app.post(Urls.register(), AuthenticationDelegate.register({failureRedirect: Urls.login()}), this.authSuccess.bind(this));
         app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));

@@ -24,7 +24,7 @@ class ScheduleExceptionDelegate extends BaseDaoDelegate
         var currentDate = moment().valueOf();
         var dateAfterOneYear = moment().add({year: 1}).valueOf();
 
-        return scheduleRuleDelegate.getRulesByUser(newScheduleException.getIntegrationMemberId(), currentDate, dateAfterOneYear)
+        return scheduleRuleDelegate.getRulesByUser(newScheduleException.getUserId(), currentDate, dateAfterOneYear)
             .then(
             function createRecord(rules:ScheduleRule[])
             {
@@ -95,7 +95,7 @@ class ScheduleExceptionDelegate extends BaseDaoDelegate
             endDate: moment().add('years', 1).toDate()
         };
 
-        return scheduleRuleDelegate.getRulesByUser(updatedScheduleRuleException.getIntegrationMemberId(), options.startDate.getTime() / 1000, options.endDate.getTime() / 1000)
+        return scheduleRuleDelegate.getRulesByUser(updatedScheduleRuleException.getUserId(), options.startDate.getTime() / 1000, options.endDate.getTime() / 1000)
             .then(//TODO handle conversion to sec
             function createRecord(rawschedules:ScheduleRule[])
             {
