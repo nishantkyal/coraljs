@@ -381,7 +381,7 @@ class DashboardRoute
             self.scheduleRuleDelegate.getRulesByUser(userId),
             self.pricingSchemeDelegate.search(Utils.createSimpleObject(PricingScheme.USER_ID, userId)),
             self.userPhoneDelegate.search(Utils.createSimpleObject(UserPhone.USER_ID, userId)),
-            self.widgetDelegate.search(Utils.createSimpleObject(Widget.EXPERT_ID,1828697599)) //TODO[ankit]
+            self.widgetDelegate.search(Utils.createSimpleObject(Widget.USER_ID,userId))
         ])
             .then(function detailsFetched(...args)
             {
@@ -402,16 +402,6 @@ class DashboardRoute
                     widgets:widget || []
                 });
 
-                return [pageData,q.all(
-                    _.map(widget,function(w){
-                        return self.widgetDelegate.render(w.getId());
-                    })
-                )];
-            })
-            .spread(function widgetRendered(pageData,...args){
-                pageData = _.extend(pageData, {
-                    widgetsHtml: args[0] || []
-                });
                 res.render(DashboardRoute.PAGE_SETTING, pageData);
             })
             .fail(

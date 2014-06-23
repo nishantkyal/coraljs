@@ -215,7 +215,7 @@ class WidgetDelegate extends BaseDaoDelegate
             function widgetFetched(w:Widget)
             {
                 widget = w;
-                return self.widgetExpertDelegate.get(widget.getExpertId());
+                return self.widgetExpertDelegate.get(widget.getUserId());
             })
             .then(
             function widgetExpertFetched(widgetExpert:WidgetExpert[])

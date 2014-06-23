@@ -1,6 +1,5 @@
 import moment                                                   = require('moment');
 import _                                                        = require('underscore');
-import IntegrationMember                                        = require('../models/IntegrationMember');
 import User                                                     = require('../models/User');
 import Schedule                                                 = require('../models/Schedule');
 import PricingScheme                                            = require('../models/PricingScheme');
@@ -13,7 +12,6 @@ import Utils                                                    = require('../co
  */
 class WidgetExpert
 {
-    private expert_id:number;                                              // Same as expert_id or integration_member_id
     private user_id:number;                                              // Same as expert_id or integration_member_id
     private title:Salutation;
     private first_name:string;
@@ -28,18 +26,16 @@ class WidgetExpert
     private next_slot_start_time:number;
     private next_slot_duration:number;
 
-    constructor(expert:IntegrationMember);
+    constructor(expert:User);
     constructor(expert:Object);
     constructor(expert:any)
     {
         var self = this;
 
-        if (Utils.getObjectType(expert) == 'IntegrationMember')
+        if (Utils.getObjectType(expert) == 'User')
         {
-            var member:IntegrationMember = expert;
-            var user:User = member.getUser();
+            var user:User = expert;
 
-            this.expert_id = member.getId();
             this.user_id = user.getId();
             this.title = user.getTitle();
             this.first_name = user.getFirstName();
@@ -60,7 +56,6 @@ class WidgetExpert
         }
         else
         {
-            this.expert_id = expert.expert_id;
             this.user_id = expert.user_id;
             this.title = expert.title;
             this.first_name = expert.first_name;
@@ -74,7 +69,7 @@ class WidgetExpert
     }
 
     /* Getters */
-    getId():number                                                  { return this.expert_id; }
+    getId():number                                                  { return this.user_id; }
     getTitle():Salutation                                           { return this.title; }
     getFirstName():string                                           { return this.first_name; }
     getLastName():string                                            { return this.last_name; }
