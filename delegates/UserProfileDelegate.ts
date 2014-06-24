@@ -25,6 +25,7 @@ import User                                     = require('../models/User');
 import UserOauth                                = require('../models/UserOauth');
 import IntegrationMember                        = require('../models/IntegrationMember');
 import Config                                   = require('../common/Config');
+import Credentials                              = require('../common/Credentials');
 import Utils                                    = require('../common/Utils');
 import IndustryCodes                            = require('../enums/IndustryCode');
 import IncludeFlag                              = require('../enums/IncludeFlag');
@@ -95,8 +96,8 @@ class UserProfileDelegate extends BaseDaoDelegate
                 var oauth = new OAuth.OAuth(
                     'https://www.linkedin.com/uas/oauth/authenticate?oauth_token=',
                     'https://api.linkedin.com/uas/oauth/accessToken',
-                    Config.get(Config.LINKEDIN_API_KEY),
-                    Config.get(Config.LINKEDIN_API_SECRET),
+                    Credentials.get(Credentials.LINKEDIN_API_KEY),
+                    Credentials.get(Credentials.LINKEDIN_API_SECRET),
                     '1.0A',
                     null,
                     'HMAC-SHA1'

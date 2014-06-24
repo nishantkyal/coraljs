@@ -34,21 +34,6 @@ class Config
     static API_PORT:string                              = 'Api.port';
     static ACCESS_TOKEN_EXPIRY:string                   = 'access_token.expiry';
     static PASSWORD_RESET_EXPIRY:string                 = 'password_reset.expiry';
-    static FB_APP_ID:string                             = 'fb.app_id';
-    static FB_APP_SECRET:string                         = 'fb.app_secret';
-    static LINKEDIN_API_KEY:string                      = 'linkedin.api_key';
-    static LINKEDIN_API_SECRET:string                   = 'linkedin.api_secret';
-    static TWILIO_ACCOUNT_SID:string                    = 'twilio.account_sid';
-    static TWILIO_AUTH_TOKEN:string                     = 'twilio.auth_token';
-    static TWILIO_NUMBER:string                         = 'twilio.number';
-    static TWILIO_URI:string                            = 'twilio.uri';
-    static EXOTEL_SID:string                            = 'exotel.sid';
-    static EXOTEL_TOKEN:string                          = 'exotel.token';
-    static SMS_COUNTRY_URL:string                       = 'sms_country.url';
-    static SMS_COUNTRY_USER:string                      = 'sms_country.user';
-    static SMS_COUNTRY_PASSWORD:string                  = 'sms_country.password';
-    static KOOKOO_NUMBER:string                         = 'kookoo.number';
-
     static PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS   = 'task.call_trigger.interval';                 // How often do we create scheduled tasks for triggering calls
     static CALL_REMINDER_LEAD_TIME_SECS:string          = 'call.reminder_notification.lead_time';       // Lead time for sending reminder for upcoming call
     static CALL_RETRY_DELAY_SECS:string                 = 'call.retry.delay';                           // Delay after which failed calls are retried
@@ -66,12 +51,6 @@ class Config
     static CALL_TAX_PERCENT:string                      = 'call.tax.percent';
     static CALL_CANCELLATION_CHARGES_PERCENT:string     = 'call.cancellation_charges.percent';
 
-    static PAY_ZIPPY_CHARGING_URI:string                = "pay_zippy.charging.uri";
-    static PAY_ZIPPY_MERCHANT_ID:string                 = "pay_zippy.merchant_id";
-    static PAY_ZIPPY_MERCHANT_KEY_ID:string             = "pay_zippy.merchant_key_id";
-    static PAY_ZIPPY_SECRET_KEY:string                  = "pay_zippy.secret_key";
-
-    static GOOGLE_ANALYTICS_TRACKING_ID:string          = 'google_analytics.tracking_id';
     private static version:string;
 
     /* Static constructor workaround */

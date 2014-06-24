@@ -15,6 +15,7 @@ import WidgetExpert                                             = require('../mo
 import WidgetRuntimeData                                        = require('../models/WidgetRuntimeData');
 import IncludeFlag                                              = require('../enums/IncludeFlag');
 import Config                                                   = require('../common/Config');
+import Credentials                                              = require('../common/Credentials');
 import Utils                                                    = require('../common/Utils');
 
 class WidgetDelegate extends BaseDaoDelegate
@@ -109,7 +110,7 @@ class WidgetDelegate extends BaseDaoDelegate
         };
 
         widgetSettings = widgetSettings || {};
-        widgetSettings['googleAnalyticsTrackingId'] = Config.get(Config.GOOGLE_ANALYTICS_TRACKING_ID);
+        widgetSettings['googleAnalyticsTrackingId'] = Credentials.get(Credentials.GOOGLE_ANALYTICS_TRACKING_ID);
         try {
             var widgetTemplate = _.template(widgetPartialHtml);
             var widgetHtml = widgetTemplate(widgetSettings);
