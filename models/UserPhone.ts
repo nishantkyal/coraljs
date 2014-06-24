@@ -24,12 +24,12 @@ class UserPhone extends BaseModel
     private verified:boolean;
 
     /* Getters */
-    getUserId():number { return this.user_id; }
-    getCountryCode():CountryCode { return this.country_code; }
-    getAreaCode():string { return this.area_code; }
-    getPhone():string { return this.phone; }
-    getType():PhoneType { return this.type; }
-    getVerified():boolean { return this.verified; }
+    getUserId():number                                  { return this.user_id; }
+    getCountryCode():CountryCode                        { return this.country_code; }
+    getAreaCode():string                                { return this.area_code; }
+    getPhone():string                                   { return this.phone; }
+    getType():PhoneType                                 { return this.type; }
+    getVerified():boolean                               { return this.verified; }
 
     isValid():boolean
     {
@@ -47,12 +47,12 @@ class UserPhone extends BaseModel
     }
 
     /* Getters */
-    setUserId(val:number):void { this.user_id = val; }
-    setCountryCode(val:CountryCode):void { this.country_code = val; }
-    setAreaCode(val:string):void { this.area_code = val; }
-    setPhone(val:string):void { this.phone = val; }
-    setType(val:PhoneType):void { this.type = val; }
-    setVerified(val:boolean):void { this.verified = val; }
+    setUserId(val:number):void                          { this.user_id = val; }
+    setCountryCode(val:CountryCode):void                { this.country_code = val; }
+    setAreaCode(val:string):void                        { this.area_code = val; }
+    setPhone(val:string):void                           { this.phone = val; }
+    setType(val:PhoneType):void                         { this.type = val; }
+    setVerified(val:boolean):void                       { this.verified = val; }
 
 }
 export = UserPhone

@@ -82,23 +82,27 @@ $('#newMemberCard form').bootstrapValidator({
                 {
                     if ($('#newMemberCard form [name="phone"]').val())
                         $.ajax({
-                            url    : '/rest/phone-number',
-                            type   : 'put',
-                            data   : {
+                            url        : '/rest/phone-number',
+                            type       : 'put',
+                            dataType   : 'json',
+                            contentType: 'application/json',
+                            data       : JSON.stringify({
                                 phoneNumber: {
+                                    user_id     : result.user_id,
                                     country_code: $('#newMemberCard form [name="country_code"]').val(),
                                     phone       : $('#newMemberCard form [name="phone"]').val(),
-                                    verified    : true
+                                    verified    : true,
+                                    type        : 2
                                 }
-                            },
-                            success: function(result)
+                            }),
+                            success    : function(result)
                             {
                                 bootbox.alert('Done! The added member will receive an email so he/she can login and configure their profile.', function()
                                 {
                                     location.reload();
                                 });
                             },
-                            error  : function(jqXHR)
+                            error      : function(jqXHR)
                             {
                                 $('#newMemberCard form .alert').show();
                                 $('#newMemberCard form .alert').text(jqXHR.responseText);
