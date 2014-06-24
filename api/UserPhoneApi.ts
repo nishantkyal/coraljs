@@ -19,10 +19,11 @@ class UserPhoneApi
         /* Add phone number */
         app.put(ApiUrlDelegate.userPhone(), AuthenticationDelegate.checkLogin(), function(req:express.Request, res:express.Response)
         {
-            var UserPhone:UserPhone = req.body[ApiConstants.PHONE_NUMBER];
+            // TODO: Restrict creating a verified phone number
+            var userPhone:UserPhone = req.body[ApiConstants.PHONE_NUMBER];
 
-            if (UserPhone.isValid())
-                userPhoneDelegate.create(UserPhone)
+            if (userPhone.isValid())
+                userPhoneDelegate.create(userPhone)
                     .then(
                     function handleUserPhoneCreated(result) { res.json(result); },
                     function handleUserPhoneCreateFailed(err) { res.json(500).json(err); }
@@ -44,9 +45,9 @@ class UserPhoneApi
         /* Get phone number by id */
         app.get(ApiUrlDelegate.userPhoneById(), function(req:express.Request, res:express.Response)
         {
-            var UserPhoneId = req.params[ApiConstants.PHONE_NUMBER_ID];
+            var userPhoneId = parseInt(req.params[ApiConstants.PHONE_NUMBER_ID]);
 
-            userPhoneDelegate.get(UserPhoneId)
+            userPhoneDelegate.get(userPhoneId)
                 .then(
                 function handleUserPhoneSearched(result) { res.json(result); },
                 function handleUserPhoneSearchFailed(err) { res.json(500).json(err); }

@@ -3,7 +3,7 @@ import express                                              = require('express')
 import _                                                    = require('underscore');
 import ApiConstants                                         = require('../enums/ApiConstants');
 import AccessControl                                        = require('../middleware/AccessControl');
-import AuthenticationDelegate                                      = require('../delegates/AuthenticationDelegate');
+import AuthenticationDelegate                               = require('../delegates/AuthenticationDelegate');
 import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
 import IntegrationDelegate                                  = require('../delegates/IntegrationDelegate');
 import IntegrationMemberDelegate                            = require('../delegates/IntegrationMemberDelegate');
@@ -12,6 +12,8 @@ import IntegrationMember                                    = require('../models
 import User                                                 = require('../models/User');
 import IntegrationMemberRole                                = require('../enums/IntegrationMemberRole');
 import IncludeFlag                                          = require('../enums/IncludeFlag');
+import Utils                                                = require('../common/Utils');
+import NotificationDelegate                                 = require('../delegates/NotificationDelegate');
 
 /*
  * API calls for managing settings to IntegrationMembers who are experts
@@ -19,9 +21,13 @@ import IncludeFlag                                          = require('../enums/
  */
 class ExpertApi
 {
+    private integrationMemberDelegate = new IntegrationMemberDelegate();
+    private userDelegate = new UserDelegate();
+    private notificationDelegate = new NotificationDelegate();
+
     constructor(app, secureApp)
     {
-        var integrationMemberDelegate = new IntegrationMemberDelegate();
+        var self = this;
 
         /* Search expert */
         app.get(ApiUrlDelegate.expert(), AuthenticationDelegate.checkLogin(), function (req:express.Request, res:express.Response)
@@ -29,7 +35,7 @@ class ExpertApi
             var searchCriteria:Object = req.body;
             var includes:IncludeFlag[] = [].concat(req.query[ApiConstants.INCLUDE]);
 
-            integrationMemberDelegate.search(searchCriteria, null, includes)
+            self.integrationMemberDelegate.search(searchCriteria, null, includes)
                 .then(
                 function handleExpertSearched(result) { res.json(result); },
                 function handleExpertSearchError(err) { res.status(500).json(err); }
@@ -42,7 +48,7 @@ class ExpertApi
             var expertId = parseInt(req.params[ApiConstants.EXPERT_ID]);
             var includes:string[] = [].concat(req.query[ApiConstants.INCLUDE]);
 
-            integrationMemberDelegate.get(expertId, null, includes)
+            self.integrationMemberDelegate.get(expertId, null, includes)
                 .then(
                 function handleExpertSearched(integrationMember) { res.json(integrationMember.toJson()); },
                 function handleExpertSearchError(err) { res.status(500).json(err); }
@@ -52,19 +58,54 @@ class ExpertApi
         /* Convert user to expert for integrationId */
         app.put(ApiUrlDelegate.expert(), AuthenticationDelegate.checkLogin(), function (req:express.Request, res:express.Response)
         {
-            var integrationMember:IntegrationMember = new IntegrationMember();
-            integrationMember.setIntegrationId(req.body[ApiConstants.INTEGRATION_ID]);
-            integrationMember.setUserId(req.body[ApiConstants.USER_ID]);
-            integrationMember.setRole(IntegrationMemberRole.Expert);
+            var user:User = req.body[ApiConstants.USER];
+            user.setEmailVerified(true);
+            user.setActive(true);
 
-            if (integrationMember.isValid())
-                integrationMemberDelegate.create(integrationMember)
+            var integrationMember:IntegrationMember = req.body[ApiConstants.INTEGRATION_MEMBER];
+
+            function createExpert():any
+            {
+                if (integrationMember.isValid())
+                {
+                    return self.integrationMemberDelegate.create(integrationMember)
+                        .then(
+                        function expertCreated(member:IntegrationMember)
+                        {
+                            return [member, self.notificationDelegate.sendExpertRegistrationCompleteNotification(member)];
+                        })
+                        .spread(
+                        function welcomeEmailSent(member:IntegrationMember)
+                        {
+                            res.json(member.toJson());
+                        })
+                        .fail(
+                        function expertCreateFailed(error)
+                        {
+                            res.json(500, error);
+                        });
+                }
+                else
+                    res.json(401, 'Invalid input');
+
+                return null;
+            }
+
+            if (!Utils.isNullOrEmpty(user) && user.isValid())
+                self.userDelegate.create(user)
                     .then(
-                    function expertCreated(integrationMemberExpert:IntegrationMember) { res.json(integrationMemberExpert.toJson()); },
-                    function expertCreateFailed(error) { res.status(500).json(error); }
-                )
+                    function userCreated(user:User)
+                    {
+                        integrationMember.setUserId(user.getId());
+                        return createExpert();
+                    })
+                    .fail(
+                    function expertCreateFailed(error)
+                    {
+                        res.json(500, error);
+                    });
             else
-                res.status(401).json('Invalid input');
+                createExpert();
         });
 
         /* Remove expert status of user for integrationId */
@@ -72,7 +113,7 @@ class ExpertApi
         {
             var expertId = req.params[ApiConstants.EXPERT_ID];
 
-            integrationMemberDelegate.delete(expertId)
+            self.integrationMemberDelegate.delete(expertId)
                 .then(
                 function expertDeleted(result) { res.json(result); },
                 function expertDeleteFailed(error) { res.status(500).json(error); }
@@ -88,7 +129,7 @@ class ExpertApi
             var expertId = parseInt(req.params[ApiConstants.EXPERT_ID]);
             var integrationMember:IntegrationMember = req.body[ApiConstants.EXPERT];
 
-            integrationMemberDelegate.update(expertId, integrationMember)
+            self.integrationMemberDelegate.update(expertId, integrationMember)
                 .then(
                 function expertUpdated(result) { res.json(result); },
                 function expertUpdateFailed(error) { res.status(500).json(error); }

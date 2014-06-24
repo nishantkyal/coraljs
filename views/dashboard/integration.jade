@@ -30,7 +30,7 @@ title SearchNTalk - DashBoard
                                     .title
                                         h1 Members
                                     .pull-right
-                                        a.btn.btn-success.btn-xs#inviteMemberBtn Invite members
+                                        a.btn.btn-success.btn-xs#inviteMemberBtn Add/Invite Members
                                     .clearer
                                 div.billing-summary
                                     table
@@ -57,8 +57,8 @@ title SearchNTalk - DashBoard
                                                     td(style='text-align: center;')
                                                         if (member.id != undefined && (member.deleted == null || member.deleted == 0))
                                                             a.fa.fa-pencil.save(href=DashboardUrls.userProfile(member.user.id))
-                            .card#inviteMemberCard(style="display: none;")
-                                form#inviteUser
+                            .card#newMemberCard(style="display: none;")
+                                form
                                     .item-edit
                                         .item
                                             .row
@@ -83,6 +83,14 @@ title SearchNTalk - DashBoard
                                                 h3 Last Name:
                                                 .form-group
                                                     input.form-control(type='text', placeholder='Last Name', name='last_name')
+                                                h3 Phone:
+                                                .form-group
+                                                    .col-md-6
+                                                        select.form-control(name='country_code')
+                                                            for code,country in CountryCode
+                                                                option(value=country)= CountryName[code] + ' (+' + country + ')'
+                                                    .col-md-6
+                                                        input.form-control(type='text', name='phone')
                                                 h3 Role:
                                                 .form-group
                                                     select.selectpicker.form-control#role(name='role')
@@ -92,7 +100,8 @@ title SearchNTalk - DashBoard
                                         div.links-editing
                                             p.edit-schedules
                                                 em Invites will be sent on your behalf
-                                                input.btn.btn-primary(type="submit", value="Send")
+                                                input.btn.btn-primary(style='width: 100px', type='submit', name="send-invite", value="Send Invite")
+                                                input.btn.btn-success(style='width: 100px;', type='submit', name="just-add", value="Just Add")
                 .content.col-md-4
                     .row
                         .card#couponCard
@@ -182,6 +191,7 @@ title SearchNTalk - DashBoard
                                                 input.btn.btn-primary#submit(type='submit', value='Save')
 include ../footer
 script.
+    var Timezone = JSON.parse('!{JSON.stringify(Timezone)}');
     var integrationId = '!{selectedMember.integration.id}';
     var coupons = JSON.parse('!{JSON.stringify(coupons)}');
 script(src='/js/app/dashboard/integration.js')
