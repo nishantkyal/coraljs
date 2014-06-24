@@ -95,10 +95,13 @@ app.use(
         // This middleware applies to all urls except
         // 1. APIs (which start with "/rest")
         // 2. Static content (which start with "/js" or "/css" or "/img")
-        var excludeRegex = /^\/(rest|css|js|images|img|fonts)/;
+        var excludeRegex = /^\/(rest|bower_dependencies|css|js|images|img|fonts)/;
 
         if (Utils.isNullOrEmpty(req.path.match(excludeRegex)))
+        {
             _.extend(res.locals, helpers);
+            res.locals.path = req.path;
+        }
 
         next();
     }
