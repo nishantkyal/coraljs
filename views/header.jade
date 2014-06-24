@@ -61,7 +61,7 @@ head
                                     | English
                         ul
                             li
-                                a.btn.btn-primary(href=DashboardUrls.logout()) Logout
+                                a.btn.btn-primary(href=DashboardUrls.logout() + '?returnTo=' + path) Logout
             else
                 .masthead-control-field.user-control
                     a.btn.btn-primary(href=DashboardUrls.login()) Login

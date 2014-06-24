@@ -19,6 +19,7 @@ import NotificationDelegate                                 = require('../delega
 import TwilioProvider                                       = require('../providers/TwilioProvider');
 import Utils                                                = require('../common/Utils');
 import Config                                               = require('../common/Config');
+import Credentials                                          = require('../common/Credentials');
 import Formatter                                            = require('../common/Formatter');
 import PhoneCall                                            = require('../models/PhoneCall');
 import User                                                 = require('../models/User');
@@ -64,7 +65,7 @@ class TwimlOutApi
                 function callFetched(call:PhoneCall)
                 {
                     var pageData = {};
-                    pageData['actionURL'] = TwilioUrlDelegate.twimlJoinCall(callId,Config.get(Config.TWILIO_URI));
+                    pageData['actionURL'] = TwilioUrlDelegate.twimlJoinCall(callId, Credentials.get(Credentials.TWILIO_URI));
                     pageData['timeLimit'] = call.getDuration() * 60;
                     //TODO[ankit] - get TotalDuration of all callFragments and set duration accordingly
                     pageData['phoneNumber'] = call.getExpertPhone().getCompleteNumber();

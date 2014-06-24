@@ -7,6 +7,7 @@ import Utils                                                    = require('../co
 import ApiUrlDelegate                                           = require('../delegates/ApiUrlDelegate');
 import TwilioUrlDelegate                                        = require('../delegates/TwilioUrlDelegate');
 import Config                                                   = require('../common/Config');
+import Credentials                                              = require('../common/Credentials');
 import CallFragment                                             = require('../models/CallFragment');
 import UserPhone                                                = require('../models/UserPhone');
 import CallFragmentStatus                                       = require('../enums/CallFragmentStatus');
@@ -31,7 +32,7 @@ class TwilioProvider implements IPhoneCallProvider,ISmsProvider
     constructor()
     {
         this.logger = log4js.getLogger(Utils.getClassName(this));
-        this.twilioClient = twilio(Config.get(Config.TWILIO_ACCOUNT_SID), Config.get(Config.TWILIO_AUTH_TOKEN));
+        this.twilioClient = twilio(Credentials.get(Credentials.TWILIO_ACCOUNT_SID), Credentials.get(Credentials.TWILIO_AUTH_TOKEN));
     }
 
     sendSMS(to:string, body:string, from?:string):q.Promise<any>;
@@ -42,7 +43,7 @@ class TwilioProvider implements IPhoneCallProvider,ISmsProvider
         this.twilioClient.sendMessage({
 
             to: to,
-            from: Config.get(Config.TWILIO_NUMBER),
+            from: Credentials.get(Credentials.TWILIO_NUMBER),
             body: body
 
         }, function (err, responseData)
@@ -57,8 +58,8 @@ class TwilioProvider implements IPhoneCallProvider,ISmsProvider
 
     makeCall(phone:string, callId?:number, reAttempts?:number):q.Promise<any>
     {
-        var url:string = TwilioUrlDelegate.twimlJoinCall(callId, Config.get(Config.TWILIO_URI));
-        var callbackUrl:string = TwilioUrlDelegate.twimlCallback(callId, Config.get(Config.TWILIO_URI));
+        var url:string = TwilioUrlDelegate.twimlJoinCall(callId, Credentials.get(Credentials.TWILIO_URI));
+        var callbackUrl:string = TwilioUrlDelegate.twimlCallback(callId, Credentials.get(Credentials.TWILIO_URI));
 
         if(!Utils.isNullOrEmpty(reAttempts))
         {
@@ -72,7 +73,7 @@ class TwilioProvider implements IPhoneCallProvider,ISmsProvider
         this.twilioClient.makeCall({
 
             to : phone,
-            from : Config.get(Config.TWILIO_NUMBER),
+            from : Credentials.get(Credentials.TWILIO_NUMBER),
             url  : url,
             method: "GET",
             StatusCallback: callbackUrl

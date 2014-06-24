@@ -412,10 +412,10 @@ class DashboardRoute
     }
 
     /* Logout and redirect to login page */
-    private logout(req, res)
+    private logout(req, res:express.Response)
     {
         req.logout();
-        res.redirect(Urls.index());
+        res.redirect(req.query[ApiConstants.RETURN_TO] || Urls.index());
     }
 
     private emailAccountVerification(req, res:express.Response)

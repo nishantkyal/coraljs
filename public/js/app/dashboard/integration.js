@@ -1,45 +1,126 @@
-$('#inviteMemberBtn').click(function()
+var zone;
+$(function()
 {
-    $('#inviteMemberCard').show();
-    $('#members').hide();
-
-    $('form#inviteUser').trigger('reset');
-    $('form#inviteUser .alert').hide();
-    $('form#inviteUser').data('bootstrapValidator').resetForm();
+    var offset = new Date().getTimezoneOffset() * -60;
+    zone = _.find(Timezone, function(zone)
+    {
+        return zone.gmt_offset == offset;
+    });
 });
 
-$('form#inviteUser').bootstrapValidator({
+$('#inviteMemberBtn').click(function()
+{
+    $('#newMemberCard').show();
+    $('#members').hide();
+
+    $('#newMemberCard form').trigger('reset');
+    $('#newMemberCard form .alert').hide();
+    $('#newMemberCard form').data('bootstrapValidator').resetForm();
+});
+
+$('#newMemberCard form').bootstrapValidator({
     message      : 'This value is not valid',
     submitHandler: function(form)
     {
-        $.ajax({
-            url    : '/rest/code/expert/invitation',
-            type   : 'POST',
-            data   : {
-                integration_member: {
-                    role          : $('form#inviteUser [name="role"]').val(),
-                    integration_id: integrationId,
-                    user          : {
-                        email     : $('form#inviteUser [name="email"]').val(),
-                        title     : $('form#inviteUser [name="title"]').val(),
-                        first_name: $('form#inviteUser [name="first_name"]').val(),
-                        last_name : $('form#inviteUser [name="last_name"]').val()
+        var sendInvite = form.$submitButton[0].name == 'send-invite';
+
+        if (sendInvite) {
+            $.ajax({
+                url    : '/rest/code/expert/invitation',
+                type   : 'POST',
+                data   : {
+                    integration_member: {
+                        role          : $('#newMemberCard form [name="role"]').val(),
+                        integration_id: integrationId,
+                        user          : {
+                            email     : $('#newMemberCard form [name="email"]').val(),
+                            title     : $('#newMemberCard form [name="title"]').val(),
+                            first_name: $('#newMemberCard form [name="first_name"]').val(),
+                            last_name : $('#newMemberCard form [name="last_name"]').val(),
+                            timezone  : zone.zone_id
+                        },
+                        phoneNumber   : {
+                            country_code: $('#newMemberCard form [name="country_code"]').val(),
+                            phone       : $('#newMemberCard form [name="phone"]').val()
+                        }
                     }
-                }
-            },
-            success: function(result)
-            {
-                bootbox.alert('Your invitation has been sent. The invited member will receive an email with registration link.', function()
+                },
+                success: function(result)
                 {
-                    location.reload();
-                });
-            },
-            error  : function(jqXHR, textStatus, errorThrown)
-            {
-                $('form#inviteUser .alert').show();
-                $('form#inviteUser .alert').text(jqXHR.responseText);
-            }
-        });
+                    bootbox.alert('Your invitation has been sent. The invited member will receive an email with registration link.', function()
+                    {
+                        location.reload();
+                    });
+                },
+                error  : function(jqXHR, textStatus, errorThrown)
+                {
+                    $('#newMemberCard form .alert').show();
+                    $('#newMemberCard form .alert').text(jqXHR.responseText);
+                }
+            });
+        }
+        else {
+            // 1. Create a new expert entry with the entered details
+            // 2. Associate entered phone with created user
+            $.ajax({
+                url    : '/rest/expert',
+                type   : 'put',
+                data   : {
+                    integration_member: {
+                        role          : $('#newMemberCard form [name="role"]').val(),
+                        integration_id: integrationId
+                    },
+                    user              : {
+                        email     : $('#newMemberCard form [name="email"]').val(),
+                        title     : $('#newMemberCard form [name="title"]').val(),
+                        first_name: $('#newMemberCard form [name="first_name"]').val(),
+                        last_name : $('#newMemberCard form [name="last_name"]').val(),
+                        timezone  : zone.zone_id
+                    }
+                },
+                success: function(result)
+                {
+                    if ($('#newMemberCard form [name="phone"]').val())
+                        $.ajax({
+                            url        : '/rest/phone-number',
+                            type       : 'put',
+                            dataType   : 'json',
+                            contentType: 'application/json',
+                            data       : JSON.stringify({
+                                phoneNumber: {
+                                    user_id     : result.user_id,
+                                    country_code: $('#newMemberCard form [name="country_code"]').val(),
+                                    phone       : $('#newMemberCard form [name="phone"]').val(),
+                                    verified    : true,
+                                    type        : 2
+                                }
+                            }),
+                            success    : function(result)
+                            {
+                                bootbox.alert('Done! The added member will receive an email so he/she can login and configure their profile.', function()
+                                {
+                                    location.reload();
+                                });
+                            },
+                            error      : function(jqXHR)
+                            {
+                                $('#newMemberCard form .alert').show();
+                                $('#newMemberCard form .alert').text(jqXHR.responseText);
+                            }
+                        })
+                    else
+                        bootbox.alert('Done! The added member will receive an email so he/she can login and configure their profile.', function()
+                        {
+                            location.reload();
+                        });
+                },
+                error  : function(jqXHR)
+                {
+                    $('#newMemberCard form .alert').show();
+                    $('#newMemberCard form .alert').text(jqXHR.responseText);
+                }
+            })
+        }
     },
     feedbackIcons: {
         valid     : 'glyphicon glyphicon-ok',
@@ -70,13 +151,20 @@ $('form#inviteUser').bootstrapValidator({
                     message: 'The input is not a valid email address'
                 }
             }
+        },
+        phone     : {
+            validators: {
+                digits: {
+                    message: "Please enter a valid phone number"
+                }
+            }
         }
     }
 });
 
 $('#cancelInvite').click(function()
 {
-    $('#inviteMemberCard').hide();
+    $('#newMemberCard').hide();
     $('#members').show();
 });
 

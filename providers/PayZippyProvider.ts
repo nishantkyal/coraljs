@@ -9,6 +9,7 @@ import User                                                 = require('../models
 import TransactionLine                                      = require('../models/TransactionLine');
 import Payment                                              = require('../models/Payment');
 import Config                                               = require('../common/Config');
+import Credentials                                          = require('../common/Credentials');
 import Utils                                                = require('../common/Utils');
 import PaymentUrls                                          = require('../routes/payment/Urls');
 import TransactionDelegate                                  = require('../delegates/TransactionDelegate');
@@ -52,8 +53,8 @@ class PayZippyProvider
             currency: "INR",
             hash_method: 'MD5',
             is_user_logged_in: true,
-            merchant_id: Config.get(Config.PAY_ZIPPY_MERCHANT_ID),
-            merchant_key_id: Config.get(Config.PAY_ZIPPY_MERCHANT_KEY_ID),
+            merchant_id: Credentials.get(Credentials.PAY_ZIPPY_MERCHANT_ID),
+            merchant_key_id: Credentials.get(Credentials.PAY_ZIPPY_MERCHANT_KEY_ID),
             merchant_transaction_id: transaction.getId() + '-' + Utils.getRandomInt(999, 9999),
             payment_method: null,
             transaction_amount: amount,
@@ -61,13 +62,13 @@ class PayZippyProvider
             ui_mode: 'redirect'
         };
 
-        var concatString = _.values(data).concat(Config.get(Config.PAY_ZIPPY_SECRET_KEY)).join('|');
+        var concatString = _.values(data).concat(Credentials.get(Credentials.PAY_ZIPPY_SECRET_KEY)).join('|');
         var md5sum = crypto.createHash('md5');
         var hash:string = md5sum.update(concatString).digest('hex');
 
         data['hash'] = hash;
 
-        var payZippyUrl:string = Config.get(Config.PAY_ZIPPY_CHARGING_URI);
+        var payZippyUrl:string = Credentials.get(Credentials.PAY_ZIPPY_CHARGING_URI);
         payZippyUrl = Utils.addQueryToUrl(payZippyUrl, data);
 
         return payZippyUrl;
@@ -84,7 +85,7 @@ class PayZippyProvider
         var sortedKeys:string[] = _.keys(response).sort();
         var sortedValues:string[] = _.map(sortedKeys, function (key) { return response[key]});
 
-        var concatString = _.values(sortedValues).concat(Config.get(Config.PAY_ZIPPY_SECRET_KEY)).join('|');
+        var concatString = _.values(sortedValues).concat(Credentials.get(Credentials.PAY_ZIPPY_SECRET_KEY)).join('|');
         var md5sum = crypto.createHash('md5');
         var computedHash:string = md5sum.update(concatString).digest('hex');
 

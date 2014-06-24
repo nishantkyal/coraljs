@@ -4,6 +4,7 @@ import _                                                        = require('under
 import request                                                  = require('request');
 import ISmsProvider                                             = require('../providers/ISmsProvider');
 import Config                                                   = require('../common/Config');
+import Credentials                                              = require('../common/Credentials');
 import Utils                                                    = require('../common/Utils');
 import CallFragment                                             = require('../models/CallFragment');
 import UserPhone                                                = require('../models/UserPhone');
@@ -20,11 +21,11 @@ class SmsCountryProvider implements ISmsProvider
         if (Utils.getObjectType(to) == 'UserPhone' && to.getType() != PhoneType.MOBILE)
             throw("Can't send SMS to " + to.toJson());
 
-        var smsCountrySendMessageUrl = Config.get(Config.SMS_COUNTRY_URL);
+        var smsCountrySendMessageUrl = Credentials.get(Credentials.SMS_COUNTRY_URL);
 
         var data:any = {
-            User: Config.get(Config.SMS_COUNTRY_USER),
-            passwd: Config.get(Config.SMS_COUNTRY_PASSWORD),
+            User: Credentials.get(Credentials.SMS_COUNTRY_USER),
+            passwd: Credentials.get(Credentials.SMS_COUNTRY_PASSWORD),
             Sid: 'SNTALK',
             MobileNumber: to,
             Message: body,

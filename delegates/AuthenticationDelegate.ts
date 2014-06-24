@@ -22,6 +22,7 @@ import IntegrationMember                        = require('../models/Integration
 import UserOauth                                = require('../models/UserOauth');
 import User                                     = require('../models/User');
 import Config                                   = require('../common/Config');
+import Credentials                              = require('../common/Credentials');
 import Utils                                    = require('../common/Utils');
 import ApiConstants                             = require('../enums/ApiConstants');
 import IndustryCodes                            = require('../enums/IndustryCode');
@@ -230,8 +231,8 @@ class AuthenticationDelegate
     private static configureFacebookStrategy(strategyId:string, callbackUrl:string, profileFields:string[] = ['id', 'name', 'emails'])
     {
         passport.use(strategyId, new passport_facebook.Strategy({
-                clientID: Config.get(Config.FB_APP_ID),
-                clientSecret: Config.get(Config.FB_APP_SECRET),
+                clientID: Credentials.get(Credentials.FB_APP_ID),
+                clientSecret: Credentials.get(Credentials.FB_APP_SECRET),
                 callbackURL: callbackUrl,
                 profileFields: profileFields
             },
@@ -282,8 +283,8 @@ class AuthenticationDelegate
     private static configureLinkedInStrategy(strategyId:string, callbackUrl:string)
     {
         passport.use(strategyId, new passport_linkedin.Strategy({
-                consumerKey: Config.get(Config.LINKEDIN_API_KEY),
-                consumerSecret: Config.get(Config.LINKEDIN_API_SECRET),
+                consumerKey: Credentials.get(Credentials.LINKEDIN_API_KEY),
+                consumerSecret: Credentials.get(Credentials.LINKEDIN_API_SECRET),
                 callbackURL: callbackUrl,
                 profileFields: UserProfileDelegate.BASIC_FIELDS,
                 passReqToCallback: true
