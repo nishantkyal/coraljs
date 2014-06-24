@@ -1,3 +1,17 @@
+$(document).on('click', 'form#scheduling ul li div.checkbox', function handleTimeSlotSelected(event)
+{
+    $(event.currentTarget).addClass('checked');
+    $('[name="newSlot"]').val('');
+});
+
+$('[name="checkbox"]').on('click', function(){
+    $('[name="checkbox"]').removeClass('checked');
+})
+
+$('[name="newSlot"]').on('click', function(){
+    $('[name="checkbox"]').removeClass('checked');
+})
+
 /* Send scheduling details */
 $('form#scheduling').validate({
     ignore: "",
@@ -7,12 +21,12 @@ $('form#scheduling').validate({
         },
         'startTime': {
             required: function(element) {
-                return $("form#scheduling input[name='startTime']").val() == null;
+                return $('form#scheduling [class="checkbox checked"]').data('id') == null;
             }
         },
         'startTimeInput': {
             required: function(element) {
-                return $("form#scheduling input#startTime").val().trim().length == 0;
+                return $("form#scheduling input#newSlot").val().trim().length == 0;
             }
         }
     },
@@ -22,7 +36,7 @@ $('form#scheduling').validate({
             type: 'post',
             url: form.action,
             data: {
-                startTime: $('form#scheduling input[name="startTime"]:radio:checked').val() || moment($('form#scheduling input#startTime').val()).valueOf(),
+                startTime: $('form#scheduling [class="checkbox checked"]').data('id') || moment($('form#scheduling input#newSlot').val()).valueOf(),
                 code: $('form#scheduling input[name="code"]').val(),
                 phoneNumberId: $('form#scheduling input[name="phoneNumberId"]').val()
             },

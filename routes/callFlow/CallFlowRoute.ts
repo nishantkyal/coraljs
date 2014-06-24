@@ -175,7 +175,7 @@ class CallFlowRoute
 
         q.all([
             self.verificationCodeDelegate.verifyAppointmentAcceptCode(appointmentCode),
-            self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_USER, IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_TRANSACTION_LINE])
+            self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_EXPERT_USER,IncludeFlag.INCLUDE_USER, IncludeFlag.INCLUDE_TRANSACTION_LINE])
         ])
             .then(
             function callAndSchedulingDetailsFetched(...args)
@@ -195,7 +195,7 @@ class CallFlowRoute
                         if (!Utils.isNullOrEmpty(call.getExpertPhoneId()))
                             returnArray.push(self.userPhoneDelegate.get(call.getExpertPhoneId()));
                         else
-                            returnArray.push(self.userPhoneDelegate.find(Utils.createSimpleObject(UserPhone.USER_ID, call.getExpertUserId)));
+                            returnArray.push(self.userPhoneDelegate.find(Utils.createSimpleObject(UserPhone.USER_ID, call.getExpertUserId())));
 
                     // If viewer == caller
                     case call.getCallerUserId():

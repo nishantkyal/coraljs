@@ -211,7 +211,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.get(call, null, [IncludeFlag.INCLUDE_USER, IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_EXPERT_PHONE, IncludeFlag.INCLUDE_USER_PHONE])
+            return self.get(call, null, [IncludeFlag.INCLUDE_USER,IncludeFlag.INCLUDE_EXPERT_USER, IncludeFlag.INCLUDE_EXPERT_PHONE, IncludeFlag.INCLUDE_USER_PHONE])
                 .then(function (fetchedCall:PhoneCall)
                 {
                     self.queueCallForTriggering(fetchedCall);
@@ -331,7 +331,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
         var isConfirmation = pickedSlots.length == 1 && _.contains(originalSlots, pickedSlots[0]);
         var isSuggestion = _.intersection(originalSlots, pickedSlots).length == 0;
 
-        return self.get(callId, null, [IncludeFlag.INCLUDE_USER, IncludeFlag.INCLUDE_INTEGRATION_MEMBER])
+        return self.get(callId, null, [IncludeFlag.INCLUDE_EXPERT_USER,IncludeFlag.INCLUDE_USER, IncludeFlag.INCLUDE_INTEGRATION_MEMBER])
             .then(
             function callFetched(call:PhoneCall):any
             {

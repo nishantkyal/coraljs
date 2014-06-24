@@ -256,24 +256,20 @@ class EmailDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_USER])
+            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_EXPERT_USER, IncludeFlag.INCLUDE_USER])
                 .then(
                 function (fetchedCall:PhoneCall)
             {
                 return self.sendSchedulingCompleteEmail(fetchedCall, appointment);
             });
 
-        var expert:IntegrationMember = call.getIntegrationMember();
-        var integration = new IntegrationDelegate().getSync(expert.getIntegrationId());
-
         var emailData = {
             call: call,
             startTimeInCallerTZ: call.getStartTime() - self.timezoneDelegate.get(call.getUser().getTimezone())['gmt_offset'] * 1000,
-            integration: integration
         };
 
         return q.all([
-            self.composeAndSend(EmailDelegate.EMAIL_EXPERT_SCHEDULED, expert.getUser().getEmail(), emailData),
+            self.composeAndSend(EmailDelegate.EMAIL_EXPERT_SCHEDULED, call.getExpertUser().getEmail(), emailData),
             self.composeAndSend(EmailDelegate.EMAIL_USER_SCHEDULED, call.getUser().getEmail(), emailData)
         ]);
 
@@ -329,7 +325,7 @@ class EmailDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER])
+            return self.phoneCallDelegate.get(call, null,[IncludeFlag.INCLUDE_EXPERT_USER])
                 .then(
                 function (fetchedCall:PhoneCall)
                 {
@@ -344,12 +340,9 @@ class EmailDelegate
             function invitationAcceptCodeCreated(code:string)
             {
                 var schedulingUrl:string = CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI));
-                var expert:IntegrationMember = call.getIntegrationMember();
-                var integration = new IntegrationDelegate().getSync(expert.getIntegrationId());
                 var emailData = {
                     call: call,
                     acceptCode: code,
-                    integration: integration,
                     appointments: appointments,
                     suggestTimeUrl: Utils.addQueryToUrl(CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
                     appointmentUrls: _.map(appointments, function(startTime)
@@ -362,7 +355,7 @@ class EmailDelegate
                     })
                 };
 
-                return self.composeAndSend(EmailDelegate.EMAIL_NEW_SLOTS_TO_EXPERT, expert.getUser().getEmail(), emailData);
+                return self.composeAndSend(EmailDelegate.EMAIL_NEW_SLOTS_TO_EXPERT, call.getExpertUser().getEmail(), emailData);
             });
     }
 
@@ -424,7 +417,7 @@ class EmailDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER, IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall)
+            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_EXPERT_USER, IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall)
             {
                 return self.sendCallReminderEmail(fetchedCall);
             });
@@ -440,7 +433,7 @@ class EmailDelegate
 
         return q.all([
             self.composeAndSend(EmailDelegate.EMAIL_USER_CALL_REMINDER, call.getUser().getEmail(), emailData),
-            self.composeAndSend(EmailDelegate.EMAIL_EXPERT_CALL_REMINDER, call.getIntegrationMember().getUser().getEmail(), emailData)
+            self.composeAndSend(EmailDelegate.EMAIL_EXPERT_CALL_REMINDER, call.getExpertUser().getEmail(), emailData)
         ]);
     }
 

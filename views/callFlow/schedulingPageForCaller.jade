@@ -40,7 +40,7 @@ head
                         .call-profile
                             h1
                                 | Details for call with&nbsp;
-                                span= formatName(call.integration_member.user.first_name, call.integration_member.user.last_name, call.integration_member.user.title)
+                                span= formatName(call.expert_user.first_name, call.expert_user.last_name, call.expert_user.title)
                             .meta
                                 h5 Call Id
                                 p= call.id
@@ -59,15 +59,14 @@ head
                                         i.icon-bill
                                         | Suggested Time
                                     h3 Pick one of the suggested slots
-                                    for slot in startTimes
-                                        p.title
-                                            input(type='radio', name='startTime', value=slot, checked=selectedStartTime == slot)
-                                            label= formatDate(slot)
+                                    ul
+                                        for slot in startTimes
+                                            li
+                                                .checkbox(name='checkbox', data-id=slot)
+                                                span= formatDate(slot)
                                     h3 Or Suggest another time convenient to you
                                     .input-group.date.datepicker
-                                        input#startTime(type='text', name='startTimeInput')
-                                        span.input-group-addon
-                                            span.glyphicon-calendar.glyphicon
+                                        input.form-control.datepicker#newSlot(type='text', name='newSlot', placeholder='Suggest alternate time slot', readonly=true, style='background-color: white; cursor: default;')
                                 .payment-summary.call-inputs
                                     h1
                                         i.icon-phone

@@ -61,11 +61,11 @@ head
                                     | Requested Time Slots
                                 ul
                                     for slot in startTimes
-                                        li.radio(data-id=slot.id)
-                                            .checkbox.inverted.active
+                                        li
+                                            .checkbox(name='checkbox', data-id=slot)
                                             span= formatDate(slot)
                                 .form-group
-                                    input.form-control.datepicker(type='text', placeholder='Suggest alternate time slot', readonly=true, style='background-color: white; cursor: default;')
+                                    input.form-control.datepicker#newSlot(name='newSlot', type='text', placeholder='Suggest alternate time slot', readonly=true, style='background-color: white; cursor: default;')
                             .payment-summary.call-inputs
                                 h1
                                     i.icon-phone
@@ -76,9 +76,9 @@ head
                                             select#country-code.form-control
                                                 for name,abb in CountryName
                                                     -var code = CountryCode[abb];
-                                                    option(value=code, selected=code ==country_code)= name + ' (+' + code + ')'
+                                                    option(value=code, selected=code ==phone.country_code)= name + ' (+' + code + ')'
                                         .col-xs-8
-                                            input#caller-phone.form-control.phone-number(type='text', placeholder='Phone Number')
+                                            input#caller-phone.form-control.phone-number(type='text', placeholder='Phone Number', value = phone.phone)
                             if earning > 0
                                 .payment-summary.call-inputs
                                     h1
