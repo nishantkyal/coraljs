@@ -128,7 +128,8 @@ class AuthenticationDelegate
     /* Check login method with support for ajax requests */
     static checkLogin(options:any = {})
     {
-        options.failureRedirect = options.failureRedirect || '/login';
+        options.failureRedirect = options.failureRedirect || DashboardUrls.login();
+        options.justCheck = options.justCheck || false;
 
         return function (req, res:express.Response, next:Function):any
         {
@@ -136,7 +137,10 @@ class AuthenticationDelegate
             var isAjax = req.get('content-type') && req.get('content-type').indexOf('application/json') != -1;
 
             if (isLoggedIn)
-                next();
+                if (!options.justCheck)
+                    next();
+                else
+                    res.json(200, {valid: isLoggedIn});
             else
             {
                 if (isAjax)

@@ -117,4 +117,5 @@ div.row
                         input.btn.btn-primary.btn-lg(type='submit', value='Save')
 script.
     var rules = JSON.parse('!{JSON.stringify(rules)}');
+    var userId = #{loggedInUser.id};
 script(src='/js/app/dashboard/userSchedule.js')

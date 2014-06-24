@@ -21,6 +21,8 @@ title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setti
                                     a Schedules and Pricing
                                 li(name='changePasswordLink')
                                     a Change Password
+                                li(name='widgetLink')
+                                    a Widget
             //
                /.content
             .content.col-md-8
@@ -105,6 +107,19 @@ title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setti
                                             div.links-editing
                                                 p.edit-schedules
                                                     input.btn.btn-primary(type='submit', value='Change', name='changePassword')
+                    .card#widgetCard(style='display: none;')
+                        .item
+                            .row
+                                h5.col-xs-8 Your Widgets
+                                .header-link.col-xs-4
+                        if widgets
+                            .item
+                                .row
+                                    for widget in widgets
+                                        .col-md-4
+                                            iframe(src=ApiUrlDelegate.publicWidget(widget.id),height='60%',width='200px')
+                                            h3 Embed Code:
+                                                textarea(readonly) #{ApiUrlDelegate.publicWidget(widget.id,Config.get(Config.DASHBOARD_URI))}
 script.
     var user = JSON.parse( '!{JSON.stringify(loggedInUser)}' );
 script(src='/js/app/dashboard/userSetting.js')

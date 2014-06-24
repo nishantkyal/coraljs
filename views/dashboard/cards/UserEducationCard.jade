@@ -3,7 +3,9 @@ div.card
         div.title
             h1 Education
         div.pull-right
-            a#addUserEducationBtn.btn.btn-success.btn-xs Add
+            a#addUserEducationBtn.btn.btn-success.btn-xs Add Education
+            a.btn.btn-default.btn-xs#fetchEmployment
+                si.si-small.si-colored.si-linkedin
         div.clearer
     if userEducation.length != 0
         each edu in userEducation

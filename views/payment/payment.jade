@@ -1,5 +1,4 @@
-- var user = expert.user;
-- var pricing = expert.user.pricing_scheme[0]
+- var pricing = user.pricing_scheme[0]
 - var minDuration = pricing.min_duration
 style.
     #login-modal .register {
@@ -14,7 +13,7 @@ title ST-#{formatName(user.first_name, user.last_name, user.title)} | Payment fo
                 .shadow
                 ul.nav.nav-pills.nav-justified.nav-stacked
                     li.completed
-                        a(href=CallFlowUrls.callExpert(expert.id))
+                        a(href=CallFlowUrls.callExpert(user.id))
                             span.nav-label
                                 i.icon-schedule
                                 span.hidden-xs Schedule
@@ -76,7 +75,7 @@ title ST-#{formatName(user.first_name, user.last_name, user.title)} | Payment fo
                     .col-md-6
                         .call-card
                             .call-reversal
-                                a.btn.btn-default(href=CallFlowUrls.callExpert(expert.id))
+                                a.btn.btn-default(href=CallFlowUrls.callExpert(user.id))
                                     | Back to Schedule
                                     i.icon-left-arrow
                             .payment-summary.call-inputs

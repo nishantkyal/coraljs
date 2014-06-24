@@ -1,5 +1,4 @@
-- var user = expert.user;
-- var pricing = expert.user.pricing_scheme[0]
+- var pricing = user.pricing_scheme[0]
 - var minDuration = pricing.min_duration
 title ST-#{formatName(user.first_name, user.last_name, user.title)}
 include ../header
@@ -136,7 +135,7 @@ div.modal.fade#scheduler
                         .user-profile
                             .hidden-xs.avatar
                                 .shadow
-                                    a(href=DashboardUrls.userProfile(expert.id))
+                                    a(href=DashboardUrls.userProfile(user.id))
                                         img(src=ApiUrlDelegate.userProfilePicture(user.id), width='100%', height='100%')
                             .info
                                 .info-upper

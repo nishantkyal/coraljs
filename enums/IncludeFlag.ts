@@ -2,6 +2,7 @@ class IncludeFlag
 {
     static INCLUDE_INTEGRATION:string = 'integration';
     static INCLUDE_USER:string = 'user';
+    static INCLUDE_EXPERT_USER:string = 'expert_user';
     static INCLUDE_USER_PROFILE:string = 'user_profile';
     static INCLUDE_EXPERT:string = 'expert';
     static INCLUDE_PHONE:string = 'phone';

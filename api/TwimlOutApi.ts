@@ -60,7 +60,7 @@ class TwimlOutApi
         app.get(TwilioUrlDelegate.twimlJoinCall(), function (req:express.Request, res:express.Response)
         {
             var callId = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
-            self.phoneCallDelegate.get(callId)
+            self.phoneCallDelegate.get(callId, null,[IncludeFlag.INCLUDE_EXPERT_USER])
                 .then(
                 function callFetched(call:PhoneCall)
                 {
@@ -70,7 +70,7 @@ class TwimlOutApi
                     //TODO[ankit] - get TotalDuration of all callFragments and set duration accordingly
                     pageData['phoneNumber'] = call.getExpertPhone().getCompleteNumber();
                     pageData['record'] = (call.getRecorded() == false) ? 'false' : 'true';
-                    pageData['message'] = 'Please wait while we get ' + Formatter.formatName(call.getIntegrationMember().getUser().getFirstName(), call.getIntegrationMember().getUser().getLastName(), call.getIntegrationMember().getUser().getTitle()) + ' on the call';
+                    pageData['message'] = 'Please wait while we get ' + Formatter.formatName(call.getExpertUser().getFirstName(), call.getExpertUser().getLastName(), call.getExpertUser().getTitle()) + ' on the call';
                     res.render('twilio/TwilioXMLJoin.jade', pageData);
                 })
                 .fail(function (error)

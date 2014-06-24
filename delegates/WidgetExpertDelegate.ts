@@ -2,11 +2,11 @@ import _                                                    = require('underscor
 import q                                                    = require('q');
 import moment                                               = require('moment');
 import WidgetExpert                                         = require('../models/WidgetExpert');
-import IntegrationMember                                    = require('../models/IntegrationMember');
+import User                                                 = require('../models/User');
 import Schedule                                             = require('../models/Schedule');
 import PricingScheme                                        = require('../models/PricingScheme');
 import WidgetExpertCache                                    = require('../caches/WidgetExpertCache');
-import IntegrationMemberDelegate                            = require('../delegates/IntegrationMemberDelegate');
+import UserDelegate                                         = require('../delegates/UserDelegate');
 import ScheduleDelegate                                     = require('../delegates/ScheduleDelegate');
 import TimezoneDelegate                                     = require('../delegates/TimezoneDelegate');
 import PricingSchemeDelegate                                = require('../delegates/PricingSchemeDelegate');
@@ -16,15 +16,15 @@ import IncludeFlag                                          = require('../enums/
 class WidgetExpertDelegate
 {
     private widgetExpertCache = new WidgetExpertCache();
-    private integrationMemberDelegate = new IntegrationMemberDelegate();
+    private userDelegate = new UserDelegate();
     private scheduleDelegate = new ScheduleDelegate();
     private pricingSchemeDelegate = new PricingSchemeDelegate();
 
-    get(expertId:number):q.Promise<any>
+    get(userId:number):q.Promise<any>
     {
         var self = this;
 
-        return self.widgetExpertCache.get(expertId)
+        return self.widgetExpertCache.get(userId)
             .then(
             function widgetExpertFetchedFromCache(widgetExpert:WidgetExpert)
             {
@@ -35,23 +35,23 @@ class WidgetExpertDelegate
             .fail(
             function widgetExpertFetchFailed():any
             {
-                return self.integrationMemberDelegate.get(expertId, IntegrationMember.DEFAULT_FIELDS.concat(IntegrationMember.USER_ID), [IncludeFlag.INCLUDE_USER]);
+                return self.userDelegate.get(userId);
             })
             .then(
-            function expertFetched(expert:IntegrationMember):any
+            function expertFetched(user:User):any
             {
                 return [
-                    expert,
-                    self.scheduleDelegate.getSchedulesForUser(expert.getUserId(), moment().subtract({days: 1}).valueOf(), moment().add({days: 1}).valueOf()),
-                    self.pricingSchemeDelegate.search(Utils.createSimpleObject(PricingScheme.USER_ID, expert.getUserId()))
+                    user,
+                    self.scheduleDelegate.getSchedulesForUser(user.getId(), moment().subtract({days: 1}).valueOf(), moment().add({days: 7}).valueOf()),
+                    self.pricingSchemeDelegate.search(Utils.createSimpleObject(PricingScheme.USER_ID, user.getId()))
                 ];
             })
             .spread(
-            function schedulesFetched(expert:IntegrationMember, schedules:Schedule[], schemes:PricingScheme[])
+            function schedulesFetched(user:User, schedules:Schedule[], schemes:PricingScheme[])
             {
-                expert.getUser().setSchedule(schedules);
+                user.setSchedule(schedules);
 
-                var widgetExpert = new WidgetExpert(expert);
+                var widgetExpert = new WidgetExpert(user);
                 self.widgetExpertCache.save(widgetExpert);
 
                 var timezone = new TimezoneDelegate().get(widgetExpert.getTimezone());

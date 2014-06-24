@@ -4,7 +4,7 @@ import _                                                = require('underscore');
 import AbstractSessionData                              = require('../AbstractSessionData');
 import PhoneCall                                        = require('../../models/PhoneCall');
 import Integration                                      = require('../../models/Integration');
-import IntegrationMember                                = require('../../models/IntegrationMember');
+import User                                             = require('../../models/User');
 import Transaction                                      = require('../../models/Transaction');
 import ExpertSchedule                                   = require('../../models/Schedule');
 import Utils                                            = require('../../common/Utils');
@@ -14,7 +14,7 @@ class SessionData extends AbstractSessionData
     static IDENTIFIER:string                            = 'CallFlow';
     private static CALL:string                          = 'phoneCall';
     private static INTEGRATION:string                   = 'integration';
-    private static EXPERT:string                        = 'expert';
+    private static USER:string                          = 'user';
     private static IS_AVAILABLE:string                  = 'is_available';
     private static NEXT_AVAILABLE_SCHEDULE:string       = 'next_available_schedule';
     private static APPOINTMENTS:string                  = 'appointments';
@@ -35,7 +35,7 @@ class SessionData extends AbstractSessionData
     getIdentifier():string                              { return SessionData.IDENTIFIER; }
     getCall():PhoneCall                                 { return new PhoneCall(this.getData()[SessionData.CALL]); }
     getIntegration():Integration                        { return new Integration(this.getData()[SessionData.INTEGRATION]); }
-    getExpert():IntegrationMember                       { return new IntegrationMember(this.getData()[SessionData.EXPERT]); }
+    getUser():User                                      { return new User(this.getData()[SessionData.USER]); }
     getNextAvailableSchedule():ExpertSchedule           { return new ExpertSchedule(this.getData()[SessionData.NEXT_AVAILABLE_SCHEDULE]); }
     getAppointments():number[]                          { return this.getData()[SessionData.APPOINTMENTS]; }
     getCallNow():boolean                                { return this.getData()[SessionData.CALL_NOW]; }
@@ -48,7 +48,7 @@ class SessionData extends AbstractSessionData
     /* Setters */
     setCall(val:PhoneCall)                              { this.set(SessionData.CALL, val && val.toJson ? val.toJson() : val); }
     setIntegration(val:Integration)                     { this.set(SessionData.INTEGRATION, val.toJson()); }
-    setExpert(val:IntegrationMember)                    { this.set(SessionData.EXPERT, val.toJson());  this.computeAvailability(); }
+    setUser(val:User)                                   { this.set(SessionData.USER, val.toJson());  this.computeAvailability(); }
     setAppointments(val:number[])                       { this.set(SessionData.APPOINTMENTS, val); }
     setCallNow(val:boolean)                             { this.set(SessionData.CALL_NOW, val); }
     setDuration(val:number)                             { this.set(SessionData.DURATION, val); }
@@ -59,9 +59,9 @@ class SessionData extends AbstractSessionData
 
     computeAvailability()
     {
-        if (this.getExpert() && this.getExpert().isValid() && this.getExpert().getUser().getSchedule())
+        if (this.getUser() && this.getUser().isValid() && this.getUser().getSchedule())
         {
-            var nextAvailableSchedule:ExpertSchedule = _.find(this.getExpert().getUser().getSchedule(), function (schedule):boolean
+            var nextAvailableSchedule:ExpertSchedule = _.find(this.getUser().getSchedule(), function (schedule):boolean
             {
                 var scheduleEndTime = schedule[ExpertSchedule.START_TIME] + schedule[ExpertSchedule.DURATION];
                 return scheduleEndTime > moment().add({minutes: 15}).valueOf();

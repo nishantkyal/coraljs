@@ -82,7 +82,7 @@ class PaymentRoute
     {
         var sessionData = new CallFlowSessionData(req);
         var self = this;
-        var expert = sessionData.getExpert();
+        var user = sessionData.getUser();
         var loggedInUserId = req.isAuthenticated() ? sessionData.getLoggedInUser().getId() : null;
         var tasks = [];
 
@@ -90,7 +90,7 @@ class PaymentRoute
         var transactionExists:boolean = !Utils.isNullOrEmpty(sessionData.getTransaction());
         if (transactionExists)
         {
-            var isExpertChanged = sessionData.getCall().getIntegrationMemberId() != sessionData.getExpert().getId();
+            var isExpertChanged = sessionData.getCall().getExpertUserId() != sessionData.getUser().getId();
             var isDurationChanged = sessionData.getCall().getDuration() != sessionData.getDuration();
             var isAgendaChanged = sessionData.getCall().getAgenda() != sessionData.getAgenda();
 
@@ -105,13 +105,13 @@ class PaymentRoute
         if (!transactionExists || isExpertChanged || isDurationChanged || isAgendaChanged)
         {
             var phoneCall = new PhoneCall();
-            phoneCall.setIntegrationMemberId(sessionData.getExpert().getId());
+            phoneCall.setExpertUserId(sessionData.getUser().getId());
             phoneCall.setDelay(0);
             phoneCall.setStatus(CallStatus.PLANNING);
             phoneCall.setDuration(sessionData.getDuration());
             phoneCall.setAgenda(sessionData.getAgenda());
-            phoneCall.setPricePerMin(new PricingScheme(expert.getUser().getPricingScheme()[0]).getChargingRate());
-            phoneCall.setPriceCurrency(new PricingScheme(expert.getUser().getPricingScheme()[0]).getUnit());
+            phoneCall.setPricePerMin(new PricingScheme(user.getPricingScheme()[0]).getChargingRate());
+            phoneCall.setPriceCurrency(new PricingScheme(user.getPricingScheme()[0]).getUnit());
             phoneCall.setCallerUserId(loggedInUserId);
 
             var transaction = new Transaction();
@@ -320,7 +320,7 @@ class PaymentRoute
             {
                 // Assumption: We only have one call on the transaction
                 var callId = _.findWhere(lines, {item_type: ItemType.PHONE_CALL}).getItemId();
-                return [lines, self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER])];
+                return [lines, self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_EXPERT_USER])];
             })
             .spread(
             function callFetched(lines:TransactionLine[], call:PhoneCall)
@@ -334,7 +334,7 @@ class PaymentRoute
                 // 2. Send notifications
                 return q.all([
                     self.phoneCallDelegate.update(call.getId(), {status: CallStatus.SCHEDULING}),
-                    self.notificationDelegate.sendNewCallRequestNotifications(call.getId(), callFlowSessionData.getAppointments(), call.getDuration(), callFlowSessionData.getLoggedInUser())
+                    self.notificationDelegate.sendNewCallRequestNotifications(call, callFlowSessionData.getAppointments(), call.getDuration(), callFlowSessionData.getLoggedInUser())
                 ])
                     .then(
                     function renderPage()

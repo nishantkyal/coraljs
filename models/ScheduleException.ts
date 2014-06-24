@@ -10,18 +10,20 @@ class ScheduleException extends Schedule
 {
     static TABLE_NAME = 'expert_schedule_exception';
 
-    private integration_member_id:number;
+    static USER_ID:string       = 'user_id';
+
+    private user_id:number;
 
     /* Getters */
-    getIntegrationMemberId():number                 { return this.integration_member_id; }
+    getUserId():number                 { return this.user_id; }
 
     /* Setters */
-    setIntegrationMemberId(val:number):void         { this.integration_member_id = val; }
+    setUserId(val:number):void         { this.user_id = val; }
 
     isValid():boolean
     {
         return super.isValid()
-                    && !Utils.isNullOrEmpty(this.getIntegrationMemberId());
+                    && !Utils.isNullOrEmpty(this.getUserId());
     }
 }
 export = ScheduleException

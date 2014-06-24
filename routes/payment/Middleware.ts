@@ -12,7 +12,7 @@ class Middleware
     static requireCallerAndCallDetails(req, res, next)
     {
         var sessionData = new CallFlowSessionData(req);
-        var expert = sessionData.getExpert();
+        var user = sessionData.getUser();
         var countryCode:number = parseInt(req.body[ApiConstants.COUNTRY_CODE] || sessionData.getCountryCode());
         var callerPhone:string = req.body[ApiConstants.PHONE] || sessionData.getCallerPhone();
         var agenda:string = req.body[ApiConstants.AGENDA] || sessionData.getAgenda();
@@ -33,13 +33,13 @@ class Middleware
         if (!Utils.isNullOrEmpty(callerPhone)
             && !Utils.isNullOrEmpty(agenda) && !Utils.isNullOrEmpty(duration)
             && (!Utils.isNullOrEmpty(appointments) || isCallNow)
-            && (!Utils.isNullOrEmpty(expert) && expert.isValid()))
+            && (!Utils.isNullOrEmpty(user) && user.isValid()))
         {
             next();
         }
-        else if (!Utils.isNullOrEmpty(expert) && expert.isValid())
+        else if (!Utils.isNullOrEmpty(user) && user.isValid())
         {
-            res.redirect(CallFlowUrls.callExpert(expert.getId()));
+            res.redirect(CallFlowUrls.callExpert(user.getId()));
         }
         else
         {
@@ -50,15 +50,15 @@ class Middleware
     static requireTransaction(req:express.Request, res:express.Response, next:Function)
     {
         var sessionData = new CallFlowSessionData(req);
-        var expert = sessionData.getExpert();
+        var user = sessionData.getUser();
 
         if (!Utils.isNullOrEmpty(sessionData.getTransaction()))
         {
             next();
         }
-        else if (!Utils.isNullOrEmpty(expert))
+        else if (!Utils.isNullOrEmpty(user))
         {
-            res.redirect(CallFlowUrls.callExpert(expert.getId()));
+            res.redirect(CallFlowUrls.callExpert(user.getId()));
         }
         else
         {
@@ -71,7 +71,7 @@ class Middleware
         var sessionData = new CallFlowSessionData(req);
 
         // Check that we're not calling a schedule with self
-        if (sessionData.getLoggedInUser() && sessionData.getLoggedInUser().getId() == sessionData.getExpert().getUserId())
+        if (sessionData.getLoggedInUser() && sessionData.getLoggedInUser().getId() == sessionData.getUser().getId())
             res.render('500', {error: "You can't call yourself!"});
         else
             next();
