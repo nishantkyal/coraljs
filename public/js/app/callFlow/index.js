@@ -1,9 +1,15 @@
 /* Index schedules */
+var userGmtOffset = new Date().getTimezoneOffset() * -60 * 1000;
+
 schedules = schedules || [moment()];
+schedules = _.map(schedules, function(schedule){
+    schedule.start_time += userGmtOffset - expertGmtOffset;
+    return schedule;
+})
 var timeSlotsByDate = _.groupBy(schedules, function(schedule) { return moment(schedule.start_time).format('DD-MM-YYYY') });
 var exceptionsByDate = _.groupBy(exceptions, function(exception) { return moment(exception.start_time).format('DD-MM-YYYY') });
+
 setMonth(schedules[0].start_time);
-var tzOffsetInMillis = new Date().getTimezoneOffset() * 60 * 1000;
 
 /* Duration select - Event handler */
 $('.duration li').click(function(event)
@@ -139,9 +145,10 @@ function proceedToPayment()
         '<input type="hidden" name="duration" value="' + duration + '">' +
         '<input type="hidden" name="countryCode" value="' + countryCode + '">' +
         '<input type="hidden" name="phone" value="' + callerPhone + '">' +
+        '<input type="hidden" name="userGmtOffset" value="' + userGmtOffset + '">' +
         _.map(selectedTimeSlots, function(slot)
         {
-            return '<input type="hidden" name="startTime" value="' + slot + '">';
+            return '<input type="hidden" name="startTime" value="' + (slot + expertGmtOffset - userGmtOffset) + '">';
         }).join('') +
         '</form>');
 
@@ -163,11 +170,11 @@ function selectDate(selectedDate, dateElement)
 
     _.each(schedulesForSelectedDate, function(schedule)
     {
-        var slotTime = schedule.start_time + tzOffsetInMillis;
+        var slotTime = schedule.start_time;
         var selectedDurationInMillis = duration * 60 * 1000;
         var jumpInMillis = 15 * 60 * 1000;
         var maxSlotTime = schedule.start_time + schedule.duration - selectedDurationInMillis;
-        while (slotTime < maxSlotTime) {
+        while (slotTime <= maxSlotTime) {
             if (slotTime > moment().valueOf()) {
                 var tempSlot = {start_time:slotTime,duration:jumpInMillis/1000};
                 slots.push(tempSlot);
@@ -198,16 +205,16 @@ function applyExceptions(schedules,exceptions)
         {
             var applicableExceptions = _.filter(exceptions, function (exception)
             {
-                if ((schedule.start_time > (exception.start_time + exception.duration)) || ((schedule.start_time + schedule.duration) < exception.start_time))
-                    return true;
-                else
+                if ((schedule.start_time >= (exception.start_time + exception.duration*1000)) || ((schedule.start_time + schedule.duration*1000) <= exception.start_time))
                     return false;
+                else
+                    return true;
             });
 
             if(applicableExceptions && applicableExceptions.length != 0)
-                return true;
-            else
                 return false;
+            else
+                return true;
         });
 }
 

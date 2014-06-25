@@ -25,6 +25,7 @@ import ScheduleDelegate                                     = require('../../del
 import ScheduleExceptionDelegate                            = require('../../delegates/ScheduleExceptionDelegate');
 import CouponDelegate                                       = require('../../delegates/CouponDelegate');
 import PricingSchemeDelegate                                = require('../../delegates/PricingSchemeDelegate');
+import TimezoneDelegate                                     = require('../../delegates/TimezoneDelegate');
 import PhoneCall                                            = require('../../models/PhoneCall');
 import Schedule                                             = require('../../models/Schedule');
 import Transaction                                          = require('../../models/Transaction');
@@ -70,6 +71,7 @@ class CallFlowRoute
     private userEducationDelegate = new UserEducationDelegate();
     private scheduleExceptionDelegate = new ScheduleExceptionDelegate();
     private verificationCodeDelegate = new VerificationCodeDelegate();
+    private timezoneDelegate = new TimezoneDelegate();
 
     constructor(app, secureApp)
     {
@@ -131,6 +133,7 @@ class CallFlowRoute
                 var userEmployment = args[0][2] || [];
 
                 sessionData.setUser(user);
+                sessionData.setExpertGmtOffset(self.timezoneDelegate.get(user.getTimezone()).getGmtOffset()*1000);
 
                 var pageData = _.extend(sessionData.getData(), {
                     userSkill: _.sortBy(userSkill, function (skill) { return skill['skill_name'].length; }),
@@ -235,7 +238,9 @@ class CallFlowRoute
                     phone: phone,
                     code: appointmentCode,
                     lines: lines,
-                    loggedInUserId: loggedInUserId
+                    loggedInUserId: loggedInUserId,
+                    expertGmtOffset: self.timezoneDelegate.get(call.getExpertUser().getTimezone()).getGmtOffset()*1000,
+                    userGmtOffset: self.timezoneDelegate.get(call.getUser().getTimezone()).getGmtOffset()*1000
                 };
 
                 if (loggedInUserId == call.getExpertUserId())

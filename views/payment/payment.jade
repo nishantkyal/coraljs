@@ -63,9 +63,9 @@ title ST-#{formatName(user.first_name, user.last_name, user.title)} | Payment fo
                             .meta.meta-schedule
                                 h5 Selected time slots
                                 ul
-                                    li.schedule-a= formatDate(appointments[0], 'ddd DD MMM YYYY, hh:mm a')
-                                    li.schedule-b= formatDate(appointments[1], 'ddd DD MMM YYYY, hh:mm a')
-                                    li.schedule-c= formatDate(appointments[2], 'ddd DD MMM YYYY, hh:mm a')
+                                    li.schedule-a= formatDate(appointments[0] - expertGmtOffset + userGmtOffset, 'ddd DD MMM YYYY, hh:mm a')
+                                    li.schedule-b= formatDate(appointments[1] - expertGmtOffset + userGmtOffset, 'ddd DD MMM YYYY, hh:mm a')
+                                    li.schedule-c= formatDate(appointments[2] - expertGmtOffset + userGmtOffset, 'ddd DD MMM YYYY, hh:mm a')
                             .meta
                                 h5 Call Recepient
                                 p +#{country_code}-#{caller_phone}

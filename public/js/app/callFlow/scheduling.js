@@ -36,7 +36,7 @@ $('form#scheduling').validate({
             type: 'post',
             url: form.action,
             data: {
-                startTime: $('form#scheduling [class="checkbox checked"]').data('id') || moment($('form#scheduling input#newSlot').val()).valueOf(),
+                startTime: $('form#scheduling [class="checkbox checked"]').data('id') || moment($('form#scheduling input#newSlot').val()).valueOf() - (expertGmtOffset ? expertGmtOffset : userGmtOffset),
                 code: $('form#scheduling input[name="code"]').val(),
                 phoneNumberId: $('form#scheduling input[name="phoneNumberId"]').val()
             },

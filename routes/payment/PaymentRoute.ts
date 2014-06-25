@@ -108,7 +108,7 @@ class PaymentRoute
             phoneCall.setExpertUserId(sessionData.getUser().getId());
             phoneCall.setDelay(0);
             phoneCall.setStatus(CallStatus.PLANNING);
-            phoneCall.setDuration(sessionData.getDuration());
+            phoneCall.setDuration(sessionData.getDuration()*60);
             phoneCall.setAgenda(sessionData.getAgenda());
             phoneCall.setPricePerMin(new PricingScheme(user.getPricingScheme()[0]).getChargingRate());
             phoneCall.setPriceCurrency(new PricingScheme(user.getPricingScheme()[0]).getUnit());
@@ -334,7 +334,7 @@ class PaymentRoute
                 // 2. Send notifications
                 return q.all([
                     self.phoneCallDelegate.update(call.getId(), {status: CallStatus.SCHEDULING}),
-                    self.notificationDelegate.sendNewCallRequestNotifications(call, callFlowSessionData.getAppointments(), call.getDuration(), callFlowSessionData.getLoggedInUser())
+                    self.notificationDelegate.sendNewCallRequestNotifications(call, callFlowSessionData.getAppointments(), call.getDuration()/60, callFlowSessionData.getLoggedInUser())
                 ])
                     .then(
                     function renderPage()

@@ -117,9 +117,18 @@ title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setti
                                 .row
                                     for widget in widgets
                                         .col-md-4
-                                            iframe(src=ApiUrlDelegate.publicWidget(widget.id),height='60%',width='200px')
-                                            h3 Embed Code:
-                                                textarea(readonly) #{ApiUrlDelegate.publicWidget(widget.id,Config.get(Config.DASHBOARD_URI))}
+                                            if (widget.template == 'tiny_widget')
+                                                iframe(src=ApiUrlDelegate.publicWidget(widget.id,Config.get(Config.DASHBOARD_URI)), width="160", height="115", style="border: none;")
+                                                h3 Embed Code:
+                                                textarea(readonly, rows='6', cols='22') <iframe src=#{ApiUrlDelegate.publicWidget(widget.id,Config.get(Config.DASHBOARD_URI))} width="160" height="115" style="border: none;"></iframe>
+                                            else if (widget.template == 'small_widget')
+                                                iframe(src=ApiUrlDelegate.publicWidget(widget.id,Config.get(Config.DASHBOARD_URI)), width="160", height="251", style="border: none;")
+                                                h3 Embed Code:
+                                                textarea(readonly, rows='6', cols='22') <iframe src=#{ApiUrlDelegate.publicWidget(widget.id,Config.get(Config.DASHBOARD_URI))} width="160" height="251" style="border: none;"></iframe>
+                                            else if (widget.template == 'tall_widget')
+                                                iframe(src=ApiUrlDelegate.publicWidget(widget.id,Config.get(Config.DASHBOARD_URI)), width="160", height="392", style="border: none;")
+                                                h3 Embed Code:
+                                                textarea(readonly, rows='6', cols='22') <iframe src=#{ApiUrlDelegate.publicWidget(widget.id,Config.get(Config.DASHBOARD_URI))} width="160" height="392" style="border: none;"></iframe>
 script.
     var user = JSON.parse( '!{JSON.stringify(loggedInUser)}' );
 script(src='/js/app/dashboard/userSetting.js')

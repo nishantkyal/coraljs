@@ -228,7 +228,7 @@ class AbstractDao
             },
             function updateError(error)
             {
-                self.logger.error('UPDATE failed, error: %s', JSON.stringify(error));
+                self.logger.error('UPDATE failed, error: %s, table: %s', JSON.stringify(error), self.tableName);
                 throw(error);
             });
     }

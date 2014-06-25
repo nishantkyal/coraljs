@@ -130,6 +130,7 @@ class AuthenticationDelegate
     {
         options.failureRedirect = options.failureRedirect || DashboardUrls.login();
         options.justCheck = options.justCheck || false;
+        options.setReturnTo = options.setReturnTo || true;
 
         return function (req, res:express.Response, next:Function):any
         {
@@ -146,7 +147,11 @@ class AuthenticationDelegate
                 if (isAjax)
                     return res.json(200, {valid: isLoggedIn});
                 else
+                {
+                    if (options.setReturnTo)
+                        req.session[ApiConstants.RETURN_TO] = req.url;
                     return res.redirect(DashboardUrls.login());
+                }
             }
         }
     }
@@ -190,10 +195,14 @@ class AuthenticationDelegate
                     {
                         req.logIn(matchingUser, function ()
                         {
+                            var returnToUrl:string = req.session[ApiConstants.RETURN_TO];
+                            req.session[ApiConstants.RETURN_TO] = null;
                             if (isAjax)
                                 res.json(200, {valid: true});
                             else if (options.successRedirect)
                                 res.redirect(options.successRedirect);
+                            else if (returnToUrl)
+                                res.redirect(returnToUrl);
                             else
                                 next();
                         });

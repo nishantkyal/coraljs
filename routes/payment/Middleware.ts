@@ -19,6 +19,7 @@ class Middleware
         var duration:number = parseInt(req.body[ApiConstants.DURATION]) || sessionData.getDuration();
         var appointments = req.body[ApiConstants.START_TIME] || sessionData.getAppointments();
         var isCallNow = req.body[ApiConstants.CALL_NOW] || sessionData.getCallNow();
+        var userGmtOffset = parseInt(req.body[ApiConstants.USER_GMT_OFFSET]) || sessionData.getUserGmtOffset();
 
         if (!Utils.isNullOrEmpty(appointments) && Utils.getObjectType(appointments) == 'Array')
             appointments = _.map(appointments, function (time:any) { return parseInt(time); });
@@ -29,6 +30,7 @@ class Middleware
         sessionData.setDuration(duration);
         sessionData.setAppointments(appointments);
         sessionData.setCallNow(isCallNow);
+        sessionData.setUserGmtOffset(userGmtOffset);
 
         if (!Utils.isNullOrEmpty(callerPhone)
             && !Utils.isNullOrEmpty(agenda) && !Utils.isNullOrEmpty(duration)

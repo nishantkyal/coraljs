@@ -49,6 +49,7 @@ class ApiConstants
     static PHONE:string                                 = 'phone';
     static AGENDA:string                                = 'agenda';
     static CALL_NOW:string                              = 'call-now';
+    static USER_GMT_OFFSET:string                       = 'userGmtOffset';
     static FETCH_BASIC:string                           = 'fetchBasic';
     static FETCH_EDUCATION:string                       = 'fetchEducation';
     static FETCH_EMPLOYMENT:string                      = 'fetchEmployment';

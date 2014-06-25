@@ -24,6 +24,8 @@ class SessionData extends AbstractSessionData
     private static COUNTRY_CODE:string                  = 'country_code';
     private static CALLER_PHONE:string                  = 'caller_phone';
     private static AGENDA:string                        = 'agenda';
+    private static EXPERT_GMT_OFFSET                    = 'expertGmtOffset';
+    private static USER_GMT_OFFSET                      = 'userGmtOffset';
 
     constructor(req)
     {
@@ -44,6 +46,8 @@ class SessionData extends AbstractSessionData
     getCountryCode():number                             { return parseInt(this.getData()[SessionData.COUNTRY_CODE]); }
     getCallerPhone():string                             { return this.getData()[SessionData.CALLER_PHONE]; }
     getAgenda():string                                  { return this.getData()[SessionData.AGENDA]; }
+    getExpertGmtOffset():number                         { return this.getData()[SessionData.EXPERT_GMT_OFFSET]}
+    getUserGmtOffset():number                           { return this.getData()[SessionData.USER_GMT_OFFSET]}
 
     /* Setters */
     setCall(val:PhoneCall)                              { this.set(SessionData.CALL, val && val.toJson ? val.toJson() : val); }
@@ -56,6 +60,8 @@ class SessionData extends AbstractSessionData
     setCountryCode(val:number)                          { this.set(SessionData.COUNTRY_CODE, val); }
     setCallerPhone(val:string)                          { this.set(SessionData.CALLER_PHONE, val); }
     setAgenda(val:string)                               { this.set(SessionData.AGENDA, val); }
+    setExpertGmtOffset(val:number)                      { this.set(SessionData.EXPERT_GMT_OFFSET, val); }
+    setUserGmtOffset(val:number)                        { this.set(SessionData.USER_GMT_OFFSET, val); }
 
     computeAvailability()
     {

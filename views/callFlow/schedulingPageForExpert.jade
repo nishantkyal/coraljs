@@ -60,10 +60,16 @@ head
                                     i.icon-scheduler
                                     | Requested Time Slots
                                 ul
-                                    for slot in startTimes
-                                        li
-                                            .checkbox(name='checkbox', data-id=slot)
-                                            span= formatDate(slot)
+                                    if startTimes.length == 3
+                                        for slot in startTimes
+                                            li
+                                                .checkbox(name='checkbox', data-id=slot)
+                                                span= formatDate(slot,'DD/MM/YYYY hh:mm a') + ' (' +  formatTimezone(expertGmtOffset/1000) + ')'
+                                    else
+                                        for slot in startTimes
+                                            li
+                                                .checkbox(name='checkbox', data-id=slot)
+                                                span= formatDate(slot - userGmtOffset + expertGmtOffset,'DD/MM/YYYY hh:mm a') + ' (' +  formatTimezone(expertGmtOffset/1000) + ')'
                                 .form-group
                                     input.form-control.datepicker#newSlot(name='newSlot', type='text', placeholder='Suggest alternate time slot', readonly=true, style='background-color: white; cursor: default;')
                             .payment-summary.call-inputs
@@ -96,4 +102,5 @@ include ../footer
 script.
     var callId = '!{call.id}';
     var code = '!{code}';
+    var expertGmtOffset = #{expertGmtOffset};
 script(src='/js/app/callFlow/scheduling.js')

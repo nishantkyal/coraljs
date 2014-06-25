@@ -66,7 +66,7 @@ class TwimlOutApi
                 {
                     var pageData = {};
                     pageData['actionURL'] = TwilioUrlDelegate.twimlJoinCall(callId, Credentials.get(Credentials.TWILIO_URI));
-                    pageData['timeLimit'] = call.getDuration() * 60;
+                    pageData['timeLimit'] = call.getDuration();
                     //TODO[ankit] - get TotalDuration of all callFragments and set duration accordingly
                     pageData['phoneNumber'] = call.getExpertPhone().getCompleteNumber();
                     pageData['record'] = (call.getRecorded() == false) ? 'false' : 'true';

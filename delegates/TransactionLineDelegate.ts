@@ -28,8 +28,8 @@ class TransactionLineDelegate extends BaseDaoDelegate
 
     getPhoneCallTransactionLines(call:PhoneCall, transactionId?:number):TransactionLine[]
     {
-        var callPrice = call.getPricePerMin() * call.getDuration();
-        var networkCharges = call.getDuration() * Config.get(Config.CALL_NETWORK_CHARGES_PER_MIN_DOLLAR);
+        var callPrice = call.getPricePerMin() * call.getDuration()/60;
+        var networkCharges = call.getDuration()/60 * Config.get(Config.CALL_NETWORK_CHARGES_PER_MIN_DOLLAR);
         var tax = (callPrice + networkCharges) * Config.get(Config.CALL_TAX_PERCENT) / 100;
 
         var phoneCallTransactionLine = new TransactionLine();

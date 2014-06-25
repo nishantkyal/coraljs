@@ -249,6 +249,7 @@ div.modal.fade#scheduler
 include ../footer
 script.
     var schedules = JSON.parse( '!{JSON.stringify(user.schedule)}' );
+    var expertGmtOffset = #{expertGmtOffset};
     var exceptions = JSON.parse( '!{JSON.stringify(exception)}' );
     var duration = parseInt('#{duration}') || 15;
     var selectedTimeSlots = [];
