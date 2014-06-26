@@ -84,7 +84,7 @@ class ScheduleDelegate
                     while (t = interval.next())
                     {
                         var expertSchedule = new Schedule();
-                        expertSchedule.setStartTime(moment(t).add({millis: gmtOffsetInMillis}).valueOf());
+                        expertSchedule.setStartTime(moment(t).subtract({milliseconds: gmtOffsetInMillis}).valueOf());
                         expertSchedule.setDuration(rule.getDuration());
                         expertSchedule.setScheduleRuleId(rule.getId());
                         expertSchedule.setPricingSchemeId(rule.getPricingSchemeId());

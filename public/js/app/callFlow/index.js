@@ -2,10 +2,6 @@
 var userGmtOffset = new Date().getTimezoneOffset() * -60 * 1000;
 
 schedules = schedules || [moment()];
-schedules = _.map(schedules, function(schedule){
-    schedule.start_time += userGmtOffset - expertGmtOffset;
-    return schedule;
-})
 var timeSlotsByDate = _.groupBy(schedules, function(schedule) { return moment(schedule.start_time).format('DD-MM-YYYY') });
 var exceptionsByDate = _.groupBy(exceptions, function(exception) { return moment(exception.start_time).format('DD-MM-YYYY') });
 
@@ -148,7 +144,7 @@ function proceedToPayment()
         '<input type="hidden" name="userGmtOffset" value="' + userGmtOffset + '">' +
         _.map(selectedTimeSlots, function(slot)
         {
-            return '<input type="hidden" name="startTime" value="' + (slot + expertGmtOffset - userGmtOffset) + '">';
+            return '<input type="hidden" name="startTime" value="' + (slot) + '">';
         }).join('') +
         '</form>');
 

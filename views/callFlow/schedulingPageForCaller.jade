@@ -63,7 +63,7 @@ head
                                         for slot in startTimes
                                             li
                                                 .checkbox(name='checkbox', data-id=slot)
-                                                span= formatDate(slot - userGmtOffset + expertGmtOffset,'DD/MM/YYYY hh:mm a') + ' (' +  formatTimezone(userGmtOffset/1000) + ')'
+                                                span= formatDate(slot - expertGmtOffset + userGmtOffset,'DD/MM/YYYY hh:mm a') + ' (' +  formatTimezone(userGmtOffset/1000) + ')'
                                     h3 Or Suggest another time convenient to you
                                     .input-group.date.datepicker
                                         input.form-control.datepicker#newSlot(type='text', name='newSlot', placeholder='Suggest alternate time slot', readonly=true, style='background-color: white; cursor: default;')
