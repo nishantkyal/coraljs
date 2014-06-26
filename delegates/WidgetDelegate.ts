@@ -228,5 +228,26 @@ class WidgetDelegate extends BaseDaoDelegate
             });
     }
 
+    createAllWidgets(userId:number):q.Promise<any>
+    {
+        var small_widget:Widget = new Widget();
+        small_widget.setTemplate('small_widget')
+        small_widget.setUserId(userId);
+
+        var tiny_widget:Widget = new Widget();
+        tiny_widget.setTemplate('tiny_widget')
+        tiny_widget.setUserId(userId);
+
+        var tall_widget:Widget = new Widget();
+        tall_widget.setTemplate('tall_widget')
+        tall_widget.setUserId(userId);
+
+        return q.all([
+            this.create(small_widget),
+            this.create(tall_widget),
+            this.create(tiny_widget)
+        ])
+    }
+
 }
 export = WidgetDelegate

@@ -295,7 +295,7 @@ class DashboardRoute
                     'coupons': coupons
                 });
 
-                self.logger.debug('Rendering network page, data: %s', JSON.stringify(pageData));
+                //self.logger.debug('Rendering network page, data: %s', JSON.stringify(pageData));
                 res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
                 res.render(DashboardRoute.PAGE_INTEGRATION, pageData);
             })

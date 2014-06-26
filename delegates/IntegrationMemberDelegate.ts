@@ -5,6 +5,7 @@ import Utils                                        = require('../common/Utils')
 import BaseDaoDelegate                              = require('../delegates/BaseDaoDelegate');
 import MysqlDelegate                                = require('../delegates/MysqlDelegate');
 import IntegrationDelegate                          = require('../delegates/IntegrationDelegate');
+import WidgetDelegate                               = require('../delegates/WidgetDelegate');
 import IntegrationMemberRole                        = require('../enums/IntegrationMemberRole');
 import IncludeFlag                                  = require('../enums/IncludeFlag');
 import Integration                                  = require('../models/Integration');
@@ -16,6 +17,7 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
 {
     private integrationDelegate = new IntegrationDelegate();
     private userDelegate;
+    private widgetDelegate = new WidgetDelegate();
 
     constructor()
     {
@@ -36,7 +38,10 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
         // 3. Try fetching details from linkedin
         // Note: Not doing all this in transaction since it's a pretty long operation and lock wait times out
         //      Steps 2 and 3 are performed in their own transactions anyway
-        return super.create(integrationMember, dbTransaction);
+        return q.all([
+            super.create(integrationMember, dbTransaction),
+            self.widgetDelegate.createAllWidgets(integrationMember.getUserId())
+            ]);
     }
 
     findValidAccessToken(accessToken:string, integrationMemberId?:string, role?:IntegrationMemberRole):q.Promise<any>
