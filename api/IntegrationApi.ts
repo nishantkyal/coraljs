@@ -1,4 +1,5 @@
 import q                                            = require('q');
+import fs                                           = require('fs');
 import express                                      = require('express');
 import ApiConstants                                 = require('../enums/ApiConstants');
 import AuthenticationDelegate                       = require('../delegates/AuthenticationDelegate');
@@ -8,11 +9,13 @@ import IntegrationMemberDelegate                    = require('../delegates/Inte
 import MysqlDelegate                                = require('../delegates/MysqlDelegate');
 import NotificationDelegate                         = require('../delegates/NotificationDelegate');
 import VerificationCodeDelegate                     = require('../delegates/VerificationCodeDelegate');
+import ImageDelegate                                = require('../delegates/ImageDelegate');
 import Integration                                  = require('../models/Integration');
 import IntegrationMember                            = require('../models/IntegrationMember');
 import User                                         = require('../models/User');
 import AccessControl                                = require('../middleware/AccessControl');
 import Utils                                        = require('../common/Utils');
+import Config                                       = require('../common/Config');
 import IncludeFlag                                  = require('../enums/IncludeFlag');
 import IntegrationMemberRole                        = require('../enums/IntegrationMemberRole');
 
@@ -24,6 +27,7 @@ class IntegrationApi
     private integrationDelegate = new IntegrationDelegate();
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private verificationCodeDelegate = new VerificationCodeDelegate();
+    private imageDelegate = new ImageDelegate();
 
     constructor(app, secureApp)
     {
@@ -135,6 +139,31 @@ class IntegrationApi
                 );
             else
                 res.json(self.integrationDelegate.getAll());
+        });
+
+        app.get(ApiUrlDelegate.integrationLogo(), function (req:express.Request, res)
+        {
+            var integrationId:number = parseInt(req.params[ApiConstants.INTEGRATION_ID]);
+            if (fs.existsSync(Config.get(Config.LOGO_PATH) + integrationId))
+                res.sendfile(integrationId, {root: Config.get(Config.LOGO_PATH)});
+            else
+                res.redirect('/img/no_photo-icon.gif');
+        });
+
+        app.post(ApiUrlDelegate.integrationLogo(), AuthenticationDelegate.checkLogin(), express.bodyParser({uploadDir: Config.get(Config.LOGO_PATH)}), function (req:express.Request, res:express.Response)
+        {
+            var uploadedFile = req.files['image'];
+            var integrationId = parseInt(req.params[ApiConstants.INTEGRATION_ID]);
+            var newImagePath:string = Config.get(Config.LOGO_PATH) + integrationId;
+
+            self.imageDelegate.move(uploadedFile.path, newImagePath)
+                .then(
+                function uploadComplete()
+                {
+                    res.json({url: ApiUrlDelegate.integrationLogo(integrationId)});
+                },
+                function uploadError(error) { res.send(500); }
+            );
         });
 
     }

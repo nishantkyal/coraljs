@@ -38,6 +38,7 @@ class ApiUrlDelegate
     static integration():string { return this.get('/rest/integration'); }
     static integrationById(integrationId?:number):string { return this.get('/rest/integration/:integrationId(\\d+)', {integrationId: integrationId}); }
     static integrationSecretReset(integrationId?:number):string { return this.get('/rest/integration/:integrationId(\\d+)/secret/reset', {integrationId: integrationId}); }
+    static integrationLogo(integrationId?:number, baseUrl?:string):string { return this.get('/rest/integration/:integrationId(\\d+)/logo', {integrationId: integrationId}, baseUrl); }
 
     /* URL patterns for members */
     static integrationMember(integrationId?:number):string { return this.get('/rest/integration/:integrationId(\\d+)/member', {integrationId: integrationId}); }

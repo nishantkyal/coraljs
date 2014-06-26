@@ -135,6 +135,19 @@ title SearchNTalk - DashBoard
                                                                 td= coupon.expert_resource_id
                                                                 td= CouponType[coupon.coupon_type]
                                                                 td #{coupon.num_used} / #{coupon.max_coupons || 'Unlimited'}
+                        .card#members
+                            .header
+                                .title
+                                    h1 Network Logo
+                                hr
+                                .clearer
+                                .item
+                                    .row
+                                        img(src=ApiUrlDelegate.integrationLogo(members[0].integration_id), width='120', height = '120')
+                                    a.btn.btn-success.btn-xs#selectFileBtn Upload
+                                    form#fileUploadForm(action=ApiUrlDelegate.integrationLogo(members[0].integration_id), method="post", enctype="multipart/form-data")
+                                        input#selectFile(type='file', name='profile', style='display: none')
+                                        input#selectFileSubmit(type='submit', style='display: none')
                         .card#couponDetailsCard(style='display: none;')
                             form#couponDetailsForm
                                 input(type="hidden", name="id")
@@ -195,3 +208,4 @@ script.
     var integrationId = '!{selectedMember.integration.id}';
     var coupons = JSON.parse('!{JSON.stringify(coupons)}');
 script(src='/js/app/dashboard/integration.js')
+script(src='/js/app/dashboard/fileUpload.js')
