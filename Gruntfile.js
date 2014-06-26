@@ -17,6 +17,7 @@ function init(grunt) {
     grunt.loadNpmTasks('grunt-bumpup');
     grunt.loadNpmTasks('grunt-prompt');
     grunt.loadNpmTasks('grunt-git');
+    grunt.loadNpmTasks('grunt-contrib-watch');
 
     grunt.initConfig({
         "rename": {
@@ -152,6 +153,12 @@ function init(grunt) {
         },
         "sync-changeLog": {
             "target": {}
+        },
+        "watch": {
+            "typescript": {
+                "files": ["*/**/*.ts", "!node_modules/*/*"],
+                "tasks": ["typescript"]
+            }
         }
     });
 
@@ -226,4 +233,3 @@ function init(grunt) {
 }
 
 module.exports = init;
-//# sourceMappingURL=Gruntfile.js.map

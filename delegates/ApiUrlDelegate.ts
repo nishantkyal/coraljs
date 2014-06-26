@@ -1,6 +1,7 @@
 ///<reference path='../_references.d.ts'/>
 import url                                      = require('url');
 import Utils                                    = require('../common/Utils');
+
 /*
  * Class to hold all API URLs
  * Used to keep API URLs consistent between SearchNTalk and Coral

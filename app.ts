@@ -179,6 +179,7 @@ app.configure('production', function ()
 });
 
 app.set('port', Config.get(Config.DASHBOARD_HTTP_PORT));
+
 app.listen(app.get('port'), function ()
 {
     var scheduledTaskDelegate = ScheduledTaskDelegate.getInstance();

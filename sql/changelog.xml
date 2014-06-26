@@ -652,9 +652,6 @@
     <changeSet author="Ankit (generated)" id="1403530301624-7">
         <dropColumn columnName="integration_member_id" tableName="expert_schedule_exception"/>
     </changeSet>
-    <changeSet author="Ankit (generated)" id="1403530301624-8">
-        <dropIndex indexName="expert_id_idx" tableName="call"/>
-    </changeSet>
     <changeSet author="Ankit (generated)" id="1403530301624-9">
         <modifyDataType columnName="amount" newDataType="decimal(7,2)" tableName="transaction_line"/>
     </changeSet>

@@ -1,0 +1,5 @@
+id,transaction_type
+"1","Prepaid recharge"
+"2","Withdrawal"
+"3","Incoming call"
+"4","Outgoing call"
