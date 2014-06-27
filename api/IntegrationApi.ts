@@ -59,7 +59,7 @@ class IntegrationApi
                 {
                     // Send member added email
                     // Send password reset code if new user
-                    if (loggedInUser.getId() != member.getUser().getId())
+                    if (!member.getUser().getId())
                         return [
                             integration, 
                             self.verificationCodeDelegate.createPasswordResetCode(loggedInUser.getEmail())

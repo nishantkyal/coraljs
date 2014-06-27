@@ -2,74 +2,74 @@
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
     
     <!-- Ref table data -->
-    <changeSet failOnError="false" runAlways="true" author='Nishant' id='1403776797651-4'>
+    <changeSet failOnError="false" runAlways="true" runOnChange="true" author='Nishant' id='1403776797653-4'>
         <loadUpdateData primaryKey="id" encoding='utf-8' file='sql\data\ref_agent_type.csv' separator=',' quotchar='"' tableName='ref_agent_type'>
         </loadUpdateData>
     </changeSet>
-    <changeSet failOnError="false" runAlways="true" author='Nishant' id='1403776797651-5'>
+    <changeSet failOnError="false" runAlways="true" runOnChange="true" author='Nishant' id='1403776797653-5'>
         <loadUpdateData primaryKey="id" encoding='utf-8' file='sql\data\ref_call_fragment_status.csv' separator=',' quotchar='"' tableName='ref_call_fragment_status'>
         </loadUpdateData>
     </changeSet>
-    <changeSet failOnError="false" runAlways="true" author='Nishant' id='1403776797651-6'>
+    <changeSet failOnError="false" runAlways="true" runOnChange="true" author='Nishant' id='1403776797653-6'>
         <loadUpdateData primaryKey="id" encoding='utf-8' file='sql\data\ref_call_status.csv' separator=',' quotchar='"' tableName='ref_call_status'>
         </loadUpdateData>
     </changeSet>
-    <changeSet failOnError="false" runAlways="true" author='Nishant' id='1403776797651-7'>
+    <changeSet failOnError="false" runAlways="true" runOnChange="true" author='Nishant' id='1403776797653-7'>
         <loadUpdateData primaryKey="id" encoding='utf-8' file='sql\data\ref_coupon_type.csv' separator=',' quotchar='"' tableName='ref_coupon_type'></loadUpdateData>
     </changeSet>
-    <changeSet failOnError="false" runAlways="true" author='Nishant' id='1403776797651-8'>
+    <changeSet failOnError="false" runAlways="true" runOnChange="true" author='Nishant' id='1403776797653-8'>
         <loadUpdateData primaryKey="id" encoding='utf-8' file='sql\data\ref_industry_codes.csv' separator=',' quotchar='"' tableName='ref_industry_codes'></loadUpdateData>
     </changeSet>
-    <changeSet failOnError="false" runAlways="true" author='Nishant' id='1403776797651-9'>
+    <changeSet failOnError="false" runAlways="true" runOnChange="true" author='Nishant' id='1403776797653-9'>
         <loadUpdateData primaryKey="id" encoding='utf-8' file='sql\data\ref_integration_role.csv' separator=',' quotchar='"' tableName='ref_integration_role'></loadUpdateData>
     </changeSet>
-    <changeSet failOnError="false" runAlways="true" author='Nishant' id='1403776797651-10'>
+    <changeSet failOnError="false" runAlways="true" runOnChange="true" author='Nishant' id='1403776797653-10'>
         <loadUpdateData primaryKey="id" encoding='utf-8' file='sql\data\ref_integration_status.csv' separator=',' quotchar='"' tableName='ref_integration_status'></loadUpdateData>
     </changeSet>
-    <changeSet failOnError="false" runAlways="true" author='Nishant' id='1403776797651-11'>
+    <changeSet failOnError="false" runAlways="true" runOnChange="true" author='Nishant' id='1403776797653-11'>
         <loadUpdateData primaryKey="id" encoding='utf-8' file='sql\data\ref_integration_type.csv' separator=',' quotchar='"' tableName='ref_integration_type'></loadUpdateData>
     </changeSet>
-    <changeSet failOnError="false" runAlways="true" author='Nishant' id='1403776797651-12'>
+    <changeSet failOnError="false" runAlways="true" runOnChange="true" author='Nishant' id='1403776797653-12'>
         <loadUpdateData primaryKey="id" encoding='utf-8' file='sql\data\ref_item_type.csv' separator=',' quotchar='"' tableName='ref_item_type'></loadUpdateData>
     </changeSet>
-    <changeSet failOnError="false" runAlways="true" author='Nishant' id='1403776797651-13'>
+    <changeSet failOnError="false" runAlways="true" runOnChange="true" author='Nishant' id='1403776797653-13'>
         <loadUpdateData primaryKey="id" encoding='utf-8' file='sql\data\ref_keywords.csv' separator=',' quotchar='"' tableName='ref_keywords'></loadUpdateData>
     </changeSet>
-    <changeSet failOnError="true" runAlways="true" author='Nishant' id='1403776797651-14'>
+    <changeSet failOnError="true" runAlways="true" runOnChange="true" author='Nishant' id='1403776797653-14'>
         <loadUpdateData primaryKey="id" encoding='utf-8' file='sql\data\ref_money_unit.csv' separator=',' quotchar='"' tableName='ref_money_unit'></loadUpdateData>
     </changeSet>
-    <changeSet failOnError="false" runAlways="true" author='Nishant' id='1403776797651-15'>
+    <changeSet failOnError="false" runAlways="true" runOnChange="true" author='Nishant' id='1403776797653-15'>
         <loadUpdateData primaryKey="id" encoding='utf-8' file='sql\data\ref_oauth_providers.csv' separator=',' quotchar='"' tableName='ref_oauth_providers'></loadUpdateData>
     </changeSet>
-    <changeSet failOnError="false" runAlways="true" author='Nishant' id='1403776797651-16'>
+    <changeSet failOnError="false" runAlways="true" runOnChange="true" author='Nishant' id='1403776797653-16'>
         <loadUpdateData primaryKey="id" encoding='utf-8' file='sql\data\ref_payment_status.csv' separator=',' quotchar='"' tableName='ref_payment_status'></loadUpdateData>
     </changeSet>
-    <changeSet failOnError="false" runAlways="true" author='Nishant' id='1403776797651-17'>
+    <changeSet failOnError="false" runAlways="true" runOnChange="true" author='Nishant' id='1403776797653-17'>
         <loadUpdateData primaryKey="id" encoding='utf-8' file='sql\data\ref_salutation.csv' separator=',' quotchar='"' tableName='ref_salutation'></loadUpdateData>
     </changeSet>
-    <changeSet failOnError="false" runAlways="true" author='Nishant' id='1403776797651-18'>
+    <changeSet failOnError="false" runAlways="true" runOnChange="true" author='Nishant' id='1403776797653-18'>
         <loadUpdateData primaryKey="id" encoding='utf-8' file='sql\data\ref_service_request_type.csv' separator=',' quotchar='"' tableName='ref_service_request_type'></loadUpdateData>
     </changeSet>
-    <changeSet failOnError="false" runAlways="true" author='Nishant' id='1403776797651-19'>
+    <changeSet failOnError="false" runAlways="true" runOnChange="true" author='Nishant' id='1403776797653-19'>
         <loadUpdateData primaryKey="id" encoding='utf-8' file='sql\data\ref_transaction_type.csv' separator=',' quotchar='"' tableName='ref_transaction_type'></loadUpdateData>
     </changeSet>
-    <changeSet failOnError="false" runAlways="true" author='Nishant' id='1403776797651-20'>
+    <changeSet failOnError="false" runAlways="true" runOnChange="true" author='Nishant' id='1403776797653-20'>
         <loadUpdateData primaryKey="id" encoding='utf-8' file='sql\data\ref_user_title.csv' separator=',' quotchar='"' tableName='ref_user_title'></loadUpdateData>
     </changeSet>
 
     <!-- Time zone data -->
-    <changeSet failOnError="true" runAlways="true" author='Nishant' id='1403776797651-21'>
+    <changeSet failOnError="true" runAlways="true" runOnChange="true" author='Nishant' id='1403776797653-21'>
         <loadUpdateData primaryKey="id" encoding='utf-8' file='sql\data\timezone.csv' separator=',' quotchar='"' tableName='timezone'></loadUpdateData>
     </changeSet>
-    <changeSet failOnError="false" runAlways="true" author='Nishant' id='1403776797651-22'>
+    <changeSet failOnError="false" runAlways="true" runOnChange="true" author='Nishant' id='1403776797653-22'>
         <loadUpdateData primaryKey="id" encoding='utf-8' file='sql\data\zone.csv' separator=',' quotchar='"' tableName='zone'></loadUpdateData>
     </changeSet>
-    <changeSet failOnError="false" runAlways="true" author='Nishant' id='1403776797651-23'>
+    <changeSet failOnError="false" runAlways="true" runOnChange="true" author='Nishant' id='1403776797653-23'>
         <loadUpdateData primaryKey="id" encoding='utf-8' file='sql\data\country.csv' separator=',' quotchar='"' tableName='country'></loadUpdateData>
     </changeSet>
 
     <!-- Default user and integration -->
-    <changeSet failOnError="false" runAlways="true" author="Nishant" id="1403776797651-1">
+    <changeSet failOnError="false" runAlways="true" runOnChange="true" author="Nishant" id="1403776797653-1">
         <loadUpdateData primaryKey="id" encoding="utf-8"
         	file="sql\data\integration.csv"
         	separator=","
@@ -77,7 +77,7 @@
         	tableName="integration">
         </loadUpdateData>
     </changeSet>
-    <changeSet failOnError="false" runAlways="true" author="Nishant" id="1403776797651-2">
+    <changeSet failOnError="false" runAlways="true" runOnChange="true" author="Nishant" id="1403776797653-2">
         <loadUpdateData primaryKey="id" encoding="utf-8"
             file="sql\data\user.csv"
             separator=","
@@ -85,7 +85,7 @@
             tableName="user">
         </loadUpdateData>
     </changeSet>
-    <changeSet failOnError="false" runAlways="true" author="Nishant" id="1403776797651-3">
+    <changeSet failOnError="false" runAlways="true" runOnChange="true" author="Nishant" id="1403776797653-3">
         <loadUpdateData primaryKey="id" encoding="utf-8"
             file="sql\data\integration_member.csv"
             separator=","
