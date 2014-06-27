@@ -72,7 +72,7 @@ class ExpertApi
                         .then(
                         function expertCreated(member:IntegrationMember)
                         {
-                            return [member, self.notificationDelegate.sendExpertRegistrationCompleteNotification(member)];
+                            return [member, self.notificationDelegate.sendMemberAddedNotification(member)];
                         })
                         .spread(
                         function welcomeEmailSent(member:IntegrationMember)

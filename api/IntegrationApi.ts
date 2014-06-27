@@ -28,15 +28,13 @@ class IntegrationApi
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private verificationCodeDelegate = new VerificationCodeDelegate();
     private imageDelegate = new ImageDelegate();
+    private notificationDelegate = new NotificationDelegate();
 
     constructor(app, secureApp)
     {
         var self = this;
 
-        /*
-         * Create integration
-         * Allow only searchntalk.com admin
-         */
+        /* Create integration and send email to admin */
         app.put(ApiUrlDelegate.integration(), AuthenticationDelegate.checkLogin(), function (req:express.Request, res:express.Response)
         {
             var integration = req.body[ApiConstants.INTEGRATION];
@@ -52,16 +50,39 @@ class IntegrationApi
                     integrationMember.setUserId(loggedInUser.getId());
 
                     return [integration, q.all([
-                        self.integrationDelegate.updateCache(),
-                        self.integrationMemberDelegate.create(integrationMember)
+                        self.integrationMemberDelegate.create(integrationMember),
+                        self.integrationDelegate.updateCache()
                     ])];
                 })
                 .spread(
-                function memberCreated(integration)
+                function memberCreated(integration:Integration, member:IntegrationMember)
+                {
+                    // Send member added email
+                    // Send password reset code if new user
+                    if (loggedInUser.getId() != member.getUser().getId())
+                        return [
+                            integration, 
+                            self.verificationCodeDelegate.createPasswordResetCode(loggedInUser.getEmail())
+                                .then(
+                                function codeCreated(code:string)
+                                {
+                                    member.setIntegration(integration);
+                                    return self.notificationDelegate.sendMemberAddedNotification(member, code)
+                                })
+                        ];   
+                    else
+                        return [integration, self.notificationDelegate.sendMemberAddedNotification(member)];
+                })
+                .spread(
+                function resetPasswordEmailSent(integration)
                 {
                     res.json(integration.toJson());
+                })   
+                .fail(
+                function (error) 
+                { 
+                    res.status(500).json(error);
                 })
-                .fail(function (error) { res.status(500).json(error);})
         });
 
         /* Delete integration */

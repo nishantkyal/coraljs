@@ -4,6 +4,7 @@ import AccessControl                                        = require('../middle
 import AuthenticationDelegate                               = require('../delegates/AuthenticationDelegate');
 import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
 import VerificationCodeDelegate                             = require('../delegates/VerificationCodeDelegate');
+import NotificationDelegate                                 = require('../delegates/NotificationDelegate');
 import EmailDelegate                                        = require('../delegates/EmailDelegate');
 import UserDelegate                                         = require('../delegates/UserDelegate');
 import UserPhoneDelegate                                    = require('../delegates/UserPhoneDelegate');
@@ -22,6 +23,7 @@ class TokenApi
         var verificationCodeDelegate = new VerificationCodeDelegate();
         var userDelegate = new UserDelegate();
         var userPhoneDelegate = new UserPhoneDelegate();
+        var notificationDelegate = new NotificationDelegate();
 
         /* Create mobile verification code */
         app.post(ApiUrlDelegate.mobileVerificationCode(), AuthenticationDelegate.checkLogin(), function (req:express.Request, res:express.Response)
@@ -128,7 +130,24 @@ class TokenApi
                 function userFound(user:User)
                 {
                     if (!Utils.isNullOrEmpty(user) && user.isValid())
-                        verificationCodeDelegate.createAndSendPasswordResetCode(email)
+                        return verificationCodeDelegate.createPasswordResetCode(email);
+                    else
+                        throw new Error("No such user exists");
+                })
+                .then(
+                function codeCreated(code:string)
+                {
+                    return notificationDelegate.sendPasswordResetNotification(email, code);
+                })
+                .then(
+                function codeSent()
+                {
+                    res.send(200);
+                })
+                .fail(
+                function handleError(error)
+                {
+                    res.json(400, error);
                 });
         });
 
