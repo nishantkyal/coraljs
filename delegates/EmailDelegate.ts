@@ -11,7 +11,7 @@ import watch                                                        = require('w
 import User                                                         = require('../models/User')
 import Integration                                                  = require('../models/Integration')
 import IntegrationMember                                            = require('../models/IntegrationMember')
-import Schedule                                               = require('../models/Schedule');
+import Schedule                                                     = require('../models/Schedule');
 import PhoneCall                                                    = require('../models/PhoneCall');
 import ApiConstants                                                 = require('../enums/ApiConstants');
 import CallStatus                                                   = require('../enums/CallStatus');
@@ -43,6 +43,7 @@ class EmailDelegate
     private static EMAIL_TEST:string                                = 'EMAIL_TEST';
     private static EMAIL_PASSWORD_RESET:string                      = 'EMAIL_PASSWORD_RESET';
     private static EMAIL_EXPERT_INVITE:string                       = 'EMAIL_EXPERT_INVITE';
+    private static EMAIL_MEMBER_ADDED:string                        = 'EMAIL_MEMBER_ADDED';
     private static EMAIL_EXPERT_WELCOME:string                      = 'EMAIL_EXPERT_WELCOME';
     private static EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION:string   = 'EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION';
     private static EMAIL_EXPERT_SCHEDULING:string                   = 'EMAIL_EXPERT_SCHEDULING';
@@ -447,6 +448,34 @@ class EmailDelegate
             return self.phoneCallDelegate.get(call).then(self.sendCallFailureEmail);
 
         return q.resolve('OK');//TODO[ankit] create email
+    }
+
+    sendMemberAddedEmail(member:IntegrationMember, passwordResetCode?:string):q.Promise<any>
+    {
+        var self = this;
+        var getStartedUrl:string;
+
+        if (!Utils.isNullOrEmpty(passwordResetCode))
+        {
+            getStartedUrl = url.resolve(Config.get(Config.DASHBOARD_URI), DashboardUrls.forgotPassword());
+            var query = {};
+            query[ApiConstants.CODE] = passwordResetCode;
+            getStartedUrl = Utils.addQueryToUrl(getStartedUrl, query);
+        }
+        else
+        {
+            getStartedUrl = url.resolve(Config.get(Config.DASHBOARD_URI), DashboardUrls.integration());
+            var query = {};
+            query[ApiConstants.INTEGRATION_ID] = member.getIntegrationId();
+            getStartedUrl = Utils.addQueryToUrl(getStartedUrl, query);
+        }
+        
+        var emailData = {
+            member: member,
+            getStartedUrl: getStartedUrl
+        };
+
+        return self.composeAndSend(EmailDelegate.EMAIL_MEMBER_ADDED, member.getUser().getEmail(), emailData);
     }
 
     sendAccountVerificationEmail(user:User, verificationCode:string):q.Promise<any>

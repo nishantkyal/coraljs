@@ -28,6 +28,7 @@
         "grunt-contrib-cssmin": "*",
         "grunt-contrib-jade": "*",
         "grunt-contrib-uglify": "*",
+        "grunt-contrib-watch":"*",
         "grunt-git": "*",
         "grunt-promise-q": "*",
         "grunt-prompt": "*",

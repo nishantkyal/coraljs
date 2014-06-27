@@ -117,5 +117,10 @@ class NotificationDelegate
 
         return self.emailDelegate.sendExpertRegistrationCompleteEmail(expert);
     }
+
+    sendMemberAddedNotification(member:IntegrationMember, passwordResetCode?:string):q.Promise<any>
+    {
+        return this.emailDelegate.sendMemberAddedEmail(member, passwordResetCode);
+    }
 }
 export = NotificationDelegate

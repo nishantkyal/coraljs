@@ -219,18 +219,13 @@ class VerificationCodeDelegate
         return CacheHelper.del('ev-' + code);
     }
 
-    createAndSendPasswordResetCode(email:string):q.Promise<any>
+    createPasswordResetCode(email:string):q.Promise<any>
     {
         var code:string = Utils.getRandomString(10);
         var self = this;
         var secondsInAnHr:number = 60 * 60;
 
-        return CacheHelper.set('pr-' + code, email, secondsInAnHr)
-            .then(
-            function codeCreated()
-            {
-                return self.notificationDelegate.sendPasswordResetNotification(email, code);
-            });
+        return CacheHelper.set('pr-' + code, email, secondsInAnHr);
     }
 
     verifyCodeAndResetPassword(code:string, password:string):q.Promise<any>
