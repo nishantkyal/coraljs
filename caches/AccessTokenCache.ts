@@ -1,4 +1,3 @@
-///<reference path='../_references.d.ts'/>
 import q                    = require('q');
 import IntegrationMember    = require('../models/IntegrationMember');
 import Config               = require('../common/Config');

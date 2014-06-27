@@ -1,12 +1,8 @@
 ///<reference path='./_references.d.ts'/>
 import _                                            = require('underscore');
 import q                                            = require('q');
-import repl                                         = require('repl');
 import express                                      = require('express');
-var connect                                         = require('connect');
-var RedisStore                                      = require('connect-redis')(connect);
 import connect_flash                                = require("connect-flash");
-import http                                         = require('http');
 import https                                        = require('https');
 import path                                         = require('path');
 import passport                                     = require('passport');
@@ -18,7 +14,6 @@ import Config                                       = require('./common/Config')
 import Formatter                                    = require('./common/Formatter');
 import Utils                                        = require('./common/Utils');
 import ApiUrlDelegate                               = require('./delegates/ApiUrlDelegate');
-import MysqlDelegate                                = require('./delegates/MysqlDelegate');
 import IntegrationDelegate                          = require('./delegates/IntegrationDelegate');
 import ScheduledTaskDelegate                        = require('./delegates/ScheduledTaskDelegate');
 import TimezoneDelegate                             = require('./delegates/TimezoneDelegate');
@@ -38,6 +33,8 @@ import CallFlowUrls                                 = require('./routes/callFlow
 import DashboardUrls                                = require('./routes/dashboard/Urls');
 import PaymentUrls                                  = require('./routes/payment/Urls');
 import MemberRegistrationUrls                       = require('./routes/expertRegistration/Urls');
+var connect                                         = require('connect');
+var RedisStore                                      = require('connect-redis')(connect);
 var pjson                                           = require('./package.json');
 
 log4js.configure('/var/searchntalk/config/log4js.json');
@@ -46,7 +43,7 @@ Config.set(Config.VERSION, pjson['version']);
 var app:express.Application = express();
 
 // View helpers
-var helpers =
+var helpers:Object =
 {
     formatMoney: Formatter.formatMoney,
     formatRole: Formatter.formatRole,
@@ -90,12 +87,12 @@ _.mixin(helpers);
 _.extend(_, helpers);
 
 app.use(
-    function (req:express.Request, res, next)
+    function (req:express.Request, res:express.Response, next:Function)
     {
         // This middleware applies to all urls except
         // 1. APIs (which start with "/rest")
         // 2. Static content (which start with "/js" or "/css" or "/img")
-        var excludeRegex = /^\/(rest|bower_dependencies|css|js|images|img|fonts)/;
+        var excludeRegex:RegExp = /^\/(rest|bower_dependencies|css|js|images|img|fonts)/;
 
         if (Utils.isNullOrEmpty(req.path.match(excludeRegex)))
         {
@@ -105,7 +102,7 @@ app.use(
 
         next();
     }
-)
+);
 
 // all environments
 app.use(express.compress());
@@ -141,7 +138,7 @@ api(app);
 routes(app);
 
 /* Error Pages */
-app.use(function (req, res, next)
+app.use(function (req:express.Request, res:express.Response, next:Function)
 {
     res.status(404);
 
@@ -163,7 +160,7 @@ app.use(function (req, res, next)
     res.type('txt').send('Not found');
 });
 
-app.use(function (err, req, res, next)
+app.use(function (err:any, req:express.Request, res:express.Response, next:Function)
 {
     // we may use properties of the error object
     // here and next(err) appropriately, or if
@@ -182,7 +179,7 @@ app.set('port', Config.get(Config.DASHBOARD_HTTP_PORT));
 
 app.listen(app.get('port'), function ()
 {
-    var scheduledTaskDelegate = ScheduledTaskDelegate.getInstance();
+    var scheduledTaskDelegate:ScheduledTaskDelegate = ScheduledTaskDelegate.getInstance();
 
     // Sync scheduled tasks from cache and create the call scheduler task if doesn't already exist
     log4js.getDefaultLogger().debug('Fetching tasks from redis');
@@ -193,7 +190,7 @@ app.listen(app.get('port'), function ()
         {
             log4js.getDefaultLogger().debug('Tasks synced from redis. Scheduling timezone and call scheduler tasks');
 
-            var newTasks = [scheduledTaskDelegate.scheduleAfter(new TimezoneRefreshTask(), 1)];
+            var newTasks:q.Promise<number>[] = [scheduledTaskDelegate.scheduleAfter(new TimezoneRefreshTask(), 1)];
 
             if (Utils.isNullOrEmpty(scheduledTaskDelegate.find(ScheduledTaskType.CALL_SCHEDULE)))
                 newTasks.push(scheduledTaskDelegate.scheduleAfter(new ScheduleCallsScheduledTask(), 1));
@@ -202,12 +199,13 @@ app.listen(app.get('port'), function ()
         });
 
     scheduledTaskDelegate.on('taskCompletedEvent', function(taskType:ScheduledTaskType){
-        if (taskType == ScheduledTaskType.TIMEZONE_REFRESH)
+        if (taskType === ScheduledTaskType.TIMEZONE_REFRESH)
         {
             log4js.getDefaultLogger().debug('Timezones updated');
             helpers['Timezone'] = TimezoneDelegate.TIMEZONES;
         }
-    })
+    });
+    
     // Update integration cache
     new IntegrationDelegate().updateCache();
 

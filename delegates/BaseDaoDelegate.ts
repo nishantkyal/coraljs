@@ -22,21 +22,20 @@ class BaseDaoDelegate
     constructor(dao:AbstractDao);
     constructor(dao:any)
     {
-        this.dao = Utils.getObjectType(dao) == 'Object' ? dao : new AbstractDao(dao);
+        this.dao = Utils.getObjectType(dao) === 'Object' ? dao : new AbstractDao(dao);
     }
 
     get(id:any, fields?:string[], includes:IncludeFlag[] = [], transaction?:Object):q.Promise<any>
     {
         fields = fields || this.dao.modelClass.DEFAULT_FIELDS;
 
-        if (Utils.getObjectType(id) == 'Array' && id.length > 0)
+        if (Utils.getObjectType(id) === 'Array' && id.length > 0)
             return this.search({'id': id}, fields, includes);
 
-        if (Utils.getObjectType(id) == 'Array' && id.length == 1)
+        if (Utils.getObjectType(id) === 'Array' && id.length === 1)
             id = id[0];
 
 
-        var self = this;
         var rawResult;
 
         // 1. Get the queried object
@@ -60,7 +59,7 @@ class BaseDaoDelegate
                 return q.all(includeTasks);
             })
             .then(
-            function handleIncludesProcessed(...args):any
+            function handleIncludesProcessed(...args:any[]):any
             {
                 for (var i = 0; i < args[0].length; i++)
                     rawResult.set(includes[i], args[0][i]);
@@ -76,7 +75,7 @@ class BaseDaoDelegate
 
     find(search:Object, fields?:string[], includes:IncludeFlag[] = [], transaction?:Object):q.Promise<any>
     {
-        var self = this;
+        var self:BaseDaoDelegate = this;
         var rawResult;
 
         fields = fields || this.dao.modelClass.DEFAULT_FIELDS;
@@ -106,7 +105,6 @@ class BaseDaoDelegate
                 _.each(results, function (resultSet:any, index)
                 {
                     // TODO: Implement foreign keys so mapping can work in search
-                    var foreignKeyColumn = null;
                     rawResult.set(includes[index], _.map(resultSet, function (res)
                     {
                         // return result[foreignKeyColumn] == res['id'] ? res : null;
@@ -123,7 +121,7 @@ class BaseDaoDelegate
      */
     search(search:Object, fields?:string[], includes:IncludeFlag[] = [], transaction?:Object):q.Promise<any>
     {
-        var self = this;
+        var self:BaseDaoDelegate = this;
         var rawResult;
 
         fields = fields || this.dao.modelClass.DEFAULT_FIELDS;
@@ -132,7 +130,7 @@ class BaseDaoDelegate
             .then(
             function processIncludes(result):any
             {
-                if (result.length == 0)
+                if (result.length === 0)
                     return result;
 
                 rawResult = result;
@@ -174,9 +172,9 @@ class BaseDaoDelegate
         if (Utils.isNullOrEmpty(object))
             throw ('Invalid data. Trying to create object with null data');
 
-        var self = this;
+        var self:BaseDaoDelegate = this;
 
-        function prepareData(data)
+        function prepareData(data:BaseModel)
         {
             var generatedId:number = new GlobalIdDelegate().generate(self.dao.modelClass.TABLE_NAME);
             data[BaseModel.ID] = data[BaseModel.ID] || generatedId;
@@ -185,7 +183,7 @@ class BaseDaoDelegate
             return data;
         };
 
-        var newObject = (Utils.getObjectType(object) == 'Array') ? _.map(object, prepareData) : prepareData(object);
+        var newObject:any = (Utils.getObjectType(object) === 'Array') ? _.map(object, prepareData) : prepareData(object);
 
         return this.dao.create(newObject, transaction);
     }
