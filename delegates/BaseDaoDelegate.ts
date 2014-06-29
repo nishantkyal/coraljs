@@ -37,6 +37,7 @@ class BaseDaoDelegate
 
 
         var rawResult;
+        var self = this;
 
         // 1. Get the queried object
         // 2. Parse flags and add handlers to a queue

@@ -38,8 +38,6 @@ class GlobalIDDelegate
         else if (GlobalIDDelegate.sequence >= GlobalIDDelegate.SEQUENCE_MASK)
         {
             // TODO: Wait for next second
-
-
             GlobalIDDelegate.timestamp = now;
             GlobalIDDelegate.sequence = 1;
         }
