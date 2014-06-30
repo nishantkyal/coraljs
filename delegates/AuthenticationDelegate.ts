@@ -47,7 +47,7 @@ class AuthenticationDelegate
     private static ctor = (() =>
     {
         // Oauth strategy
-        AuthenticationDelegate.configureOauthStrategy();
+        //AuthenticationDelegate.configureOauthStrategy();
 
         /* Facebook login */
         AuthenticationDelegate.configureFacebookStrategy(AuthenticationDelegate.STRATEGY_FACEBOOK, url.resolve(Config.get(Config.DASHBOARD_URI), '/login/fb/callback'));
