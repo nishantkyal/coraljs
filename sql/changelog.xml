@@ -670,4 +670,22 @@
     <changeSet author="Ankit (generated)" id="1403530301624-14">
         <addDefaultValue columnDataType="boolean" columnName="recorded" defaultValueNumeric="0" tableName="call"/>
     </changeSet>
+    <changeSet author="Ankit (generated)" id="1404110605688-1">
+        <modifyDataType columnName="deleted" newDataType="boolean" tableName="call_fragment"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1404110605688-2">
+        <modifyDataType columnName="deleted" newDataType="boolean" tableName="email"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1404110605688-3">
+        <modifyDataType columnName="deleted" newDataType="bigint(19)" tableName="transaction"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1404110605688-4">
+        <addDefaultValue columnDataType="bigint(19)" columnName="deleted" defaultValueNumeric="0" tableName="transaction"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1404110605688-5">
+        <modifyDataType columnName="is_current" newDataType="boolean" tableName="user_employment"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1404110605688-6">
+        <modifyDataType columnName="recorded" newDataType="boolean" tableName="call"/>
+    </changeSet>
 </databaseChangeLog>
