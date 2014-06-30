@@ -1258,8 +1258,25 @@ a:hover {
 .alert.alert-warning a {
   color: #f9af18;
 }
+.alert.alert-warning a.btn {
+  color: #ffffff;
+}
 .alert.alert-success a {
   color: #8cc63f;
+}
+.alert.alert-success a.btn {
+  color: #ffffff;
+}
+.alert .align-left {
+  text-align: left;
+}
+.alert .align-right {
+  text-align: right;
+}
+.alert .actions-pane {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 10px 0px;
+  margin-top: 10px;
 }
 .alert-success {
   background: #eeffdc;
@@ -1345,6 +1362,25 @@ a:hover {
 .btn-primary.disabled {
   border-color: #f1a406;
 }
+.btn-success {
+  background: #8cc63f;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #71a230), color-stop(1, #8cc63f));
+  background: -ms-linear-gradient(bottom, #71a230, #8cc63f);
+  background: -moz-linear-gradient(center bottom, #71a230 0%, #8cc63f 100%);
+  background: -o-linear-gradient(#8cc63f, #71a230);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#8cc63f', endColorstr='#71a230', GradientType=0);
+  border-color: #7fb636;
+}
+.btn-success:hover,
+.btn-success:active,
+.btn-success.active,
+.btn-success:focus {
+  background: #7fb636;
+  border-color: #7fb636;
+}
+.btn-success.disabled {
+  border-color: #7fb636;
+}
 .btn-facebook {
   background: #3A519C;
   color: #FFFFFF;
@@ -1401,6 +1437,9 @@ a:hover {
   outline: 0;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(249, 175, 24, 0.6);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(249, 175, 24, 0.6);
+}
+.global-messages {
+  margin-top: 10px;
 }
 .checkbox {
   display: inline-block;
@@ -1734,8 +1773,25 @@ a:hover {
   color: #888888;
 }
 .section-navbar .nav-pills li.active a {
+  position: relative;
   background: rgba(75, 93, 94, 0.5);
   color: #ffffff;
+}
+@media (min-width: 767px) {
+  .section-navbar .nav-pills li.active a {
+    border-right: 40px solid #4b5d5e;
+  }
+  .section-navbar .nav-pills li.active a::after {
+    font-family: "snticons";
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    line-height: 20px;
+    text-align: center;
+    right: -40px;
+    color: #ffffff;
+    content: '\e080';
+  }
 }
 .section-navbar .nav-pills li.active .badge {
   color: #4b5d5e;
@@ -1931,6 +1987,8 @@ a:hover {
   z-index: 9996;
   font-size: 150px;
   line-height: 150px;
+  font-family: 'snticons';
+  content: '\e008';
 }
 .avatar .status {
   position: absolute;
@@ -1958,18 +2016,8 @@ a:hover {
   -moz-box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.25);
   box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.25);
 }
-.avatar .caret {
-  position: absolute;
-  z-index: 10000;
-  bottom: 4px;
-  right: 4px;
-  -webkit-box-shadow: 0px 0px 5px #ffffff;
-  -moz-box-shadow: 0px 0px 5px #ffffff;
-  box-shadow: 0px 0px 5px #ffffff;
-}
 .avatar.avatar-small {
   float: left;
-  margin: 0px 5px 0px 0px;
   width: 40px;
   height: 40px;
 }
@@ -2023,9 +2071,12 @@ a:hover {
 }
 .masthead-controls .masthead-control-field {
   float: left;
-  padding: 10px;
+  padding: 10px 0px;
   margin: 0px 0px 0px 10px;
   position: relative;
+}
+.masthead-controls .masthead-control-field.user-control .caret {
+  bottom: 6px;
 }
 .masthead-controls .info {
   float: left;
@@ -2033,6 +2084,29 @@ a:hover {
 }
 .masthead-controls .avatar {
   float: left;
+}
+.masthead-controls .caret {
+  position: absolute;
+  z-index: 10000;
+  bottom: 11px;
+  right: 4px;
+  color: #888888;
+}
+.masthead-controls .btn {
+  margin: 0px;
+  height: 30px;
+  line-height: 16px;
+}
+.masthead-controls .btn.login {
+  width: 80px;
+}
+.masthead-controls .field-trigger {
+  margin: 5px 0px;
+  height: 30px;
+  color: #4b5d5e;
+}
+.masthead-controls .field-trigger span {
+  margin: 0px 10px 0px 0px;
 }
 .masthead-controls .field-label {
   color: rgba(75, 93, 94, 0.5);
@@ -2052,13 +2126,48 @@ a:hover {
   line-height: 20px;
   color: #4b5d5e;
 }
-.masthead-controls .user-modal {
+.masthead-controls .field-boxedinfo {
+  overflow: hidden;
+  position: relative;
+  margin: 5px 0px;
+  width: 30px;
+  height: 30px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  background: #dddddd;
+  -webkit-box-shadow: 0px 1px 0px #ffffff;
+  -moz-box-shadow: 0px 1px 0px #ffffff;
+  box-shadow: 0px 1px 0px #ffffff;
+}
+.masthead-controls .field-boxedinfo .lang {
+  text-align: center;
+  line-height: 30px;
+  text-transform: uppercase;
+  color: #666;
+}
+.masthead-controls .field-boxedinfo .shadow {
+  position: absolute;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  -webkit-box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.25);
+  -moz-box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.25);
+  box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.25);
+}
+.masthead-controls .field-action {
+  max-width: 240px;
+  margin: 5px 0px;
+}
+.masthead-controls .user-modal,
+.masthead-controls .lang-modal {
   display: none;
   position: absolute;
   z-index: 9999999;
   min-width: 200px;
   top: 55px;
-  right: 15px;
+  right: 0px;
   padding: 10px;
   background: #ffffff;
   -webkit-border-radius: 5px;
@@ -2068,18 +2177,39 @@ a:hover {
   -moz-box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
   box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
 }
-.masthead-controls .user-modal a {
+.masthead-controls .user-modal a,
+.masthead-controls .lang-modal a {
   display: block;
 }
-.masthead-controls .user-modal .field-menu {
+.masthead-controls .user-modal .field-menu,
+.masthead-controls .lang-modal .field-menu {
   display: block;
   margin: 0px 0px 10px 0px;
-  padding: 0px 0px 10px 0px;
+}
+.masthead-controls .user-modal hr,
+.masthead-controls .lang-modal hr {
+  display: block;
+  height: 1px;
+  margin: 5px 0px;
   border-bottom: 1px solid #dddddd;
+}
+.masthead-controls .user-modal ul li,
+.masthead-controls .lang-modal ul li {
+  padding: 5px 0px;
+}
+.masthead-controls .user-modal ul li a:hover,
+.masthead-controls .lang-modal ul li a:hover {
+  text-decoration: none;
+  color: #f9af18;
+}
+.masthead-controls .user-modal ul li a.btn:hover,
+.masthead-controls .lang-modal ul li a.btn:hover {
+  color: #ffffff;
 }
 @media (max-width: 767px) {
   .masthead-controls {
     max-width: 260px;
+    padding: 0px 10px;
   }
 }
 .user-profile,
@@ -2105,7 +2235,7 @@ a:hover {
 }
 .user-profile .info .info-upper,
 .call-profile .info .info-upper {
-  width: 100%;
+  width: 140px;
   height: 90px;
   word-wrap: break-word;
 }
@@ -2165,7 +2295,7 @@ a:hover {
   line-height: 15px;
   font-weight: 100;
   color: #888888;
-  border-bottom: 1px solid #dddddd;
+  border-bottom: 1px dotted #dddddd;
 }
 .user-profile .meta p,
 .call-profile .meta p {
@@ -2300,29 +2430,17 @@ a:hover {
 .card .item-dash .user-profile {
   margin: 0px;
 }
-.card .addit a,
-.card .addone a {
-  line-height: 30px;
+.card .addit,
+.card .addone {
+  margin: 0px 0px 10px 0px;
+}
+.card .addit .btn,
+.card .addone .btn {
   display: block;
-  background: #eeeeee;
-  border: 2px dashed #dddddd;
-  text-align: center;
-  color: #888888;
 }
-.card .addit a i,
-.card .addone a i {
-  color: #dddddd;
+.card .addit .btn i,
+.card .addone .btn i {
   margin: 0px 10px;
-}
-.card .addit a:hover,
-.card .addone a:hover {
-  background: #dddddd;
-  text-decoration: none;
-  color: #666666;
-}
-.card .addit a:hover i,
-.card .addone a:hover i {
-  color: #888888;
 }
 .card .addone {
   margin: 0px;
@@ -2331,32 +2449,36 @@ a:hover {
   margin-bottom: 20px;
 }
 .card .item > h5 {
-  padding: 9px 10px;
-  line-height: 12px;
+  padding: 0px;
+  line-height: 30px;
   font-weight: bold;
-  background: #4b5d5e;
-  color: #ffffff;
+  font-size: 16px;
+  color: rgba(75, 93, 94, 0.5);
 }
 .card .item .row {
   margin: 0px;
 }
 .card .item .row > h5 {
-  padding: 9px 10px;
-  line-height: 12px;
+  padding: 0px;
+  line-height: 30px;
   font-weight: bold;
-  background: #4b5d5e;
-  color: #ffffff;
+  font-size: 16px;
+  color: rgba(75, 93, 94, 0.5);
 }
 .card .item .row > .inputs {
-  background: #4b5d5e;
-  color: #ffffff;
-  padding: 5px;
+  padding: 0px;
 }
 .card .item .row > .inputs input {
-  height: 20px;
-  font-size: 12px;
+  height: 30px;
+  font-size: 14px;
+  font-weight: bold;
   line-height: 20px;
-  padding: 0px 4px;
+  padding: 0px 10px;
+}
+.card .item .header-row {
+  margin: 0px 0px 10px 0px;
+  padding: 0px 0px 10px 0px;
+  border-bottom: 2px solid #f9af18;
 }
 .card .item .header-link {
   text-align: right;
@@ -2365,8 +2487,6 @@ a:hover {
   height: 30px;
   line-height: 30px;
   font-weight: 100;
-  background: #4b5d5e;
-  color: #ffffff;
 }
 .card .item .header-link a {
   font-size: 12px;
@@ -2382,13 +2502,18 @@ a:hover {
   padding: 4px;
   height: 22px;
   border: none;
+  background: #888888;
 }
 .card .item .header-link a.btn:hover {
+  background: #f9af18;
   color: #ffffff;
 }
 .card .item .header-link a.danger {
   background: #b20000;
   color: #ffffff;
+}
+.card .item .header-link a.danger:hover {
+  background: #b20000;
 }
 .card .links {
   margin: 20px 0px 0px 0px;
@@ -2687,7 +2812,7 @@ a:hover {
   line-height: 15px;
   font-weight: 100;
   color: #888888;
-  border-bottom: 1px solid #dddddd;
+  border-bottom: 1px dotted #dddddd;
 }
 .card .meta p {
   display: block;
@@ -2729,6 +2854,9 @@ a:hover {
 .card.trigger {
   background: rgba(255, 255, 255, 0.5);
   border: 2px dashed #dddddd;
+}
+.card.trigger .addit {
+  margin-bottom: 0px;
 }
 .card.draggable:hover,
 .card.draggable.hover {
@@ -2800,7 +2928,7 @@ a:hover {
   font-size: 50px;
   line-height: 200px;
   margin-left: -23px;
-  top: 20px;
+  top: 32px;
   color: #ecefef;
   text-shadow: 0px -1px 0px rgba(75, 93, 94, 0.2);
   content: '\e014';
@@ -2812,8 +2940,7 @@ a:hover {
 .error-box h1 {
   font-size: 40px;
   font-weight: 100;
-  color: #eeeeee;
-  text-shadow: 0px -1px 0px #dddddd;
+  color: #888888;
 }
 .error-box p {
   font-size: 16px;

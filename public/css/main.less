@@ -40,12 +40,29 @@ a {
 	&.alert-warning {
 		a {
 			color: @primary;
+			&.btn {
+				color: @white;
+			}
 		}
 	}
 	&.alert-success {
 		a {
 			color: @green;
+			&.btn {
+				color: @white;
+			}
 		}
+	}
+	.align-left {
+		text-align: left;
+	}
+	.align-right {
+		text-align: right;
+	}
+	.actions-pane {
+		background: fade(@black, 5);
+		padding: 10px 0px;
+		margin-top: 10px;
 	}
 }
 
@@ -125,6 +142,18 @@ a {
 	}
 }
 
+.btn-success {
+	.gradient(@green, darken(@green, 10), @green);
+	border-color: darken(@green, 5);
+	&:hover, &:active, &.active, &:focus {
+		background: darken(@green, 5);
+		border-color: darken(@green, 5);		
+	}
+	&.disabled {
+		border-color: darken(@green, 5);
+	}
+}
+
 .btn-facebook {
 	background: #3A519C;
 	color: #FFFFFF;
@@ -172,6 +201,10 @@ a {
 		-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px fade(@primary, 60);
 		      box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px fade(@primary, 60);
       }
+}
+
+.global-messages {
+	margin-top: 10px;
 }
 
 .checkbox {
@@ -504,8 +537,23 @@ a {
 			}
 			&.active {
 				a {
+					position: relative;
 					background: fade(@secondary, 50);
 					color: @white;
+					@media(min-width: 767px) {
+						border-right: 40px solid @secondary;
+						&::after {
+							font-family: "snticons";
+							position: absolute;
+							width: 40px;
+							height: 40px;
+							line-height: 20px;
+							text-align: center;
+							right: -40px;
+							color: @white;
+							content: '\e080';
+						}
+					}
 				}
 				.badge {
 					color: @secondary;
@@ -738,16 +786,8 @@ a {
 		z-index: 9999;
 		.inner-shadow(0px, 0px, 5px, 0.25);
 	}
-	.caret {
-		position: absolute;
-		z-index: 10000;
-		bottom: 4px;
-		right: 4px;
-		.box-shadow(0px 0px 5px @white);
-	}
 	&.avatar-small {
 		float: left;
-		margin: 0px 5px 0px 0px;
 		width: 40px;
 		height: 40px;
 		.placeholder {
@@ -786,9 +826,14 @@ a {
 	float: right;
 	.masthead-control-field {
 		float: left;
-		padding: 10px;
+		padding: 10px 0px;
 		margin: 0px 0px 0px 10px;
 		position: relative;
+		&.user-control {
+			.caret {
+				bottom: 6px;				
+			}
+		}
 	}
 	.info {
 		float: left;
@@ -797,6 +842,31 @@ a {
 	.avatar {
 		float: left;
 	}
+	.caret {
+		position: absolute;
+		z-index: 10000;
+		bottom: 11px;
+		right: 4px;
+		color: @gray;
+	}
+	.btn {
+		margin: 0px;
+		height: 30px;
+		line-height: 16px;
+		&.login {
+			width: 80px;
+		}
+	}
+
+	.field-trigger {
+		margin: 5px 0px;
+		height: 30px;
+		color: @secondary;
+		span {
+			margin: 0px 10px 0px 0px;
+		}
+	}
+
 	.field-label {
 		color: fade(@secondary, 50);
 		font-size: 12px;
@@ -815,13 +885,43 @@ a {
 		line-height: 20px;
 		color: @secondary;
 	}
-	.user-modal {
+	.field-boxedinfo {
+		overflow: hidden;
+		position: relative;
+		margin: 5px 0px;
+		width: 30px;
+		height: 30px;
+		.rounded(5px);
+		background: @gray_light;
+		.box-shadow(0px 1px 0px @white);
+		.lang {
+			text-align: center;
+			line-height: 30px;
+			text-transform: uppercase;
+			color: #666;
+		}
+		.shadow {
+			position: absolute;
+			top: 0px;
+			width: 100%;
+			height: 100%;
+			z-index: 9999;
+			.inner-shadow(0px, 0px, 5px, 0.25);
+		}
+	}
+
+	.field-action {
+		max-width: 240px;
+		margin: 5px 0px;
+	}
+
+	.user-modal, .lang-modal {
 		display: none;
 		position: absolute;
 		z-index: 9999999;
 		min-width: 200px;
 		top: 55px;
-		right: 15px;
+		right: 0px;
 		padding: 10px;
 		background: @white;
 		.rounded(5px);
@@ -832,12 +932,33 @@ a {
 		.field-menu {
 			display: block;
 			margin: 0px 0px 10px 0px;
-			padding: 0px 0px 10px 0px;
-			border-bottom: 1px solid @gray_light;
+		}
+		hr {
+			display: block;
+			height: 1px;
+			margin: 5px 0px;
+			border-bottom: 1px solid @gray_light;			
+		}
+		ul {
+			li {
+				padding: 5px 0px;
+				a {
+					&:hover {
+						text-decoration: none;
+						color: @primary;
+					}
+					&.btn {
+						&:hover {
+							color: @white;
+						}
+					}
+				}
+			}
 		}
 	}	
 	@media(max-width: 767px) {
-		max-width: 260px;		
+		max-width: 260px;
+		padding: 0px 10px;	
 	}
 }
 
@@ -904,7 +1025,7 @@ a {
 			line-height: 15px;
 			font-weight: 100;
 			color: @gray;
-			border-bottom: 1px solid @gray_light;
+			border-bottom: 1px dotted @gray_light;
 		}
 		p {
 			display: block;
@@ -1033,24 +1154,11 @@ a {
 		}
 	}
 	.addit, .addone {
-		a {
-			line-height: 30px;
+		margin: 0px 0px 10px 0px;
+		.btn {
 			display: block;
-			background: @gray_pale;
-			border: 2px dashed @gray_light;
-			text-align: center;
-			color: @gray;
 			i {
-				color: @gray_light;
 				margin: 0px 10px;
-			}
-			&:hover {
-				background: @gray_light;
-				text-decoration: none;
-				color: @gray_dark;
-				i {
-					color: @gray;
-				}
 			}
 		}
 	}
@@ -1060,34 +1168,39 @@ a {
 	.item {
 		margin-bottom: 20px;
 		> h5 {
-			padding: 9px 10px;
-			line-height: 12px;
+			padding: 0px;
+			line-height: 30px;
 			font-weight: bold;
-			background: @secondary;
-			color: @white;
+			font-size: 16px;
+			color: fade(@secondary, 50);
 		}
 		.row {
 			margin: 0px;
 			> h5 {
-				padding: 9px 10px;
-				line-height: 12px;
+				padding: 0px;
+				line-height: 30px;
 				font-weight: bold;
-				background: @secondary;
-				color: @white;
+				font-size: 16px;
+				color: fade(@secondary, 50);
 			}
 			> .inputs {
-				background: @secondary;
-				color: @white;
-				padding: 5px;
+				padding: 0px;
 				input {
-					height: 20px;
-					font-size: 12px;
+					height: 30px;
+					font-size: 14px;
+					font-weight: bold;
 					line-height: 20px;
-					padding: 0px 4px;
+					padding: 0px 10px;
 				}
 			}
 
 		}
+		.header-row {
+			margin: 0px 0px 10px 0px;
+			padding: 0px 0px 10px 0px;
+			border-bottom: 2px solid @primary;			
+		}
+
 		.header-link {
 			text-align: right;
 			font-size: 12px;
@@ -1095,8 +1208,6 @@ a {
 			height: 30px;
 			line-height: 30px;
 			font-weight: 100;
-			background: @secondary;
-			color: @white;
 			a {
 				font-size: 12px;
 				padding: 4px;
@@ -1110,13 +1221,18 @@ a {
 					padding: 4px;
 					height: 22px;
 					border: none;
+					background: @gray;
 					&:hover {
+						background: @primary;
 						color: @white;
 					}
 				}
 				&.danger {
 					background: @red;
 					color: @white;
+					&:hover {
+						background: @red;
+					}
 				}
 			}						
 		}
@@ -1401,7 +1517,7 @@ a {
 			line-height: 15px;
 			font-weight: 100;
 			color: @gray;
-			border-bottom: 1px solid @gray_light;
+			border-bottom: 1px dotted @gray_light;
 		}
 		p {
 			display: block;
@@ -1452,6 +1568,9 @@ a {
 	&.trigger {
 		background: fade(@white, 50);
 		border: 2px dashed @gray_light;
+		.addit {
+			margin-bottom: 0px;
+		}
 	}
 	&.draggable {
 		&:hover, &.hover {
@@ -1513,7 +1632,7 @@ a {
 		font-size: 50px;
 		line-height: 200px;
 		margin-left: -23px;
-		top: 20px;
+		top: 32px;
 		color: lighten(@secondary, 60);
 		text-shadow: 0px -1px 0px fade(@secondary, 20);
 		content: '\e014';
@@ -1524,8 +1643,7 @@ a {
 	h1 {
 		font-size: 40px;
 		font-weight: 100;
-		color: @gray_pale;
-		text-shadow: 0px -1px 0px @gray_light;
+		color: @gray;
 	}
 	p {
 		font-size: 16px;
