@@ -243,9 +243,10 @@ class AuthenticationDelegate
                 clientID: Credentials.get(Credentials.FB_APP_ID),
                 clientSecret: Credentials.get(Credentials.FB_APP_SECRET),
                 callbackURL: callbackUrl,
-                profileFields: profileFields
+                profileFields: profileFields,
+                passReqToCallback: true
             },
-            function (accessToken, refreshToken, profile, done)
+            function (req, accessToken, refreshToken, profile, done)
             {
                 var profile = profile['_json'];
 
