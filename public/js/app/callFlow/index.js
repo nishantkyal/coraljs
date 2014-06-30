@@ -219,7 +219,7 @@ function setMonth(monthMoment)
 {
     var firstDateSelected = false;
     var firstWeekdayOfMonth = moment(monthMoment).date(1).day();
-    var daysInMonth = moment().endOf("month").date();
+    var daysInMonth = moment(monthMoment).endOf("month").date();
 
     // Update dates and mark dates with available slots as active
     $(".calendar-widget tbody").empty();
@@ -233,7 +233,7 @@ function setMonth(monthMoment)
             var dateIndex = cell - firstWeekdayOfMonth + 1;
 
             // Create date cell if i a valid date
-            if (dateIndex > 0 && dateIndex < daysInMonth) {
+            if (dateIndex > 0 && dateIndex <= daysInMonth) {
                 var dayMoment = moment(monthMoment).date(dateIndex);
 
                 $(rowElement).append('<td value="' + dayMoment + '"><a class="date-link">' + dateIndex + '</a></td>');
