@@ -1,6 +1,6 @@
 {
     "name": "SearchNTalk - Dashboard",
-    "version": "0.2.3",
+    "version": "0.2.4",
     "dependencies": {
         "underscore": "1.6.0",
         "bootstrap": "3.1.1",
