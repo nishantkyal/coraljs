@@ -252,9 +252,10 @@ class AuthenticationDelegate
                 clientID: Credentials.get(Credentials.FB_APP_ID),
                 clientSecret: Credentials.get(Credentials.FB_APP_SECRET),
                 callbackURL: callbackUrl,
-                profileFields: profileFields
+                profileFields: profileFields,
+                passReqToCallback: true
             },
-            function (accessToken, refreshToken, profile, done)
+            function (req, accessToken, refreshToken, profile, done)
             {
                 var profile = profile['_json'];
 
@@ -263,6 +264,9 @@ class AuthenticationDelegate
                     user.setFirstName(profile.first_name);
                 user.setLastName(profile.last_name);
                 user.setEmail(profile.email);
+
+                if (!Utils.isNullOrEmpty(req.session[ApiConstants.ZONE]))
+                    user.setTimezone(req.session[ApiConstants.ZONE]);
 
                 var userOauth = new UserOauth();
                 userOauth.setOauthUserId(profile.id);

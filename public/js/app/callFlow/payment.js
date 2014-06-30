@@ -11,6 +11,11 @@ $(function()
 // Make user login before applying coupon or checking out
 var loginContext;
 
+$(function(){
+    addTimezoneInLinkedInLink();
+    addTimezoneInFacebookLink();
+})
+
 $('#applyCoupon, #checkout').on('click', function(event)
 {
     loginContext = $(event.currentTarget).attr('id');

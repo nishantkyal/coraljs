@@ -1,9 +1,9 @@
 div.row
     div.card#schedule
-        .header
-            .title
-                h1 Schedules
-            .clearer
+        .item
+            .header-row.row
+                h5 Schedules
+                .clearer
         .item
             for rule in rules
                 - var daysOfWeek = rule.values[5] || ['0', '1', '2', '3', '4', '5', '6'];
@@ -83,10 +83,10 @@ div.row
                 | Editing Schedule
                 a.btn.btn-primary.done-editing-schedules(href='javascript:void(0)') Done
     .card#pricing
-        .header
-            .title
-                h1 Pricing
-        .clearer
+        .item
+            .header-row.row
+                h5 Pricing
+            .clearer
         .item
             form#pricingSchemeForm
                 input(type='hidden', name='id', value=scheme.id)

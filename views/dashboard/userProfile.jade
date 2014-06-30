@@ -109,17 +109,18 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                                 include cards/EditUserEducation
                     .content.col-md-6
                         div.card#employmentDetails
-                            .header
-                                .meta.meta-keywords
+                            .item
+                                .header-row.row
                                     if isEditable
-                                        h5.col-xs-7 Employment Details
-                                        .pull-right
-                                            a.btn.btn-success.btn-xs#addEmploymentbtn Add Employment
+                                        h5.col-xs-8 Employment Details
+                                        .header-link.col-xs-4
+                                            a.btn.btn-success.btn-xs#addEmploymentbtn Add
+                                            &nbsp;
                                             a.btn.btn-default.btn-xs#fetchEmployment
-                                                si.si-small.si-colored.si-linkedin
+                                                si.si-small.si-linkedin
                                     else
                                         h5.col-xs-12 Employment Details
-                            br
+                                div.clearer
                             if userEmployment.length != 0
                                 each emp in userEmployment
                                     .item
@@ -129,19 +130,20 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                                                 if isEditable
                                                     a.btn.btn-primary(data-id=emp.id, name = 'editUserEmployment')
                                                         i.icon-pencil
+                                                    &nbsp;
                                                     a.btn.btn-danger(data-id=emp.id, name = 'deleteUserEmployment')
                                                         si.icon-trash
                                             div
-                                                if emp.company
-                                                    | #{emp.company}
-                                                    br
-                                                if emp.start_date && emp.start_date != -1
-                                                    | #{formatDate(emp.start_date, 'MM-YYYY')}
-                                                if emp.end_date && emp.end_date != -1
-                                                    | - #{formatDate(emp.end_date, 'MM-YYYY')}
-                                                    br
-                                                if emp.summary
-                                                    | #{emp.summary}
+                                            if emp.company
+                                                | #{emp.company}
+                                                br
+                                            if emp.start_date && emp.start_date != -1
+                                                | #{formatDate(emp.start_date, 'MM-YYYY')}
+                                            if emp.end_date && emp.end_date != -1
+                                                | - #{formatDate(emp.end_date, 'MM-YYYY')}
+                                                br
+                                            if emp.summary
+                                                | #{emp.summary}
                             else
                                 .item
                                     .row

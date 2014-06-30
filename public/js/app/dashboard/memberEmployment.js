@@ -23,6 +23,10 @@ $('[name="editUserEmployment"]').click(function()
     var employment = _.findWhere(userEmployment, {id: employmentId});
 
     populate($('form#AddUserEmploymentForm'), unEscapeObject(employment));
+    if (employment.start_date)
+        $('form#AddUserEmploymentForm input[name="start_date"]').val(moment.unix(parseInt(employment.start_date/1000)).format('MM-YYYY'));
+    if (employment.end_date)
+        $('form#AddUserEmploymentForm input[name="end_date"]').val(moment.unix(parseInt(employment.end_date/1000)).format('MM-YYYY'));
 });
 
 $('[name="deleteUserEmployment"]').click(function()
@@ -47,8 +51,8 @@ $('.datepicker').datetimepicker();
 $('form#AddUserEmploymentForm').bootstrapValidator({
     submitHandler : function()
     {
-        var startDate = $('form#AddUserEmploymentForm input[name="start_date"]').val() == "" ? -1:moment($('form#AddUserEmploymentForm input[name="start_date"]').val(),'MM/YYYY').valueOf()
-        var endDate = $('form#AddUserEmploymentForm input[name="end_date"]').val() == "" ? -1:moment($('form#AddUserEmploymentForm input[name="end_date"]').val(),'MM/YYYY').valueOf();
+        var startDate = $('form#AddUserEmploymentForm input[name="start_date"]').val() == "" ? -1:moment($('form#AddUserEmploymentForm input[name="start_date"]').val(),'MM-YYYY').valueOf()
+        var endDate = $('form#AddUserEmploymentForm input[name="end_date"]').val() == "" ? -1:moment($('form#AddUserEmploymentForm input[name="end_date"]').val(),'MM-YYYY').valueOf();
 
         var employmentId = $('form#AddUserEmploymentForm input[name="id"]').val();
         var url = employmentId ? '/rest/user/employment/' + employmentId : '/rest/user/employment';
