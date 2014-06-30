@@ -11,6 +11,7 @@ import moment                                       = require('moment');
 import ScheduleCallsScheduledTask                   = require('./models/tasks/ScheduleCallsScheduledTask');
 import TimezoneRefreshTask                          = require('./models/tasks/TimezoneRefreshTask');
 import Config                                       = require('./common/Config');
+import Credentials                                  = require('./common/Credentials');
 import Formatter                                    = require('./common/Formatter');
 import Utils                                        = require('./common/Utils');
 import ApiUrlDelegate                               = require('./delegates/ApiUrlDelegate');
@@ -62,6 +63,7 @@ var helpers:Object =
     MemberRegistrationUrls: MemberRegistrationUrls,
 
     Config: Config,
+    Credentials: Credentials,
     escapeObject: Utils.escapeObject,
     unEscapeObject: Utils.unEscapeObject,
 
