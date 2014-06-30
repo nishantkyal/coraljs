@@ -1,3 +1,13 @@
+$(function()
+{
+    var offset = new Date().getTimezoneOffset() * -60;
+    var zone = _.find(Timezone, function(zone)
+    {
+        return zone.gmt_offset == offset;
+    });
+    $('[name="timezone"]').val(zone.zone_id).prop('selected', true);
+});
+
 // Make user login before applying coupon or checking out
 var loginContext;
 
@@ -39,7 +49,7 @@ $('form.login').bootstrapValidator({
             dataType   : 'json',
             contentType: 'application/json',
             data       : JSON.stringify({
-                email : $('form.login input[name="email"]').val(),
+                email   : $('form.login input[name="email"]').val(),
                 password: $('form.login input[name="password"]').val()
             }),
             success    : function(response)
@@ -53,8 +63,8 @@ $('form.login').bootstrapValidator({
             },
             error      : function(jqXhr, textStatus, response)
             {
-                $('#login-modal .alert-danger').show();
-                $('#login-modal .alert-danger').text(jqXhr.responseText);
+                $('#login-modal .alert').show();
+                $('#login-modal .alert').text(jqXhr.responseText);
             }
         });
     },
@@ -83,14 +93,13 @@ $('form.register').bootstrapValidator({
             contentType: 'application/json',
             async      : false,
             data       : JSON.stringify({
-                user          : {
-                    email      : $('form.register input[name="email"]').val(),
-                    password   : $('form.register input[name="password"]').val(),
-                    first_name : $('form.register input[name="first_name"]').val(),
-                    last_name  : $('form.register input[name="last_name"]').val(),
-                    middle_name: $('form.register input[name="middle_name"]').val()
-                },
-                timezoneOffset: -new Date().getTimezoneOffset() * 60
+                email      : $('form.register input[name="email"]').val(),
+                password   : $('form.register input[name="password"]').val(),
+                title : $('form.register select[name="title"]').val(),
+                first_name : $('form.register input[name="first_name"]').val(),
+                last_name  : $('form.register input[name="last_name"]').val(),
+                middle_name: $('form.register input[name="middle_name"]').val(),
+                timezone   : $('form.register select[name="timezone"]').val()
             }),
             success    : function(response)
             {

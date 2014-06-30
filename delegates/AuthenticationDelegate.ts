@@ -190,7 +190,16 @@ class AuthenticationDelegate
                         reason = 'Invalid password';
 
                     if (!Utils.isNullOrEmpty(reason))
-                        throw new Error(reason);
+                    {
+                        if (isAjax)
+                            res.send(500, reason);
+                        else
+                        {
+                            if (options.failureFlash)
+                                req.flash('error', reason);
+                            res.redirect(options.failureRedirect || req.originalUrl);
+                        }
+                    }
                     else
                     {
                         req.logIn(matchingUser, function ()

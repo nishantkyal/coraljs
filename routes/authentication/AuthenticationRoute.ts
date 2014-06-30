@@ -8,16 +8,19 @@ class AuthenticationRoute
 {
     constructor(app, secureApp)
     {
-        app.post(Urls.login(), passport.authenticate(AuthenticationDelegate.STRATEGY_LOGIN), this.login.bind(this));
-        app.post(Urls.register(), AuthenticationDelegate.register(), this.login.bind(this));
-        app.post(Urls.fbLogin(), AuthenticationDelegate.register(), this.login.bind(this));
-        app.post(Urls.fbLoginCallBack(), AuthenticationDelegate.register(), this.login.bind(this));
-        app.post(Urls.linkedInLogin(), AuthenticationDelegate.register(), this.login.bind(this));
-        app.post(Urls.linkedinLoginCallBack(), AuthenticationDelegate.register(), this.login.bind(this));
+        app.get(Urls.login())
+
+        app.post(Urls.login(), AuthenticationDelegate.login(), this.authenticationSuccess.bind(this));
+        app.post(Urls.register(), AuthenticationDelegate.register(), this.authenticationSuccess.bind(this));
+        app.post(Urls.fbLogin(), AuthenticationDelegate.register(), this.authenticationSuccess.bind(this));
+        app.post(Urls.fbLoginCallBack(), AuthenticationDelegate.register(), this.authenticationSuccess.bind(this));
+        app.post(Urls.linkedInLogin(), AuthenticationDelegate.register(), this.authenticationSuccess.bind(this));
+        app.post(Urls.linkedinLoginCallBack(), AuthenticationDelegate.register(), this.authenticationSuccess.bind(this));
     }
 
-    private login(req:express.Request, res: express.Response)
+    private authenticationSuccess(req:express.Request, res: express.Response)
     {
+        var isAjax = req.get('content-type') && req.get('content-type').indexOf('application/json') != -1;
 
     }
 }

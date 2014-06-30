@@ -77,7 +77,7 @@ class SessionData extends AbstractSessionData
             {
                 this.set(SessionData.NEXT_AVAILABLE_SCHEDULE, nextAvailableSchedule);
                 var currentTime = moment().valueOf();
-                this.set(SessionData.IS_AVAILABLE, currentTime > nextAvailableSchedule[ExpertSchedule.START_TIME] && currentTime < (nextAvailableSchedule[ExpertSchedule.START_TIME] + nextAvailableSchedule[ExpertSchedule.DURATION]))
+                this.set(SessionData.IS_AVAILABLE, currentTime > nextAvailableSchedule[ExpertSchedule.START_TIME] && currentTime < (nextAvailableSchedule[ExpertSchedule.START_TIME] + nextAvailableSchedule[ExpertSchedule.DURATION]));
             }
         }
     }

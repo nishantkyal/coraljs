@@ -114,9 +114,9 @@ class DashboardRoute
             failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}), this.linkedInCallBack.bind(this));
 
         // Auth
-        app.get(Urls.checkLogin(), AuthenticationDelegate.checkLogin({justCheck:true}));
-        app.post(Urls.login(), AuthenticationDelegate.login({failureRedirect: Urls.login()}), this.authSuccess.bind(this));
-        app.post(Urls.register(), AuthenticationDelegate.register({failureRedirect: Urls.login()}), this.authSuccess.bind(this));
+        app.get(Urls.checkLogin(), AuthenticationDelegate.checkLogin({justCheck: true}));
+        app.post(Urls.login(), AuthenticationDelegate.login({failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
+        app.post(Urls.register(), AuthenticationDelegate.register({failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
         app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
         app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
     }
@@ -124,11 +124,9 @@ class DashboardRoute
     /* Login page */
     private login(req, res:express.Response)
     {
-        var sessionData = new SessionData(req);
-
-        var pageData = _.extend(sessionData.getData(), {
+        var pageData = {
             messages: req.flash()
-        });
+        };
 
         res.render(DashboardRoute.PAGE_LOGIN, pageData);
     }
@@ -142,7 +140,7 @@ class DashboardRoute
             messages: req.flash()
         });
 
-            res.render(DashboardRoute.PAGE_REGISTER, pageData);
+        res.render(DashboardRoute.PAGE_REGISTER, pageData);
     }
 
     /* Forgot Password page */
@@ -203,22 +201,6 @@ class DashboardRoute
      */
     private authSuccess(req, res:express.Response)
     {
-        var sessionData = new SessionData(req);
-
-        if (req.get('content-type') && req.get('content-type').indexOf('application/json') != -1)
-        {
-            res.send(200, {status: 'OK'});
-            return null;
-        }
-
-        // Return if specified
-        if (req.session[ApiConstants.RETURN_TO])
-        {
-            var returnToUrl = req.session[ApiConstants.RETURN_TO];
-            req.session[ApiConstants.RETURN_TO] = null;
-            res.redirect(returnToUrl);
-            return;
-        }
         res.redirect(Urls.dashboard());
     }
 
@@ -296,7 +278,7 @@ class DashboardRoute
 
                 integrationMembers = integrationMembers.concat(_.map(invitedMembers, function (invited) { return new IntegrationMember(invited); }));
 
-                var pageData = _.extend(    sessionData.getData(), {
+                var pageData = _.extend(sessionData.getData(), {
                     'members': members,
                     'selectedMember': _.findWhere(members, {'integration_id': integrationId}),
                     'integrationMembers': integrationMembers,
@@ -389,14 +371,14 @@ class DashboardRoute
             self.scheduleRuleDelegate.getRulesByUser(userId),
             self.pricingSchemeDelegate.search(Utils.createSimpleObject(PricingScheme.USER_ID, userId)),
             self.userPhoneDelegate.search(Utils.createSimpleObject(UserPhone.USER_ID, userId)),
-            self.widgetDelegate.search(Utils.createSimpleObject(Widget.USER_ID,userId))
+            self.widgetDelegate.search(Utils.createSimpleObject(Widget.USER_ID, userId))
         ])
             .then(function detailsFetched(...args)
             {
                 var rules:ScheduleRule[] = [].concat(args[0][0]);
                 var pricingSchemes:PricingScheme[] = args[0][1];
                 var userPhone:UserPhone[] = args[0][2] || [new UserPhone()];
-                var widget:Widget[] = _.sortBy(args[0][3] || [], function(w:any){return w.template});
+                var widget:Widget[] = _.sortBy(args[0][3] || [], function (w:any) {return w.template});
 
                 _.each(rules || [], function (rule:ScheduleRule)
                 {
@@ -407,7 +389,7 @@ class DashboardRoute
                     userPhone: userPhone[0],
                     rules: rules || [],
                     scheme: pricingSchemes ? pricingSchemes[0] : new PricingScheme(),
-                    widgets:widget || []
+                    widgets: widget || []
                 });
 
                 res.render(DashboardRoute.PAGE_SETTING, pageData);

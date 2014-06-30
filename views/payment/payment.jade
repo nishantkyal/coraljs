@@ -1,10 +1,10 @@
+include ../header
 - var pricing = user.pricing_scheme[0]
 - var minDuration = pricing.min_duration
 style.
     #login-modal .register {
         display: none;
     }
-include ../header
 title ST-#{formatName(user.first_name, user.last_name, user.title)} | Payment for Call
 .matter
     .container
@@ -122,31 +122,43 @@ title ST-#{formatName(user.first_name, user.last_name, user.title)} | Payment fo
                 button.close(type='button', data-dismiss='modal', aria-hidden='true') ×
                 h4.modal-title
                     i.icon-scheduler
-                    | Login
+                    span.login Login
+                    span.register Register
             .modal-body
-                .alert
-                    .alert-danger(style="display: none; padding: 3px;")
                 .form.col-md-12.center-block
-                    form.login
+                    form.login(autocomplete="off")
+                        .alert.alert-danger(style="display: none; padding: 3px;")
                         .form-group
-                            input.form-control.input(type='text', placeholder='Email', name='email')
+                            label Email
+                            input.form-control.input(type='text', placeholder='Email', name='email', autocomplete="off")
                         .form-group
-                            input.form-control.input(type='password', placeholder='Password', name='password')
+                            label Password
+                            input.form-control.input(type='password', placeholder='Password', name='password', autocomplete="off")
                         .form-group
                             input.btn.btn-primary.btn.btn-block(type='submit', value='LOGIN')
-                    form.register
+                    form.register(autocomplete="off")
                         .form-group
-                            input.form-control.input(type='text', placeholder='Email', name='email')
+                            label Email
+                            input.form-control.input(type='text', placeholder='Email', name='email', autocomplete="off")
                         .form-group
+                            label Title
                             select.form-control.input
                                 - for title,id in Salutation
                                     option(value=id)= title
                         .form-group
-                            input.form-control.input(type='text', placeholder='First Name', name='first_name')
+                            label First Name
+                            input.form-control.input(type='text', placeholder='First Name', name='first_name', autocomplete="off")
                         .form-group
-                            input.form-control.input(type='text', placeholder='Last Name', name='last_name')
+                            label Last Name
+                            input.form-control.input(type='text', placeholder='Last Name', name='last_name', autocomplete="off")
                         .form-group
-                            input.form-control.input(type='password', placeholder='Password', name='password')
+                            label Password
+                            input.form-control.input(type='password', placeholder='Password', name='password', autocomplete="off")
+                        .form-group
+                            label(for='timezone') Timezone
+                            select.form-control(name='timezone')
+                                each zone in Timezone
+                                    option(value="#{zone.zone_id}") (#{formatTimezone(zone.gmt_offset)}) #{zone.zone_name}
                         .form-group
                             input.btn.btn-primary.btn.btn-block(type='submit', value='CREATE ACCOUNT')
                     .form-group
@@ -158,6 +170,8 @@ title ST-#{formatName(user.first_name, user.last_name, user.title)} | Payment fo
                         a#register-link.login(href='javascript:void(0)') Register
             .modal-footer
         // /.modal-content
+script.
+    var Timezone = JSON.parse('!{JSON.stringify(Timezone)}');
 script(src='/js/app/callFlow/payment.js')
 include ../footer
 script.
