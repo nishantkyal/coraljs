@@ -208,8 +208,9 @@ class VerificationCodeDelegate
     {
         return CacheHelper.get('ev-' + code)
             .then(
-            function codeFetched(user:User)
+            function codeFetched(resukt:Object)
             {
+                var user = new User(result);
                 return user && user.getEmail() == email;
             });
     }
