@@ -64,7 +64,7 @@ class ScheduleRuleDelegate extends BaseDaoDelegate
         var weekendRule = new ScheduleRule();
         weekendRule.setTitle('Weekend');
         weekendRule.setRepeatStart(moment().valueOf());
-        weekendRule.setCronRule('0 0 2 * * 0,6');
+        weekendRule.setCronRule('0 0 14 * * 0,6');
         weekendRule.setDuration(3 * 3600 * 1000);
         weekendRule.setUserId(expertId);
 
