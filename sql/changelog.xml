@@ -688,4 +688,16 @@
     <changeSet author="Ankit (generated)" id="1404110605688-6">
         <modifyDataType columnName="recorded" newDataType="boolean" tableName="call"/>
     </changeSet>
+    <changeSet author="Nishant (generated)" id="1404113629591-1">
+        <dropForeignKeyConstraint baseTableName="service_request" constraintName="service_request_type"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1404113629591-2">
+        <dropUniqueConstraint constraintName="request_id_UNIQUE" tableName="service_request"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1404113629591-3">
+        <dropTable tableName="service_request"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1404113658988-1">
+        <dropTable tableName="ref_service_request_type"/>
+    </changeSet>
 </databaseChangeLog>
