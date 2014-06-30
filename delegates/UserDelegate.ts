@@ -54,7 +54,10 @@ class UserDelegate extends BaseDaoDelegate
                 var userProfile:UserProfile = new UserProfile();
                 userProfile.setUserId(user.getId());
 
-                return [user, self.userProfileDelegate.create(userProfile, dbTransaction), self.scheduleRuleDelegate.createDefaultRules(user.getId(), dbTransaction)];
+                return [user, q.all([
+                    self.userProfileDelegate.create(userProfile, dbTransaction),
+                    self.scheduleRuleDelegate.createDefaultRules(user.getId(), dbTransaction)
+                ])];
             })
             .spread(
             function userProfileCreated(...args)

@@ -1,25 +1,40 @@
+title SearchNTalk | Member Registration | Create Account
 include ../header
-title SearchNTalk - Login
-.container-fluid
-    .row-fluid
-        .col-md-2
-        .col-md-8
-            include ../errorMessage
-            .col-md-4
-                form#login-form(role='form', method='post')
-                    .form-group
-                        label.control-label(for='username') Email
-                        input.form-control#username(type='email', placeholder='Email', name='email')
-                    .form-group
-                        label.control-label(for='password') Password
-                        input.form-control#password(type='password', name='password', placeholder='Password')
-                    .form-group
-                        //label.checkbox
-                        //    input(type='checkbox')
-                        //    | Remember me
-                        input.btn.btn-primary(type='submit', value='Login')
-                        a.btn.btn-link(href=DashboardUrls.forgotPassword()) Forgot password?
-                        a.btn-primary.btn(href=DashboardUrls.linkedInLogin()) Login with LinkedIn
-    .col-md-2
+.matter
+    .container
+        .row
+            .content.col-xs-9.col-sm-9.col-md-12.col-lg-12
+                .row
+                    .col-md-6
+                        .user-profile
+                            .hidden-xs.profile
+                                p Please begin by creating an account on searchntalk.com
+                            .clearer
+                            .hidden-xs.meta.meta-keywords
+                                h5 How it works
+                                dl
+                                    dt Share your expertise
+                                    dd You can charge for your advice or offer it for free
+                                    dt After your approval
+                                    dd Callers will book an appointment and share agenda before the call
+                                    dt Your number stays private
+                                    dd We connect the calls without disclosing your number
+                    .col-md-6
+                        .call-card
+                            include ../errorMessage
+                            form#login-form(role='form', method='POST')
+                                .form-group
+                                    label(for='username') Email
+                                    input.form-control#username(name='email', type='email')
+                                .form-group
+                                    label(for='login_password') Password
+                                    input.form-control#login_password(name='password', type='password')
+                                .form-group
+                                    .controls
+                                        input.btn-primary.btn.btn-block(value='Login', type='submit')
+                                a.btn-linkedin.btn(href=MemberRegistrationUrls.linkedInLogin()) Login with LinkedIn
+                                a.btn.btn-link(href=DashboardUrls.forgotPassword()) Forgot password?
+                                a.btn.btn-link(href=DashboardUrls.register()) Create an account
+                                // /.content
 include ../footer
-script(src='/js/app/dashboard/login.js')
+script(src='/js/app/expertRegistration/authenticate.js')

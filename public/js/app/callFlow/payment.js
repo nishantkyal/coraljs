@@ -77,7 +77,7 @@ $('form.register').bootstrapValidator({
     submitHandler: function()
     {
         $.ajax({
-            url        : '/rest/register',
+            url        : '/register',
             type       : 'post',
             dataType   : 'json',
             contentType: 'application/json',

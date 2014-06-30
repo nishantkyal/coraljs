@@ -3,8 +3,6 @@ import ApiUrlDelegate                                      = require('../../dele
 class Urls
 {
     static index():string { return ApiUrlDelegate.get('/member/registration'); }
-    static login():string { return ApiUrlDelegate.get('/member/login'); }
-    static register():string { return ApiUrlDelegate.get('/member/register'); }
     static linkedInLogin():string { return ApiUrlDelegate.get('/member/login/linkedin'); }
     static linkedInLoginCallback():string { return ApiUrlDelegate.get('/member/login/linkedin/callback'); }
     static authorization():string { return ApiUrlDelegate.get('/member/authorization'); }

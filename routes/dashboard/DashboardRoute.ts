@@ -63,6 +63,7 @@ import SessionData                                      = require('./SessionData
 class DashboardRoute
 {
     private static PAGE_LOGIN:string = 'dashboard/login';
+    private static PAGE_REGISTER:string = 'dashboard/register';
     private static PAGE_FORGOT_PASSWORD:string = 'dashboard/forgotPassword';
     private static PAGE_MOBILE_VERIFICATION:string = 'dashboard/mobileVerification';
     private static PAGE_DASHBOARD:string = 'dashboard/dashboard';
@@ -93,6 +94,7 @@ class DashboardRoute
         // Pages
         app.get(Urls.index(), AuthenticationDelegate.checkLogin(), this.authSuccess.bind(this));
         app.get(Urls.login(), this.login.bind(this));
+        app.get(Urls.register(), this.register.bind(this));
         app.get(Urls.forgotPassword(), this.forgotPassword.bind(this));
         app.get(Urls.mobileVerification(), AuthenticationDelegate.checkLogin({failureRedirect: Urls.index(), setReturnTo: true}), this.verifyMobile.bind(this));
 
@@ -124,17 +126,23 @@ class DashboardRoute
     {
         var sessionData = new SessionData(req);
 
-        var isLoggedIn = !Utils.isNullOrEmpty(sessionData.getLoggedInUser());
-        if (isLoggedIn)
-        {
-            res.redirect(Urls.index());
-            return;
-        }
+        var pageData = _.extend(sessionData.getData(), {
+            messages: req.flash()
+        });
+
+        res.render(DashboardRoute.PAGE_LOGIN, pageData);
+    }
+
+    /* Register page */
+    private register(req, res:express.Response)
+    {
+        var sessionData = new SessionData(req);
 
         var pageData = _.extend(sessionData.getData(), {
             messages: req.flash()
         });
-        res.render(DashboardRoute.PAGE_LOGIN, pageData);
+
+            res.render(DashboardRoute.PAGE_REGISTER, pageData);
     }
 
     /* Forgot Password page */

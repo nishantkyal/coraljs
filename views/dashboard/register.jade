@@ -10,8 +10,6 @@ include ../header
                 .row
                     .col-md-6
                         .user-profile
-                            //.info
-                                .user-displayname You've been invited to the expert panel of #{integration.title}
                             .hidden-xs.profile
                                 p Please begin by creating an account on searchntalk.com
                             .clearer
@@ -31,13 +29,13 @@ include ../header
                                 form#registration-form(method='POST')
                                     .form-group
                                         label(for='email') Email
-                                        input.form-control(name='email', type='email', value=member.user.email, autocomplete='off')
+                                        input.form-control(name='email', type='email', autocomplete='off')
                                     .form-group
                                         label(for='first_name') First Name
-                                        input.form-control(name='first_name', type='text', value=member.user.first_name, autocomplete='off')
+                                        input.form-control(name='first_name', type='text', autocomplete='off')
                                     .form-group
                                         label(for='last_name') Last Name
-                                        input.form-control(name='last_name', type='text', value=member.user.last_name, autocomplete='off')
+                                        input.form-control(name='last_name', type='text', autocomplete='off')
                                     .form-group
                                         label(for='password') Password
                                         input.form-control(type='password', name='password', autocomplete='off')
@@ -54,7 +52,7 @@ include ../header
                                             input(type='hidden', name='invitation_code', value=code)
                                             input.btn-primary.btn.btn-block(value='Register', type='submit')
                                     a.btn-linkedin.btn#linkedInLink() Login with LinkedIn
-                                    a.btn.btn-link(href=MemberRegistrationUrls.login()) Login
+                                    a.btn.btn-link(href=DashboardUrls.login()) Login
             // /.content
 include ../footer
 script.

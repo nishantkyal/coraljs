@@ -7,9 +7,7 @@ import RequestHandler                                       = require('../../mid
 import OAuthProviderDelegate                                = require('../../delegates/OAuthProviderDelegate');
 import UserOAuthDelegate                                    = require('../../delegates/UserOAuthDelegate');
 import AuthenticationDelegate                               = require('../../delegates/AuthenticationDelegate');
-import UserDelegate                                         = require('../../delegates/UserDelegate');
 import IntegrationMemberDelegate                            = require('../../delegates/IntegrationMemberDelegate');
-import UserProfileDelegate                                  = require('../../delegates/UserProfileDelegate');
 import VerificationCodeDelegate                             = require('../../delegates/VerificationCodeDelegate');
 import IntegrationDelegate                                  = require('../../delegates/IntegrationDelegate');
 import EmailDelegate                                        = require('../../delegates/EmailDelegate');
@@ -31,31 +29,23 @@ import Middleware                                           = require('./Middlew
 
 class MemberRegistrationRoute
 {
-    private static PAGE_LOGIN:string = 'memberRegistration/login';
-    private static PAGE_REGISTER:string = 'memberRegistration/register';
     private static PAGE_AUTHORIZE:string = 'memberRegistration/authorize';
     private static PAGE_COMPLETE:string = 'memberRegistration/complete';
 
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private verificationCodeDelegate = new VerificationCodeDelegate();
-    private userDelegate = new UserDelegate();
-    private userProfileDelegate = new UserProfileDelegate();
 
     constructor(app, secureApp)
     {
         // Pages
         app.get(Urls.index(), this.index.bind(this));
-        app.get(Urls.login(), this.login.bind(this));
-        app.get(Urls.register(), this.register.bind(this));
         app.get(Urls.authorization(), Middleware.requireInvitationCode, Middleware.ensureNotAlreadyRegistered, OAuthProviderDelegate.authorization, this.authorize.bind(this));
         app.get(Urls.authorizationRedirect(), this.authorizationRedirect.bind(this));
         app.get(Urls.complete(), AuthenticationDelegate.checkLogin({failureRedirect: Urls.index()}), this.expertComplete.bind(this));
 
         // Auth
-        app.post(Urls.login(), AuthenticationDelegate.login({failureRedirect: Urls.login(), failureFlash: true}), this.authenticationSuccess.bind(this));
-        app.post(Urls.register(), AuthenticationDelegate.register({failureRedirect: Urls.register(), failureFlash: true}), this.authenticationSuccess.bind(this));
-        app.get(Urls.linkedInLogin(), this.putTimezoneInSession.bind(this), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: Urls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
-        app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: Urls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}), this.authenticationSuccess.bind(this));
+        app.get(Urls.linkedInLogin(), this.putTimezoneInSession.bind(this), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: DashboardUrls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
+        app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: DashboardUrls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}), this.authenticationSuccess.bind(this));
         app.post(Urls.authorizationDecision(), OAuthProviderDelegate.decision);
     }
 
@@ -87,11 +77,15 @@ class MemberRegistrationRoute
             .then(
             function verified(result):any
             {
+                var authorizationUrl = Urls.authorization() + '?response_type=code&client_id=' + integrationId + '&redirect_uri=' + Urls.authorizationRedirect();
+
                 invitedMember = new IntegrationMember(result);
                 sessionData.setMember(invitedMember);
                 res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
                 req.logout();
-                res.redirect(Urls.register());
+
+                req.session[ApiConstants.RETURN_TO] = authorizationUrl;
+                res.redirect(DashboardUrls.register());
             },
             function verificationFailed()
             {
@@ -100,28 +94,6 @@ class MemberRegistrationRoute
             .fail(
             function handleError(error) { res.render('500', {error: error}); }
         );
-    }
-
-    private login(req:express.Request, res:express.Response)
-    {
-        var sessionData = new SessionData(req);
-
-        var pageData = _.extend(sessionData.getData(), {
-            messages: req.flash()
-        });
-
-        res.render(MemberRegistrationRoute.PAGE_LOGIN, pageData);
-    }
-
-    private register(req:express.Request, res:express.Response)
-    {
-        var sessionData = new SessionData(req);
-
-        var pageData = _.extend(sessionData.getData(), {
-            messages: req.flash()
-        });
-
-        res.render(MemberRegistrationRoute.PAGE_REGISTER, pageData);
     }
 
     /* Handle authentication success -> Redirect to authorization */
