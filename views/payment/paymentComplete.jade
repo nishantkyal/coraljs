@@ -42,9 +42,9 @@ title ST- Payment Complete
                             .meta.meta-schedule
                                 h5 Your chosen slots
                                 ul
-                                    li.schedule-a= formatDate(appointments[0] - expertGmtOffset + userGmtOffset, 'ddd DD MMM YYYY, hh:mm a')
-                                    li.schedule-b= formatDate(appointments[1] - expertGmtOffset + userGmtOffset, 'ddd DD MMM YYYY, hh:mm a')
-                                    li.schedule-c= formatDate(appointments[2] - expertGmtOffset + userGmtOffset, 'ddd DD MMM YYYY, hh:mm a')
+                                    li.schedule-a= formatDate(appointments[0] + userGmtOffset, 'ddd DD MMM YYYY, hh:mm a')
+                                    li.schedule-b= formatDate(appointments[1] + userGmtOffset, 'ddd DD MMM YYYY, hh:mm a')
+                                    li.schedule-c= formatDate(appointments[2] + userGmtOffset, 'ddd DD MMM YYYY, hh:mm a')
                             .meta
                                 h5 Call Recepient
                                 p +91-#{caller_phone}

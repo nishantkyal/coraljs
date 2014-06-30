@@ -63,10 +63,10 @@ class PaymentRoute
         app.post(Urls.paymentCallback(), this.paymentComplete.bind(this));
         app.get(Urls.paymentCallback(), this.paymentComplete.bind(this));
 
-        app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_CALL_LOGIN, {failureRedirect: Urls.payment(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
+        app.get(Urls.linkedInLogin(), this.putTimezoneInSession.bind(this), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_CALL_LOGIN, {failureRedirect: Urls.payment(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
         app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_CALL_LOGIN, {failureRedirect: Urls.payment(), failureFlash: true}), this.callPayment.bind(this));
 
-        app.get(Urls.facebookLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {failureRedirect: Urls.payment(), failureFlash: true, scope: ['public_profile', 'email']}));
+        app.get(Urls.facebookLogin(), this.putTimezoneInSession.bind(this), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {failureRedirect: Urls.payment(), failureFlash: true, scope: ['public_profile', 'email']}));
         app.get(Urls.facebookLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {failureRedirect: Urls.payment(), failureFlash: true}), this.callPayment.bind(this));
     }
 
@@ -364,6 +364,12 @@ class PaymentRoute
 
                 res.render(PaymentRoute.PAYMENT_COMPLETE, pageData);
             });
+    }
+
+    private putTimezoneInSession(req:express.Request, res:express.Response, next:Function)
+    {
+        req.session[ApiConstants.ZONE] = parseInt(req.query[ApiConstants.ZONE]);
+        next();
     }
 
 }

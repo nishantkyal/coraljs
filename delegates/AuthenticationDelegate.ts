@@ -255,6 +255,9 @@ class AuthenticationDelegate
                 user.setLastName(profile.last_name);
                 user.setEmail(profile.email);
 
+                if (!Utils.isNullOrEmpty(req.session[ApiConstants.ZONE]))
+                    user.setTimezone(req.session[ApiConstants.ZONE]);
+
                 var userOauth = new UserOauth();
                 userOauth.setOauthUserId(profile.id);
                 userOauth.setProviderId('FB');
