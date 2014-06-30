@@ -1,11 +1,13 @@
 div.card
-    div.header
-        div.title
-            h1 Education
-        div.pull-right
-            a#addUserEducationBtn.btn.btn-success.btn-xs Add Education
-            a.btn.btn-default.btn-xs#fetchEmployment
-                si.si-small.si-colored.si-linkedin
+    .item
+        .header-row.row
+            h5.col-xs-8 Education Details
+            .header-link.col-xs-4
+                if isEditable
+                    a#addUserEducationBtn.btn.btn-primary Add
+                    &nbsp;
+                    a.btn.btn-primary#fetchEmployment
+                        si.si-small.si-linkedin
         div.clearer
     if userEducation.length != 0
         each edu in userEducation
@@ -16,6 +18,7 @@ div.card
                         if isEditable
                             a.btn.btn-link.editUserEducation(data-id=edu.id)
                                 i.icon-pencil
+                            &nbsp;
                             a.btn.btn-link.deleteUserEducation(data-id=edu.id)
                                 i.icon-trash
                     div

@@ -30,7 +30,7 @@ title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setti
                 .row
                     .card#phoneDetails
                         .item
-                            .row
+                            .header-row.row
                                 h5.col-xs-8 Phone details
                                 .header-link.col-xs-4
                                     a.btn.btn-primary(data-id=userPhone.id, name = 'editUserPhone')
@@ -45,7 +45,7 @@ title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setti
                         form#editUserPhoneForm
                             .item-edit
                                 .item
-                                    .row
+                                    .header-row.row
                                         h5.col-xs-8 Edit Phone Details
                                         .header-link.col-xs-4
                                             a.btn.btn-danger#cancelEditUserPhone
@@ -69,7 +69,7 @@ title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setti
                         form#verifyUserPhoneForm
                             .item-edit
                                 .item
-                                    .row
+                                    .header-row.row
                                         h5.col-xs-8 Verify Phone Details
                                         .header-link.col-xs-4
                                             a.btn.btn-danger#cancelVerifyUserPhone
@@ -87,7 +87,7 @@ title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setti
                         form#changePasswordForm
                             .item-edit
                                 .item
-                                    .row
+                                    .header-row.row
                                         h5.col-xs-8 ChangePassword
                                         .header-link.col-xs-4
                                             a.btn.btn-danger#cancelChangePassword
@@ -109,7 +109,7 @@ title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setti
                                                     input.btn.btn-primary(type='submit', value='Change', name='changePassword')
                     .card#widgetCard(style='display: none;')
                         .item
-                            .row
+                            .header-row.row
                                 h5.col-xs-8 Your Widgets
                                 .header-link.col-xs-4
                         if widgets
