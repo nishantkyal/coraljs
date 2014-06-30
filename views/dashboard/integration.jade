@@ -42,7 +42,7 @@ title SearchNTalk - DashBoard
                                                 th
                                         tbody
                                             each member in integrationMembers
-                                                tr(class=member.id != undefined ? '' : 'active')
+                                                tr
                                                     td
                                                         strong
                                                             a(href=DashboardUrls.userProfile(member.user.id))= formatName(member.user.first_name, member.user.last_name)
@@ -50,8 +50,8 @@ title SearchNTalk - DashBoard
                                                         small #{member.user.email}
                                                     td= formatRole(member.role)
                                                     td
-                                                        | #{member.user.active ? 'Active' : 'Invited'}
-                                                        if (!member.user.active)
+                                                        | #{member.user.id ? (member.user.active ? 'Active' : 'Inactive') : 'Invited'}
+                                                        if (!member.user.id)
                                                             div
                                                                 a.sendAgain(href='javascript:void(0)', data-emailid=member.user.email) Send Again
                                                     td(style='text-align: center;')
