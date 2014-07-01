@@ -170,7 +170,7 @@ class EmailDelegate
         }
         catch (err)
         {
-            EmailDelegate.logger.error("Couldn't generate email body for (template %s, data: %s), Error: %s", template, JSON.stringify(emailData), JSON.stringify(err));
+            EmailDelegate.logger.error("Couldn't generate email body for (template %s, data: %s), Error:" + err, template, JSON.stringify(emailData));
             throw(err);
         }
     }
@@ -243,7 +243,8 @@ class EmailDelegate
                         query[ApiConstants.START_TIME] = startTime;
 
                         return Utils.addQueryToUrl(schedulingUrl, query);
-                    })
+                    }),
+                    expertGmtOffset: self.timezoneDelegate.get(call.getExpertUser().getTimezone())['gmt_offset'] * 1000
                 };
 
                 return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_SCHEDULING, call.getExpertUser().getEmail(), emailData);
@@ -266,7 +267,8 @@ class EmailDelegate
 
         var emailData = {
             call: call,
-            startTimeInCallerTZ: call.getStartTime() - self.timezoneDelegate.get(call.getUser().getTimezone())['gmt_offset'] * 1000,
+            userGmtOffset: self.timezoneDelegate.get(call.getUser().getTimezone())['gmt_offset'] * 1000,
+            expertGmtOffset: self.timezoneDelegate.get(call.getExpertUser().getTimezone())['gmt_offset'] * 1000
         };
 
         return q.all([
@@ -309,7 +311,8 @@ class EmailDelegate
                     acceptCode: code,
                     appointment: appointment,
                     appointmentUrl:appointmentUrl,
-                    suggestTimeUrl:Utils.addQueryToUrl(CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code))
+                    suggestTimeUrl:Utils.addQueryToUrl(CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
+                    userGmtOffset: self.timezoneDelegate.get(call.getUser().getTimezone())['gmt_offset'] * 1000
                 };
 
                 return q.all([
@@ -353,7 +356,8 @@ class EmailDelegate
                         query[ApiConstants.START_TIME] = startTime;
 
                         return Utils.addQueryToUrl(schedulingUrl, query);
-                    })
+                    }),
+                    expertGmtOffset: self.timezoneDelegate.get(call.getExpertUser().getTimezone())['gmt_offset'] * 1000
                 };
 
                 return self.composeAndSend(EmailDelegate.EMAIL_NEW_SLOTS_TO_EXPERT, call.getExpertUser().getEmail(), emailData);
@@ -429,7 +433,8 @@ class EmailDelegate
             integration: integration,
             call: call,
             appointment: call.getStartTime(),
-            callerTzOffset: new TimezoneDelegate().get(call.getUser().getTimezone()).getGmtOffset()
+            userGmtOffset: self.timezoneDelegate.get(call.getUser().getTimezone())['gmt_offset'] * 1000,
+            expertGmtOffset: self.timezoneDelegate.get(call.getExpertUser().getTimezone())['gmt_offset'] * 1000
         };
 
         return q.all([

@@ -65,11 +65,6 @@ head
                                             li
                                                 .checkbox(name='checkbox', data-id=slot)
                                                 span= formatDate(slot + expertGmtOffset,'DD/MM/YYYY hh:mm a') + ' (' +  formatTimezone(expertGmtOffset/1000) + ')'
-                                    else
-                                        for slot in startTimes
-                                            li
-                                                .checkbox(name='checkbox', data-id=slot)
-                                                span= formatDate(slot + expertGmtOffset,'DD/MM/YYYY hh:mm a') + ' (' +  formatTimezone(expertGmtOffset/1000) + ')'
                                 .form-group
                                     input.form-control.datepicker#newSlot(name='newSlot', type='text', placeholder='Suggest alternate time slot', readonly=true, style='background-color: white; cursor: default;')
                             .payment-summary.call-inputs
