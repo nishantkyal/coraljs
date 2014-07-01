@@ -406,6 +406,7 @@ class DashboardRoute
     /* Logout and redirect to login page */
     private logout(req, res:express.Response)
     {
+        req.logout();
         req.session.destroy();
         setTimeout(res.redirect(req.query[ApiConstants.RETURN_TO] || Urls.index()), 2000);
     }
