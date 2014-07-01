@@ -407,6 +407,7 @@ class DashboardRoute
     private logout(req, res:express.Response)
     {
         req.logout();
+        res.clearCookie("connect.sid");
         req.session.destroy(function sessionDestroyed()
         {
             setTimeout(res.redirect(req.query[ApiConstants.RETURN_TO] || Urls.index()), 2000);
