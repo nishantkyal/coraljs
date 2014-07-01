@@ -142,7 +142,6 @@ class AuthenticationDelegate
             var isLoggedIn = req.isAuthenticated && req.isAuthenticated();
             var isAjax = req.get('content-type') && req.get('content-type').indexOf('application/json') != -1;
 
-            console.log('After Logout: session %s = %s', req.session.passport.user);
             if (isLoggedIn)
                 if (!options.justCheck)
                     next();
