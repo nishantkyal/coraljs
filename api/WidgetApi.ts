@@ -31,7 +31,7 @@ class WidgetApi
                 {
                     res.send(widgetHtml);
                 },
-                function widgetRenderError(error) { res.send(500); }
+                function widgetRenderError(error) { res.send('An error occured in rendering Widget.').status(500); }
             );
         });
 
