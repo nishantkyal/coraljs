@@ -126,7 +126,8 @@ app.use(express.session({
     cookie: {maxAge: Config.get(Config.SESSION_EXPIRY)},
     store: new RedisStore({
         host: Config.get(Config.REDIS_HOST),
-        port: Config.get(Config.REDIS_PORT)
+        port: Config.get(Config.REDIS_PORT),
+        db: 1
     })
 }));
 
@@ -164,6 +165,10 @@ app.use(function (req:express.Request, res:express.Response, next:Function)
 
 app.use(function (err:any, req:express.Request, res:express.Response, next:Function)
 {
+    var isAjax = req.get('content-type') && req.get('content-type').indexOf('application/json') != -1;
+    if (isAjax)
+        return res.send(500, err.message);
+
     // we may use properties of the error object
     // here and next(err) appropriately, or if
     // we possibly recovered from the error, simply next().
