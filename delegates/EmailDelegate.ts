@@ -310,7 +310,7 @@ class EmailDelegate
                     acceptCode: code,
                     appointment: appointment,
                     appointmentUrl:appointmentUrl,
-                    suggestTimeUrl:Utils.addQueryToUrl(CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code))
+                    suggestTimeUrl:Utils.addQueryToUrl(CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
                     userGmtOffset: self.timezoneDelegate.get(call.getUser().getTimezone())['gmt_offset'] * 1000
                 };
 
