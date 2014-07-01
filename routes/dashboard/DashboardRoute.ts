@@ -407,8 +407,10 @@ class DashboardRoute
     private logout(req, res:express.Response)
     {
         req.logout();
-        req.session.destroy();
-        setTimeout(res.redirect(req.query[ApiConstants.RETURN_TO] || Urls.index()), 2000);
+        req.session.destroy(function sessionDestroyed()
+        {
+            setTimeout(res.redirect(req.query[ApiConstants.RETURN_TO] || Urls.index()), 2000);
+        });
     }
 
     private emailAccountVerification(req, res:express.Response)
