@@ -89,7 +89,7 @@ class WidgetDelegate extends BaseDaoDelegate
         {
             var widgetHtml = widgetTemplate({experts: [].concat(widgetExpert)});
         } catch (e) {
-            this.logger.error('Error while rendering widget expert data. Error: %s', JSON.stringify(e));
+            this.logger.error('Error while rendering widget expert data. Error: ' + e);
         }
         _.templateSettings = originalSettings;
 
@@ -115,7 +115,7 @@ class WidgetDelegate extends BaseDaoDelegate
             var widgetTemplate = _.template(widgetPartialHtml);
             var widgetHtml = widgetTemplate(widgetSettings);
         } catch (e) {
-            this.logger.error('Error while rendering widget settings. Error: %s', JSON.stringify(e));
+            this.logger.error('Error while rendering widget settings. Error: ' +  e);
         }
 
         _.templateSettings = originalSettings;

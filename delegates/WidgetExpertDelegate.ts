@@ -56,7 +56,8 @@ class WidgetExpertDelegate
 
                 var timezone = new TimezoneDelegate().get(widgetExpert.getTimezone());
                 widgetExpert.setTimezoneOffset(timezone['gmt_offset']);
-                widgetExpert.setPricingScheme(schemes[0]);
+                if (!Utils.isNullOrEmpty(schemes))
+                    widgetExpert.setPricingScheme(schemes[0]);
 
                 return widgetExpert;
             });
