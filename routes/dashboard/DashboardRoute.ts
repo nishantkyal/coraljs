@@ -259,6 +259,8 @@ class DashboardRoute
                         self.couponDelegate.search({integration_id: integrationId}, Coupon.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_EXPERT])
                     ])];
                 }
+                else
+                    throw new Error("You've not joined any network yet.")
             })
             .spread(
             function integrationDetailsFetched(integrationId:number, members:IntegrationMember[], ...results)
@@ -426,7 +428,7 @@ class DashboardRoute
                     var userActivationUpdate = {};
                     userActivationUpdate[User.ACTIVE] =
                         userActivationUpdate[User.EMAIL_VERIFIED] = true;
-                    return self.userDelegate.update(Utils.createSimpleObject(User.EMAIL, true), userActivationUpdate);
+                    return self.userDelegate.update(Utils.createSimpleObject(User.EMAIL, email), userActivationUpdate);
                 }
                 else
                     return res.render('500', {error: 'Account verification failed. Invalid code or email'});

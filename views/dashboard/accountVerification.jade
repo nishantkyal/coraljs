@@ -2,7 +2,12 @@ include  ../header
 .matter
     .container
         .row
-            .content.col-xs-12
-                h4 Your email has been verified!
-                a.btn.btn-primary.btn-xs(href=DashboardUrls.login()) Click here to login
+            .content.col-xs-12.col-md-12
+                .card
+                    .row
+                        .item
+                            h4 Your email has been verified!
+                    .row
+                        .item
+                            a.btn.btn-primary(href=DashboardUrls.login()) Click here to login
 include ../footer

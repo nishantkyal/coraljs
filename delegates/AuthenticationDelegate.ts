@@ -90,10 +90,15 @@ class AuthenticationDelegate
                                     if (options.successFlash)
                                         req.flash('info', "We've sent you an email with verification link to verify your email address. You may do it later but your account will not become active until then.");
 
+                                    var returnToUrl:string = req.session[ApiConstants.RETURN_TO];
+                                    req.session[ApiConstants.RETURN_TO] = null;
+
                                     if (isAjax)
-                                        res.send(200, {valid: true});
+                                        res.json(200, {valid: true});
                                     else if (options.successRedirect)
                                         res.redirect(options.successRedirect);
+                                    else if (returnToUrl)
+                                        res.redirect(returnToUrl);
                                     else
                                         next();
                                 });
