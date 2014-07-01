@@ -1,6 +1,4 @@
-$(function(){
-    addTimezoneInLinkedInLink();
-});
+setCookie('offset', -new Date().getTimezoneOffset() * 60);
 
 $("#login-form").bootstrapValidator({
     feedbackIcons: {

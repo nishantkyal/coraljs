@@ -55,7 +55,7 @@ class ApiConstants
     static FETCH_EMPLOYMENT:string                      = 'fetchEmployment';
     static FETCH_PROFILE_PICTURE:string                 = 'fetchProfilePicture';
     static FETCH_SKILL:string                           = 'fetchSkill';
-    static LINKEDIN_FETCH_FIELDS                        = 'lnkedin_fetch_fields';
+    static LINKEDIN_FETCH_FIELDS                        = 'linkedin_fetch_fields';
 
     /* Body constants */
     static COUPON:string                                = 'coupon';
@@ -84,7 +84,7 @@ class ApiConstants
     static MODE:string                                  = 'mode';
     static PUBLIC_MODE:string                           = 'public';
     static OFFSET:string                                = 'offset';
-    static ZONE:string                                  = 'zone'
+    static ZONE:string                                  = 'zone';
 
 }
 export = ApiConstants

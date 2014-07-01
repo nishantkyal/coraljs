@@ -26,8 +26,9 @@ import Credentials                              = require('../common/Credentials
 import Utils                                    = require('../common/Utils');
 import ApiConstants                             = require('../enums/ApiConstants');
 import IndustryCodes                            = require('../enums/IndustryCode');
-import ExpertRegistrationUrls                   = require('../routes/expertRegistration/Urls')
+import AuthenticationUrls                       = require('../routes/authentication/Urls')
 import DashboardUrls                            = require('../routes/dashboard/Urls')
+import ExpertRegistrationUrls                   = require('../routes/expertRegistration/Urls')
 import CallFlowUrls                             = require('../routes/callFlow/Urls');
 import PaymentUrls                              = require('../routes/payment/Urls');
 
@@ -36,28 +37,16 @@ class AuthenticationDelegate
     static STRATEGY_OAUTH:string = 'oauth';
     static STRATEGY_FACEBOOK:string = 'facebook';
     static STRATEGY_LINKEDIN:string = 'linkedin';
-    static STRATEGY_FACEBOOK_CALL_FLOW:string = 'facebook-call';
-    static STRATEGY_LINKEDIN_EXPERT_REGISTRATION:string = 'linkedin-expert';
-    static STRATEGY_LINKEDIN_FETCH = 'linkedin-fetch';
-    static STRATEGY_LINKEDIN_CALL_LOGIN = 'linkedin-call-login';
 
     private static logger = log4js.getLogger('AuthenticationDelegate');
 
     /* Static constructor workaround */
     private static ctor = (() =>
     {
-        // Oauth strategy
+        // Auth strategies
         AuthenticationDelegate.configureOauthStrategy();
-
-        /* Facebook login */
-        AuthenticationDelegate.configureFacebookStrategy(AuthenticationDelegate.STRATEGY_FACEBOOK, url.resolve(Config.get(Config.DASHBOARD_URI), '/login/fb/callback'));
-        AuthenticationDelegate.configureFacebookStrategy(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, url.resolve(Config.get(Config.DASHBOARD_URI), PaymentUrls.facebookLoginCallback()));
-
-        /* Linkedin login */
-        AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN, url.resolve(Config.get(Config.DASHBOARD_URI), DashboardUrls.linkedInLoginCallback()));
-        AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, url.resolve(Config.get(Config.DASHBOARD_URI), ExpertRegistrationUrls.linkedInLoginCallback()));
-        AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN_FETCH, url.resolve(Config.get(Config.DASHBOARD_URI), DashboardUrls.userProfileFromLinkedInCallback()));
-        AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN_CALL_LOGIN, url.resolve(Config.get(Config.DASHBOARD_URI), PaymentUrls.linkedInLoginCallback()));
+        AuthenticationDelegate.configureFacebookStrategy(AuthenticationDelegate.STRATEGY_FACEBOOK);
+        AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN);
 
         // Serialize-Deserialize user
         passport.serializeUser(function (user, done) { done(null, user); });
@@ -85,23 +74,7 @@ class AuthenticationDelegate
                             .then(
                             function verificationEmailSent()
                             {
-                                req.logIn(user, function ()
-                                {
-                                    if (options.successFlash)
-                                        req.flash('info', "We've sent you an email with verification link to verify your email address. You may do it later but your account will not become active until then.");
-
-                                    var returnToUrl:string = req.session[ApiConstants.RETURN_TO];
-                                    req.session[ApiConstants.RETURN_TO] = null;
-
-                                    if (isAjax)
-                                        res.json(200, {valid: true});
-                                    else if (options.successRedirect)
-                                        res.redirect(options.successRedirect);
-                                    else if (returnToUrl)
-                                        res.redirect(returnToUrl);
-                                    else
-                                        next();
-                                });
+                                req.logIn(user, next);
                             });
                     },
                     function registrationError(error)
@@ -133,7 +106,7 @@ class AuthenticationDelegate
     /* Check login method with support for ajax requests */
     static checkLogin(options:any = {})
     {
-        options.failureRedirect = options.failureRedirect || DashboardUrls.login();
+        options.failureRedirect = options.failureRedirect || AuthenticationUrls.login();
         options.justCheck = options.justCheck || false;
         options.setReturnTo = options.setReturnTo || true;
 
@@ -147,16 +120,13 @@ class AuthenticationDelegate
                     next();
                 else
                     res.json(200, {valid: isLoggedIn});
+            else if (isAjax)
+                return res.json(200, {valid: isLoggedIn});
             else
             {
-                if (isAjax)
-                    return res.json(200, {valid: isLoggedIn});
-                else
-                {
-                    if (options.setReturnTo)
-                        req.session[ApiConstants.RETURN_TO] = req.url;
-                    return res.redirect(DashboardUrls.login());
-                }
+                if (options.setReturnTo)
+                    req.session[ApiConstants.RETURN_TO] = req.url;
+                return res.redirect(AuthenticationUrls.login());
             }
         }
     }
@@ -164,6 +134,8 @@ class AuthenticationDelegate
     /* Login method with support for ajax requests */
     static login(options:any = {})
     {
+        options.failureFlash = options.failureFlash || true;
+
         return function (req, res:express.Response, next:Function)
         {
             var isAjax = req.get('content-type') && req.get('content-type').indexOf('application/json') != -1;
@@ -206,21 +178,7 @@ class AuthenticationDelegate
                         }
                     }
                     else
-                    {
-                        req.logIn(matchingUser, function ()
-                        {
-                            var returnToUrl:string = req.session[ApiConstants.RETURN_TO];
-                            req.session[ApiConstants.RETURN_TO] = null;
-                            if (isAjax)
-                                res.json(200, {valid: true});
-                            else if (options.successRedirect)
-                                res.redirect(options.successRedirect);
-                            else if (returnToUrl)
-                                res.redirect(returnToUrl);
-                            else
-                                next();
-                        });
-                    }
+                        req.logIn(matchingUser, next);
                 })
                 .fail(
                 function authFailed(error)
@@ -251,12 +209,12 @@ class AuthenticationDelegate
         ));
     }
 
-    private static configureFacebookStrategy(strategyId:string, callbackUrl:string, profileFields:string[] = ['id', 'name', 'emails'])
+    private static configureFacebookStrategy(strategyId:string, profileFields:string[] = ['id', 'name', 'emails'])
     {
         passport.use(strategyId, new passport_facebook.Strategy({
                 clientID: Credentials.get(Credentials.FB_APP_ID),
                 clientSecret: Credentials.get(Credentials.FB_APP_SECRET),
-                callbackURL: callbackUrl,
+                callbackURL: AuthenticationUrls.fbLoginCallBack(),
                 profileFields: profileFields,
                 passReqToCallback: true
             },
@@ -270,8 +228,15 @@ class AuthenticationDelegate
                 user.setLastName(profile.last_name);
                 user.setEmail(profile.email);
 
-                if (!Utils.isNullOrEmpty(req.session[ApiConstants.ZONE]))
-                    user.setTimezone(req.session[ApiConstants.ZONE]);
+                try {
+                    if (!Utils.isNullOrEmpty(req.cookies[ApiConstants.ZONE]))
+                        user.setTimezone(req.cookie[ApiConstants.ZONE]);
+                    else if (!Utils.isNullOrEmpty(req.cookies[ApiConstants.OFFSET]))
+                        user.setTimezone(new TimezoneDelegate().getZoneByOffset(parseInt(req.cookies[ApiConstants.OFFSET])).getZoneId());
+                } catch (e)
+                {
+                    user.setTimezone(1);
+                }
 
                 var userOauth = new UserOauth();
                 userOauth.setOauthUserId(profile.id);
@@ -307,12 +272,12 @@ class AuthenticationDelegate
         ));
     }
 
-    private static configureLinkedInStrategy(strategyId:string, callbackUrl:string)
+    private static configureLinkedInStrategy(strategyId:string)
     {
         passport.use(strategyId, new passport_linkedin.Strategy({
                 consumerKey: Credentials.get(Credentials.LINKEDIN_API_KEY),
                 consumerSecret: Credentials.get(Credentials.LINKEDIN_API_SECRET),
-                callbackURL: callbackUrl,
+                callbackURL: AuthenticationUrls.linkedInLoginCallBack(),
                 profileFields: UserProfileDelegate.BASIC_FIELDS,
                 passReqToCallback: true
             },
@@ -330,8 +295,15 @@ class AuthenticationDelegate
                 var user = new User();
                 user.setEmail(profile.emailAddress); //setting email id for new user, if user exists then this will be discarded
 
-                if (!Utils.isNullOrEmpty(req.session[ApiConstants.ZONE]))
-                    user.setTimezone(req.session[ApiConstants.ZONE]);
+                try {
+                    if (!Utils.isNullOrEmpty(req.cookies[ApiConstants.ZONE]))
+                        user.setTimezone(req.cookie[ApiConstants.ZONE]);
+                    else if (!Utils.isNullOrEmpty(req.cookies[ApiConstants.OFFSET]))
+                        user.setTimezone(new TimezoneDelegate().getZoneByOffset(parseInt(req.cookies[ApiConstants.OFFSET])).getZoneId());
+                } catch (e)
+                {
+                    user.setTimezone(1);
+                }
 
                 return new UserOAuthDelegate().addOrUpdateToken(userOauth, user)
                     .then(

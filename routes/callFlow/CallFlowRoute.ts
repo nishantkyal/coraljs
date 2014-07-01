@@ -76,7 +76,7 @@ class CallFlowRoute
     constructor(app, secureApp)
     {
         app.get(Urls.callExpert(), this.index.bind(this));
-        app.get(Urls.scheduling(), AuthenticationDelegate.checkLogin({setReturnTo: true, failureRedirect: DashboardUrls.login()}), this.scheduling.bind(this));
+        app.get(Urls.scheduling(), AuthenticationDelegate.checkLogin({setReturnTo: true}), this.scheduling.bind(this));
     }
 
     /* Render index with expert schedules */

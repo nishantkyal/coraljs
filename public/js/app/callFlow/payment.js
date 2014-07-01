@@ -1,20 +1,7 @@
-$(function()
-{
-    var offset = new Date().getTimezoneOffset() * -60;
-    var zone = _.find(Timezone, function(zone)
-    {
-        return zone.gmt_offset == offset;
-    });
-    $('[name="timezone"]').val(zone.zone_id).prop('selected', true);
-});
+setCookie('offset', -new Date().getTimezoneOffset() * 60);
 
 // Make user login before applying coupon or checking out
 var loginContext;
-
-$(function(){
-    addTimezoneInLinkedInLink();
-    addTimezoneInFacebookLink();
-})
 
 $('#applyCoupon, #checkout').on('click', function(event)
 {

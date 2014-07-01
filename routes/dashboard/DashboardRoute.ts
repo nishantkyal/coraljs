@@ -62,8 +62,6 @@ import SessionData                                      = require('./SessionData
 
 class DashboardRoute
 {
-    private static PAGE_LOGIN:string = 'dashboard/login';
-    private static PAGE_REGISTER:string = 'dashboard/register';
     private static PAGE_FORGOT_PASSWORD:string = 'dashboard/forgotPassword';
     private static PAGE_MOBILE_VERIFICATION:string = 'dashboard/mobileVerification';
     private static PAGE_DASHBOARD:string = 'dashboard/dashboard';
@@ -92,55 +90,17 @@ class DashboardRoute
     constructor(app, secureApp)
     {
         // Pages
-        app.get(Urls.index(), AuthenticationDelegate.checkLogin(), this.authSuccess.bind(this));
-        app.get(Urls.login(), this.login.bind(this));
-        app.get(Urls.register(), this.register.bind(this));
+        app.get(Urls.index(), AuthenticationDelegate.checkLogin({successRedirect: Urls.dashboard()}), this.dashboard.bind(this));
         app.get(Urls.forgotPassword(), this.forgotPassword.bind(this));
         app.get(Urls.mobileVerification(), AuthenticationDelegate.checkLogin({failureRedirect: Urls.index(), setReturnTo: true}), this.verifyMobile.bind(this));
 
         // Dashboard pages
-        app.get(Urls.dashboard(), AuthenticationDelegate.checkLogin({failureRedirect: Urls.login()}), this.dashboard.bind(this));
-        app.get(Urls.integration(), AuthenticationDelegate.checkLogin({failureRedirect: Urls.login()}), this.integration.bind(this));
+        app.get(Urls.dashboard(), AuthenticationDelegate.checkLogin({setReturnTo: true}), this.dashboard.bind(this));
+        app.get(Urls.integration(), AuthenticationDelegate.checkLogin({setReturnTo: true}), this.integration.bind(this));
         app.get(Urls.userProfile(), this.userProfile.bind(this));
         app.get(Urls.userSetting(), Middleware.allowOnlyMe, this.setting.bind(this));
 
-        app.get(Urls.logout(), this.logout.bind(this));
         app.get(Urls.emailAccountVerification(), this.emailAccountVerification.bind(this));
-
-        // Fetch profile details from linkedin
-        app.get(Urls.userProfileFromLinkedIn(), this.putLinkedInFieldsInSession.bind(this), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_FETCH, {failureRedirect: Urls.index(),
-            failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
-        app.get(Urls.userProfileFromLinkedInCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_FETCH, {failureRedirect: Urls.index(),
-            failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}), this.linkedInCallBack.bind(this));
-
-        // Auth
-        app.get(Urls.checkLogin(), AuthenticationDelegate.checkLogin({justCheck: true}));
-        app.post(Urls.login(), AuthenticationDelegate.login({failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
-        app.post(Urls.register(), AuthenticationDelegate.register({failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
-        app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
-        app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.login(), failureFlash: true}), this.authSuccess.bind(this));
-    }
-
-    /* Login page */
-    private login(req, res:express.Response)
-    {
-        var pageData = {
-            messages: req.flash()
-        };
-
-        res.render(DashboardRoute.PAGE_LOGIN, pageData);
-    }
-
-    /* Register page */
-    private register(req, res:express.Response)
-    {
-        var sessionData = new SessionData(req);
-
-        var pageData = _.extend(sessionData.getData(), {
-            messages: req.flash()
-        });
-
-        res.render(DashboardRoute.PAGE_REGISTER, pageData);
     }
 
     /* Forgot Password page */
@@ -192,16 +152,6 @@ class DashboardRoute
                 });
                 res.render(DashboardRoute.PAGE_MOBILE_VERIFICATION, pageData);
             });
-    }
-
-    /**
-     * Authentication Success page
-     * Renders integrations page by default after fetching all network member entries for the user
-     * Returns to returnTo, if set in session
-     */
-    private authSuccess(req, res:express.Response)
-    {
-        res.redirect(Urls.dashboard());
     }
 
     private dashboard(req:express.Request, res:express.Response)
@@ -287,7 +237,6 @@ class DashboardRoute
                     'coupons': coupons
                 });
 
-                //self.logger.debug('Rendering network page, data: %s', JSON.stringify(pageData));
                 res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
                 res.render(DashboardRoute.PAGE_INTEGRATION, pageData);
             })
@@ -368,6 +317,7 @@ class DashboardRoute
         var self = this;
         var userId:number = parseInt(req.params[ApiConstants.USER_ID]);
         var sessionData = new SessionData(req);
+        var selectedTab:string = req.query[ApiConstants.MODE];
 
         q.all([
             self.scheduleRuleDelegate.getRulesByUser(userId),
@@ -391,7 +341,8 @@ class DashboardRoute
                     userPhone: userPhone[0],
                     rules: rules || [],
                     scheme: pricingSchemes ? pricingSchemes[0] : new PricingScheme(),
-                    widgets: widget || []
+                    widgets: widget || [],
+                    selectedTab: selectedTab
                 });
 
                 res.render(DashboardRoute.PAGE_SETTING, pageData);
@@ -401,17 +352,6 @@ class DashboardRoute
             {
                 res.render('500', error.message)
             });
-    }
-
-    /* Logout and redirect to login page */
-    private logout(req, res:express.Response)
-    {
-        req.logout();
-        res.clearCookie("connect.sid");
-        req.session.destroy(function sessionDestroyed()
-        {
-            setTimeout(res.redirect(req.query[ApiConstants.RETURN_TO] || Urls.index()), 2000);
-        });
     }
 
     private emailAccountVerification(req, res:express.Response)
@@ -452,57 +392,6 @@ class DashboardRoute
             {
                 res.render('500', {error: error.message});
             });
-    }
-
-    private linkedInCallBack(req:express.Request, res:express.Response)
-    {
-        var self = this;
-
-        var fetchFields = req.session[ApiConstants.LINKEDIN_FETCH_FIELDS];
-        var profileId:number = req.session[ApiConstants.USER_PROFILE_ID];
-        var userId:number = req.session[ApiConstants.USER_ID];
-
-        var fetchTasks = [];
-
-        if (fetchFields[ApiConstants.FETCH_PROFILE_PICTURE])
-            fetchTasks.push(self.userProfileDelegate.fetchProfilePictureFromLinkedIn(userId, profileId));
-
-        if (fetchFields[ApiConstants.FETCH_BASIC])
-            fetchTasks.push(self.userProfileDelegate.fetchBasicDetailsFromLinkedIn(userId, profileId));
-
-        if (fetchFields[ApiConstants.FETCH_EDUCATION])
-            fetchTasks.push(self.userProfileDelegate.fetchAndReplaceEducation(userId, profileId));
-
-        if (fetchFields[ApiConstants.FETCH_EMPLOYMENT])
-            fetchTasks.push(self.userProfileDelegate.fetchAndReplaceEmployment(userId, profileId));
-
-        if (fetchFields[ApiConstants.FETCH_SKILL])
-            fetchTasks.push(self.userProfileDelegate.fetchAndReplaceSkill(userId, profileId));
-
-        q.all(fetchTasks)
-            .then(
-            function profileFetched(...args)
-            {
-                res.redirect(Urls.userProfile(userId));
-            },
-            function fetchError(error)
-            {
-                res.send(500);
-            });
-    }
-
-    private putLinkedInFieldsInSession(req:express.Request, res:express.Response, next:Function)
-    {
-        var profileId:number = parseInt(req.params[ApiConstants.USER_PROFILE_ID]);
-        var fetchBasic:boolean = req.query[ApiConstants.FETCH_BASIC] == 'on' ? true : false;
-        var fetchEducation:boolean = req.query[ApiConstants.FETCH_EDUCATION] == 'on' ? true : false;
-        var fetchEmployment:boolean = req.query[ApiConstants.FETCH_EMPLOYMENT] == 'on' ? true : false;
-        var fetchProfilePicture:boolean = req.query[ApiConstants.FETCH_PROFILE_PICTURE] == 'on' ? true : false;
-        var fetchSkill:boolean = req.query[ApiConstants.FETCH_SKILL] == 'on' ? true : false;
-        req.session[ApiConstants.LINKEDIN_FETCH_FIELDS] = {fetchBasic: fetchBasic, fetchEducation: fetchEducation, fetchEmployment: fetchEmployment, fetchProfilePicture: fetchProfilePicture, fetchSkill: fetchSkill};
-        req.session[ApiConstants.USER_PROFILE_ID] = profileId;
-        req.session[ApiConstants.USER_ID] = parseInt(req.query[ApiConstants.USER_ID]);
-        next();
     }
 }
 

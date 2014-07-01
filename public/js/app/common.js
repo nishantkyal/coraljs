@@ -16,22 +16,31 @@ function getFormData(form)
     return data;
 }
 
-function addTimezoneInLinkedInLink()
-{
-    var offset = new Date().getTimezoneOffset() * -60;
-    var zone = _.find(Timezone, function(zone){
-        return zone.gmt_offset == offset;
-    });
-    $('[name="timezone"]').val(zone.zone_id).prop('selected',true);
-    $("#linkedInLink").attr('href', linkedInUrl + '?zone=' + zone.zone_id);
+function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires="+d.toGMTString();
+    document.cookie = cname + "=" + cvalue + "; " + expires;
 }
 
-function addTimezoneInFacebookLink()
-{
-    var offset = new Date().getTimezoneOffset() * -60;
-    var zone = _.find(Timezone, function(zone){
-        return zone.gmt_offset == offset;
-    });
-    $('[name="timezone"]').val(zone.zone_id).prop('selected',true);
-    $("#facebookLink").attr('href', facebookUrl + '?zone=' + zone.zone_id);
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0; i<ca.length; i++) {
+        var c = ca[i].trim();
+        if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
+    }
+    return "";
+}
+
+function checkCookie() {
+    var user = getCookie("username");
+    if (user != "") {
+        alert("Welcome again " + user);
+    } else {
+        user = prompt("Please enter your name:", "");
+        if (user != "" && user != null) {
+            setCookie("username", user, 365);
+        }
+    }
 }

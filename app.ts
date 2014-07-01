@@ -34,6 +34,7 @@ import CallFlowUrls                                 = require('./routes/callFlow
 import DashboardUrls                                = require('./routes/dashboard/Urls');
 import PaymentUrls                                  = require('./routes/payment/Urls');
 import MemberRegistrationUrls                       = require('./routes/expertRegistration/Urls');
+import AuthenticationUrls                           = require('./routes/authentication/Urls');
 var connect                                         = require('connect');
 var RedisStore                                      = require('connect-redis')(connect);
 var pjson                                           = require('./package.json');
@@ -61,6 +62,7 @@ var helpers:Object =
     DashboardUrls: DashboardUrls,
     PaymentUrls: PaymentUrls,
     MemberRegistrationUrls: MemberRegistrationUrls,
+    AuthenticationUrls: AuthenticationUrls,
 
     Config: Config,
     Credentials: Credentials,

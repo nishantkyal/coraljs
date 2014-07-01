@@ -21,6 +21,7 @@ import IncludeFlag                                          = require('../../enu
 import IntegrationMemberRole                                = require('../../enums/IntegrationMemberRole');
 import Config                                               = require('../../common/Config');
 import Utils                                                = require('../../common/Utils');
+import AuthenticationUrls                                      = require('../../routes/authentication/Urls');
 import DashboardUrls                                        = require('../../routes/dashboard/Urls');
 
 import Urls                                                 = require('./Urls');
@@ -44,8 +45,6 @@ class MemberRegistrationRoute
         app.get(Urls.complete(), AuthenticationDelegate.checkLogin({failureRedirect: Urls.index()}), this.expertComplete.bind(this));
 
         // Auth
-        app.get(Urls.linkedInLogin(), this.putTimezoneInSession.bind(this), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: DashboardUrls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
-        app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_EXPERT_REGISTRATION, {failureRedirect: DashboardUrls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}), this.authenticationSuccess.bind(this));
         app.post(Urls.authorizationDecision(), OAuthProviderDelegate.decision);
     }
 
@@ -85,7 +84,7 @@ class MemberRegistrationRoute
                 req.logout();
 
                 req.session[ApiConstants.RETURN_TO] = authorizationUrl;
-                res.redirect(DashboardUrls.register());
+                res.redirect(AuthenticationUrls.register());
             },
             function verificationFailed()
             {

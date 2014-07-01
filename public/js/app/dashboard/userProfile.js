@@ -208,12 +208,14 @@ $('[name="deleteUserSkill"]').click(function()
     });
 });
 
-$('#fetchProfilePicture,#fetchSkill,#fetchEmployment,#fetchEducation,#fetchBasic').click(function(event)
+$('#fetchProfilePicture, #fetchSkill, #fetchEmployment, #fetchEducation, #fetchBasic').click(function(event)
 {
     bootbox.confirm('Are you sure you want to replace the current information with information from LinkedIn?', function(result)
     {
         if (result) {
-            location.href = '/member/profileFromLinkedIn/' + userProfile.id + '?userId=' + user.id + '&' + $(event.currentTarget).attr('id') + '=on';
+            setCookie('linkedin_fetch_fields', $(event.currentTarget).attr('id'));
+            setCookie('profileId', userProfile.id);
+            location.href = '/login/linkedin';
         }
     });
 });

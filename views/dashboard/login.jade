@@ -32,9 +32,8 @@ include ../header
                                 .form-group
                                     .controls
                                         input.btn-primary.btn.btn-block(value='Login', type='submit')
-                                a.btn-linkedin.btn(href=MemberRegistrationUrls.linkedInLogin()) Login with LinkedIn
+                                a.btn-linkedin.btn(href=AuthenticationUrls.linkedInLogin()) Login with LinkedIn
                                 a.btn.btn-link(href=DashboardUrls.forgotPassword()) Forgot password?
-                                a.btn.btn-link(href=DashboardUrls.register()) Create an account
-                                // /.content
+                                a.btn.btn-link(href=AuthenticationUrls.register()) Create an account
 include ../footer
 script(src='/js/app/expertRegistration/authenticate.js')

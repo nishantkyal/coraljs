@@ -62,12 +62,6 @@ class PaymentRoute
 
         app.post(Urls.paymentCallback(), this.paymentComplete.bind(this));
         app.get(Urls.paymentCallback(), this.paymentComplete.bind(this));
-
-        app.get(Urls.linkedInLogin(), this.putTimezoneInSession.bind(this), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_CALL_LOGIN, {failureRedirect: Urls.payment(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
-        app.get(Urls.linkedInLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN_CALL_LOGIN, {failureRedirect: Urls.payment(), failureFlash: true}), this.callPayment.bind(this));
-
-        app.get(Urls.facebookLogin(), this.putTimezoneInSession.bind(this), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {failureRedirect: Urls.payment(), failureFlash: true, scope: ['public_profile', 'email']}));
-        app.get(Urls.facebookLoginCallback(), passport.authenticate(AuthenticationDelegate.STRATEGY_FACEBOOK_CALL_FLOW, {failureRedirect: Urls.payment(), failureFlash: true}), this.callPayment.bind(this));
     }
 
     /* Redirect to convert post to get

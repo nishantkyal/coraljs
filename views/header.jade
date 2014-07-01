@@ -60,15 +60,15 @@ div.masthead(role='banner')
                                     | English
                         ul
                             li
-                                a.btn.btn-primary(href=DashboardUrls.logout() + '?returnTo=' + path) Logout
+                                a.btn.btn-primary(href=AuthenticationUrls.logout() + '?returnTo=' + path) Logout
             else
                 div.masthead-control-field
                     div.field-trigger
                         span.hidden-xs Don't have an account yet?
-                        a.btn.btn-default(href=DashboardUrls.register()) Sign Up
+                        a.btn.btn-default(href=AuthenticationUrls.register()) Sign Up
                 div.masthead-control-field
                     div.field-action
-                        a.btn.btn-primary.login(href=DashboardUrls.login()) Login
+                        a.btn.btn-primary.login(href=AuthenticationUrls.login()) Login
                 //div.masthead-control-field.lang-control
                     div.field-boxedinfo
                         div.lang en

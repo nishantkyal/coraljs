@@ -4,26 +4,30 @@ title SearchNTalk - DashBoard
 .matter
     .container
         .row
-            .content.col-md-6
+            .content.col-md-4
                 .row
-                    .card#becomeAnExpertCard
+                    .card
                         .item
                             .row
                                 h5.col-xs-8 Become an Expert
                                 .header-link.col-xs-4
                         .item
                             .row
-                                div Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa.
-                                |Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec,
-                                |pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget,
-                                |arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt.
-                                |Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend
-                                |ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum.
-                                |Aenean imperdiet. Etiam ultricies nisi vel augue.
+                                p Find a network of your interest or simply join our network as expert.
+                                ul
+                                    li
+                                        strong  Share your expertise
+                                        p You can charge for your advice or offer it for free
+                                    li
+                                        strong After your approval
+                                        p Callers will book an appointment and share agenda before the call
+                                    li
+                                        strong Your number stays private
+                                        p We connect the calls without disclosing your number
                         .item
                             .row
-                                input.btn.btn-primary#submit(type='submit', value='Save')
-            .content.col-md-6
+                                a.btn.btn-primary Join Us
+            .content.col-md-4
                 .row
                     .card#startExpertNetworkCard
                         .item
@@ -32,14 +36,21 @@ title SearchNTalk - DashBoard
                                 .header-link.col-xs-4
                         .item
                             .row
-                                div Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa.
-                                |Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec,
-                                |pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget,
-                                |arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt.
-                                |Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend
-                                |ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum.
-                                |Aenean imperdiet. Etiam ultricies nisi vel augue.
+                                p You can monetize your expert network by simply having them join your network and managing their calls
                         .item
                             .row
-                                input.btn.btn-primary#submit(type='submit', value='Save')
+                                a.btn.btn-primary Manage your experts
+            .content.col-md-4
+                .row
+                    .card
+                        .item
+                            .row
+                                h5.col-xs-8 Get Widgets
+                                .header-link.col-xs-4
+                        .item
+                            .row
+                                p Take your expertise to the world. Our widgets let you be approachable for callers who might be seeking you.
+                        .item
+                            .row
+                                a.btn.btn-primary(href=DashboardUrls.userSetting(loggedInUser.id) + '?mode=widget') Get Widgets
 include ../footer
