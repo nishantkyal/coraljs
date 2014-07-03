@@ -1,4 +1,4 @@
-var cards = ['#schedule','#scheduleDetails','#pricing','#changePasswordCard','#phoneDetails','#editUserPhoneCard','#verifyUserPhoneCard','#widgetCard'];
+var cards = ['#schedule','#scheduleDetails','#pricing','#password','#phone','#editUserPhoneCard','#verifyUserPhoneCard','#widget'];
 function showAndHideCards(cardsToShow)
 {
     _.each(cardsToShow, function(showCard){ $(showCard).show(); })
@@ -14,7 +14,7 @@ function showAndHideCards(cardsToShow)
 }
 
 $(function(){
-    showAndHideCards(['#phoneDetails']);
+    showAndHideCards(['#' + selectedTab]);
 })
 
 $('[name="phoneDetailsLink"]').click(function()
@@ -22,7 +22,7 @@ $('[name="phoneDetailsLink"]').click(function()
     if(!$('[name="phoneDetailsLink"]').hasClass('active'))
     {
         $('[name="phoneDetailsLink"]').addClass('active').siblings().removeClass('active');
-        showAndHideCards(['#phoneDetails'])
+        showAndHideCards(['#phone'])
     }
 });
 
@@ -37,7 +37,7 @@ $('[name="scheduleAndPricingLink"]').click(function()
 
 $('[name="changePasswordLink"]').click(function()
 {
-    showAndHideCards(['#changePasswordCard']);
+    showAndHideCards(['#password']);
     $('[name="changePasswordLink"]').addClass('active').siblings().removeClass('active');
 
     $('form#changePasswordForm').trigger('reset');
@@ -46,7 +46,7 @@ $('[name="changePasswordLink"]').click(function()
 
 $('[name="widgetLink"]').click(function()
 {
-    showAndHideCards(['#widgetCard']);
+    showAndHideCards(['#widget']);
     $('[name="widgetLink"]').addClass('active').siblings().removeClass('active');
 });
 
@@ -66,13 +66,13 @@ $('#cancelChangePassword').click(function()
 {
     $('#phoneDetails').show();
     $('[name="phoneDetailsLink"]').addClass('active').siblings().removeClass('active');
-    $('#changePasswordCard').hide();
+    $('#password').hide();
 });
 
 $('[name="editUserPhone"]').click(function()
 {
     $('#editUserPhoneCard').show();
-    $('#phoneDetails').hide();
+    $('#phone').hide();
 });
 
 $('form#editUserPhoneForm').bootstrapValidator({

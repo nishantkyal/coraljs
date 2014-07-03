@@ -260,3 +260,59 @@ $('#cancelCoupon').click(function()
 });
 
 $('.datepicker').datetimepicker();
+
+$('form#integration').bootstrapValidator({
+    fields       : {
+        title           : {
+            validators: {
+                notEmpty: {
+                    message: 'This field is required and cannot be empty'
+                }
+            }
+        },
+        website_url     : {
+            validators: {
+                uri: {
+                    message: 'Please enter a valid url'
+                },
+                callback: {
+                    callback: function(value)
+                    {
+                        return $('form#integration select[name=integration_type]').val() != '3' || value.trim().length != 0;
+                    },
+                    message: 'Website URL is required for integrations of type forum/website'
+                }
+            }
+        }
+    },
+    submitHandler: function(form)
+    {
+        $.ajax({
+            url        : '/rest/integration',
+            type       : 'put',
+            dataType   : 'json',
+            contentType: 'application/json',
+            data       : JSON.stringify({
+                integration: {
+                    title           : $('form#integration input[name=title]').val(),
+                    integration_type: parseInt($('form#integration select[name=integration_type]').val()),
+                    website_url     : $('form#integration input[name=website_url]').val(),
+                    redirect_url    : $('form#integration input[name=redirect_url]').val()
+                }
+            }),
+            success    : function()
+            {
+                location.reload();
+            },
+            error      : function(jqXHR)
+            {
+                bootbox.alert(jqXHR.responseText);
+            }
+        })
+    }
+});
+
+$('form#integration select[name=integration_type]').change(function()
+{
+    $('form#integration').data('bootstrapValidator').validateField('website_url');
+});
