@@ -26,7 +26,7 @@ class OAuthProviderDelegate
                 var search = {};
                 search[Integration.ID] = integrationId;
 
-                var integrationDelegate = new IntegrationDelegate()
+                var integrationDelegate = new IntegrationDelegate();
                 integrationDelegate.find(search)
                     .then(
                     function integrationFetched(integration)

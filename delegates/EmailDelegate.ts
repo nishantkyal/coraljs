@@ -44,6 +44,7 @@ class EmailDelegate
     private static EMAIL_PASSWORD_RESET:string                      = 'EMAIL_PASSWORD_RESET';
     private static EMAIL_EXPERT_INVITE:string                       = 'EMAIL_EXPERT_INVITE';
     private static EMAIL_MEMBER_ADDED:string                        = 'EMAIL_MEMBER_ADDED';
+    private static EMAIL_INTEGRATION_ADDED:string                   = 'EMAIL_INTEGRATION_ADDED';
     private static EMAIL_EXPERT_WELCOME:string                      = 'EMAIL_EXPERT_WELCOME';
     private static EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION:string   = 'EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION';
     private static EMAIL_EXPERT_SCHEDULING:string                   = 'EMAIL_EXPERT_SCHEDULING';
@@ -545,5 +546,13 @@ class EmailDelegate
         return this.composeAndSend(EmailDelegate.EMAIL_TEST, to, data);
     }
 
+    sendIntegrationCreatedEmail(integrationOwner:IntegrationMember):q.Promise<any>
+    {
+        var emailData = {
+            integration: integrationOwner.getIntegration(),
+            integration_url: Utils.addQueryToUrl(DashboardUrls.integration(Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.INTEGRATION_ID, integrationOwner.getIntegrationId()))
+        }
+        return this.composeAndSend(EmailDelegate.EMAIL_INTEGRATION_ADDED, integrationOwner.getUser().getEmail(), emailData);
+    }
 }
 export = EmailDelegate

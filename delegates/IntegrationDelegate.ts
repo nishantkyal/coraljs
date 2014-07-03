@@ -37,25 +37,10 @@ class IntegrationDelegate extends BaseDaoDelegate
             });
     }
 
-    createByUser(object:any, user?:User, transaction?:Object):q.Promise<any>
+    create(object:any, transaction?:Object):q.Promise<any>
     {
-        if (Utils.isNullOrEmpty(transaction))
-            return MysqlDelegate.executeInTransaction(this, arguments);
-
-        return this.create(object, transaction)
-            .then(
-            function integrationCreated(integration:Integration)
-            {
-                var member = new IntegrationMember();
-                member.setIntegrationId(integration.getId());
-                member.setRole(IntegrationMemberRole.Owner);
-                member.setUserId(user.getId())
-
-
-                var IntegrationMemberDelegate:any = require('./IntegrationMemberDelegate');
-                var integrationMemberDelegate = new IntegrationMemberDelegate();
-                return integrationMemberDelegate.create(member, transaction);
-            });
+        object[Integration.SECRET] = object[Integration.SECRET] || Utils.getRandomString(20);
+        return super.create(object, transaction);
     }
 
     getAll():Integration[]

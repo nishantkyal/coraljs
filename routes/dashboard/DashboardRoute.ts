@@ -210,7 +210,7 @@ class DashboardRoute
                     ])];
                 }
                 else
-                    throw new Error("You've not joined any network yet.")
+                    return [null, [], [[], [], []]];
             })
             .spread(
             function integrationDetailsFetched(integrationId:number, members:IntegrationMember[], ...results)

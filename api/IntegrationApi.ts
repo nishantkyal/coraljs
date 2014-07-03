@@ -18,6 +18,7 @@ import Utils                                        = require('../common/Utils')
 import Config                                       = require('../common/Config');
 import IncludeFlag                                  = require('../enums/IncludeFlag');
 import IntegrationMemberRole                        = require('../enums/IntegrationMemberRole');
+import IntegrationStatus                            = require('../enums/IntegrationStatus');
 
 /*
  Rest Calls for Third party integrations
@@ -37,9 +38,20 @@ class IntegrationApi
         /* Create integration and send email to admin */
         app.put(ApiUrlDelegate.integration(), AuthenticationDelegate.checkLogin(), function (req:express.Request, res:express.Response)
         {
-            var integration = req.body[ApiConstants.INTEGRATION];
+            var integration:Integration = req.body[ApiConstants.INTEGRATION];
             var loggedInUser = new User(req[ApiConstants.USER]);
 
+            if (!loggedInUser.getActive())
+            {
+                return self.verificationCodeDelegate.createPasswordResetCode(loggedInUser.getEmail())
+                    .then(
+                    function verificationCodeSent(code:string)
+                    {
+                        return res.send(401, 'Please activate your account by verifying email first.')
+                    });
+            }
+            integration.setStatus(IntegrationStatus.ACTIVE);
+            
             self.integrationDelegate.create(integration)
                 .then(
                 function integrationCreated()
@@ -55,23 +67,13 @@ class IntegrationApi
                     ])];
                 })
                 .spread(
-                function memberCreated(integration:Integration, member:IntegrationMember)
+                function memberCreated(integration:Integration, ...args)
                 {
-                    // Send member added email
-                    // Send password reset code if new user
-                    if (!member.getUser().getId())
-                        return [
-                            integration, 
-                            self.verificationCodeDelegate.createPasswordResetCode(loggedInUser.getEmail())
-                                .then(
-                                function codeCreated(code:string)
-                                {
-                                    member.setIntegration(integration);
-                                    return self.notificationDelegate.sendMemberAddedNotification(member, code)
-                                })
-                        ];   
-                    else
-                        return [integration, self.notificationDelegate.sendMemberAddedNotification(member)];
+                    var member:IntegrationMember = args[0][0][0];
+                    member.setUser(loggedInUser);
+                    member.setIntegration(integration);
+
+                    return [integration, self.notificationDelegate.sendIntegrationCreatedEmail(member)];
                 })
                 .spread(
                 function resetPasswordEmailSent(integration)
@@ -82,7 +84,7 @@ class IntegrationApi
                 function (error) 
                 { 
                     res.status(500).json(error);
-                })
+                });
         });
 
         /* Delete integration */

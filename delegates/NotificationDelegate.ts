@@ -122,5 +122,10 @@ class NotificationDelegate
     {
         return this.emailDelegate.sendMemberAddedEmail(member, passwordResetCode);
     }
+
+    sendIntegrationCreatedEmail(integrationOwner:IntegrationMember):q.Promise<any>
+    {
+        return this.emailDelegate.sendIntegrationCreatedEmail(integrationOwner);
+    }
 }
 export = NotificationDelegate

@@ -275,12 +275,18 @@ $('form#integration').bootstrapValidator({
                 uri: {
                     message: 'Please enter a valid url'
                 },
-                callback: {
-                    callback: function(value)
-                    {
-                        return $('form#integration select[name=integration_type]').val() != '3' || value.trim().length != 0;
-                    },
-                    message: 'Website URL is required for integrations of type forum/website'
+                notEmpty: {
+                    message: 'This field is required and cannot be empty'
+                }
+            }
+        },
+        redirect_url     : {
+            validators: {
+                uri: {
+                    message: 'Please enter a valid url'
+                },
+                notEmpty: {
+                    message: 'This field is required and cannot be empty'
                 }
             }
         }

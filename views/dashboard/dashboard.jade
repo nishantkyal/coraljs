@@ -26,7 +26,7 @@ title SearchNTalk - DashBoard
                                         p We connect the calls without disclosing your number
                         .item
                             .row
-                                a.btn.btn-primary Join Us
+                                a.btn.btn-primary(href=MemberRegistrationUrls.index() + '?integrationId=' + Config.get(Config.DEFAULT_NETWORK_ID)) Join Us
             .content.col-md-4
                 .row
                     .card#startExpertNetworkCard
@@ -39,7 +39,7 @@ title SearchNTalk - DashBoard
                                 p You can monetize your expert network by simply having them join your network and managing their calls
                         .item
                             .row
-                                a.btn.btn-primary Manage your experts
+                                a.btn.btn-success(href=DashboardUrls.integration()) Manage your experts
             .content.col-md-4
                 .row
                     .card
@@ -52,5 +52,5 @@ title SearchNTalk - DashBoard
                                 p Take your expertise to the world. Our widgets let you be approachable for callers who might be seeking you.
                         .item
                             .row
-                                a.btn.btn-primary(href=DashboardUrls.userSetting(loggedInUser.id) + '?mode=widget') Get Widgets
+                                a.btn.btn-info(href=DashboardUrls.userSetting(loggedInUser.id) + '?mode=widget') Get Widgets
 include ../footer

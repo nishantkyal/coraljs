@@ -39,7 +39,7 @@ class MemberRegistrationRoute
     constructor(app, secureApp)
     {
         // Pages
-        app.get(Urls.index(), this.index.bind(this));
+        app.get(Urls.index(), AuthenticationDelegate.checkLogin({setReturnTo: true}), this.index.bind(this));
         app.get(Urls.authorization(), Middleware.requireInvitationCode, Middleware.ensureNotAlreadyRegistered, OAuthProviderDelegate.authorization, this.authorize.bind(this));
         app.get(Urls.authorizationRedirect(), this.authorizationRedirect.bind(this));
         app.get(Urls.complete(), AuthenticationDelegate.checkLogin({failureRedirect: Urls.index()}), this.expertComplete.bind(this));
@@ -72,13 +72,10 @@ class MemberRegistrationRoute
         // 1. Validate invitation code
         // 2. Authenticate
 
-        if (integrationId == Config.get(Config.DEFAULT_NETWORK_ID) && Utils.isNullOrEmpty(invitationCode))
+        var authorizationUrl = Urls.authorization() + '?response_type=code&client_id=' + integrationId + '&redirect_uri=' + Urls.authorizationRedirect();
+        if (integrationId == Config.get(Config.DEFAULT_NETWORK_ID))
         {
-            var authorizationUrl = Urls.authorization() + '?response_type=code&client_id=' + integrationId + '&redirect_uri=' + Urls.authorizationRedirect();
-
-            invitedMember.setIntegrationId(integrationId);
             invitedMember.setRole(IntegrationMemberRole.Expert);
-
             sessionData.setMember(invitedMember);
 
             res.redirect(authorizationUrl);
@@ -87,39 +84,25 @@ class MemberRegistrationRoute
         {
             //Add invitation code to session
             sessionData.setInvitationCode(invitationCode);
+
             this.verificationCodeDelegate.searchInvitationCode(invitationCode, integrationId)
                 .then(
                 function verified(result):any
                 {
-                    var authorizationUrl = Urls.authorization() + '?response_type=code&client_id=' + integrationId + '&redirect_uri=' + Urls.authorizationRedirect();
-
                     invitedMember = new IntegrationMember(result);
                     sessionData.setMember(invitedMember);
-                    res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
-                    req.logout();
 
-                    req.session[ApiConstants.RETURN_TO] = authorizationUrl;
-                    res.redirect(AuthenticationUrls.register());
+                    res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
+                    res.redirect(authorizationUrl);
                 },
                 function verificationFailed()
                 {
-                    throw("The invitation is either invalid or has expired");
+                    throw(new Error("The invitation is either invalid or has expired"));
                 })
                 .fail(
                 function handleError(error) { res.render('500', {error: error}); }
             );
         }
-    }
-
-    /* Handle authentication success -> Redirect to authorization */
-    private authenticationSuccess(req:express.Request, res:express.Response)
-    {
-        var sessionData = new SessionData(req);
-        var integrationId = sessionData.getIntegrationId();
-        req.flash(ApiConstants.RETURN_TO, Urls.complete());
-
-        var authorizationUrl = Urls.authorization() + '?response_type=code&client_id=' + integrationId + '&redirect_uri=' + Urls.authorizationRedirect();
-        res.redirect(authorizationUrl);
     }
 
     /* Render authorization page */

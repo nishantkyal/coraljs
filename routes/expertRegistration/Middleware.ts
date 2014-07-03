@@ -12,10 +12,11 @@ class Middleware
     {
         var sessionData = new SessionData(req);
 
-        if (!Utils.isNullOrEmpty(sessionData.getInvitationCode())
-            && !Utils.isNullOrEmpty(sessionData.getIntegrationId()))
-            next();
-        else if (sessionData.getIntegrationId() == Config.get(Config.DEFAULT_NETWORK_ID) && Utils.isNullOrEmpty(sessionData.getInvitationCode()))
+        var isInvitationCodeValid:boolean = !Utils.isNullOrEmpty(sessionData.getInvitationCode());
+        var isIntegrationIdValid:boolean = !Utils.isNullOrEmpty(sessionData.getIntegrationId());
+        var isDefaultIntegrationId:boolean = sessionData.getIntegrationId() == Config.get(Config.DEFAULT_NETWORK_ID);
+
+        if (isIntegrationIdValid && (isInvitationCodeValid || isDefaultIntegrationId))
             next();
         else if (!Utils.isNullOrEmpty(sessionData.getInvitationCode()))
             res.send(401, "Invalid invitation code. Please click on the link in the invitation email.");

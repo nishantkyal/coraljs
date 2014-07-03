@@ -4,7 +4,7 @@ title SearchNTalk - DashBoard
 .matter
     .container
         .row
-            if members
+            if members && members.length != 0
                 .content.col-md-3
                     .row
                         nav.navbar.navbar-default.section-navbar(role='navigation')
@@ -169,7 +169,7 @@ title SearchNTalk - DashBoard
                                             .form-group
                                                 select.form-control(type='text', name='expert_resource_id')
                                                     option(value=0) All
-                                                    if members
+                                                    if members && members.length != 0
                                                         for member in members
                                                             option(value=member.id)= formatName(member.user.first_name, member.user.last_name, member.user.title)
                                             h3 Expires On
@@ -202,10 +202,45 @@ title SearchNTalk - DashBoard
                                             p.edit-schedules
                                                 em Invites will be sent on your behalf
                                                 input.btn.btn-primary#submit(type='submit', value='Save')
+            else
+                .content.col-md-12
+                    .alert.alert-warning
+                        strong You're not a part of any network yet.
+                        p Create one?
+                        form.card#integration
+                            .item-edit.account-edit
+                                .item
+                                    .header-row.row
+                                        .inputs.col-xs-8
+                                            .input-group
+                                                input.form-control(type='text', placeholder="Your Network's Name", name="title")
+                                    div
+                                        h3 Type:
+                                        .form-group
+                                            select.form-control(name='integration_type')
+                                                option(value='3') Shop-in-shop
+                                                option(value='2') Website
+                                                option(value='1') Forum
+                                        h3 Website URL:
+                                        .form-group
+                                            input.form-control(type='text', name='website_url')
+                                        h3 Redirect URL:
+                                        .form-group
+                                            input.form-control(type='text', name='redirect_url')
+                                .clearer
+                            div.links-editing
+                                p.edit-schedules
+                                    | Editing accounts
+                                    input.btn.btn-default(value='Create', type='submit')
+                        strong OR
+                        .actions-pane
+                            .row
+                                .col-xs-6.align-left
+                                    a.btn.btn-warning(href=MemberRegistrationUrls.index() + '?integrationId=' + Config.get(Config.DEFAULT_NETWORK_ID)) Join SearchNTalk's expert network
 include ../footer
 script.
     var Timezone = JSON.parse('!{JSON.stringify(Timezone)}');
-    var integrationId = '!{selectedMember.integration.id}';
+    var integrationId = '!{selectedMember && selectedMember.integration ? selectedMember.integration.id : null}';
     var coupons = JSON.parse('!{JSON.stringify(coupons)}');
 script(src='/js/app/dashboard/integration.js')
 script(src='/js/app/dashboard/fileUpload.js')

@@ -36,4 +36,6 @@ include ../header
                                 a.btn.btn-link(href=DashboardUrls.forgotPassword()) Forgot password?
                                 a.btn.btn-link(href=AuthenticationUrls.register()) Create an account
 include ../footer
+script.
+    var Timezone = JSON.parse('!{JSON.stringify(Timezone)}');
 script(src='/js/app/expertRegistration/authenticate.js')

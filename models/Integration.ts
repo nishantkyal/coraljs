@@ -1,5 +1,6 @@
 import BaseModel                = require('./BaseModel');
 import IntegrationType          = require('../enums/IntegrationType');
+import IntegrationStatus        = require('../enums/IntegrationStatus');
 
 /*
  Bean class for Integration
@@ -20,7 +21,7 @@ class Integration extends BaseModel
     private redirect_url:string;
     private integration_type:IntegrationType;
     private secret:string;
-    private status:string;
+    private status:IntegrationStatus;
 
     static DEFAULT_FIELDS:string[] = [Integration.ID, Integration.TITLE, Integration.INTEGRATION_TYPE];
 
@@ -30,7 +31,7 @@ class Integration extends BaseModel
     getRedirectUrl():string                             { return this.redirect_url; }
     getIntegrationType():IntegrationType                { return this.integration_type; }
     getSecret():string                                  { return this.secret; }
-    getStatus():string                                  { return this.status; }
+    getStatus():IntegrationStatus                       { return this.status; }
 
     /* Setters */
     setTitle(val:string)                                { this.title = val; }
@@ -38,7 +39,7 @@ class Integration extends BaseModel
     setRedirectUrl(val:string)                          { this.redirect_url = val; }
     setIntegrationType(val:IntegrationType)             { this.integration_type = val; }
     setSecret(val:string)                               { this.secret = val; }
-    setStatus(val:string)                               { this.status = val; }
+    setStatus(val:IntegrationStatus)                    { this.status = val; }
 
 }
 export = Integration

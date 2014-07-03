@@ -41,7 +41,7 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
         return q.all([
             super.create(integrationMember, dbTransaction),
             self.widgetDelegate.createAllWidgets(integrationMember.getUserId())
-            ]);
+        ]);
     }
 
     findValidAccessToken(accessToken:string, integrationMemberId?:string, role?:IntegrationMemberRole):q.Promise<any>
