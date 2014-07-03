@@ -1,5 +1,13 @@
 setCookie('offset', -new Date().getTimezoneOffset() * 60);
 
+$(function(){
+    var offset = new Date().getTimezoneOffset() * -60;
+    var zone = _.find(Timezone, function(zone){
+        return zone.gmt_offset == offset;
+    });
+    $('[name="timezone"]').val(zone.zone_id).prop('selected',true);
+});
+
 // Make user login before applying coupon or checking out
 var loginContext;
 

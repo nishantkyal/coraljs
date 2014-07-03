@@ -42,6 +42,8 @@ class Config
     static MAXIMUM_REATTEMPTS:string                    = 'maximum.reattempts';
     static MINIMUM_YEAR:string                          = 'minimum.year';
 
+    static DEFAULT_NETWORK_ID:string                    = 'default_network_id';
+
     static TIMEZONE_REFRESH_INTERVAL_SECS:string        = 'timezone.refresh.interval';
 
     static CALLBACK_NUMBER:string                       = 'callback.number';

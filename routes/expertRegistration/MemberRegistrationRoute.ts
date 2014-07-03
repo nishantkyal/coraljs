@@ -21,7 +21,7 @@ import IncludeFlag                                          = require('../../enu
 import IntegrationMemberRole                                = require('../../enums/IntegrationMemberRole');
 import Config                                               = require('../../common/Config');
 import Utils                                                = require('../../common/Utils');
-import AuthenticationUrls                                      = require('../../routes/authentication/Urls');
+import AuthenticationUrls                                   = require('../../routes/authentication/Urls');
 import DashboardUrls                                        = require('../../routes/dashboard/Urls');
 
 import Urls                                                 = require('./Urls');
@@ -57,7 +57,7 @@ class MemberRegistrationRoute
         var integration = new IntegrationDelegate().getSync(integrationId);
 
         var invitationCode:string = req.query[ApiConstants.CODE] || sessionData.getInvitationCode();
-        var invitedMember;
+        var invitedMember:IntegrationMember = new IntegrationMember();
 
         if (Utils.isNullOrEmpty(integration))
         {
@@ -65,34 +65,50 @@ class MemberRegistrationRoute
             return;
         }
 
-        // Add invitation code and integration id to session
-        sessionData.setInvitationCode(invitationCode);
+        // Add integration id to session
         sessionData.setIntegrationId(integrationId);
         sessionData.setIntegration(integration);
 
         // 1. Validate invitation code
         // 2. Authenticate
-        this.verificationCodeDelegate.searchInvitationCode(invitationCode, integrationId)
-            .then(
-            function verified(result):any
-            {
-                var authorizationUrl = Urls.authorization() + '?response_type=code&client_id=' + integrationId + '&redirect_uri=' + Urls.authorizationRedirect();
 
-                invitedMember = new IntegrationMember(result);
-                sessionData.setMember(invitedMember);
-                res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
-                req.logout();
+        if (integrationId == Config.get(Config.DEFAULT_NETWORK_ID) && Utils.isNullOrEmpty(invitationCode))
+        {
+            var authorizationUrl = Urls.authorization() + '?response_type=code&client_id=' + integrationId + '&redirect_uri=' + Urls.authorizationRedirect();
 
-                req.session[ApiConstants.RETURN_TO] = authorizationUrl;
-                res.redirect(AuthenticationUrls.register());
-            },
-            function verificationFailed()
-            {
-                throw("The invitation is either invalid or has expired");
-            })
-            .fail(
-            function handleError(error) { res.render('500', {error: error}); }
-        );
+            invitedMember.setIntegrationId(integrationId);
+            invitedMember.setRole(IntegrationMemberRole.Expert);
+
+            sessionData.setMember(invitedMember);
+
+            res.redirect(authorizationUrl);
+        }
+        else
+        {
+            //Add invitation code to session
+            sessionData.setInvitationCode(invitationCode);
+            this.verificationCodeDelegate.searchInvitationCode(invitationCode, integrationId)
+                .then(
+                function verified(result):any
+                {
+                    var authorizationUrl = Urls.authorization() + '?response_type=code&client_id=' + integrationId + '&redirect_uri=' + Urls.authorizationRedirect();
+
+                    invitedMember = new IntegrationMember(result);
+                    sessionData.setMember(invitedMember);
+                    res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
+                    req.logout();
+
+                    req.session[ApiConstants.RETURN_TO] = authorizationUrl;
+                    res.redirect(AuthenticationUrls.register());
+                },
+                function verificationFailed()
+                {
+                    throw("The invitation is either invalid or has expired");
+                })
+                .fail(
+                function handleError(error) { res.render('500', {error: error}); }
+            );
+        }
     }
 
     /* Handle authentication success -> Redirect to authorization */

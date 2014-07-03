@@ -4,6 +4,7 @@ import IntegrationMember                                                = requir
 import SessionData                                                      = require('./SessionData');
 import Urls                                                             = require('./Urls');
 import Utils                                                            = require('../../common/Utils');
+import Config                                                           = require('../../common/Config');
 
 class Middleware
 {
@@ -13,6 +14,8 @@ class Middleware
 
         if (!Utils.isNullOrEmpty(sessionData.getInvitationCode())
             && !Utils.isNullOrEmpty(sessionData.getIntegrationId()))
+            next();
+        else if (sessionData.getIntegrationId() == Config.get(Config.DEFAULT_NETWORK_ID) && Utils.isNullOrEmpty(sessionData.getInvitationCode()))
             next();
         else if (!Utils.isNullOrEmpty(sessionData.getInvitationCode()))
             res.send(401, "Invalid invitation code. Please click on the link in the invitation email.");
