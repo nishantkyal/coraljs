@@ -328,6 +328,9 @@ class EmailDelegate
     {
         var self = this;
 
+        if (Utils.getObjectType(appointments) == 'Number')
+            appointments = [].concat(appointments);
+
         if (Utils.getObjectType(call) == 'Number')
             return self.phoneCallDelegate.get(call, null,[IncludeFlag.INCLUDE_EXPERT_USER])
                 .then(
@@ -348,7 +351,7 @@ class EmailDelegate
                     call: call,
                     acceptCode: code,
                     appointments: appointments,
-                    suggestTimeUrl: Utils.addQueryToUrl(CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
+                    rejectUrl: Utils.addQueryToUrl(CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
                     appointmentUrls: _.map(appointments, function(startTime)
                     {
                         var query = {};
