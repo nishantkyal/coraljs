@@ -700,4 +700,12 @@
     <changeSet author="Nishant (generated)" id="1404113658988-1">
         <dropTable tableName="ref_service_request_type"/>
     </changeSet>
+    <changeSet author="Nishant (generated)" id="1404498533066-1">
+        <addColumn tableName="ref_money_unit">
+            <column name="long_name" type="VARCHAR(50)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1404498533066-2">
+        <dropColumn columnName="long" tableName="ref_money_unit"/>
+    </changeSet>
 </databaseChangeLog>
