@@ -1,5 +1,9 @@
 include ../header
 include dashboardHeader
+style
+    #userPhoneDetailsCard .update {
+        display: none;
+    }
 title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setting
 .matter
     .container
@@ -29,60 +33,53 @@ title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setti
                 include userSchedule
                 .row
                     .card#phone
-                        .item
-                            .header-row.row
-                                h5.col-xs-8 Phone details
-                                .header-link.col-xs-4
-                                    a.btn.btn-primary(data-id=userPhone.id, name = 'editUserPhone')
-                                        i.icon-pencil
-                        .item
-                            .row
-                                div
-                                    if userPhone
-                                        div Current Phone numnber -
-                                            big #{formatPhone(userPhone)}
-                    .card#editUserPhoneCard(style='display: none;')
-                        form#editUserPhoneForm
+                        .addit
+                            a.btn.btn-primary#addUserPhone Add a Phone Number
+                                i.icon-plus
+                        if (userPhone && userPhone.length > 0)
+                            for phone in userPhone
+                                .item
+                                    .row
+                                        big.col-xs-8 #{formatPhone(phone)}
+                                        .header-link.col-xs-4
+                                            a.btn.btn-primary.editUserPhone(data-id=phone.id)
+                                                i.icon-pencil
+                        else
+                            .alert.alert-warning
+                                strong You have not added any phone numbers yet.
+                                br
+                                | You will need to add atleast one phone number to receive calls.
+                    .card#userPhoneDetailsCard(style='display: none;')
+                        form
                             .item-edit
                                 .item
                                     .header-row.row
-                                        h5.col-xs-8 Edit Phone Details
+                                        h5.col-xs-8 Your Phone Number Details
                                         .header-link.col-xs-4
                                             a.btn.btn-danger#cancelEditUserPhone
                                                 i.icon-cancel
                                 .item
                                     .row
+                                        h3 Phone Number:
                                         .form-group
-                                        .row
-                                            .col-xs-4
-                                                select.form-control(name='countryCode')
-                                                    for name,abb in CountryName
-                                                        -var code = CountryCode[abb];
-                                                        option(value=code, selected=code == userPhone.country_code)= name + ' (+' + code + ')'
-                                            .col-xs-8
-                                                input.form-control.phone-number(type='text', placeholder='Phone Number', name='phoneNumber', id=userPhone.id)
+                                            .row
+                                                .col-xs-4
+                                                    select.form-control(name='country_code')
+                                                        for name,abb in CountryName
+                                                            - var code = CountryCode[abb];
+                                                            option(value=code)= name + ' (+' + code + ')'
+                                                .col-xs-8
+                                                    input.form-control.phone-number(type='text', placeholder='Phone Number', name='phone')
                                         .clearer
-                                            div.links-editing
-                                                p.edit-schedules
-                                                    input.btn.btn-primary(type='submit', value='Verify and Update', name='update')
-                    .card#verifyUserPhoneCard(style='display: none;')
-                        form#verifyUserPhoneForm
-                            .item-edit
-                                .item
-                                    .header-row.row
-                                        h5.col-xs-8 Verify Phone Details
-                                        .header-link.col-xs-4
-                                            a.btn.btn-danger#cancelVerifyUserPhone
-                                                i.icon-cancel
-                                .item
-                                    .row
-                                        .form-group
-                                            label Verification code
-                                            input.form-control(type='text', name='verificationCode', id=userPhone.id)
-                                        .clearer
-                                            div.links-editing
-                                                p.edit-schedules
-                                                    input.btn.btn-primary(type='submit', value='Verify', name='verify')
+                                        h3.update Verification Code:
+                                        .form-group.update
+                                            input.form-control(name='code', placeholder='Enter verification code')
+                                        div.links-editing
+                                            p.edit-schedules
+                                                input(type='hidden', name='code_sent')
+                                                input(type='hidden', name='id')
+                                                input.btn.btn-primary.sendCode(type='submit', value='Send Verification Code', name='sendCode')
+                                                input.btn.btn-primary.update(type='submit', value='Verify and Update', name='update')
                     .card#password(style='display: none;')
                         form#changePasswordForm
                             .item-edit
@@ -160,4 +157,5 @@ title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setti
 script.
     var user = JSON.parse( '!{JSON.stringify(loggedInUser)}' );
     var selectedTab = '!{selectedTab || "phone"}';
+    var userPhones = JSON.parse( '!{JSON.stringify(userPhone || [])}' );
 script(src='/js/app/dashboard/userSetting.js')

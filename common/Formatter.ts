@@ -104,7 +104,7 @@ class Formatter
 
     static formatPhone(phone:UserPhone):string
     {
-        return phone.getCompleteNumber();
+        return !Utils.isNullOrEmpty(phone) && phone.isValid() ? phone.getCompleteNumber() : null;
     }
 
     static formatTimezone(offset):string
