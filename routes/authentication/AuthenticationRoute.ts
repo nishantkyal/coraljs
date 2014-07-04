@@ -89,7 +89,7 @@ class AuthenticationRoute
 
         var fetchFields = (req.cookies[ApiConstants.LINKEDIN_FETCH_FIELDS] || '').split(',');
         var profileId:number = req.cookies[ApiConstants.USER_PROFILE_ID];
-        var userId:number = new User(req.session[ApiConstants.USER]).getId();
+        var userId:number = new User(req[ApiConstants.USER]).getId();
 
         res.clearCookie(ApiConstants.LINKEDIN_FETCH_FIELDS);
 
