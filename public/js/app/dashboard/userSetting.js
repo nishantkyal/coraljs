@@ -1,26 +1,28 @@
-var cards = ['#schedule','#scheduleDetails','#pricing','#password','#phone','#editUserPhoneCard','#verifyUserPhoneCard','#widget'];
+var cards = ['#schedule', '#scheduleDetails', '#pricing', '#password', '#phone', '#userPhoneDetailsCard', '#verifyUserPhoneCard', '#widget'];
 function showAndHideCards(cardsToShow)
 {
-    _.each(cardsToShow, function(showCard){ $(showCard).show(); })
+    _.each(cardsToShow, function(showCard) { $(showCard).show(); })
 
-    var temp = _.filter(cards, function(hideCard){
-        return _.find(cardsToShow, function(showCard){ return hideCard == showCard; }) ? false : true;
+    var temp = _.filter(cards, function(hideCard)
+    {
+        return _.find(cardsToShow, function(showCard) { return hideCard == showCard; }) ? false : true;
     });
 
     _.each(temp,
-        function(card){
+        function(card)
+        {
             $(card).hide();
         })
 }
 
-$(function(){
+$(function()
+{
     showAndHideCards(['#' + selectedTab]);
 })
 
 $('[name="phoneDetailsLink"]').click(function()
 {
-    if(!$('[name="phoneDetailsLink"]').hasClass('active'))
-    {
+    if (!$('[name="phoneDetailsLink"]').hasClass('active')) {
         $('[name="phoneDetailsLink"]').addClass('active').siblings().removeClass('active');
         showAndHideCards(['#phone'])
     }
@@ -28,10 +30,9 @@ $('[name="phoneDetailsLink"]').click(function()
 
 $('[name="scheduleAndPricingLink"]').click(function()
 {
-    if(!$('[name="scheduleAndPricingLink"]').hasClass('active'))
-    {
+    if (!$('[name="scheduleAndPricingLink"]').hasClass('active')) {
         $('[name="scheduleAndPricingLink"]').addClass('active').siblings().removeClass('active');
-        showAndHideCards(['#schedule','#pricing']);
+        showAndHideCards(['#schedule', '#pricing']);
     }
 });
 
@@ -52,87 +53,65 @@ $('[name="widgetLink"]').click(function()
 
 $('#cancelEditUserPhone').click(function()
 {
-    $('#phoneDetails').show();
-    $('#editUserPhoneCard').hide();
+    $('#phone').show();
+    $('#userPhoneDetailsCard').hide();
 });
 
 $('#cancelVerifyUserPhone').click(function()
 {
-    $('#phoneDetails').show();
+    $('#phone').show();
     $('#verifyUserPhoneCard').hide();
 });
 
 $('#cancelChangePassword').click(function()
 {
-    $('#phoneDetails').show();
+    $('#phone').show();
     $('[name="phoneDetailsLink"]').addClass('active').siblings().removeClass('active');
     $('#password').hide();
 });
 
-$('[name="editUserPhone"]').click(function()
+$('#addUserPhone').click(function()
 {
-    $('#editUserPhoneCard').show();
+    $('#userPhoneDetailsCard').show();
     $('#phone').hide();
 });
 
-$('form#editUserPhoneForm').bootstrapValidator({
-    submitHandler : function()
-    {
-        $.ajax({
-            url     : '/rest/code/mobile/verification',
-            type    : 'post',
-            dataType: 'json',
-            data    : {
-                phoneNumber: {
-                    phone       : $('form#editUserPhoneForm input[name="phoneNumber"]').val(),
-                    country_code: $('form#editUserPhoneForm select[name="countryCode"]').val()
-                }
-            },
-            success: function() {
-                $('#editUserPhoneCard').hide();
-                $('#verifyUserPhoneCard').show();
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                bootbox.alert(jqXHR.responseText);
-            }
-        })
-    },
-    feedbackIcons: {
-        valid     : 'glyphicon glyphicon-ok',
-        invalid   : 'glyphicon glyphicon-remove',
-        validating: 'glyphicon glyphicon-refresh'
-    },
-    fields         : {
-        phoneNumber : {
-            validators: {
-                notEmpty: {
-                    message: 'This field is required and cannot be empty'
-                }
-            }
-        }
-    }
+$('.editUserPhone').click(function(event)
+{
+    var phoneId = $(event.currentTarget).data('id');
+    var phone = _.findWhere(userPhones, {id: phoneId});
+
+    populate('#userPhoneDetailsCard form', phone);
+    $('#userPhoneDetailsCard').show();
+    $('#phone').hide();
 });
 
-$('form#verifyUserPhoneForm').bootstrapValidator({
-    submitHandler : function()
+$('#userPhoneDetailsCard form').bootstrapValidator({
+    submitHandler: function(validator, form, submitBtn)
     {
+        var method = $(submitBtn).attr('name') == 'sendCode' ? 'post' : 'get';
+
         $.ajax({
-            url     : '/rest/code/mobile/verification',
-            type    : 'get',
-            dataType: 'json',
-            data    : {
-                code: $('form#verifyUserPhoneForm input[name="verificationCode"]').val(),
+            url        : '/rest/code/mobile/verification',
+            type       : method,
+            dataType   : 'json',
+            contentType: 'application/json',
+            data       : JSON.stringify({
+                code       : $('#userPhoneDetailsCard form input[name="code"]').val(),
                 phoneNumber: {
-                    phone       : $('form#editUserPhoneForm input[name="phoneNumber"]').val(),
-                    country_code: $('form#editUserPhoneForm select[name="countryCode"]').val(),
-                    id          : $('form#verifyUserPhoneForm input[name="verificationCode"]').attr('id')
+                    phone       : $('#userPhoneDetailsCard form input[name="phone"]').val(),
+                    country_code: $('#userPhoneDetailsCard form select[name="country_code"]').val(),
+                    id          : $('#userPhoneDetailsCard form input[name="code"]').attr('id')
                 }
-            },
-            success : function(data, textStatus, jqXHR)
+            }),
+            success    : function()
             {
-                location.reload();
+                $('.update').show();
+                $('.sendCode').hide();
+                $('#userPhoneDetailsCard form').data('bootstrapValidator').enableFieldValidators('code', true);
             },
-            error: function(jqXHR, textStatus, errorThrown) {
+            error      : function(jqXHR, textStatus, errorThrown)
+            {
                 bootbox.alert(jqXHR.responseText);
             }
         })
@@ -142,11 +121,27 @@ $('form#verifyUserPhoneForm').bootstrapValidator({
         invalid   : 'glyphicon glyphicon-remove',
         validating: 'glyphicon glyphicon-refresh'
     },
-    fields         : {
-        verificationCode : {
+    fields       : {
+        phone: {
             validators: {
                 notEmpty: {
                     message: 'This field is required and cannot be empty'
+                },
+                digits  : {
+                    message: 'Pleae enter a valid number'
+                }
+            }
+        },
+        code : {
+            enabled   : false,
+            validators: {
+                digits      : {
+                    message: 'Please enter a valid number'
+                },
+                stringLength: {
+                    max    : 5,
+                    min    : 5,
+                    message: 'Please enter the code sent to your phone'
                 }
             }
         }
@@ -154,25 +149,27 @@ $('form#verifyUserPhoneForm').bootstrapValidator({
 });
 
 $('form#changePasswordForm').bootstrapValidator({
-    submitHandler : function()
+    submitHandler: function()
     {
         $.ajax({
-            url : '/rest/user/' + user.id,
-            type: 'post',
-            data: {
+            url    : '/rest/user/' + user.id,
+            type   : 'post',
+            data   : {
                 oldPass: $('form#changePasswordForm input[name="oldPassword"]').val(),
-                pass: $('form#changePasswordForm input[name="newPassword"]').val(),
-                user: user
+                pass   : $('form#changePasswordForm input[name="newPassword"]').val(),
+                user   : user
             },
             success: function(res)
             {
-                bootbox.alert(res, function(){
+                bootbox.alert(res, function()
+                {
                     location.reload();
                 });
             },
-            error: function(error)
+            error  : function(error)
             {
-                bootbox.alert(error.responseText, function(){
+                bootbox.alert(error.responseText, function()
+                {
                     location.reload();
                 });
             }
@@ -183,25 +180,25 @@ $('form#changePasswordForm').bootstrapValidator({
         invalid   : 'glyphicon glyphicon-remove',
         validating: 'glyphicon glyphicon-refresh'
     },
-    fields         : {
-        oldPassword : {
+    fields       : {
+        oldPassword    : {
             validators: {
                 notEmpty: {
                     message: 'This field is required and cannot be empty'
                 }
             }
         },
-        newPassword : {
+        newPassword    : {
             validators: {
                 notEmpty: {
                     message: 'This field is required and cannot be empty'
                 }
             }
         },
-        confirmPassword : {
+        confirmPassword: {
             validators: {
                 identical: {
-                    field: 'newPassword',
+                    field  : 'newPassword',
                     message: 'Please re-enter same password'
                 }
             }

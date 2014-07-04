@@ -1,8 +1,8 @@
-function populate(frm, data) {
+function populate(form, data) {
     $.each(data, function(key, value){
-        $('[name='+key+']', frm).val(value);
+        $('[name=' + key + ']', form).val(value);
     });
-    $(frm).bootstrapValidator('validate');
+    $(form).bootstrapValidator('validate');
 }
 
 function getFormData(form)
@@ -44,3 +44,30 @@ function checkCookie() {
         }
     }
 }
+
+// Custom validator to do conditional validation
+// Make a field required if another field has specified value
+(function($) {
+    $.fn.bootstrapValidator.validators.requiredIf = {
+        html5Attributes: {
+            message: 'message',
+            field: 'field',
+            value: 'value'
+        },
+
+        validate: function(validator, $field, options)
+        {
+            var value = ($field.val() || '').trim();
+
+            var sourceField = validator.getFieldElements(options.field);
+            if (sourceField == null)
+                return true;
+
+            var sourceFieldValue = sourceField.val().trim();
+            if (!options.value || sourceFieldValue != options.value)
+                return true;
+
+            return value.length != 0;
+        }
+    }
+}(window.jQuery));

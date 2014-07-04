@@ -131,8 +131,8 @@ class BaseDaoDelegate
             .then(
             function processIncludes(result):any
             {
-                if (result.length === 0)
-                    return result;
+                if (Utils.isNullOrEmpty(result) || result.length === 0)
+                    return null;
 
                 rawResult = result;
                 var includeTasks = [];

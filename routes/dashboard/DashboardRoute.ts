@@ -329,7 +329,7 @@ class DashboardRoute
             {
                 var rules:ScheduleRule[] = [].concat(args[0][0]);
                 var pricingSchemes:PricingScheme[] = args[0][1];
-                var userPhone:UserPhone[] = args[0][2] || [new UserPhone()];
+                var userPhone:UserPhone[] = args[0][2];
                 var widget:Widget[] = _.sortBy(args[0][3] || [], function (w:any) {return w.template});
 
                 _.each(rules || [], function (rule:ScheduleRule)
@@ -338,7 +338,7 @@ class DashboardRoute
                 });
 
                 var pageData = _.extend(sessionData.getData(), {
-                    userPhone: userPhone[0],
+                    userPhone: userPhone,
                     rules: rules || [],
                     scheme: pricingSchemes ? pricingSchemes[0] : new PricingScheme(),
                     widgets: widget || [],

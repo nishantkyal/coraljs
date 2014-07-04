@@ -141,33 +141,20 @@ class VerificationCodeDelegate
         return q.all([
             self.smsDelegate.sendVerificationSMS(phoneNumber.getCompleteNumber(), code),
             CacheHelper.set('mv-' + phoneNumber, code, secondsInAnHr, true)
-        ])
-            .then(
-            function codeGeneratedAndSent(...args):any
-            {
-                return args;
-            },
-            function codeSendError(error)
-            {
-                throw (error);
-            }
-        );
+        ]);
     }
 
     verifyMobileCode(code:string, phoneNumber:UserPhone):q.Promise<any>
     {
-        var self = this;
-
-        return CacheHelper.get('mv-' + phoneNumber)
+        return CacheHelper.get('mv-' + phoneNumber.getCompleteNumber())
             .then(
             function tokenSearched(result)
             {
-                if (result == code)
+                if (result == code && !Utils.isNullOrEmpty(code))
                     return q.resolve(true);
                 else
                     throw ('Invalid code entered');
             });
-        // TODO: Remove any scheduled tasks for reminding this guy to verify his mobile number
     }
 
     createAppointmentAcceptCode(call:PhoneCall, startTimes:number[], fromUserId:number):q.Promise<any>
