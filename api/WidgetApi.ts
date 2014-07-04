@@ -52,8 +52,8 @@ class WidgetApi
 
             widgetDelegate.create(widget)
                 .then(
-                function widgetCreated(widget:Widget) { res.json(widget.toJson()); },
-                function widgetCreateError(err) { res.send(500); }
+                function widgetCreated(widget:Widget) { res.send('Widget Created').status(200); },
+                function widgetCreateError(err) { res.send(err).status(500); }
             );
         });
 

@@ -20,8 +20,12 @@ class ImageDelegate
                         return deferred.reject(err);
 
                     var longerDim = Math.max(size.width, size.height);
-                    var scale = outputSize/longerDim;
-                    //this.resize(outputSize);
+
+                    if (size.width >= size.height && size.width > outputSize)
+                        this.resize(outputSize);
+                    else if (size.height > size.width && size.height > outputSize)
+                        this.resize(null,outputSize);
+
                     this.write(outputPath, function (err)
                     {
                         if (err)
@@ -37,10 +41,25 @@ class ImageDelegate
         return deferred.promise;
     }
 
+    delete(srcImagePath:string):q.Promise<any>
+    {
+        var deferred = q.defer();
+
+        fs.unlink(srcImagePath, function (err){
+            if (err)
+                deferred.reject(err);
+            else
+                deferred.resolve(srcImagePath);
+        });
+
+        return deferred.promise;
+    }
+
     move(oldPath:string, newPath:string):q.Promise<any>
     {
         var deferred = q.defer();
 
+        this.resize(oldPath,newPath,ImageSize.SMALL);
         fs.rename(oldPath, newPath, function(err) {
             if (err)
                 deferred.reject(err);

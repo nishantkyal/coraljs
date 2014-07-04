@@ -67,6 +67,7 @@ class DashboardRoute
     private static PAGE_DASHBOARD:string = 'dashboard/dashboard';
     private static PAGE_INTEGRATION:string = 'dashboard/integration';
     private static PAGE_PROFILE:string = 'dashboard/userProfile';
+    private static PAGE_PAYMENTS:string = 'dashboard/payment';
     private static PAGE_ACCOUNT_VERIFICATION:string = 'dashboard/accountVerification';
     private static PAGE_SETTING:string = 'dashboard/userSetting';
 
@@ -98,6 +99,7 @@ class DashboardRoute
         app.get(Urls.dashboard(), AuthenticationDelegate.checkLogin({setReturnTo: true}), this.dashboard.bind(this));
         app.get(Urls.integration(), AuthenticationDelegate.checkLogin({setReturnTo: true}), this.integration.bind(this));
         app.get(Urls.userProfile(), this.userProfile.bind(this));
+        app.get(Urls.payments(),AuthenticationDelegate.checkLogin({setReturnTo: true}), this.userPayments.bind(this));
         app.get(Urls.userSetting(), Middleware.allowOnlyMe, this.setting.bind(this));
 
         app.get(Urls.emailAccountVerification(), this.emailAccountVerification.bind(this));
@@ -310,6 +312,15 @@ class DashboardRoute
             {
                 res.render('500', {error: error});
             });
+    }
+
+    userPayments(req:express.Request, res:express.Response)
+    {
+        var sessionData = new SessionData(req);
+        var pageData = _.extend(sessionData.getData(), {
+
+        });
+        res.render(DashboardRoute.PAGE_PAYMENTS, pageData);
     }
 
     setting(req:express.Request, res:express.Response)

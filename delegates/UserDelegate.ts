@@ -132,6 +132,7 @@ class UserDelegate extends BaseDaoDelegate
         var self = this;
         var imageBasePath:string = Config.get(Config.PROFILE_IMAGE_PATH) + userId;
         var newImagePath:string = imageBasePath;
+        var sizes = [ImageSize.LARGE, ImageSize.MEDIUM, ImageSize.SMALL];
 
         return self.imageDelegate.move(tempImagePath, newImagePath)
             .fail(
@@ -141,17 +142,17 @@ class UserDelegate extends BaseDaoDelegate
                 throw('An error occurred while uploading your image');
             });
 
-        /*
-         var sizes = [ImageSize.SMALL];
-         return q.all(_.map(sizes, function (size:ImageSize):q.Promise<any>
-         {
-         return self.imageDelegate.resize(tempImagePath, imageBasePath + '_' + ImageSize[size].toLowerCase(), size);
-         }))
-         .fail(
-         function imageResizeFiled(error)
-         {
-         self.logger.debug('Image resize failed because %s', error);
-         });*/
+        /*return q.all(_.map(sizes, function (size:ImageSize):q.Promise<any>
+        {
+            return self.imageDelegate.resize(tempImagePath, imageBasePath + '_' + ImageSize[size].toLowerCase(), size);
+        }))
+        .then( function imagesResized(){
+            return self.imageDelegate.delete(tempImagePath);
+        })
+        .fail( function imageResizeFailed(error)
+        {
+            self.logger.debug('Image resize failed because %s', error);
+        });*/
     }
 }
 export = UserDelegate

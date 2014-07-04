@@ -69,6 +69,22 @@ class WidgetDelegate extends BaseDaoDelegate
         });
     }
 
+    create(object:Object, dbTransaction?:Object):q.Promise<any>
+    {
+        var self = this;
+        var createProxy = super.create;
+        var widget = new Widget(object);
+
+        return self.search({user_id:widget.getUserId(),template:widget.getTemplate()})
+            .then( function widgetSearched(...args){
+                if (args[0] && args[0][0] && args[0][0].length != 0)
+                    return q.reject('This type of widget already exists!');
+                else
+                    return createProxy.call(self, widget, dbTransaction);
+            })
+    }
+
+
     /**
      * Helper method to embed expert data into widget html. May be used at run time or while generating partial htmls
      * Expert data is specified using pattern {%= %}, {% %}

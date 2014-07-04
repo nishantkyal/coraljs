@@ -82,9 +82,8 @@ class OAuthProviderDelegate
 
             integrationMemberDelegate.create(expert)
                 .then(
-                function existingCreated(...args)
+                function existingCreated(expert:IntegrationMember)
                 {
-                    var expert:IntegrationMember = args[0][0];
                     return notificationDelegate.sendExpertRegistrationCompleteNotification(expert)
                         .then(
                         function notificationSent() { return expert; },

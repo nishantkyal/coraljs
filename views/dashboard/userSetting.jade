@@ -115,6 +115,34 @@ title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setti
                                                 iframe(src=ApiUrlDelegate.publicWidget(widget.id,Config.get(Config.DASHBOARD_URI)), width="160", height="392", style="border: none;")
                                                 h3 Embed Code:
                                                 textarea(readonly, rows='6', cols='22') <iframe src=#{ApiUrlDelegate.publicWidget(widget.id,Config.get(Config.DASHBOARD_URI))} width="160" height="392" style="border: none;"></iframe>
+                                .row
+                                    if widgets.length < 3
+                                        br
+                                        if widgets.length == 0
+                                            a.btn.btn-primary(name = 'createWidget') Create Widget
+                                        else
+                                            a.btn.btn-primary(name = 'createWidget') Create More Widgets
+                    .card#createWidget(style='display: none;')
+                        form#createWidgetForm
+                            .item-edit
+                                .item
+                                    .header-row.row
+                                        h5.col-xs-8 Create Widget
+                                        .header-link.col-xs-4
+                                            a.btn.btn-danger#cancelCreateWidget
+                                                i.icon-cancel
+                                .item
+                                    .row
+                                        .form-group
+                                            label Widget Type
+                                            select.form-control(name='widgetType')
+                                                option(value="tiny_widget") Tiny
+                                                option(value="small_widget") Small
+                                                option(value="tall_widget") Tall
+                                        .clearer
+                                            div.links-editing
+                                                p.edit-schedules
+                                                    input.btn.btn-primary(type='submit', value='Create')
 script.
     var user = JSON.parse( '!{JSON.stringify(loggedInUser)}' );
     var selectedTab = '!{selectedTab || "phone"}';
