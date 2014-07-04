@@ -7,6 +7,7 @@ import UserProfileDelegate                          = require('../../delegates/U
 import ApiConstants                                 = require('../../enums/ApiConstants');
 import User                                         = require('../../models/User');
 import Urls                                         = require('./Urls');
+import DashboardUrls                                = require('../dashboard/Urls');
 
 class AuthenticationRoute
 {
@@ -69,7 +70,7 @@ class AuthenticationRoute
             res.redirect(returnToUrl);
         }
         else
-            next();
+            res.redirect(DashboardUrls.dashboard());
     }
 
     /* Logout and redirect to login page */

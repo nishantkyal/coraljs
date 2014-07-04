@@ -1,4 +1,5 @@
-var cards = ['#schedule','#scheduleDetails','#pricing','#password','#phone','#editUserPhoneCard','#verifyUserPhoneCard','#widget'];
+var cards = ['#schedule','#scheduleDetails','#pricing','#password','#phone','#editUserPhoneCard','#verifyUserPhoneCard','#widget', '#createWidget'];
+
 function showAndHideCards(cardsToShow)
 {
     _.each(cardsToShow, function(showCard){ $(showCard).show(); })
@@ -73,6 +74,19 @@ $('[name="editUserPhone"]').click(function()
 {
     $('#editUserPhoneCard').show();
     $('#phone').hide();
+});
+
+$('[name="createWidget"]').click(function()
+{
+    $('#widget').hide();
+    $('form#createWidgetForm').data('bootstrapValidator').resetForm();
+    $('#createWidget').show();
+});
+
+$('#cancelCreateWidget').click(function()
+{
+    $('#widget').show();
+    $('#createWidget').hide();
 });
 
 $('form#editUserPhoneForm').bootstrapValidator({
@@ -206,5 +220,33 @@ $('form#changePasswordForm').bootstrapValidator({
                 }
             }
         }
+    }
+})
+
+;$('form#createWidgetForm').bootstrapValidator({
+    submitHandler : function()
+    {
+        $.ajax({
+            url : '/rest/widget',
+            type: 'put',
+            data: {
+                widget: {
+                    template:$('form#createWidgetForm select[name="widgetType"]').val(),
+                    user_id: user.id
+                }
+            },
+            success: function(res)
+            {
+                bootbox.alert(res, function(){
+                    location.reload();
+                });
+            },
+            error: function(error)
+            {
+                bootbox.alert(error.responseText, function(){
+                    location.reload();
+                });
+            }
+        })
     }
 });

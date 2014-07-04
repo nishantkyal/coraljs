@@ -70,9 +70,8 @@ class ExpertApi
                 {
                     return self.integrationMemberDelegate.create(integrationMember)
                         .then(
-                        function expertCreated(...args)
+                        function expertCreated(member:IntegrationMember)
                         {
-                            var member:IntegrationMember = args[0][0];
                             return [member, self.notificationDelegate.sendMemberAddedNotification(member)];
                         })
                         .spread(
