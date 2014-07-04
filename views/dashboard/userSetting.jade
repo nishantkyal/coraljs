@@ -1,6 +1,6 @@
 include ../header
 include dashboardHeader
-style
+style.
     #userPhoneDetailsCard .update {
         display: none;
     }
@@ -20,13 +20,13 @@ title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setti
                         #networks-collapse.collapse.navbar-collapse
                             ul.nav.nav-pills.nav-stacked
                                 li(name='phoneDetailsLink', class=selectedTab == 'phone' || !selectedTab ? 'active' : '')
-                                    a Phone Details
+                                    a Phone Numbers
                                 li(name='scheduleAndPricingLink', class=selectedTab == 'schedule' ? 'active' : '')
                                     a Schedules and Pricing
                                 li(name='changePasswordLink', class=selectedTab == 'password' ? 'active' : '')
                                     a Change Password
                                 li(name='widgetLink', class=selectedTab == 'widget' ? 'active' : '')
-                                    a Widget
+                                    a Widgets
             //
                /.content
             .content.col-md-8
@@ -51,10 +51,12 @@ title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setti
                                 | You will need to add atleast one phone number to receive calls.
                     .card#userPhoneDetailsCard(style='display: none;')
                         form
+                            .alert.alert-danger
+
                             .item-edit
                                 .item
                                     .header-row.row
-                                        h5.col-xs-8 Your Phone Number Details
+                                        h5.col-xs-8 Phone Number
                                         .header-link.col-xs-4
                                             a.btn.btn-danger#cancelEditUserPhone
                                                 i.icon-cancel
@@ -83,32 +85,19 @@ title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setti
                     .card#password(style='display: none;')
                         form#changePasswordForm
                             .item-edit
-                                .item
-                                    .header-row.row
-                                        h5.col-xs-8 ChangePassword
-                                        .header-link.col-xs-4
-                                            a.btn.btn-danger#cancelChangePassword
-                                                i.icon-cancel
-                                .item
-                                    .row
-                                        .form-group
-                                            label Old Password
-                                            input.form-control(type='password', name='oldPassword')
-                                        .form-group
-                                            label New Password
-                                            input.form-control(type='password', name='newPassword')
-                                        .form-group
-                                            label Confirm Password
-                                            input.form-control(type='password', name='confirmPassword')
-                                        .clearer
-                                            div.links-editing
-                                                p.edit-schedules
-                                                    input.btn.btn-primary(type='submit', value='Change', name='changePassword')
+                                h3 Old Password
+                                .form-group
+                                    input.form-control(type='password', name='oldPassword')
+                                h3 New Password
+                                .form-group
+                                    input.form-control(type='password', name='newPassword')
+                                h3 Confirm Password
+                                .form-group
+                                    input.form-control(type='password', name='confirmPassword')
+                                div.links-editing
+                                    p.edit-schedules
+                                        input.btn.btn-primary(type='submit', value='Change', name='changePassword')
                     .card#widget(style='display: none;')
-                        .item
-                            .header-row.row
-                                h5.col-xs-8 Your Widgets
-                                .header-link.col-xs-4
                         if widgets
                             .item
                                 .row

@@ -112,9 +112,9 @@ $('#userPhoneDetailsCard form').bootstrapValidator({
             },
             error      : function(jqXHR, textStatus, errorThrown)
             {
-                bootbox.alert(jqXHR.responseText);
+                $('.card#userPhoneDetailsCard .alert-danger').text(jqXHR.responseText);
             }
-        })
+        });
     },
     feedbackIcons: {
         valid     : 'glyphicon glyphicon-ok',
