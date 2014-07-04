@@ -1,4 +1,4 @@
-title SearchNTalk | Member Registration | Create Account
+title SearchNTalk | Create Account
 - member = member || {};
 - member.user = member.user || {};
 - integration = integration || {};
@@ -23,34 +23,34 @@ include ../header
                                     dt Your number stays private
                                     dd We connect the calls without disclosing your number
                     .col-md-6
-                        .call-card
+                        .card
                             include ../errorMessage
-                            .item
-                                form#registration-form(method='POST')
+                            form#registration-form(method='POST')
+                                .item-edit
+                                    h3 Email
                                     .form-group
-                                        label(for='email') Email
                                         input.form-control(name='email', type='email', autocomplete='off')
+                                    h3 First Name
                                     .form-group
-                                        label(for='first_name') First Name
                                         input.form-control(name='first_name', type='text', autocomplete='off')
+                                    h3 Last Name
                                     .form-group
-                                        label(for='last_name') Last Name
                                         input.form-control(name='last_name', type='text', autocomplete='off')
+                                    h3 Password
                                     .form-group
-                                        label(for='password') Password
                                         input.form-control(type='password', name='password', autocomplete='off')
+                                    h3 Confirm Password
                                     .form-group
-                                        label(for='confirm_password') Confirm Password
                                         input.form-control(type='password', name='confirm_password', autocomplete='off')
+                                    h3 Timezone
                                     .form-group
-                                        label(for='timezone') Timezone
                                         select.form-control(name='timezone')
                                             each zone in Timezone
                                                 option(value="#{zone.zone_id}") (#{formatTimezone(zone.gmt_offset)}) #{zone.zone_name}
-                                    .form-group
-                                        .controls
-                                            input(type='hidden', name='invitation_code', value=code)
-                                            input.btn-primary.btn.btn-block(value='Register', type='submit')
+                                    .links-editing
+                                        input(type='hidden', name='invitation_code', value=code)
+                                    .links-editing
+                                        input.btn-primary.btn.btn-block(value='Register', type='submit')
                                     a.btn-linkedin.btn#linkedInLink() Login with LinkedIn
                                     a.btn.btn-link(href=AuthenticationUrls.login()) Login
             // /.content
