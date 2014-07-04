@@ -14,61 +14,62 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                         include cards/AddSkill
             .col-md-8.content
                 if isEditable
-                    div.card
-                        div.addone
-                            a(href='javascript:void()')#addExpertiseBtn
-                                | Add an expertise
-                                i.icon-plus
-
+                    .alert.alert-warning
+                        strong You haven't added any expertise listings yet
+                        p Creating listings helps showcase each of your expertise in a better manner
+                        .actions-pane
+                            .row
+                                .col-xs-6.align-left
+                                    a.btn.btn-warning#addExpertiseBtn Add an Expertise
                 form.card#expertiseDetails(style='display: none;')
-                        .item
-                            .item-edit
-                                .row
-                                    .inputs.col-xs-8
-                                        .input-group
-                                            input.form-control(type='text', placeholder='Expertise Title', name='title')
-                                    .header-link.col-xs-4
-                                        a.btn.btn-danger#cancelExpertiseDetails
-                                            i.icon-trash
-                                div
-                                    div#sessionToggle
-                                        h3 Session:
-                                        .btn-group(data-toggle='buttons')
-                                            label.btn.btn-radio.active
-                                                input(type='radio', name='session_toggle', value='1')
-                                                | Yes
-                                            label.btn.btn-radio
-                                                input(type='radio', name='session_toggle', value='0')
-                                                | No
-                                    div#pricing
-                                        h3 Pricing:
-                                        .form-group
-                                            .row
-                                                .col-md-2
-                                                    input.form-control(type='text', name='session_pricing', placeholder='0 = Free')
-                                                .col-md-2
-                                                    select.form-control(name='session_price_unit')
-                                                        option $
-                                                .col-md-1 for
-                                                .col-md-3
-                                                    .input-group
-                                                        input.form-control(type='text', name='session_duration', placeholder='Session length')
-                                                        .input-group-addon
-                                                            span mins.
-                                    .clearer
-                                    h3 Skills/Keywords:
+                    .item
+                        .item-edit
+                            .row
+                                .inputs.col-xs-8
+                                    .input-group
+                                        input.form-control(type='text', placeholder='Expertise Title', name='title')
+                                .header-link.col-xs-4
+                                    a.btn.btn-danger#cancelExpertiseDetails
+                                        i.icon-trash
+                            div
+                                div#sessionToggle
+                                    h3 Session:
+                                    .btn-group(data-toggle='buttons')
+                                        label.btn.btn-radio.active
+                                            input(type='radio', name='session_toggle', value='1')
+                                            | Yes
+                                        label.btn.btn-radio
+                                            input(type='radio', name='session_toggle', value='0')
+                                            | No
+                                div#pricing
+                                    h3 Pricing:
                                     .form-group
-                                        input.form-control(type='text')
-                                    h3 Description:
-                                    .form-group
-                                        textarea.form-control(name='description', rows='4')
-                                    h3 Years of experience:
-                                    .form-group
-                                        input.form-control(name='years_of_experience', type='text')
-                        .links-edit
-                            p
-                                | Editing Expertise
-                                input.btn.btn-primary.done-editing-schedules(type='submit', value='Save')
+                                        .row
+                                            .col-md-2
+                                                input.form-control(type='text', name='session_pricing', placeholder='0 = Free')
+                                            .col-md-2
+                                                select.form-control(name='session_price_unit')
+                                                    option $
+                                            .col-md-1 for
+                                            .col-md-3
+                                                .input-group
+                                                    input.form-control(type='text', name='session_duration', placeholder='Session length')
+                                                    .input-group-addon
+                                                        span mins.
+                                .clearer
+                                h3 Skills/Keywords:
+                                .form-group
+                                    input.form-control(type='text')
+                                h3 Description:
+                                .form-group
+                                    textarea.form-control(name='description', rows='4')
+                                h3 Years of experience:
+                                .form-group
+                                    input.form-control(name='years_of_experience', type='text')
+                    .links-edit
+                        p
+                            | Editing Expertise
+                            input.btn.btn-primary.done-editing-schedules(type='submit', value='Save')
                 .row
                     for expertise in userExpertise
                         div.card
@@ -109,15 +110,13 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                                 include cards/EditUserEducation
                     .content.col-md-6
                         div.card#employmentDetails
-                            .item
-                                .header-row.row
-                                    if isEditable
-                                        h5.col-xs-8 Employment Details
-                                        .header-link.col-xs-4
-                                            a.btn.btn-success.btn-xs#addEmploymentbtn Add
-                                            a.btn.btn-default.btn-xs#fetchEmployment
-                                                si.si-small.si-linkedin
-                                    else
+                            if isEditable
+                                .addit
+                                    a.btn.btn-primary#addEmploymentbtn Add Work Experience
+                                        i.icon-plus
+                            else
+                                .item
+                                    .header-row.row
                                         h5.col-xs-12 Employment Details
                                 div.clearer
                             if userEmployment.length != 0
@@ -144,9 +143,8 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                                             if emp.summary
                                                 | #{emp.summary}
                             else
-                                .item
-                                    .row
-                                        div No workplaces added yet
+                                .alert.alert-warning
+                                    p No workplaces added yet
                         if isEditable
                             div.card#AddUserEmploymentCard(style='display: none;')
                                 form#AddUserEmploymentForm

@@ -1,14 +1,15 @@
 div.card
-    .item
-        .header-row.row
-            h5.col-xs-8 Education Details
-            .header-link.col-xs-4
-                if isEditable
-                    a#addUserEducationBtn.btn.btn-primary Add
-                    &nbsp;
-                    a.btn.btn-primary#fetchEmployment
-                        si.si-small.si-linkedin
-        div.clearer
+    if isEditable
+        .addit
+            a.btn.btn-linkedin#fetchEmployment Fetch from LinkedIn
+        .addit
+            a.btn.btn-primary#addUserEducationBtn Add Education Details
+                i.icon-plus
+    else
+        .item
+            .header-row.row
+                h5.col-xs-12 Education Details
+            div.clearer
     if userEducation.length != 0
         each edu in userEducation
             .item
@@ -33,6 +34,5 @@ div.card
                             | - #{edu.end_year}
                             br
     else
-        .item
-            .row
-                div No schools added yet
+        .alert.alert-warning
+            p No schools added yet
