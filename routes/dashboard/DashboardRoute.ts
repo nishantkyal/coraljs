@@ -391,6 +391,11 @@ class DashboardRoute
             .then(
             function userActivated()
             {
+                if (req.isAuthenticated() && req[ApiConstants.USER][User.EMAIL] === email)
+                {
+                    req[ApiConstants.USER][User.ACTIVE] = true;
+                    req[ApiConstants.USER][User.EMAIL_VERIFIED] = true;
+                }
                 return res.render(DashboardRoute.PAGE_ACCOUNT_VERIFICATION);
             })
             .then(

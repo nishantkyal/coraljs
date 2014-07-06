@@ -1,0 +1,5 @@
+enum RedisDbIndex
+{
+
+}
+export = RedisDbIndex
