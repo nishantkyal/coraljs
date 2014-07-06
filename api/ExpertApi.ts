@@ -7,13 +7,13 @@ import AuthenticationDelegate                               = require('../delega
 import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
 import IntegrationDelegate                                  = require('../delegates/IntegrationDelegate');
 import IntegrationMemberDelegate                            = require('../delegates/IntegrationMemberDelegate');
+import NotificationDelegate                                 = require('../delegates/NotificationDelegate');
 import UserDelegate                                         = require('../delegates/UserDelegate');
 import IntegrationMember                                    = require('../models/IntegrationMember');
 import User                                                 = require('../models/User');
 import IntegrationMemberRole                                = require('../enums/IntegrationMemberRole');
 import IncludeFlag                                          = require('../enums/IncludeFlag');
 import Utils                                                = require('../common/Utils');
-import NotificationDelegate                                 = require('../delegates/NotificationDelegate');
 
 /*
  * API calls for managing settings to IntegrationMembers who are experts
@@ -22,6 +22,7 @@ import NotificationDelegate                                 = require('../delega
 class ExpertApi
 {
     private integrationMemberDelegate = new IntegrationMemberDelegate();
+    private integrationDelegate = new IntegrationDelegate();
     private userDelegate = new UserDelegate();
     private notificationDelegate = new NotificationDelegate();
 
@@ -72,6 +73,8 @@ class ExpertApi
                         .then(
                         function expertCreated(member:IntegrationMember)
                         {
+                            member.setUser(user);
+                            member.setIntegration(self.integrationDelegate.getSync(member.getIntegrationId()));
                             return [member, self.notificationDelegate.sendMemberAddedNotification(member)];
                         })
                         .spread(

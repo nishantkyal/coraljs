@@ -69,7 +69,7 @@ class IntegrationApi
                 .spread(
                 function memberCreated(integration:Integration, ...args)
                 {
-                    var member:IntegrationMember = args[0][0][0];
+                    var member:IntegrationMember = args[0][0];
                     member.setUser(loggedInUser);
                     member.setIntegration(integration);
 
