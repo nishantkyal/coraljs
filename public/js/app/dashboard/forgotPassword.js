@@ -1,4 +1,4 @@
-$('form#request-new-password').validate({
+$('form#request-new-password').bootstrapValidator({
         submitHandler: function()
         {
             $.ajax({
@@ -15,29 +15,27 @@ $('form#request-new-password').validate({
         }
     });
 
-$('form#reset-password').validate(
+$('form#reset-password').bootstrapValidator(
     {
-        rules: {
+        fields: {
             password: {
-                required: true
+                validators: {
+                    notEmpty: {
+                        message: 'This is a required field'
+                    }
+                }
             },
             confirm_password: {
-                required: true,
-                equalTo: '#password'
+                validators: {
+                    identical: {
+                        field:'password',
+                        message:'Please re-enter same password'
+                    },
+                    notEmpty: {
+                        message: 'This field is required and cannot be empty'
+                    }
+                }
             }
-        },
-        errorPlacement: function(error, element)
-        {
-            $(element).attr('title', error[0].innerHTML);
-            $(element).tooltip('show');
-        },
-        highlight     : function(element)
-        {
-            $(element).closest('.form-group').addClass('has-error');
-        },
-        unhighlight   : function(element)
-        {
-            $(element).closest('.form-group').removeClass('has-error');
         },
         submitHandler: function()
         {

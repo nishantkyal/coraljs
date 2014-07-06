@@ -3,9 +3,9 @@ include ../header
 .matter
     .container
         .row
-            .content.col-xs-9.col-sm-9.col-md-12.col-lg-12
+            .content.col-xs-12.col-sm-12.col-md-12.col-lg-12
                 .row
-                    .col-md-6
+                    .content.col-md-6.col-sm-12.col-xs-12
                         .user-profile
                             .hidden-xs.profile
                                 p Please begin by creating an account on searchntalk.com
@@ -19,7 +19,7 @@ include ../header
                                     dd Callers will book an appointment and share agenda before the call
                                     dt Your number stays private
                                     dd We connect the calls without disclosing your number
-                    .col-md-6
+                    .content.col-md-6.col-sm-12.col-xs-12
                         .card
                             include ../errorMessage
                             form#login-form(role='form', method='POST')
