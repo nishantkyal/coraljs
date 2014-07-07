@@ -708,4 +708,13 @@
     <changeSet author="Nishant (generated)" id="1404498533066-2">
         <dropColumn columnName="long" tableName="ref_money_unit"/>
     </changeSet>
+    <changeSet author="Nishant (generated)" id="1404735502093-1">
+        <dropForeignKeyConstraint baseTableName="integration" constraintName="integration_type"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1404735502093-2">
+        <dropTable tableName="ref_integration_type"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1404735502093-3">
+        <dropColumn columnName="integration_type" tableName="integration"/>
+    </changeSet>
 </databaseChangeLog>

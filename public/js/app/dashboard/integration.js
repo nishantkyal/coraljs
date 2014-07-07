@@ -273,20 +273,14 @@ $('form#integration').bootstrapValidator({
         website_url     : {
             validators: {
                 uri: {
-                    message: 'Please enter a valid url'
-                },
-                notEmpty: {
-                    message: 'This field is required and cannot be empty'
+                    message: 'Please enter a valid url. Enter full url (including the http:// part)'
                 }
             }
         },
         redirect_url     : {
             validators: {
                 uri: {
-                    message: 'Please enter a valid url'
-                },
-                notEmpty: {
-                    message: 'This field is required and cannot be empty'
+                    message: 'Please enter a valid url. Enter full url (including the http:// part)'
                 }
             }
         }
@@ -301,7 +295,6 @@ $('form#integration').bootstrapValidator({
             data       : JSON.stringify({
                 integration: {
                     title           : $('form#integration input[name=title]').val(),
-                    integration_type: parseInt($('form#integration select[name=integration_type]').val()),
                     website_url     : $('form#integration input[name=website_url]').val(),
                     redirect_url    : $('form#integration input[name=redirect_url]').val()
                 }
@@ -316,9 +309,4 @@ $('form#integration').bootstrapValidator({
             }
         })
     }
-});
-
-$('form#integration select[name=integration_type]').change(function()
-{
-    $('form#integration').data('bootstrapValidator').validateField('website_url');
 });

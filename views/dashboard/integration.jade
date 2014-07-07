@@ -215,17 +215,11 @@ title SearchNTalk - DashBoard
                                             .input-group
                                                 input.form-control(type='text', placeholder="Your Network's Name", name="title")
                                     div
-                                        h3 Type:
                                         .form-group
-                                            select.form-control(name='integration_type')
-                                                option(value='3') Shop-in-shop
-                                                option(value='2') Website
-                                                option(value='1') Forum
-                                        h3 Website URL:
+                                            h3 Website URL:
+                                            input.form-control(type='text', name='website_url', placeholder)
                                         .form-group
-                                            input.form-control(type='text', name='website_url')
-                                        h3 Redirect URL:
-                                        .form-group
+                                            h3 Redirect URL:
                                             input.form-control(type='text', name='redirect_url')
                                 .clearer
                             div.links-editing

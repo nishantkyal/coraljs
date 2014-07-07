@@ -16,7 +16,6 @@ import User                                                 = require('../../mod
 import IntegrationMember                                    = require('../../models/IntegrationMember');
 import UserProfile                                          = require('../../models/UserProfile');
 import ApiConstants                                         = require('../../enums/ApiConstants');
-import IntegrationType                                      = require('../../enums/IntegrationType');
 import IncludeFlag                                          = require('../../enums/IncludeFlag');
 import IntegrationMemberRole                                = require('../../enums/IntegrationMemberRole');
 import Config                                               = require('../../common/Config');
@@ -140,7 +139,7 @@ class MemberRegistrationRoute
         switch (parseInt(member.getRole().toString()))
         {
             case IntegrationMemberRole.Expert:
-                redirectUrl = integration.getIntegrationType() == IntegrationType.SHOP_IN_SHOP ? mobileVerificationUrl : integration.getRedirectUrl();
+                redirectUrl = !Utils.isNullOrEmpty(integration.getRedirectUrl()) ? mobileVerificationUrl : integration.getRedirectUrl();
                 break;
 
             default:

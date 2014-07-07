@@ -1,5 +1,4 @@
 import BaseModel                = require('./BaseModel');
-import IntegrationType          = require('../enums/IntegrationType');
 import IntegrationStatus        = require('../enums/IntegrationStatus');
 
 /*
@@ -12,24 +11,21 @@ class Integration extends BaseModel
     static TITLE:string = 'title';
     static WEBSITE_URL:string = 'website_url';
     static REDIRECT_URL:string = 'redirect_url';
-    static INTEGRATION_TYPE:string = 'integration_type';
     static SECRET:string = 'secret';
     static STATUS:string = 'status';
 
     private title:string;
     private website_url:string;
     private redirect_url:string;
-    private integration_type:IntegrationType;
     private secret:string;
     private status:IntegrationStatus;
 
-    static DEFAULT_FIELDS:string[] = [Integration.ID, Integration.TITLE, Integration.INTEGRATION_TYPE];
+    static DEFAULT_FIELDS:string[] = [Integration.ID, Integration.TITLE];
 
     /* Getters */
     getTitle():string                                   { return this.title; }
     getWebsiteUrl():string                              { return this.website_url; }
     getRedirectUrl():string                             { return this.redirect_url; }
-    getIntegrationType():IntegrationType                { return this.integration_type; }
     getSecret():string                                  { return this.secret; }
     getStatus():IntegrationStatus                       { return this.status; }
 
@@ -37,7 +33,6 @@ class Integration extends BaseModel
     setTitle(val:string)                                { this.title = val; }
     setWebsiteUrl(val:string)                           { this.website_url = val; }
     setRedirectUrl(val:string)                          { this.redirect_url = val; }
-    setIntegrationType(val:IntegrationType)             { this.integration_type = val; }
     setSecret(val:string)                               { this.secret = val; }
     setStatus(val:IntegrationStatus)                    { this.status = val; }
 

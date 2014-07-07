@@ -7,7 +7,6 @@ import NotificationDelegate                                         = require('.
 import Integration                                                  = require('../models/Integration');
 import IntegrationMember                                            = require('../models/IntegrationMember');
 import IntegrationMemberRole                                        = require('../enums/IntegrationMemberRole');
-import IntegrationType                                              = require('../enums/IntegrationType');
 import Utils                                                        = require('../common/Utils');
 
 /**
@@ -36,7 +35,7 @@ class OAuthProviderDelegate
                             OAuthProviderDelegate.logger.warn('Oauth code exchange failed because of INVALID INTEGRATION ID, %s', integrationId);
                             return done('An error occurred');
                         }
-                        else if (integration.getIntegrationType() != IntegrationType.SHOP_IN_SHOP && integration.getRedirectUrl() != redirectURI)
+                        else if (!Utils.isNullOrEmpty(integration.getRedirectUrl()) && integration.getRedirectUrl() != redirectURI)
                         {
                             OAuthProviderDelegate.logger.warn('Oauth code exchange failed because of INVALID REDIRECT URL %s for integration id ', redirectURI, integrationId);
                             return done('An error occurred');
