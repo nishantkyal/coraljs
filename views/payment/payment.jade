@@ -35,7 +35,7 @@ title ST-#{formatName(user.first_name, user.last_name, user.title)} | Payment fo
                             .hidden-xs.avatar
                                 .shadow
                                     a(href=DashboardUrls.userProfile(user.id))
-                                        img(src=ApiUrlDelegate.userProfilePicture(user.id), width='100%', height='100%')
+                                        img(src=ApiUrlDelegate.userProfilePicture(user.id)+ '?imageSize=200', width='100%', height='100%')
                             .info
                                 .user-displayname= formatName(user.first_name, user.last_name, user.title)
                                 if (user.date_of_birth)

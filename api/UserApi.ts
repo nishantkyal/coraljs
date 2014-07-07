@@ -15,6 +15,7 @@ import UserOauth                            = require('../models/UserOauth');
 import User                                 = require('../models/User');
 import UserProfile                          = require('../models/UserProfile');
 import IntegrationMember                    = require('../models/IntegrationMember');
+import ImageSize                            = require('../enums/ImageSize');
 import Utils                                = require('../common/Utils');
 import Config                               = require('../common/Config');
 
@@ -104,8 +105,10 @@ class UserApi
         app.get(ApiUrlDelegate.userProfilePicture(), function (req:express.Request, res)
         {
             var userId = req.params[ApiConstants.USER_ID];
+            var size:ImageSize = parseInt(req.query[ApiConstants.IMAGE_SIZE]);
+
             if (fs.existsSync(Config.get(Config.PROFILE_IMAGE_PATH) + userId))
-                res.sendfile(userId, {root: Config.get(Config.PROFILE_IMAGE_PATH)});
+                res.sendfile(userId + '_' + ImageSize[size].toLowerCase(), {root: Config.get(Config.PROFILE_IMAGE_PATH)});
             else
                 res.redirect('/img/no_photo-icon.gif');
         });

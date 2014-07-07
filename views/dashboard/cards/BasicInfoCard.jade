@@ -13,7 +13,7 @@
             .avatar
                 .shadow
                 .placeholder.placeholder-male
-                img(src=ApiUrlDelegate.userProfilePicture(user.id))
+                img(src=ApiUrlDelegate.userProfilePicture(user.id) + '?imageSize=200')
             .info
                 .info-upper
                     .user-displayname= formatName(user.first_name, user.last_name, user.title)

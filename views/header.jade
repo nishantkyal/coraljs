@@ -49,7 +49,7 @@ div.masthead(role='banner')
                     .avatar.avatar-small
                         .shadow
                         .placeholder
-                        img(src=ApiUrlDelegate.userProfilePicture(loggedInUser.id))
+                        img(src=ApiUrlDelegate.userProfilePicture(loggedInUser.id) + '?imageSize=50')
                         .caret
                     .user-modal(style='display: none;')
                         .field-label
