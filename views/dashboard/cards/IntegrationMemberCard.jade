@@ -1,0 +1,75 @@
+.card.main-card
+    .addit
+        a.btn.btn-primary.createCardBtn Add/Invite Members
+            i.icon-plus
+    if integrationMembers && integrationMembers.length != 0
+        div.billing-summary
+            table
+                thead
+                    tr
+                        th Name
+                        th Role
+                        th Status
+                        th
+                tbody
+                    each member in integrationMembers
+                        tr
+                            td
+                                strong
+                                    a(href=DashboardUrls.userProfile(member.user.id))= formatName(member.user.first_name, member.user.last_name)
+                                .clearer
+                                small #{member.user.email}
+                            td= formatRole(member.role)
+                            td
+                                | #{member.user.id ? (member.user.active ? 'Active' : 'Inactive') : 'Invited'}
+                                if (!member.user.id)
+                                    div
+                                        a.sendAgain(href='javascript:void(0)', data-emailid=member.user.email) Send Again
+                            td(style='text-align: center;')
+                                if (member.id != undefined && (member.deleted == null || member.deleted == 0))
+                                    a.fa.fa-pencil.save(href=DashboardUrls.userProfile(member.user.id))
+.card.edit-card
+    form
+        .item-edit
+            .item
+                .row
+                    h5.col-xs-8 Send Invite
+                    div.header-link.col-xs-4
+                        a.btn.btn-danger.cancelEditCardBtn
+                            i.icon-cancel
+            .alert-danger.alert(style="display: none;")
+            .item
+                .row
+                    h3 Email:
+                    .form-group
+                        input.form-control(type='text', placeholder='Email', name='email')
+                    h3 Title:
+                    .form-group
+                        select.form-control
+                            - for title,id in Salutation
+                                option(value=id)= title
+                    h3 First Name:
+                    .form-group
+                        input.form-control(type='text', placeholder='First Name', name='first_name')
+                    h3 Last Name:
+                    .form-group
+                        input.form-control(type='text', placeholder='Last Name', name='last_name')
+                    h3 Phone:
+                    .form-group
+                        .col-md-6
+                            select.form-control(name='country_code')
+                                for code,country in CountryCode
+                                    option(value=country)= CountryName[code] + ' (+' + country + ')'
+                        .col-md-6
+                            input.form-control(type='text', name='phone')
+                    h3 Role:
+                    .form-group
+                        select.selectpicker.form-control#role(name='role')
+                            option(value='2') Admin
+                            option(value='3') Expert
+                .clearer
+            div.links-editing
+                p.edit-schedules
+                    em Invites will be sent on your behalf
+                    input.btn.btn-primary(style='width: 100px', type='submit', name="send-invite", value="Send Invite")
+                    input.btn.btn-success(style='width: 100px;', type='submit', name="just-add", value="Just Add")

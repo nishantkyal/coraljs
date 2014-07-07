@@ -98,7 +98,10 @@ title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setti
                                     p.edit-schedules
                                         input.btn.btn-primary(type='submit', value='Change', name='changePassword')
                     .card#widget(style='display: none;')
-                        if widgets
+                        .addit
+                            a.btn.btn-primary#addUserEducationBtn Create a new widget
+                                i.icon-plus
+                        if widgets && widgets.length != 0
                             .item
                                 .row
                                     for widget in widgets
@@ -115,13 +118,10 @@ title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setti
                                                 iframe(src=ApiUrlDelegate.publicWidget(widget.id,Config.get(Config.DASHBOARD_URI)), width="160", height="392", style="border: none;")
                                                 h3 Embed Code:
                                                 textarea(readonly, rows='6', cols='22') <iframe src=#{ApiUrlDelegate.publicWidget(widget.id,Config.get(Config.DASHBOARD_URI))} width="160" height="392" style="border: none;"></iframe>
-                                .row
-                                    if widgets.length < 3
-                                        br
-                                        if widgets.length == 0
-                                            a.btn.btn-primary(name = 'createWidget') Create Widget
-                                        else
-                                            a.btn.btn-primary(name = 'createWidget') Create More Widgets
+                        else
+                            .alert.alert-warning
+                                strong Creating widgets is simple
+                                p Just pick a few settings and copy-paste the embed code on your website/blog
                     .card#createWidget(style='display: none;')
                         form#createWidgetForm
                             .item-edit

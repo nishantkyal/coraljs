@@ -8,17 +8,9 @@ $(function()
     });
 });
 
-$('#inviteMemberBtn').click(function()
-{
-    $('#newMemberCard').show();
-    $('#members').hide();
+$('#integrationMemberCard').card();
 
-    $('#newMemberCard form').trigger('reset');
-    $('#newMemberCard form .alert').hide();
-    $('#newMemberCard form').data('bootstrapValidator').resetForm();
-});
-
-$('#newMemberCard form').bootstrapValidator({
+$('#integrationMemberCard .edit-card form').bootstrapValidator({
     message      : 'This value is not valid',
     submitHandler: function(form)
     {
@@ -30,18 +22,18 @@ $('#newMemberCard form').bootstrapValidator({
                 type   : 'POST',
                 data   : {
                     integration_member: {
-                        role          : $('#newMemberCard form [name="role"]').val(),
+                        role          : $('#integrationMemberCard .edit-card form [name="role"]').val(),
                         integration_id: integrationId,
                         user          : {
-                            email     : $('#newMemberCard form [name="email"]').val(),
-                            title     : $('#newMemberCard form [name="title"]').val(),
-                            first_name: $('#newMemberCard form [name="first_name"]').val(),
-                            last_name : $('#newMemberCard form [name="last_name"]').val(),
+                            email     : $('#integrationMemberCard .edit-card form [name="email"]').val(),
+                            title     : $('#integrationMemberCard .edit-card form [name="title"]').val(),
+                            first_name: $('#integrationMemberCard .edit-card form [name="first_name"]').val(),
+                            last_name : $('#integrationMemberCard .edit-card form [name="last_name"]').val(),
                             timezone  : zone.zone_id
                         },
                         phoneNumber   : {
-                            country_code: $('#newMemberCard form [name="country_code"]').val(),
-                            phone       : $('#newMemberCard form [name="phone"]').val()
+                            country_code: $('#integrationMemberCard .edit-card form [name="country_code"]').val(),
+                            phone       : $('#integrationMemberCard .edit-card form [name="phone"]').val()
                         }
                     }
                 },
@@ -54,8 +46,8 @@ $('#newMemberCard form').bootstrapValidator({
                 },
                 error  : function(jqXHR, textStatus, errorThrown)
                 {
-                    $('#newMemberCard form .alert').show();
-                    $('#newMemberCard form .alert').text(jqXHR.responseText);
+                    $('#integrationMemberCard .edit-card form .alert').show();
+                    $('#integrationMemberCard .edit-card form .alert').text(jqXHR.responseText);
                 }
             });
         }
@@ -67,20 +59,20 @@ $('#newMemberCard form').bootstrapValidator({
                 type   : 'put',
                 data   : {
                     integration_member: {
-                        role          : $('#newMemberCard form [name="role"]').val(),
+                        role          : $('#integrationMemberCard .edit-card form [name="role"]').val(),
                         integration_id: integrationId
                     },
                     user              : {
-                        email     : $('#newMemberCard form [name="email"]').val(),
-                        title     : $('#newMemberCard form [name="title"]').val(),
-                        first_name: $('#newMemberCard form [name="first_name"]').val(),
-                        last_name : $('#newMemberCard form [name="last_name"]').val(),
+                        email     : $('#integrationMemberCard .edit-card form [name="email"]').val(),
+                        title     : $('#integrationMemberCard .edit-card form [name="title"]').val(),
+                        first_name: $('#integrationMemberCard .edit-card form [name="first_name"]').val(),
+                        last_name : $('#integrationMemberCard .edit-card form [name="last_name"]').val(),
                         timezone  : zone.zone_id
                     }
                 },
                 success: function(result)
                 {
-                    if ($('#newMemberCard form [name="phone"]').val())
+                    if ($('#integrationMemberCard .edit-card form [name="phone"]').val())
                         $.ajax({
                             url        : '/rest/phone-number',
                             type       : 'put',
@@ -89,8 +81,8 @@ $('#newMemberCard form').bootstrapValidator({
                             data       : JSON.stringify({
                                 phoneNumber: {
                                     user_id     : result.user_id,
-                                    country_code: $('#newMemberCard form [name="country_code"]').val(),
-                                    phone       : $('#newMemberCard form [name="phone"]').val(),
+                                    country_code: $('#integrationMemberCard .edit-card form [name="country_code"]').val(),
+                                    phone       : $('#integrationMemberCard .edit-card form [name="phone"]').val(),
                                     verified    : true,
                                     type        : 2
                                 }
@@ -104,8 +96,8 @@ $('#newMemberCard form').bootstrapValidator({
                             },
                             error      : function(jqXHR)
                             {
-                                $('#newMemberCard form .alert').show();
-                                $('#newMemberCard form .alert').text(jqXHR.responseText);
+                                $('#integrationMemberCard .edit-card form .alert').show();
+                                $('#integrationMemberCard .edit-card form .alert').text(jqXHR.responseText);
                             }
                         })
                     else
@@ -116,8 +108,8 @@ $('#newMemberCard form').bootstrapValidator({
                 },
                 error  : function(jqXHR)
                 {
-                    $('#newMemberCard form .alert').show();
-                    $('#newMemberCard form .alert').text(jqXHR.responseText);
+                    $('#integrationMemberCard .edit-card form .alert').show();
+                    $('#integrationMemberCard .edit-card form .alert').text(jqXHR.responseText);
                 }
             })
         }
@@ -162,35 +154,17 @@ $('#newMemberCard form').bootstrapValidator({
     }
 });
 
-$('#cancelInvite').click(function()
-{
-    $('#newMemberCard').hide();
-    $('#members').show();
-});
-
 /** COUPONS CARD **/
-$('#createCouponBtn').click(function()
-{
-    $('form#couponDetailsForm').trigger('reset');
-    $('form#couponDetailsForm .alert').hide();
-    $('form#couponDetailsForm').data('bootstrapValidator').resetForm();
-
-    $('#couponCard').hide();
-    $('#couponDetailsCard').show();
-});
+var couponCard = $('#couponCard').card();
 
 $('.editCouponBtn').click(function(event)
 {
     var couponId = $(event.currentTarget).data('id');
     var coupon = _.findWhere(coupons, {id: couponId});
-
-    populate($('form#couponDetailsForm'), coupon);
-
-    $('#couponCard').hide();
-    $('#couponDetailsCard').show();
+    couponCard.edit(coupon);
 });
 
-$('form#couponDetailsForm').bootstrapValidator({
+$('#couponCard .edit-card form').bootstrapValidator({
     submitHandler: function(form)
     {
         var couponId = $('form#couponDetailsForm input[name="id"]').val();
@@ -251,12 +225,6 @@ $('form#couponDetailsForm').bootstrapValidator({
             }
         }
     }
-});
-
-$('#cancelCoupon').click(function()
-{
-    $('#couponCard').show();
-    $('#couponDetailsCard').hide();
 });
 
 $('.datepicker').datetimepicker();
