@@ -102,106 +102,106 @@ title SearchNTalk - DashBoard
                                                 em Invites will be sent on your behalf
                                                 input.btn.btn-primary(style='width: 100px', type='submit', name="send-invite", value="Send Invite")
                                                 input.btn.btn-success(style='width: 100px;', type='submit', name="just-add", value="Just Add")
-                .content.col-md-4
-                    .row
-                        .card#couponCard
-                            .header
-                                .title
-                                    h1 Coupons
-                                .pull-right
-                                    a.btn.btn-success.btn-xs#createCouponBtn Create Coupon
-                                .clearer
-                            if coupons
-                                each coupon in coupons
-                                    .item
-                                        .row
-                                            h5.col-xs-8= coupon.code
-                                            div.header-link.col-xs-4
-                                                a.btn.btn-primary(data-id=coupon.id).editCouponBtn
-                                                    i.icon-pencil
-                                            div.billing-summary
-                                                table
-                                                    thead
-                                                        tr
-                                                            th Discount
-                                                            th Until
-                                                            th Expert
-                                                            th Items
-                                                            th Usage
-                                                    tbody
+                    .content.col-md-4
+                        .row
+                            .card#couponCard
+                                .header
+                                    .title
+                                        h1 Coupons
+                                    .pull-right
+                                        a.btn.btn-success.btn-xs#createCouponBtn Create Coupon
+                                    .clearer
+                                if coupons
+                                    each coupon in coupons
+                                        .item
+                                            .row
+                                                h5.col-xs-8= coupon.code
+                                                div.header-link.col-xs-4
+                                                    a.btn.btn-primary(data-id=coupon.id).editCouponBtn
+                                                        i.icon-pencil
+                                                div.billing-summary
+                                                    table
+                                                        thead
                                                             tr
-                                                                td= formatMoney(coupon.discount_amount, coupon.discount_unit)
-                                                                td= coupon.expiry_time != null ? formatDate(coupon.expiry_time, "ddd, DD MMM YYYY") : 'Forever'
-                                                                td= coupon.expert_resource_id
-                                                                td= CouponType[coupon.coupon_type]
-                                                                td #{coupon.num_used} / #{coupon.max_coupons || 'Unlimited'}
-                        .card#members
-                            .header
-                                .title
-                                    h1 Network Logo
-                                hr
-                                .clearer
-                                .item
-                                    .row
-                                        img(src=ApiUrlDelegate.integrationLogo(members[0].integration_id), width='120', height = '120')
-                                    a.btn.btn-success.btn-xs#selectFileBtn Upload
-                                    form#fileUploadForm(action=ApiUrlDelegate.integrationLogo(members[0].integration_id), method="post", enctype="multipart/form-data")
-                                        input#selectFile(type='file', name='profile', style='display: none')
-                                        input#selectFileSubmit(type='submit', style='display: none')
-                        .card#couponDetailsCard(style='display: none;')
-                            form#couponDetailsForm
-                                input(type="hidden", name="id")
-                                .item-edit
+                                                                th Discount
+                                                                th Until
+                                                                th Expert
+                                                                th Items
+                                                                th Usage
+                                                        tbody
+                                                                tr
+                                                                    td= formatMoney(coupon.discount_amount, coupon.discount_unit)
+                                                                    td= coupon.expiry_time != null ? formatDate(coupon.expiry_time, "ddd, DD MMM YYYY") : 'Forever'
+                                                                    td= coupon.expert_resource_id
+                                                                    td= CouponType[coupon.coupon_type]
+                                                                    td #{coupon.num_used} / #{coupon.max_coupons || 'Unlimited'}
+                            .card#members
+                                .header
+                                    .title
+                                        h1 Network Logo
+                                    hr
+                                    .clearer
                                     .item
                                         .row
-                                            .inputs.col-xs-8
-                                                .input-group
-                                                    input.form-control(type='text', placeholder='Enter Coupon Code', name='code')
-                                            .header-link.col-xs-4
-                                                a.btn.btn-danger#cancelCoupon
-                                                    i.icon-cancel
-                                    .alert-danger.alert(style="display: none;")
-                                    .item
-                                        .row
-                                            h3
-                                                | Apply to Expert
-                                                .fa.fa-question-circle(style='cursor: pointer', data-toggle="tooltip", data-placement="right", title='Select the expert to whom this coupon applies')
-                                            .form-group
-                                                select.form-control(type='text', name='expert_resource_id')
-                                                    option(value=0) All
-                                                    if members && members.length != 0
-                                                        for member in members
-                                                            option(value=member.id)= formatName(member.user.first_name, member.user.last_name, member.user.title)
-                                            h3 Expires On
-                                            .form-group
-                                                input.form-control.datepicker(type='text', name='expiry_time')
-                                            h3 Total Coupons
-                                            .form-group
-                                                input.form-control(type='text', name='max_coupons', placeholder='0 = unlimited')
-                                            h3 Coupons Used
-                                            .form-group
-                                                .form-control-static(name='num_used') 0
-                                            h3 Discount
-                                            .form-group
-                                                .row
-                                                    .col-md-5
-                                                        select.form-control(data-width='auto', name='discount_unit')
-                                                            option(value='1') Rs.
-                                                            option(value='2') $
-                                                            option(value='3') %
-                                                            option(value='4') Points
-                                                    .col-md-7
-                                                        input.form-control(type='text', name='discount_amount')
-                                            h3 What's Discounted
-                                            .form-group
-                                                select.form-control(data-width='auto', name='coupon_type')
-                                                    - for couponType,id in CouponType
-                                                        option(value=id)= couponType
-                                            .clearer
-                                        div.links-editing
-                                            p.edit-schedules
-                                                em Invites will be sent on your behalf
-                                                input.btn.btn-primary#submit(type='submit', value='Save')
+                                            img(src=ApiUrlDelegate.integrationLogo(members[0].integration_id), width='120', height = '120')
+                                        a.btn.btn-success.btn-xs#selectFileBtn Upload
+                                        form#fileUploadForm(action=ApiUrlDelegate.integrationLogo(members[0].integration_id), method="post", enctype="multipart/form-data")
+                                            input#selectFile(type='file', name='profile', style='display: none')
+                                            input#selectFileSubmit(type='submit', style='display: none')
+                            .card#couponDetailsCard(style='display: none;')
+                                form#couponDetailsForm
+                                    input(type="hidden", name="id")
+                                    .item-edit
+                                        .item
+                                            .row
+                                                .inputs.col-xs-8
+                                                    .input-group
+                                                        input.form-control(type='text', placeholder='Enter Coupon Code', name='code')
+                                                .header-link.col-xs-4
+                                                    a.btn.btn-danger#cancelCoupon
+                                                        i.icon-cancel
+                                        .alert-danger.alert(style="display: none;")
+                                        .item
+                                            .row
+                                                h3
+                                                    | Apply to Expert
+                                                    .fa.fa-question-circle(style='cursor: pointer', data-toggle="tooltip", data-placement="right", title='Select the expert to whom this coupon applies')
+                                                .form-group
+                                                    select.form-control(type='text', name='expert_resource_id')
+                                                        option(value=0) All
+                                                        if members && members.length != 0
+                                                            for member in members
+                                                                option(value=member.id)= formatName(member.user.first_name, member.user.last_name, member.user.title)
+                                                h3 Expires On
+                                                .form-group
+                                                    input.form-control.datepicker(type='text', name='expiry_time')
+                                                h3 Total Coupons
+                                                .form-group
+                                                    input.form-control(type='text', name='max_coupons', placeholder='0 = unlimited')
+                                                h3 Coupons Used
+                                                .form-group
+                                                    .form-control-static(name='num_used') 0
+                                                h3 Discount
+                                                .form-group
+                                                    .row
+                                                        .col-md-5
+                                                            select.form-control(data-width='auto', name='discount_unit')
+                                                                option(value='1') Rs.
+                                                                option(value='2') $
+                                                                option(value='3') %
+                                                                option(value='4') Points
+                                                        .col-md-7
+                                                            input.form-control(type='text', name='discount_amount')
+                                                h3 What's Discounted
+                                                .form-group
+                                                    select.form-control(data-width='auto', name='coupon_type')
+                                                        - for couponType,id in CouponType
+                                                            option(value=id)= couponType
+                                                .clearer
+                                            div.links-editing
+                                                p.edit-schedules
+                                                    em Invites will be sent on your behalf
+                                                    input.btn.btn-primary#submit(type='submit', value='Save')
             else
                 .content.col-md-12
                     .alert.alert-warning

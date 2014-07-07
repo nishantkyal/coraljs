@@ -19,57 +19,97 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                         p Creating listings helps showcase each of your expertise in a better manner
                         .actions-pane
                             .row
-                                .col-xs-6.align-left
+                                .col-xs-3.align-left
                                     a.btn.btn-warning#addExpertiseBtn Add an Expertise
-                form.card#expertiseDetails(style='display: none;')
-                    .item
-                        .item-edit
-                            .row
-                                .inputs.col-xs-8
-                                    .input-group
-                                        input.form-control(type='text', placeholder='Expertise Title', name='title')
-                                .header-link.col-xs-4
-                                    a.btn.btn-danger#cancelExpertiseDetails
-                                        i.icon-trash
-                            div
-                                div#sessionToggle
-                                    h3 Session:
-                                    .btn-group(data-toggle='buttons')
-                                        label.btn.btn-radio.active
-                                            input(type='radio', name='session_toggle', value='1')
-                                            | Yes
-                                        label.btn.btn-radio
-                                            input(type='radio', name='session_toggle', value='0')
-                                            | No
-                                div#pricing
-                                    h3 Pricing:
+                                .col-xs-3.align-left
+                                    a.btn.btn-linkedin#fetchFromLinkedin Fetch from LinkedIn
+                    form.card#expertiseDetails(style='display: none;')
+                        .item
+                            .item-edit
+                                .row
+                                    .inputs.col-xs-8
+                                        .input-group
+                                            input.form-control(type='text', placeholder='Expertise Title', name='title')
+                                    .header-link.col-xs-4
+                                        a.btn.btn-danger#cancelExpertiseDetails
+                                            i.icon-trash
+                                div
+                                    div#sessionToggle
+                                        h3 Session:
+                                        .btn-group(data-toggle='buttons')
+                                            label.btn.btn-radio.active
+                                                input(type='radio', name='session_toggle', value='1')
+                                                | Yes
+                                            label.btn.btn-radio
+                                                input(type='radio', name='session_toggle', value='0')
+                                                | No
+                                    div#pricing
+                                        h3 Pricing:
+                                        .form-group
+                                            .row
+                                                .col-md-2
+                                                    input.form-control(type='text', name='session_pricing', placeholder='0 = Free')
+                                                .col-md-2
+                                                    select.form-control(name='session_price_unit')
+                                                        option $
+                                                .col-md-1 for
+                                                .col-md-3
+                                                    .input-group
+                                                        input.form-control(type='text', name='session_duration', placeholder='Session length')
+                                                        .input-group-addon
+                                                            span mins.
+                                    .clearer
+                                    h3 Skills/Keywords:
                                     .form-group
-                                        .row
-                                            .col-md-2
-                                                input.form-control(type='text', name='session_pricing', placeholder='0 = Free')
-                                            .col-md-2
-                                                select.form-control(name='session_price_unit')
-                                                    option $
-                                            .col-md-1 for
-                                            .col-md-3
-                                                .input-group
-                                                    input.form-control(type='text', name='session_duration', placeholder='Session length')
-                                                    .input-group-addon
-                                                        span mins.
+                                        input.form-control(type='text')
+                                    h3 Description:
+                                    .form-group
+                                        textarea.form-control(name='description', rows='4')
+                                    h3 Years of experience:
+                                    .form-group
+                                        input.form-control(name='years_of_experience', type='text')
+                        .links-edit
+                            p
+                                | Editing Expertise
+                                input.btn.btn-primary.done-editing-schedules(type='submit', value='Save')
+                    form.card#linkedinFetch(style='display: none;')
+                        .item-edit
+                            .item
+                                .row
+                                    h5.col-xs-8 Select what do you want to fetch from LinkedIn?
+                                    .header-link.col-xs-4
+                                        a.btn.btn-danger#cancelLinkedinFetch
+                                            i.icon-trash
+                            .item
+                                .row
+                                    .form-group
+                                        .col-xs-1
+                                            input(type="checkbox", name="fetchBasic", value="fetchBasic")
+                                        .col-xs-2 Basic Info
+                                .row
+                                    .form-group
+                                        .col-xs-1
+                                            input(type="checkbox", name="fetchProfilePicture", value="fetchProfilePicture")
+                                        .col-xs-2 Profile Picture
+                                .row
+                                    .form-group
+                                        .col-xs-1
+                                            input(type="checkbox", name="fetchSkill", value="fetchSkill")
+                                        .col-xs-2 Skill Details
+                                .row
+                                    .form-group
+                                        .col-xs-1
+                                            input(type="checkbox", name="fetchEducation", value="fetchEducation")
+                                        .col-xs-3 Education Details
+                                .row
+                                    .form-group
+                                        .col-xs-1
+                                            input(type="checkbox", name="fetchEmployment", value="fetchEmployment")
+                                        .col-xs-3 Employment Details
                                 .clearer
-                                h3 Skills/Keywords:
-                                .form-group
-                                    input.form-control(type='text')
-                                h3 Description:
-                                .form-group
-                                    textarea.form-control(name='description', rows='4')
-                                h3 Years of experience:
-                                .form-group
-                                    input.form-control(name='years_of_experience', type='text')
-                    .links-edit
-                        p
-                            | Editing Expertise
-                            input.btn.btn-primary.done-editing-schedules(type='submit', value='Save')
+                                div.links-editing
+                                    p.edit-schedules
+                                        input.btn.btn-primary(type='submit', value='Fetch')
                 .row
                     for expertise in userExpertise
                         div.card

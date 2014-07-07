@@ -208,16 +208,42 @@ $('[name="deleteUserSkill"]').click(function()
     });
 });
 
-$('#fetchProfilePicture, #fetchSkill, #fetchEmployment, #fetchEducation, #fetchBasic').click(function(event)
+$('#fetchFromLinkedin').click(function(event)
 {
-    bootbox.confirm('Are you sure you want to replace the current information with information from LinkedIn?', function(result)
+    $('#linkedinFetch').show();
+
+    $('form#linkedinFetch').trigger('reset');
+    $('form#linkedinFetch').data('bootstrapValidator').resetForm();
+});
+
+$('#cancelLinkedinFetch').click(function(event){
+    $('#linkedinFetch').hide();
+})
+
+$('form#linkedinFetch').bootstrapValidator({
+    submitHandler: function()
     {
-        if (result) {
-            setCookie('linkedin_fetch_fields', $(event.currentTarget).attr('id'));
-            setCookie('profileId', userProfile.id);
-            location.href = '/login/linkedin';
-        }
-    });
+        bootbox.confirm('Are you sure you want to replace the current information with information from LinkedIn?', function(result)
+        {
+            if (result) {
+                var fetchFields = '';
+                if($('input[name="fetchBasic"]').is(':checked'))
+                    fetchFields +='fetchBasic:';
+                if($('input[name="fetchEducation"]').is(':checked'))
+                    fetchFields +='fetchEducation:';
+                if($('input[name="fetchEmployment"]').is(':checked'))
+                    fetchFields +='fetchEmployment:';
+                if($('input[name="fetchProfilePicture"]').is(':checked'))
+                    fetchFields +='fetchProfilePicture:';
+                if($('input[name="fetchSkill"]').is(':checked'))
+                    fetchFields +='fetchSkill:';
+
+                setCookie('linkedin_fetch_fields', fetchFields);
+                setCookie('profileId', userProfile.id);
+                location.href = '/login/linkedin';
+            }
+        });
+    }
 });
 
 $('form#expertiseDetails').bootstrapValidator({
