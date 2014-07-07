@@ -2,6 +2,7 @@ import ApiConstants                                         = require('../enums/
 import User                                                 = require('../models/User');
 import Config                                               = require('../common/Config');
 import Credentials                                          = require('../common/Credentials');
+import Utils                                                = require('../common/Utils');
 
 class AbstractSessionData
 {
@@ -19,7 +20,7 @@ class AbstractSessionData
     }
 
     /* Getters */
-    getIdentifier():string { throw('Implement this method'); }
+    getIdentifier():string { return 'GlobalSessionData'; }
 
     getLoggedInUser():User
     {

@@ -1,4 +1,4 @@
-title SearchNTalk | Member Registration | Create Account
+title SearchNTalk | Login
 include ../header
 .matter
     .container
@@ -20,21 +20,22 @@ include ../header
                                     dt Your number stays private
                                     dd We connect the calls without disclosing your number
                     .col-md-6
-                        .call-card
+                        .card
                             include ../errorMessage
                             form#login-form(role='form', method='POST')
-                                .form-group
-                                    label(for='username') Email
-                                    input.form-control#username(name='email', type='email')
-                                .form-group
-                                    label(for='login_password') Password
-                                    input.form-control#login_password(name='password', type='password')
-                                .form-group
-                                    .controls
+                                .item-edit
+                                    h3 Email
+                                    .form-group
+                                        input.form-control#username(name='email', type='email')
+                                    h3 Password
+                                    .form-group
+                                        input.form-control#login_password(name='password', type='password')
+                                    .links-editing
                                         input.btn-primary.btn.btn-block(value='Login', type='submit')
-                                a.btn-linkedin.btn(href=AuthenticationUrls.linkedInLogin()) Login with LinkedIn
-                                a.btn.btn-link(href=DashboardUrls.forgotPassword()) Forgot password?
-                                a.btn.btn-link(href=AuthenticationUrls.register()) Create an account
+                                    .links-editing
+                                        a.btn-linkedin.btn(href=AuthenticationUrls.linkedInLogin()) Login with LinkedIn
+                                        a.btn.btn-link(href=DashboardUrls.forgotPassword()) Forgot password?
+                                        a.btn.btn-link(href=AuthenticationUrls.register()) Create an account
 include ../footer
 script.
     var Timezone = JSON.parse('!{JSON.stringify(Timezone)}');

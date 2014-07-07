@@ -2477,8 +2477,11 @@ a:hover {
 }
 .card .item .header-row {
   margin: 0px 0px 10px 0px;
-  padding: 0px 0px 10px 0px;
   border-bottom: 2px solid #f9af18;
+}
+.card .item .header-row input {
+  padding: 0px 0px 10px 0px;
+  margin: 0px 0px 10px 0px;
 }
 .card .item .header-link {
   text-align: right;

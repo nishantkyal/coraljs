@@ -1,9 +1,9 @@
 div.row
     div.card#schedule
-        .item
-            .header-row.row
-                h5 Schedules
-                .clearer
+        .addit
+            a.btn.btn-primary#createScheduleBtn(href='javascript:void(0)')
+                | Add a schedule
+                i.icon-plus
         .item
             for rule in rules
                 - var daysOfWeek = rule.values[5] || ['0', '1', '2', '3', '4', '5', '6'];
@@ -12,10 +12,12 @@ div.row
                 div.schedule
                     div.item
                         div.row
-                            h5.col-xs-8= rule.title || 'Rule'
-                            div.header-link.col-xs-4
-                                a.btn.btn-primary.editScheduleBtn(data-id=rule.id)
-                                    i.icon-pencil
+                            .header-row.row
+                                h5.col-xs-8= rule.title || 'Rule'
+                                div.header-link.col-xs-4
+                                    a.btn.btn-primary.editScheduleBtn(data-id=rule.id)
+                                        i.icon-pencil
+                            .clearer
                         div.schedule-details
                             div.schedule-days.col-sm-6
                                 h3 Days:
@@ -41,10 +43,6 @@ div.row
                                     em &nbsp;to&nbsp;
                                     span= moment().hour(hour).minute(minutes).add({milliseconds: rule.duration}).format('hh:mm a')
                     div.clearer
-        div.addit
-            a#createScheduleBtn(href='javascript:void(0)')
-                | Add a schedule
-                i.icon-plus
     .card#scheduleDetails(style='display: none;')
         .schedule-edit
             .item
