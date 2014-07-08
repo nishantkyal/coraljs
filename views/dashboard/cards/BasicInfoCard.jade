@@ -40,15 +40,13 @@
                 .clearer
                 ul
                     if userSkill.length != 0
-                            each skill in userSkill
-                                li #{skill.skill_name}&nbsp
-                                    if isEditable
-                                        a(data-id=skill.id, name = 'deleteUserSkill')
-                                            i.icon-cancel
+                        each skill in userSkill
+                            a.btn.btn-default.btn-xs= skill.skill_name
+                                if isEditable
+                                    i.icon-cancel
                     if isEditable
-                        li Add Skill&nbsp;
-                            a#addSkillBtn
-                                i.icon-plus
+                        a.btn.btn-primary.btn-xs#addSkillBtn Add Skill
+                            i.icon-plus
 if isEditable
     .card.edit-card
         form

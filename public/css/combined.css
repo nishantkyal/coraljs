@@ -9737,3 +9737,13 @@ a:hover {
 {
     visibility: inherit;
 }
+
+.meta.meta-keywords .btn i
+{
+    margin: 0 5px;
+}
+
+.meta.meta-keywords .btn + .btn
+{
+    margin-right: 5px;
+}
