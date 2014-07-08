@@ -85,6 +85,7 @@ class ApiConstants
     static PUBLIC_MODE:string                           = 'public';
     static OFFSET:string                                = 'offset';
     static ZONE:string                                  = 'zone';
+    static IMAGE_SIZE:string                            = 'imageSize';
 
 }
 export = ApiConstants

@@ -134,15 +134,7 @@ class UserDelegate extends BaseDaoDelegate
         var newImagePath:string = imageBasePath;
         var sizes = [ImageSize.LARGE, ImageSize.MEDIUM, ImageSize.SMALL];
 
-        return self.imageDelegate.move(tempImagePath, newImagePath)
-            .fail(
-            function imageMoveFailed(err)
-            {
-                self.logger.error('Failed renaming file %s to %s. Error: %s', tempImagePath, newImagePath, err);
-                throw('An error occurred while uploading your image');
-            });
-
-        /*return q.all(_.map(sizes, function (size:ImageSize):q.Promise<any>
+        return q.all(_.map(sizes, function (size:ImageSize):q.Promise<any>
         {
             return self.imageDelegate.resize(tempImagePath, imageBasePath + '_' + ImageSize[size].toLowerCase(), size);
         }))
@@ -152,7 +144,7 @@ class UserDelegate extends BaseDaoDelegate
         .fail( function imageResizeFailed(error)
         {
             self.logger.debug('Image resize failed because %s', error);
-        });*/
+        });
     }
 }
 export = UserDelegate
