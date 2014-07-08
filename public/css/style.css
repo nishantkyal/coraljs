@@ -125,7 +125,7 @@
     margin: 0 5px;
 }
 
-.meta.meta-keywords .btn + .btn
+.meta.meta-keywords .btn + .btn, .btn-group + .btn, .btn-group + .btn-group
 {
     margin-left: 5px;
 }
