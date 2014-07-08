@@ -1,14 +1,4 @@
-$('#editUserProfileBtn').click(function()
-{
-    $('#basicInfo').hide();
-    $('#editBasicInfo').show();
-});
-
-$('#cancelEditUserProfile').click(function()
-{
-    $('#basicInfo').show();
-    $('#editBasicInfo').hide();
-});
+var basicProfileCard = $('#basicProfile').card();
 
 $('#addSkillBtn').click(function()
 {
@@ -26,7 +16,7 @@ $('#cancelAddUserSkill').click(function()
     $('#addSkill').hide();
 });
 
-$('form#editUserProfileForm').bootstrapValidator({
+$('#basicInfo .edit-card form').bootstrapValidator({
     submitHandler: function()
     {
         $.ajax({
@@ -34,12 +24,12 @@ $('form#editUserProfileForm').bootstrapValidator({
             type   : 'post',
             data   : {
                 user: {
-                    title        : $('form#editUserProfileForm select[name="title"]').val(),
-                    first_name   : $('form#editUserProfileForm input[name="first_name"]').val(),
-                    last_name    : $('form#editUserProfileForm input[name="last_name"]').val(),
-                    industry     : $('form#editUserProfileForm select[name="industry"]').val(),
-                    timezone     : $('form#editUserProfileForm select[name="timezone"]').val(),
-                    date_of_birth: $('form#editUserProfileForm input[name="birthDate"]').val()
+                    title        : $('#basicInfo .edit-card form select[name="title"]').val(),
+                    first_name   : $('#basicInfo .edit-card form input[name="first_name"]').val(),
+                    last_name    : $('#basicInfo .edit-card form input[name="last_name"]').val(),
+                    industry     : $('#basicInfo .edit-card form select[name="industry"]').val(),
+                    timezone     : $('#basicInfo .edit-card form select[name="timezone"]').val(),
+                    date_of_birth: $('#basicInfo .edit-card form input[name="birthDate"]').val()
                 }
             },
             success: function()
@@ -50,8 +40,8 @@ $('form#editUserProfileForm').bootstrapValidator({
                     data   : {
                         userProfile: {
                             id        : userProfile.id,
-                            short_desc: $('form#editUserProfileForm input[name="short_desc"]').val(),
-                            long_desc : $('form#editUserProfileForm input[name="long_desc"]').val()
+                            short_desc: $('#basicInfo .edit-card form input[name="short_desc"]').val(),
+                            long_desc : $('#basicInfo .edit-card form input[name="long_desc"]').val()
                         }
                     },
                     success: function()

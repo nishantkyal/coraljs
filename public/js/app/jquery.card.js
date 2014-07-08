@@ -30,7 +30,10 @@ $.fn.card = function(options)
         populate($('.edit-card form', self), selectedObject);
 
         // Hide main card and show edit card
-        $(clickedElement).closest('.main-card').hide();
+        if (clickedElement)
+            $(clickedElement).closest('.main-card').hide();
+        else
+            $('.main-card', self).hide();
         $('.edit-card', self).show();
     };
 

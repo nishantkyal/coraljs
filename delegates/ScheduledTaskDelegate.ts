@@ -68,7 +68,6 @@ class ScheduledTaskDelegate extends events.EventEmitter
         // Add task to index and persist
         ScheduledTaskDelegate.tasks[taskId] = {task: task, timeout: timeout};
 
-
         return self.syncToRedis()
             .then(
             function tasksSynced():any

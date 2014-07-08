@@ -5,11 +5,9 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
     .container
         .row
             .col-md-4.content
-                #basicInfo
+                #basicProfile
                     include cards/BasicInfoCard
                 if isEditable
-                    #editBasicInfo(style='display: none;')
-                        include cards/EditBasicInfoCard
                     #addSkill(style='display: none;')
                         include cards/AddSkill
             .col-md-8.content
