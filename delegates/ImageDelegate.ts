@@ -1,9 +1,9 @@
 ///<reference path='../_references.d.ts'/>
 import q                                            = require('q');
-var fs = require('fs');
-var http = require('http');
-var gm = require('gm');
+import fs                                           = require('fs');
+import http                                         = require('http');
 import ImageSize                                    = require('../enums/ImageSize');
+var gm                                              = require('gm');
 
 class ImageDelegate
 {
@@ -84,7 +84,7 @@ class ImageDelegate
                 response.pipe(file);
                 file.on('finish', function ()
                 {
-                    file.close();
+                    file.end();
                 });
                 deferred.resolve('Image Fetched from ' + imageUrl);
             }
