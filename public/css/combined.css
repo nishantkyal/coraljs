@@ -7948,7 +7948,6 @@ a:hover {
   background: #00639D;
   color: #FFFFFF;
   font-weight: bold;
-  width: 100%;
 }
 .btn-linkedin:hover,
 .btn-linkedin:active,
@@ -9617,4 +9616,112 @@ a:hover {
 .payment-summary .table .table-row.total .table-cell {
   border-top: 1px solid #dddddd;
   border-bottom: 1px solid #dddddd;
+}
+
+.controls .btn + .btn {
+    margin-left: 10px;
+}
+
+.controls input + .btn {
+    margin-left: 10px;
+}
+
+.controls textarea + .btn {
+    margin-left: 10px;
+}
+
+.pull-right a + a {
+    margin-left: 5px;
+}
+
+.align-left a + a {
+    margin-left: 5px;
+}
+
+.panel-body a + button {
+    margin-left: 5px;
+}
+
+.datepicker
+{
+    z-index:1151 !important;
+}
+
+
+.input-group-btn select
+{
+    height: 34px;
+}
+
+.checkbox.inverted::before
+{
+    color: rgb(167, 167, 167);
+}
+
+.radio
+{
+    display: block;
+    height: 30px;
+    line-height: 20px;
+    padding: 5px;
+}
+
+.radio span
+{
+    margin-left: 5px;
+}
+
+.initials-profile-image
+{
+    -webkit-background-clip: border-box;
+    -webkit-background-origin: padding-box;
+    -webkit-background-size: auto;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    background-attachment: scroll;
+    background-clip: border-box;
+    background-color: rgba(0,0,0,.1);
+    background-image: none;
+    background-origin: padding-box;
+    background-size: auto;
+    box-sizing: border-box;
+    color: rgb(255, 255, 255);
+    cursor: pointer;
+    display: block;
+    font-family: 'Helvetica Neue Custom', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    height: 40px;
+    line-height: 40px;
+    list-style-type: none;
+    text-align: center;
+    width: 40px;
+}
+
+.initials-profile-image-large
+{
+    -webkit-background-clip: border-box;
+    -webkit-background-origin: padding-box;
+    -webkit-background-size: auto;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    background-attachment: scroll;
+    background-clip: border-box;
+    background-color: rgba(0,0,0,.1);
+    background-image: none;
+    background-origin: padding-box;
+    background-size: auto;
+    box-sizing: border-box;
+    color: rgb(255, 255, 255);
+    cursor: pointer;
+    display: block;
+    font-family: 'Helvetica Neue Custom', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 60px;
+    font-weight: bold;
+    height: 100%;
+    padding-top: 31px;
+    line-height: 100%;
+    list-style-type: none;
+    text-align: center;
+    width: 100%;
 }

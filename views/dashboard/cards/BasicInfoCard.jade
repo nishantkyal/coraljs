@@ -26,8 +26,6 @@
             .clearer
             if isEditable
                 a.btn.btn-success.btn-xs#selectFileBtn Upload
-                a.btn.btn-default.btn-xs#fetchProfilePicture
-                    si.si-small.si-linkedin
                 form#fileUploadForm(action=ApiUrlDelegate.userProfilePicture(user.id), method="post", enctype="multipart/form-data")
                     input#selectFile(type='file', name='profile', style='display: none')
                     input#selectFileSubmit(type='submit', style='display: none')

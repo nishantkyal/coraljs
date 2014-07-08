@@ -1,7 +1,7 @@
-div.card
+.card.main-card
     if isEditable
         .addit
-            a.btn.btn-primary#addUserEducationBtn Add Education Details
+            a.btn.btn-primary.createCardBtn Add Education Details
                 i.icon-plus
     else
         .item
@@ -15,9 +15,9 @@ div.card
                     h5.col-xs-8 #{edu.school_name}
                     .header-link.col-xs-4
                         if isEditable
-                            a.btn.btn-link.editUserEducation(data-id=edu.id)
+                            a.btn.btn-link.editCardBtn(data-id=edu.id)
                                 i.icon-pencil
-                            &nbsp;
+                            | &nbsp;
                             a.btn.btn-link.deleteUserEducation(data-id=edu.id)
                                 i.icon-trash
                     div
@@ -34,3 +34,46 @@ div.card
     else
         .alert.alert-warning
             p No schools added yet
+if isEditable
+    .card.edit-card
+        form
+            input.form-control(type="hidden", name="id")
+            .item-edit
+                .item
+                    .row
+                        h5.col-xs-8 Education Details
+                        .header-link.col-xs-4
+                            a.btn.btn-danger.cancelEditCardBtn
+                                i.icon-cancel
+                .item
+                    .row
+                        .form-group
+                            h3 School:
+                            input.form-control(type='text', name='school_name')
+                        .form-group
+                            h3 Dates Attended:
+                            .controls
+                                .col-md-6
+                                    select.form-control(name='start_year', data-width='auto')
+                                        - for (var i = currentYear; i >= minYear; i--)
+                                            option(value=i, selected = (currentYear == i))= i
+                                .col-md-6
+                                    select.form-control(name='end_year', data-width='auto')
+                                        - for( var i=currentYear; i>=minYear; i--)
+                                            option(value=i, selected = (currentYear == i))= i
+                        .form-group
+                            h3 Degree:
+                            input.form-control(type='text', name='degree')
+                        .form-group
+                            h3 Field of Study:
+                            input.form-control(type='text', name='field_of_study')
+                        .form-group
+                            h3 Activities and Socities:
+                            input.form-control(type='text', name='activities')
+                        .form-group
+                            h3 Description:
+                            input.form-control(type='text', name='description')
+                        .clearer
+                        div.links-editing
+                            p.edit-schedules
+                                input.btn.btn-primary(type='submit', value='Save')

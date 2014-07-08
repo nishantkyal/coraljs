@@ -1,32 +1,16 @@
-$('#addEmploymentbtn').click(function()
+var userEmploymentCard = $('#userEmployment').card();
+
+$('#userEmployment .editCardBtn').click(function(event)
 {
-    $('#AddUserEmploymentCard').show();
-    $('#employmentDetails').hide();
-
-    $('form#AddUserEmploymentForm').trigger('reset');
-    $('form#AddUserEmploymentForm .alert').hide();
-    $('form#AddUserEmploymentForm').data('bootstrapValidator').resetForm();
-});
-
-$('#cancelAddUserEmployment').click(function()
-{
-    $('#employmentDetails').show();
-    $('#AddUserEmploymentCard').hide();
-});
-
-$('[name="editUserEmployment"]').click(function()
-{
-    $('#AddUserEmploymentCard').show();
-    $('#employmentDetails').hide();
-
     var employmentId = $(this).data('id');
     var employment = _.findWhere(userEmployment, {id: employmentId});
 
-    populate($('form#AddUserEmploymentForm'), unEscapeObject(employment));
+    userEmploymentCard.edit(employment, $(event.currentTarget));
+    
     if (employment.start_date)
-        $('form#AddUserEmploymentForm input[name="start_date"]').val(moment.unix(parseInt(employment.start_date/1000)).format('MM-YYYY'));
+        $('#userEmployment .edit-card form input[name="start_date"]').val(moment.unix(parseInt(employment.start_date/1000)).format('MM-YYYY'));
     if (employment.end_date)
-        $('form#AddUserEmploymentForm input[name="end_date"]').val(moment.unix(parseInt(employment.end_date/1000)).format('MM-YYYY'));
+        $('#userEmployment .edit-card form input[name="end_date"]').val(moment.unix(parseInt(employment.end_date/1000)).format('MM-YYYY'));
 });
 
 $('[name="deleteUserEmployment"]').click(function()
@@ -48,13 +32,13 @@ $('[name="deleteUserEmployment"]').click(function()
 
 $('.datepicker').datetimepicker();
 
-$('form#AddUserEmploymentForm').bootstrapValidator({
+$('#userEmployment .edit-card form').bootstrapValidator({
     submitHandler : function()
     {
-        var startDate = $('form#AddUserEmploymentForm input[name="start_date"]').val() == "" ? -1:moment($('form#AddUserEmploymentForm input[name="start_date"]').val(),'MM-YYYY').valueOf()
-        var endDate = $('form#AddUserEmploymentForm input[name="end_date"]').val() == "" ? -1:moment($('form#AddUserEmploymentForm input[name="end_date"]').val(),'MM-YYYY').valueOf();
+        var startDate = $('#userEmployment .edit-card form input[name="start_date"]').val() == "" ? -1:moment($('#userEmployment .edit-card form input[name="start_date"]').val(),'MM-YYYY').valueOf()
+        var endDate = $('#userEmployment .edit-card form input[name="end_date"]').val() == "" ? -1:moment($('#userEmployment .edit-card form input[name="end_date"]').val(),'MM-YYYY').valueOf();
 
-        var employmentId = $('form#AddUserEmploymentForm input[name="id"]').val();
+        var employmentId = $('#userEmployment .edit-card form input[name="id"]').val();
         var url = employmentId ? '/rest/user/employment/' + employmentId : '/rest/user/employment';
         var method = employmentId ? 'post' : 'put';
         
@@ -63,12 +47,12 @@ $('form#AddUserEmploymentForm').bootstrapValidator({
             type: method,
             data: {
                 employment: {
-                    title           : $('form#AddUserEmploymentForm input[name="title"]').val(),
+                    title           : $('#userEmployment .edit-card form input[name="title"]').val(),
                     start_date      : startDate,
                     end_date        : endDate,
-                    summary         : $('form#AddUserEmploymentForm input[name="summary"]').val(),
-                    company         : $('form#AddUserEmploymentForm input[name="company"]').val(),
-                    is_current      : $('form#AddUserEmploymentForm input[name="is_current"]').val()
+                    summary         : $('#userEmployment .edit-card form input[name="summary"]').val(),
+                    company         : $('#userEmployment .edit-card form input[name="company"]').val(),
+                    is_current      : $('#userEmployment .edit-card form input[name="is_current"]').val()
                 },
                 profileId           : userProfile.id
             },

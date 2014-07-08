@@ -1,17 +1,9 @@
-$('#addUserEducationBtn').click(function()
-{
-    $('#userEducationDetails').show();
-    $('#userEducation').hide();
+var userEducationCard = $('#userEducation').card();
 
-    $('#userEducationDetails form').trigger('reset');
-    $('#userEducationDetails form .alert').hide();
-    $('#userEducationDetails form').data('bootstrapValidator').resetForm();
-});
-
-$('#userEducationDetails form').bootstrapValidator({
+$('#userEducation .edit-card form').bootstrapValidator({
     submitHandler : function(form)
     {
-        var educationId = $('#userEducationDetails form input[name="id"]').val();
+        var educationId = $('#userEducation .edit-card form input[name="id"]').val();
         var url = educationId ? '/rest/user/education/' + educationId : '/rest/user/education';
         var method = educationId ? 'post' : 'put';
 
@@ -20,13 +12,13 @@ $('#userEducationDetails form').bootstrapValidator({
             type: method,
             data: {
                 education: {
-                    school_name     : $('#userEducationDetails form input[name="school_name"]').val(),
-                    start_year      : $('#userEducationDetails form select[name="start_year"]').val(),
-                    end_year        : $('#userEducationDetails form select[name="end_year"]').val(),
-                    degree          : $('#userEducationDetails form input[name="degree"]').val(),
-                    field_of_study  : $('#userEducationDetails form input[name="field_of_study"]').val(),
-                    activities      : $('#userEducationDetails form input[name="activities"]').val(),
-                    notes           : $('#userEducationDetails form input[name="description"]').val()
+                    school_name     : $('#userEducation .edit-card form input[name="school_name"]').val(),
+                    start_year      : $('#userEducation .edit-card form select[name="start_year"]').val(),
+                    end_year        : $('#userEducation .edit-card form select[name="end_year"]').val(),
+                    degree          : $('#userEducation .edit-card form input[name="degree"]').val(),
+                    field_of_study  : $('#userEducation .edit-card form input[name="field_of_study"]').val(),
+                    activities      : $('#userEducation .edit-card form input[name="activities"]').val(),
+                    notes           : $('#userEducation .edit-card form input[name="description"]').val()
                 },
                 profileId           : userProfile.id
             },
@@ -52,21 +44,12 @@ $('#userEducationDetails form').bootstrapValidator({
     }
 });
 
-$('#cancelUserEducationDetails').click(function()
+$('.editUserEducation').click(function(event)
 {
-    $('#userEducation').show();
-    $('#userEducationDetails').hide();
-});
-
-$('.editUserEducation').click(function()
-{
-    $('#userEducationDetails').show();
-    $('#userEducation').hide();
-
     var educationId = $(this).data('id');
     var education = _.findWhere(userEducation, {id: educationId});
 
-    populate($('#userEducationDetails form'), unEscapeObject(education));
+    userEducationCard.edit(education, $(event.currentTarget))
 });
 
 $('.deleteUserEducation').click(function()

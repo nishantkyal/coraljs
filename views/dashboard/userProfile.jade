@@ -19,59 +19,10 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                         p Creating listings helps showcase each of your expertise in a better manner
                         .actions-pane
                             .row
-                                .col-xs-3.align-left
+                                .align-left.col-md-12
                                     a.btn.btn-warning#addExpertiseBtn Add an Expertise
-                                .col-xs-3.align-left
                                     a.btn.btn-linkedin#fetchFromLinkedin Fetch from LinkedIn
-                    form.card#expertiseDetails(style='display: none;')
-                        .item
-                            .item-edit
-                                .row
-                                    .inputs.col-xs-8
-                                        .input-group
-                                            input.form-control(type='text', placeholder='Expertise Title', name='title')
-                                    .header-link.col-xs-4
-                                        a.btn.btn-danger#cancelExpertiseDetails
-                                            i.icon-trash
-                                div
-                                    div#sessionToggle
-                                        h3 Session:
-                                        .btn-group(data-toggle='buttons')
-                                            label.btn.btn-radio.active
-                                                input(type='radio', name='session_toggle', value='1')
-                                                | Yes
-                                            label.btn.btn-radio
-                                                input(type='radio', name='session_toggle', value='0')
-                                                | No
-                                    div#pricing
-                                        h3 Pricing:
-                                        .form-group
-                                            .row
-                                                .col-md-2
-                                                    input.form-control(type='text', name='session_pricing', placeholder='0 = Free')
-                                                .col-md-2
-                                                    select.form-control(name='session_price_unit')
-                                                        option $
-                                                .col-md-1 for
-                                                .col-md-3
-                                                    .input-group
-                                                        input.form-control(type='text', name='session_duration', placeholder='Session length')
-                                                        .input-group-addon
-                                                            span mins.
-                                    .clearer
-                                    h3 Skills/Keywords:
-                                    .form-group
-                                        input.form-control(type='text')
-                                    h3 Description:
-                                    .form-group
-                                        textarea.form-control(name='description', rows='4')
-                                    h3 Years of experience:
-                                    .form-group
-                                        input.form-control(name='years_of_experience', type='text')
-                        .links-edit
-                            p
-                                | Editing Expertise
-                                input.btn.btn-primary.done-editing-schedules(type='submit', value='Save')
+                                    a.btn.btn-link(href=DashboardUrls.userProfile(user.id) + '?mode=public', style='color: blue') View Public Profile
                     form.card#linkedinFetch(style='display: none;')
                         .item-edit
                             .item
@@ -141,90 +92,62 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                                     h5 Experience
                                     h1= expertise.years_of_experience
                                         | &nbsp;yrs.
+                form.card#expertiseDetails(style='display: none;')
+                    .item
+                        .item-edit
+                            .row
+                                .inputs.col-xs-8
+                                    .input-group
+                                        input.form-control(type='text', placeholder='Expertise Title', name='title')
+                                .header-link.col-xs-4
+                                    a.btn.btn-danger#cancelExpertiseDetails
+                                        i.icon-trash
+                            div
+                                div#sessionToggle
+                                    h3 Session:
+                                    .btn-group(data-toggle='buttons')
+                                        label.btn.btn-radio.active
+                                            input(type='radio', name='session_toggle', value='1')
+                                            | Yes
+                                        label.btn.btn-radio
+                                            input(type='radio', name='session_toggle', value='0')
+                                            | No
+                                div#pricing
+                                    h3 Pricing:
+                                    .form-group
+                                        .row
+                                            .col-md-2
+                                                input.form-control(type='text', name='session_pricing', placeholder='0 = Free')
+                                            .col-md-2
+                                                select.form-control(name='session_price_unit')
+                                                    option $
+                                            .col-md-1 for
+                                            .col-md-3
+                                                .input-group
+                                                    input.form-control(type='text', name='session_duration', placeholder='Session length')
+                                                    .input-group-addon
+                                                        span mins.
+                                .clearer
+                                h3 Skills/Keywords:
+                                .form-group
+                                    input.form-control(type='text')
+                                h3 Description:
+                                .form-group
+                                    textarea.form-control(name='description', rows='4')
+                                h3 Years of experience:
+                                .form-group
+                                    input.form-control(name='years_of_experience', type='text')
+                    .links-edit
+                        p
+                            | Editing Expertise
+                            input.btn.btn-primary.done-editing-schedules(type='submit', value='Save')
                 .row
                     .content.col-md-6
                         #userEducation
                             include cards/UserEducationCard
-                        if isEditable
-                            #userEducationDetails(style='display: none;')
-                                include cards/EditUserEducation
                     .content.col-md-6
-                        div.card#employmentDetails
-                            if isEditable
-                                .addit
-                                    a.btn.btn-primary#addEmploymentbtn Add Work Experience
-                                        i.icon-plus
-                            else
-                                .item
-                                    .header-row.row
-                                        h5.col-xs-12 Employment Details
-                                div.clearer
-                            if userEmployment.length != 0
-                                each emp in userEmployment
-                                    .item
-                                        .row
-                                            h5.col-xs-8 #{emp.title}
-                                            .header-link.col-xs-4
-                                                if isEditable
-                                                    a.btn.btn-primary(data-id=emp.id, name = 'editUserEmployment')
-                                                        i.icon-pencil
-                                                    &nbsp;
-                                                    a.btn.btn-danger(data-id=emp.id, name = 'deleteUserEmployment')
-                                                        si.icon-trash
-                                            div
-                                            if emp.company
-                                                | #{emp.company}
-                                                br
-                                            if emp.start_date && emp.start_date != -1
-                                                | #{formatDate(emp.start_date, 'MM-YYYY')}
-                                            if emp.end_date && emp.end_date != -1
-                                                | - #{formatDate(emp.end_date, 'MM-YYYY')}
-                                                br
-                                            if emp.summary
-                                                | #{emp.summary}
-                            else
-                                .alert.alert-warning
-                                    p No workplaces added yet
-                        if isEditable
-                            div.card#AddUserEmploymentCard(style='display: none;')
-                                form#AddUserEmploymentForm
-                                    input.form-control(type="hidden", name="id")
-                                    .item-edit
-                                        .item
-                                            .row
-                                                h5.col-xs-8 Add Position Details
-                                                .header-link.col-xs-4
-                                                    a.btn.btn-danger#cancelAddUserEmployment
-                                                        i.icon-cancel
-                                        .item
-                                            .row
-                                                .form-group
-                                                    h3 Title
-                                                    input.form-control(type='text', name='title')
-                                                .form-group
-                                                    h3 Company
-                                                    input.form-control(type='text', name='company')
-                                                .form-group
-                                                    h3 Time Period
-                                                    .row
-                                                        .col-md-4
-                                                            input.form-control.datepicker(type='text', name ="start_date", data-date-format="MM/YYYY")
-                                                        .col-md-1
-                                                            | to
-                                                        .col-md-4
-                                                            input.form-control.datepicker(type='text', name="end_date", data-date-format="MM/YYYY")
-                                                .form-group
-                                                    h3 Summary
-                                                    input.form-control(type='text', name='summary')
-                                                .form-group
-                                                    h3 Is Current? &nbsp&nbsp
-                                                    select#(name='is_current', data-width='auto', name='is_current')
-                                                        option(value="1" selected = (currentYear == '#{i}')) Yes
-                                                        option(value="0" selected = (currentYear == '#{i}')) No
-                                            .clearer
-                                                div.links-editing
-                                                    p.edit-schedules
-                                                        input.btn.btn-primary(type='submit', value='Save')
+                        #userEmployment
+                            include cards/UserEmploymentCard
 include ../footer
 if isEditable
     script.

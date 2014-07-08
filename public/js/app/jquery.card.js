@@ -25,12 +25,12 @@ $.fn.card = function(options)
         $('.edit-card', self).show();
     };
 
-    self.edit = function(selectedObject)
+    self.edit = function(selectedObject, clickedElement)
     {
         populate($('.edit-card form', self), selectedObject);
 
         // Hide main card and show edit card
-        $('.main-card', self).hide();
+        $(clickedElement).closest('.main-card').hide();
         $('.edit-card', self).show();
     };
 
