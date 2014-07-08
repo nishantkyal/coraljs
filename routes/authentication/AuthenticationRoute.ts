@@ -29,6 +29,7 @@ class AuthenticationRoute
         app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
         app.get(Urls.linkedInLoginCallBack(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.login(), failureFlash: true}), this.linkedInCallBack.bind(this), this.authSuccess.bind(this));
         app.get(Urls.logout(), this.logout.bind(this));
+        app.post(Urls.linkedIn(), this.linkedIn.bind(this));
 
     }
 
@@ -123,6 +124,11 @@ class AuthenticationRoute
                 req.flash('User profile sync with LinkedIn failed. Error: %s', error.message);
                 next();
             });
+    }
+
+    private linkedIn(req:express.Request, res:express.Response)
+    {
+        res.send(200);
     }
 }
 export = AuthenticationRoute

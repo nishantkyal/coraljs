@@ -39,4 +39,13 @@ include ../header
 include ../footer
 script.
     var Timezone = JSON.parse('!{JSON.stringify(Timezone)}');
+script(type="text/javascript", src="//platform.linkedin.com/in.js").
+    api_key                 :     753lu5ngi9suvh
+    credentials_cookie      :     true
+script.
+    function linkedinLogin()
+    {
+        $.post('https://localhost:3334/linkedin');
+    }
+script(type="in/login", data-onAuth="linkedinLogin")
 script(src='/js/app/expertRegistration/authenticate.js')

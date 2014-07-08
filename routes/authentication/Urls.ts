@@ -9,6 +9,7 @@ class Urls
     static fbLoginCallBack():string             { return '/login/fb/callback'; }
     static linkedInLogin():string               { return '/login/linkedin'; }
     static linkedInLoginCallBack():string       { return '/login/linkedin/callback'; }
+    static linkedIn():string                    { return '/linkedin'; }
     static logout()                             { return '/logout'; }
 
 }
