@@ -91,7 +91,7 @@ class UserProfileDelegate extends BaseDaoDelegate
                 var deferred = q.defer();
 
                 if (Utils.isNullOrEmpty(userOauth))
-                    throw(new Error('No oauth entry found, user id: %s', userId));
+                    throw(new Error('No oauth entry found, user id: ' + userId));
 
                 var oauth = new OAuth.OAuth(
                     'https://www.linkedin.com/uas/oauth/authenticate?oauth_token=',
