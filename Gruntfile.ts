@@ -189,7 +189,7 @@ function init(grunt)
         },
         "replace": {
             "asset_version": {
-                "src": "views/header.jade",
+                "src": "/var/searchntalk/releases/current/views/header.jade",
                 "overwrite": true,
                 "replacements": [{
                         "from": "v=version",
@@ -278,7 +278,7 @@ function init(grunt)
     grunt.registerTask('generate-change-set', ['create-alter-script', 'update-db:refDb:db', 'sync-changeLog']);
 
     grunt.registerTask('process-assets', ['uglify:js', 'concat:css', 'cssmin:css']);
-    grunt.registerTask('release', ["clean:typescript", "typescript:coral", "prompt:bumpup", "prompt_bumpup", "rename:release", "copy:release", "clean:release", "symlink:release", "db_dump:release", "update-db:originalDb", "gitcommit:bumpup", "gitpush:bumpup"]);
+    grunt.registerTask('release', ["clean:typescript", "typescript:coral", "prompt:bumpup", "prompt_bumpup", "replace:asset_version", "rename:release", "copy:release", "clean:release", "symlink:release", "db_dump:release", "update-db:originalDb", "gitcommit:bumpup", "gitpush:bumpup"]);
 
 }
 
