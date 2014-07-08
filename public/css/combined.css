@@ -9743,7 +9743,7 @@ a:hover {
     margin: 0 5px;
 }
 
-.meta.meta-keywords .btn + .btn
+.meta.meta-keywords .btn + .btn, .btn-group + .btn, .btn-group + .btn-group
 {
     margin-left: 5px;
 }
@@ -9757,4 +9757,12 @@ a:hover {
 {
     margin: 0 !important;
     line-height: 14px !important;
+}
+
+.header-btn
+{
+    background: none repeat scroll 0 0 #888;
+    border: medium none;
+    height: 22px;
+    padding: 4px;
 }

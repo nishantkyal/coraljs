@@ -1,12 +1,5 @@
 .card.main-card
     .item
-        .header-row.row
-            h5.col-xs-4 Basic Info
-            .header-link.col-xs-8
-                if isEditable
-                    a.btn.btn-primary.editCardBtn
-                        i.icon-pencil
-                    | &nbsp;
         .user-profile
             .avatar
                 .shadow
@@ -30,6 +23,10 @@
                         each zone in Timezone
                             if zone.zone_id == user.timezone
                                 | #{formatTimezone(zone.gmt_offset)}
+            if isEditable
+                div(style="float: right")
+                    a.header-btn.btn.btn-primary.editCardBtn
+                        i.icon-pencil
             .clearer
             .profile
                 p= userProfile.short_desc

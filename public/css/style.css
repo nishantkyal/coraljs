@@ -140,3 +140,11 @@
     margin: 0 !important;
     line-height: 14px !important;
 }
+
+.header-btn
+{
+    background: none repeat scroll 0 0 #888;
+    border: medium none;
+    height: 22px;
+    padding: 4px;
+}
