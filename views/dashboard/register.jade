@@ -51,7 +51,7 @@ include ../header
                                         input(type='hidden', name='invitation_code', value=code)
                                     .links-editing
                                         input.btn-primary.btn.btn-block(value='Register', type='submit')
-                                    a.btn-linkedin.btn#linkedInLink() Login with LinkedIn
+                                    a.btn-linkedin.btn(href=AuthenticationUrls.linkedInLogin()) Login with LinkedIn
                                     a.btn.btn-link(href=AuthenticationUrls.login()) Login
             // /.content
 include ../footer
