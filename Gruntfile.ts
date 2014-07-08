@@ -23,6 +23,7 @@ function init(grunt)
     grunt.loadNpmTasks('grunt-contrib-watch');
 
     grunt.initConfig({
+        pkg: grunt.file.readJSON('package.json'),
         "rename": {
             "release": {
                 "options": {
@@ -165,7 +166,6 @@ function init(grunt)
         },
         "create-alter-script": {
             "target": {
-
             }
         },
         "update-db": {
@@ -185,6 +185,16 @@ function init(grunt)
             "typescript": {
                 "files": ["*/**/*.ts", "!node_modules/*/*"],
                 "tasks": ["typescript"]
+            }
+        },
+        "replace": {
+            "asset_version": {
+                "src": "views/header.jade",
+                "overwrite": true,
+                "replacements": [{
+                        "from": "v=version",
+                        "to": "v=<%= pkg.version %>&seed=" + Math.floor(Math.random() * 1000)
+                    }]
             }
         }
     });
