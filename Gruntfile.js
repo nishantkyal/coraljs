@@ -67,7 +67,8 @@ function init(grunt) {
                     'public/bower_dependencies/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css',
                     'public/bower_dependencies/76d-social-icons/assets/css/social-icons.css',
                     'public/bower_dependencies/76d-social-icons/assets/css/main.css',
-                    'public/css/main.css'
+                    'public/css/main.css',
+                    'public/css/style.css'
                 ],
                 "dest": 'public/css/combined.css'
             }
@@ -254,9 +255,16 @@ function init(grunt) {
     });
 
     grunt.registerTask('generate-change-set', ['create-alter-script', 'update-db:refDb:db', 'sync-changeLog']);
-
     grunt.registerTask('process-assets', ['uglify:js', 'concat:css', 'cssmin:css']);
-    grunt.registerTask('release', ["clean:typescript", "typescript:coral", "prompt:bumpup", "prompt_bumpup", "replace:asset_version", "rename:release", "copy:release", "clean:release", "symlink:release", "db_dump:release", "update-db:originalDb", "gitcommit:bumpup", "gitpush:bumpup"]);
+    grunt.registerTask('release', [
+        "clean:typescript",
+        "typescript:coral", "process-assets",
+        "prompt:bumpup", "prompt_bumpup",
+        "rename:release", "copy:release", "clean:release", "symlink:release",
+        "replace:asset_version",
+        "db_dump:release", "update-db:originalDb",
+        "gitcommit:bumpup", "gitpush:bumpup"
+    ]);
 }
 
 module.exports = init;
