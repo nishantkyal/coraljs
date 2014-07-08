@@ -12,7 +12,7 @@
         .user-profile
             .avatar
                 .shadow
-                .placeholder.placeholder-male
+                .initials-profile-image-large= getNameInitials(loggedInUser.first_name, loggedInUser.last_name)
                 img(src=ApiUrlDelegate.userProfilePicture(user.id))
             .info
                 .info-upper

@@ -95,6 +95,11 @@ class Formatter
         return Formatter.formatName(user.getFirstName(), user.getLastName(), user.getTitle());
     }
 
+    static getNameInitials(firstName:string = ' ', lastName:string = ' '):string
+    {
+        return (firstName[0] + lastName[0]).toUpperCase();
+    }
+
     static formatEmail(email:string, firstName?:string, lastName?:string, title?:Salutation):string
     {
         if (!Utils.isNullOrEmpty(firstName))

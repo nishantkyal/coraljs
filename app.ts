@@ -47,6 +47,7 @@ var app:express.Application = express();
 // View helpers
 var helpers:Object =
 {
+    getNameInitials: Formatter.getNameInitials,
     formatMoney: Formatter.formatMoney,
     formatRole: Formatter.formatRole,
     formatName: Formatter.formatName,
