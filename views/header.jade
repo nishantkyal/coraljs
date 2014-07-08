@@ -34,7 +34,7 @@ div.masthead(role='banner')
                     .avatar.avatar-small
                         .shadow
                         .initials-profile-image= getNameInitials(loggedInUser.first_name, loggedInUser.last_name)
-                        img(src=ApiUrlDelegate.userProfilePicture(loggedInUser.id))
+                        img(src=ApiUrlDelegate.userProfilePicture(loggedInUser.id) + '?imageSize=50')
                         .caret
                     .user-modal(style='display: none;')
                         .field-label

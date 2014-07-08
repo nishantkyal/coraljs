@@ -7,13 +7,11 @@
                     a.btn.btn-primary#editUserProfileBtn(data-id=userProfile.id)
                         i.icon-pencil
                     | &nbsp;
-                    a.btn.btn-default#fetchBasic
-                        si.si-small.si-linkedin
         .user-profile
             .avatar
                 .shadow
-                .initials-profile-image-large= getNameInitials(loggedInUser.first_name, loggedInUser.last_name)
-                img(src=ApiUrlDelegate.userProfilePicture(user.id))
+                .initials-profile-image-large= getNameInitials(user.first_name, user.last_name)
+                img(src=ApiUrlDelegate.userProfilePicture(user.id) + '?imageSize=200')
             .info
                 .info-upper
                     .user-displayname= formatName(user.first_name, user.last_name, user.title)
@@ -38,13 +36,8 @@
     .item
         .row
             .meta.meta-keywords
-                if isEditable
-                    h5.col-xs-8 Skills/Keywords
-                    a.btn.btn-default.btn-xs#fetchSkill
-                        si.si-small.si-linkedin
-                else
-                    h5.col-xs-12 Skills/Keywords
-                    .clearer
+                h5.col-xs-12 Skills/Keywords
+                .clearer
                 ul
                     if userSkill.length != 0
                             each skill in userSkill
@@ -52,6 +45,7 @@
                                     if isEditable
                                         a(data-id=skill.id, name = 'deleteUserSkill')
                                             i.icon-cancel
-                    li Add Skill&nbsp;
-                        a#addSkillBtn
-                            i.icon-plus
+                    if isEditable
+                        li Add Skill&nbsp;
+                            a#addSkillBtn
+                                i.icon-plus
