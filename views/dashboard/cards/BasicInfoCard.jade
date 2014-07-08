@@ -41,9 +41,11 @@
                 ul
                     if userSkill.length != 0
                         each skill in userSkill
-                            a.btn.btn-default.btn-xs= skill.skill_name
+                            .btn-group
+                                a.btn.btn-default.btn-xs= skill.skill_name
                                 if isEditable
-                                    i.icon-cancel
+                                    a.btn.btn-default.btn-xs
+                                        i.icon-cancel
                     if isEditable
                         a.btn.btn-primary.btn-xs#addSkillBtn Add Skill
                             i.icon-plus

@@ -9745,5 +9745,16 @@ a:hover {
 
 .meta.meta-keywords .btn + .btn
 {
-    margin-right: 5px;
+    margin-left: 5px;
+}
+
+.btn-group .btn + .btn
+{
+    margin-left: 0px !important;
+}
+
+.meta.meta-keywords .btn-group .btn i
+{
+    margin: 0 !important;
+    line-height: 14px !important;
 }
