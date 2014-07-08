@@ -214,7 +214,7 @@ class AuthenticationDelegate
         passport.use(strategyId, new passport_facebook.Strategy({
                 clientID: Credentials.get(Credentials.FB_APP_ID),
                 clientSecret: Credentials.get(Credentials.FB_APP_SECRET),
-                callbackURL: AuthenticationUrls.fbLoginCallBack(),
+                callbackURL: url.resolve(Config.get(Config.DASHBOARD_URI), AuthenticationUrls.fbLoginCallBack()),
                 profileFields: profileFields,
                 passReqToCallback: true
             },
@@ -277,7 +277,7 @@ class AuthenticationDelegate
         passport.use(strategyId, new passport_linkedin.Strategy({
                 consumerKey: Credentials.get(Credentials.LINKEDIN_API_KEY),
                 consumerSecret: Credentials.get(Credentials.LINKEDIN_API_SECRET),
-                callbackURL: AuthenticationUrls.linkedInLoginCallBack(),
+                callbackURL: url.resolve(Config.get(Config.DASHBOARD_URI), AuthenticationUrls.linkedInLoginCallBack()),
                 profileFields: UserProfileDelegate.BASIC_FIELDS,
                 passReqToCallback: true
             },

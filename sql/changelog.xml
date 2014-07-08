@@ -717,4 +717,7 @@
     <changeSet author="Nishant (generated)" id="1404735502093-3">
         <dropColumn columnName="integration_type" tableName="integration"/>
     </changeSet>
+    <changeSet author="Nishant (generated)" id="1404796086528-1">
+        <dropNotNullConstraint columnDataType="varchar(100)" columnName="redirect_url" tableName="integration"/>
+    </changeSet>
 </databaseChangeLog>
