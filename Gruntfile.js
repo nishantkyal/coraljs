@@ -61,19 +61,35 @@ function init(grunt) {
         "concat": {
             "css": {
                 "src": [
-                    'public/css/!(combined|main).css*'
+                    'public/bower_dependencies/bootstrap/dist/css/bootstrap.css',
+                    'public/bower_dependencies/bootstrapValidator/dist/css/bootstrapValidator.css',
+                    'public/bower_dependencies/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css',
+                    'public/bower_dependencies/76d-social-icons/assets/css/social-icons.css',
+                    'public/bower_dependencies/76d-social-icons/assets/css/main.css',
+                    'public/css/main.css'
                 ],
                 "dest": 'public/css/combined.css'
-            },
-            "js": {
-                "src": ['public/js/lib/jquery.js', 'public/js/lib/jquery.validate.js', 'public/js/lib/!(combined).js', 'public/js/lib/!(combined).js'],
-                "dest": 'public/js/lib/combined.js'
             }
         },
         "uglify": {
+            "options": {
+                sourceMap: false
+            },
             "js": {
                 "files": {
-                    'public/js/lib/combined.min.js': ['public/js/lib/combined.js']
+                    'public/js/combined.min.js': [
+                        'public/bower_dependencies/jquery/jquery.js',
+                        'public/bower_dependencies/bootstrap/dist/js/bootstrap.js',
+                        'public/bower_dependencies/bootstrapValidator/dist/js/bootstrapValidator.js',
+                        'public/bower_dependencies/bootbox/bootbox.js',
+                        'public/bower_dependencies/underscore/underscore.js',
+                        'public/bower_dependencies/moment/moment.js',
+                        'public/bower_dependencies/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js',
+                        'public/js/app/common.js',
+                        'public/js/lib/bootstrap3-typeahead.js',
+                        'public/js/lib/bloodhound.js',
+                        'public/js/app/jquery.card.js'
+                    ]
                 }
             }
         },
@@ -228,7 +244,7 @@ function init(grunt) {
 
     grunt.registerTask('generate-change-set', ['create-alter-script', 'update-db:refDb:db', 'sync-changeLog']);
 
-    grunt.registerTask('default', ['concat:js', 'concat:css', 'cssmin:css']);
+    grunt.registerTask('process-assets', ['uglify:js', 'concat:css', 'cssmin:css']);
     grunt.registerTask('release', ["clean:typescript", "typescript:coral", "prompt:bumpup", "prompt_bumpup", "rename:release", "copy:release", "clean:release", "symlink:release", "db_dump:release", "update-db:originalDb", "gitcommit:bumpup", "gitpush:bumpup"]);
 }
 
