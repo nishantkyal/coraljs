@@ -1,5 +1,4 @@
-(function()
-{
+(function () {
 
     var scriptName = "embed.js"; //name of this script, used to get reference to own tag
     var jQuery; //noconflict reference to jquery
@@ -12,36 +11,32 @@
     var targetScripts = [];
     for (var i in allScripts) {
         var name = allScripts[i].src
-        if (name && name.indexOf(scriptName) > 0)
+        if(name && name.indexOf(scriptName) > 0)
             targetScripts.push(allScripts[i]);
     }
 
     scriptTag = targetScripts[targetScripts.length - 1];
 
     /******** helper function to load external scripts *********/
-    function loadScript(src, onLoad)
-    {
+    function loadScript(src, onLoad) {
         var script_tag = document.createElement('script');
         script_tag.setAttribute("type", "text/javascript");
         script_tag.setAttribute("src", src);
 
         if (script_tag.readyState) {
-            script_tag.onreadystatechange = function()
-            {
+            script_tag.onreadystatechange = function () {
                 if (this.readyState == 'complete' || this.readyState == 'loaded') {
                     onLoad();
                 }
             };
-        }
-        else {
+        } else {
             script_tag.onload = onLoad;
         }
         (document.getElementsByTagName("head")[0] || document.documentElement).appendChild(script_tag);
     }
 
     /******** helper function to load external css  *********/
-    function loadCss(href)
-    {
+    function loadCss(href) {
         var link_tag = document.createElement('link');
         link_tag.setAttribute("type", "text/css");
         link_tag.setAttribute("rel", "stylesheet");
@@ -52,53 +47,52 @@
     /******** load jquery into 'jQuery' variable then call main ********/
     if (window.jQuery === undefined || window.jQuery.fn.jquery !== jqueryVersion) {
         loadScript(jqueryPath, initjQuery);
-    }
-    else {
+    } else {
         initjQuery();
     }
 
-    function initjQuery()
-    {
+    function initjQuery() {
         jQuery = window.jQuery.noConflict(true);
         main();
     }
 
-    function renderWidget(widgetId)
-    {
-        /* JSONP
-        var widgetHtmlUrl = "http://localhost:3333/widget/" + widgetId + "?callback=";
-        jQuery.getJSON(widgetHtmlUrl, function(result)
-        {
-        });*/
-        var widgetHtmlUrl = "http://localhost:3333/widget/" + widgetId;
-        jQuery('.snt-expert-widget[data-widget-id=' + widgetId + ']').html('<iframe src="' + widgetHtmlUrl + '"></iframe>');
-
-        jQuery('.snt-expert-widget iframe').load(function () {
-            jQuery(this).height(jQuery(this).contents().height());
-            jQuery(this).width(jQuery(this).contents().width());
-        });
-    }
-
     /******** starting point for your widget ********/
-    function main()
-    {
+    function main() {
         //your widget code goes here
 
-        jQuery(document).ready(function($)
-        {
-            var widgets = jQuery('.snt-expert-widget') || [];
-            for (var i = 0; i < widgets.length; i++)
+        jQuery(document).ready(function ($) {
+
+            var WIDGET_SIZES = {
+                'tiny': {width: 160, height: 115},
+                'small': {width: 160, height: 251},
+                'tall': {width: 160, height: 392}
+            };
+
+            // 1. Get embedded widget tags
+            // 2. Process each by creating iframe inside each of those tags
+            var widgetTags = jQuery('.snt-expert');
+            for (var i = 0; i < widgetTags.length; i++)
             {
-                var widget = jQuery(widgets[i]);
-                var widgetId = jQuery(widget).data('widget-id')
-                renderWidget(widgetId);
+                var widgetTag = widgetTags[i];
+                var widgetId = jQuery(widgetTag).data('id');
+                var widgetTheme = jQuery(widgetTag).data('theme') || '';
+                var widgetSize = jQuery(widgetTag).data('size') || 'tall';
+                var widgetUrl = '//searchntalk.com/widget/' + widgetId + '?size=' + widgetSize + '&theme=' + widgetTheme;
+
+                if (widgetId)
+                    jQuery(widgetTag).append('<iframe style="border: none;" class="snt-expert-iframe" src="' + widgetUrl + '" width="' + WIDGET_SIZES[widgetSize].width + '" height="' + WIDGET_SIZES[widgetSize].height + '"></iframe>');
             }
 
-            // load css
-            loadCss("//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css");
+            /*var jsonp_url = "//searchntalk.com/widget/" + widgetId + "?size=" + widgetSize + "callback=?";
+            jQuery.getJSON(jsonp_url, function(result) {
+                alert("win");
+            });*/
+
+            //example load css
+            //loadCss("//searchntalk.com/css/" + widgetCssFile);
 
             //example script load
-            //loadScript("http://example.com/anotherscript.js", function() { /* loaded */ });
+            //loadScript("//searchntalk.com/css/" + widgetCssFile, function() { /* loaded */ });
         });
 
     }
