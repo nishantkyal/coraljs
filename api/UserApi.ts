@@ -110,7 +110,7 @@ class UserApi
             if (fs.existsSync(Config.get(Config.PROFILE_IMAGE_PATH) + userId))
                 res.sendfile(userId + '_' + ImageSize[size].toLowerCase(), {root: Config.get(Config.PROFILE_IMAGE_PATH)});
             else
-                res.send(400, 'No profile image uploaded yet');
+                res.sendfile('public/images/1x1.png');
         });
 
     }
