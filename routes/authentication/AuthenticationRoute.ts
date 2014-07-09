@@ -26,8 +26,7 @@ class AuthenticationRoute
         app.get(Urls.checkLogin(), AuthenticationDelegate.checkLogin({justCheck: true}));
         app.post(Urls.login(), AuthenticationDelegate.login(), this.authSuccess.bind(this));
         app.post(Urls.register(), AuthenticationDelegate.register(), this.authSuccess.bind(this));
-        app.get(Urls.linkedInLogin(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.login(), failureFlash: true, scope: ['r_basicprofile', 'r_emailaddress', 'r_fullprofile']}));
-        app.get(Urls.linkedInLoginCallBack(), passport.authenticate(AuthenticationDelegate.STRATEGY_LINKEDIN, {failureRedirect: Urls.login(), failureFlash: true}), this.linkedInCallBack.bind(this), this.authSuccess.bind(this));
+        app.post(Urls.linkedInLogin(),AuthenticationDelegate.linkedInLogin, this.authSuccess.bind(this));
         app.get(Urls.logout(), this.logout.bind(this));
 
     }
@@ -94,25 +93,25 @@ class AuthenticationRoute
         res.clearCookie(ApiConstants.LINKEDIN_FETCH_FIELDS);
 
         q.all(_.map(fetchFields, function(field)
-        {
-            switch(field)
             {
-                case ApiConstants.FETCH_PROFILE_PICTURE:
-                    return self.userProfileDelegate.fetchProfilePictureFromLinkedIn(userId, profileId);
+                switch(field)
+                {
+                    case ApiConstants.FETCH_PROFILE_PICTURE:
+                        return self.userProfileDelegate.fetchProfilePictureFromLinkedIn(userId, profileId);
 
-                case ApiConstants.FETCH_BASIC:
-                    return self.userProfileDelegate.fetchBasicDetailsFromLinkedIn(userId, profileId);
+                    case ApiConstants.FETCH_BASIC:
+                        return self.userProfileDelegate.fetchBasicDetailsFromLinkedIn(userId, profileId);
 
-                case ApiConstants.FETCH_EDUCATION:
-                    return self.userProfileDelegate.fetchAndReplaceEducation(userId, profileId);
+                    case ApiConstants.FETCH_EDUCATION:
+                        return self.userProfileDelegate.fetchAndReplaceEducation(userId, profileId);
 
-                case ApiConstants.FETCH_EMPLOYMENT:
-                    return self.userProfileDelegate.fetchAndReplaceEmployment(userId, profileId);
+                    case ApiConstants.FETCH_EMPLOYMENT:
+                        return self.userProfileDelegate.fetchAndReplaceEmployment(userId, profileId);
 
-                case ApiConstants.FETCH_SKILL:
-                    return self.userProfileDelegate.fetchAndReplaceSkill(userId, profileId);
-            }
-        }))
+                    case ApiConstants.FETCH_SKILL:
+                        return self.userProfileDelegate.fetchAndReplaceSkill(userId, profileId);
+                }
+            }))
             .then(
             function profileFetched()
             {
@@ -124,5 +123,6 @@ class AuthenticationRoute
                 next();
             });
     }
+
 }
 export = AuthenticationRoute

@@ -55,10 +55,10 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                                         .col-xs-1
                                             input(type="checkbox", name="fetchEmployment", value="fetchEmployment")
                                         .col-xs-3 Employment Details
-                                .clearer
-                                div.links-editing
-                                    p.edit-schedules
-                                        input.btn.btn-primary(type='submit', value='Fetch')
+                            .clearer
+                            .links-editing
+                                p
+                                    input.btn.btn-primary(type='submit', value='Fetch')
                 .row
                     for expertise in userExpertise
                         div.card

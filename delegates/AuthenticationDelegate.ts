@@ -5,6 +5,8 @@ import express                                  = require('express');
 import passport                                 = require('passport');
 import url                                      = require('url');
 import q                                        = require('q');
+import OAuth                                    = require('oauth');
+import queryString                              = require('querystring');
 import passport_http_bearer                     = require('passport-http-bearer');
 import passport_facebook                        = require('passport-facebook');
 import passport_linkedin                        = require('passport-linkedin');
@@ -36,7 +38,6 @@ class AuthenticationDelegate
 {
     static STRATEGY_OAUTH:string = 'oauth';
     static STRATEGY_FACEBOOK:string = 'facebook';
-    static STRATEGY_LINKEDIN:string = 'linkedin';
 
     private static logger = log4js.getLogger('AuthenticationDelegate');
 
@@ -46,7 +47,6 @@ class AuthenticationDelegate
         // Auth strategies
         AuthenticationDelegate.configureOauthStrategy();
         AuthenticationDelegate.configureFacebookStrategy(AuthenticationDelegate.STRATEGY_FACEBOOK);
-        AuthenticationDelegate.configureLinkedInStrategy(AuthenticationDelegate.STRATEGY_LINKEDIN);
 
         // Serialize-Deserialize user
         passport.serializeUser(function (user, done) { done(null, user); });
@@ -280,66 +280,123 @@ class AuthenticationDelegate
                 callbackURL: url.resolve(Config.get(Config.DASHBOARD_URI), AuthenticationUrls.linkedInLoginCallBack()),
                 profileFields: UserProfileDelegate.BASIC_FIELDS,
                 passReqToCallback: true
-            },
-            function (req, accessToken, refreshToken, profile:any, done)
+            },AuthenticationDelegate.processLinkedinTokens
+        ));
+    }
+
+    private static processLinkedinTokens(req, accessToken, refreshToken, profile:any, done)
+    {
+        profile = profile['_json'] || profile;
+
+        var userOauth = new UserOauth();
+        userOauth.setOauthUserId(profile.id);
+        userOauth.setProviderId('LinkedIn');
+        userOauth.setAccessToken(accessToken);
+        userOauth.setRefreshToken(refreshToken);
+        userOauth.setEmail(profile.emailAddress);
+
+        var user = new User();
+        user.setEmail(profile.emailAddress); //setting email id for new user, if user exists then this will be discarded
+
+        try {
+            if (!Utils.isNullOrEmpty(req.cookies[ApiConstants.ZONE]))
+                user.setTimezone(req.cookie[ApiConstants.ZONE]);
+            else if (!Utils.isNullOrEmpty(req.cookies[ApiConstants.OFFSET]))
+                user.setTimezone(new TimezoneDelegate().getZoneByOffset(parseInt(req.cookies[ApiConstants.OFFSET])).getZoneId());
+        } catch (e)
+        {
+            user.setTimezone(194);
+        }
+
+        return new UserOAuthDelegate().addOrUpdateToken(userOauth, user)
+            .then(
+            function tokenUpdated(oauth:UserOauth)
             {
-                profile = profile['_json'];
-
-                var userOauth = new UserOauth();
-                userOauth.setOauthUserId(profile.id);
-                userOauth.setProviderId('LinkedIn');
-                userOauth.setAccessToken(accessToken);
-                userOauth.setRefreshToken(refreshToken);
-                userOauth.setEmail(profile.emailAddress);
-
-                var user = new User();
-                user.setEmail(profile.emailAddress); //setting email id for new user, if user exists then this will be discarded
-
-                try {
-                    if (!Utils.isNullOrEmpty(req.cookies[ApiConstants.ZONE]))
-                        user.setTimezone(req.cookie[ApiConstants.ZONE]);
-                    else if (!Utils.isNullOrEmpty(req.cookies[ApiConstants.OFFSET]))
-                        user.setTimezone(new TimezoneDelegate().getZoneByOffset(parseInt(req.cookies[ApiConstants.OFFSET])).getZoneId());
-                } catch (e)
+                return new UserDelegate().get(oauth.getUserId());
+            })
+            .then(
+            function userFetched(createdUser:User):any
+            {
+                var userId:number
+                //check whether user is logged in or not
+                //if user is logged in then check whether user_id in created user (i.e. new user created or existing one returned by oauthDelegate)
+                //is same as loggedInUser. If not then give error as same oauth is associated with different account.
+                if (req.user)
                 {
-                    user.setTimezone(1);
+                    userId = req.user.id;
                 }
 
-                return new UserOAuthDelegate().addOrUpdateToken(userOauth, user)
-                    .then(
-                    function tokenUpdated(oauth:UserOauth)
-                    {
-                        return new UserDelegate().get(oauth.getUserId());
-                    })
-                    .then(
-                    function userFetched(createdUser:User):any
-                    {
-                        var userId:number
-                        //check whether user is logged in or not
-                        //if user is logged in then check whether user_id in created user (i.e. new user created or existing one returned by oauthDelegate)
-                        //is same as loggedInUser. If not then give error as same oauth is associated with different account.
-                        if (req.user)
-                        {
-                            userId = req.user.id;
-                        }
+                if (!Utils.isNullOrEmpty(createdUser) && createdUser.isValid())
+                    if (Utils.isNullOrEmpty(userId) || (createdUser.getId() == userId))
+                        req.logIn(createdUser, done);
+                    else
+                        done('This LinkedIn account is already associated with another SearchNTalk.com account.');
+                else
+                    done('Login failed');
 
-                        if (!Utils.isNullOrEmpty(createdUser) && createdUser.isValid())
-                            if (Utils.isNullOrEmpty(userId) || (createdUser.getId() == userId))
-                                done(null, createdUser)
-                            else
-                                done('This LinkedIn account is already associated with another SearchNTalk.com account.');
-                        else
-                            done('Login failed');
+                return createdUser;
+            },
+            function tokenUpdateError(error)
+            {
+                AuthenticationDelegate.logger.error('An error occurred while logging in using linkedin. Error: %s', error);
+                done(error);
+            });
+    }
 
-                        return createdUser;
-                    },
-                    function tokenUpdateError(error)
+    static linkedInLogin(req, res:express.Response, next:Function)
+    {
+        var self = this;
+        var data = JSON.parse(req.cookies['linkedin_oauth_' + Credentials.get(Credentials.LINKEDIN_API_KEY)]);
+
+        if (Utils.isNullOrEmpty(data))
+            throw(new Error('No Cookie found with Linkedin Data'));
+
+        var accessTokenUrl = 'https://api.linkedin.com/uas/oauth/accessToken';
+        var params = {
+            xoauth_oauth2_access_token:     data.access_token,
+            scope:                          'r_fullprofile+r_emailaddress+r_basicprofile'
+        };
+
+        var oAuth = new OAuth.OAuth('', accessTokenUrl,
+            Credentials.get(Credentials.LINKEDIN_API_KEY),
+            Credentials.get(Credentials.LINKEDIN_API_SECRET),
+            '1.0a',
+            null, data.signature_method
+        );
+
+        oAuth.post(accessTokenUrl, null, null, params, null,function (results, data)
+        {
+            if (data)
+            {
+                data = queryString.parse(data);
+                var access_token = data.oauth_token;
+                var oauth_token_secret = data.oauth_token_secret;
+
+                var fields:string = UserProfileDelegate.BASIC_FIELDS.join(',');
+
+                var oauth = new OAuth.OAuth(
+                    'https://www.linkedin.com/uas/oauth/authenticate?oauth_token=',
+                    'https://api.linkedin.com/uas/oauth/accessToken',
+                    Credentials.get(Credentials.LINKEDIN_API_KEY),
+                    Credentials.get(Credentials.LINKEDIN_API_SECRET),
+                    '1.0A',
+                    null,
+                    'HMAC-SHA1'
+                );
+                oauth.get(
+                    'https://api.linkedin.com/v1/people/~:(' + fields + ')?format=json ',
+                    access_token,
+                    oauth_token_secret,
+                    function (e, data, res)
                     {
-                        AuthenticationDelegate.logger.error('An error occurred while logging in using linkedin. Error: %s', error);
-                        done(error);
-                    });
+                        var profile = JSON.parse(data);
+                        AuthenticationDelegate.processLinkedinTokens(req,access_token,oauth_token_secret,profile,next)
+                    }
+                );
+            } else {
+                AuthenticationDelegate.logger.error('Likedin access token not returned');
             }
-        ));
+        });
     }
 }
 export = AuthenticationDelegate

@@ -11,6 +11,12 @@ class Config
     static VERSION:string                               = 'version';
     static SESSION_EXPIRY:string                        = 'session.expiry';
 
+    static ENABLE_HTTP:string                           = 'enable.http';
+    static ENABLE_HTTPS:string                          = 'enable.https';
+
+    static SSL_KEY:string                               = 'ssl.key';
+    static SSL_CERT:string                              = 'ssl.cert';
+
     static PROFILE_IMAGE_PATH:string                    = 'profile_image_path';
     static LOGO_PATH:string                             = 'logo_path';
     static TEMP_IMAGE_PATH:string                       = 'temp_image_path';
