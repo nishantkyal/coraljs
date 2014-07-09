@@ -39,6 +39,7 @@ class appInit
     // View helpers
     static helpers:Object =
     {
+        getNameInitials: Formatter.getNameInitials,
         formatMoney: Formatter.formatMoney,
         formatRole: Formatter.formatRole,
         formatName: Formatter.formatName,
