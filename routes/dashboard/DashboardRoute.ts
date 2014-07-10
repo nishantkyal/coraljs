@@ -61,6 +61,7 @@ import SessionData                                      = require('./SessionData
 
 class DashboardRoute
 {
+    private static PAGE_HOME:string = 'dashboard/home';
     private static PAGE_FORGOT_PASSWORD:string = 'dashboard/forgotPassword';
     private static PAGE_MOBILE_VERIFICATION:string = 'dashboard/mobileVerification';
     private static PAGE_DASHBOARD:string = 'dashboard/dashboard';
@@ -90,7 +91,8 @@ class DashboardRoute
     constructor(app, secureApp)
     {
         // Pages
-        app.get(Urls.index(), AuthenticationDelegate.checkLogin({successRedirect: Urls.dashboard()}), this.dashboard.bind(this));
+        app.get(Urls.index(), AuthenticationDelegate.checkLogin({failureRedirect: Urls.home()}), this.dashboard.bind(this));
+        app.get(Urls.home(), this.home.bind(this));
         app.get(Urls.forgotPassword(), this.forgotPassword.bind(this));
         app.get(Urls.mobileVerification(), AuthenticationDelegate.checkLogin({failureRedirect: Urls.index(), setReturnTo: true}), this.verifyMobile.bind(this));
 
@@ -102,6 +104,15 @@ class DashboardRoute
         app.get(Urls.userSetting(), Middleware.allowOnlyMe, this.setting.bind(this));
 
         app.get(Urls.emailAccountVerification(), this.emailAccountVerification.bind(this));
+    }
+
+    private home(req:express.Request, res:express.Response)
+    {
+        var pageData = {
+            messages: req.flash()
+        };
+
+        res.render(DashboardRoute.PAGE_HOME, pageData);
     }
 
     /* Forgot Password page */

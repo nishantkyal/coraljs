@@ -35,6 +35,10 @@ a {
 	}
 }
 
+hr {
+	border-bottom: 2px dotted fade(@secondary, 20);
+}
+
 .alert {
 	margin: 0px;
 	&.alert-warning {
@@ -487,6 +491,33 @@ a {
 			margin: 0px;
 		}
 	}
+	&.inverted {
+		background: darken(@secondary, 8);
+		.masthead-brand {
+			.logo {
+				.retina-image("../images/searchntalk_logo_reverse", "png", no-repeat, 152px, 40px, 0, 0);
+			}
+			.icon {
+				.retina-image("../images/searchntalk_icon_reverse", "png", no-repeat, 40px, 40px, 0, 0);				
+			}
+		}
+		.masthead-controls {
+			.field-trigger {
+				color: @white;
+			}
+			.field-boxedinfo {
+				color: fade(@white, 50);
+				.box-shadow(0px 1px 0px fade(@white, 10));
+			}
+			.caret {
+				color: fade(@white, 25);
+			}
+			.btn {
+				border-color: darken(@secondary, 12);
+				.box-shadow(0px 1px 0px fade(@white, 10));
+			}
+		}
+	}
 }
 
 .navigation {
@@ -583,6 +614,115 @@ a {
 	}
 	@media(max-width: 767px) {
 		margin: 10px;
+	}
+}
+
+.hero {
+	background: @secondary;
+	overflow: hidden;
+	height: 500px;
+	.container {
+		padding: 0px;
+		.row {
+			margin: 0px;
+		}
+	}
+}
+
+.highlights {
+	h1 {
+		font-size: 20px;
+		em {
+			font-style: normal;
+			font-weight: 100;
+		}
+	}
+	h2, p {
+		font-size: 16px;
+	}
+	h2 {
+		font-weight: 400;
+		margin-bottom: 0.5em;
+	}
+	p {
+		font-weight: 100;
+	}
+	img {
+		height: 150px;
+	}
+	.value-prop, .feature {
+		.title {
+			margin: 40px 20px 20px 20px;			
+		}
+		.image {
+			width: 150px;
+			height: 150px;
+			margin: 0 auto;
+		}
+		.description {
+			margin: 20px 20px 40px 20px;			
+		}
+	}
+	.feature {
+		h1 {
+			font-size: 16px;
+		}
+		p {
+			font-size: 14px;
+		}
+		.description {
+			margin: 40px;
+		}
+	}
+}
+
+
+.call-to-action {
+	background: fade(@secondary, 10);
+	padding: 20px;
+	text-align: center;
+	.announcement {
+		color: fade(@secondary, 60);
+		font-size: 24px;
+		line-height: 36px;
+		margin: 20px;
+	}
+	.trigger {
+		margin: 20px;
+		.btn {
+			width: 200px;
+		}
+	}
+}
+
+@media(max-width: 991px) {
+	.highlights {
+		.value-prop {
+			h1, h2, p {
+				text-align: center;			
+			}			
+		}
+	}
+}
+@media(max-width: 767px) {
+	.highlights {
+		h1 {
+			font-size: 18px;			
+		}
+		.feature {
+			h1, h2, p {
+				text-align: center;			
+			}						
+			.description {
+				margin: 0px 40px 40px 40px;
+			}
+		}
+	}
+	.call-to-action {
+		.announcement {
+			font-size: 20px;
+			line-height: 30px;
+		}	
 	}
 }
 
@@ -892,13 +1032,12 @@ a {
 		width: 30px;
 		height: 30px;
 		.rounded(5px);
-		background: @gray_light;
-		.box-shadow(0px 1px 0px @white);
+		color: #666;
+		background: fade(@black, 5);
 		.lang {
 			text-align: center;
 			line-height: 30px;
 			text-transform: uppercase;
-			color: #666;
 		}
 		.shadow {
 			position: absolute;

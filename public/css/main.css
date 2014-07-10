@@ -1252,6 +1252,9 @@ a {
 a:hover {
   color: #4b5d5e;
 }
+hr {
+  border-bottom: 2px dotted rgba(75, 93, 94, 0.2);
+}
 .alert {
   margin: 0px;
 }
@@ -1385,6 +1388,7 @@ a:hover {
   background: #3A519C;
   color: #FFFFFF;
   font-weight: bold;
+  width: 100%;
 }
 .btn-facebook:hover,
 .btn-facebook:active,
@@ -1397,6 +1401,7 @@ a:hover {
   background: #00639D;
   color: #FFFFFF;
   font-weight: bold;
+  width: 100%;
 }
 .btn-linkedin:hover,
 .btn-linkedin:active,
@@ -1724,6 +1729,51 @@ a:hover {
 .masthead .container .row {
   margin: 0px;
 }
+.masthead.inverted {
+  background: #394747;
+}
+.masthead.inverted .masthead-brand .logo {
+  background-image: url('../images/searchntalk_logo_reverse.png');
+  background-repeat: no-repeat;
+  background-position: 0 0;
+}
+@media print, screen, (-webkit-min-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 3/2), (min--moz-device-pixel-ratio: 1.5), (-moz-min-device-pixel-ratio: 1.5), (-ms-min-device-pixel-ratio: 1.5), (min-device-pixel-ratio: 1.5), (min-resolution: 144dpi), (min-resolution: 1.5dppx) {
+  .masthead.inverted .masthead-brand .logo {
+    background-size: 152px 40px;
+    background-image: url('../images/searchntalk_logo_reverse@2x.png');
+    background-position: 0 0;
+  }
+}
+.masthead.inverted .masthead-brand .icon {
+  background-image: url('../images/searchntalk_icon_reverse.png');
+  background-repeat: no-repeat;
+  background-position: 0 0;
+}
+@media print, screen, (-webkit-min-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 3/2), (min--moz-device-pixel-ratio: 1.5), (-moz-min-device-pixel-ratio: 1.5), (-ms-min-device-pixel-ratio: 1.5), (min-device-pixel-ratio: 1.5), (min-resolution: 144dpi), (min-resolution: 1.5dppx) {
+  .masthead.inverted .masthead-brand .icon {
+    background-size: 40px 40px;
+    background-image: url('../images/searchntalk_icon_reverse@2x.png');
+    background-position: 0 0;
+  }
+}
+.masthead.inverted .masthead-controls .field-trigger {
+  color: #ffffff;
+}
+.masthead.inverted .masthead-controls .field-boxedinfo {
+  color: rgba(255, 255, 255, 0.5);
+  -webkit-box-shadow: 0px 1px 0px rgba(255, 255, 255, 0.1);
+  -moz-box-shadow: 0px 1px 0px rgba(255, 255, 255, 0.1);
+  box-shadow: 0px 1px 0px rgba(255, 255, 255, 0.1);
+}
+.masthead.inverted .masthead-controls .caret {
+  color: rgba(255, 255, 255, 0.25);
+}
+.masthead.inverted .masthead-controls .btn {
+  border-color: #303b3c;
+  -webkit-box-shadow: 0px 1px 0px rgba(255, 255, 255, 0.1);
+  -moz-box-shadow: 0px 1px 0px rgba(255, 255, 255, 0.1);
+  box-shadow: 0px 1px 0px rgba(255, 255, 255, 0.1);
+}
 .navigation {
   border-top: 1px solid #4b5d5e;
 }
@@ -1812,6 +1862,102 @@ a:hover {
 @media (max-width: 767px) {
   .section-navbar {
     margin: 10px;
+  }
+}
+.hero {
+  background: #4b5d5e;
+  overflow: hidden;
+  height: 500px;
+}
+.hero .container {
+  padding: 0px;
+}
+.hero .container .row {
+  margin: 0px;
+}
+.highlights h1 {
+  font-size: 20px;
+}
+.highlights h1 em {
+  font-style: normal;
+  font-weight: 100;
+}
+.highlights h2,
+.highlights p {
+  font-size: 16px;
+}
+.highlights h2 {
+  font-weight: 400;
+  margin-bottom: 0.5em;
+}
+.highlights p {
+  font-weight: 100;
+}
+.highlights img {
+  height: 150px;
+}
+.highlights .value-prop .title,
+.highlights .feature .title {
+  margin: 40px 20px 20px 20px;
+}
+.highlights .value-prop .image,
+.highlights .feature .image {
+  width: 150px;
+  height: 150px;
+  margin: 0 auto;
+}
+.highlights .value-prop .description,
+.highlights .feature .description {
+  margin: 20px 20px 40px 20px;
+}
+.highlights .feature h1 {
+  font-size: 16px;
+}
+.highlights .feature p {
+  font-size: 14px;
+}
+.highlights .feature .description {
+  margin: 40px;
+}
+.call-to-action {
+  background: rgba(75, 93, 94, 0.1);
+  padding: 20px;
+  text-align: center;
+}
+.call-to-action .announcement {
+  color: rgba(75, 93, 94, 0.6);
+  font-size: 24px;
+  line-height: 36px;
+  margin: 20px;
+}
+.call-to-action .trigger {
+  margin: 20px;
+}
+.call-to-action .trigger .btn {
+  width: 200px;
+}
+@media (max-width: 991px) {
+  .highlights .value-prop h1,
+  .highlights .value-prop h2,
+  .highlights .value-prop p {
+    text-align: center;
+  }
+}
+@media (max-width: 767px) {
+  .highlights h1 {
+    font-size: 18px;
+  }
+  .highlights .feature h1,
+  .highlights .feature h2,
+  .highlights .feature p {
+    text-align: center;
+  }
+  .highlights .feature .description {
+    margin: 0px 40px 40px 40px;
+  }
+  .call-to-action .announcement {
+    font-size: 20px;
+    line-height: 30px;
   }
 }
 .matter {
@@ -1982,10 +2128,11 @@ a:hover {
   position: absolute;
   width: 100%;
   height: 100%;
-  top: 0;
   z-index: 9996;
   font-size: 150px;
   line-height: 150px;
+  font-family: 'snticons';
+  content: '\e008';
 }
 .avatar .status {
   position: absolute;
@@ -2035,31 +2182,31 @@ a:hover {
 }
 .masthead-brand .logo {
   display: block;
-  width: 193px;
+  width: 152px;
   height: 40px;
-  background-image: url('../images/searchntalk_logo_alpha.png');
+  background-image: url('../images/searchntalk_logo.gif');
   background-repeat: no-repeat;
   background-position: 0 0;
 }
 @media print, screen, (-webkit-min-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 3/2), (min--moz-device-pixel-ratio: 1.5), (-moz-min-device-pixel-ratio: 1.5), (-ms-min-device-pixel-ratio: 1.5), (min-device-pixel-ratio: 1.5), (min-resolution: 144dpi), (min-resolution: 1.5dppx) {
   .masthead-brand .logo {
-    background-size: 193px 40px;
-    background-image: url('../images/searchntalk_logo_alpha@2x.png');
+    background-size: 152px 40px;
+    background-image: url('../images/searchntalk_logo@2x.gif');
     background-position: 0 0;
   }
 }
 .masthead-brand .icon {
   display: block;
-  width: 100px;
-  height: 60px;
-  background-image: url('../images/searchntalk_icon_alpha.png');
+  width: 40px;
+  height: 40px;
+  background-image: url('../images/searchntalk_icon.gif');
   background-repeat: no-repeat;
   background-position: 0 0;
 }
 @media print, screen, (-webkit-min-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 3/2), (min--moz-device-pixel-ratio: 1.5), (-moz-min-device-pixel-ratio: 1.5), (-ms-min-device-pixel-ratio: 1.5), (min-device-pixel-ratio: 1.5), (min-resolution: 144dpi), (min-resolution: 1.5dppx) {
   .masthead-brand .icon {
-    background-size: 100px 60px;
-    background-image: url('../images/searchntalk_icon_alpha@2x.png');
+    background-size: 40px 40px;
+    background-image: url('../images/searchntalk_icon@2x.gif');
     background-position: 0 0;
   }
 }
@@ -2132,16 +2279,13 @@ a:hover {
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
-  background: #dddddd;
-  -webkit-box-shadow: 0px 1px 0px #ffffff;
-  -moz-box-shadow: 0px 1px 0px #ffffff;
-  box-shadow: 0px 1px 0px #ffffff;
+  color: #666;
+  background: rgba(0, 0, 0, 0.05);
 }
 .masthead-controls .field-boxedinfo .lang {
   text-align: center;
   line-height: 30px;
   text-transform: uppercase;
-  color: #666;
 }
 .masthead-controls .field-boxedinfo .shadow {
   position: absolute;
@@ -2474,11 +2618,8 @@ a:hover {
 }
 .card .item .header-row {
   margin: 0px 0px 10px 0px;
-  border-bottom: 2px solid #f9af18;
-}
-.card .item .header-row input {
   padding: 0px 0px 10px 0px;
-  margin: 0px 0px 10px 0px;
+  border-bottom: 2px solid #f9af18;
 }
 .card .item .header-link {
   text-align: right;

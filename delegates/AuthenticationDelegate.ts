@@ -115,18 +115,22 @@ class AuthenticationDelegate
             var isLoggedIn = req.isAuthenticated && req.isAuthenticated();
             var isAjax = req.get('content-type') && req.get('content-type').indexOf('application/json') != -1;
 
-            if (isLoggedIn)
-                if (!options.justCheck)
-                    next();
-                else
-                    res.json(200, {valid: isLoggedIn});
-            else if (isAjax)
+            // If just checking, return the status as a JSON
+            if (options.justCheck)
                 return res.json(200, {valid: isLoggedIn});
+
+            if (isLoggedIn)
+                if (isAjax)
+                    return res.json(200, {valid: isLoggedIn});
+                else if (options.successRedirect)
+                    res.redirect(options.successRedirect);
+                else
+                    next();
             else
             {
                 if (options.setReturnTo)
                     req.session[ApiConstants.RETURN_TO] = req.url;
-                return res.redirect(AuthenticationUrls.login());
+                res.redirect(options.failureRedirect);
             }
         }
     }
@@ -228,7 +232,8 @@ class AuthenticationDelegate
                 user.setLastName(profile.last_name);
                 user.setEmail(profile.email);
 
-                try {
+                try
+                {
                     if (!Utils.isNullOrEmpty(req.cookies[ApiConstants.ZONE]))
                         user.setTimezone(req.cookie[ApiConstants.ZONE]);
                     else if (!Utils.isNullOrEmpty(req.cookies[ApiConstants.OFFSET]))
@@ -287,7 +292,8 @@ class AuthenticationDelegate
         var user = new User();
         user.setEmail(profile.emailAddress); //setting email id for new user, if user exists then this will be discarded
 
-        try {
+        try
+        {
             if (!Utils.isNullOrEmpty(req.cookies[ApiConstants.ZONE]))
                 user.setTimezone(req.cookie[ApiConstants.ZONE]);
             else if (!Utils.isNullOrEmpty(req.cookies[ApiConstants.OFFSET]))
@@ -340,15 +346,15 @@ class AuthenticationDelegate
         if (req.user)
         {
             userId = req.user.id;
-            new UserOAuthDelegate().find({'user_id':userId, 'provider_id':'LinkedIn'})
-                .then( function oAuthSearched(userOauth:UserOauth)
+            new UserOAuthDelegate().find({'user_id': userId, 'provider_id': 'LinkedIn'})
+                .then(function oAuthSearched(userOauth:UserOauth)
                 {
                     if (userOauth.getAccessTokenExpiry() <= moment().valueOf())
                         AuthenticationDelegate.fetchLinkedInOauthToken(req, res, next);
                     else
                         next();
                 })
-                .fail( function oAuthSearchFailed()
+                .fail(function oAuthSearchFailed()
                 {
                     AuthenticationDelegate.fetchLinkedInOauthToken(req, res, next);
                 })
@@ -366,8 +372,8 @@ class AuthenticationDelegate
 
         var accessTokenUrl = 'https://api.linkedin.com/uas/oauth/accessToken';
         var params = {
-            xoauth_oauth2_access_token:     cookieData.access_token,
-            scope:                          'r_fullprofile+r_emailaddress+r_basicprofile'
+            xoauth_oauth2_access_token: cookieData.access_token,
+            scope: 'r_fullprofile+r_emailaddress+r_basicprofile'
         };
 
         var oAuth = new OAuth.OAuth('', accessTokenUrl,
@@ -377,14 +383,14 @@ class AuthenticationDelegate
             null, cookieData.signature_method
         );
 
-        oAuth.post(accessTokenUrl, null, null, params, null,function (results, data)
+        oAuth.post(accessTokenUrl, null, null, params, null, function (results, data)
         {
             if (data)
             {
                 data = queryString.parse(data);
                 var access_token = data.oauth_token;
                 var oauth_token_secret = data.oauth_token_secret;
-                var expiry = parseInt(data.oauth_expires_in)*1000 + moment().valueOf();
+                var expiry = parseInt(data.oauth_expires_in) * 1000 + moment().valueOf();
 
                 var fields:string = UserProfileDelegate.BASIC_FIELDS.join(',');
 
@@ -398,16 +404,17 @@ class AuthenticationDelegate
                     'HMAC-SHA1'
                 );
                 oauth.get(
-                    'https://api.linkedin.com/v1/people/~:(' + fields + ')?format=json ',
+                        'https://api.linkedin.com/v1/people/~:(' + fields + ')?format=json ',
                     access_token,
                     oauth_token_secret,
                     function (e, data, res)
                     {
                         var profile = JSON.parse(data);
-                        AuthenticationDelegate.processLinkedInTokens(req,access_token,oauth_token_secret, expiry,profile,next)
+                        AuthenticationDelegate.processLinkedInTokens(req, access_token, oauth_token_secret, expiry, profile, next)
                     }
                 );
-            } else {
+            } else
+            {
                 AuthenticationDelegate.logger.error('Likedin access token not returned');
             }
         });
@@ -427,26 +434,26 @@ class AuthenticationDelegate
 
         if (!Utils.isNullOrEmpty(fetchFields))
         {
-            q.all(_.map(fetchFields, function(field)
+            q.all(_.map(fetchFields, function (field)
+            {
+                switch (field)
                 {
-                    switch(field)
-                    {
-                        case ApiConstants.FETCH_PROFILE_PICTURE:
-                            return userProfileDelegate.fetchProfilePictureFromLinkedIn(userId, profileId);
+                    case ApiConstants.FETCH_PROFILE_PICTURE:
+                        return userProfileDelegate.fetchProfilePictureFromLinkedIn(userId, profileId);
 
-                        case ApiConstants.FETCH_BASIC:
-                            return userProfileDelegate.fetchBasicDetailsFromLinkedIn(userId, profileId);
+                    case ApiConstants.FETCH_BASIC:
+                        return userProfileDelegate.fetchBasicDetailsFromLinkedIn(userId, profileId);
 
-                        case ApiConstants.FETCH_EDUCATION:
-                            return userProfileDelegate.fetchAndReplaceEducation(userId, profileId);
+                    case ApiConstants.FETCH_EDUCATION:
+                        return userProfileDelegate.fetchAndReplaceEducation(userId, profileId);
 
-                        case ApiConstants.FETCH_EMPLOYMENT:
-                            return userProfileDelegate.fetchAndReplaceEmployment(userId, profileId);
+                    case ApiConstants.FETCH_EMPLOYMENT:
+                        return userProfileDelegate.fetchAndReplaceEmployment(userId, profileId);
 
-                        case ApiConstants.FETCH_SKILL:
-                            return userProfileDelegate.fetchAndReplaceSkill(userId, profileId);
-                    }
-                }))
+                    case ApiConstants.FETCH_SKILL:
+                        return userProfileDelegate.fetchAndReplaceSkill(userId, profileId);
+                }
+            }))
                 .then(
                 function profileFetched()
                 {

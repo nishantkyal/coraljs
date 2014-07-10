@@ -7,6 +7,7 @@ class Urls
     static mobileVerification():string                      { return '/phone/verification'; }
 
     static index()                                          { return '/'; }
+    static home()                                           { return '/home'; }
     static dashboard()                                      { return '/dashboard'; }
     static payments()                                       { return '/payments'; }
     static integration(baseUrl?:string)                     { return ApiUrlDelegate.get('/network', null, baseUrl); }
