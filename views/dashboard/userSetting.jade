@@ -25,8 +25,6 @@ title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setti
                                     a Schedules and Pricing
                                 li(name='changePasswordLink', class=selectedTab == 'password' ? 'active' : '')
                                     a Change Password
-                                li(name='widgetLink', class=selectedTab == 'widget' ? 'active' : '')
-                                    a Widgets
             //
                /.content
             .content.col-md-8
@@ -97,52 +95,6 @@ title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setti
                                 div.links-editing
                                     p.edit-schedules
                                         input.btn.btn-primary(type='submit', value='Change', name='changePassword')
-                    .card#widget(style='display: none;')
-                        .addit
-                            a.btn.btn-primary#addUserEducationBtn Create a new widget
-                                i.icon-plus
-                        if widgets && widgets.length != 0
-                            .item
-                                .row
-                                    for widget in widgets
-                                        .col-md-4
-                                            if (widget.template == 'tiny_widget')
-                                                iframe(src=ApiUrlDelegate.publicWidget(widget.id,Config.get(Config.DASHBOARD_URI)), width="160", height="115", style="border: none;")
-                                                h3 Embed Code:
-                                                textarea(readonly, rows='6', cols='22') <iframe src=#{ApiUrlDelegate.publicWidget(widget.id,Config.get(Config.DASHBOARD_URI))} width="160" height="115" style="border: none;"></iframe>
-                                            else if (widget.template == 'small_widget')
-                                                iframe(src=ApiUrlDelegate.publicWidget(widget.id,Config.get(Config.DASHBOARD_URI)), width="160", height="251", style="border: none;")
-                                                h3 Embed Code:
-                                                textarea(readonly, rows='6', cols='22') <iframe src=#{ApiUrlDelegate.publicWidget(widget.id,Config.get(Config.DASHBOARD_URI))} width="160" height="251" style="border: none;"></iframe>
-                                            else if (widget.template == 'tall_widget')
-                                                iframe(src=ApiUrlDelegate.publicWidget(widget.id,Config.get(Config.DASHBOARD_URI)), width="160", height="392", style="border: none;")
-                                                h3 Embed Code:
-                                                textarea(readonly, rows='6', cols='22') <iframe src=#{ApiUrlDelegate.publicWidget(widget.id,Config.get(Config.DASHBOARD_URI))} width="160" height="392" style="border: none;"></iframe>
-                        else
-                            .alert.alert-warning
-                                strong Creating widgets is simple
-                                p Just pick a few settings and copy-paste the embed code on your website/blog
-                    .card#createWidget(style='display: none;')
-                        form#createWidgetForm
-                            .item-edit
-                                .item
-                                    .header-row.row
-                                        h5.col-xs-8 Create Widget
-                                        .header-link.col-xs-4
-                                            a.btn.btn-danger#cancelCreateWidget
-                                                i.icon-cancel
-                                .item
-                                    .row
-                                        .form-group
-                                            label Widget Type
-                                            select.form-control(name='widgetType')
-                                                option(value="tiny_widget") Tiny
-                                                option(value="small_widget") Small
-                                                option(value="tall_widget") Tall
-                                        .clearer
-                                            div.links-editing
-                                                p.edit-schedules
-                                                    input.btn.btn-primary(type='submit', value='Create')
 script.
     var user = JSON.parse( '!{JSON.stringify(loggedInUser)}' );
     var selectedTab = '!{selectedTab || "phone"}';

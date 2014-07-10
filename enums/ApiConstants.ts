@@ -9,7 +9,6 @@ class ApiConstants
     static ROLE:string                                  = 'role';
     static RETURN_TO:string                             = 'returnTo';
     static CONTEXT:string                               = 'context';
-    static CONTEXT:string                               = 'context';
     static SIZE:string                                  = 'size';
     static THEME:string                                 = 'theme';
 

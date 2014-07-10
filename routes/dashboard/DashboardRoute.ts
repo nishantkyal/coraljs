@@ -43,7 +43,6 @@ import ScheduleRule                                     = require('../../models/
 import CronRule                                         = require('../../models/CronRule');
 import PricingScheme                                    = require('../../models/PricingScheme');
 import Expertise                                        = require('../../models/Expertise');
-import Widget                                           = require('../../models/Widget');
 import IntegrationMemberRole                            = require('../../enums/IntegrationMemberRole');
 import ApiConstants                                     = require('../../enums/ApiConstants');
 import SmsTemplate                                      = require('../../enums/SmsTemplate');
@@ -333,15 +332,13 @@ class DashboardRoute
         q.all([
             self.scheduleRuleDelegate.getRulesByUser(userId),
             self.pricingSchemeDelegate.search(Utils.createSimpleObject(PricingScheme.USER_ID, userId)),
-            self.userPhoneDelegate.search(Utils.createSimpleObject(UserPhone.USER_ID, userId)),
-            self.widgetDelegate.search(Utils.createSimpleObject(Widget.USER_ID, userId))
+            self.userPhoneDelegate.search(Utils.createSimpleObject(UserPhone.USER_ID, userId))
         ])
             .then(function detailsFetched(...args)
             {
                 var rules:ScheduleRule[] = [].concat(args[0][0]);
                 var pricingSchemes:PricingScheme[] = args[0][1];
                 var userPhone:UserPhone[] = args[0][2];
-                var widget:Widget[] = _.sortBy(args[0][3] || [], function (w:any) {return w.template});
 
                 _.each(rules || [], function (rule:ScheduleRule)
                 {
@@ -352,7 +349,6 @@ class DashboardRoute
                     userPhone: userPhone,
                     rules: rules || [],
                     scheme: pricingSchemes ? pricingSchemes[0] : new PricingScheme(),
-                    widgets: widget || [],
                     selectedTab: selectedTab
                 });
 

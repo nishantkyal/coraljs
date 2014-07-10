@@ -4,10 +4,16 @@ class StaticRoute
 {
     constructor(app, secureApp)
     {
-        app.get('/privacy-policy', function(req, res)
+        app.get('/privacy', function(req, res)
         {
             var sessionData = new AbstractSessionData(req);
             res.render('static/privacy-policy', sessionData);
+        });
+
+        app.get('/terms-of-use', function(req, res)
+        {
+            var sessionData = new AbstractSessionData(req);
+            res.render('static/terms-of-use', sessionData);
         });
     }
 }
