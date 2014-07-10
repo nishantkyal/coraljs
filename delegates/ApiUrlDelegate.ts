@@ -117,9 +117,7 @@ class ApiUrlDelegate
     static resetPassword():string { return this.get('/rest/code/password/reset'); }
 
     /* URL pattern for widgets */
-    static widget():string { return this.get('/rest/widget')}
-    static widgetById(widgetId?:number):string { return this.get('/rest/widget/:widgetId', {widgetId: widgetId})}
-    static publicWidget(widgetId?:number, baseUrl?:string):string { return this.get('/widget/:widgetId', {widgetId: widgetId},baseUrl)}
+    static widget(baseUrl?:string):string { return this.get('/widget', null, baseUrl)}
 
     /*
      * Helper method to generate URLs with values substituted for parameters (if supplied)

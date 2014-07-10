@@ -720,4 +720,10 @@
     <changeSet author="Nishant (generated)" id="1404796086528-1">
         <dropNotNullConstraint columnDataType="varchar(100)" columnName="redirect_url" tableName="integration"/>
     </changeSet>
+    <changeSet author="Nishant (generated)" id="1404972481519-1">
+        <dropForeignKeyConstraint baseTableName="widget" constraintName="widget_user_id"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1404972481519-2">
+        <dropTable tableName="widget"/>
+    </changeSet>
 </databaseChangeLog>

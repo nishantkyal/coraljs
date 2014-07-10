@@ -9,6 +9,9 @@ class ApiConstants
     static ROLE:string                                  = 'role';
     static RETURN_TO:string                             = 'returnTo';
     static CONTEXT:string                               = 'context';
+    static CONTEXT:string                               = 'context';
+    static SIZE:string                                  = 'size';
+    static THEME:string                                 = 'theme';
 
     /* Param constants */
     static ID:string                                    = 'id';
@@ -43,7 +46,6 @@ class ApiConstants
     static EMAIL:string                                 = 'email';
     static CODE:string                                  = 'code';
     static CODE_VERIFICATION:string                     = 'code_verification';
-    static WIDGET_ID:string                             = 'widgetId';
     static NAME:string                                  = 'name';
     static COUNTRY_CODE:string                          = 'countryCode';
     static PHONE:string                                 = 'phone';
@@ -77,7 +79,6 @@ class ApiConstants
     static SMS:string                                   = 'sms';
     static TRANSACTION:string                           = 'transaction';
     static NO_PAYMENT:string                            = 'noPayment';
-    static WIDGET:string                                = 'widget';
     static PRICING_SCHEME:string                        = 'pricingScheme';
 
     // Query Constants
