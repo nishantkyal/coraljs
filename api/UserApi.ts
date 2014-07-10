@@ -98,7 +98,7 @@ class UserApi
                 {
                     res.json({url: ApiUrlDelegate.userProfilePicture(userId)});
                 },
-                function uploadError(error) { res.send(500); }
+                function uploadError(error) { res.send('Error in uploading image').status(500); }
             );
         });
 

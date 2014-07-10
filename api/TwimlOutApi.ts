@@ -70,7 +70,8 @@ class TwimlOutApi
                     //TODO[ankit] - get TotalDuration of all callFragments and set duration accordingly
                     pageData['phoneNumber'] = call.getExpertPhone().getCompleteNumber();
                     pageData['record'] = (call.getRecorded() == false) ? 'false' : 'true';
-                    pageData['message'] = 'Please wait while we get ' + Formatter.formatName(call.getExpertUser().getFirstName(), call.getExpertUser().getLastName(), call.getExpertUser().getTitle()) + ' on the call';
+                    pageData['message'] = 'Welcome to Search n Talk. This is your scheduled call with' + Formatter.formatName(call.getExpertUser().getFirstName(), call.getExpertUser().getLastName(), call.getExpertUser().getTitle()) +
+                        'Please wait while we get the expert on the call';
                     res.render('twilio/TwilioXMLJoin.jade', pageData);
                 })
                 .fail(function (error)
