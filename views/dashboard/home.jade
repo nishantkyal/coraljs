@@ -41,6 +41,9 @@ head
         })( jQuery );
         jQuery(document).ready(function() {
             jQuery(".retina-image").retina();
+
+            $(".user-control").hover(function() { $(".user-control .user-modal").show(); } , function() { $(".user-control .user-modal").hide(); });
+            $('.datepicker').datetimepicker();
         });
 .masthead.inverted(role='banner')
     .container
@@ -48,25 +51,26 @@ head
             a.logo.hidden-xs(href='/')
             a.icon.visible-xs(href='/')
         .masthead-controls
-            .masthead-control-field
-                .field-trigger
-                    span.hidden-xs Don't have an account yet?
-                    a.btn.btn-default(href=AuthenticationUrls.register()) Sign Up
-            .masthead-control-field
-                .field-action
-                    a.btn.btn-primary.login(href=AuthenticationUrls.login()) Login
-            //.masthead-control-field.lang-control
-                .field-boxedinfo
-                    .lang en
-                    .shadow
-                .caret
-                .lang-modal
-                    .field-label
-                        | Language
-                    .field-menu
-                        select(name='ui_language')
-                            option(value='en', selected='')
-                                | English
+            if !loggedInUser
+                .masthead-control-field
+                    .field-trigger
+                        span.hidden-xs Don't have an account yet?
+                        a.btn.btn-default(href=AuthenticationUrls.register()) Sign Up
+                .masthead-control-field
+                    .field-action
+                        a.btn.btn-primary.login(href=AuthenticationUrls.login()) Login
+                //.masthead-control-field.lang-control
+                    .field-boxedinfo
+                        .lang en
+                        .shadow
+                    .caret
+                    .lang-modal
+                        .field-label
+                            | Language
+                        .field-menu
+                            select(name='ui_language')
+                                option(value='en', selected='')
+                                    | English
 // /.masthead
 .hero
     .container

@@ -108,9 +108,11 @@ class DashboardRoute
 
     private home(req:express.Request, res:express.Response)
     {
-        var pageData = {
+        var sessionData = new SessionData(req);
+
+        var pageData = _.extend(sessionData.getData(), {
             messages: req.flash()
-        };
+        });
 
         res.render(DashboardRoute.PAGE_HOME, pageData);
     }
