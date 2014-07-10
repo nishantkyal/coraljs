@@ -2,7 +2,6 @@
 import _                                        = require('underscore');
 import moment                                   = require('moment');
 import passport                                 = require('passport');
-import passport_linkedin                        = require('passport-linkedin');
 import q                                        = require('q');
 import OAuth                                    = require('oauth');
 import BaseDaoDelegate                          = require('./BaseDaoDelegate');

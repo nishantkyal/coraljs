@@ -11,7 +11,6 @@
 ///<reference path='../DefinitelyTyped/passportjs/passport-facebook.d.ts'/>
 ///<reference path='../DefinitelyTyped/passportjs/passport-http-bearer.d.ts'/>
 ///<reference path='../DefinitelyTyped/passportjs/passport-facebook.d.ts'/>
-///<reference path='../DefinitelyTyped/passportjs/passport-linkedin.d.ts'/>
 ///<reference path='../DefinitelyTyped/passportjs/passport-linkedin-oauth2.d.ts'/>
 ///<reference path='../DefinitelyTyped/node-mysql/mysql.d.ts'/>
 ///<reference path='../DefinitelyTyped/twilio/twilio.d.ts'/>
