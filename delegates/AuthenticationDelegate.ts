@@ -9,8 +9,8 @@ import OAuth                                    = require('oauth');
 import queryString                              = require('querystring');
 import passport_http_bearer                     = require('passport-http-bearer');
 import passport_facebook                        = require('passport-facebook');
-import passport_linkedin                        = require('passport-linkedin');
 import log4js                                   = require('log4js');
+import moment                                   = require('moment');
 import IntegrationMemberDelegate                = require('../delegates/IntegrationMemberDelegate');
 import UserDelegate                             = require('../delegates/UserDelegate');
 import UserProfileDelegate                      = require('../delegates/UserProfileDelegate');
@@ -272,19 +272,7 @@ class AuthenticationDelegate
         ));
     }
 
-    private static configureLinkedInStrategy(strategyId:string)
-    {
-        passport.use(strategyId, new passport_linkedin.Strategy({
-                consumerKey: Credentials.get(Credentials.LINKEDIN_API_KEY),
-                consumerSecret: Credentials.get(Credentials.LINKEDIN_API_SECRET),
-                callbackURL: url.resolve(Config.get(Config.DASHBOARD_URI), AuthenticationUrls.linkedInLoginCallBack()),
-                profileFields: UserProfileDelegate.BASIC_FIELDS,
-                passReqToCallback: true
-            },AuthenticationDelegate.processLinkedinTokens
-        ));
-    }
-
-    private static processLinkedinTokens(req, accessToken, refreshToken, profile:any, done)
+    private static processLinkedInTokens(req, accessToken, refreshToken, expiry, profile:any, done)
     {
         profile = profile['_json'] || profile;
 
@@ -293,6 +281,7 @@ class AuthenticationDelegate
         userOauth.setProviderId('LinkedIn');
         userOauth.setAccessToken(accessToken);
         userOauth.setRefreshToken(refreshToken);
+        userOauth.setAccessTokenExpiry(expiry);
         userOauth.setEmail(profile.emailAddress);
 
         var user = new User();
@@ -346,14 +335,38 @@ class AuthenticationDelegate
     static linkedInLogin(req, res:express.Response, next:Function)
     {
         var self = this;
-        var data = JSON.parse(req.cookies['linkedin_oauth_' + Credentials.get(Credentials.LINKEDIN_API_KEY)]);
+        var userId;
 
-        if (Utils.isNullOrEmpty(data))
+        if (req.user)
+        {
+            userId = req.user.id;
+            new UserOAuthDelegate().find({'user_id':userId, 'provider_id':'LinkedIn'})
+                .then( function oAuthSearched(userOauth:UserOauth)
+                {
+                    if (userOauth.getAccessTokenExpiry() <= moment().valueOf())
+                        AuthenticationDelegate.fetchLinkedInOauthToken(req, res, next);
+                    else
+                        next();
+                })
+                .fail( function oAuthSearchFailed()
+                {
+                    AuthenticationDelegate.fetchLinkedInOauthToken(req, res, next);
+                })
+        }
+        else
+            AuthenticationDelegate.fetchLinkedInOauthToken(req, res, next);
+    }
+
+    static fetchLinkedInOauthToken(req, res:express.Response, next:Function)
+    {
+        var cookieData = JSON.parse(req.cookies['linkedin_oauth_' + Credentials.get(Credentials.LINKEDIN_API_KEY)]);
+
+        if (Utils.isNullOrEmpty(cookieData))
             throw(new Error('No Cookie found with Linkedin Data'));
 
         var accessTokenUrl = 'https://api.linkedin.com/uas/oauth/accessToken';
         var params = {
-            xoauth_oauth2_access_token:     data.access_token,
+            xoauth_oauth2_access_token:     cookieData.access_token,
             scope:                          'r_fullprofile+r_emailaddress+r_basicprofile'
         };
 
@@ -361,7 +374,7 @@ class AuthenticationDelegate
             Credentials.get(Credentials.LINKEDIN_API_KEY),
             Credentials.get(Credentials.LINKEDIN_API_SECRET),
             '1.0a',
-            null, data.signature_method
+            null, cookieData.signature_method
         );
 
         oAuth.post(accessTokenUrl, null, null, params, null,function (results, data)
@@ -371,6 +384,7 @@ class AuthenticationDelegate
                 data = queryString.parse(data);
                 var access_token = data.oauth_token;
                 var oauth_token_secret = data.oauth_token_secret;
+                var expiry = parseInt(data.oauth_expires_in)*1000 + moment().valueOf();
 
                 var fields:string = UserProfileDelegate.BASIC_FIELDS.join(',');
 
@@ -390,13 +404,60 @@ class AuthenticationDelegate
                     function (e, data, res)
                     {
                         var profile = JSON.parse(data);
-                        AuthenticationDelegate.processLinkedinTokens(req,access_token,oauth_token_secret,profile,next)
+                        AuthenticationDelegate.processLinkedInTokens(req,access_token,oauth_token_secret, expiry,profile,next)
                     }
                 );
             } else {
                 AuthenticationDelegate.logger.error('Likedin access token not returned');
             }
         });
+    }
+
+    static fetchDataFromLinkedIn(req:express.Request, res:express.Response, next:Function)
+    {
+        var self = this;
+
+        var fetchFields = (req.cookies[ApiConstants.LINKEDIN_FETCH_FIELDS] || '').split(':');
+        var profileId:number = req.cookies[ApiConstants.USER_PROFILE_ID];
+        var userId:number = new User(req[ApiConstants.USER]).getId();
+
+        res.clearCookie(ApiConstants.LINKEDIN_FETCH_FIELDS);
+
+        var userProfileDelegate = new UserProfileDelegate();
+
+        if (!Utils.isNullOrEmpty(fetchFields))
+        {
+            q.all(_.map(fetchFields, function(field)
+                {
+                    switch(field)
+                    {
+                        case ApiConstants.FETCH_PROFILE_PICTURE:
+                            return userProfileDelegate.fetchProfilePictureFromLinkedIn(userId, profileId);
+
+                        case ApiConstants.FETCH_BASIC:
+                            return userProfileDelegate.fetchBasicDetailsFromLinkedIn(userId, profileId);
+
+                        case ApiConstants.FETCH_EDUCATION:
+                            return userProfileDelegate.fetchAndReplaceEducation(userId, profileId);
+
+                        case ApiConstants.FETCH_EMPLOYMENT:
+                            return userProfileDelegate.fetchAndReplaceEmployment(userId, profileId);
+
+                        case ApiConstants.FETCH_SKILL:
+                            return userProfileDelegate.fetchAndReplaceSkill(userId, profileId);
+                    }
+                }))
+                .then(
+                function profileFetched()
+                {
+                    next();
+                },
+                function fetchError(error:Error)
+                {
+                    req.flash('User profile sync with LinkedIn failed. Error: %s', error.message);
+                    next();
+                });
+        }
     }
 }
 export = AuthenticationDelegate

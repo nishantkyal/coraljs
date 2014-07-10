@@ -3,7 +3,6 @@ import q                                            = require('q');
 import passport                                     = require('passport');
 import express                                      = require('express');
 import AuthenticationDelegate                       = require('../../delegates/AuthenticationDelegate');
-import UserProfileDelegate                          = require('../../delegates/UserProfileDelegate');
 import ApiConstants                                 = require('../../enums/ApiConstants');
 import User                                         = require('../../models/User');
 import Urls                                         = require('./Urls');
@@ -13,8 +12,6 @@ class AuthenticationRoute
 {
     private static PAGE_LOGIN:string = 'dashboard/login';
     private static PAGE_REGISTER:string = 'dashboard/register';
-
-    private userProfileDelegate = new UserProfileDelegate();
 
     constructor(app, secureApp)
     {
@@ -26,7 +23,7 @@ class AuthenticationRoute
         app.get(Urls.checkLogin(), AuthenticationDelegate.checkLogin({justCheck: true}));
         app.post(Urls.login(), AuthenticationDelegate.login(), this.authSuccess.bind(this));
         app.post(Urls.register(), AuthenticationDelegate.register(), this.authSuccess.bind(this));
-        app.post(Urls.linkedInLogin(),AuthenticationDelegate.linkedInLogin, this.authSuccess.bind(this));
+        app.post(Urls.linkedInLogin(),AuthenticationDelegate.linkedInLogin, AuthenticationDelegate.fetchDataFromLinkedIn, this.authSuccess.bind(this));
         app.get(Urls.logout(), this.logout.bind(this));
 
     }
@@ -80,48 +77,6 @@ class AuthenticationRoute
         res.clearCookie("connect.sid");
         var returnToUrl:string = req.query[ApiConstants.RETURN_TO] || Urls.login();
         res.redirect(returnToUrl);;
-    }
-
-    private linkedInCallBack(req:express.Request, res:express.Response, next:Function)
-    {
-        var self = this;
-
-        var fetchFields = (req.cookies[ApiConstants.LINKEDIN_FETCH_FIELDS] || '').split(':');
-        var profileId:number = req.cookies[ApiConstants.USER_PROFILE_ID];
-        var userId:number = new User(req[ApiConstants.USER]).getId();
-
-        res.clearCookie(ApiConstants.LINKEDIN_FETCH_FIELDS);
-
-        q.all(_.map(fetchFields, function(field)
-            {
-                switch(field)
-                {
-                    case ApiConstants.FETCH_PROFILE_PICTURE:
-                        return self.userProfileDelegate.fetchProfilePictureFromLinkedIn(userId, profileId);
-
-                    case ApiConstants.FETCH_BASIC:
-                        return self.userProfileDelegate.fetchBasicDetailsFromLinkedIn(userId, profileId);
-
-                    case ApiConstants.FETCH_EDUCATION:
-                        return self.userProfileDelegate.fetchAndReplaceEducation(userId, profileId);
-
-                    case ApiConstants.FETCH_EMPLOYMENT:
-                        return self.userProfileDelegate.fetchAndReplaceEmployment(userId, profileId);
-
-                    case ApiConstants.FETCH_SKILL:
-                        return self.userProfileDelegate.fetchAndReplaceSkill(userId, profileId);
-                }
-            }))
-            .then(
-            function profileFetched()
-            {
-                next();
-            },
-            function fetchError(error:Error)
-            {
-                req.flash('User profile sync with LinkedIn failed. Error: %s', error.message);
-                next();
-            });
     }
 
 }

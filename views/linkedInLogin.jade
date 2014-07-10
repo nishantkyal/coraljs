@@ -1,0 +1,14 @@
+script(type="text/javascript", src="//platform.linkedin.com/in.js").
+    api_key                 :     !{Credentials.get(Credentials.LINKEDIN_API_KEY)}
+    credentials_cookie      :     true
+    scope                   :     r_basicprofile r_emailaddress r_fullprofile
+script.
+    function linkedInLogin()
+    {
+        var form = $('<form action="/login/linkedin" method="post"></form>');
+        $('body').append(form);
+        form.submit();
+    }
+    $('#linkedInLoginButton').click(function(){
+        IN.User.authorize(linkedInLogin);
+    });
