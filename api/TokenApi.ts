@@ -121,8 +121,6 @@ class TokenApi
         /* Create and send password reset code */
         app.post(ApiUrlDelegate.sendForgotPasswordCode(), function (req:express.Request, res:express.Response)
         {
-            res.send(200);
-
             var email:string = req.body[ApiConstants.EMAIL];
 
             userDelegate.find({email: email})

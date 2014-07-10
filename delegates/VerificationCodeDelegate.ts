@@ -213,7 +213,12 @@ class VerificationCodeDelegate
         var self = this;
         var secondsInAnHr:number = 60 * 60;
 
-        return CacheHelper.set('pr-' + code, email, secondsInAnHr);
+        return CacheHelper.set('pr-' + code, email, secondsInAnHr)
+            .then(
+            function codeCreated()
+            {
+                return code;
+            });
     }
 
     verifyCodeAndResetPassword(code:string, password:string):q.Promise<any>
