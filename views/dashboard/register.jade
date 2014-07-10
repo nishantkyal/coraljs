@@ -51,10 +51,12 @@ include ../header
                                         input(type='hidden', name='invitation_code', value=code)
                                     .links-editing
                                         input.btn-primary.btn.btn-block(value='Register', type='submit')
-                                    a.btn-linkedin.btn.btn-block(href=AuthenticationUrls.linkedInLogin()) Login with LinkedIn
-                                    a.btn.btn-link(href=AuthenticationUrls.login()) Login
+                                    .links-editing
+                                        a.btn-linkedin.btn.btn-block#linkedInLoginButton Login with LinkedIn
+                                        a.btn.btn-link(href=AuthenticationUrls.login()) Login
             // /.content
 include ../footer
+include ../linkedInLogin
 script.
     var Timezone = JSON.parse('!{JSON.stringify(Timezone)}');
 script(src='/js/app/expertRegistration/authenticate.js')
