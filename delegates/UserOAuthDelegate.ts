@@ -1,6 +1,5 @@
 ///<reference path='../_references.d.ts'/>
 import q                                            = require('q');
-import UserAuthDAO                                  = require('../dao/UserOAuthDao');
 import BaseDaoDelegate                              = require('./BaseDaoDelegate');
 import MysqlDelegate                                = require('../delegates/MysqlDelegate');
 import UserOauth                                    = require('../models/UserOauth');
@@ -17,7 +16,7 @@ class UserOAuthDelegate extends BaseDaoDelegate
     constructor() {
         var UserDelegate  = require('../delegates/UserDelegate');
         this.userDelegate = new UserDelegate();
-        super(new UserAuthDAO());
+        super(UserOauth);
     }
 
     /* Add or update an OAuth token

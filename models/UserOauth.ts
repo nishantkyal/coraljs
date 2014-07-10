@@ -21,7 +21,7 @@ class UserOauth extends BaseModel
     private provider_id:string;
     private oauth_user_id:string;
     private access_token:string;
-    private access_token_expiry:string;
+    private access_token_expiry:number;
     private refresh_token:string;
     private refresh_token_expiry:string;
     private email:string;
@@ -30,14 +30,14 @@ class UserOauth extends BaseModel
         UserOauth.ACCESS_TOKEN_EXPIRY, UserOauth.REFRESH_TOKEN, UserOauth.REFRESH_TOKEN_EXPIRY, UserOauth.EMAIL];
 
     /* Getters */
-    getUserId() { return this.user_id; }
-    getProviderId() { return this.provider_id; }
-    getOauthUserId() { return this.oauth_user_id; }
-    getAccessToken() { return this.access_token; }
-    getAccessTokenExpiry() { return this.access_token_expiry; }
-    getRefreshToken() { return this.refresh_token; }
-    getRefreshTokenExpiry() { return this.refresh_token_expiry; }
-    getEmail() {return this.email; }
+    getUserId()                                     { return this.user_id; }
+    getProviderId()                                 { return this.provider_id; }
+    getOauthUserId()                                { return this.oauth_user_id; }
+    getAccessToken()                                { return this.access_token; }
+    getAccessTokenExpiry()                          { return this.access_token_expiry; }
+    getRefreshToken()                               { return this.refresh_token; }
+    getRefreshTokenExpiry()                         { return this.refresh_token_expiry; }
+    getEmail()                                      { return this.email; }
 
     isValid():boolean {
         return !Utils.isNullOrEmpty(this.getOauthUserId())
@@ -46,14 +46,14 @@ class UserOauth extends BaseModel
     }
 
     /* Setters */
-    setUserId(val) { this.user_id = val; }
-    setProviderId(val) { this.provider_id = val; }
-    setOauthUserId(val) { this.oauth_user_id = val; }
-    setAccessToken(val) { this.access_token = val; }
-    setAccessTokenExpiry(val) { this.access_token_expiry = val; }
-    setRefreshToken(val) { this.refresh_token = val; }
-    setRefreshTokenExpiry(val) { this.refresh_token = val; }
-    setEmail(val:string) { this.email = val; }
+    setUserId(val)                                  { this.user_id = val; }
+    setProviderId(val)                              { this.provider_id = val; }
+    setOauthUserId(val)                             { this.oauth_user_id = val; }
+    setAccessToken(val)                             { this.access_token = val; }
+    setAccessTokenExpiry(val)                       { this.access_token_expiry = val; }
+    setRefreshToken(val)                            { this.refresh_token = val; }
+    setRefreshTokenExpiry(val)                      { this.refresh_token = val; }
+    setEmail(val:string)                            { this.email = val; }
 
 }
 export = UserOauth
