@@ -17,13 +17,13 @@ class UserOauth extends BaseModel
     static REFRESH_TOKEN_EXPIRY:string              = 'refresh_token_expiry';
     static EMAIL:string                             = 'email';
 
-    private user_id:string;
+    private user_id:number;
     private provider_id:string;
     private oauth_user_id:string;
     private access_token:string;
     private access_token_expiry:number;
     private refresh_token:string;
-    private refresh_token_expiry:string;
+    private refresh_token_expiry:number;
     private email:string;
 
     static DEFAULT_FIELDS:string[] = [UserOauth.USER_ID, UserOauth.PROVIDER_ID, UserOauth.OAUTH_USER_ID, UserOauth.ACCESS_TOKEN,

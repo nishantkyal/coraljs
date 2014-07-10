@@ -36,52 +36,13 @@ $('#selectFile').change(function uploadFiles(event)
                 location.reload();
             }
             else
-                console.log('ERRORS: ' + data.error);
+                bootbox.alert('Error in uploading image.');
         },
         error      : function(jqXHR, textStatus, errorThrown)
         {
             // Handle errors here
-            console.log('ERRORS: ' + textStatus);
+            bootbox.alert('Error in uploading image.')
             // STOP LOADING SPINNER
         }
     });
 });
-
-function submitForm(event, data)
-{
-    // Create a jQuery object from the form
-    var form = $('#fileUploadForm');
-
-    // Serialize the form data
-    var formData = form.serialize();
-
-    // You should sterilise the file names
-    $.each(data.files, function(key, value)
-    {
-        formData = formData + '&filenames[]=' + value;
-    });
-
-    $.ajax({
-        url     : 'submit.php',
-        type    : 'POST',
-        data    : formData,
-        cache   : false,
-        dataType: 'json',
-        success : function(data, textStatus, jqXHR)
-        {
-            if (typeof data.error === 'undefined')
-                $('#profileImage').attr('src', data.url);
-            else
-                console.log('ERRORS: ' + data.error);
-        },
-        error   : function(jqXHR, textStatus, errorThrown)
-        {
-            console.log('ERRORS: ' + textStatus);
-        },
-        complete: function()
-        {
-            location.reload();
-            // STOP LOADING SPINNER
-        }
-    });
-}
