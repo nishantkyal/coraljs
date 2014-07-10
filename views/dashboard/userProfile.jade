@@ -108,7 +108,7 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                                         .col-xs-3 Employment Details
                             .clearer
                             .links-editing
-                                p
+                                p Fetch From LinkedIn
                                     input.btn.btn-primary(type='submit', value='Fetch')
                 .row
                     for expertise in userExpertise
@@ -227,6 +227,7 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                                                         input.btn.btn-primary(type='submit', value='Save')
 include ../footer
 if isEditable
+    include ../linkedInLogin
     script.
         var userId = '!{user.id}';
         var user = JSON.parse( '!{JSON.stringify(user)}' );

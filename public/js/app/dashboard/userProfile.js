@@ -240,7 +240,7 @@ $('form#linkedinFetch').bootstrapValidator({
 
                 setCookie('linkedin_fetch_fields', fetchFields);
                 setCookie('profileId', userProfile.id);
-                location.href = '/login/linkedin';
+                linkedInLogin();
             }
         });
     }

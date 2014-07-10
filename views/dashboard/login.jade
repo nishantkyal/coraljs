@@ -37,25 +37,7 @@ include ../header
                                         a.btn.btn-link(href=DashboardUrls.forgotPassword()) Forgot password?
                                         a.btn.btn-link(href=AuthenticationUrls.register()) Create an account
 include ../footer
+include ../linkedInLogin
 script.
     var Timezone = JSON.parse('!{JSON.stringify(Timezone)}');
-script(type="text/javascript", src="//platform.linkedin.com/in.js").
-    api_key                 :     753lu5ngi9suvh
-    credentials_cookie      :     true
-    scope                   :     r_basicprofile r_emailaddress r_fullprofile
-script.
-    function linkedinLogin()
-    {
-        $.ajax({
-            url         : 'https://localhost:3334/login/linkedin',
-            dataType    : 'json',
-            contentType : 'application/json',
-            method      : 'post',
-            success     : function(res)
-            {
-                location.reload();
-            }
-        });
-    }
-script(type="in/login", data-onAuth="linkedinLogin")
 script(src='/js/app/expertRegistration/authenticate.js')
