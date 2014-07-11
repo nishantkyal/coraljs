@@ -194,7 +194,7 @@ class WidgetDelegate
             .then(
             function widgetExpertFetched(widgetExpert:WidgetExpert[])
             {
-                var widgetBaseHtml = WidgetDelegate.widgetTemplateCache[size.toUpperCase()];
+                var widgetBaseHtml = WidgetDelegate.widgetTemplateCache[size.toUpperCase()+'_WIDGET'];
                 var widgetHtmlWithExpertData = self.renderWidgetExpertData(widgetBaseHtml, widgetExpert)
                 var widgetHtmlWithSettingsAndExpertData = self.renderWidgetSettings(widgetHtmlWithExpertData, {theme: theme});
                 return widgetHtmlWithSettingsAndExpertData;

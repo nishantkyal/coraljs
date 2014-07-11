@@ -19,9 +19,9 @@ class WidgetApi
         app.get(ApiUrlDelegate.widget(), function (req:express.Request, res:express.Response)
         {
             var self = this;
-            var theme:string = req.params[ApiConstants.THEME];
-            var size:string = req.params[ApiConstants.SIZE];
-            var userId:number = parseInt(req.params[ApiConstants.USER_ID]);
+            var theme:string = req.query[ApiConstants.THEME];
+            var size:string = req.query[ApiConstants.SIZE];
+            var userId:number = parseInt(req.query[ApiConstants.USER_ID]);
 
             // TODO: Handle caching of response sent by this endpoint
             // Since the url is fixed, response will get cached
@@ -39,8 +39,8 @@ class WidgetApi
                 },
                 function widgetRenderError(error)
                 {
-                    self.logger.debug('Widget rendering failed. Error: %s', JSON.stringify(error));
-                    res.send(500, 'An error occured in rendering Widget.');
+                    //self.logger.debug('Widget rendering failed. Error: %s', JSON.stringify(error));
+                    res.send(error || 'An error occured in rendering Widget.').status(500);
                 });
         });
     }

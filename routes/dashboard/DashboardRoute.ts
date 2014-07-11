@@ -70,6 +70,7 @@ class DashboardRoute
     private static PAGE_PAYMENTS:string = 'dashboard/payment';
     private static PAGE_ACCOUNT_VERIFICATION:string = 'dashboard/accountVerification';
     private static PAGE_SETTING:string = 'dashboard/userSetting';
+    private static PAGE_WIDGET_CREATOR:string = 'dashboard/widgetCreator';
 
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private userDelegate = new UserDelegate();
@@ -104,6 +105,8 @@ class DashboardRoute
         app.get(Urls.userSetting(), Middleware.allowOnlyMe, this.setting.bind(this));
 
         app.get(Urls.emailAccountVerification(), this.emailAccountVerification.bind(this));
+
+        app.get(Urls.widgetCreator(), this.widgetCreator.bind(this));
     }
 
     private home(req:express.Request, res:express.Response)
@@ -417,6 +420,15 @@ class DashboardRoute
             {
                 res.render('500', {error: error.message});
             });
+    }
+
+    private widgetCreator(req:express.Request, res:express.Response)
+    {
+        var sessionData = new SessionData(req);
+        var pageData = _.extend(sessionData.getData(), {
+
+        });
+        res.render(DashboardRoute.PAGE_WIDGET_CREATOR, pageData);
     }
 }
 
