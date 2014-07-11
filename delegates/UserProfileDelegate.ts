@@ -130,7 +130,7 @@ class UserProfileDelegate extends BaseDaoDelegate
 
         return self.fetchSelectedFieldsFromLinkedIn(userId, UserProfileDelegate.EDUCATION_FIELDS)
             .then(
-            function educationDetailsFetched(profile)
+            function educationDetailsFetched(profile:any)
             {
                 if (!Utils.isNullOrEmpty(profile.educations) && profile.educations._total > 0)
                 {
