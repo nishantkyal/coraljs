@@ -85,7 +85,7 @@ if isEditable
                                     option(value="#{option}", selected = ('#{loggedInUser.industry}' == '#{option}')) #{key}
                         .form-group
                             h3 Birthday
-                            input.form-control(type='text', class="datepicker" value = loggedInUser.date_of_birth, name= "birthDate")
+                            input.form-control(type='text', class="datepicker" value = loggedInUser.date_of_birth, name= "birthDate",data-date-format="DD-MM-YYYY")
                         .form-group
                             h3 TimeZone
                             select.form-control(name='timezone')

@@ -30,8 +30,6 @@ $('[name="deleteUserEmployment"]').click(function()
     });
 });
 
-$('.datepicker').datetimepicker();
-
 $('#userEmployment .edit-card form').bootstrapValidator({
     submitHandler : function()
     {
