@@ -1,5 +1,7 @@
 var userEmploymentCard = $('#userEmployment').card();
 
+$('.empSummary').expander();
+
 $('#userEmployment .editCardBtn').click(function(event)
 {
     var employmentId = $(this).data('id');
