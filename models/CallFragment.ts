@@ -3,7 +3,7 @@ import Utils                = require('../common/Utils');
 
 class CallFragment extends BaseModel
 {
-    static TABLE_NAME:string = 'call_fragment';
+    static TABLE_NAME:string = 'phone_call_fragment';
 
     private call_id:number;
     private start_time:number;

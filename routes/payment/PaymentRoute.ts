@@ -74,24 +74,24 @@ class PaymentRoute
     /* Validate request from caller and start a new transaction */
     private callPaymentPage(req, res:express.Response)
     {
-        var sessionData = new CallFlowSessionData(req);
+        var callFlowSessionData = new CallFlowSessionData(req);
         var self = this;
-        var user = sessionData.getUser();
-        var loggedInUserId = req.isAuthenticated() ? sessionData.getLoggedInUser().getId() : null;
+        var user = callFlowSessionData.getUser();
+        var loggedInUserId = req.isAuthenticated() ? callFlowSessionData.getLoggedInUser().getId() : null;
         var tasks = [];
 
         // Delete transaction and call if anything was changed
-        var transactionExists:boolean = !Utils.isNullOrEmpty(sessionData.getTransaction());
+        var transactionExists:boolean = !Utils.isNullOrEmpty(callFlowSessionData.getTransaction());
         if (transactionExists)
         {
-            var isExpertChanged = sessionData.getCall().getExpertUserId() != sessionData.getUser().getId();
-            var isDurationChanged = sessionData.getCall().getDuration() != sessionData.getDuration();
-            var isAgendaChanged = sessionData.getCall().getAgenda() != sessionData.getAgenda();
+            var isExpertChanged = callFlowSessionData.getCall().getExpertUserId() != callFlowSessionData.getUser().getId();
+            var isDurationChanged = callFlowSessionData.getCall().getDuration() != callFlowSessionData.getDuration();
+            var isAgendaChanged = callFlowSessionData.getCall().getAgenda() != callFlowSessionData.getAgenda();
 
             if (isExpertChanged || isDurationChanged || isAgendaChanged)
             {
-                tasks.push(self.transactionDelegate.delete(sessionData.getTransaction().getId()));
-                tasks.push(self.phoneCallDelegate.delete(sessionData.getCall().getId()));
+                tasks.push(self.transactionDelegate.delete(callFlowSessionData.getTransaction().getId()));
+                tasks.push(self.phoneCallDelegate.delete(callFlowSessionData.getCall().getId()));
             }
         }
 
@@ -99,13 +99,15 @@ class PaymentRoute
         if (!transactionExists || isExpertChanged || isDurationChanged || isAgendaChanged)
         {
             var phoneCall = new PhoneCall();
-            phoneCall.setExpertUserId(sessionData.getUser().getId());
+            phoneCall.setExpertUserId(callFlowSessionData.getUser().getId());
             phoneCall.setDelay(0);
             phoneCall.setStatus(CallStatus.PLANNING);
-            phoneCall.setDuration(sessionData.getDuration()*60);
-            phoneCall.setAgenda(sessionData.getAgenda());
-            phoneCall.setPricePerMin(new PricingScheme(user.getPricingScheme()[0]).getChargingRate());
-            phoneCall.setPriceCurrency(new PricingScheme(user.getPricingScheme()[0]).getUnit());
+            phoneCall.setDuration(callFlowSessionData.getDuration()*60);
+            phoneCall.setAgenda(callFlowSessionData.getAgenda());
+            phoneCall.setChargingRate(new PricingScheme(user.getPricingScheme()[0]).getChargingRate());
+            phoneCall.setUnit(new PricingScheme(user.getPricingScheme()[0]).getUnit());
+            phoneCall.setChunkSize(new PricingScheme(user.getPricingScheme()[0]).getChunkSize());
+            phoneCall.setMinDuration(new PricingScheme(user.getPricingScheme()[0]).getMinDuration());
             phoneCall.setCallerUserId(loggedInUserId);
 
             var transaction = new Transaction();
@@ -116,13 +118,13 @@ class PaymentRoute
                 .then(
                 function phoneCallCreated(createdCall:PhoneCall)
                 {
-                    sessionData.setCall(createdCall);
+                    callFlowSessionData.setCall(createdCall);
                     return self.transactionDelegate.createPhoneCallTransaction(transaction, createdCall);
                 })
                 .then(
                 function transactionCreated(createdTransaction:Transaction)
                 {
-                    sessionData.setTransaction(createdTransaction);
+                    callFlowSessionData.setTransaction(createdTransaction);
                     return true;
                 }));
         }
@@ -132,7 +134,7 @@ class PaymentRoute
             .then(
             function allDone(...args)
             {
-                return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, sessionData.getTransaction().getId()));
+                return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, callFlowSessionData.getTransaction().getId()));
             }).
             then(function transactionLinesFetched(lines:TransactionLine[])
             {
@@ -154,7 +156,7 @@ class PaymentRoute
                 var lines = args[0];
                 var coupon = args[1];
 
-                var pageData = _.extend(sessionData.getData(), {
+                var pageData = _.extend(callFlowSessionData.getData(), {
                     messages: req.flash(),
                     transactionLines: lines,
                     coupon: coupon

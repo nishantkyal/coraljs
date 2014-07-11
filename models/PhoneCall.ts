@@ -11,7 +11,7 @@ import MoneyUnit                                        = require('../enums/Mone
  **/
 class PhoneCall extends BaseModel
 {
-    static TABLE_NAME:string = 'call';
+    static TABLE_NAME:string                            = 'phone_call';
 
     static CALLER_USER_ID:string                        = 'caller_user_id';
     static EXPERT_USER_ID:string                        = 'expert_user_id';
@@ -20,14 +20,16 @@ class PhoneCall extends BaseModel
     static START_TIME:string                            = 'start_time';
     static DURATION:string                              = 'duration';
     static STATUS:string                                = 'status';
-    static PRICE_PER_MIN:string                         = 'price_per_min';
-    static PRICE_CURRENCY:string                        = 'price_currency';
     static AGENDA:string                                = 'agenda';
     static RECORDED:string                              = 'recorded';
     static EXTENSION:string                             = 'extension';
     static NUM_RESCHEDULES:string                       = 'num_reschedules';
     static NUM_REATTEMPTS:string                        = 'num_reattempts';
     static DELAY:string                                 = 'delay';
+    static CHARGING_RATE:string                         = 'charging_rate';
+    static UNIT:string                                  = 'unit';
+    static CHUNK_SIZE:string                            = 'chunk_size';
+    static MIN_DURATION:string                          = 'min_duration';
 
     static USER:string                                  = 'user';
     static EXPERT_USER:string                           = 'expert_user';
@@ -42,15 +44,17 @@ class PhoneCall extends BaseModel
     private expert_phone_id:number;
     private start_time:number;
     private duration:number;
-    private delay:number;
     private status:number;
-    private price_per_min:number;
-    private price_currency:MoneyUnit;
     private agenda:string;
     private recorded:boolean;
     private extension:string;
     private num_reschedules:number;
     private num_reattempts:number;
+    private delay:number;
+    private charging_rate:number;
+    private unit:MoneyUnit;
+    private chunk_size:number;                                  // Sizes of chargeable time chunks
+    private min_duration:number;                                // Min duration for the call
 
     private user:User;
     private expert_user:User;
@@ -68,12 +72,14 @@ class PhoneCall extends BaseModel
     getDelay():number                                   { return this.delay; }
     getStatus():number                                  { return this.status; }
     getAgenda():string                                  { return this.agenda; }
-    getPricePerMin():number                             { return this.price_per_min; }
-    getPriceCurrency():MoneyUnit                        { return this.price_currency; }
     getRecorded():boolean                               { return this.recorded; }
     getExtension():string                               { return this.extension; }
     getNumReschedules():number                          { return this.num_reschedules; }
     getNumReattempts():number                           { return this.num_reattempts; }
+    getChargingRate():number                            { return this.charging_rate; }
+    getUnit():MoneyUnit                                 { return this.unit; }
+    getChunkSize():number                               { return this.chunk_size; }
+    getMinDuration():number                             { return this.min_duration; }
 
     getUser():User                                      { return this.user ? new User(this.user) : null; }
     getExpertUser():User                                { return this.expert_user ? new User(this.expert_user) : null; }
@@ -90,13 +96,15 @@ class PhoneCall extends BaseModel
     setDuration(val:number):void                        { this.duration = val; }
     setDelay(val:number):void                           { this.delay = val; }
     setStatus(val:number):void                          { this.status = val; }
-    setPricePerMin(val:number)                          { this.price_per_min = val; }
-    setPriceCurrency(val:MoneyUnit)                     { this.price_currency = val; }
     setAgenda(val:string):void                          { this.agenda = val; }
     setRecorded(val:boolean):void                       { this.recorded = val; }
     setExtension(val:string):void                       { this.extension = val; }
     setNumReschedules(val:number):void                  { this.num_reschedules = val; }
     setNumReattempts(val:number):void                   { this.num_reattempts = val; }
+    setChargingRate(val:number)                         { this.charging_rate = val; }
+    setUnit(val:MoneyUnit)                              { this.unit = val; }
+    setChunkSize(val:number)                            { this.chunk_size = val; }
+    setMinDuration(val:number)                          { this.min_duration = val; }
 
     setUser(val:User):void                              { this.user = val; }
     setExpertUser(val:User):void                        { this.expert_user = val; }

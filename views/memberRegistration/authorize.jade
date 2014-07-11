@@ -15,7 +15,8 @@ include ../header
                     .item
                         form(action=MemberRegistrationUrls.authorizationDecision(), method="post")
                             input(name="transaction_id", type="hidden", value="#{transactionID}")
-                            .controls
+                            .links-editing
                                 input.btn-primary.btn.btn-block(type="submit" value="Yes, Continue" id="allow")
+                            .links-editing
                                 input.btn.btn-danger.btn-block(type="submit", value="Deny", name="cancel", id="deny")
 include ../footer

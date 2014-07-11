@@ -28,13 +28,14 @@ class TransactionLineDelegate extends BaseDaoDelegate
 
     getPhoneCallTransactionLines(call:PhoneCall, transactionId?:number):TransactionLine[]
     {
-        var callPrice = call.getPricePerMin() * call.getDuration()/60;
+        var chargeableChunks:number = Math.ceil(Math.max(call.getDuration(), call.getMinDuration())/call.getChunkSize());
+        var callPrice = call.getChargingRate() * chargeableChunks;
         var networkCharges = call.getDuration()/60 * Config.get(Config.CALL_NETWORK_CHARGES_PER_MIN_DOLLAR);
         var tax = (callPrice + networkCharges) * Config.get(Config.CALL_TAX_PERCENT) / 100;
 
         var phoneCallTransactionLine = new TransactionLine();
         phoneCallTransactionLine.setAmount(callPrice);
-        phoneCallTransactionLine.setAmountUnit(call.getPriceCurrency());
+        phoneCallTransactionLine.setAmountUnit(call.getUnit());
         phoneCallTransactionLine.setItemId(call.getId());
         phoneCallTransactionLine.setItemType(ItemType.PHONE_CALL);
         phoneCallTransactionLine.setTransactionType(TransactionType.PRODUCT);
@@ -42,14 +43,14 @@ class TransactionLineDelegate extends BaseDaoDelegate
 
         var networkChargesTransactionLine = new TransactionLine();
         networkChargesTransactionLine.setAmount(networkCharges);
-        networkChargesTransactionLine.setAmountUnit(call.getPriceCurrency());
+        networkChargesTransactionLine.setAmountUnit(call.getUnit());
         networkChargesTransactionLine.setItemType(ItemType.NETWORK_CHARGES);
         networkChargesTransactionLine.setTransactionType(TransactionType.NETWORK_CHARGES);
         networkChargesTransactionLine.setTransactionId(transactionId);
 
         var taxationTransactionLine = new TransactionLine();
         taxationTransactionLine.setAmount(tax);
-        taxationTransactionLine.setAmountUnit(call.getPriceCurrency());
+        taxationTransactionLine.setAmountUnit(call.getUnit());
         taxationTransactionLine.setItemType(ItemType.SERVICE_TAX);
         taxationTransactionLine.setTransactionType(TransactionType.TAX);
         taxationTransactionLine.setTransactionId(transactionId);
