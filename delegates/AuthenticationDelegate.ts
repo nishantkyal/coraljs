@@ -162,6 +162,8 @@ class AuthenticationDelegate
                 .then(
                 function authComplete(matchingUser:User)
                 {
+                    user.setPasswordSeed(matchingUser.getPasswordSeed());
+
                     var hashedPassword = user.getPasswordHash();
                     var reason;
 
@@ -291,6 +293,18 @@ class AuthenticationDelegate
 
         var user = new User();
         user.setEmail(profile.emailAddress); //setting email id for new user, if user exists then this will be discarded
+        user.setFirstName(profile.firstName);
+        user.setLastName(profile.lastName);
+        if (!Utils.isNullOrEmpty(profile.dateOfBirth))
+        {
+            var dob:string = profile.dateOfBirth.day + '-' + profile.dateOfBirth.month + '-' + profile.dateOfBirth.year;
+            user.setDateOfBirth(dob);
+        }
+        if (!Utils.isNullOrEmpty(profile.industry))
+        {
+            var industry:string = profile.industry.toString().replace(/-|\/|\s/g, '_').toUpperCase();
+            user.setIndustry(IndustryCodes[industry]);
+        }
 
         try
         {

@@ -63,6 +63,10 @@ $("#registration-form").bootstrapValidator({
             validators: {
                 notEmpty: {
                     message: 'This field is required and cannot be empty'
+                },
+                regexp: { // also used in usersetting.js (change password)
+                    regexp: /^(?=.*\d+)(?=.*[@#$%&*-])([a-zA-Z0-9@#$%&*-]{7,})$/,
+                    message: 'Password must have 8 or more characters, contain a digit(0-9) and a special character(@,#,$,%,&,- or *).'
                 }
             }
         },
