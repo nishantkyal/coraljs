@@ -46,7 +46,7 @@ class UserApi
         });
 
         /* Update settings */
-        app.post(ApiUrlDelegate.userById(), AuthenticationDelegate.checkLogin(), function (req:express.Request, res:express.Response)
+        app.post(ApiUrlDelegate.userById(), AuthenticationDelegate.checkLogin(), function (req, res:express.Response)
         {
             var userId:string = req.params[ApiConstants.USER_ID];
             var user:User = req.body[ApiConstants.USER];
@@ -75,14 +75,26 @@ class UserApi
                     function userUpdated(result):any
                     {
                         if (userProfile)
-                            return userProfileDelegate.update({'user_id': userId, 'locale': userProfile.getLocale()}, userProfile)
+                            return userProfileDelegate.update({'user_id': userId, 'locale': userProfile.getLocale()}, userProfile);
                         else
                             return res.json(result);
                     })
                     .then(
-                    function userProfileUpdated(result) { res.send(result); },
-                    function updateFailed(err) { res.status(500).json(err); }
-                    )
+                    function userProfileUpdated(result)
+                    {
+                        return userDelegate.get(userId);
+                    })
+                    .then(
+                    function userFetched(user)
+                    {
+                        req.logIn(user, function loggedInUserUpdated() {
+                            res.send(user);
+                        });
+                    },
+                    function updateFailed(err)
+                    {
+                        res.json(500, err);
+                    });
             }
         });
 

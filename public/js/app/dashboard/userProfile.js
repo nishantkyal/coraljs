@@ -3,7 +3,7 @@ var basicProfileCard = $('#basicProfile').card();
 $('#addSkillBtn').click(function()
 {
     $('#addSkill').show();
-    $('#basicInfo').hide();
+    $('#basicProfile').hide();
 
     $('form#AddUserSkillForm').trigger('reset');
     $('form#AddUserSkillForm').trigger('reset');
@@ -12,47 +12,35 @@ $('#addSkillBtn').click(function()
 
 $('#cancelAddUserSkill').click(function()
 {
-    $('#basicInfo').show();
+    $('#basicProfile').show();
     $('#addSkill').hide();
 });
 
-$('#basicInfo .edit-card form').bootstrapValidator({
+$('#basicProfile .edit-card form').bootstrapValidator({
     submitHandler: function()
     {
         $.ajax({
             url    : '/rest/user/' + user.id,
             type   : 'post',
-            data   : {
+            dataType: 'json',
+            contentType: 'application/json',
+            data   : JSON.stringify({
                 user: {
-                    title        : $('#basicInfo .edit-card form select[name="title"]').val(),
-                    first_name   : $('#basicInfo .edit-card form input[name="first_name"]').val(),
-                    last_name    : $('#basicInfo .edit-card form input[name="last_name"]').val(),
-                    industry     : $('#basicInfo .edit-card form select[name="industry"]').val(),
-                    timezone     : $('#basicInfo .edit-card form select[name="timezone"]').val(),
-                    date_of_birth: $('#basicInfo .edit-card form input[name="birthDate"]').val()
+                    title        : $('#basicProfile .edit-card form select[name="title"]').val(),
+                    first_name   : $('#basicProfile .edit-card form input[name="first_name"]').val(),
+                    last_name    : $('#basicProfile .edit-card form input[name="last_name"]').val(),
+                    industry     : $('#basicProfile .edit-card form select[name="industry"]').val(),
+                    timezone     : $('#basicProfile .edit-card form select[name="timezone"]').val(),
+                    date_of_birth: $('#basicProfile .edit-card form input[name="birthDate"]').val()
+                },
+                userProfile: {
+                    short_desc: $('#basicProfile .edit-card form input[name="short_desc"]').val(),
+                    long_desc : $('#basicProfile .edit-card form input[name="long_desc"]').val()
                 }
-            },
+            }),
             success: function()
             {
-                $.ajax({
-                    url    : '/rest/user/profile/' + userProfile.id,
-                    type   : 'post',
-                    data   : {
-                        userProfile: {
-                            id        : userProfile.id,
-                            short_desc: $('#basicInfo .edit-card form input[name="short_desc"]').val(),
-                            long_desc : $('#basicInfo .edit-card form input[name="long_desc"]').val()
-                        }
-                    },
-                    success: function()
-                    {
-                        location.reload();
-                    },
-                    error  : function(error)
-                    {
-                        bootbox.alert(error.responseText);
-                    }
-                })
+               location.reload();
             },
             error  : function(error)
             {
