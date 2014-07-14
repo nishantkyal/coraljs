@@ -41,6 +41,7 @@ class Config
     static API_PORT:string                              = 'Api.port';
     static ACCESS_TOKEN_EXPIRY:string                   = 'access_token.expiry';
     static PASSWORD_RESET_EXPIRY:string                 = 'password_reset.expiry';
+    static PASSWORD_SEED_LENGTH:string                  = 'password_seed.length';
     static PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS   = 'task.call_trigger.interval';                 // How often do we create scheduled tasks for triggering calls
     static CALL_REMINDER_LEAD_TIME_SECS:string          = 'call.reminder_notification.lead_time';       // Lead time for sending reminder for upcoming call
     static CALL_RETRY_DELAY_SECS:string                 = 'call.retry.delay';                           // Delay after which failed calls are retried

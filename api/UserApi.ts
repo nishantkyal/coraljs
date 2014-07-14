@@ -58,7 +58,7 @@ class UserApi
             //if password exists then we are not updating any other fields
             if (!Utils.isNullOrEmpty(password) && !Utils.isNullOrEmpty(oldPassword))
             {
-                var hashedPassword:string = user.getPasswordHash(user.getEmail(), oldPassword);
+                var hashedPassword:string = user.getPasswordHash(user.getEmail(), oldPassword, user.getPasswordSeed());
                 if (hashedPassword != user.getPassword())
                     res.send('Error in changing password. Old Password did not match').status(412);
                 else
