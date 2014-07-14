@@ -20,8 +20,8 @@ class ExpertiseApi
             var expertiseId = parseInt(req.params[ApiConstants.EXPERTISE_ID]);
             self.expertiseDelegate.update({id: expertiseId}, expertise)
                 .then(
-                function userUpdated() { res.send(200); },
-                function userUpdateError(error) { res.send(500); }
+                function userUpdated() { res.json(200); },
+                function userUpdateError(error) { res.json(500); }
             );
         });
 
@@ -33,20 +33,19 @@ class ExpertiseApi
 
             self.expertiseDelegate.create(expertise)
                 .then(
-                function userUpdated() { res.send(200); },
-                function userUpdateError(error) { res.send(500); }
+                function userUpdated() { res.json(200); },
+                function userUpdateError(error) { res.json(500); }
             );
         });
 
         app.delete(ApiUrlDelegate.expertiseById(), AuthenticationDelegate.checkLogin(), function(req:express.Request, res:express.Response)
         {
             var expertiseId = parseInt(req.params[ApiConstants.EXPERTISE_ID]);
-            var profileId:number = parseInt(req.body[ApiConstants.USER_PROFILE_ID]);
 
-            self.expertiseDelegate.delete({id:expertiseId}) // if hard deleting then add profileId:profileId
+            self.expertiseDelegate.delete(expertiseId)
                 .then(
-                function userUpdated() { res.send(200); },
-                function userUpdateError(error) { res.send(500); }
+                function userUpdated() { res.json(200); },
+                function userUpdateError(error) { res.json(500); }
             );
         });
     }

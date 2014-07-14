@@ -20,12 +20,12 @@ $('#basicProfile .edit-card form').bootstrapValidator({
     submitHandler: function()
     {
         $.ajax({
-            url    : '/rest/user/' + user.id,
-            type   : 'post',
-            dataType: 'json',
+            url        : '/rest/user/' + user.id,
+            type       : 'post',
+            dataType   : 'json',
             contentType: 'application/json',
-            data   : JSON.stringify({
-                user: {
+            data       : JSON.stringify({
+                user       : {
                     title        : $('#basicProfile .edit-card form select[name="title"]').val(),
                     first_name   : $('#basicProfile .edit-card form input[name="first_name"]').val(),
                     last_name    : $('#basicProfile .edit-card form input[name="last_name"]').val(),
@@ -38,11 +38,11 @@ $('#basicProfile .edit-card form').bootstrapValidator({
                     long_desc : $('#basicProfile .edit-card form input[name="long_desc"]').val()
                 }
             }),
-            success: function()
+            success    : function()
             {
-               location.reload();
+                location.reload();
             },
-            error  : function(error)
+            error      : function(error)
             {
                 bootbox.alert(error.responseText);
             }
@@ -194,7 +194,8 @@ $('#fetchFromLinkedin').click(function(event)
     $('form#linkedinFetch').data('bootstrapValidator').resetForm();
 });
 
-$('#cancelLinkedinFetch').click(function(event){
+$('#cancelLinkedinFetch').click(function(event)
+{
     $('#linkedinFetch').hide();
 })
 
@@ -205,16 +206,16 @@ $('form#linkedinFetch').bootstrapValidator({
         {
             if (result) {
                 var fetchFields = '';
-                if($('input[name="fetchBasic"]').is(':checked'))
-                    fetchFields +='fetchBasic:';
-                if($('input[name="fetchEducation"]').is(':checked'))
-                    fetchFields +='fetchEducation:';
-                if($('input[name="fetchEmployment"]').is(':checked'))
-                    fetchFields +='fetchEmployment:';
-                if($('input[name="fetchProfilePicture"]').is(':checked'))
-                    fetchFields +='fetchProfilePicture:';
-                if($('input[name="fetchSkill"]').is(':checked'))
-                    fetchFields +='fetchSkill:';
+                if ($('input[name="fetchBasic"]').is(':checked'))
+                    fetchFields += 'fetchBasic:';
+                if ($('input[name="fetchEducation"]').is(':checked'))
+                    fetchFields += 'fetchEducation:';
+                if ($('input[name="fetchEmployment"]').is(':checked'))
+                    fetchFields += 'fetchEmployment:';
+                if ($('input[name="fetchProfilePicture"]').is(':checked'))
+                    fetchFields += 'fetchProfilePicture:';
+                if ($('input[name="fetchSkill"]').is(':checked'))
+                    fetchFields += 'fetchSkill:';
 
                 setCookie('linkedin_fetch_fields', fetchFields);
                 setCookie('profileId', userProfile.id);
@@ -289,19 +290,24 @@ $('#expertise .edit-card form').bootstrapValidator({
             contentType: 'application/json',
             data       : JSON.stringify({
                 expertise: {
-                    session_duration: $('#expertise .edit-card form input[name=session_duration]').val(),
-                    session_price: $('#expertise .edit-card form input[name=session_price]').val(),
-                    session_price_unit: $('#expertise .edit-card form input[name=session_price_unit]').val(),
-                    title: $('#expertise .edit-card form input[name=title]').val(),
-                    description: $('#expertise .edit-card form input[name=description]').val(),
+                    session_duration   : $('#expertise .edit-card form input[name=session_duration]').val(),
+                    session_price      : $('#expertise .edit-card form input[name=session_price]').val(),
+                    session_price_unit : $('#expertise .edit-card form input[name=session_price_unit]').val(),
+                    title              : $('#expertise .edit-card form input[name=title]').val(),
+                    description        : $('#expertise .edit-card form input[name=description]').val(),
                     years_of_experience: $('#expertise .edit-card form input[name=years_of_experience]').val()
                 }
             }),
             success    : function()
             {
                 location.reload();
+            },
+            error      : function(jqXHR)
+            {
+                bootbox.alert(jqXHR.responseText);
             }
-        })
+        });
+
     }
 });
 
@@ -315,6 +321,25 @@ $('.editExpertiseBtn').click(function()
     expertiseCard.edit(expertise, this)
 });
 
+$('.deleteExpertiseBtn').click(function()
+{
+    var expertiseId = $('#expertise .edit-card form input[name=id]').val();
+    var expertiseUrl = expertiseId ? '/rest/user/expertise/' + expertiseId : '/rest/user/expertise';
+    $.ajax({
+        url        : expertiseUrl,
+        method     : 'delete',
+        dataType   : 'json',
+        contentType: 'application/json',
+        success    : function()
+        {
+            location.reload();
+        },
+        error      : function(jqXHR)
+        {
+            bootbox.alert(jqXHR.responseText);
+        }
+    });
+});
 
 $('#sessionToggle input').change(function()
 {
