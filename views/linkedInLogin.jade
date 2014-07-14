@@ -10,5 +10,8 @@ script.
         form.submit();
     }
     $('#linkedInLoginButton').click(function(){
-        IN.User.authorize(linkedInLogin);
+        if (IN)
+            IN.User.authorize(linkedInLogin);
+        else
+            bootbox.alert("An error occurred while connecting to linkedin :\(");
     });
