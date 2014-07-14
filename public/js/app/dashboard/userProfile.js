@@ -3,7 +3,7 @@ var basicProfileCard = $('#basicProfile').card();
 $('#addSkillBtn').click(function()
 {
     $('#addSkill').show();
-    $('#basicInfo').hide();
+    $('#basicProfile').hide();
 
     $('form#AddUserSkillForm').trigger('reset');
     $('form#AddUserSkillForm').trigger('reset');
@@ -12,47 +12,35 @@ $('#addSkillBtn').click(function()
 
 $('#cancelAddUserSkill').click(function()
 {
-    $('#basicInfo').show();
+    $('#basicProfile').show();
     $('#addSkill').hide();
 });
 
-$('#basicInfo .edit-card form').bootstrapValidator({
+$('#basicProfile .edit-card form').bootstrapValidator({
     submitHandler: function()
     {
         $.ajax({
             url    : '/rest/user/' + user.id,
             type   : 'post',
-            data   : {
+            dataType: 'json',
+            contentType: 'application/json',
+            data   : JSON.stringify({
                 user: {
-                    title        : $('#basicInfo .edit-card form select[name="title"]').val(),
-                    first_name   : $('#basicInfo .edit-card form input[name="first_name"]').val(),
-                    last_name    : $('#basicInfo .edit-card form input[name="last_name"]').val(),
-                    industry     : $('#basicInfo .edit-card form select[name="industry"]').val(),
-                    timezone     : $('#basicInfo .edit-card form select[name="timezone"]').val(),
-                    date_of_birth: $('#basicInfo .edit-card form input[name="birthDate"]').val()
+                    title        : $('#basicProfile .edit-card form select[name="title"]').val(),
+                    first_name   : $('#basicProfile .edit-card form input[name="first_name"]').val(),
+                    last_name    : $('#basicProfile .edit-card form input[name="last_name"]').val(),
+                    industry     : $('#basicProfile .edit-card form select[name="industry"]').val(),
+                    timezone     : $('#basicProfile .edit-card form select[name="timezone"]').val(),
+                    date_of_birth: $('#basicProfile .edit-card form input[name="birthDate"]').val()
+                },
+                userProfile: {
+                    short_desc: $('#basicProfile .edit-card form input[name="short_desc"]').val(),
+                    long_desc : $('#basicProfile .edit-card form input[name="long_desc"]').val()
                 }
-            },
+            }),
             success: function()
             {
-                $.ajax({
-                    url    : '/rest/user/profile/' + userProfile.id,
-                    type   : 'post',
-                    data   : {
-                        userProfile: {
-                            id        : userProfile.id,
-                            short_desc: $('#basicInfo .edit-card form input[name="short_desc"]').val(),
-                            long_desc : $('#basicInfo .edit-card form input[name="long_desc"]').val()
-                        }
-                    },
-                    success: function()
-                    {
-                        location.reload();
-                    },
-                    error  : function(error)
-                    {
-                        bootbox.alert(error.responseText);
-                    }
-                })
+               location.reload();
             },
             error  : function(error)
             {
@@ -181,9 +169,9 @@ $('form#AddUserSkillForm').bootstrapValidator({
     }
 });
 
-$('[name="deleteUserSkill"]').click(function()
+$('.deleteUserSkill').click(function()
 {
-    var skillId = $(this).attr('data-id');
+    var skillId = $(this).data('id');
     $.ajax({
         url    : '/rest/user/skill/' + skillId,
         type   : 'DELETE',
@@ -237,11 +225,12 @@ $('form#linkedinFetch').bootstrapValidator({
     }
 });
 
-$('form#expertiseDetails').bootstrapValidator({
+var expertiseCard = $('#expertise').card();
+$('#expertise .edit-card form').bootstrapValidator({
     fields       : {
         'title'            : {
             validators: {
-                required: { message: 'This field is required'}
+                notEmpty: { message: 'This field is required'}
             }
         },
         session_price      : {
@@ -253,7 +242,7 @@ $('form#expertiseDetails').bootstrapValidator({
                     message : 'This field is required to define a session',
                     callback: function(val)
                     {
-                        if ($('form#expertiseDetails input[name=session_toggle]:checked').val() == '1')
+                        if ($('#expertise .edit-card form input[name=session_toggle]:checked').val() == '1')
                             return val && parseFloat(val) > 0;
                         return true;
                     }
@@ -269,7 +258,7 @@ $('form#expertiseDetails').bootstrapValidator({
                     message : 'This field is required to define a session',
                     callback: function(val)
                     {
-                        if ($('form#expertiseDetails input[name=session_toggle]:checked').val() == '1')
+                        if ($('#expertise .edit-card form input[name=session_toggle]:checked').val() == '1')
                             return val && parseFloat(val) > 0;
                         return true;
                     }
@@ -278,18 +267,18 @@ $('form#expertiseDetails').bootstrapValidator({
         },
         description        : {
             validators: {
-                required: { message: 'This field is required'}
+                notEmpty: { message: 'This field is required'}
             }
         },
         years_of_experience: {
             validators: {
-                digits: { message: 'This field is required'}
+                digits: { message: 'Please enter a valid number'}
             }
         }
     },
     submitHandler: function()
     {
-        var expertiseId = '';
+        var expertiseId = $('#expertise .edit-card form input[name=id]').val();
         var method = expertiseId ? 'post' : 'put';
         var expertiseUrl = expertiseId ? '/rest/user/expertise/' + expertiseId : '/rest/user/expertise';
 
@@ -300,12 +289,12 @@ $('form#expertiseDetails').bootstrapValidator({
             contentType: 'application/json',
             data       : JSON.stringify({
                 expertise: {
-                    session_duration: $('form#expertiseDetails input[name=session_duration]').val(),
-                    session_price: $('form#expertiseDetails input[name=session_price]').val(),
-                    session_price_unit: $('form#expertiseDetails input[name=session_price_unit]').val(),
-                    title: $('form#expertiseDetails input[name=title]').val(),
-                    description: $('form#expertiseDetails input[name=description]').val(),
-                    years_of_experience: $('form#expertiseDetails input[name=years_of_experience]').val()
+                    session_duration: $('#expertise .edit-card form input[name=session_duration]').val(),
+                    session_price: $('#expertise .edit-card form input[name=session_price]').val(),
+                    session_price_unit: $('#expertise .edit-card form input[name=session_price_unit]').val(),
+                    title: $('#expertise .edit-card form input[name=title]').val(),
+                    description: $('#expertise .edit-card form input[name=description]').val(),
+                    years_of_experience: $('#expertise .edit-card form input[name=years_of_experience]').val()
                 }
             }),
             success    : function()
@@ -316,32 +305,19 @@ $('form#expertiseDetails').bootstrapValidator({
     }
 });
 
-$('#addExpertiseBtn').click(function()
+$('#addExpertiseBtn').click(expertiseCard.create);
+$('.editExpertiseBtn').click(function()
 {
-    $('form#expertiseDetails').trigger('reset');
-    $('form#expertiseDetails').data('bootstrapValidator').resetForm();
+    var expertiseId = $(this).data('id');
+    var expertise = _.findWhere(userExpertise, {id: expertiseId});
 
-    $('#expertiseDetails').show();
+    populate($('#expertise .edit-card form'), expertise);
+    expertiseCard.edit(expertise, this)
 });
 
-$('#editExpertiseBtn').click(function()
-{
-    var expertiseId = '';
-    var expertise = _.findWhere(expertiseList, {id: expertiseId});
-
-    populateForm($('form#userExpertise'), expertise);
-    $('form#expertiseDetails').data('bootstrapValidator').resetForm();
-
-    $('#expertiseDetails').show();
-});
-
-$('#cancelExpertiseDetails').click(function()
-{
-    $('#expertiseDetails').hide();
-});
 
 $('#sessionToggle input').change(function()
 {
     $('#expertiseDetails #pricing').toggle($('#sessionToggle input[name=pricing_scheme_id]:checked').val() != '0');
-    $('form#expertiseDetails').data('bootstrapValidator').validate();
+    $('#expertise .edit-card form').data('bootstrapValidator').validate();
 });

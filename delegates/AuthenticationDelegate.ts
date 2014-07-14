@@ -120,9 +120,7 @@ class AuthenticationDelegate
                 return res.json(200, {valid: isLoggedIn});
 
             if (isLoggedIn)
-                if (isAjax)
-                    return res.json(200, {valid: isLoggedIn});
-                else if (options.successRedirect)
+                if (options.successRedirect && !isAjax)
                     res.redirect(options.successRedirect);
                 else
                     next();

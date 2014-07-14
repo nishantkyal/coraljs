@@ -1,6 +1,6 @@
 include ../header
 include dashboardHeader
-title SNT-#{formatName(user.first_name, user.last_name)} | Profile
+title ST-#{formatName(user.first_name, user.last_name)}
 .matter
     .container
         .row
@@ -59,86 +59,8 @@ title SNT-#{formatName(user.first_name, user.last_name)} | Profile
                             .links-editing
                                 p Fetch From LinkedIn
                                     input.btn.btn-primary(type='submit', value='Fetch')
-                .row
-                    for expertise in userExpertise
-                        div.card
-                            div.item
-                                div.row
-                                    h5.col-xs-8= expertise.title
-                                    div.header-link.col-xs-4
-                                        a.btn.btn-primary#editExpertiseBtn
-                                            i.icon-pencil
-                                div.session-and-ratings
-                                    if expertise.session_duration
-                                        div.badge.badge-session.session-info
-                                            h2 Session
-                                            h1= expertise.session_duration
-                                                | &nbsp;mins.
-                                    div.clearer
-                                div.image-and-video
-                                    div.video-container
-                                    div.shadow
-                                div.meta.meta-keywords
-                                    h5 Skills/Keywords
-                                    ul
-                                        li Social Policy
-                                        li Consulting
-                                        li Learning
-                                div.summary-and-description
-                                    p= expertise.description
-                                div.meta.meta-keywords
-                                    h5 Experience
-                                    h1= expertise.years_of_experience
-                                        | &nbsp;yrs.
-                form.card#expertiseDetails(style='display: none;')
-                    .item
-                        .item-edit
-                            .row
-                                .inputs.col-xs-8
-                                    .input-group
-                                        input.form-control(type='text', placeholder='Expertise Title', name='title')
-                                .header-link.col-xs-4
-                                    a.btn.btn-danger#cancelExpertiseDetails
-                                        i.icon-trash
-                            div
-                                div#sessionToggle
-                                    h3 Session:
-                                    .btn-group(data-toggle='buttons')
-                                        label.btn.btn-radio.active
-                                            input(type='radio', name='session_toggle', value='1')
-                                            | Yes
-                                        label.btn.btn-radio
-                                            input(type='radio', name='session_toggle', value='0')
-                                            | No
-                                div#pricing
-                                    h3 Pricing:
-                                    .form-group
-                                        .row
-                                            .col-md-2
-                                                input.form-control(type='text', name='session_pricing', placeholder='0 = Free')
-                                            .col-md-2
-                                                select.form-control(name='session_price_unit')
-                                                    option $
-                                            .col-md-1 for
-                                            .col-md-3
-                                                .input-group
-                                                    input.form-control(type='text', name='session_duration', placeholder='Session length')
-                                                    .input-group-addon
-                                                        span mins.
-                                .clearer
-                                h3 Skills/Keywords:
-                                .form-group
-                                    input.form-control(type='text')
-                                h3 Description:
-                                .form-group
-                                    textarea.form-control(name='description', rows='4')
-                                h3 Years of experience:
-                                .form-group
-                                    input.form-control(name='years_of_experience', type='text')
-                    .links-edit
-                        p
-                            | Editing Expertise
-                            input.btn.btn-primary.done-editing-schedules(type='submit', value='Save')
+                .row#expertise
+                    include cards/ExpertiseCard
                 .row
                     .content.col-md-6
                         #userEducation

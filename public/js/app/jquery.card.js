@@ -31,7 +31,10 @@ $.fn.card = function(options)
 
         // Hide main card and show edit card
         if (clickedElement)
+        {
             $(clickedElement).closest('.main-card').hide();
+            $('.edit-card', self).detach().insertAfter($(clickedElement).closest('.main-card'));
+        }
         else
             $('.main-card', self).hide();
         $('.edit-card', self).show();

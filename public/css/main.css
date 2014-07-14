@@ -1388,7 +1388,6 @@ hr {
   background: #3A519C;
   color: #FFFFFF;
   font-weight: bold;
-  width: 100%;
 }
 .btn-facebook:hover,
 .btn-facebook:active,
@@ -1401,7 +1400,6 @@ hr {
   background: #00639D;
   color: #FFFFFF;
   font-weight: bold;
-  width: 100%;
 }
 .btn-linkedin:hover,
 .btn-linkedin:active,
@@ -2966,7 +2964,7 @@ hr {
 .card .meta.meta-schedule ul li {
   display: inline-block;
   padding: 0px 5px;
-  margin: 0px 1px 0px 0px;
+  margin: 0px 5px 5px 0px;
   line-height: 20px;
   background: rgba(75, 93, 94, 0.6);
   color: #ffffff;
