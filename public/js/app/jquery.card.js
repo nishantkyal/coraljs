@@ -29,18 +29,12 @@ $.fn.card = function(options)
     {
         populate($('.edit-card form', self), selectedObject);
 
-        // Clear the edit form if any of all values and warnings
-        if ($('.edit-card form', self) && options.clearForm) {
-            $('.edit-card form', self).trigger('reset');
-            $('.edit-card form .alert', self).hide();
-            try {
-                $('.edit-card form', self).data('bootstrapValidator').resetForm();
-            } catch (e) {}
-        }
-
         // Hide main card and show edit card
         if (clickedElement)
+        {
             $(clickedElement).closest('.main-card').hide();
+            $('.edit-card', self).detach().insertAfter($(clickedElement).closest('.main-card'));
+        }
         else
             $('.main-card', self).hide();
         $('.edit-card', self).show();

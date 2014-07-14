@@ -1,0 +1,83 @@
+for expertise in userExpertise
+    .card.main-card
+        .item
+            .row
+                h5.col-xs-8= expertise.title
+                if isEditable
+                    .header-link.col-xs-4
+                        a.btn.btn-primary(data-id=expertise.id).editExpertiseBtn
+                            i.icon-pencil
+            .session-and-ratings
+                if expertise.session_duration
+                    .badge.badge-session.session-info
+                        h2 Session
+                        h1= expertise.session_duration
+                            | &nbsp;mins.
+                .clearer
+            .image-and-video
+                .video-container
+                .shadow
+            .meta.meta-keywords
+                h5 Skills/Keywords
+                ul
+                    li Social Policy
+                    li Consulting
+                    li Learning
+            .summary-and-description
+                p= expertise.description
+            .meta.meta-keywords
+                h5 Experience
+                h1= expertise.years_of_experience
+                    | &nbsp;yrs.
+if isEditable
+    .card.edit-card
+        form
+            .item
+                .item-edit
+                    .row
+                        .inputs.col-xs-8
+                            .input-group
+                                input.form-control(type='text', placeholder='Expertise Title', name='title')
+                        .header-link.col-xs-4
+                            a.btn.btn-danger.cancelEditCardBtn
+                                i.icon-trash
+                    div
+                        div#sessionToggle
+                            h3 Session:
+                            .btn-group(data-toggle='buttons')
+                                label.btn.btn-radio.active
+                                    input(type='radio', name='session_toggle', value='1')
+                                    | Yes
+                                label.btn.btn-radio
+                                    input(type='radio', name='session_toggle', value='0')
+                                    | No
+                        div#pricing
+                            h3 Pricing:
+                            .form-group
+                                .row
+                                    .col-md-2
+                                        input.form-control(type='text', name='session_pricing', placeholder='0 = Free')
+                                    .col-md-2
+                                        select.form-control(name='session_price_unit')
+                                            option $
+                                    .col-md-1 for
+                                    .col-md-3
+                                        .input-group
+                                            input.form-control(type='text', name='session_duration', placeholder='Session length')
+                                            .input-group-addon
+                                                span mins.
+                        .clearer
+                        h3 Skills/Keywords:
+                        .form-group
+                            input.form-control(type='text')
+                        h3 Description:
+                        .form-group
+                            textarea.form-control(name='description', rows='4')
+                        h3 Years of experience:
+                        .form-group
+                            input.form-control(name='years_of_experience', type='text')
+            .links-edit
+                p
+                    | Editing Expertise
+                    input(type='hidden', name='id')
+                    input.btn.btn-primary.done-editing-schedules(type='submit', value='Save')

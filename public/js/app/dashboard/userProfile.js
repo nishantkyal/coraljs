@@ -225,11 +225,12 @@ $('form#linkedinFetch').bootstrapValidator({
     }
 });
 
-$('form#expertiseDetails').bootstrapValidator({
+var expertiseCard = $('#expertise').card();
+$('#expertise .edit-card form').bootstrapValidator({
     fields       : {
         'title'            : {
             validators: {
-                required: { message: 'This field is required'}
+                notEmpty: { message: 'This field is required'}
             }
         },
         session_price      : {
@@ -241,7 +242,7 @@ $('form#expertiseDetails').bootstrapValidator({
                     message : 'This field is required to define a session',
                     callback: function(val)
                     {
-                        if ($('form#expertiseDetails input[name=session_toggle]:checked').val() == '1')
+                        if ($('#expertise .edit-card form input[name=session_toggle]:checked').val() == '1')
                             return val && parseFloat(val) > 0;
                         return true;
                     }
@@ -257,7 +258,7 @@ $('form#expertiseDetails').bootstrapValidator({
                     message : 'This field is required to define a session',
                     callback: function(val)
                     {
-                        if ($('form#expertiseDetails input[name=session_toggle]:checked').val() == '1')
+                        if ($('#expertise .edit-card form input[name=session_toggle]:checked').val() == '1')
                             return val && parseFloat(val) > 0;
                         return true;
                     }
@@ -266,18 +267,18 @@ $('form#expertiseDetails').bootstrapValidator({
         },
         description        : {
             validators: {
-                required: { message: 'This field is required'}
+                notEmpty: { message: 'This field is required'}
             }
         },
         years_of_experience: {
             validators: {
-                digits: { message: 'This field is required'}
+                digits: { message: 'Please enter a valid number'}
             }
         }
     },
     submitHandler: function()
     {
-        var expertiseId = '';
+        var expertiseId = $('#expertise .edit-card form input[name=id]').val();
         var method = expertiseId ? 'post' : 'put';
         var expertiseUrl = expertiseId ? '/rest/user/expertise/' + expertiseId : '/rest/user/expertise';
 
@@ -288,12 +289,12 @@ $('form#expertiseDetails').bootstrapValidator({
             contentType: 'application/json',
             data       : JSON.stringify({
                 expertise: {
-                    session_duration: $('form#expertiseDetails input[name=session_duration]').val(),
-                    session_price: $('form#expertiseDetails input[name=session_price]').val(),
-                    session_price_unit: $('form#expertiseDetails input[name=session_price_unit]').val(),
-                    title: $('form#expertiseDetails input[name=title]').val(),
-                    description: $('form#expertiseDetails input[name=description]').val(),
-                    years_of_experience: $('form#expertiseDetails input[name=years_of_experience]').val()
+                    session_duration: $('#expertise .edit-card form input[name=session_duration]').val(),
+                    session_price: $('#expertise .edit-card form input[name=session_price]').val(),
+                    session_price_unit: $('#expertise .edit-card form input[name=session_price_unit]').val(),
+                    title: $('#expertise .edit-card form input[name=title]').val(),
+                    description: $('#expertise .edit-card form input[name=description]').val(),
+                    years_of_experience: $('#expertise .edit-card form input[name=years_of_experience]').val()
                 }
             }),
             success    : function()
@@ -304,32 +305,19 @@ $('form#expertiseDetails').bootstrapValidator({
     }
 });
 
-$('#addExpertiseBtn').click(function()
+$('#addExpertiseBtn').click(expertiseCard.create);
+$('.editExpertiseBtn').click(function()
 {
-    $('form#expertiseDetails').trigger('reset');
-    $('form#expertiseDetails').data('bootstrapValidator').resetForm();
+    var expertiseId = $(this).data('id');
+    var expertise = _.findWhere(userExpertise, {id: expertiseId});
 
-    $('#expertiseDetails').show();
+    populate($('#expertise .edit-card form'), expertise);
+    expertiseCard.edit(expertise, this)
 });
 
-$('#editExpertiseBtn').click(function()
-{
-    var expertiseId = '';
-    var expertise = _.findWhere(expertiseList, {id: expertiseId});
-
-    populateForm($('form#userExpertise'), expertise);
-    $('form#expertiseDetails').data('bootstrapValidator').resetForm();
-
-    $('#expertiseDetails').show();
-});
-
-$('#cancelExpertiseDetails').click(function()
-{
-    $('#expertiseDetails').hide();
-});
 
 $('#sessionToggle input').change(function()
 {
     $('#expertiseDetails #pricing').toggle($('#sessionToggle input[name=pricing_scheme_id]:checked').val() != '0');
-    $('form#expertiseDetails').data('bootstrapValidator').validate();
+    $('#expertise .edit-card form').data('bootstrapValidator').validate();
 });
