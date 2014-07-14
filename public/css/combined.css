@@ -9913,3 +9913,14 @@ hr {
     line-height: 28px;
     margin-left: 5px;
 }
+
+.code
+{
+    display: block;
+    background: #eee;
+    margin: 10px;
+    padding: 10px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}

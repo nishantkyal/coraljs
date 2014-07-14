@@ -1,5 +1,3 @@
-var currentTheme = 'dark';
-var currentSize = 'tall';
 var expertId = loggedInUser ? loggedInUser.id : null;
 
 var WIDGET_SIZES = {
@@ -8,36 +6,21 @@ var WIDGET_SIZES = {
     'tall': {width: 160, height: 392}
 };
 
-$('[name="theme"]').on('change', function() {
-    currentTheme = $('select[name="theme"]').val();
-    insertIframe(currentTheme, currentSize, expertId);
-});
+$('input,select').on('change', updateWidget);
 
-$('[name="size"]').on('change', function() {
-    currentSize = $('select[name="size"]').val();
-    insertIframe(currentTheme, currentSize, expertId);
-});
-
-$('[name="expertId"]').on('change', function() {
+function updateWidget() {
+    var theme = $('select[name="theme"]').val();
+    var size = $('select[name="size"]').val();
     expertId = $('input[name="expertId"]').val();
-    $('#helpText').hide();
-    insertIframe(currentTheme, currentSize, expertId);
-});
 
-function insertIframe(widgetTheme, widgetSize,expertId){
-    $('#embedCode').show();
+    var widgetUrl = widgetBaseUrl + '/widget?size=' + size + '&theme=' + theme + '&userId=' + expertId;
+    var iframeCode = '<iframe scrolling="no" style="overflow: hidden" style="border: none;" class="snt-expert-iframe" src=' + widgetUrl  + ' width=' + WIDGET_SIZES[size].width +
+        ' height=' + WIDGET_SIZES[size].height  + '></iframe>';
 
-    var widgetUrl = widgetBaseUrl + '/widget?size=' + widgetSize + '&theme=' + widgetTheme + '&userId=' + expertId;
-    var embedCode = '<iframe scrolling="no" style="overflow: hidden" style="border: none;" class="snt-expert-iframe" src=' + widgetUrl  + ' width=' + WIDGET_SIZES[widgetSize].width +
-        ' height=' + WIDGET_SIZES[widgetSize].height  + '></iframe>';
-
-    $('#iframeContent').empty();
-    $('#iframeContent').append(embedCode);
-    $('[name="embedCodeText"]').val(embedCode);
+    $('#widgetEmbedCode').text('<div class="snt-expert" data-id="' + expertId + '" data-theme="' + theme + '" data-size="' + size + '"></div>');
+    $('#iframeContent').html(iframeCode);
 }
-
 $(document).ready(function() {
-    $('#embedCode').hide();
     if (expertId)
-        insertIframe(currentTheme, currentSize, expertId);
+        updateWidget();
 });

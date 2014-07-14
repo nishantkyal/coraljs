@@ -6,36 +6,45 @@ title Widget Creator
         .row
             .content
                 .card
-                    .item
-                        .row
-                            h5.col-xs-8 Create Widget
-                            .header-link.col-xs-4
-                    .item-edit
-                        .row
-                            .col-md-4
-                                h3 Theme
-                                .form-group
-                                    select.form-control(name='theme')
-                                        option(value='dark') Dark
-                                        option(value='light') Light
-                                h3 Size
-                                .form-group
-                                    select.form-control(name='size')
-                                        option(value='tiny') Tiny
-                                        option(value='small') Small
-                                        option(value='tall') Tall
-                                h3 Expert Id
-                                .form-group
-                                    if loggedInUser
-                                        input.form-control(name = 'expertId', value=loggedInUser.id)
-                                    else
-                                        input.form-control(name = 'expertId')
-                                h3 Embed Code
-                                .form-group#embedCode
-                                    textarea.form-control(name='embedCodeText', readonly, rows='5')
-                            .col-md-2
-                            .col-md-6
-                                #iframeContent
+                    .row
+                        .col-md-3
+                            .item
+                                .row
+                                    h5 Settings
+                            .item-edit
+                                .row
+                                    h3 Theme
+                                    .form-group
+                                        select.form-control(name='theme')
+                                            option(value='dark') Dark
+                                            option(value='light') Light
+                                    h3 Size
+                                    .form-group
+                                        select.form-control(name='size')
+                                            option(value='tiny') Tiny
+                                            option(value='small') Small
+                                            option(value='tall') Tall
+                                    h3 Expert Id
+                                    .form-group
+                                        input.form-control(name='expertId', value=loggedInUser ? loggedInUser.id : null)
+                        .col-md-5
+                            .item
+                                .row
+                                    h5 Instructions
+                            .item
+                                .row
+                                    h3 1. Include this code once on your page (ideally just after opening <body> tag)
+                                    p.code &lt;script src=&quot;//searchntalk.com/js/embed.js&quot; type=&quot;text/javascript&quot;/&gt;
+                            .item
+                                .row
+                                    h3 2. Place this code wherever you want to display the expert widget
+                                    p.code#widgetEmbedCode
+                        .col-md-2
+                            .item
+                                .row
+                                    h5 Preview
+                            #iframeContent
+
 include ../footer
 script.
     var widgetBaseUrl = '!{Config.get(Config.DASHBOARD_URI)}';
