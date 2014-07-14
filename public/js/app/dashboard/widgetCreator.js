@@ -27,8 +27,8 @@ $('[name="expertId"]').on('change', function() {
 function insertIframe(widgetTheme, widgetSize,expertId){
     $('#embedCode').show();
 
-    var widgetUrl = 'https://localhost:3334/widget?size=' + widgetSize + '&theme=' + widgetTheme + '&userId=' + expertId;
-    var embedCode = '<iframe style="border: none;" class="snt-expert-iframe" src=' + widgetUrl  + ' width=' + WIDGET_SIZES[widgetSize].width +
+    var widgetUrl = widgetBaseUrl + '/widget?size=' + widgetSize + '&theme=' + widgetTheme + '&userId=' + expertId;
+    var embedCode = '<iframe scrolling="no" style="overflow: hidden" style="border: none;" class="snt-expert-iframe" src=' + widgetUrl  + ' width=' + WIDGET_SIZES[widgetSize].width +
         ' height=' + WIDGET_SIZES[widgetSize].height  + '></iframe>';
 
     $('#iframeContent').empty();

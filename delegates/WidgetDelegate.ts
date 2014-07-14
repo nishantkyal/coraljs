@@ -108,6 +108,7 @@ class WidgetDelegate
 
         widgetSettings = widgetSettings || {};
         widgetSettings['googleAnalyticsTrackingId'] = Credentials.get(Credentials.GOOGLE_ANALYTICS_TRACKING_ID);
+        widgetSettings['widget_cdn_base_url'] = Config.get(Config.WIDGET_CDN_BASE_URI);
 
         try
         {

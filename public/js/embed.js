@@ -80,7 +80,7 @@
                 var widgetUrl = '//searchntalk.com/widget/' + widgetId + '?size=' + widgetSize + '&theme=' + widgetTheme;
 
                 if (widgetId)
-                    jQuery(widgetTag).append('<iframe style="border: none;" class="snt-expert-iframe" src="' + widgetUrl + '" width="' + WIDGET_SIZES[widgetSize].width + '" height="' + WIDGET_SIZES[widgetSize].height + '"></iframe>');
+                    jQuery(widgetTag).append('<iframe scrolling="no" style="overflow: hidden" style="border: none;" class="snt-expert-iframe" src="' + widgetUrl + '" width="' + WIDGET_SIZES[widgetSize].width + '" height="' + WIDGET_SIZES[widgetSize].height + '"></iframe>');
             }
 
             /*var jsonp_url = "//searchntalk.com/widget/" + widgetId + "?size=" + widgetSize + "callback=?";

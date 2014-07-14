@@ -19,8 +19,8 @@ class WidgetApi
         app.get(ApiUrlDelegate.widget(), function (req:express.Request, res:express.Response)
         {
             var self = this;
-            var theme:string = req.query[ApiConstants.THEME];
-            var size:string = req.query[ApiConstants.SIZE];
+            var theme:string = req.query[ApiConstants.THEME] || 'light';
+            var size:string = req.query[ApiConstants.SIZE] || 'small';
             var userId:number = parseInt(req.query[ApiConstants.USER_ID]);
 
             // TODO: Handle caching of response sent by this endpoint
