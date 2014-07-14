@@ -3,40 +3,35 @@ include ../header
 .matter
     .container
         .row
-            .col-md-12.col-lg-12.col-xs-9.col-sm-9.content
+            .col-md-12.col-lg-12.col-xs-12.col-sm-12.content
                 .card
                     include ../errorMessage
                     .alert.alert-success
                         strong Expert account successfully created!
-                    .row-fluid
-                        h1 Just one more step!
-                        h2 Please verify your mobile number
+                        p Just one more step! We need to verify your mobile number
                         em.small This number will be used to connect the users to you for calls that you accept to receive
-                    .row-fluid
-                        form#sendCode(action=ApiUrlDelegate.mobileVerificationCode(), method='post')
-                            .form-group
-                                .row.registration-information
-                                    .col-sm-6.first-column
+                    form(action=ApiUrlDelegate.mobileVerificationCode(), method='post')
+                        .item-edit
+                            .item
+                                .row
+                                    h3 Mobile Number
+                                    .form-group
                                         .row
-                                            .hidden-xs.hidden-sm.hidden-md.col-xs-12.col-sm-4.col-md-4.col-lg-4
-                                                span.annotation Mobile Number :
-                                            .col-xs-12.col-sm-12.col-md-12.col-lg-8
-                                                .form-group
-                                                    .row
-                                                        .col-xs-4
-                                                            select.form-control#countryCode
-                                                                option(value='91') India(+91)
-                                                                option(value='1') USA (+1)
-                                                                option(value='65') Singapore (+65)
-                                                        .col-xs-8
-                                                            input.form-control#phoneNumber(type='text', placeholder='Phone Number')
-                            .form-group
-                                input.btn.btn-primary.form-control(type='submit', value='Send verification code', name='sendCode')
-                        form#verifyCode(style='display: none;')
-                            .form-group
-                                label Verification code
-                                input(type='text').form-control#verificationCode
-                            .form-group
-                                input.btn.btn-primary.form-control(type='submit', value='Verify', name='verify')
+                                            .col-xs-5
+                                                select.form-control
+                                                    for name,abb in CountryName
+                                                        - var code = CountryCode[abb];
+                                                        option(value=code)= name + ' (+' + code + ')'
+                                            .col-xs-7
+                                                input.form-control#phoneNumber(type='text', placeholder='Phone Number')
+                                    div.links-editing
+                                        .edit-schedules
+                                            input.btn.btn-primary.form-control(type='submit', value='Send verification code', name='sendCode')
+                    form#verifyCode(style='display: none;')
+                        .form-group
+                            label Verification code
+                            input(type='text').form-control#verificationCode
+                        .form-group
+                            input.btn.btn-primary.form-control(type='submit', value='Verify', name='verify')
 script(src='/js/app/dashboard/mobileVerification.js')
 include ../footer
