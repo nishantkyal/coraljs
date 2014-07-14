@@ -10,7 +10,7 @@ script.
         form.submit();
     }
     $('#linkedInLoginButton').click(function(){
-        if (IN)
+        if (window.IN)
             IN.User.authorize(linkedInLogin);
         else
             bootbox.alert("An error occurred while connecting to linkedin :\(");
