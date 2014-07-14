@@ -726,4 +726,9 @@
     <changeSet author="Nishant (generated)" id="1404972481519-2">
         <dropTable tableName="widget"/>
     </changeSet>
+    <changeSet author="Ankit (generated)" id="1405324398644-1">
+        <addColumn tableName="user">
+            <column name="password_seed" type="VARCHAR(45)"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>
