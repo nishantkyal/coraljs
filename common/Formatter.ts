@@ -97,6 +97,8 @@ class Formatter
 
     static getNameInitials(firstName:string = ' ', lastName:string = ' '):string
     {
+        firstName = firstName || ' ';
+        lastName = lastName || ' ';
         return (firstName[0] + lastName[0]).toUpperCase();
     }
 

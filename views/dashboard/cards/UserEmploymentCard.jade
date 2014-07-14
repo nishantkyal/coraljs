@@ -30,7 +30,7 @@
                         | - #{formatDate(emp.end_date, 'MM-YYYY')}
                         br
                     if emp.summary
-                        | #{emp.summary}
+                        p.empSummary #{emp.summary}
     else
         .alert.alert-warning
             p No workplaces added yet

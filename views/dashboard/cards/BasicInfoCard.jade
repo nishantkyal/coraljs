@@ -16,7 +16,7 @@
                 .info-upper
                     .user-displayname= formatName(user.first_name, user.last_name, user.title)
                     if user.date_of_birth
-                        .user-age= moment(parseInt(user.date_of_birth)).fromNow(true)
+                        .user-age= moment(user.date_of_birth,'DD-MM-YYYY').fromNow(true)
                 .info-lower
                     .user-locale New Delhi
                     .user-timezone
@@ -85,7 +85,7 @@ if isEditable
                                     option(value="#{option}", selected = ('#{loggedInUser.industry}' == '#{option}')) #{key}
                         .form-group
                             h3 Birthday
-                            input.form-control(type='text', class="datepicker" value = loggedInUser.date_of_birth, name= "birthDate")
+                            input.form-control(type='text', class="datepicker" value = loggedInUser.date_of_birth, name= "birthDate",data-date-format="DD-MM-YYYY")
                         .form-group
                             h3 TimeZone
                             select.form-control(name='timezone')

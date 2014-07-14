@@ -1,5 +1,7 @@
 var userEmploymentCard = $('#userEmployment').card();
 
+$('.empSummary').expander();
+
 $('#userEmployment .editCardBtn').click(function(event)
 {
     var employmentId = $(this).data('id');
@@ -29,8 +31,6 @@ $('[name="deleteUserEmployment"]').click(function()
         }
     });
 });
-
-$('.datepicker').datetimepicker();
 
 $('#userEmployment .edit-card form').bootstrapValidator({
     submitHandler : function()

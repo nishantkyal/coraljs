@@ -1,0 +1,49 @@
+include ../header
+title Widget Creator
+.navigation
+.matter
+    .container
+        .row
+            .content
+                .row
+                    .card
+                        .item
+                            .row
+                                h5.col-xs-8 Create Widget
+                                .header-link.col-xs-4
+                        .item
+                            .row
+                                .col-md-4
+                                    .row
+                                        h1 Theme
+                                        select.form-control(name='theme')
+                                            option(value='dark') Dark
+                                            option(value='light') Light
+                                    .row
+                                        br
+                                        h1 Size
+                                        select.form-control(name='size')
+                                            option(value='tiny') Tiny
+                                            option(value='small') Small
+                                            option(value='tall') Tall
+                                    .row
+                                        br
+                                        h1 Expert Id
+                                        if loggedInUser
+                                            input.form-control(name = 'expertId', value=loggedInUser.id)
+                                            div#helpText * Change the Expert Id to create widget for some other expert
+                                        else
+                                            input.form-control(name = 'expertId')
+                                            div#helpText * Please enter an Expert Id to create widget
+                                    .row#embedCode
+                                        br
+                                        h3 Embed Code
+                                        textarea(name='embedCodeText', readonly, rows='3', cols='51')
+                                .col-md-2
+                                .col-md-6
+                                    #iframeContent
+include ../footer
+script.
+    var loggedInUser = JSON.parse( '!{JSON.stringify(loggedInUser)}' );
+script(src='/js/app/dashboard/widgetCreator.js')
+
