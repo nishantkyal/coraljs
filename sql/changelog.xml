@@ -726,4 +726,164 @@
     <changeSet author="Nishant (generated)" id="1404972481519-2">
         <dropTable tableName="widget"/>
     </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-1">
+        <createTable tableName="phone_call">
+            <column name="id" type="INT(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="caller_user_id" type="INT(10)"/>
+            <column name="caller_phone_id" type="INT(10)"/>
+            <column name="expert_phone_id" type="INT(10)"/>
+            <column name="start_time" type="BIGINT(19)"/>
+            <column defaultValueNumeric="0" name="delay" type="INT(10)"/>
+            <column name="duration" type="INT(10)"/>
+            <column defaultValueNumeric="1" name="status" type="INT(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="charging_rate" type="DECIMAL(5)"/>
+            <column name="unit" type="INT(10)"/>
+            <column name="min_duration" type="INT(10)"/>
+            <column name="chunk_size" type="INT(10)"/>
+            <column name="agenda" type="VARCHAR(200)"/>
+            <column name="recorded" type="BIT(1)"/>
+            <column name="extension" type="INT(10)"/>
+            <column defaultValue="0" name="num_reschedules" type="VARCHAR(45)"/>
+            <column defaultValueNumeric="0" name="num_reattempts" type="INT(10)"/>
+            <column name="created" type="BIGINT(19)"/>
+            <column name="updated" type="BIGINT(19)"/>
+            <column defaultValueNumeric="0" name="deleted" type="BIGINT(19)"/>
+            <column name="expert_user_id" type="INT(10)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-2">
+        <createTable tableName="phone_call_fragment">
+            <column name="id" type="INT(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="call_id" type="INT(10)"/>
+            <column name="start_time" type="BIGINT(19)"/>
+            <column name="duration" type="INT(10)"/>
+            <column name="from_number" type="VARCHAR(20)"/>
+            <column name="to_number" type="VARCHAR(20)"/>
+            <column name="agent_id" type="INT(10)"/>
+            <column name="agent_call_sid_user" type="VARCHAR(60)"/>
+            <column name="agent_call_sid_expert" type="VARCHAR(60)"/>
+            <column name="call_fragment_status" type="INT(10)"/>
+            <column name="created" type="BIGINT(19)"/>
+            <column name="updated" type="BIGINT(19)"/>
+            <column name="deleted" type="BIT(1)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-3">
+        <addPrimaryKey columnNames="id" constraintName="PRIMARY" tableName="phone_call"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-4">
+        <addPrimaryKey columnNames="id" constraintName="PRIMARY" tableName="phone_call_fragment"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-5">
+        <addUniqueConstraint columnNames="extension" constraintName="extension_UNIQUE" deferrable="false" disabled="false" initiallyDeferred="false" tableName="phone_call"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-6">
+        <createIndex indexName="agenda_search" tableName="phone_call" unique="false">
+            <column name="agenda"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-7">
+        <createIndex indexName="call_caller_phone_id_idx" tableName="phone_call" unique="false">
+            <column name="caller_phone_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-8">
+        <createIndex indexName="call_expert_phone_id_idx" tableName="phone_call" unique="false">
+            <column name="expert_phone_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-9">
+        <createIndex indexName="call_expert_user_id" tableName="phone_call" unique="false">
+            <column name="expert_user_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-10">
+        <createIndex indexName="call_status_idx" tableName="phone_call" unique="false">
+            <column name="status"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-11">
+        <createIndex indexName="caller_id_idx" tableName="phone_call" unique="false">
+            <column name="caller_user_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-12">
+        <createIndex indexName="fragment_agent_id" tableName="phone_call_fragment" unique="false">
+            <column name="agent_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-13">
+        <createIndex indexName="fragment_call_id" tableName="phone_call_fragment" unique="false">
+            <column name="call_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-14">
+        <createIndex indexName="fragment_status" tableName="phone_call_fragment" unique="false">
+            <column name="call_fragment_status"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-15">
+        <createIndex indexName="price_currency_idx" tableName="phone_call" unique="false">
+            <column name="unit"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-16">
+        <dropUniqueConstraint constraintName="extension_UNIQUE" tableName="call"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-17">
+        <dropTable tableName="call"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-18">
+        <dropTable tableName="call_fragment"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-19">
+        <dropForeignKeyConstraint baseTableName="phone_call" constraintName="call_caller_phone_id"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-20">
+        <addForeignKeyConstraint baseColumnNames="caller_phone_id" baseTableName="phone_call" constraintName="call_caller_phone_id" referencedColumnNames="id" referencedTableName="user_phone"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-21">
+        <dropForeignKeyConstraint baseTableName="phone_call" constraintName="call_expert_phone_id"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-22">
+        <addForeignKeyConstraint baseColumnNames="expert_phone_id" baseTableName="phone_call" constraintName="call_expert_phone_id" referencedColumnNames="id" referencedTableName="user_phone"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-23">
+        <dropForeignKeyConstraint baseTableName="phone_call" constraintName="call_expert_user_id"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-24">
+        <addForeignKeyConstraint baseColumnNames="expert_user_id" baseTableName="phone_call" constraintName="call_expert_user_id" referencedColumnNames="id" referencedTableName="user"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-25">
+        <dropForeignKeyConstraint baseTableName="phone_call" constraintName="caller_id"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-26">
+        <addForeignKeyConstraint baseColumnNames="caller_user_id" baseTableName="phone_call" constraintName="caller_id" referencedColumnNames="id" referencedTableName="user"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-27">
+        <dropForeignKeyConstraint baseTableName="phone_call_fragment" constraintName="fragment_agent_id"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-28">
+        <addForeignKeyConstraint baseColumnNames="agent_id" baseTableName="phone_call_fragment" constraintName="fragment_agent_id" referencedColumnNames="id" referencedTableName="ref_agent_type"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-29">
+        <dropForeignKeyConstraint baseTableName="phone_call_fragment" constraintName="fragment_call_id"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-30">
+        <addForeignKeyConstraint baseColumnNames="call_id" baseTableName="phone_call_fragment" constraintName="fragment_call_id" referencedColumnNames="id" referencedTableName="phone_call"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-31">
+        <dropForeignKeyConstraint baseTableName="phone_call_fragment" constraintName="fragment_status"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736859-32">
+        <addForeignKeyConstraint baseColumnNames="call_fragment_status" baseTableName="phone_call_fragment" constraintName="fragment_status" referencedColumnNames="id" referencedTableName="ref_call_fragment_status"/>
+    </changeSet>
 </databaseChangeLog>
