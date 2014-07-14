@@ -42,6 +42,8 @@ class UserDelegate extends BaseDaoDelegate
         if (!Utils.isNullOrEmpty(object) && object.hasOwnProperty(User.PASSWORD))
         {
             object = new User(object);
+            var newSeed = Utils.getRandomString(Config.get(Config.PASSWORD_SEED_LENGTH));
+            object.setPasswordSeed(newSeed);
             object.setPassword(object.getPasswordHash());
         }
 

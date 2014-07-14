@@ -21,6 +21,8 @@ title SearchNTalk - DashBoard
                                             a(href=DashboardUrls.integration() + '?integrationId=' + member.integration_id)
                                                 span.badge= formatRole(member.role)
                                                 | #{member.integration.title}
+                                        li()
+                                            a(href=DashboardUrls.integration() + '?createIntegration=true') Create Network
                 // /.content
                 if selectedMember.role != 3
                     .content.col-md-5
@@ -35,33 +37,34 @@ title SearchNTalk - DashBoard
                                 include cards/networkSettingCard
             else
                 .content.col-md-12
-                    .alert.alert-warning
-                        strong You're not a part of any network yet.
-                        p Create one?
-                        form.card#integration
-                            .item-edit.account-edit
-                                .item
-                                    .header-row.row
-                                        .inputs.col-xs-8
-                                            .input-group
-                                                input.form-control(type='text', placeholder="Your Network's Name", name="title")
-                                    div
-                                        .form-group
-                                            h3 Website URL:
-                                            input.form-control(type='text', name='website_url', placeholder)
-                                        .form-group
-                                            h3 Redirect URL:
-                                            input.form-control(type='text', name='redirect_url', placeholder)
-                                .clearer
-                            div.links-editing
-                                p.edit-schedules
-                                    em Note: Create a network only if you've a group of experts. Else joining SearchNTalk network will be simpler and more useful.
-                                    input.btn.btn-default(value='Create', type='submit')
-                        strong OR
-                        .actions-pane
-                            .row
-                                .col-xs-6.align-left
-                                    a.btn.btn-warning(href=MemberRegistrationUrls.index() + '?integrationId=' + Config.get(Config.DEFAULT_NETWORK_ID)) Join SearchNTalk's expert network
+                    if !createIntegration
+                        .alert.alert-warning
+                            strong You're not a part of any network yet.
+                            p Create one?
+                    form.card#integration
+                        .item-edit.account-edit
+                            .item
+                                .header-row.row
+                                    .inputs.col-xs-8
+                                        .input-group
+                                            input.form-control(type='text', placeholder="Your Network's Name", name="title")
+                                div
+                                    .form-group
+                                        h3 Website URL:
+                                        input.form-control(type='text', name='website_url', placeholder)
+                                    .form-group
+                                        h3 Redirect URL:
+                                        input.form-control(type='text', name='redirect_url', placeholder)
+                            .clearer
+                        div.links-editing
+                            p.edit-schedules
+                                em Note: Create a network only if you've a group of experts. Else joining SearchNTalk network will be simpler and more useful.
+                                input.btn.btn-default(value='Create', type='submit')
+                    strong OR
+                    .actions-pane
+                        .row
+                            .col-xs-6.align-left
+                                a.btn.btn-warning(href=MemberRegistrationUrls.index() + '?integrationId=' + Config.get(Config.DEFAULT_NETWORK_ID)) Join SearchNTalk's expert network
 include ../footer
 script.
     var Timezone = JSON.parse('!{JSON.stringify(Timezone)}');
