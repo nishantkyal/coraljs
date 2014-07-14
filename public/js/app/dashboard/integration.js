@@ -1,4 +1,62 @@
 var zone;
+
+$('#networkSetting').card();
+$('#networkSetting .editCardBtn').click(function(){
+    $('#networkSetting').card().edit(integration);
+});
+
+$('#networkSetting .edit-card form').bootstrapValidator({
+    submitHandler: function(form)
+    {
+        $.ajax({
+            url    : '/rest/integration/' + integration.id,
+            type   : 'POST',
+            data   : {
+                integration: {
+                    title           : $('#networkSetting .edit-card form [name="title"]').val(),
+                    website_url     : $('#networkSetting .edit-card form [name="website_url"]').val(),
+                    redirect_url    : $('#networkSetting .edit-card form [name="redirect_url"]').val(),
+                }
+            },
+            success: function(result)
+            {
+                bootbox.alert('Network setting Updated. Press OK to continue.', function()
+                {
+                    location.reload();
+                });
+            },
+            error  : function(jqXHR, textStatus, errorThrown)
+            {
+                bootbox.alert(jqXHR.responseText, function()
+                {
+                    location.reload();
+                });
+            }
+        })
+    },
+    feedbackIcons: {
+        valid     : 'glyphicon glyphicon-ok',
+        invalid   : 'glyphicon glyphicon-remove',
+        validating: 'glyphicon glyphicon-refresh'
+    },
+    fields       : {
+        title: {
+            validators: {
+                notEmpty: {
+                    message: 'This field is required and cannot be empty'
+                }
+            }
+        },
+        website_url : {
+            validators: {
+                uri: {
+                    message: 'Please enter a valid url. Enter full url (including the http:// part)'
+                }
+            }
+        }
+    }
+});
+
 $(function()
 {
     var offset = new Date().getTimezoneOffset() * -60;
@@ -227,8 +285,6 @@ $('#couponCard .edit-card form').bootstrapValidator({
     }
 });
 
-$('.datepicker').datetimepicker();
-
 $('form#integration').bootstrapValidator({
     fields       : {
         title           : {
@@ -239,13 +295,6 @@ $('form#integration').bootstrapValidator({
             }
         },
         website_url     : {
-            validators: {
-                uri: {
-                    message: 'Please enter a valid url. Enter full url (including the http:// part)'
-                }
-            }
-        },
-        redirect_url     : {
             validators: {
                 uri: {
                     message: 'Please enter a valid url. Enter full url (including the http:// part)'

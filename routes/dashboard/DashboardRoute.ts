@@ -8,6 +8,7 @@ import PricingSchemeDelegate                            = require('../../delegat
 import AuthenticationDelegate                           = require('../../delegates/AuthenticationDelegate');
 import UserDelegate                                     = require('../../delegates/UserDelegate');
 import IntegrationMemberDelegate                        = require('../../delegates/IntegrationMemberDelegate');
+import IntegrationDelegate                              = require('../../delegates/IntegrationDelegate');
 import EmailDelegate                                    = require('../../delegates/EmailDelegate');
 import SMSDelegate                                      = require('../../delegates/SMSDelegate');
 import CouponDelegate                                   = require('../../delegates/CouponDelegate');
@@ -73,6 +74,7 @@ class DashboardRoute
     private static PAGE_WIDGET_CREATOR:string = 'dashboard/widgetCreator';
 
     private integrationMemberDelegate = new IntegrationMemberDelegate();
+    private integrationDelegate = new IntegrationDelegate();
     private userDelegate = new UserDelegate();
     private verificationCodeDelegate = new VerificationCodeDelegate();
     private couponDelegate = new CouponDelegate();
@@ -199,6 +201,7 @@ class DashboardRoute
         var self = this;
         var sessionData = new SessionData(req);
         var selectedIntegrationId = parseInt(req.query[ApiConstants.INTEGRATION_ID]);
+        var createIntegration = req.query[ApiConstants.CREATE_INTEGRATION];
 
         // 1. Get all member entries associated with the user
         // 2. Get coupons and members for the selected integration
@@ -223,11 +226,12 @@ class DashboardRoute
                     return [integrationId, correctedMembers, q.all([
                         self.integrationMemberDelegate.search({integration_id: integrationId}, IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER]),
                         self.verificationCodeDelegate.getInvitationCodes(integrationId),
-                        self.couponDelegate.search({integration_id: integrationId}, Coupon.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_EXPERT])
+                        self.couponDelegate.search({integration_id: integrationId}, Coupon.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_EXPERT]),
+                        self.integrationDelegate.get(integrationId)
                     ])];
                 }
                 else
-                    return [null, [], [[], [], []]];
+                    return [null, [], [[], [], [],{}]];
             })
             .spread(
             function integrationDetailsFetched(integrationId:number, members:IntegrationMember[], ...results)
@@ -236,7 +240,8 @@ class DashboardRoute
 
                 var integrationMembers = results[0][0];
                 var invitedMembers = [].concat(_.values(results[0][1]));
-                var coupons = results[0][2];
+                var coupons = results[0][2] || [];
+                var integration = results[0][3];
 
                 _.each(integrationMembers, function (member:IntegrationMember)
                 {
@@ -247,12 +252,24 @@ class DashboardRoute
 
                 integrationMembers = integrationMembers.concat(_.map(invitedMembers, function (invited) { return new IntegrationMember(invited); }));
 
-                var pageData = _.extend(sessionData.getData(), {
-                    'members': members,
-                    'selectedMember': _.findWhere(members, {'integration_id': integrationId}),
-                    'integrationMembers': integrationMembers,
-                    'coupons': coupons
-                });
+                var pageData;
+
+                if (!Utils.isNullOrEmpty(createIntegration))
+                {
+                    pageData = _.extend(sessionData.getData(), {
+                        createIntegration:true
+                    });
+                }
+                else
+                {
+                    pageData = _.extend(sessionData.getData(), {
+                        'members': members,
+                        'selectedMember': _.findWhere(members, {'integration_id': integrationId}),
+                        'integrationMembers': integrationMembers,
+                        'coupons': coupons,
+                        integration:integration
+                    });
+                }
 
                 res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
                 res.render(DashboardRoute.PAGE_INTEGRATION, pageData);

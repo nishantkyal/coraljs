@@ -102,13 +102,12 @@ class IntegrationApi
         /*
          * Update integration settings
          */
-        app.post(ApiUrlDelegate.integrationById(), AccessControl.allowOwner, function (req:express.Request, res:express.Response)
+        app.post(ApiUrlDelegate.integrationById(), AuthenticationDelegate.checkLogin(), function (req:express.Request, res:express.Response)
         {
-            var self = this;
             var integrationId = req.params[ApiConstants.INTEGRATION_ID];
             var integration:Integration = req.body[ApiConstants.INTEGRATION];
 
-            self.integrationDelegate.update(integration, {'integration_id': integrationId})
+            self.integrationDelegate.update(Utils.createSimpleObject(Integration.ID, integrationId),integration)
                 .then(
                 function handleIntegrationUpdated(result) { res.json(result); },
                 function handleIntegrationUpdateError(err) { res.status(500).json(err); }
@@ -170,7 +169,7 @@ class IntegrationApi
             if (fs.existsSync(Config.get(Config.LOGO_PATH) + integrationId))
                 res.sendfile(integrationId, {root: Config.get(Config.LOGO_PATH)});
             else
-                res.redirect('/img/no_photo-icon.gif');
+                res.sendfile('public/images/1x1.png');
         });
 
         app.post(ApiUrlDelegate.integrationLogo(), AuthenticationDelegate.checkLogin(), express.bodyParser({uploadDir: Config.get(Config.LOGO_PATH)}), function (req:express.Request, res:express.Response)

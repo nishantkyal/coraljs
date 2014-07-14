@@ -20,6 +20,7 @@ class User extends BaseModel
     static LAST_NAME:string                                 = 'last_name';
     static EMAIL:string                                     = 'email';
     static PASSWORD:string                                  = 'password';
+    static PASSWORD_SEED:string                             = 'password_seed'
     static DATE_OF_BIRTH:string                             = 'date_of_birth';
     static INDUSTRY:string                                  = 'industry';
     static TIMEZONE:string                                  = 'timezone';
@@ -33,7 +34,7 @@ class User extends BaseModel
     static SCHEDULE_RULE:string                             = 'schedule_rule';
 
     static DEFAULT_FIELDS:string[] = [User.ID, User.TITLE, User.FIRST_NAME, User.LAST_NAME, User.EMAIL,
-        User.INDUSTRY, User.TIMEZONE, User.DATE_OF_BIRTH, User.EMAIL_VERIFIED, User.ACTIVE, User.VERIFIED];
+        User.INDUSTRY, User.TIMEZONE, User.DATE_OF_BIRTH, User.EMAIL_VERIFIED, User.ACTIVE, User.VERIFIED, User.PASSWORD, User.PASSWORD_SEED];
 
     private title:Salutation;
     private first_name:string;
@@ -41,6 +42,7 @@ class User extends BaseModel
     private last_name:string;
     private email:string;
     private password:string;
+    private password_seed:string;
     private date_of_birth:string;
     private industry:IndustryCode;
     private timezone:number;
@@ -60,6 +62,7 @@ class User extends BaseModel
     getLastName():string                                        { return this.last_name; }
     getEmail():string                                           { return this.email; }
     getPassword():string                                        { return this.password; }
+    getPasswordSeed():string                                    { return this.password_seed; }
     getDateOfBirth():string                                     { return this.date_of_birth; }
     getIndustry():IndustryCode                                  { return this.industry; }
     getTimezone():number                                        { return this.timezone; }
@@ -83,6 +86,7 @@ class User extends BaseModel
     setLastName(val:string)                                     { this.last_name = val; }
     setEmail(val:string)                                        { this.email = val; }
     setPassword(val:string)                                     { this.password = val; }
+    setPasswordSeed(val:string)                                 { this.password_seed = val; }
     setDateOfBirth(val:string)                                  { this.date_of_birth = val;}
     setIndustry(val:IndustryCode)                               { this.industry = val; }
     setTimezone(val:number)                                     { this.timezone = val; }
@@ -95,10 +99,10 @@ class User extends BaseModel
     setScheduleRule(val:ScheduleRule[]):void                    { this.schedule_rule = val; }
     setPricingScheme(val:PricingScheme[]):void                  { this.pricing_scheme = val; }
 
-    getPasswordHash(email?:string, password?:string):string
+    getPasswordHash(email?:string, password?:string, passwordSeed?:string):string
     {
         var md5sum = crypto.createHash('md5');
-        return md5sum.update((this.email || email) + ':' + (this.password || password)).digest('hex');
+        return md5sum.update((email || this.email) + ':' + (password || this.password) + (passwordSeed || this.password_seed || '')).digest('hex');
     }
 }
 export = User

@@ -38,6 +38,7 @@ class Config
     static DASHBOARD_HTTP_PORT:string                   = 'Dashboard.httpPort';
     static DASHBOARD_HTTPS_PORT:string                  = 'Dashboard.httpsPort';
     static ACCESS_TOKEN_EXPIRY:string                   = 'access_token.expiry';
+    static PASSWORD_SEED_LENGTH:string                  = 'password_seed.length';
     static PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS   = 'task.call_trigger.interval';                 // How often do we create scheduled tasks for triggering calls
     static CALL_REMINDER_LEAD_TIME_SECS:string          = 'call.reminder_notification.lead_time';       // Lead time for sending reminder for upcoming call
     static CALL_RETRY_DELAY_SECS:string                 = 'call.retry.delay';                           // Delay after which failed calls are retried

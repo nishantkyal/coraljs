@@ -20,7 +20,7 @@ class Integration extends BaseModel
     private secret:string;
     private status:IntegrationStatus;
 
-    static DEFAULT_FIELDS:string[] = [Integration.ID, Integration.TITLE];
+    static DEFAULT_FIELDS:string[] = [Integration.ID, Integration.TITLE, Integration.WEBSITE_URL, Integration.REDIRECT_URL];
 
     /* Getters */
     getTitle():string                                   { return this.title; }

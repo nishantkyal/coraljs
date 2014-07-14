@@ -42,6 +42,8 @@ class UserDelegate extends BaseDaoDelegate
         if (!Utils.isNullOrEmpty(object) && object.hasOwnProperty(User.PASSWORD))
         {
             object = new User(object);
+            var newSeed = Utils.getRandomString(Config.get(Config.PASSWORD_SEED_LENGTH));
+            object.setPasswordSeed(newSeed);
             object.setPassword(object.getPasswordHash());
         }
 
@@ -81,7 +83,9 @@ class UserDelegate extends BaseDaoDelegate
                 .then(
                 function userFetched(user:User)
                 {
-                    user.setPassword(user.getPasswordHash(user.getEmail(), newValues[User.PASSWORD]));
+                    var newSeed = Utils.getRandomString(Config.get(Config.PASSWORD_SEED_LENGTH));
+                    user.setPassword(user.getPasswordHash(user.getEmail(), newValues[User.PASSWORD], newSeed));
+                    user.setPasswordSeed(newSeed);
                     return superUpdate(criteria, user, transaction);
                 });
         }

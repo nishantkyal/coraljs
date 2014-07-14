@@ -86,6 +86,7 @@ class ApiConstants
     static OFFSET:string                                = 'offset';
     static ZONE:string                                  = 'zone';
     static IMAGE_SIZE:string                            = 'imageSize';
+    static CREATE_INTEGRATION:string                    = 'createIntegration';
 
 }
 export = ApiConstants
