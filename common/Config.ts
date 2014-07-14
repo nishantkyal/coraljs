@@ -33,14 +33,11 @@ class Config
     static EMAIL_TEMPLATE_BASE_DIR:string               = 'email_template_base_dir';
     static EMAIL_CDN_BASE_URI:string                    = 'email.cdn.base_uri';
     static WIDGET_TEMPLATE_BASE_DIR:string              = 'widget_template_base_dir';
-    static WIDGET_PARTIALS_BASE_DIR:string              = 'widget_partials_base_dir';
+    static WIDGET_CDN_BASE_URI:string                   = 'widget.cdn.base_uri';
     static DASHBOARD_URI:string                         = 'Dashboard.uri';
     static DASHBOARD_HTTP_PORT:string                   = 'Dashboard.httpPort';
     static DASHBOARD_HTTPS_PORT:string                  = 'Dashboard.httpsPort';
-    static API_URI:string                               = 'Api.uri';
-    static API_PORT:string                              = 'Api.port';
     static ACCESS_TOKEN_EXPIRY:string                   = 'access_token.expiry';
-    static PASSWORD_RESET_EXPIRY:string                 = 'password_reset.expiry';
     static PROCESS_SCHEDULED_CALLS_TASK_INTERVAL_SECS   = 'task.call_trigger.interval';                 // How often do we create scheduled tasks for triggering calls
     static CALL_REMINDER_LEAD_TIME_SECS:string          = 'call.reminder_notification.lead_time';       // Lead time for sending reminder for upcoming call
     static CALL_RETRY_DELAY_SECS:string                 = 'call.retry.delay';                           // Delay after which failed calls are retried

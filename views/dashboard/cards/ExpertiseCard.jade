@@ -14,21 +14,19 @@ for expertise in userExpertise
                         h1= expertise.session_duration
                             | &nbsp;mins.
                 .clearer
-            .image-and-video
-                .video-container
-                .shadow
             .meta.meta-keywords
                 h5 Skills/Keywords
                 ul
                     li Social Policy
                     li Consulting
                     li Learning
-            .summary-and-description
-                p= expertise.description
-            .meta.meta-keywords
-                h5 Experience
-                h1= expertise.years_of_experience
-                    | &nbsp;yrs.
+            if expertise.description
+                .summary-and-description
+                    p= expertise.description
+            if expertise.years_of_experience
+                .meta.meta-keywords
+                    h5 Experience
+                    h1= expertise.years_of_experience
 if isEditable
     .card.edit-card
         form

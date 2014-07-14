@@ -294,7 +294,7 @@ $('#expertise .edit-card form').bootstrapValidator({
                     session_price      : $('#expertise .edit-card form input[name=session_price]').val(),
                     session_price_unit : $('#expertise .edit-card form input[name=session_price_unit]').val(),
                     title              : $('#expertise .edit-card form input[name=title]').val(),
-                    description        : $('#expertise .edit-card form input[name=description]').val(),
+                    description        : $('#expertise .edit-card form textarea[name=description]').val(),
                     years_of_experience: $('#expertise .edit-card form input[name=years_of_experience]').val()
                 }
             }),

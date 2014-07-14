@@ -22,6 +22,7 @@
     margin-left: 5px;
 }
 
+
 .datepicker
 {
     z-index:1151 !important;
@@ -147,4 +148,11 @@
     border: medium none;
     height: 22px;
     padding: 4px;
+}
+
+.graphic
+{
+    font-size: 24px;
+    line-height: 28px;
+    margin-left: 5px;
 }

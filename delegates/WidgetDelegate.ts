@@ -108,6 +108,7 @@ class WidgetDelegate
 
         widgetSettings = widgetSettings || {};
         widgetSettings['googleAnalyticsTrackingId'] = Credentials.get(Credentials.GOOGLE_ANALYTICS_TRACKING_ID);
+
         try
         {
             var widgetTemplate = _.template(widgetPartialHtml);
