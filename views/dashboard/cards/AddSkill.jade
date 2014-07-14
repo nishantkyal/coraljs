@@ -10,11 +10,10 @@
             .item
                 .row
                     .form-group
-                        .form-group.col-md-10
-                            input.form-control#skill_name(class='typeahead', type= 'text', name='skill_name', data-toggle="tooltip", data-placement="bottom", data-provide="typeahead", autocomplete="off")
-                        .form-group.col-md-2
-                            img.pull-right#spinningWheel(alt="Loading", src="../../images/spinning_wheel.gif", class = " input form-control", height="42" ,width="42" , border="none")
-                    .clearer
-                        div.links-editing
-                            p.edit-schedules
-                                input.btn.btn-primary(type='submit', value='Save')
+                        .form-group
+                            input.form-control#skill_name(class='typeahead', type='text', name='skill_name', data-provide="typeahead", autocomplete="off")
+                            span.form-control-feedback
+                                i.icon-spinner
+                    .links-editing
+                        p.edit-schedules
+                            input.btn.btn-primary(type='submit', value='Save')

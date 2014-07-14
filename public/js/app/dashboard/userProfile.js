@@ -169,9 +169,9 @@ $('form#AddUserSkillForm').bootstrapValidator({
     }
 });
 
-$('[name="deleteUserSkill"]').click(function()
+$('.deleteUserSkill').click(function()
 {
-    var skillId = $(this).attr('data-id');
+    var skillId = $(this).data('id');
     $.ajax({
         url    : '/rest/user/skill/' + skillId,
         type   : 'DELETE',

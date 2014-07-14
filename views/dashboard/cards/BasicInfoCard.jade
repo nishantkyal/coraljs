@@ -38,10 +38,11 @@
                 ul
                     if userSkill.length != 0
                         each skill in userSkill
-                            .btn-group
-                                a.btn.btn-default.btn-xs= skill.skill_name
+                            li
+                                | #{skill.skill_name}
                                 if isEditable
-                                    a.btn.btn-default.btn-xs
+                                    | &nbsp;&nbsp;
+                                    a.deleteUserSkill(style="color: white;", data-id=skill.id)
                                         i.icon-cancel
                     if isEditable
                         a.btn.btn-primary.btn-xs#addSkillBtn Add Skill
