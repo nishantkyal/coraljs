@@ -99,9 +99,10 @@ div.row
                             option(value='60', selected=scheme.chunk_size == 60) 60 mins.
                     h3 Amount
                     .form-group
-                        .input-group
-                            input(type='text', value=scheme.charging_rate, name='charging_rate').form-control
-                            .input-group-btn
+                        .row
+                            .col-xs-10
+                                input(type='text', value=scheme.charging_rate, name='charging_rate').form-control
+                            .col-xs-2
                                 select.form-control(name='unit')
                                     option(value='1', selected=scheme.unit == 1) Rs.
                                     option(value='2', selected=scheme.unit == 2) $

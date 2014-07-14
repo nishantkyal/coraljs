@@ -87,7 +87,7 @@ class CallFlowRoute
         var userId = parseInt(req.params[ApiConstants.USER_ID]);
         var sessionData = new SessionData(req);
 
-        this.userDelegate.get(userId,null, [IncludeFlag.INCLUDE_SCHEDULES, IncludeFlag.INCLUDE_PRICING_SCHEMES])
+        this.userDelegate.get(userId, null, [IncludeFlag.INCLUDE_SCHEDULES, IncludeFlag.INCLUDE_PRICING_SCHEMES])
             .then(
             function expertFetched(user:User):any
             {

@@ -731,4 +731,10 @@
             <column name="password_seed" type="VARCHAR(45)"/>
         </addColumn>
     </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736860-1">
+        <renameTable newTableName="phone_call" oldTableName="call"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405332736860-2">
+        <renameTable newTableName="phone_call_fragment" oldTableName="call_fragment"/>
+    </changeSet>
 </databaseChangeLog>

@@ -47,6 +47,10 @@
                     if isEditable
                         a.btn.btn-primary.btn-xs#addSkillBtn Add Skill
                             i.icon-plus
+    .item
+        .row
+            a.btn.btn-primary.btn-block(target='_blank', href=CallFlowUrls.callExpert(user.id))
+                | CALL ME
 if isEditable
     .card.edit-card
         .item-edit

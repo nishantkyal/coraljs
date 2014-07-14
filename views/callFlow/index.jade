@@ -1,5 +1,5 @@
-- var pricing = user.pricing_scheme[0]
-- var minDuration = pricing.min_duration
+- var pricing = user.pricing_scheme ? user.pricing_scheme[0] : null;
+- var minDuration = pricing ? pricing.min_duration : 15;
 title ST-#{formatName(user.first_name, user.last_name, user.title)}
 include ../header
 div.modal.fade#scheduler
@@ -40,7 +40,7 @@ div.modal.fade#scheduler
                                         | &nbsp;mins.
                                     else
                                         | &nbsp;/ min.
-                                    if pricing.min_duration > 0
+                                    if pricing.min_duration > 1
                                         .pull-right
                                             .small
                                                 | &nbsp;(minimum &nbsp;
@@ -170,7 +170,7 @@ div.modal.fade#scheduler
                                             | &nbsp;mins.
                                         else
                                             | &nbsp;/ min.
-                                        if pricing.min_duration > 0
+                                        if pricing.min_duration > 1
                                             .pull-right
                                                 .small
                                                     | &nbsp;(minimum &nbsp;
