@@ -1,4 +1,4 @@
-var cards = ['#schedule','#scheduleDetails','#pricing','#password','#phone','#editUserPhoneCard','#verifyUserPhoneCard','#widget', '#createWidget'];
+var cards = ['#schedule','#scheduleDetails','#pricing','#password','#phone','#editUserPhoneCard','#verifyUserPhoneCard'];
 
 function showAndHideCards(cardsToShow)
 {

@@ -27,23 +27,12 @@ title SearchNTalk - DashBoard
                         .row
                             #integrationMemberCard
                                 include cards/IntegrationMemberCard
-                .content.col-md-4
-                    .row
-                        #couponCard
-                            include cards/CouponCard
-                        .card#members
-                            .header
-                                .title
-                                    h1 Network Logo
-                                hr
-                                .clearer
-                                .item
-                                    .row
-                                        img(src=ApiUrlDelegate.integrationLogo(members[0].integration_id), width='120', height = '120')
-                                    a.btn.btn-success.btn-xs#selectFileBtn Upload
-                                    form#fileUploadForm(action=ApiUrlDelegate.integrationLogo(members[0].integration_id), method="post", enctype="multipart/form-data")
-                                        input#selectFile(type='file', name='profile', style='display: none')
-                                        input#selectFileSubmit(type='submit', style='display: none')
+                    .content.col-md-4
+                        .row
+                            #couponCard
+                                include cards/CouponCard
+                            #networkSetting
+                                include cards/networkSettingCard
             else
                 .content.col-md-12
                     .alert.alert-warning
@@ -60,6 +49,9 @@ title SearchNTalk - DashBoard
                                         .form-group
                                             h3 Website URL:
                                             input.form-control(type='text', name='website_url', placeholder)
+                                        .form-group
+                                            h3 Redirect URL:
+                                            input.form-control(type='text', name='redirect_url', placeholder)
                                 .clearer
                             div.links-editing
                                 p.edit-schedules
@@ -75,5 +67,7 @@ script.
     var Timezone = JSON.parse('!{JSON.stringify(Timezone)}');
     var integrationId = '!{selectedMember && selectedMember.integration ? selectedMember.integration.id : null}';
     var coupons = JSON.parse('!{JSON.stringify(coupons)}');
+    var integration = JSON.parse('!{JSON.stringify(integration)}');
 script(src='/js/app/dashboard/integration.js')
 script(src='/js/app/dashboard/fileUpload.js')
+script(src='/js/app/jquery.card.js')
