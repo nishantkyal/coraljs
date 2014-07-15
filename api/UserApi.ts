@@ -117,10 +117,11 @@ class UserApi
         app.get(ApiUrlDelegate.userProfilePicture(), function (req:express.Request, res)
         {
             var userId = req.params[ApiConstants.USER_ID];
-            var size:ImageSize = parseInt(req.query[ApiConstants.IMAGE_SIZE]);
+            var size:ImageSize = parseInt(req.query[ApiConstants.IMAGE_SIZE]) || ImageSize.MEDIUM;
+            var imagePath = Config.get(Config.PROFILE_IMAGE_PATH) + userId + '_' + ImageSize[size].toLowerCase();
 
-            if (fs.existsSync(Config.get(Config.PROFILE_IMAGE_PATH) + userId))
-                res.sendfile(userId + '_' + ImageSize[size].toLowerCase(), {root: Config.get(Config.PROFILE_IMAGE_PATH)});
+            if (fs.existsSync(imagePath))
+                res.sendfile(imagePath);
             else
                 res.sendfile('public/images/1x1.png');
         });

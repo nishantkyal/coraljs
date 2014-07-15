@@ -167,3 +167,9 @@
     -moz-border-radius: 5px;
     border-radius: 5px;
 }
+
+.integration-setting .avatar {
+    float: left;
+    width: 120px;
+    height: 120px;
+}

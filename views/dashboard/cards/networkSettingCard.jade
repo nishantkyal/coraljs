@@ -1,36 +1,39 @@
 .card.main-card
     .item
-        .header-row.row
-            h5.col-xs-10 Network Settings
-            .col-xs-1
-                a.header-btn.btn.btn-default.editCardBtn(data-id=integration.id)
-                    i.icon-pencil
-    .item
         .row
-            h5.col-xs-6 Network Name
-            .col-xs-6
-                div #{integration.title}
-        .row
-            .row
-                h5.col-xs-6 Network Logo
-                .col-xs-6
-                    .row
-                        img(src=ApiUrlDelegate.integrationLogo(members[0].integration_id), width='120', height = '120')
-            .row
-                .col-xs-5
-                .col-xs-7(align='center')
-                    a.btn.btn-success.btn-xs#selectFileBtn Upload
-                    form#fileUploadForm(action=ApiUrlDelegate.integrationLogo(members[0].integration_id), method="post", enctype="multipart/form-data")
-                        input#selectFile(type='file', name='profile', style='display: none')
-                        input#selectFileSubmit(type='submit', style='display: none')
-        .row
-            h5.col-xs-6 Website Url
-            .col-xs-6
-                a(href=integration.website_url) #{integration.website_url}
-        .row
-            h5.col-xs-6 Redirect Url
-            .col-xs-6
-                div #{integration.redirect_url}
+            .header-row.row
+                h5.col-xs-10 Settings
+                .col-xs-2.header-link
+                    a.btn.btn-primary.editCardBtn(data-id=integration.id)
+                        i.icon-pencil
+        .item-edit
+            .item
+                .row
+                    h3 Network Name
+                    .form-group
+                        .form-control-static
+                            strong= integration.title
+                    h3 Network Logo
+                    .form-group.integration-setting
+                        .avatar
+                            .shadow
+                            .initials-profile-image-large NA
+                            img(src=ApiUrlDelegate.integrationLogo(members[0].integration_id), width='120', height = '120')
+                            .image-edit
+                                a.btn.btn-success.btn-xs(href="javascript: void(0);")#selectFileBtn
+                                    i.icon-pencil
+                                form#fileUploadForm(action=ApiUrlDelegate.integrationLogo(members[0].integration_id), method="post", enctype="multipart/form-data")
+                                    input#selectFile(type='file', name='profile', style='display: none')
+                                    input#selectFileSubmit(type='submit', style='display: none')
+                    .clearer
+                    h3 Website Url
+                    .form-group
+                        .form-control-static
+                            strong= integration.website_url
+                    h3 Redirect Url
+                    .form-group
+                        .form-control-static
+                            strong= integration.redirect_url
 .card.edit-card
     form#editNetworkSetting
         input.form-control(type="hidden", name="id")
@@ -43,14 +46,14 @@
                             i.icon-cancel
             .item
                 .row
+                    h3 Network Name:
                     .form-group
-                        h3 Network Name:
                         input.form-control(type='text', name='title')
+                    h3 Website Url:
                     .form-group
-                        h3 Website Url:
                         input.form-control(type='text', name='website_url')
+                    h3 Redirect Url:
                     .form-group
-                        h3 Redirect Url:
                         input.form-control(type='text', name='redirect_url')
                     .clearer
                     div.links-editing

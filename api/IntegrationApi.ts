@@ -9,7 +9,6 @@ import IntegrationMemberDelegate                    = require('../delegates/Inte
 import MysqlDelegate                                = require('../delegates/MysqlDelegate');
 import NotificationDelegate                         = require('../delegates/NotificationDelegate');
 import VerificationCodeDelegate                     = require('../delegates/VerificationCodeDelegate');
-import ImageDelegate                                = require('../delegates/ImageDelegate');
 import Integration                                  = require('../models/Integration');
 import IntegrationMember                            = require('../models/IntegrationMember');
 import User                                         = require('../models/User');
@@ -19,6 +18,7 @@ import Config                                       = require('../common/Config'
 import IncludeFlag                                  = require('../enums/IncludeFlag');
 import IntegrationMemberRole                        = require('../enums/IntegrationMemberRole');
 import IntegrationStatus                            = require('../enums/IntegrationStatus');
+import ImageSize                                    = require('../enums/ImageSize');
 
 /*
  Rest Calls for Third party integrations
@@ -28,7 +28,6 @@ class IntegrationApi
     private integrationDelegate = new IntegrationDelegate();
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private verificationCodeDelegate = new VerificationCodeDelegate();
-    private imageDelegate = new ImageDelegate();
     private notificationDelegate = new NotificationDelegate();
 
     constructor(app, secureApp)
@@ -51,7 +50,7 @@ class IntegrationApi
                     });
             }
             integration.setStatus(IntegrationStatus.ACTIVE);
-            
+
             self.integrationDelegate.create(integration)
                 .then(
                 function integrationCreated()
@@ -79,10 +78,10 @@ class IntegrationApi
                 function resetPasswordEmailSent(integration)
                 {
                     res.json(integration.toJson());
-                })   
+                })
                 .fail(
-                function (error) 
-                { 
+                function (error)
+                {
                     res.status(500).json(error);
                 });
         });
@@ -166,8 +165,11 @@ class IntegrationApi
         app.get(ApiUrlDelegate.integrationLogo(), function (req:express.Request, res)
         {
             var integrationId:number = parseInt(req.params[ApiConstants.INTEGRATION_ID]);
-            if (fs.existsSync(Config.get(Config.LOGO_PATH) + integrationId))
-                res.sendfile(integrationId, {root: Config.get(Config.LOGO_PATH)});
+            var size:ImageSize = parseInt(req.query[ApiConstants.IMAGE_SIZE] || ImageSize.MEDIUM);
+            var imagePath = Config.get(Config.LOGO_PATH) + integrationId + '_' + ImageSize[size].toLowerCase();
+
+            if (fs.existsSync(imagePath))
+                res.sendfile(imagePath);
             else
                 res.sendfile('public/images/1x1.png');
         });
@@ -176,15 +178,14 @@ class IntegrationApi
         {
             var uploadedFile = req.files['image'];
             var integrationId = parseInt(req.params[ApiConstants.INTEGRATION_ID]);
-            var newImagePath:string = Config.get(Config.LOGO_PATH) + integrationId;
 
-            self.imageDelegate.move(uploadedFile.path, newImagePath)
+            self.integrationDelegate.processLogoImage(integrationId, uploadedFile.path)
                 .then(
                 function uploadComplete()
                 {
                     res.json({url: ApiUrlDelegate.integrationLogo(integrationId)});
                 },
-                function uploadError(error) { res.send(500); }
+                function uploadError(error) { res.json(500, 'Error in uploading image'); }
             );
         });
 

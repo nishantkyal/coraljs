@@ -135,7 +135,6 @@ class UserDelegate extends BaseDaoDelegate
     {
         var self = this;
         var imageBasePath:string = Config.get(Config.PROFILE_IMAGE_PATH) + userId;
-        var newImagePath:string = imageBasePath;
         var sizes = [ImageSize.LARGE, ImageSize.MEDIUM, ImageSize.SMALL];
 
         return q.all(_.map(sizes, function (size:ImageSize):q.Promise<any>

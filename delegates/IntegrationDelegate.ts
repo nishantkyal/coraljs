@@ -4,18 +4,23 @@ import q                                        = require('q');
 import log4js                                   = require('log4js');
 import BaseDaoDelegate                          = require('./BaseDaoDelegate');
 import MysqlDelegate                            = require('./MysqlDelegate');
+import ImageDelegate                            = require('../delegates/ImageDelegate');
 import IntegrationDAO                           = require('../dao/IntegrationDao');
 import Integration                              = require('../models/Integration');
 import IntegrationMember                        = require('../models/IntegrationMember');
 import User                                     = require('../models/User');
 import Utils                                    = require('../common/Utils');
+import Config                                   = require('../common/Config');
 import IntegrationMemberRole                    = require('../enums/IntegrationMemberRole');
+import ImageSize                                = require('../enums/ImageSize');
+
 /*
  * Delegate class for third party integration data
  */
 class IntegrationDelegate extends BaseDaoDelegate
 {
     private static cachedIntegrations:{[id:number]:Integration} = {};
+    private imageDelegate = new ImageDelegate();
 
     updateCache():q.Promise<any>
     {
@@ -54,6 +59,25 @@ class IntegrationDelegate extends BaseDaoDelegate
             id = parseInt(id.toString());
         } catch (e) {}
         return IntegrationDelegate.cachedIntegrations[id];
+    }
+
+    processLogoImage(integrationId:number, tempImagePath:string):q.Promise<any>
+    {
+        var self = this;
+        var imageBasePath:string = Config.get(Config.LOGO_PATH) + integrationId;
+        var sizes = [ImageSize.LARGE, ImageSize.MEDIUM, ImageSize.SMALL];
+
+        return q.all(_.map(sizes, function (size:ImageSize):q.Promise<any>
+        {
+            return self.imageDelegate.resize(tempImagePath, imageBasePath + '_' + ImageSize[size].toLowerCase(), size);
+        }))
+            .then( function imagesResized(){
+                return self.imageDelegate.delete(tempImagePath);
+            })
+            .fail( function imageResizeFailed(error)
+            {
+                self.logger.debug('Image resize failed because %s', error);
+            });
     }
 
     resetSecret(integrationId:string):q.Promise<any>
