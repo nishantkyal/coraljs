@@ -148,25 +148,10 @@ class DashboardRoute
             .then(
             function renderPage(numbers)
             {
-                var sessionData:any;
-                var context = req.query[ApiConstants.CONTEXT] || 'Dashboard';
-
-                switch (context)
-                {
-                    case 'expertRegistration':
-                        sessionData = new ExpertRegistrationSessionData(req);
-                        break;
-                    case 'callFlow':
-                        sessionData = new CallFlowSessionData(req);
-                        break;
-                    default:
-                        sessionData = new SessionData(req);
-                        break;
-                }
+                var sessionData = new SessionData(req);
 
                 var pageData = _.extend(sessionData.getData(), {
                     userPhones: numbers,
-                    context: context,
                     messages: req.flash()
                 });
                 res.render(DashboardRoute.PAGE_MOBILE_VERIFICATION, pageData);

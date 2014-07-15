@@ -27,7 +27,6 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
 
     create(object:Object, dbTransaction?:Object):q.Promise<any>
     {
-        var self = this;
         var integrationMember = new IntegrationMember(object);
         integrationMember.setAuthCode(Utils.getRandomString(30));
 

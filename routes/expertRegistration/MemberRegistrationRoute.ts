@@ -151,8 +151,6 @@ class MemberRegistrationRoute
 
         // 1. Update role and redirect
         // 2. Delete invitation code
-        // Note: Can auto activate account if admin is registering but not doing it since admin may choose to take calls later
-        //TODO: Schedule the mobile verification reminder notification
         q.all([
             self.verificationCodeDelegate.deleteInvitationCode(sessionData.getInvitationCode(), sessionData.getIntegrationId()),
             self.integrationMemberDelegate.update({'user_id': userId, 'integration_id': integrationId}, {role: member.getRole()})
@@ -185,12 +183,6 @@ class MemberRegistrationRoute
                 res.render(MemberRegistrationRoute.PAGE_COMPLETE, pageData);
             },
             function scheduleRulesFetchError(error) { res.send(500); });
-    }
-
-    private putTimezoneInSession(req:express.Request, res:express.Response, next:Function)
-    {
-        req.session[ApiConstants.ZONE] = parseInt(req.query[ApiConstants.ZONE]);
-        next();
     }
 }
 export = MemberRegistrationRoute

@@ -21,8 +21,8 @@ title SearchNTalk - DashBoard
                                             a(href=DashboardUrls.integration() + '?integrationId=' + member.integration_id)
                                                 span.badge= formatRole(member.role)
                                                 | #{member.integration.title}
-                                        li()
-                                            a(href=DashboardUrls.integration() + '?createIntegration=true') Create Network
+                                    li
+                                        a(href=DashboardUrls.integration() + '?createIntegration=true') Create Network
                 // /.content
                 if selectedMember.role != 3
                     .content.col-md-5
