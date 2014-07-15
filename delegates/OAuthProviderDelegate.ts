@@ -25,6 +25,7 @@ class OAuthProviderDelegate
                 var search = {};
                 search[Integration.ID] = integrationId;
 
+                // Note: No need to check redirect_url since we've a redirect step which sets role etc
                 var integrationDelegate = new IntegrationDelegate();
                 integrationDelegate.find(search)
                     .then(
@@ -33,11 +34,6 @@ class OAuthProviderDelegate
                         if (Utils.isNullOrEmpty(integration))
                         {
                             OAuthProviderDelegate.logger.warn('Oauth code exchange failed because of INVALID INTEGRATION ID, %s', integrationId);
-                            return done('An error occurred');
-                        }
-                        else if (!Utils.isNullOrEmpty(integration.getRedirectUrl()) && integration.getRedirectUrl() != redirectURI)
-                        {
-                            OAuthProviderDelegate.logger.warn('Oauth code exchange failed because of INVALID REDIRECT URL %s for integration id ', redirectURI, integrationId);
                             return done('An error occurred');
                         }
                         else
