@@ -140,7 +140,7 @@ class VerificationCodeDelegate
 
         return q.all([
             self.smsDelegate.sendVerificationSMS(phoneNumber.getCompleteNumber(), code),
-            CacheHelper.set('mv-' + phoneNumber, code, secondsInAnHr, true)
+            CacheHelper.set('mv-' + phoneNumber.getCompleteNumber(), code, secondsInAnHr, true)
         ]);
     }
 

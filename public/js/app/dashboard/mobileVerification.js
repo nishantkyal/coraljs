@@ -1,21 +1,11 @@
-$('#sendCode').validate({
-    rules         : {
-        'phoneNumber': {
-            required: true
+$('form#sendCode').bootstrapValidator({
+    fields         : {
+        'phone': {
+            validators: {
+                notEmpty: {message: "This is a required field"},
+                digits: {message: "Please enter a valid number"}
+            }
         }
-    },
-    errorPlacement: function(error, element)
-    {
-        $(element).attr('title', error[0].innerHTML);
-        $(element).tooltip('show');
-    },
-    highlight     : function(element)
-    {
-        $(element).closest('.form-group').addClass('has-error');
-    },
-    unhighlight   : function(element)
-    {
-        $(element).closest('.form-group').removeClass('has-error');
     },
     submitHandler : function()
     {
@@ -25,8 +15,8 @@ $('#sendCode').validate({
             dataType: 'json',
             data    : {
                 phoneNumber: {
-                    phone       : $('#sendCode #phoneNumber').val(),
-                    country_code: $('#sendCode #countryCode').val()
+                    phone       : $('#sendCode input[name=phone]').val(),
+                    country_code: $('#sendCode select[name=country_code]').val()
                 }
             },
             success: function() {
@@ -40,24 +30,14 @@ $('#sendCode').validate({
     }
 });
 
-$('#verifyCode').validate({
-    rules         : {
-        'verificationCode': {
-            required: true
+$('form#verifyCode').bootstrapValidator({
+    fields: {
+        'code': {
+            validators: {
+                notEmpty: {message: "This is a required field"},
+                digits: {message: "Please enter a valid number"}
+            }
         }
-    },
-    errorPlacement: function(error, element)
-    {
-        $(element).attr('title', error[0].innerHTML);
-        $(element).tooltip('show');
-    },
-    highlight     : function(element)
-    {
-        $(element).closest('.form-group').addClass('has-error');
-    },
-    unhighlight   : function(element)
-    {
-        $(element).closest('.form-group').removeClass('has-error');
     },
     submitHandler : function()
     {
@@ -68,8 +48,8 @@ $('#verifyCode').validate({
             data    : {
                 code: $('#verifyCode #verificationCode').val(),
                 phoneNumber: {
-                    phone       : $('#sendCode #phoneNumber').val(),
-                    country_code: $('#sendCode #countryCode').val()
+                    phone       : $('#sendCode input[name=phone]').val(),
+                    country_code: $('#sendCode select[name=country_code]').val()
                 }
             },
             success : function(data, textStatus, jqXHR)
@@ -96,5 +76,3 @@ $('#sendCode #countryCode').change(function()
     $('#sendCode input[type="submit"]').show();
     $('#verifyCode').hide();
 });
-
-$('select').selectpicker();

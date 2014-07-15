@@ -68,7 +68,7 @@ class TokenApi
                 function codeVerificationError(error)
                 {
                     res.send(500, error);
-                })
+                });
         });
 
         /* Create and send expert invitation code */
