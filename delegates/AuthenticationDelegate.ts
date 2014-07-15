@@ -57,6 +57,9 @@ class AuthenticationDelegate
     /* Register method with support for ajax requests */
     static register(options:any = {})
     {
+        options = options || {};
+        options.failureFlash = options.failureFlash || true;
+
         return function (req, res:express.Response, next:Function)
         {
             var isAjax = req.get('content-type') && req.get('content-type').indexOf('application/json') != -1;
