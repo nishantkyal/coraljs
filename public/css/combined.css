@@ -8730,31 +8730,31 @@ hr {
 }
 .masthead-brand .logo {
   display: block;
-  width: 152px;
+  width: 193px;
   height: 40px;
-  background-image: url('../images/searchntalk_logo.gif');
+  background-image: url('../images/searchntalk_logo_alpha.png');
   background-repeat: no-repeat;
   background-position: 0 0;
 }
 @media print, screen, (-webkit-min-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 3/2), (min--moz-device-pixel-ratio: 1.5), (-moz-min-device-pixel-ratio: 1.5), (-ms-min-device-pixel-ratio: 1.5), (min-device-pixel-ratio: 1.5), (min-resolution: 144dpi), (min-resolution: 1.5dppx) {
   .masthead-brand .logo {
-    background-size: 152px 40px;
-    background-image: url('../images/searchntalk_logo@2x.gif');
+    background-size: 193px 40px;
+    background-image: url('../images/searchntalk_logo_alpha@2x.png');
     background-position: 0 0;
   }
 }
 .masthead-brand .icon {
   display: block;
-  width: 40px;
+  width: 67px;
   height: 40px;
-  background-image: url('../images/searchntalk_icon.gif');
+  background-image: url('../images/searchntalk_icon_alpha.png');
   background-repeat: no-repeat;
   background-position: 0 0;
 }
 @media print, screen, (-webkit-min-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 3/2), (min--moz-device-pixel-ratio: 1.5), (-moz-min-device-pixel-ratio: 1.5), (-ms-min-device-pixel-ratio: 1.5), (min-device-pixel-ratio: 1.5), (min-resolution: 144dpi), (min-resolution: 1.5dppx) {
   .masthead-brand .icon {
-    background-size: 40px 40px;
-    background-image: url('../images/searchntalk_icon@2x.gif');
+    background-size: 67px 40px;
+    background-image: url('../images/searchntalk_icon_alpha@2x.png');
     background-position: 0 0;
   }
 }
