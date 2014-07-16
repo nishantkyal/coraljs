@@ -46,28 +46,20 @@ class TokenApi
 
             verificationCodeDelegate.verifyMobileCode(code, phoneNumber)
                 .then(
-                function codeVerified(newUserPhone)
+                function codeVerified()
                 {
-                    if (Utils.isNullOrEmpty(phoneNumber.getId()))
-                    {
-                        phoneNumber.setUserId(req['user'].id);
-                        return userPhoneDelegate.create(phoneNumber);
-                    }
-                    else
-                        return userPhoneDelegate.update({id:phoneNumber.getId()},phoneNumber);
+                    phoneNumber.setUserId(req['user'].id);
+                    return userPhoneDelegate.create(phoneNumber);
                 })
-                .then (
-                function userPhoneUpdated(){
-                    var returnTo:string = req.flash()[ApiConstants.RETURN_TO];
-                    if (!Utils.isNullOrEmpty(returnTo))
-                        res.redirect(returnTo);
-                    else
-                        res.send(phoneNumber.toJson());
+                .then(
+                function userPhoneCreated(createdPhone:UserPhone)
+                {
+                    res.send(createdPhone.toJson());
                 })
-                .fail (
+                .fail(
                 function codeVerificationError(error)
                 {
-                    res.send(500, error);
+                    res.json(500, error);
                 });
         });
 

@@ -151,7 +151,7 @@ class VerificationCodeDelegate
             function tokenSearched(result)
             {
                 if (result == code && !Utils.isNullOrEmpty(code))
-                    return q.resolve(true);
+                    return true;
                 else
                     throw ('Invalid code entered');
             });

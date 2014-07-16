@@ -178,7 +178,7 @@ class BaseDaoDelegate
         function prepareData(data:BaseModel)
         {
             var generatedId:number = new GlobalIdDelegate().generate(self.dao.modelClass.TABLE_NAME);
-            data[BaseModel.ID] = data[BaseModel.ID] || generatedId;
+            data[BaseModel.ID] = generatedId;
             data[BaseModel.CREATED] = moment().valueOf();
             data[BaseModel.UPDATED] = moment().valueOf();
             return data;

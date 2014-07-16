@@ -27,7 +27,7 @@ include ../header
                                     .links-editing
                                         .edit-schedules
                                             input.btn.btn-primary.form-control(type='submit', value='Send verification code', name='sendCode')
-                    form#verifyCode(style='display: none;')
+                    form#verifyCode(style='display: none;', action=ApiUrlDelegate.mobileVerificationCode(), method='get')
                         .item-edit
                             .item
                                 .row

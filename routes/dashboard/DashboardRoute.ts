@@ -103,7 +103,7 @@ class DashboardRoute
         app.get(Urls.dashboard(), AuthenticationDelegate.checkLogin({setReturnTo: true}), this.dashboard.bind(this));
         app.get(Urls.integration(), AuthenticationDelegate.checkLogin({setReturnTo: true}), this.integration.bind(this));
         app.get(Urls.userProfile(), this.userProfile.bind(this));
-        app.get(Urls.payments(),AuthenticationDelegate.checkLogin({setReturnTo: true}), this.userPayments.bind(this));
+        app.get(Urls.payments(), AuthenticationDelegate.checkLogin({setReturnTo: true}), this.userPayments.bind(this));
         app.get(Urls.userSetting(), Middleware.allowOnlyMe, this.setting.bind(this));
 
         app.get(Urls.emailAccountVerification(), this.emailAccountVerification.bind(this));
@@ -143,10 +143,7 @@ class DashboardRoute
     {
         this.userPhoneDelegate.find(Utils.createSimpleObject(UserPhone.USER_ID, req[ApiConstants.USER].id))
             .then(
-            function phoneNumbersFetched(numbers:UserPhone[]) { return numbers; },
-            function phoneNumberFetchError(error) { return null; })
-            .then(
-            function renderPage(numbers)
+            function renderPage(numbers:UserPhone[])
             {
                 var sessionData = new SessionData(req);
 
@@ -155,6 +152,11 @@ class DashboardRoute
                     messages: req.flash()
                 });
                 res.render(DashboardRoute.PAGE_MOBILE_VERIFICATION, pageData);
+            })
+            .fail(
+            function handleError(error)
+            {
+                res.render('500', {error: error.message});
             });
     }
 
@@ -216,7 +218,12 @@ class DashboardRoute
                     ])];
                 }
                 else
-                    return [null, [], [[], [], [],{}]];
+                    return [null, [], [
+                        [],
+                        [],
+                        [],
+                        {}
+                    ]];
             })
             .spread(
             function integrationDetailsFetched(integrationId:number, members:IntegrationMember[], ...results)

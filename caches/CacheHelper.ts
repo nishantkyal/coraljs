@@ -310,5 +310,18 @@ class CacheHelper
         return deferred.promise;
     }
 
+    static incrementCounter(counterName:string, increment:number = 1):q.Promise<any>
+    {
+        var deferred = q.defer();
+        return this.getConnection().incr(counterName, increment, function (error, result)
+        {
+            if (error)
+                deferred.reject(error);
+            else
+                deferred.resolve(result);
+        });
+        return deferred.promise;
+    }
+
 }
 export = CacheHelper

@@ -11,6 +11,7 @@ import IntegrationMemberDelegate                            = require('../../del
 import VerificationCodeDelegate                             = require('../../delegates/VerificationCodeDelegate');
 import IntegrationDelegate                                  = require('../../delegates/IntegrationDelegate');
 import EmailDelegate                                        = require('../../delegates/EmailDelegate');
+import UserPhoneDelegate                                    = require('../../delegates/UserPhoneDelegate');
 import Integration                                          = require('../../models/Integration');
 import User                                                 = require('../../models/User');
 import IntegrationMember                                    = require('../../models/IntegrationMember');
@@ -34,6 +35,7 @@ class MemberRegistrationRoute
 
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private verificationCodeDelegate = new VerificationCodeDelegate();
+    private userPhoneDelegate = new UserPhoneDelegate();
 
     constructor(app, secureApp)
     {
