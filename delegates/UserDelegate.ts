@@ -146,7 +146,7 @@ class UserDelegate extends BaseDaoDelegate
         })
         .fail( function imageResizeFailed(error)
         {
-            self.logger.debug('Image resize failed because %s', error);
+            self.logger.debug('Image resize failed because %s', JSON.stringify(error));
         });
     }
 }
