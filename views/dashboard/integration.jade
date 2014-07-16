@@ -4,7 +4,7 @@ title SearchNTalk - DashBoard
 .matter
     .container
         .row
-            if members && members.length != 0
+            if members && members.length != 0 && !createIntegration
                 .content.col-md-3
                     .row
                         nav.navbar.navbar-default.section-navbar(role='navigation')
@@ -35,9 +35,8 @@ title SearchNTalk - DashBoard
                                 include cards/CouponCard
                             #networkSetting
                                 include cards/NetworkSettingCard
-            else
+            else if createIntegration
                 .content.col-md-12
-                    if !createIntegration
                         .alert.alert-warning
                             strong You're not a part of any network yet.
                             p Create one?
@@ -60,11 +59,12 @@ title SearchNTalk - DashBoard
                             p.edit-schedules
                                 em Note: Create a network only if you've a group of experts. Else joining SearchNTalk network will be simpler and more useful.
                                 input.btn.btn-default(value='Create', type='submit')
-                    strong OR
-                    .actions-pane
-                        .row
-                            .col-xs-6.align-left
-                                a.btn.btn-warning(href=MemberRegistrationUrls.index() + '?integrationId=' + Config.get(Config.DEFAULT_NETWORK_ID)) Join SearchNTalk's expert network
+                    if !isPartOfDefaultNetwork
+                        strong OR
+                        .actions-pane
+                            .row
+                                .col-xs-6.align-left
+                                    a.btn.btn-warning(href=MemberRegistrationUrls.index() + '?integrationId=' + Config.get(Config.DEFAULT_NETWORK_ID)) Join SearchNTalk's expert network
 include ../footer
 script.
     var Timezone = JSON.parse('!{JSON.stringify(Timezone)}');

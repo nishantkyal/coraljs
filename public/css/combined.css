@@ -9925,3 +9925,7 @@ hr {
     width: 120px;
     height: 120px;
 }
+
+.card .item .header-row input {
+    margin-bottom: 10px;
+}

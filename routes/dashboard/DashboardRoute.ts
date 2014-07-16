@@ -186,7 +186,7 @@ class DashboardRoute
         var self = this;
         var sessionData = new SessionData(req);
         var selectedIntegrationId = parseInt(req.query[ApiConstants.INTEGRATION_ID]);
-        var createIntegration = req.query[ApiConstants.CREATE_INTEGRATION];
+        var createIntegration = req.query[ApiConstants.CREATE_INTEGRATION] == 'true';
 
         // 1. Get all member entries associated with the user
         // 2. Get coupons and members for the selected integration
@@ -235,28 +235,19 @@ class DashboardRoute
                         member[IntegrationMember.USER] = _.findWhere(member[IntegrationMember.USER], {id: member.getUserId()});
                 });
 
+                var isPartOfDefaultNetwork = !Utils.isNullOrEmpty(_.findWhere(members, Utils.createSimpleObject(IntegrationMember.INTEGRATION_ID, Config.get(Config.DEFAULT_NETWORK_ID))));
                 integrationMembers = integrationMembers.concat(_.map(invitedMembers, function (invited) { return new IntegrationMember(invited); }));
 
-                var pageData;
+                var pageData = _.extend(sessionData.getData(), {
+                    'members': members,
+                    'selectedMember': _.findWhere(members, {'integration_id': integrationId}),
+                    'integrationMembers': integrationMembers,
+                    'coupons': coupons,
+                    integration: integration,
+                    createIntegration: createIntegration,
+                    isPartOfDefaultNetwork: isPartOfDefaultNetwork
+                });
 
-                if (!Utils.isNullOrEmpty(createIntegration))
-                {
-                    pageData = _.extend(sessionData.getData(), {
-                        createIntegration:true
-                    });
-                }
-                else
-                {
-                    pageData = _.extend(sessionData.getData(), {
-                        'members': members,
-                        'selectedMember': _.findWhere(members, {'integration_id': integrationId}),
-                        'integrationMembers': integrationMembers,
-                        'coupons': coupons,
-                        integration:integration
-                    });
-                }
-
-                res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
                 res.render(DashboardRoute.PAGE_INTEGRATION, pageData);
             })
             .fail(
