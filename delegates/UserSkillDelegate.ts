@@ -49,18 +49,17 @@ class UserSkillDelegate extends BaseDaoDelegate
                     userSkill.setSkillId(skillCode.getId());
                     return self.createUserSkillWithMap(userSkill, profileId, transaction)
                 }
-                else
-                {
-                    return self.skillCodeDelegate.find({'linkedin_code':skillCode.getLinkedinCode()})
-                        .then(
-                        function skillFound(refSkill){
-                            userSkill.setSkillId(refSkill.getId());
-                            return self.createUserSkillWithMap(userSkill, profileId, transaction);
-                        }
-                    )
-                }
-            }
-        )
+            })
+            .fail(
+            function codeExists(){
+                return self.skillCodeDelegate.find(Utils.createSimpleObject(SkillCode.SKILL,skillName))
+                    .then(
+                    function skillFound(refSkill){
+                        userSkill.setSkillId(refSkill.getId());
+                        return self.createUserSkillWithMap(userSkill, profileId, transaction);
+                    }
+                )
+            })
     }
 
     createSkillCode(skillName:string, linkedInSkillCode:number, transaction?:Object):q.Promise<any>
@@ -90,7 +89,7 @@ class UserSkillDelegate extends BaseDaoDelegate
             },
             function skillCodeError(error) //code exists
             {
-                return self.skillCodeDelegate.find({'skill':skillCode.getSkill()})
+                return self.skillCodeDelegate.find(Utils.createSimpleObject(SkillCode.SKILL,skillCode.getSkill()))
                     .then(
                     function skillFound(refSkill){
                         userSkill.setSkillId(refSkill.getId());

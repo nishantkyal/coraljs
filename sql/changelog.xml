@@ -737,4 +737,40 @@
     <changeSet author="Nishant (generated)" id="1405332736860-2">
         <renameTable newTableName="phone_call_fragment" oldTableName="call_fragment"/>
     </changeSet>
+    <changeSet author="Ankit (generated)" id="1405602719107-1">
+        <createTable tableName="map_expertise_skill">
+            <column name="id" type="INT(10)"/>
+            <column name="expertise_id" type="INT(10)"/>
+            <column name="skill_id" type="INT(10)"/>
+            <column name="created" type="BIGINT(19)"/>
+            <column name="deleted" type="BIGINT(19)"/>
+            <column name="updated" type="BIGINT(19)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1405602719107-2">
+        <addForeignKeyConstraint baseColumnNames="expertise_id" baseTableName="map_expertise_skill" constraintName="fk_expertise_expertise" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="user_expertise"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1405602719107-3">
+        <addForeignKeyConstraint baseColumnNames="skill_id" baseTableName="map_expertise_skill" constraintName="fk_skill_skillCode" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="skill_codes"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1405602719107-4">
+        <addUniqueConstraint columnNames="skill" constraintName="skill_UNIQUE" deferrable="false" disabled="false" initiallyDeferred="false" tableName="skill_codes"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1405602719107-5">
+        <addUniqueConstraint columnNames="expertise_id, skill_id" constraintName="unique_expertise_skill" deferrable="false" disabled="false" initiallyDeferred="false" tableName="map_expertise_skill"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1405602719107-6">
+        <createIndex indexName="fk_expertise_expertise_map_idx" tableName="map_expertise_skill" unique="false">
+            <column name="id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1405602719107-7">
+        <dropUniqueConstraint constraintName="lkin_code_UNIQUE" tableName="skill_codes"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1405602719107-8">
+        <dropColumn columnName="linkedin_code" tableName="skill_codes"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1405602719107-13">
+        <modifyDataType columnName="skill" newDataType="varchar(80)" tableName="skill_codes"/>
+    </changeSet>
 </databaseChangeLog>
