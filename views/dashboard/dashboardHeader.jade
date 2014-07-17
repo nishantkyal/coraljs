@@ -16,14 +16,14 @@ if loggedInUser
                         // Collect the nav links, forms, and other content for toggling
                         #navbar-collapse.collapse.navbar-collapse
                             ul.nav.navbar-nav.navbar-left
-                                li(name='dashboard')
+                                li.dashboard
                                     a(href=DashboardUrls.dashboard()) Dashboard
                             ul.nav.navbar-nav.navbar-right
-                                li(name='networks')
+                                li.networks
                                     a(href=DashboardUrls.integration()) Networks
-                                li(name='profile')
+                                li.profile
                                     a(href=DashboardUrls.userProfile(loggedInUser.id)) Profile
-                                li(name='payments')
+                                li.payments
                                     a(href='/payments') Payments
-                                li(name='settings')
+                                li.settings
                                     a(href=DashboardUrls.userSettingPhone(loggedInUser.id)) Settings
