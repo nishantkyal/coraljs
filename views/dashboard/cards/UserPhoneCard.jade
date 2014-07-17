@@ -1,3 +1,7 @@
+style.
+    #userPhone .update {
+        display: none;
+    }
 .card.main-card
     .addit
         a.btn.btn-primary.createCardBtn Add a Phone Number
@@ -13,8 +17,7 @@
     else
         .alert.alert-warning
             strong You have not added any phone numbers yet.
-            br
-            | You will need to add atleast one phone number to receive calls.
+            p You will need to add atleast one phone number to receive calls.
 .card.edit-card
     form
         .alert.alert-danger(style='display: none;')
@@ -43,7 +46,6 @@
                         input.form-control(name='code', placeholder='Enter verification code')
                     div.links-editing
                         p.edit-schedules
-                            input(type='hidden', name='code_sent')
                             input(type='hidden', name='id')
                             input.btn.btn-primary.sendCode(type='submit', value='Send Verification Code', name='sendCode')
                             input.btn.btn-primary.update(type='submit', value='Verify and Update', name='update')

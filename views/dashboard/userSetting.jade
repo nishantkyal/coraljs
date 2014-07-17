@@ -31,10 +31,10 @@ title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setti
                 .row
                     #userPhone
                         include cards/UserPhoneCard
-                .row
+                .row(style='display: none;')
                     #userSchedule
                         include userSchedule
-                .row
+                .row(style='display: none;')
                     .card#password
                         form#changePasswordForm
                             .alert.alert-danger(style='display: none;')

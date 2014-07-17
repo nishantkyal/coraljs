@@ -28,6 +28,9 @@ $.fn.card = function(options)
     self.edit = function(selectedObject, clickedElement)
     {
         populate($('.edit-card form', self), selectedObject);
+        try {
+            $('.edit-card form', self).data('bootstrapValidator').validate();
+        } catch (e) {}
 
         // Hide main card and show edit card
         if (clickedElement)
@@ -50,7 +53,6 @@ $.fn.card = function(options)
     $('.createCardBtn', self).click(self.create);
     $('.editCardBtn', self).click(self.edit);
     $('.cancelEditCardBtn', self).click(self.cancelEdit);
-
 
     return self;
 };
