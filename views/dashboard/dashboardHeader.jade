@@ -22,8 +22,8 @@ if loggedInUser
                                 li(name='networks')
                                     a(href=DashboardUrls.integration()) Networks
                                 li(name='profile')
-                                    a(href=loggedInUser ? DashboardUrls.userProfile(loggedInUser.id) :'') Profile
+                                    a(href=DashboardUrls.userProfile(loggedInUser.id)) Profile
                                 li(name='payments')
                                     a(href='/payments') Payments
                                 li(name='settings')
-                                    a(href=loggedInUser ? DashboardUrls.userSetting(loggedInUser.id) :'') Settings
+                                    a(href=DashboardUrls.userSettingPhone(loggedInUser.id)) Settings
