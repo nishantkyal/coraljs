@@ -66,7 +66,7 @@ class BaseModel extends AbstractModel
     {
         // FIXME: Foreign key association where srcKey name doesn't contain _id uses targetKey name
         var srcPropertyName:string = fk.srcKey.indexOf('_id') != -1 ? fk.srcKey.replace('_id', '') : fk.targetKey.replace('_id', '');
-        var srcPropertyNameCamelCase:string = Utils.snakeToCamelCase(srcPropertyName);
+        var srcPropertyNameCamelCase:string = Utils.snakeToCamelCase(fk.localPropertyToSet || srcPropertyName);
         var getterMethod:string = 'get' + srcPropertyNameCamelCase;
         var setterMethod:string = 'set' + srcPropertyNameCamelCase;
         var thisProtoConstructor = this.__proto__.constructor;
@@ -92,7 +92,7 @@ class BaseModel extends AbstractModel
     {
         // FIXME: Foreign key association where srcKey name doesn't contain _id uses targetKey name
         var srcPropertyName:string = fk.srcKey.indexOf('_id') != -1 ? fk.srcKey.replace('_id', '') : fk.targetKey.replace('_id', '');
-        var srcPropertyNameCamelCase:string = Utils.snakeToCamelCase(srcPropertyName);
+        var srcPropertyNameCamelCase:string = Utils.snakeToCamelCase(fk.localPropertyToSet || srcPropertyName);
         var getterMethod:string = 'get' + srcPropertyNameCamelCase;
         var setterMethod:string = 'set' + srcPropertyNameCamelCase;
         var thisProtoConstructor = this.__proto__.constructor;
