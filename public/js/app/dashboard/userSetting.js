@@ -1,106 +1,24 @@
-var cards = ['#schedule','#scheduleDetails','#pricing','#password','#phone','#editUserPhoneCard','#verifyUserPhoneCard'];
-
-function showAndHideCards(cardsToShow)
+$('#sectionNav li a').click(function(event)
 {
-    _.each(cardsToShow, function(showCard) { $(showCard).show(); })
+    var selectedIndex = $('#sectionNav li a').index($(event.currentTarget));
+    $('#sections > .row').hide();
+    $('#sections > .row:nth-child(' + (selectedIndex + 1) + ')').show();
 
-    var temp = _.filter(cards, function(hideCard)
-    {
-        return _.find(cardsToShow, function(showCard) { return hideCard == showCard; }) ? false : true;
-    });
-
-    _.each(temp,
-        function(card)
-        {
-            $(card).hide();
-        })
-}
-
-$(function()
-{
-    showAndHideCards(['#' + selectedTab]);
-})
-
-$('[name="phoneDetailsLink"]').click(function()
-{
-    if (!$('[name="phoneDetailsLink"]').hasClass('active')) {
-        $('[name="phoneDetailsLink"]').addClass('active').siblings().removeClass('active');
-        showAndHideCards(['#phone'])
-    }
+    $('#sectionNav li').removeClass('active');
+    $(event.currentTarget).parent().addClass('active');
 });
 
-$('[name="scheduleAndPricingLink"]').click(function()
-{
-    if (!$('[name="scheduleAndPricingLink"]').hasClass('active')) {
-        $('[name="scheduleAndPricingLink"]').addClass('active').siblings().removeClass('active');
-        showAndHideCards(['#schedule', '#pricing']);
-    }
-});
+/* User Phone Card */
+var userPhoneCard = $('#userPhone').card();
 
-$('[name="changePasswordLink"]').click(function()
-{
-    showAndHideCards(['#password']);
-    $('[name="changePasswordLink"]').addClass('active').siblings().removeClass('active');
-
-    $('form#changePasswordForm').trigger('reset');
-    $('form#changePasswordForm').data('bootstrapValidator').resetForm();
-});
-
-$('[name="widgetLink"]').click(function()
-{
-    showAndHideCards(['#widget']);
-    $('[name="widgetLink"]').addClass('active').siblings().removeClass('active');
-});
-
-$('#cancelEditUserPhone').click(function()
-{
-    $('#phone').show();
-    $('#userPhoneDetailsCard').hide();
-});
-
-$('#cancelVerifyUserPhone').click(function()
-{
-    $('#phone').show();
-    $('#verifyUserPhoneCard').hide();
-});
-
-$('#cancelChangePassword').click(function()
-{
-    $('#phone').show();
-    $('[name="phoneDetailsLink"]').addClass('active').siblings().removeClass('active');
-    $('#password').hide();
-});
-
-$('#addUserPhone').click(function()
-{
-    $('#userPhoneDetailsCard').show();
-    $('#phone').hide();
-});
-
-$('.editUserPhone').click(function(event)
+$('.editPhoneBtn').click(function(event)
 {
     var phoneId = $(event.currentTarget).data('id');
     var phone = _.findWhere(userPhones, {id: phoneId});
-
-    populate('#userPhoneDetailsCard form', phone);
-    $('#userPhoneDetailsCard').show();
-    $('#phone').hide();
+    userPhoneCard.edit(phone);
 });
 
-$('[name="createWidget"]').click(function()
-{
-    $('#widget').hide();
-    $('form#createWidgetForm').data('bootstrapValidator').resetForm();
-    $('#createWidget').show();
-});
-
-$('#cancelCreateWidget').click(function()
-{
-    $('#widget').show();
-    $('#createWidget').hide();
-});
-
-$('#userPhoneDetailsCard form').bootstrapValidator({
+$('#userPhone .edit-card form').bootstrapValidator({
     submitHandler: function(validator, form, submitBtn)
     {
         var method = $(submitBtn).attr('name') == 'sendCode' ? 'post' : 'get';
@@ -111,22 +29,23 @@ $('#userPhoneDetailsCard form').bootstrapValidator({
             dataType   : 'json',
             contentType: 'application/json',
             data       : JSON.stringify({
-                code       : $('#userPhoneDetailsCard form input[name="code"]').val(),
+                code       : $('#userPhone .edit-card form input[name="code"]').val(),
                 phoneNumber: {
-                    phone       : $('#userPhoneDetailsCard form input[name="phone"]').val(),
-                    country_code: $('#userPhoneDetailsCard form select[name="country_code"]').val(),
-                    id          : $('#userPhoneDetailsCard form input[name="code"]').attr('id')
+                    phone       : $('#userPhone .edit-card form input[name="phone"]').val(),
+                    country_code: $('#userPhone .edit-card form select[name="country_code"]').val(),
+                    id          : $('#userPhone .edit-card form input[name="code"]').attr('id')
                 }
             }),
             success    : function()
             {
                 $('.update').show();
                 $('.sendCode').hide();
-                $('#userPhoneDetailsCard form').data('bootstrapValidator').enableFieldValidators('code', true);
+                $('#userPhone .edit-card form').data('bootstrapValidator').enableFieldValidators('code', true);
             },
             error      : function(jqXHR, textStatus, errorThrown)
             {
-                $('.card#userPhoneDetailsCard .alert-danger').text(jqXHR.responseText);
+                $('#userPhone .edit-card .alert-danger').show();
+                $('#userPhone .edit-card .alert-danger').text(jqXHR.responseText);
             }
         });
     },
@@ -162,6 +81,7 @@ $('#userPhoneDetailsCard form').bootstrapValidator({
     }
 });
 
+/* Change Password */
 $('form#changePasswordForm').bootstrapValidator({
     submitHandler: function()
     {
@@ -182,10 +102,8 @@ $('form#changePasswordForm').bootstrapValidator({
             },
             error  : function(error)
             {
-                bootbox.alert(error.responseText, function()
-                {
-                    location.reload();
-                });
+                $('form#changePasswordForm .alert').show();
+                $('form#changePasswordForm .alert').text(error.responseText);
             }
         })
     },
@@ -221,33 +139,5 @@ $('form#changePasswordForm').bootstrapValidator({
                 }
             }
         }
-    }
-})
-
-;$('form#createWidgetForm').bootstrapValidator({
-    submitHandler : function()
-    {
-        $.ajax({
-            url : '/rest/widget',
-            type: 'put',
-            data: {
-                widget: {
-                    template:$('form#createWidgetForm select[name="widgetType"]').val(),
-                    user_id: user.id
-                }
-            },
-            success: function(res)
-            {
-                bootbox.alert(res, function(){
-                    location.reload();
-                });
-            },
-            error: function(error)
-            {
-                bootbox.alert(error.responseText, function(){
-                    location.reload();
-                });
-            }
-        })
     }
 });

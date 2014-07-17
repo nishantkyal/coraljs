@@ -1,0 +1,49 @@
+.card.main-card
+    .addit
+        a.btn.btn-primary.createCardBtn Add a Phone Number
+            i.icon-plus
+    if (userPhone && userPhone.length > 0)
+        for phone in userPhone
+            .item
+                .row
+                    big.col-xs-8 #{formatPhone(phone)}
+                    .header-link.col-xs-4
+                        a.btn.btn-primary.editPhoneBtn(data-id=phone.id)
+                            i.icon-pencil
+    else
+        .alert.alert-warning
+            strong You have not added any phone numbers yet.
+            br
+            | You will need to add atleast one phone number to receive calls.
+.card.edit-card
+    form
+        .alert.alert-danger(style='display: none;')
+        .item-edit
+            .item
+                .header-row.row
+                    h5.col-xs-8 Phone Number
+                    .header-link.col-xs-4
+                        a.btn.btn-danger.cancelEditCardBtn
+                            i.icon-cancel
+            .item
+                .row
+                    h3 Phone Number:
+                    .form-group
+                        .row
+                            .col-xs-4
+                                select.form-control(name='country_code')
+                                    for name,abb in CountryName
+                                        - var code = CountryCode[abb];
+                                        option(value=code)= name + ' (+' + code + ')'
+                            .col-xs-8
+                                input.form-control.phone-number(type='text', placeholder='Phone Number', name='phone')
+                    .clearer
+                    h3.update Verification Code:
+                    .form-group.update
+                        input.form-control(name='code', placeholder='Enter verification code')
+                    div.links-editing
+                        p.edit-schedules
+                            input(type='hidden', name='code_sent')
+                            input(type='hidden', name='id')
+                            input.btn.btn-primary.sendCode(type='submit', value='Send Verification Code', name='sendCode')
+                            input.btn.btn-primary.update(type='submit', value='Verify and Update', name='update')

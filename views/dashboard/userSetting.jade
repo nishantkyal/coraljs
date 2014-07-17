@@ -17,70 +17,27 @@ title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setti
                                 i.icon-plus
                                 i.icon-minus
                             .visible-xs.navbar-brand.network-brand Profile
-                        #networks-collapse.collapse.navbar-collapse
+                        .collapse.navbar-collapse#sectionNav
                             ul.nav.nav-pills.nav-stacked
-                                li(name='phoneDetailsLink', class=selectedTab == 'phone' || !selectedTab ? 'active' : '')
+                                li(class=selectedTab == 'phone' || !selectedTab ? 'active' : '')
                                     a Phone Numbers
-                                li(name='scheduleAndPricingLink', class=selectedTab == 'schedule' ? 'active' : '')
+                                li(class=selectedTab == 'schedule' ? 'active' : '')
                                     a Schedules and Pricing
-                                li(name='changePasswordLink', class=selectedTab == 'password' ? 'active' : '')
+                                li(class=selectedTab == 'password' ? 'active' : '')
                                     a Change Password
             //
                /.content
-            .content.col-md-8
-                include userSchedule
+            .content.col-md-8#sections
                 .row
-                    .card#phone
-                        .addit
-                            a.btn.btn-primary#addUserPhone Add a Phone Number
-                                i.icon-plus
-                        if (userPhone && userPhone.length > 0)
-                            for phone in userPhone
-                                .item
-                                    .row
-                                        big.col-xs-8 #{formatPhone(phone)}
-                                        .header-link.col-xs-4
-                                            a.btn.btn-primary.editUserPhone(data-id=phone.id)
-                                                i.icon-pencil
-                        else
-                            .alert.alert-warning
-                                strong You have not added any phone numbers yet.
-                                br
-                                | You will need to add atleast one phone number to receive calls.
-                    .card#userPhoneDetailsCard(style='display: none;')
-                        form
-                            .alert.alert-danger
-                            .item-edit
-                                .item
-                                    .header-row.row
-                                        h5.col-xs-8 Phone Number
-                                        .header-link.col-xs-4
-                                            a.btn.btn-danger#cancelEditUserPhone
-                                                i.icon-cancel
-                                .item
-                                    .row
-                                        h3 Phone Number:
-                                        .form-group
-                                            .row
-                                                .col-xs-4
-                                                    select.form-control(name='country_code')
-                                                        for name,abb in CountryName
-                                                            - var code = CountryCode[abb];
-                                                            option(value=code)= name + ' (+' + code + ')'
-                                                .col-xs-8
-                                                    input.form-control.phone-number(type='text', placeholder='Phone Number', name='phone')
-                                        .clearer
-                                        h3.update Verification Code:
-                                        .form-group.update
-                                            input.form-control(name='code', placeholder='Enter verification code')
-                                        div.links-editing
-                                            p.edit-schedules
-                                                input(type='hidden', name='code_sent')
-                                                input(type='hidden', name='id')
-                                                input.btn.btn-primary.sendCode(type='submit', value='Send Verification Code', name='sendCode')
-                                                input.btn.btn-primary.update(type='submit', value='Verify and Update', name='update')
-                    .card#password(style='display: none;')
+                    #userPhone
+                        include cards/UserPhoneCard
+                .row
+                    #userSchedule
+                        include userSchedule
+                .row
+                    .card#password
                         form#changePasswordForm
+                            .alert.alert-danger(style='display: none;')
                             .item-edit
                                 h3 Old Password
                                 .form-group
