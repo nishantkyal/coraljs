@@ -12,6 +12,7 @@ class BaseModel extends AbstractModel
     static CREATED:string = 'created';
     static UPDATED:string = 'updated';
     static DELETED:string = 'deleted';
+    static _INITIALIZED:boolean = false;
 
     private id:number;
     private created:number;
@@ -50,7 +51,7 @@ class BaseModel extends AbstractModel
         else
         {
             var setterMethodName:string = 'set' + Utils.snakeToCamelCase(propertyName);
-            var setterMethod:Function = this[setterMethodName];
+            var setterMethod:Function = thisProtoConstructor[setterMethodName];
             if (setterMethod)
                 setterMethod.call(this, val);
             else
@@ -63,12 +64,56 @@ class BaseModel extends AbstractModel
     /* Foreign key methods */
     hasOne(fk:ForeignKey):void
     {
+        // TODO: Name assumption here that keys will have _id suffix
+        var srcPropertyName:string = fk.srcKey.replace('_id', '');
+        var srcPropertyNameCamelCase:string = Utils.snakeToCamelCase(srcPropertyName);
+        var getterMethod:string = 'get' + srcPropertyNameCamelCase;
+        var setterMethod:string = 'set' + srcPropertyNameCamelCase;
+        var thisProtoConstructor = this.__proto__.constructor;
 
+        // Getter method
+        thisProtoConstructor[getterMethod] = function():Object
+        {
+            if (_.isArray(this[srcPropertyName]))
+                this[srcPropertyName] = _.findWhere(this[srcPropertyName], Utils.createSimpleObject(fk.targetKey, this[fk.srcKey]));
+            return this[srcPropertyName];
+        };
+
+        // Setter method
+        thisProtoConstructor[setterMethod] = function(val:any):void
+        {
+            if (_.isArray(val))
+                val = _.findWhere(val, Utils.createSimpleObject(fk.targetKey, this[fk.srcKey]));
+            this[srcPropertyName] = val;
+        };
     }
 
     hasMany(fk:ForeignKey):void
     {
+        // TODO: Name assumption here that keys will have _id suffix
+        var srcPropertyName:string = fk.srcKey.replace('_id', '');
+        var srcPropertyNameCamelCase:string = Utils.snakeToCamelCase(srcPropertyName);
+        var getterMethod:string = 'get' + srcPropertyNameCamelCase;
+        var setterMethod:string = 'set' + srcPropertyNameCamelCase;
         var thisProtoConstructor = this.__proto__.constructor;
+
+        // Getter method
+        thisProtoConstructor[getterMethod] = function():Object
+        {
+            if (_.isObject(this[srcPropertyName]) && this[srcPropertyName][fk.targetKey] == this[fk.srcKey])
+                this[srcPropertyName] = [this[srcPropertyName]];
+            return this[srcPropertyName];
+        };
+
+        // Setter method
+        thisProtoConstructor[setterMethod] = function(val:any):void
+        {
+            if (_.isObject(val) && val[fk.targetKey] == this[fk.srcKey])
+                val = [val];
+            if (_.isArray(val))
+                val = _.where(val, Utils.createSimpleObject(fk.targetKey, this[fk.srcKey]));
+            this[srcPropertyName] = val;
+        };
 
     }
 }

@@ -196,21 +196,11 @@ class DashboardRoute
             .then(
             function integrationsFetched(integrationMembers:IntegrationMember[])
             {
-                // TODO: Clean up data because we haven't implemented foreign keys correctly
-                var correctedMembers = _.map(integrationMembers, function (member:IntegrationMember)
+                if (integrationMembers.length != 0)
                 {
-                    var users:User[] = member[IntegrationMember.USER];
-                    var integrations:Integration[] = member[IntegrationMember.INTEGRATION];
-                    member.setUser(_.findWhere(users, {'id': member.getUserId()}));
-                    member.setIntegration(_.findWhere(integrations, {'id': member.getIntegrationId()}));
-                    return member;
-                });
+                    var integrationId = selectedIntegrationId || integrationMembers[0].getIntegrationId();
 
-                if (correctedMembers.length != 0)
-                {
-                    var integrationId = selectedIntegrationId || correctedMembers[0].getIntegrationId();
-
-                    return [integrationId, correctedMembers, q.all([
+                    return [integrationId, integrationMembers, q.all([
                         self.integrationMemberDelegate.search({integration_id: integrationId}, IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER]),
                         self.verificationCodeDelegate.getInvitationCodes(integrationId),
                         self.couponDelegate.search({integration_id: integrationId}, Coupon.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_EXPERT]),
@@ -218,12 +208,7 @@ class DashboardRoute
                     ])];
                 }
                 else
-                    return [null, [], [
-                        [],
-                        [],
-                        [],
-                        {}
-                    ]];
+                    return [null, [], [[],[],[],{}]];
             })
             .spread(
             function integrationDetailsFetched(integrationId:number, members:IntegrationMember[], ...results)
@@ -234,13 +219,6 @@ class DashboardRoute
                 var invitedMembers = [].concat(_.values(results[0][1]));
                 var coupons = results[0][2] || [];
                 var integration = results[0][3];
-
-                _.each(integrationMembers, function (member:IntegrationMember)
-                {
-                    // TODO: Implement foreign keys to get rid of this goofiness
-                    if (Utils.getObjectType(member[IntegrationMember.USER]) == 'Array')
-                        member[IntegrationMember.USER] = _.findWhere(member[IntegrationMember.USER], {id: member.getUserId()});
-                });
 
                 var isPartOfDefaultNetwork = !Utils.isNullOrEmpty(_.findWhere(members, Utils.createSimpleObject(IntegrationMember.INTEGRATION_ID, Config.get(Config.DEFAULT_NETWORK_ID))));
                 integrationMembers = integrationMembers.concat(_.map(invitedMembers, function (invited) { return new IntegrationMember(invited); }));

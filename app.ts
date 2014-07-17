@@ -22,7 +22,6 @@ import ScheduledTaskDelegate                        = require('./delegates/Sched
 import TimezoneDelegate                             = require('./delegates/TimezoneDelegate');
 import RequestHandler                               = require('./middleware/RequestHandler');
 var connect                                         = require('connect');
-var RedisStore                                      = require('connect-redis')(connect);
 var pjson                                           = require('./package.json');
 
 log4js.configure('/var/searchntalk/config/log4js.json');

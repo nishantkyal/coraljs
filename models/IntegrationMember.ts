@@ -2,8 +2,10 @@ import BaseModel                                        = require('./BaseModel')
 import Integration                                      = require('./Integration');
 import User                                             = require('./User');
 import UserProfile                                      = require('./UserProfile');
+import ForeignKey                                       = require('./ForeignKey');
 import MoneyUnit                                        = require('../enums/MoneyUnit');
 import IntegrationMemberRole                            = require('../enums/IntegrationMemberRole');
+
 /*
  Bean class for Integration member
  */
@@ -22,9 +24,6 @@ class IntegrationMember extends BaseModel
     static REVENUE_SHARE:string = 'revenue_share';
     static REVENUE_SHARE_UNIT:string = 'revenue_share_unit';
 
-    static INTEGRATION:string = 'integration';
-    static USER:string = 'user';
-
     static DEFAULT_FIELDS:string[] = [IntegrationMember.ID, IntegrationMember.INTEGRATION_ID, IntegrationMember.ROLE, IntegrationMember.USER_ID];
     static DASHBOARD_FIELDS:string[] = [IntegrationMember.ID, IntegrationMember.INTEGRATION_ID, IntegrationMember.ROLE, IntegrationMember.USER_ID, IntegrationMember.REVENUE_SHARE, IntegrationMember.REVENUE_SHARE_UNIT];
 
@@ -40,9 +39,16 @@ class IntegrationMember extends BaseModel
     private revenue_share:number;
     private revenue_share_unit:number;
 
-    private integration:Integration;
-    private user:User;
-    private user_profile:UserProfile;
+    constructor(data:Object = {})
+    {
+        super(data);
+        if (!IntegrationMember._INITIALIZED)
+        {
+            this.hasOne(new ForeignKey(IntegrationMember.USER_ID, User, User.ID));
+            this.hasOne(new ForeignKey(IntegrationMember.INTEGRATION_ID, Integration, Integration.ID));
+            IntegrationMember._INITIALIZED = true;
+        }
+    }
 
     /* Getters */
     getIntegrationId():number                           { return this.integration_id; }
@@ -57,9 +63,8 @@ class IntegrationMember extends BaseModel
     getRevenueShare():number                            { return this.revenue_share; }
     getRevenueShareUnit():number                        { return this.revenue_share_unit; }
 
-    getIntegration():Integration                        { return this.integration ? new Integration(this.integration) : null; }
-    getUser():User                                      { return this.user ? new User(this.user) : null; }
-    getUserProfile():UserProfile                        { return this.user_profile ? new UserProfile(this.user_profile) : null; }
+    getIntegration():Integration                        { return null; }
+    getUser():User                                      { return null; }
 
     isValid():boolean {
         return !isNaN(this.getIntegrationId()) && !isNaN(this.getRole());
@@ -78,8 +83,7 @@ class IntegrationMember extends BaseModel
     setRevenueShare(val:number):void                    { this.revenue_share = val; }
     setRevenueShareUnit(val:MoneyUnit):void             { this.revenue_share_unit = val; }
 
-    setIntegration(val:Integration):void                { this.integration = val; }
-    setUser(val:User):void                              { this.user = val; }
-    setUserProfile(val:UserProfile):void                { this.user_profile = val; }
+    setIntegration(val:Integration):void                { }
+    setUser(val:User):void                              { }
 }
 export = IntegrationMember
