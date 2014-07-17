@@ -1,121 +1,119 @@
-div.row
-    #userSchedule
-        .card.main-card
-            .addit
-                a.btn.btn-primary.createCardBtn
-                    | Add a schedule
-                    i.icon-plus
-            .item
-                for rule in rules
-                    - var daysOfWeek = rule.values[5] || ['0', '1', '2', '3', '4', '5', '6'];
-                    - var hour = rule.values[2];
-                    - var minutes = rule.values[1];
-                    div.schedule
-                        div.item
-                            div.row
-                                .header-row.row
-                                    h5.col-xs-8= rule.title || 'Rule'
-                                    div.header-link.col-xs-4
-                                        a.btn.btn-primary.editScheduleBtn(data-id=rule.id)
-                                            i.icon-pencil
-                                .clearer
-                            div.schedule-details
-                                div.schedule-days.col-sm-6
-                                    h3 Days:
-                                    ul.nav.nav-pills
-                                        li(class="#{daysOfWeek.indexOf('0') != -1 ? 'active' : ''}")
-                                            p.well S
-                                        li(class="#{daysOfWeek.indexOf('1') != -1 ? 'active' : ''}")
-                                            p.well M
-                                        li(class="#{daysOfWeek.indexOf('2') != -1 ? 'active' : ''}")
-                                            p.well T
-                                        li(class="#{daysOfWeek.indexOf('3') != -1 ? 'active' : ''}")
-                                            p.well W
-                                        li(class="#{daysOfWeek.indexOf('4') != -1 ? 'active' : ''}")
-                                            p.well T
-                                        li(class="#{daysOfWeek.indexOf('5') != -1 ? 'active' : ''}")
-                                            p.well F
-                                        li(class="#{daysOfWeek.indexOf('6') != -1 ? 'active' : ''}")
-                                            p.well S
-                                div.schedule-time.col-sm-6
-                                    h3 Time:
-                                    h1
-                                        span= moment().hour(hour).minute(minutes).format('hh:mm a')
-                                        em &nbsp;to&nbsp;
-                                        span= moment().hour(hour).minute(minutes).add({milliseconds: rule.duration}).format('hh:mm a')
-                        div.clearer
-        .card.edit-card
-            .schedule-edit
-                .item
-                    .row
-                        h5.col-xs-8.title Schedule #1
-                        .header-link.col-xs-4
-                            a.btn.btn-danger.cancelEditCardBtn
-                                i.icon-cancel
-                    .schedule-details
-                        .schedule-days.col-sm-6
+.card.main-card
+    .addit
+        a.btn.btn-primary.createCardBtn
+            | Add a schedule
+            i.icon-plus
+    .item
+        for rule in rules
+            - var daysOfWeek = rule.values[5] || ['0', '1', '2', '3', '4', '5', '6'];
+            - var hour = rule.values[2];
+            - var minutes = rule.values[1];
+            div.schedule
+                div.item
+                    div.row
+                        .header-row.row
+                            h5.col-xs-8= rule.title || 'Rule'
+                            div.header-link.col-xs-4
+                                a.btn.btn-primary.editScheduleBtn(data-id=rule.id)
+                                    i.icon-pencil
+                        .clearer
+                    div.schedule-details
+                        div.schedule-days.col-sm-6
                             h3 Days:
                             ul.nav.nav-pills
-                                li
-                                    a.well S
-                                li.active
-                                    a.well M
-                                li.active
-                                    a.well T
-                                li.active
-                                    a.well W
-                                li.active
-                                    a.well T
-                                li.active
-                                    a.well F
-                                li
-                                    a.well S
-                        .schedule-time.col-sm-6
+                                li(class="#{daysOfWeek.indexOf('0') != -1 ? 'active' : ''}")
+                                    p.well S
+                                li(class="#{daysOfWeek.indexOf('1') != -1 ? 'active' : ''}")
+                                    p.well M
+                                li(class="#{daysOfWeek.indexOf('2') != -1 ? 'active' : ''}")
+                                    p.well T
+                                li(class="#{daysOfWeek.indexOf('3') != -1 ? 'active' : ''}")
+                                    p.well W
+                                li(class="#{daysOfWeek.indexOf('4') != -1 ? 'active' : ''}")
+                                    p.well T
+                                li(class="#{daysOfWeek.indexOf('5') != -1 ? 'active' : ''}")
+                                    p.well F
+                                li(class="#{daysOfWeek.indexOf('6') != -1 ? 'active' : ''}")
+                                    p.well S
+                        div.schedule-time.col-sm-6
                             h3 Time:
-                            .input-group
-                                input.form-control.datepicker(type='text', name='start_time')
-                                span.input-group-addon to
-                                input.form-control.datepicker(type='text', name='end_time')
-                .clearer
+                            h1
+                                span= moment().hour(hour).minute(minutes).format('hh:mm a')
+                                em &nbsp;to&nbsp;
+                                span= moment().hour(hour).minute(minutes).add({milliseconds: rule.duration}).format('hh:mm a')
+                div.clearer
+.card.edit-card
+    .schedule-edit
+        .item
+            .row
+                h5.col-xs-8.title Schedule #1
+                .header-link.col-xs-4
+                    a.btn.btn-danger.cancelEditCardBtn
+                        i.icon-cancel
+            .schedule-details
+                .schedule-days.col-sm-6
+                    h3 Days:
+                    ul.nav.nav-pills
+                        li
+                            a.well S
+                        li.active
+                            a.well M
+                        li.active
+                            a.well T
+                        li.active
+                            a.well W
+                        li.active
+                            a.well T
+                        li.active
+                            a.well F
+                        li
+                            a.well S
+                .schedule-time.col-sm-6
+                    h3 Time:
+                    .input-group
+                        input.form-control.datepicker(type='text', name='start_time')
+                        span.input-group-addon to
+                        input.form-control.datepicker(type='text', name='end_time')
+        .clearer
+    .links-edit
+        p.edit-schedules
+            | Editing Schedule
+            a.btn.btn-danger.delete-schedule(href='javascript:void(0)') Delete
+            a.btn.btn-primary.done-editing-schedule(href='javascript:void(0)') Save
+.card#pricing
+    .item
+        .header-row.row
+            h5 Pricing
+        .clearer
+    .item
+        form#pricingSchemeForm
+            input(type='hidden', name='id', value=scheme.id)
+            .row
+                h3 Pulse Rate
+                .form-group
+                    select.form-control(name='chunk_size')
+                        option(value='1', selected=scheme.chunk_size == 1) 1 min.
+                        option(value='15', selected=scheme.chunk_size == 15) 15 mins.
+                        option(value='30', selected=scheme.chunk_size == 30) 30 mins.
+                        option(value='45', selected=scheme.chunk_size == 45) 45 mins.
+                        option(value='60', selected=scheme.chunk_size == 60) 60 mins.
+                h3 Amount
+                .form-group
+                    .row
+                        .col-xs-10
+                            input(type='text', value=scheme.charging_rate, name='charging_rate').form-control
+                        .col-xs-2
+                            select.form-control(name='unit')
+                                option(value='1', selected=scheme.unit == 1) Rs.
+                                option(value='2', selected=scheme.unit == 2) $
+                                option(value='3', selected=scheme.unit == 3) Points
+                h3 Minimum duration (mins.)
+                .form-group
+                    input(type='text', placeholder='0', value=scheme.min_duration, name='min_duration').form-control
             .links-edit
                 p.edit-schedules
-                    | Editing Schedule
-                    a.btn.btn-danger.delete-schedule(href='javascript:void(0)') Delete
-                    a.btn.btn-primary.done-editing-schedule(href='javascript:void(0)') Save
-    .card#pricing
-        .item
-            .header-row.row
-                h5 Pricing
-            .clearer
-        .item
-            form#pricingSchemeForm
-                input(type='hidden', name='id', value=scheme.id)
-                .row
-                    h3 Pulse Rate
-                    .form-group
-                        select.form-control(name='chunk_size')
-                            option(value='1', selected=scheme.chunk_size == 1) 1 min.
-                            option(value='15', selected=scheme.chunk_size == 15) 15 mins.
-                            option(value='30', selected=scheme.chunk_size == 30) 30 mins.
-                            option(value='45', selected=scheme.chunk_size == 45) 45 mins.
-                            option(value='60', selected=scheme.chunk_size == 60) 60 mins.
-                    h3 Amount
-                    .form-group
-                        .row
-                            .col-xs-10
-                                input(type='text', value=scheme.charging_rate, name='charging_rate').form-control
-                            .col-xs-2
-                                select.form-control(name='unit')
-                                    option(value='1', selected=scheme.unit == 1) Rs.
-                                    option(value='2', selected=scheme.unit == 2) $
-                                    option(value='3', selected=scheme.unit == 3) Points
-                    h3 Minimum duration (mins.)
-                    .form-group
-                        input(type='text', placeholder='0', value=scheme.min_duration, name='min_duration').form-control
-                .links-edit
-                    p.edit-schedules
-                        em Coming soon: Skill based pricing
-                        input.btn.btn-primary.btn-lg(type='submit', value='Save')
+                    em Coming soon: Skill based pricing
+                    input.btn.btn-primary.btn-lg(type='submit', value='Save')
 script.
     var rules = JSON.parse('!{JSON.stringify(rules)}');
     var userId = '!{loggedInUser.id}';
