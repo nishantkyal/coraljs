@@ -29,7 +29,7 @@ class ScheduleRuleApi
             scheduleRule.setRepeatEnd(scheduleRule.getRepeatEnd() || moment().add({years: 20}).valueOf());
             scheduleRule.setUserId(userId);
 
-            if(scheduleRule.isValid())
+            if (scheduleRule.isValid())
             {
                 scheduleRuleDelegate.create(scheduleRule)
                     .then(
@@ -47,7 +47,7 @@ class ScheduleRuleApi
             var startTime:number = parseInt(req.query[ApiConstants.START_TIME]);
             var endTime:number = parseInt(req.query[ApiConstants.END_TIME]);
 
-            if(!Utils.isNullOrEmpty(userId))
+            if (!Utils.isNullOrEmpty(userId))
             {
                 scheduleRuleDelegate.getRulesByUser(userId, startTime, endTime)
                     .then(
@@ -79,7 +79,7 @@ class ScheduleRuleApi
             scheduleRule.setId(scheduleRuleId);
             scheduleRule.setUserId(userId);
 
-            if(scheduleRule.isValid())
+            if (scheduleRule.isValid())
             {
                 scheduleRuleDelegate.update(scheduleRuleId, scheduleRule)
                     .then(
@@ -88,7 +88,7 @@ class ScheduleRuleApi
                 )
             }
             else
-                res.status(500).json('Invalid data');
+                res.json(500, 'Invalid data');
         });
 
         app.delete(ApiUrlDelegate.scheduleRuleById(), function (req:express.Request, res:express.Response)
@@ -112,7 +112,7 @@ class ScheduleRuleApi
             scheduleRuleDelegate.create(scheduleRule)
                 .then(
                 function expertScheduleRuleCreated(schedule) { res.json(schedule.toJson()); },
-                function expertScheduleRuleCreateFailed(error) { res.send(500,error); }
+                function expertScheduleRuleCreateFailed(error) { res.send(500, error); }
             )
         });
     }

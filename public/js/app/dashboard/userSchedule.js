@@ -1,47 +1,39 @@
-$('.schedule .editScheduleBtn').click(function(event)
-{
-    $('#scheduleDetails').show();
-    $('#schedule').hide();
+var card = $('#userSchedule').card();
 
+$('#userSchedule .editScheduleBtn').click(function(event)
+{
     var ruleId = $(event.currentTarget).data('id');
     var rule = _.findWhere(rules, {id: ruleId});
 
-    $('#scheduleDetails').data('id', ruleId);
-    $('#scheduleDetails li').removeClass('active');
+    card.edit(rule);
 
+    // Populate data since this is not a form
+    $('#userSchedule .edit-card .title').text(rule.title);
+    $('#userSchedule .edit-card').data('id', ruleId);
+
+    $('#userSchedule .edit-card li').removeClass('active');
     var daysOfWeek = rule.values[5];
     _.each(daysOfWeek, function(index)
     {
-        $($('#scheduleDetails li')[parseInt(index)]).addClass('active');
+        $($('#userSchedule .edit-card li')[parseInt(index)]).addClass('active');
     });
 
-    $('#scheduleDetails #startTime').val(moment().hour(rule.values[2]).minute(rule.values[1]).format('hh:mm a'));
-    $('#scheduleDetails #endTime').val(moment().hour(rule.values[2]).minute(rule.values[1]).add({milliseconds: rule.duration}).format('hh:mm a'));
-
+    $('#userSchedule .edit-card input[name=start_time]').val(moment().hour(rule.values[2]).minute(rule.values[1]).format('hh:mm a'));
+    $('#userSchedule .edit-card input[name=end_time]').val(moment().hour(rule.values[2]).minute(rule.values[1]).add({milliseconds: rule.duration}).format('hh:mm a'));
 });
 
-$('#createScheduleBtn').click(function(event)
+$('#userSchedule .edit-card .done-editing-schedule').click(function()
 {
-    $('#scheduleDetails').show();
-    $('#schedule').hide();
+    var startTime = moment($('#userSchedule .edit-card input[name=start_time]').val(), 'hh:mm a');
+    var endTime = moment($('#userSchedule .edit-card input[name=end_time]').val(), 'hh:mm a');
+    var duration = moment(endTime).diff(startTime).valueOf();
 
-    $('#scheduleDetails').removeAttr('data-id');
-    $('#scheduleDetails .datepicker').val(null);
-    $('#scheduleDetails li').removeClass('active');
-});
-
-$('.done-editing-schedules').click(function()
-{
-    var startTime = moment($('#scheduleDetails #startTime').val(), 'hh:mm a');
     var hours = moment(startTime).hour();
     var minutes = moment(startTime).minute();
 
-    var endTime = moment($('#scheduleDetails #endTime').val(), 'hh:mm a');
-    var duration = moment(endTime).diff(startTime).valueOf();
-
     var daysOfWeek = [];
     for (var i = 0; i < 7; i++) {
-        var element = $('#scheduleDetails li')[i];
+        var element = $('#userSchedule .edit-card li')[i];
         if ($(element).hasClass('active'))
             daysOfWeek.push(i);
     }
@@ -49,7 +41,7 @@ $('.done-editing-schedules').click(function()
     var values = ['*', minutes, hours, '*', '*', daysOfWeek];
     var cronPattern = fromValues(values);
 
-    var scheduleRuleId = $('#scheduleDetails').data('id');
+    var scheduleRuleId = $('#userSchedule .edit-card').data('id');
     var method = scheduleRuleId ? 'post' : 'put';
     var url = scheduleRuleId ? '/rest/scheduleRule/' + scheduleRuleId : '/rest/scheduleRule';
 
@@ -68,11 +60,30 @@ $('.done-editing-schedules').click(function()
         {
             location.reload();
         },
-        error: function()
+        error      : function()
         {
 
         }
-    })
+    });
+});
+
+$('#userSchedule .edit-card .delete-schedule').click(function()
+{
+    var scheduleRuleId = $('#userSchedule .edit-card').data('id');
+    var url = '/rest/scheduleRule/' + scheduleRuleId;
+
+    $.ajax({
+        url        : url,
+        method     : 'delete',
+        success    : function()
+        {
+            location.reload();
+        },
+        error      : function()
+        {
+
+        }
+    });
 });
 
 $('.datepicker').datetimepicker({
@@ -81,15 +92,9 @@ $('.datepicker').datetimepicker({
     minuteStepping: 15
 });
 
-$('#scheduleDetails li').click(function(event)
+$('#userSchedule .edit-card li').click(function(event)
 {
     $(event.currentTarget).toggleClass('active');
-});
-
-$('#cancelScheduleDetails').click(function()
-{
-    $('#scheduleDetails').hide();
-    $('#schedule').show();
 });
 
 function fromValues(values)

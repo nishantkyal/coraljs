@@ -104,13 +104,13 @@ class ScheduleRuleDelegate extends BaseDaoDelegate
                     if (temp.getId() != updatedScheduleRule.getId()) // exclude the rule which is being updated while checking for conflicts
                         schedules.push(temp);
                 });
-                updatedScheduleRule.hasConflicts(schedules, options)
+                return updatedScheduleRule.hasConflicts(schedules, options)
                     .then(
                     function conflictsChecked(hasConflicts):any
                     {
                         self.logger.debug('Conflicts checked %s', hasConflicts);
                         if (hasConflicts)
-                            return q.reject('Conflicts detected');
+                            throw new Error('Conflicts detected');
                         else
                             return updateProxy.call(self, {'id': ruleId}, updatedScheduleRule, transaction);
                     });
@@ -120,10 +120,12 @@ class ScheduleRuleDelegate extends BaseDaoDelegate
             {
                 var scheduleExceptionDelegate = new ScheduleExceptionDelegate();
                 return scheduleExceptionDelegate.deleteByRuleId(ruleId, transaction, false)
-                    .fail(function (error)
-                    {
-                        self.logger.debug('Error in deleting exceptions for ruleId - ' + ruleId + error);
-                    })
+            })
+            .fail(
+            function (error)
+            {
+                self.logger.debug('Error in deleting exceptions for ruleId - ' + ruleId + error);
+                throw error;
             });
     }
 
