@@ -1,5 +1,8 @@
 import BaseModel                                        = require('../models/BaseModel');
+import MapExpertiseSkill                                = require('../models/MapExpertiseSkill');
 import MoneyUnit                                        = require('../enums/MoneyUnit');
+import ForeignKey                                       = require('./ForeignKey');
+
 
 class Expertise extends BaseModel
 {
@@ -15,6 +18,16 @@ class Expertise extends BaseModel
     static OWN_RATING:string                            = 'own_rating';
     static YEARS_OF_EXPERIENCE:string                   = 'years_of_experience';
 
+    constructor(data:Object = {})
+    {
+        super(data);
+        if (!Expertise._INITIALIZED)
+        {
+            this.hasMany(new ForeignKey(Expertise.ID, MapExpertiseSkill, MapExpertiseSkill.EXPERTISE_ID, 'skill'));
+            Expertise._INITIALIZED = true;
+        }
+    }
+
     static DEFAULT_FIELDS:string[] = [Expertise.ID, Expertise.USER_ID, Expertise.TITLE, Expertise.SESSION_DURATION,
         Expertise.SESSION_PRICE, Expertise.SESSION_PRICE_UNIT, Expertise.DESCRIPTION, Expertise.VIDEO_URL,
         Expertise.OWN_RATING, Expertise.YEARS_OF_EXPERIENCE];
@@ -28,7 +41,7 @@ class Expertise extends BaseModel
     private video_url:string;
     private own_rating:number;
     private years_of_experience:number;
-    
+
     /* Getters */
     getUserId():number                                  { return this.user_id; }
     getTitle():string                                   { return this.title; }
@@ -40,6 +53,8 @@ class Expertise extends BaseModel
     getOwnRating():number                               { return this.own_rating; }
     getYearsOfExperience():number                       { return this.years_of_experience; }
 
+    getSkill():MapExpertiseSkill[]                     { return null; }
+
     /* Setters */
     setUserId(val:number)                               { this.user_id = val; }
     setTitle(val:string)                                { this.title = val; }
@@ -50,5 +65,7 @@ class Expertise extends BaseModel
     setVideoUrl(val:string)                             { this.video_url = val; }
     setOwnRating(val:number)                            { this.own_rating = val; }
     setYearsOfExperience(val:number)                    { this.years_of_experience = val; }
+
+    setSkill(val:MapExpertiseSkill[])                  {  }
 }
 export = Expertise

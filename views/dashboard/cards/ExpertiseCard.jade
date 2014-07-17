@@ -16,10 +16,12 @@ for expertise in userExpertise
                 .clearer
             .meta.meta-keywords
                 h5 Skills/Keywords
-                ul
-                    li Social Policy
-                    li Consulting
-                    li Learning
+                if expertise.skill && expertise.skill.length != 0
+                    ul
+                        for skill in expertise.skill
+                            li #{skill.skill.skill}
+                else
+                    div No skills added
             if expertise.description
                 .summary-and-description
                     p= expertise.description
@@ -67,7 +69,7 @@ if isEditable
                         .clearer
                         h3 Skills/Keywords:
                         .form-group
-                            input.form-control(type='text')
+                            input.form-control(id='tokeninput', class='tokeninput', type='text', name='skill_name', autocomplete="off")
                         h3 Description:
                         .form-group
                             textarea.form-control(name='description', rows='4')

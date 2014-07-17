@@ -45,13 +45,13 @@ class BaseModel extends AbstractModel
 
     set(propertyName:string, val:any):void
     {
-        var thisProtoConstructor = this.__proto__.constructor;
-        if (thisProtoConstructor['COLUMNS'].indexOf(propertyName) == -1)
+        var thisProto = this.__proto__;
+        if (thisProto['COLUMNS'].indexOf(propertyName) == -1)
             throw('Non-existent property: ' + propertyName + ' referenced');
         else
         {
             var setterMethodName:string = 'set' + Utils.snakeToCamelCase(propertyName);
-            var setterMethod:Function = thisProtoConstructor[setterMethodName];
+            var setterMethod:Function = thisProto[setterMethodName];
             if (setterMethod)
                 setterMethod.call(this, val);
             else
@@ -65,14 +65,14 @@ class BaseModel extends AbstractModel
     hasOne(fk:ForeignKey):void
     {
         // FIXME: Foreign key association where srcKey name doesn't contain _id uses targetKey name
-        var srcPropertyName:string = fk.srcKey.indexOf('_id') != -1 ? fk.srcKey.replace('_id', '') : fk.targetKey.replace('_id', '');
-        var srcPropertyNameCamelCase:string = Utils.snakeToCamelCase(fk.localPropertyToSet || srcPropertyName);
+        var srcPropertyName:string = fk.localPropertyToSet || (fk.srcKey.indexOf('_id') != -1 ? fk.srcKey.replace('_id', '') : fk.targetKey.replace('_id', ''));
+        var srcPropertyNameCamelCase:string = Utils.snakeToCamelCase(srcPropertyName);
         var getterMethod:string = 'get' + srcPropertyNameCamelCase;
         var setterMethod:string = 'set' + srcPropertyNameCamelCase;
-        var thisProtoConstructor = this.__proto__.constructor;
+        var thisProto = this.__proto__;
 
         // Getter method
-        thisProtoConstructor[getterMethod] = function():Object
+        thisProto[getterMethod] = function():Object
         {
             if (_.isArray(this[srcPropertyName]))
                 this[srcPropertyName] = _.findWhere(this[srcPropertyName], Utils.createSimpleObject(fk.targetKey, this[fk.srcKey]));
@@ -80,7 +80,7 @@ class BaseModel extends AbstractModel
         };
 
         // Setter method
-        thisProtoConstructor[setterMethod] = function(val:any):void
+        thisProto[setterMethod] = function(val:any):void
         {
             if (_.isArray(val))
                 val = _.findWhere(val, Utils.createSimpleObject(fk.targetKey, this[fk.srcKey]));
@@ -91,14 +91,14 @@ class BaseModel extends AbstractModel
     hasMany(fk:ForeignKey):void
     {
         // FIXME: Foreign key association where srcKey name doesn't contain _id uses targetKey name
-        var srcPropertyName:string = fk.srcKey.indexOf('_id') != -1 ? fk.srcKey.replace('_id', '') : fk.targetKey.replace('_id', '');
-        var srcPropertyNameCamelCase:string = Utils.snakeToCamelCase(fk.localPropertyToSet || srcPropertyName);
+        var srcPropertyName:string = fk.localPropertyToSet || (fk.srcKey.indexOf('_id') != -1 ? fk.srcKey.replace('_id', '') : fk.targetKey.replace('_id', ''));
+        var srcPropertyNameCamelCase:string = Utils.snakeToCamelCase(srcPropertyName);
         var getterMethod:string = 'get' + srcPropertyNameCamelCase;
         var setterMethod:string = 'set' + srcPropertyNameCamelCase;
-        var thisProtoConstructor = this.__proto__.constructor;
+        var thisProto = this.__proto__;
 
         // Getter method
-        thisProtoConstructor[getterMethod] = function():Object
+        thisProto[getterMethod] = function():Object
         {
             if (_.isObject(this[srcPropertyName]) && this[srcPropertyName][fk.targetKey] == this[fk.srcKey])
                 this[srcPropertyName] = [this[srcPropertyName]];
@@ -106,7 +106,7 @@ class BaseModel extends AbstractModel
         };
 
         // Setter method
-        thisProtoConstructor[setterMethod] = function(val:any):void
+        thisProto[setterMethod] = function(val:any):void
         {
             if (_.isObject(val) && val[fk.targetKey] == this[fk.srcKey])
                 val = [val];

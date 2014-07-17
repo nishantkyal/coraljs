@@ -35,10 +35,8 @@ class UserSkillApi
             var loggedInUser = req['user'];
             var skill = req.body[ApiConstants.USER_SKILL];
             var profileId = req.body[ApiConstants.USER_PROFILE_ID];
-            var newUserSkill:UserSkill = new UserSkill();
 
-
-            self.userSkillDelegate.createUserSkill(newUserSkill,skill.skill_name, skill.skill_linkedin_code, profileId)
+            self.userSkillDelegate.createUserSkill(skill.skill_name, skill.skill_linkedin_code, profileId)
                 .then(
                 function userUpdated() { res.send(200); },
                 function userUpdateError(error) { res.send(500); }

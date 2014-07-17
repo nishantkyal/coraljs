@@ -144,7 +144,8 @@ class AbstractDao
             .then(
             function handleSearchResults(results:any[]):any
             {
-                return _.map(results, function (result) { return new self.modelClass(result); });
+                var typecastedResults = _.map(results, function (result) { return new self.modelClass(result); });
+                return typecastedResults;
             },
             function searchError(error)
             {

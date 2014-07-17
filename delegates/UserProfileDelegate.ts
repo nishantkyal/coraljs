@@ -248,13 +248,27 @@ class UserProfileDelegate extends BaseDaoDelegate
                 if (!Utils.isNullOrEmpty(profile.skills) && profile.skills._total > 0)
                     var tasks = _.map(profile.skills.values, function (skillObject:any)
                     {
-                        return new SkillCodeDelegate().createSkillCodeFromLinkedIn(skillObject.skill.name, transaction)
+                        var skillCode = new SkillCode();
+                        var skill:any = skillObject.skill;
+                        skillCode.setSkill(skill.name);
+                        return new SkillCodeDelegate().create(skillCode, transaction)
                             .then(
                             function skillCodesCreated(createdSkillCodes:SkillCode)
                             {
                                 var userSkill = new UserSkill();
                                 userSkill.setSkillId(createdSkillCodes.getId())
                                 return new UserSkillDelegate().createUserSkillWithMap(userSkill, profileId, transaction);
+                            })
+                            .fail(
+                            function skillCodeExists(){
+                                return new SkillCodeDelegate().find(Utils.createSimpleObject(SkillCode.SKILL, skillCode.getSkill()))
+                                    .then(
+                                    function skillCodesFound(skillCodeFetched:SkillCode)
+                                    {
+                                        var userSkill = new UserSkill();
+                                        userSkill.setSkillId(skillCodeFetched.getId())
+                                        return new UserSkillDelegate().createUserSkillWithMap(userSkill, profileId, transaction);
+                                    })
                             })
                     });
                 return q.all(tasks);

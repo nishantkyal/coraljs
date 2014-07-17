@@ -3,10 +3,12 @@ import q                                                    = require('q');
 import BaseDaoDelegate                                      = require('./BaseDaoDelegate');
 import SkillCodeDelegate                                    = require('./SkillCodeDelegate');
 import MapProfileSkillDao                                   = require('../dao/MapProfileSkillDao');
+import MapExpertiseSkillDao                                 = require('../dao/MapExpertiseSkillDao');
 import UserSkillDao                                         = require('../dao/UserSkillDao');
 import UserSkill                                            = require('../models/UserSkill');
 import SkillCode                                            = require('../models/SkillCode');
 import MapProfileSkill                                      = require('../models/MapProfileSkill');
+import MapExpertiseSkill                                    = require('../models/MapExpertiseSkill');
 import MysqlDelegate                                        = require('../delegates/MysqlDelegate');
 import Utils                                                = require('../common/Utils');
 
@@ -21,9 +23,6 @@ class UserSkillDelegate extends BaseDaoDelegate
         var self = this;
         var mapProfileSkillDao = new MapProfileSkillDao();
 
-        if (Utils.isNullOrEmpty(transaction))
-            return MysqlDelegate.executeInTransaction(self, arguments);
-
         return self.create(userSkill,transaction)
             .then(function userSkillCreated(emp:UserSkill){
                 var mapProfileSkill:MapProfileSkill = new MapProfileSkill();
@@ -33,42 +32,51 @@ class UserSkillDelegate extends BaseDaoDelegate
             })
     }
 
-    createUserSkill(userSkill:UserSkill, skillName:string, linkedInSkillCode:number, profileId:number, transaction?:Object):q.Promise<any>
+    createUserSkill(skillName:string, linkedInSkillCode:number,profileId:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
-
-        var skillCode = new SkillCode();
-        skillCode.setLinkedinCode(linkedInSkillCode);
-        skillCode.setSkill(skillName);
+        var userSkill:UserSkill = new UserSkill();
 
         if (Utils.isNullOrEmpty(transaction))
             return MysqlDelegate.executeInTransaction(self, arguments);
 
-        return self.skillCodeDelegate.create(skillCode,transaction)
+        return self.createSkillCode(skillName,linkedInSkillCode,transaction)
             .then(
-            function skillCodeCreated(createdSkillCode)
+            function (skillCode)
             {
-                userSkill.setSkillId(createdSkillCode.getId());
-                return self.createUserSkillWithMap(userSkill, profileId, transaction)
-            },
-            function skillCodeError(error) //code exists
-            {
-                return self.skillCodeDelegate.find({'linkedin_code':skillCode.getLinkedinCode()})
-                    .then(
+                if (!Utils.isNullOrEmpty(skillCode))
+                {
+                    userSkill.setSkillId(skillCode.getId());
+                    return self.createUserSkillWithMap(userSkill, profileId, transaction)
+                }
+                else
+                {
+                    return self.skillCodeDelegate.find({'linkedin_code':skillCode.getLinkedinCode()})
+                        .then(
                         function skillFound(refSkill){
                             userSkill.setSkillId(refSkill.getId());
                             return self.createUserSkillWithMap(userSkill, profileId, transaction);
                         }
                     )
+                }
             }
-        );
+        )
+    }
+
+    createSkillCode(skillName:string, linkedInSkillCode:number, transaction?:Object):q.Promise<any>
+    {
+        var self = this;
+
+        var skillCode = new SkillCode();
+        skillCode.setSkill(skillName);
+
+        return self.skillCodeDelegate.create(skillCode,transaction);
     }
 
     updateUserSkill(userSkill:UserSkill, skillName:string, linkedInSkillCode:number, transaction?:Object):q.Promise<any>
     {
         var self = this;
         var skillCode:SkillCode = new SkillCode();
-        skillCode.setLinkedinCode(linkedInSkillCode);
         skillCode.setSkill(skillName);
 
         if (Utils.isNullOrEmpty(transaction))
@@ -82,7 +90,7 @@ class UserSkillDelegate extends BaseDaoDelegate
             },
             function skillCodeError(error) //code exists
             {
-                return self.skillCodeDelegate.find({'linkedin_code':skillCode.getLinkedinCode()})
+                return self.skillCodeDelegate.find({'skill':skillCode.getSkill()})
                     .then(
                     function skillFound(refSkill){
                         userSkill.setSkillId(refSkill.getId());

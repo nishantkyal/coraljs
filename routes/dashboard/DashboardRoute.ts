@@ -264,13 +264,13 @@ class DashboardRoute
                         self.userEducationDelegate.search({'profileId': userProfile.getId()}),
                         self.userEmploymentDelegate.search({'profileId': userProfile.getId()}),
                         self.userUrlDelegate.search({'profileId': userProfile.getId()}),
-                        self.expertiseDelegate.search(Utils.createSimpleObject(Expertise.USER_ID, userId))
+                        self.expertiseDelegate.search(Utils.createSimpleObject(Expertise.USER_ID, userId), null, [IncludeFlag.INCLUDE_SKILL])
                     ]);
 
                 return [userProfile, q.all(profileInfoTasks)];
             })
             .spread(
-            function userDetailsFetched(userProfile, ...args)
+            function userDetailsFetched(userProfile,...args)
             {
                 var user = args[0][0];
                 var userSkill = args[0][1] || [];

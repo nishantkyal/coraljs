@@ -77,7 +77,7 @@ var fetchedSkill = new Bloodhound({
     queryTokenizer: Bloodhound.tokenizers.whitespace,
     limit         : 10,
     remote        : {
-        url    : 'http://www.linkedin.com/ta/skill?query=',
+        url    : '//www.linkedin.com/ta/skill?query=',
         replace: function(url, query)
         {
             return url + query;
@@ -226,6 +226,48 @@ $('form#linkedinFetch').bootstrapValidator({
     }
 });
 
+$('#expertise .edit-card form .tokeninput').tokenInput('//www.linkedin.com/ta/skill', {
+    theme: "facebook",
+    queryParam: 'query',
+    onResult:processLinkedInResponse,
+    onCachedResult:processLinkedInResponse,
+    onAdd:callValidate,
+    onDelete:callValidate,
+    crossDomain:true,
+    caching:false
+});
+
+function processLinkedInResponse(response)
+{
+    return _.map(response.resultList, function(skill)
+    {
+        return {
+            name: skill.displayName,
+            id : skill.id
+        };
+    });
+}
+
+function preFillValues(expertiseId)
+{
+    for(var i = 0; i < userExpertise.length; i++ )
+    {
+        if(userExpertise[i].id == expertiseId)
+        {
+            if(userExpertise[i].skill && userExpertise[i].skill.length != 0)
+                for(var j=0; j< userExpertise[i].skill.length; j++)
+                {
+                    $('#expertise .edit-card form .tokeninput').tokenInput(("add"),{id:userExpertise[i].skill[j].skill.id, name:userExpertise[i].skill[j].skill.skill});
+                }
+        }
+    }
+}
+
+function callValidate()
+{
+    $('#expertise .edit-card form').data('bootstrapValidator').validate();
+}
+
 var expertiseCard = $('#expertise').card();
 $('#expertise .edit-card form').bootstrapValidator({
     fields       : {
@@ -275,6 +317,11 @@ $('#expertise .edit-card form').bootstrapValidator({
             validators: {
                 digits: { message: 'Please enter a valid number'}
             }
+        },
+        skill_name: {
+            validators: {
+                notEmpty: { message: 'This field is required'}
+            }
         }
     },
     submitHandler: function()
@@ -282,7 +329,12 @@ $('#expertise .edit-card form').bootstrapValidator({
         var expertiseId = $('#expertise .edit-card form input[name=id]').val();
         var method = expertiseId ? 'post' : 'put';
         var expertiseUrl = expertiseId ? '/rest/user/expertise/' + expertiseId : '/rest/user/expertise';
-
+        var selectedSkills = _.map($('#expertise .edit-card form .tokeninput').tokenInput("get"), function(skill) {
+            return {
+                skill_linkedin_code: skill.id || '',
+                skill_name         : skill.name
+            }
+        });
         $.ajax({
             url        : expertiseUrl,
             method     : method,
@@ -295,12 +347,29 @@ $('#expertise .edit-card form').bootstrapValidator({
                     session_price_unit : $('#expertise .edit-card form input[name=session_price_unit]').val(),
                     title              : $('#expertise .edit-card form input[name=title]').val(),
                     description        : $('#expertise .edit-card form textarea[name=description]').val(),
-                    years_of_experience: $('#expertise .edit-card form input[name=years_of_experience]').val()
+                    years_of_experience: $('#expertise .edit-card form input[name=years_of_experience]').val(),
                 }
             }),
-            success    : function()
+            success    : function(response)
             {
-                location.reload();
+                $.ajax({
+                    url        : '/rest/user/expertise/skill',
+                    method     : 'put',
+                    dataType   : 'json',
+                    contentType: 'application/json',
+                    data       : JSON.stringify({
+                        skills             : selectedSkills,
+                        expertiseId        : response.id || expertiseId
+                    }),
+                    success    : function()
+                    {
+                        location.reload();
+                    },
+                    error      : function(jqXHR)
+                    {
+                        bootbox.alert(jqXHR.responseText);
+                    }
+                });
             },
             error      : function(jqXHR)
             {
@@ -317,8 +386,9 @@ $('.editExpertiseBtn').click(function()
     var expertiseId = $(this).data('id');
     var expertise = _.findWhere(userExpertise, {id: expertiseId});
 
+    preFillValues(expertiseId);
     populate($('#expertise .edit-card form'), expertise);
-    expertiseCard.edit(expertise, this)
+    expertiseCard.edit(expertise, this);
 });
 
 $('.deleteExpertiseBtn').click(function()
