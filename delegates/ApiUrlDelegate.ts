@@ -99,6 +99,9 @@ class ApiUrlDelegate
     static expertise() { return this.get('/rest/user/expertise'); }
     static expertiseById(expertiseId?:number) { return this.get('/rest/user/expertise/:expertiseId(\\d+)', { expertiseId: expertiseId }); }
 
+    static expertiseSkill() { return this.get('/rest/user/expertise/skill'); }
+    static expertiseSkillById(skillId?:number) { return this.get('/rest/user/expertise/:expertiseId(\\d+)/skill/:skillId(\\d+)', { skillId: skillId }); }
+    
     /* URL patterns for coupons */
     static coupon():string { return this.get('/rest/coupon'); }
     static couponById(id?:number):string { return this.get('/rest/coupon/:id(\\d+)', {id: id}); }

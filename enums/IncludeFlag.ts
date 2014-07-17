@@ -13,6 +13,7 @@ class IncludeFlag
     static INCLUDE_PRICING_SCHEMES:string = 'pricing_scheme';
     static INCLUDE_SCHEDULES:string = 'schedule';
     static INCLUDE_SCHEDULE_RULES:string = 'schedule_rule';
-    static INCLUDE_TRANSACTION_LINE:String = 'transaction_line';
+    static INCLUDE_TRANSACTION_LINE:string = 'transaction_line';
+    static INCLUDE_SKILL:string = 'skill';
 }
 export = IncludeFlag

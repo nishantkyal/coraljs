@@ -28,7 +28,7 @@ class GlobalIDDelegate
 
     generate(type:string, shardId:number = 1):number
     {
-        var now = Math.floor(new Date().getTime()/1000);
+        var now = Math.floor(new Date().getTime());
 
         if (GlobalIDDelegate.timestamp != now)
         {

@@ -21,6 +21,7 @@ class ApiConstants
     static EDUCATION_ID:string                          = 'educationId';
     static EMPLOYMENT_ID:string                         = 'employmentId';
     static EXPERTISE_ID:string                          = 'expertiseId';
+    static SKILLS:string                                = 'skills';
     static REVIEW_ID:string                             = 'reviewId';
     static SKILL_ID:string                              = 'skillId';
     static INTEGRATION_ID:string                        = 'integrationId';

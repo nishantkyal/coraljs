@@ -33,7 +33,7 @@ class ExpertiseApi
 
             self.expertiseDelegate.create(expertise)
                 .then(
-                function userUpdated() { res.json(200); },
+                function userUpdated(expertise) { res.json(200, expertise); },
                 function userUpdateError(error) { res.json(500); }
             );
         });
@@ -48,6 +48,18 @@ class ExpertiseApi
                 function userUpdateError(error) { res.json(500); }
             );
         });
+
+        app.put(ApiUrlDelegate.expertiseSkill(), AuthenticationDelegate.checkLogin(), function(req:express.Request, res:express.Response){
+            var skills = req.body[ApiConstants.SKILLS];
+            var expertiseId = parseInt(req.body[ApiConstants.EXPERTISE_ID]);
+
+            self.expertiseDelegate.createExpertiseSkill(skills, expertiseId)
+                .then(
+                    function SkillCreated() { res.json(200); },
+                    function skillCreateError(error) { res.json(500); }
+                )
+        });
+
     }
 }
 export = ExpertiseApi
