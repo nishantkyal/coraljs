@@ -87,6 +87,7 @@ function init(grunt)
                     'public/js/combined.min.js': [
                         'public/bower_dependencies/jquery/jquery.js',
                         'public/bower_dependencies/bootstrap/dist/js/bootstrap.js',
+                        'public/bower_dependencies/jquery-expander/jquery.expander.js',
                         'public/bower_dependencies/bootstrapValidator/dist/js/bootstrapValidator.js',
                         'public/bower_dependencies/bootbox/bootbox.js',
                         'public/bower_dependencies/underscore/underscore.js',

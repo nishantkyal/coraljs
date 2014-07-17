@@ -70,7 +70,9 @@ class DashboardRoute
     private static PAGE_PROFILE:string = 'dashboard/userProfile';
     private static PAGE_PAYMENTS:string = 'dashboard/payment';
     private static PAGE_ACCOUNT_VERIFICATION:string = 'dashboard/accountVerification';
-    private static PAGE_SETTING:string = 'dashboard/userSetting';
+    private static PAGE_SETTING_PHONE:string = 'dashboard/userSettingPhone';
+    private static PAGE_SETTING_SCHEDULE:string = 'dashboard/userSettingSchedule';
+    private static PAGE_SETTING_PASSWORD:string = 'dashboard/userSettingPassword';
     private static PAGE_WIDGET_CREATOR:string = 'dashboard/widgetCreator';
 
     private integrationMemberDelegate = new IntegrationMemberDelegate();
@@ -104,7 +106,9 @@ class DashboardRoute
         app.get(Urls.integration(), AuthenticationDelegate.checkLogin({setReturnTo: true}), this.integration.bind(this));
         app.get(Urls.userProfile(), this.userProfile.bind(this));
         app.get(Urls.payments(), AuthenticationDelegate.checkLogin({setReturnTo: true}), this.userPayments.bind(this));
-        app.get(Urls.userSetting(), Middleware.allowOnlyMe, this.setting.bind(this));
+        app.get(Urls.userSettingPhone(), Middleware.allowOnlyMe, this.settingPhone.bind(this));
+        app.get(Urls.userSettingSchedule(), Middleware.allowOnlyMe, this.settingSchedule.bind(this));
+        app.get(Urls.userSettingPassword(), Middleware.allowOnlyMe, this.settingPassword.bind(this));
 
         app.get(Urls.emailAccountVerification(), this.emailAccountVerification.bind(this));
 
@@ -316,23 +320,46 @@ class DashboardRoute
         res.render(DashboardRoute.PAGE_PAYMENTS, pageData);
     }
 
-    setting(req:express.Request, res:express.Response)
+    settingPhone(req:express.Request, res:express.Response)
     {
         var self = this;
         var userId:number = parseInt(req.params[ApiConstants.USER_ID]);
         var sessionData = new SessionData(req);
-        var selectedTab:string = req.query[ApiConstants.MODE];
+
+        q.all([
+            self.userPhoneDelegate.search(Utils.createSimpleObject(UserPhone.USER_ID, userId))
+        ])
+            .then(function detailsFetched(...args)
+            {
+                var userPhone:UserPhone[] = args[0][2];
+
+                var pageData = _.extend(sessionData.getData(), {
+                    userPhone: userPhone
+                });
+
+                res.render(DashboardRoute.PAGE_SETTING_PHONE, pageData);
+            })
+            .fail(
+            function (error)
+            {
+                res.render('500', error.message)
+            });
+    }
+
+    settingSchedule(req:express.Request, res:express.Response)
+    {
+        var self = this;
+        var userId:number = parseInt(req.params[ApiConstants.USER_ID]);
+        var sessionData = new SessionData(req);
 
         q.all([
             self.scheduleRuleDelegate.getRulesByUser(userId),
-            self.pricingSchemeDelegate.search(Utils.createSimpleObject(PricingScheme.USER_ID, userId)),
-            self.userPhoneDelegate.search(Utils.createSimpleObject(UserPhone.USER_ID, userId))
+            self.pricingSchemeDelegate.search(Utils.createSimpleObject(PricingScheme.USER_ID, userId))
         ])
             .then(function detailsFetched(...args)
             {
                 var rules:ScheduleRule[] = [].concat(args[0][0]);
                 var pricingSchemes:PricingScheme[] = args[0][1];
-                var userPhone:UserPhone[] = args[0][2];
 
                 _.each(rules || [], function (rule:ScheduleRule)
                 {
@@ -340,19 +367,24 @@ class DashboardRoute
                 });
 
                 var pageData = _.extend(sessionData.getData(), {
-                    userPhone: userPhone,
                     rules: rules || [],
-                    scheme: pricingSchemes ? pricingSchemes[0] : new PricingScheme(),
-                    selectedTab: selectedTab
+                    scheme: pricingSchemes ? pricingSchemes[0] : new PricingScheme()
                 });
 
-                res.render(DashboardRoute.PAGE_SETTING, pageData);
+                res.render(DashboardRoute.PAGE_SETTING_SCHEDULE, pageData);
             })
             .fail(
             function (error)
             {
                 res.render('500', error.message)
             });
+    }
+
+    settingPassword(req:express.Request, res:express.Response)
+    {
+        var sessionData = new SessionData(req);
+        var pageData = sessionData.getData();
+        res.render(DashboardRoute.PAGE_SETTING_PASSWORD, pageData);
     }
 
     private emailAccountVerification(req, res:express.Response)

@@ -1,6 +1,7 @@
 ///<reference path='../_references.d.ts'/>
 import q                                                        = require('q');
 import cron                                                     = require('cron');
+import moment                                                   = require('moment');
 import _                                                        = require('underscore');
 import BaseModel                                                = require('./BaseModel');
 import MoneyUnit                                                = require('../enums/MoneyUnit');
@@ -28,11 +29,18 @@ class ScheduleRule extends BaseModel
 
     private user_id:number;
     private title:string;
-    private repeat_start:number;
     private cron_rule:string;
+    private repeat_start:number;
     private repeat_end:number;
     private duration:number;
     private pricing_scheme_id:number;
+
+    constructor(data:Object = {})
+    {
+        super(data);
+        this.setRepeatStart(this.getRepeatStart() || moment().valueOf())
+        this.setRepeatEnd(this.getRepeatEnd() || moment().add({years: 100}).valueOf())
+    }
 
     /* Getters */
     getUserId():number                                          { return this.user_id; }
@@ -63,10 +71,10 @@ class ScheduleRule extends BaseModel
             isCronExpressValid = false;
         }
 
-        return !Utils.isNullOrEmpty(this.getRepeatStart())
-            && isCronExpressValid
+        return isCronExpressValid
             && !Utils.isNullOrEmpty(this.getDuration())
             && !Utils.isNullOrEmpty(this.getUserId())
+            && !Utils.isNullOrEmpty(this.getRepeatStart())
             && !Utils.isNullOrEmpty(this.getRepeatEnd())
             && (this.getRepeatEnd() > this.getRepeatStart() || this.getRepeatEnd() == 0);
     }

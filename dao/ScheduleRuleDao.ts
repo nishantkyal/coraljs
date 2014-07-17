@@ -3,7 +3,7 @@ import _                        = require('underscore');
 import AbstractDao              = require('./AbstractDao');
 import q                        = require('q');
 import BaseModel                = require('../models/BaseModel');
-import ScheduleRule       = require('../models/ScheduleRule');
+import ScheduleRule             = require('../models/ScheduleRule');
 import MysqlDelegate            = require('../delegates/MysqlDelegate');
 import Utils                    = require('../common/Utils');
 
@@ -11,7 +11,7 @@ class ScheduleRuleDao extends AbstractDao
 {
     constructor() { super(ScheduleRule); }
 
-    getRulesByUser(userId:number, startTime?:number, endTime?:number, fields?:string[], transaction?:Object):q.Promise<any>
+    getRulesByUser(userId:number, startTime:number, endTime:number, fields?:string[], transaction?:Object):q.Promise<any>
     {
         if (Utils.isNullOrEmpty(startTime) || Utils.isNullOrEmpty(endTime))
             return this.search(Utils.createSimpleObject(ScheduleRule.USER_ID, userId));
