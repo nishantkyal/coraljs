@@ -88,6 +88,7 @@ $('#userPhone .edit-card form').bootstrapValidator({
 $('#userPhone .edit-card form input[name=phone],select[name=country_code]').change(function()
 {
     $('#userPhone .edit-card form .update').hide();
+    $('#userPhone .edit-card form .sendCode').show();
 });
 
 /* Change Password */
