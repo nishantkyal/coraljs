@@ -55,7 +55,7 @@ class BaseModel extends AbstractModel
             if (setterMethod)
                 setterMethod.call(this, val);
             else
-                throw('Non-existent property: ' + propertyName + ' attempted setter');
+                throw('Non-existent property: Tried calling non-existent setter: ' + setterMethodName + ' for model: ' + Utils.getClassName(this));
         }
     }
 
@@ -64,8 +64,8 @@ class BaseModel extends AbstractModel
     /* Foreign key methods */
     hasOne(fk:ForeignKey):void
     {
-        // TODO: Name assumption here that keys will have _id suffix
-        var srcPropertyName:string = fk.srcKey.replace('_id', '');
+        // FIXME: Foreign key association where srcKey name doesn't contain _id uses targetKey name
+        var srcPropertyName:string = fk.srcKey.indexOf('_id') != -1 ? fk.srcKey.replace('_id', '') : fk.targetKey.replace('_id', '');
         var srcPropertyNameCamelCase:string = Utils.snakeToCamelCase(srcPropertyName);
         var getterMethod:string = 'get' + srcPropertyNameCamelCase;
         var setterMethod:string = 'set' + srcPropertyNameCamelCase;
@@ -90,8 +90,8 @@ class BaseModel extends AbstractModel
 
     hasMany(fk:ForeignKey):void
     {
-        // TODO: Name assumption here that keys will have _id suffix
-        var srcPropertyName:string = fk.srcKey.replace('_id', '');
+        // FIXME: Foreign key association where srcKey name doesn't contain _id uses targetKey name
+        var srcPropertyName:string = fk.srcKey.indexOf('_id') != -1 ? fk.srcKey.replace('_id', '') : fk.targetKey.replace('_id', '');
         var srcPropertyNameCamelCase:string = Utils.snakeToCamelCase(srcPropertyName);
         var getterMethod:string = 'get' + srcPropertyNameCamelCase;
         var setterMethod:string = 'set' + srcPropertyNameCamelCase;
