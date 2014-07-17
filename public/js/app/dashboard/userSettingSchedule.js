@@ -60,9 +60,9 @@ $('#userSchedule .edit-card .done-editing-schedule').click(function()
         {
             location.reload();
         },
-        error      : function()
+        error      : function(jqXHR)
         {
-
+            $('#userSchedule .edit-card .alert').text(jqXHR.responseText).show();
         }
     });
 });
@@ -151,7 +151,7 @@ $('form#pricingSchemeForm').bootstrapValidator({
             },
             error: function(jqXhr)
             {
-                bootbox.alert(jqXhr.responseText);
+                $('form#pricingSchemeForm .alert').show().text(jqXHR.responseText);
             }
         });
     }

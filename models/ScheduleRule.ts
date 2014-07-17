@@ -73,6 +73,7 @@ class ScheduleRule extends BaseModel
 
         return isCronExpressValid
             && !Utils.isNullOrEmpty(this.getDuration())
+            && this.getDuration() > 0
             && !Utils.isNullOrEmpty(this.getUserId())
             && !Utils.isNullOrEmpty(this.getRepeatStart())
             && !Utils.isNullOrEmpty(this.getRepeatEnd())

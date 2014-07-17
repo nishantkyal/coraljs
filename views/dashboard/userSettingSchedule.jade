@@ -74,6 +74,7 @@ title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setti
                                         div.clearer
                         .card.edit-card
                             .schedule-edit
+                                .alert.alert-danger(style='display: none;')
                                 .item
                                     .row
                                         h5.col-xs-8.title Schedule #1
@@ -118,6 +119,7 @@ title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setti
                             .item
                                 form#pricingSchemeForm
                                     input(type='hidden', name='id', value=scheme.id)
+                                    .alert.alert-danger(style="display: none;")
                                     .row
                                         h3 Pulse Rate
                                         .form-group

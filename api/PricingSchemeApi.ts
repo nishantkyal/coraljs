@@ -32,8 +32,8 @@ class PricingSchemeApi
 
             self.pricingSchemeDelegate.update({id: pricingSchemeId}, pricingScheme)
                 .then(
-                function userUpdated() { res.send(200); },
-                function userUpdateError(error) { res.send(500); }
+                function userUpdated() { res.json(200); },
+                function userUpdateError(error) { res.json(500); }
             );
         });
 
