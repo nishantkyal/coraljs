@@ -55,16 +55,21 @@ $('.editUserEducation').click(function(event)
 $('.deleteUserEducation').click(function()
 {
     var educationId = $(this).data('id');
-    $.ajax({
-        url    : '/rest/user/education/' + educationId,
-        type   : 'DELETE',
-        data: {
-                id              : educationId,
-            profileId           : userProfile.id
-        },
-        success: function()
+    bootbox.confirm("Are you sure you want to delete selected education detail?", function(result) {
+        if (result)
         {
-            location.reload();
+            $.ajax({
+                url    : '/rest/user/education/' + educationId,
+                type   : 'DELETE',
+                data: {
+                        id              : educationId,
+                    profileId           : userProfile.id
+                },
+                success: function()
+                {
+                    location.reload();
+                }
+            });
         }
     });
 });
