@@ -28,7 +28,7 @@ class PhoneCall extends BaseModel
     static DELAY:string                                 = 'delay';
     static CHARGING_RATE:string                         = 'charging_rate';
     static UNIT:string                                  = 'unit';
-    static CHUNK_SIZE:string                            = 'chunk_size';
+    static PULSE_RATE:string                            = 'pulse_rate';
     static MIN_DURATION:string                          = 'min_duration';
 
     static USER:string                                  = 'user';
@@ -53,7 +53,7 @@ class PhoneCall extends BaseModel
     private delay:number;
     private charging_rate:number;
     private unit:MoneyUnit;
-    private chunk_size:number;                                  // Sizes of chargeable time chunks
+    private pulse_rate:number;                                  // Sizes of chargeable time chunks
     private min_duration:number;                                // Min duration for the call
 
     private user:User;
@@ -78,7 +78,7 @@ class PhoneCall extends BaseModel
     getNumReattempts():number                           { return this.num_reattempts; }
     getChargingRate():number                            { return this.charging_rate; }
     getUnit():MoneyUnit                                 { return this.unit; }
-    getChunkSize():number                               { return this.chunk_size; }
+    getPulseRate():number                               { return this.pulse_rate; }
     getMinDuration():number                             { return this.min_duration; }
 
     getUser():User                                      { return this.user ? new User(this.user) : null; }
@@ -103,7 +103,7 @@ class PhoneCall extends BaseModel
     setNumReattempts(val:number):void                   { this.num_reattempts = val; }
     setChargingRate(val:number)                         { this.charging_rate = val; }
     setUnit(val:MoneyUnit)                              { this.unit = val; }
-    setChunkSize(val:number)                            { this.chunk_size = val; }
+    setPulseRate(val:number)                            { this.pulse_rate = val; }
     setMinDuration(val:number)                          { this.min_duration = val; }
 
     setUser(val:User):void                              { this.user = val; }

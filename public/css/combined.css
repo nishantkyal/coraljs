@@ -7950,7 +7950,7 @@ hr {
 }
 .alert .actions-pane {
   background: rgba(0, 0, 0, 0.05);
-  padding: 10px 0px;
+  padding: 10px 0px 0px 0px;
   margin-top: 10px;
 }
 .alert-success {
@@ -8361,6 +8361,7 @@ hr {
 }
 .floatright {
   float: right;
+    text-align: right;
 }
 .clearer {
   clear: both;
@@ -9028,8 +9029,8 @@ hr {
 }
 .user-profile .info,
 .call-profile .info {
-  float: left;
-  margin-left: 10px;
+  overflow: hidden;
+  padding-left: 10px;
   line-height: 20px;
 }
 .user-profile .info .user-displayname,
@@ -9043,7 +9044,6 @@ hr {
 }
 .user-profile .info .info-upper,
 .call-profile .info .info-upper {
-  width: 140px;
   height: 90px;
   word-wrap: break-word;
 }
@@ -9121,7 +9121,7 @@ hr {
 .call-profile .meta.meta-schedule ul li {
   display: inline-block;
   padding: 0px 5px;
-  margin: 0px 1px 0px 0px;
+  margin: 0px 5px 5px 0px;
   line-height: 20px;
   background: rgba(75, 93, 94, 0.6);
   color: #ffffff;
@@ -10049,5 +10049,28 @@ hr {
 }
 
 .card .item .header-row input {
+    margin-bottom: 10px;
+}
+
+.user-profile .info .info-container,
+.call-profile .info .info-container {
+    margin-right: 25px;
+}
+
+.user-profile .info .edit-profile {
+    position: absolute;
+    top: 30px;
+    right: 20px;
+}
+
+.meta.meta-price .small {
+    line-height: 14px !important;
+    font-size: 14px !important;
+}
+
+select.btn {
+    border: 1px solid #ccc;
+}
+.alert .actions-pane .row .btn {
     margin-bottom: 10px;
 }

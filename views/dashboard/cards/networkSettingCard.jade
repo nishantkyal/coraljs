@@ -18,11 +18,11 @@
                         .avatar
                             .shadow
                             .initials-profile-image-large NA
-                            img(src=ApiUrlDelegate.integrationLogo(members[0].integration_id), width='120', height = '120')
+                            img(src=ApiUrlDelegate.integrationLogo(selectedMember.integration_id), width='120', height = '120')
                             .image-edit
                                 a.btn.btn-success.btn-xs(href="javascript: void(0);")#selectFileBtn
                                     i.icon-pencil
-                                form#fileUploadForm(action=ApiUrlDelegate.integrationLogo(members[0].integration_id), method="post", enctype="multipart/form-data")
+                                form#fileUploadForm(action=ApiUrlDelegate.integrationLogo(selectedMember.integration_id), method="post", enctype="multipart/form-data")
                                     input#selectFile(type='file', name='profile', style='display: none')
                                     input#selectFileSubmit(type='submit', style='display: none')
                     .clearer
