@@ -120,17 +120,13 @@ class CallFlowRoute
                     }));
 
                 return [userProfile, exceptions, user, q.all([
-                    self.userSkillDelegate.getSkillWithName(userProfile.getId()),
-                    self.userEducationDelegate.search({'profileId': userProfile.getId()}),
-                    self.userEmploymentDelegate.search({'profileId': userProfile.getId()})
+                    self.userSkillDelegate.getSkillWithName(userProfile.getId())
                 ])];
             })
             .spread(
             function profileDetailsFetched(userProfile:UserProfile, exceptions:ScheduleException[], user:User, ...args)
             {
                 var userSkill = args[0][0] || [];
-                var userEducation = args[0][1] || [];
-                var userEmployment = args[0][2] || [];
 
                 sessionData.setUser(user);
                 sessionData.setExpertGmtOffset(self.timezoneDelegate.get(user.getTimezone()).getGmtOffset()*1000);
@@ -138,8 +134,6 @@ class CallFlowRoute
                 var pageData = _.extend(sessionData.getData(), {
                     userSkill: _.sortBy(userSkill, function (skill) { return skill['skill_name'].length; }),
                     userProfile: userProfile,
-                    userEducation: userEducation,
-                    userEmployment: userEmployment,
                     exception: exceptions,
                     messages: req.flash()
                 });

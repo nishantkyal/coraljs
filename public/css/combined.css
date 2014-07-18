@@ -8239,6 +8239,7 @@ hr {
 }
 .floatright {
   float: right;
+    text-align: right;
 }
 .clearer {
   clear: both;
@@ -8998,7 +8999,7 @@ hr {
 .call-profile .meta.meta-schedule ul li {
   display: inline-block;
   padding: 0px 5px;
-  margin: 0px 1px 0px 0px;
+  margin: 0px 5px 5px 0px;
   line-height: 20px;
   background: rgba(75, 93, 94, 0.6);
   color: #ffffff;
@@ -9938,4 +9939,9 @@ hr {
     position: absolute;
     top: 30px;
     right: 20px;
+}
+
+.meta.meta-price .small {
+    line-height: 14px !important;
+    font-size: 14px !important;
 }

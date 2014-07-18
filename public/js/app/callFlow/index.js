@@ -65,8 +65,6 @@ $(document).on('click', '.timeslot-widget ul li span', function handleTimeSlotSe
 $(document).on('click', 'a.date-link', function handleDateSelected(event)
 {
     var selectedDate = parseInt($(event.currentTarget).parent().attr('value'));
-    $('a.date-link').removeClass('active');
-    $(event.currentTarget).addClass('active');
     selectDate(selectedDate, $(event.currentTarget));
 });
 
@@ -155,12 +153,6 @@ function proceedToPayment()
 /* Helper method to mark a data selected */
 function selectDate(selectedDate, dateElement)
 {
-    $('.timeslot-widget ul').empty();
-
-    $('a.date-link').removeClass('active');
-    if (dateElement)
-        $(dateElement).addClass('active');
-
     var schedulesForSelectedDate = timeSlotsByDate[moment(selectedDate).format('DD-MM-YYYY')];
     var slots = [];
 
@@ -172,7 +164,7 @@ function selectDate(selectedDate, dateElement)
         var maxSlotTime = schedule.start_time + schedule.duration - selectedDurationInMillis;
         while (slotTime <= maxSlotTime) {
             if (slotTime > moment().valueOf()) {
-                var tempSlot = {start_time:slotTime,duration:jumpInMillis/1000};
+                var tempSlot = {start_time: slotTime, duration: jumpInMillis / 1000};
                 slots.push(tempSlot);
             }
             slotTime += jumpInMillis;
@@ -180,34 +172,42 @@ function selectDate(selectedDate, dateElement)
     });
 
     var exceptionsForSelectedDate = exceptionsByDate[moment(selectedDate).format('DD-MM-YYYY')];
-    slots = applyExceptions(slots,exceptionsForSelectedDate);
+    slots = applyExceptions(slots, exceptionsForSelectedDate);
 
-    _.each(slots, function(slot){
-        var slotTime = slot.start_time;
-        $('.timeslot-widget ul').append('<li class="timeslot" data-slot="' + slotTime + '">' + moment(slotTime).format('hh:mm A') + '<span class="checkbox"></span></li>');
-        if (selectedTimeSlots.indexOf(slotTime) != -1)
-            $('.timeslot-widget ul li:last-child span').addClass('checked');
-    })
+    if (slots.length != 0)
+    {
+        $('a.date-link').removeClass('active');
+        if (dateElement)
+            $(dateElement).addClass('active');
 
+        $('.timeslot-widget ul').empty();
+        _.each(slots, function(slot)
+        {
+            var slotTime = slot.start_time;
+            $('.timeslot-widget ul').append('<li class="timeslot" data-slot="' + slotTime + '">' + moment(slotTime).format('hh:mm A') + '<span class="checkbox"></span></li>');
+            if (selectedTimeSlots.indexOf(slotTime) != -1)
+                $('.timeslot-widget ul li:last-child span').addClass('checked');
+        });
+    }
 }
 
 // Remove exceptions from schedulesForSelectedDate
-function applyExceptions(schedules,exceptions)
+function applyExceptions(schedules, exceptions)
 {
     if (!exceptions || exceptions.length == 0)
         return schedules;
     else
-        return _.filter(schedules, function (schedule)
+        return _.filter(schedules, function(schedule)
         {
-            var applicableExceptions = _.filter(exceptions, function (exception)
+            var applicableExceptions = _.filter(exceptions, function(exception)
             {
-                if ((schedule.start_time >= (exception.start_time + exception.duration*1000)) || ((schedule.start_time + schedule.duration*1000) <= exception.start_time))
+                if ((schedule.start_time >= (exception.start_time + exception.duration * 1000)) || ((schedule.start_time + schedule.duration * 1000) <= exception.start_time))
                     return false;
                 else
                     return true;
             });
 
-            if(applicableExceptions && applicableExceptions.length != 0)
+            if (applicableExceptions && applicableExceptions.length != 0)
                 return false;
             else
                 return true;

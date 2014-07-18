@@ -56,6 +56,9 @@
     <changeSet failOnError="false" runAlways="true" runOnChange="true" author='Nishant' id='1403776797653-20'>
         <loadUpdateData primaryKey="id" encoding='utf-8' file='sql/data/ref_user_title.csv' separator=',' quotchar='"' tableName='ref_user_title'></loadUpdateData>
     </changeSet>
+    <changeSet failOnError="true" runAlways="true" runOnChange="true" author='Nishant' id='1403776797653-24'>
+        <loadUpdateData primaryKey="id" encoding='utf-8' file='sql/data/skill_codes.csv' separator=',' quotchar='"' tableName='skill_codes'></loadUpdateData>
+    </changeSet>
 
     <!-- Time zone data -->
     <changeSet failOnError="true" runAlways="true" runOnChange="true" author='Nishant' id='1403776797653-21'>

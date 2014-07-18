@@ -188,3 +188,8 @@
     top: 30px;
     right: 20px;
 }
+
+.meta.meta-price .small {
+    line-height: 14px !important;
+    font-size: 14px !important;
+}

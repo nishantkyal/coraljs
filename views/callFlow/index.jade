@@ -19,16 +19,16 @@ div.modal.fade#scheduler
                                 em (mins):
                         .col-xs-12.col-sm-8.col-md-9.col-lg-9
                             ul.floatleft.nav.nav-pills.duration
-                                if minDuration < 15
-                                    li.active
+                                if minDuration <= 15
+                                    li
                                         a.well 15
-                                if minDuration < 30
+                                if minDuration <= 30
                                     li
                                         a.well 30
-                                if minDuration < 45
+                                if minDuration <= 45
                                     li
                                         a.well 45
-                                if minDuration < 60
+                                if minDuration <= 60
                                     li
                                         a.well 60
                             p.floatright
@@ -40,12 +40,13 @@ div.modal.fade#scheduler
                                         | &nbsp;mins.
                                     else
                                         | &nbsp;/ min.
-                                    if pricing.min_duration > 1
-                                        .pull-right
-                                            .small
-                                                | &nbsp;(minimum &nbsp;
-                                                span= pricing.min_duration
-                                                | &nbsp;mins.)
+                                        if pricing.min_duration > 1
+                                            br
+                                            span.pull-right
+                                                span.small
+                                                    | &nbsp;(minimum &nbsp;
+                                                    span= pricing.min_duration
+                                                    | &nbsp;mins.)
                                 else
                                     strong Free
                 .schedule-options
@@ -94,7 +95,7 @@ div.modal.fade#scheduler
                                 span.col-xs-4.remove
                                     a.remove-timeslot Remove
             .modal-footer
-                .alert.alert-warning
+                .alert.alert-danger
                     strong
                         | You have selected &nbsp;
                         span.num-slots
@@ -170,12 +171,13 @@ div.modal.fade#scheduler
                                             | &nbsp;mins.
                                         else
                                             | &nbsp;/ min.
-                                        if pricing.min_duration > 1
-                                            .pull-right
-                                                .small
-                                                    | &nbsp;(minimum &nbsp;
-                                                    span= pricing.min_duration
-                                                    | &nbsp;mins.)
+                                            if pricing.min_duration > 1
+                                                br
+                                                span.pull-right
+                                                    span.small
+                                                        | &nbsp;(minimum &nbsp;
+                                                        span= pricing.min_duration
+                                                        | &nbsp;mins.)
                                     else
                                         strong Free
                     .col-md-6
@@ -199,16 +201,16 @@ div.modal.fade#scheduler
                                             em (mins):
                                     .col-xs-12.col-sm-8.col-md-8.col-lg-8
                                         ul.nav.nav-pills.duration
-                                            if minDuration < 15
-                                                li.active
+                                            if minDuration <= 15
+                                                li
                                                     a.well 15
-                                            if minDuration < 30
+                                            if minDuration <= 30
                                                 li
                                                     a.well 30
-                                            if minDuration < 45
+                                            if minDuration <= 45
                                                 li
                                                     a.well 45
-                                            if minDuration < 60
+                                            if minDuration <= 60
                                                 li
                                                     a.well 60
                             .call-inputs
@@ -252,7 +254,7 @@ script.
     var schedules = JSON.parse( '!{JSON.stringify(user.schedule)}' );
     var expertGmtOffset = #{expertGmtOffset};
     var exceptions = JSON.parse( '!{JSON.stringify(exception)}' );
-    var duration = parseInt('#{duration}') || 15;
+    var duration = parseInt('!{duration || (pricing ? pricing.min_duration : 15)}');
     var selectedTimeSlots = [];
     try {
         selectedTimeSlots = JSON.parse( '!{JSON.stringify(appointments)}' ) || [];
