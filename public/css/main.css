@@ -2356,8 +2356,8 @@ hr {
 }
 .user-profile .info,
 .call-profile .info {
-  float: left;
-  margin-left: 10px;
+  overflow: hidden;
+  padding-left: 10px;
   line-height: 20px;
 }
 .user-profile .info .user-displayname,
@@ -2371,7 +2371,6 @@ hr {
 }
 .user-profile .info .info-upper,
 .call-profile .info .info-upper {
-  width: 140px;
   height: 90px;
   word-wrap: break-word;
 }

@@ -177,3 +177,14 @@
 .card .item .header-row input {
     margin-bottom: 10px;
 }
+
+.user-profile .info .info-container,
+.call-profile .info .info-container {
+    margin-right: 25px;
+}
+
+.user-profile .info .edit-profile {
+    position: absolute;
+    top: 30px;
+    right: 20px;
+}

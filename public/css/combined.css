@@ -8906,8 +8906,8 @@ hr {
 }
 .user-profile .info,
 .call-profile .info {
-  float: left;
-  margin-left: 10px;
+  overflow: hidden;
+  padding-left: 10px;
   line-height: 20px;
 }
 .user-profile .info .user-displayname,
@@ -8921,7 +8921,6 @@ hr {
 }
 .user-profile .info .info-upper,
 .call-profile .info .info-upper {
-  width: 140px;
   height: 90px;
   word-wrap: break-word;
 }
@@ -9928,4 +9927,15 @@ hr {
 
 .card .item .header-row input {
     margin-bottom: 10px;
+}
+
+.user-profile .info .info-container,
+.call-profile .info .info-container {
+    margin-right: 25px;
+}
+
+.user-profile .info .edit-profile {
+    position: absolute;
+    top: 30px;
+    right: 20px;
 }

@@ -13,20 +13,21 @@
                             input#selectFile(type='file', name='profile', style='display: none')
                             input#selectFileSubmit(type='submit', style='display: none')
             .info
-                .info-upper
-                    .user-displayname= formatName(user.first_name, user.last_name, user.title)
-                    if user.date_of_birth
-                        .user-age= moment(user.date_of_birth,'DD-MM-YYYY').fromNow(true)
-                .info-lower
-                    .user-locale New Delhi
-                    .user-timezone
-                        each zone in Timezone
-                            if zone.zone_id == user.timezone
-                                | #{formatTimezone(zone.gmt_offset)}
-            if isEditable
-                div(style="float: right")
-                    a.header-btn.btn.btn-primary.editCardBtn
-                        i.icon-pencil
+                .info-container
+                    .info-upper
+                        .user-displayname= formatName(user.first_name, user.last_name, user.title)
+                        if user.date_of_birth
+                            .user-age= moment(user.date_of_birth,'DD-MM-YYYY').fromNow(true)
+                    .info-lower
+                        .user-locale New Delhi
+                        .user-timezone
+                            each zone in Timezone
+                                if zone.zone_id == user.timezone
+                                    | #{formatTimezone(zone.gmt_offset)}
+                if isEditable
+                    div.edit-profile
+                        a.header-btn.btn.btn-primary.editCardBtn
+                            i.icon-pencil
             .clearer
             .profile
                 p= userProfile.short_desc
