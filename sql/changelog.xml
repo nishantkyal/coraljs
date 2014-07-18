@@ -809,4 +809,10 @@
     <changeSet author="Ankit (generated)" id="1405682859505-4">
         <dropTable tableName="map_profile_skill"/>
     </changeSet>
+    <changeSet author="Ankit (generated)" id="1405684374804-1">
+        <addForeignKeyConstraint baseColumnNames="skill_id" baseTableName="user_skill" constraintName="fk_userSkill_skill_id" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="skill_codes"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1405684374804-2">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="user_skill" constraintName="fk_userSkill_user_id" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="user"/>
+    </changeSet>
 </databaseChangeLog>
