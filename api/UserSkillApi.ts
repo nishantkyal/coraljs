@@ -6,6 +6,7 @@ import ApiUrlDelegate                                       = require('../delega
 import UserSkillDelegate                                    = require('../delegates/UserSkillDelegate');
 import ApiConstants                                         = require('../enums/ApiConstants');
 import UserSkill                                            = require('../models/UserSkill');
+import User                                                 = require('../models/User');
 
 class UserSkillApi
 {
@@ -16,27 +17,13 @@ class UserSkillApi
         var self = this;
         this.userSkillDelegate = new UserSkillDelegate();
 
-
-        app.post(ApiUrlDelegate.userSkillById(), AuthenticationDelegate.checkLogin(), function(req:express.Request, res:express.Response)
-        {
-            var skill:any = req.body[ApiConstants.USER_SKILL];
-            var skillId = parseInt(req.params[ApiConstants.SKILL_ID]);
-            var newUserSkill:UserSkill = new UserSkill();
-            newUserSkill.setId(skillId);
-            self.userSkillDelegate.updateUserSkill(newUserSkill,skill.skill_name,skill.skill_linkedin_code)
-                .then(
-                function userSkillUpdated() { res.send(200); },
-                function userSkillUpdateError(error) { res.send(500); }
-            )
-        });
-
         app.put(ApiUrlDelegate.userSkill(), AuthenticationDelegate.checkLogin(), function(req:express.Request, res:express.Response)
         {
-            var loggedInUser = req['user'];
+            var loggedInUser = new User(req['user']);
             var skill = req.body[ApiConstants.USER_SKILL];
-            var profileId = req.body[ApiConstants.USER_PROFILE_ID];
+            var userId = loggedInUser.getId();
 
-            self.userSkillDelegate.createUserSkill(skill.skill_name, skill.skill_linkedin_code, profileId)
+            self.userSkillDelegate.createSkill(skill, userId)
                 .then(
                 function userUpdated() { res.send(200); },
                 function userUpdateError(error) { res.send(500); }
@@ -45,10 +32,11 @@ class UserSkillApi
 
         app.delete(ApiUrlDelegate.userSkillById(), AuthenticationDelegate.checkLogin(), function(req:express.Request, res:express.Response)
         {
+            var loggedInUser = new User(req['user']);
             var skillId:number = parseInt(req.params[ApiConstants.SKILL_ID]);
-            var profileId:number = parseInt(req.body[ApiConstants.USER_PROFILE_ID]);
+            var userId = loggedInUser.getId();
 
-            self.userSkillDelegate.delete({id:skillId})// if hard deleting then add profileId:profileId
+            self.userSkillDelegate.delete({id:skillId})// if hard deleting then add userId:userId
                 .then(
                 function userUpdated() { res.send(200); },
                 function userUpdateError(error) { res.send(500); }

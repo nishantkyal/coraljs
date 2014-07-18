@@ -71,6 +71,7 @@ function init(grunt)
                     'public/bower_dependencies/bootstrapValidator/dist/css/bootstrapValidator.css',
                     'public/bower_dependencies/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css',
                     'public/bower_dependencies/76d-social-icons/assets/css/social-icons.css',
+                    'public/bower_dependencies/jquery-tokeninput/styles/token-input-facebook.css',
                     'public/bower_dependencies/76d-social-icons/assets/css/main.css',
                     'public/css/main.css',
                     'public/css/style.css'
@@ -93,8 +94,8 @@ function init(grunt)
                         'public/bower_dependencies/underscore/underscore.js',
                         'public/bower_dependencies/moment/moment.js',
                         'public/bower_dependencies/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js',
+                        'public/bower_dependencies/jquery-tokeninput/src/jquery.tokeninput.js',
                         'public/js/app/common.js',
-                        'public/js/lib/bootstrap3-typeahead.js',
                         'public/js/lib/bloodhound.js',
                         'public/js/app/jquery.card.js'
                     ]

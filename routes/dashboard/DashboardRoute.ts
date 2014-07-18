@@ -256,15 +256,14 @@ class DashboardRoute
         var member:IntegrationMember;
         var loggedInUser = sessionData.getLoggedInUser();
 
-        self.userProfileDelegate.find(Utils.createSimpleObject(UserProfile.USER_ID, userId))
+         self.userProfileDelegate.find(Utils.createSimpleObject(UserProfile.USER_ID, userId))
             .then(
             function profileFetched(userProfile:UserProfile)
             {
-                var profileInfoTasks = [self.userDelegate.get(userId)];
+                var profileInfoTasks = [self.userDelegate.get(userId,null, [IncludeFlag.INCLUDE_SKILL])];
 
                 if (!Utils.isNullOrEmpty(userProfile) && userProfile.getId())
                     profileInfoTasks = profileInfoTasks.concat([
-                        self.userSkillDelegate.getSkillWithName(userProfile.getId()),
                         self.userEducationDelegate.search({'profileId': userProfile.getId()}),
                         self.userEmploymentDelegate.search({'profileId': userProfile.getId()}),
                         self.userUrlDelegate.search({'profileId': userProfile.getId()}),
@@ -277,11 +276,10 @@ class DashboardRoute
             function userDetailsFetched(userProfile,...args)
             {
                 var user = args[0][0];
-                var userSkill = args[0][1] || [];
-                var userEducation = args[0][2] || [];
-                var userEmployment = args[0][3] || [];
-                var userUrl = args[0][4] || [];
-                var expertise = args[0][5] || [];
+                var userEducation = args[0][1] || [];
+                var userEmployment = args[0][2] || [];
+                var userUrl = args[0][3] || [];
+                var expertise = args[0][4] || [];
 
                 var isEditable = loggedInUser ? loggedInUser.getId() == user.getId() : false;
 
@@ -294,7 +292,7 @@ class DashboardRoute
                     'profileId': profileId,
                     'member': member,
                     'user': user,
-                    'userSkill': _.sortBy(userSkill, function (skill) { return skill['skill_name'].length; }),
+                    //'userSkill': _.sortBy(userSkill, function (skill) { return skill['skill_name'].length; }),
                     'userProfile': userProfile,
                     'userEducation': userEducation,
                     'userEmployment': userEmployment,

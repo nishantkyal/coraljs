@@ -36,14 +36,15 @@
                 h5.col-xs-12 Skills/Keywords
                 .clearer
                 ul
-                    if userSkill.length != 0
-                        each skill in userSkill
-                            li
-                                | #{skill.skill_name}
-                                if isEditable
-                                    | &nbsp;&nbsp;
-                                    a.deleteUserSkill(style="color: white;", data-id=skill.id)
-                                        i.icon-cancel
+                    if user.skill
+                        if user.skill.length != 0
+                            each skill in user.skill
+                                li
+                                    | #{skill.skill.skill}
+                                    if isEditable
+                                        | &nbsp;&nbsp;
+                                        a.deleteUserSkill(style="color: white;", data-id=skill.id)
+                                            i.icon-cancel
                     if isEditable
                         a.btn.btn-primary.btn-xs#addSkillBtn Add Skill
                             i.icon-plus
