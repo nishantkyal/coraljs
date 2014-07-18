@@ -283,13 +283,13 @@ function updateSelectedTimeSlots()
 
     if (selectedTimeSlots.length < 3) {
         $('.modal-footer #schedule-done').hide();
-        $('.modal-footer .alert.alert-warning').show();
-        $('.modal-footer .alert.alert-warning .num-slots').text('You have selected ' + selectedTimeSlots.length + ' time slot so far.');
+        $('.modal-footer .alert.alert-danger').show();
+        $('.modal-footer .alert.alert-danger .num-slots').text('You have selected ' + selectedTimeSlots.length + ' time slot so far.');
         $('#selectedSlots .tagit-new').show();
     }
     else {
         $('.modal-footer #schedule-done').show();
-        $('.modal-footer .alert.alert-warning').hide();
+        $('.modal-footer .alert.alert-danger').hide();
         $('#selectedSlots .tagit-new').hide();
     }
 

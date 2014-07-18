@@ -106,7 +106,7 @@ class PaymentRoute
             phoneCall.setAgenda(callFlowSessionData.getAgenda());
             phoneCall.setChargingRate(new PricingScheme(user.getPricingScheme()[0]).getChargingRate());
             phoneCall.setUnit(new PricingScheme(user.getPricingScheme()[0]).getUnit());
-            phoneCall.setChunkSize(new PricingScheme(user.getPricingScheme()[0]).getChunkSize());
+            phoneCall.setPulseRate(new PricingScheme(user.getPricingScheme()[0]).getPulseRate());
             phoneCall.setMinDuration(new PricingScheme(user.getPricingScheme()[0]).getMinDuration());
             phoneCall.setCallerUserId(loggedInUserId);
 

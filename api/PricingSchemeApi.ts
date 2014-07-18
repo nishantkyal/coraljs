@@ -40,7 +40,7 @@ class PricingSchemeApi
         app.put(ApiUrlDelegate.pricingScheme(), AuthenticationDelegate.checkLogin(), function(req:express.Request, res:express.Response)
         {
             var pricingScheme:PricingScheme = req.body[ApiConstants.PRICING_SCHEME];
-            pricingScheme.setMinDuration(pricingScheme.getMinDuration() || pricingScheme.getChunkSize());
+            pricingScheme.setMinDuration(pricingScheme.getMinDuration() || pricingScheme.getPulseRate());
 
             self.pricingSchemeDelegate.create(pricingScheme)
                 .then(

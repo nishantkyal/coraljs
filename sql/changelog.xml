@@ -773,4 +773,24 @@
     <changeSet author="Ankit (generated)" id="1405602719107-13">
         <modifyDataType columnName="skill" newDataType="varchar(80)" tableName="skill_codes"/>
     </changeSet>
+    <changeSet author="Nishant (generated)" id="1405680295954-1">
+        <dropIndex indexName="price_currency_idx" tableName="phone_call"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405680295954-2">
+        <addColumn tableName="phone_call">
+            <column name="min_duration" type="INT(10)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405680295954-3">
+        <renameColumn oldColumnName="chunk_size" newColumnName="pulse_rate" tableName="pricing_scheme"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405680295954-4">
+        <renameColumn oldColumnName="price_currency" newColumnName="unit" tableName="phone_call"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405680295954-5">
+        <renameColumn oldColumnName="price_per_min" newColumnName="charging_rate" tableName="phone_call"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405680295954-6">
+        <addForeignKeyConstraint baseColumnNames="unit" baseTableName="phone_call" constraintName="FK_phone_call_unit" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="ref_money_unit"/>
+    </changeSet>
 </databaseChangeLog>

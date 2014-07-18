@@ -46,9 +46,9 @@ title ST-#{formatName(user.first_name, user.last_name, user.title)} | Payment fo
                                 p
                                     if pricing
                                         strong= formatMoney(pricing.charging_rate, pricing.unit)
-                                        if pricing.chunk_size > 1
+                                        if pricing.pulse_rate > 1
                                             | &nbsp;for&nbsp;
-                                            span= pricing.chunk_size
+                                            span= pricing.pulse_rate
                                             | &nbsp;mins.
                                         else
                                             | &nbsp;/ min.
