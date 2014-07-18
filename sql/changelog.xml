@@ -782,13 +782,13 @@
         </addColumn>
     </changeSet>
     <changeSet author="Nishant (generated)" id="1405680295954-3">
-        <renameColumn oldColumnName="chunk_size" newColumnName="pulse_rate" tableName="pricing_scheme"/>
+        <renameColumn columnDataType="int" oldColumnName="chunk_size" newColumnName="pulse_rate" tableName="pricing_scheme"/>
     </changeSet>
     <changeSet author="Nishant (generated)" id="1405680295954-4">
-        <renameColumn oldColumnName="price_currency" newColumnName="unit" tableName="phone_call"/>
+        <renameColumn columnDataType="int" oldColumnName="price_currency" newColumnName="unit" tableName="phone_call"/>
     </changeSet>
     <changeSet author="Nishant (generated)" id="1405680295954-5">
-        <renameColumn oldColumnName="price_per_min" newColumnName="charging_rate" tableName="phone_call"/>
+        <renameColumn columnDataType="decimal" oldColumnName="price_per_min" newColumnName="charging_rate" tableName="phone_call"/>
     </changeSet>
     <changeSet author="Nishant (generated)" id="1405680295954-6">
         <addForeignKeyConstraint baseColumnNames="unit" baseTableName="phone_call" constraintName="FK_phone_call_unit" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="ref_money_unit"/>
