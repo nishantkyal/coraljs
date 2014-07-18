@@ -52,18 +52,18 @@ div.modal.fade#scheduler
                                 if pricing
                                     strong= formatMoney(pricing.charging_rate, pricing.unit)
                                     if pricing.pulse_rate > 1
-                                        | &nbsp;for&nbsp;
+                                        | &nbsp;per&nbsp;
                                         span= pricing.pulse_rate
                                         | &nbsp;mins.
                                     else
                                         | &nbsp;/ min.
-                                        if pricing.min_duration > 1
-                                            br
-                                            span.pull-right
-                                                span.small
-                                                    | &nbsp;(minimum &nbsp;
-                                                    span= pricing.min_duration
-                                                    | &nbsp;mins.)
+                                    if pricing.min_duration > 1
+                                        br
+                                        span.pull-right
+                                            span.small
+                                                | &nbsp;(minimum &nbsp;
+                                                span= pricing.min_duration
+                                                | &nbsp;mins.)
                                 else
                                     strong Free
                 .schedule-options
@@ -183,18 +183,18 @@ div.modal.fade#scheduler
                                     if pricing
                                         strong= formatMoney(pricing.charging_rate, pricing.unit)
                                         if pricing.pulse_rate > 1
-                                            | &nbsp;for&nbsp;
+                                            | &nbsp;per&nbsp;
                                             span= pricing.pulse_rate
                                             | &nbsp;mins.
                                         else
                                             | &nbsp;/ min.
-                                            if pricing.min_duration > 1
-                                                br
-                                                span.pull-right
-                                                    span.small
-                                                        | &nbsp;(minimum &nbsp;
-                                                        span= pricing.min_duration
-                                                        | &nbsp;mins.)
+                                        if pricing.min_duration > 1
+                                            br
+                                            span.pull-right
+                                                span.small
+                                                    | &nbsp;(minimum &nbsp;
+                                                    span= pricing.min_duration
+                                                    | &nbsp;mins.)
                                     else
                                         strong Free
                     .col-md-6

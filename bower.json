@@ -7,7 +7,7 @@
         "jquery": "~1.10.2",
         "eonasdan-bootstrap-datetimepicker": "3.0.0",
         "bootbox": "4.2.0",
-        "bootstrapValidator": "0.4.5",
+        "bootstrapValidator": "0.5",
         "bootstrap-select": "1.5.2",
         "bootstrap3-typeahead": "3.0.3",
         "bootstrap-sortable": "1.8.0",

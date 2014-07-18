@@ -1,6 +1,5 @@
-
 /*!
- * Expander - v1.4.9 - 2014-07-06
+ * Expander - v1.4.11 - 2014-07-16
  * http://plugins.learningjquery.com/expander/
  * Copyright (c) 2014 Karl Swedberg
  * Licensed MIT (http://www.opensource.org/licenses/mit-license.php)
@@ -8,10 +7,15 @@
 
 (function($) {
   $.expander = {
-    version: '1.4.9',
+    version: '1.4.11',
     defaults: {
       // the number of characters at which the contents will be sliced into two parts.
       slicePoint: 100,
+
+      // a string of characters at which to slice the contents into two parts,
+      // but only if the string appears before slicePoint
+      // Useful for slicing at the first line break, e.g. {sliceOn: '<br'}
+      sliceOn: null,
 
       // whether to keep the last word of the summary whole (true) or let it slice in the middle of a word (false)
       preserveWords: true,
@@ -153,6 +157,17 @@
             }
             summaryText += newChar;
             summTagless++;
+          }
+
+          //SliceOn script, Closes #16, resolves #59
+          //Original SliceEarlierAt code (since modfied): Sascha Peilicke @saschpe
+          if (o.sliceOn) {
+            var sliceOnIndex = summaryText.indexOf(o.sliceOn);
+
+            if (sliceOnIndex !== -1 && sliceOnIndex < o.slicePoint) {
+              o.slicePoint = sliceOnIndex;
+              summaryText = allHtml.slice(0, o.slicePoint);
+            }
           }
 
           summaryText = backup(summaryText, o.preserveWords);
@@ -373,11 +388,11 @@
       return [
         summary,
         ' <',
-          el + ' class="' + o.detailClass + '"',
+        el + ' class="' + o.detailClass + '"',
         '>',
-          o.details,
+        o.details,
         '</' + el + '>'
-        ].join('');
+      ].join('');
     }
 
     function buildMoreLabel(o, detailText) {
