@@ -1,8 +1,4 @@
 (function($) {
-    $.fn.bootstrapValidator.i18n.vin = $.extend($.fn.bootstrapValidator.i18n.vin || {}, {
-        'default': 'Please enter a valid VIN number'
-    });
-
     $.fn.bootstrapValidator.validators.vin = {
         /**
          * Validate an US VIN (Vehicle Identification Number)
@@ -15,7 +11,7 @@
          */
         validate: function(validator, $field, options) {
             var value = $field.val();
-            if (value === '') {
+            if (value == '') {
                 return true;
             }
 
@@ -39,11 +35,11 @@
             }
 
             var reminder = sum % 11;
-            if (reminder === 10) {
+            if (reminder == 10) {
                 reminder = 'X';
             }
 
-            return (reminder + '') === value.charAt(8);
+            return reminder == value.charAt(8);
         }
     };
 }(window.jQuery));

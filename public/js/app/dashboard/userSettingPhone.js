@@ -21,6 +21,7 @@ $('#userPhone .edit-card form').bootstrapValidator({
                 phoneNumber: {
                     phone       : $('#userPhone .edit-card form input[name="phone"]').val(),
                     country_code: $('#userPhone .edit-card form select[name="country_code"]').val(),
+                    area_code: $('#userPhone .edit-card form input[name="country_code"]').val(),
                     id          : $('#userPhone .edit-card form input[name="id"]').attr('id')
                 }
             },
@@ -53,9 +54,12 @@ $('#userPhone .edit-card form').bootstrapValidator({
                 notEmpty: {
                     message: 'This field is required and cannot be empty'
                 },
-                digits  : {
-                    message: 'Please enter a valid number'
-                }
+                digits  : { message: 'Phone number can only contain digit' }
+            }
+        },
+        area_code: {
+            validators: {
+                digits: {message: 'Area code can only contain digit'}
             }
         },
         code : {

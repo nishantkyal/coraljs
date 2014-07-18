@@ -1,8 +1,4 @@
 (function($) {
-    $.fn.bootstrapValidator.i18n.imei = $.extend($.fn.bootstrapValidator.i18n.imei || {}, {
-        'default': 'Please enter a valid IMEI number'
-    });
-
     $.fn.bootstrapValidator.validators.imei = {
         /**
          * Validate IMEI (International Mobile Station Equipment Identity)
@@ -19,7 +15,7 @@
          */
         validate: function(validator, $field, options) {
             var value = $field.val();
-            if (value === '') {
+            if (value == '') {
                 return true;
             }
 
@@ -29,6 +25,7 @@
                 case /^\d{2}\s\d{6}\s\d{6}\s\d{1}$/.test(value):
                     value = value.replace(/[^0-9]/g, '');
                     return $.fn.bootstrapValidator.helpers.luhn(value);
+                    break;
 
                 case /^\d{14}$/.test(value):
                 case /^\d{16}$/.test(value):

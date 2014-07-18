@@ -1,7 +1,7 @@
 {
   "name": "bootstrapValidator",
   "description": "The best jQuery plugin to validate form fields. Designed to use with Bootstrap 3",
-  "version": "0.5.0",
+  "version": "0.4.5",
   "main": [
     "dist/css/bootstrapValidator.css",
     "dist/js/bootstrapValidator.js"
@@ -31,13 +31,13 @@
     "jquery": ">= 1.9.0",
     "bootstrap": ">= 3.0.0"
   },
-  "_release": "0.5.0",
+  "_release": "0.4.5",
   "_resolution": {
     "type": "version",
-    "tag": "v0.5.0",
-    "commit": "2b2d56c36a2790aefcca8a5db141a8f9ff3f6c4e"
+    "tag": "v0.4.5",
+    "commit": "f1fc72d15bc66f15ec9f8c6f1986278b4cb4e91a"
   },
   "_source": "git://github.com/nghuuphuoc/bootstrapvalidator.git",
-  "_target": "0.5",
+  "_target": "0.4.5",
   "_originalSource": "bootstrapValidator"
 }

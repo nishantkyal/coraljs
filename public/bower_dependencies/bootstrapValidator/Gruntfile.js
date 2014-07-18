@@ -1,68 +1,51 @@
 module.exports = function(grunt) {
     grunt.initConfig({
-        // ---
-        // Variables
-        // ---
-
         pkg: grunt.file.readJSON('package.json'),
 
-        dirs: {
-            src: 'src',
-            dist: 'dist',
-            test: 'test'
-        },
+        buildDir: 'dist',
 
         banner: [
-            '/*!',
+            '/**',
             ' * BootstrapValidator (<%= pkg.homepage %>)',
+            ' *',
             ' * <%= pkg.description %>',
             ' *',
-            ' * @version     v<%= pkg.version %>, built on <%= grunt.template.today("yyyy-mm-dd h:MM:ss TT") %>',
+            ' * @version     v<%= pkg.version %>',
             ' * @author      <%= pkg.author.url %>',
-            ' * @copyright   (c) 2013 - <%= grunt.template.today("yyyy") %> Nguyen Huu Phuoc',
+            ' * @copyright   (c) 2013 - 2014 Nguyen Huu Phuoc',
             ' * @license     MIT',
-            ' */\n'
+            ' */\n\n'
         ].join('\n'),
-
-        // ---
-        // Tasks
-        // ---
 
         copy: {
             main: {
                 files: [
-                    { cwd: '<%= dirs.src %>/css', src: '**', dest: '<%= dirs.dist %>/css', expand: true, flatten: true, filter: 'isFile' },
-                    { cwd: '<%= dirs.src %>/js/language', src: '**', dest: '<%= dirs.dist %>/js/language', expand: true, flatten: true, filter: 'isFile' }
+                    { cwd: 'src/css', src: '**', dest: '<%= buildDir %>/css', expand: true, flatten: true, filter: 'isFile' }
                 ]
             }
         },
 
         cssmin: {
-            minify: { expand: true, cwd: '<%= dirs.src %>/css/', src: ['*.css'], dest: '<%= dirs.dist %>/css/', ext: '.min.css' },
+            minify: { expand: true, cwd: 'src/css/', src: ['*.css'], dest: '<%= buildDir %>/css/', ext: '.min.css' },
             add_banner: {
                 options: {
-                    stripBanners: true,
                     banner: '<%= banner %>'
                 },
                 files: {
-                    '<%= dirs.dist %>/css/bootstrapValidator.min.css': ['<%= dirs.src %>/css/bootstrapValidator.css']
+                    '<%= buildDir %>/css/bootstrapValidator.min.css': ['src/css/bootstrapValidator.css']
                 }
             }
         },
 
         concat: {
-            source: {
-                options: {
-                    separator: ';',
-                    stripBanners: true,
-                    banner: '<%= banner %>'
-                },
-                src: ['<%= dirs.src %>/js/bootstrapValidator.js', '<%= dirs.src %>/js/validator/*.js'],
-                dest: '<%= dirs.dist %>/js/bootstrapValidator.js'
+            options: {
+                separator: ';',
+                stripBanners: true,
+                banner: '<%= banner %>'
             },
-            test: {
-                src: ['<%= dirs.test %>/spec/*.js', '<%= dirs.test %>/spec/validator/*.js'],
-                dest: '<%= dirs.test %>/spec.js'
+            dist: {
+                src: ['src/js/bootstrapValidator.js', 'src/js/validator/*.js'],
+                dest: '<%= buildDir %>/js/bootstrapValidator.js'
             }
         },
 
@@ -71,56 +54,28 @@ module.exports = function(grunt) {
                 banner: '<%= banner %>'
             },
             build: {
-                src: ['<%= dirs.dist %>/js/bootstrapValidator.js'],
-                dest: '<%= dirs.dist %>/js/bootstrapValidator.min.js'
-            }
-        },
-
-        jshint: {
-            all: [
-                '<%= dirs.src %>/js/**/*.js'
-            ],
-            options: {
-                browser: true,
-                camelcase: true,
-                curly: true,
-                eqeqeq: true,
-                eqnull: true,
-                es3: true,
-                expr: true,
-                laxbreak: true,   // Allow line breaking before && or ||
-                loopfunc: true,
-                newcap: true,
-                noarg: true,
-                onevar: true,
-                sub: true,
-                undef: true,
-                white: true
+                src: ['<%= buildDir %>/js/bootstrapValidator.js'],
+                dest: '<%= buildDir %>/js/bootstrapValidator.min.js'
             }
         },
 
         watch: {
-            source: {
-                files: ['<%= dirs.src %>/css/**', '<%= dirs.src %>/js/**'],
+            scripts: {
+                files: ['src/css/**', 'src/js/**'],
                 tasks: ['build'],
                 options: {
                     spawn: false
                 }
-            },
-            test: {
-                files: ['<%= dirs.test %>/spec/**'],
-                tasks: ['concat:test']
             }
         }
     });
 
     grunt.registerTask('default', 'build');
-    grunt.registerTask('build',   ['copy', 'cssmin', 'concat:source', 'uglify']);
+    grunt.registerTask('build', ['copy', 'cssmin', 'concat', 'uglify']);
 
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
-    grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-watch');
 };
