@@ -25,10 +25,13 @@
                         | #{emp.company}
                         br
                     if emp.start_date && emp.start_date != -1
-                        | #{formatDate(emp.start_date, 'MM-YYYY')}
-                    if emp.end_date && emp.end_date != -1
-                        | - #{formatDate(emp.end_date, 'MM-YYYY')}
-                        br
+                        | #{formatDate(emp.start_date, 'MMMM YYYY')}&nbsp;
+                    if emp.is_current
+                        | - Present
+                    else
+                        if emp.end_date && emp.end_date != -1
+                            | - #{formatDate(emp.end_date, 'MMMM YYYY')}
+                            br
                     if emp.summary
                         p.empSummary #{emp.summary}
     else
@@ -41,7 +44,7 @@ if isEditable
             .item-edit
                 .item
                     .row
-                        h5.col-xs-8 Add Position Details
+                        h5.col-xs-8 Work Experience
                         .header-link.col-xs-4
                             a.btn.btn-danger.cancelEditCardBtn
                                 i.icon-cancel
@@ -57,17 +60,17 @@ if isEditable
                             h3 Time Period
                             .row
                                 .col-md-4
-                                    input.form-control.datepicker(type='text', name ="start_date", data-date-format="MM/YYYY")
+                                    input.form-control.datepicker(type='text', name ="start_date", data-date-format="MM-YYYY")
                                 .col-md-1
                                     | to
                                 .col-md-4
-                                    input.form-control.datepicker(type='text', name="end_date", data-date-format="MM/YYYY")
+                                    input.form-control.datepicker(type='text', name="end_date", data-date-format="MM-YYYY")
                         .form-group
                             h3 Summary
                             input.form-control(type='text', name='summary')
                         .form-group
                             h3 Is Current? &nbsp&nbsp
-                            select#(name='is_current', data-width='auto', name='is_current')
+                            select(data-width='auto', name='is_current')
                                 option(value="1" selected = (currentYear == '#{i}')) Yes
                                 option(value="0" selected = (currentYear == '#{i}')) No
                                 .clearer

@@ -18,16 +18,21 @@ $('#userEmployment .editCardBtn').click(function(event)
 $('[name="deleteUserEmployment"]').click(function()
 {
     var employmentId = $(this).data('id');
-    $.ajax({
-        url    : '/rest/user/employment/' + employmentId,
-        type   : 'DELETE',
-        data: {
-            id              : employmentId,
-            profileId           : userProfile.id
-        },
-        success: function()
+    bootbox.confirm("Are you sure you want to delete selected employment detail?", function(result) {
+        if (result)
         {
-            location.reload();
+            $.ajax({
+                url    : '/rest/user/employment/' + employmentId,
+                type   : 'DELETE',
+                data: {
+                    id              : employmentId,
+                    profileId           : userProfile.id
+                },
+                success: function()
+                {
+                    location.reload();
+                }
+            });
         }
     });
 });
@@ -41,7 +46,7 @@ $('#userEmployment .edit-card form').bootstrapValidator({
         var employmentId = $('#userEmployment .edit-card form input[name="id"]').val();
         var url = employmentId ? '/rest/user/employment/' + employmentId : '/rest/user/employment';
         var method = employmentId ? 'post' : 'put';
-        
+
         $.ajax({
             url : url,
             type: method,
@@ -52,7 +57,7 @@ $('#userEmployment .edit-card form').bootstrapValidator({
                     end_date        : endDate,
                     summary         : $('#userEmployment .edit-card form input[name="summary"]').val(),
                     company         : $('#userEmployment .edit-card form input[name="company"]').val(),
-                    is_current      : $('#userEmployment .edit-card form input[name="is_current"]').val()
+                    is_current      : $('#userEmployment .edit-card form select[name="is_current"]').val()
                 },
                 profileId           : userProfile.id
             },
