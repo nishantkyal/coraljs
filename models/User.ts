@@ -4,11 +4,13 @@ import BaseModel                                            = require('./BaseMod
 import Utils                                                = require('../common/Utils');
 import Formatter                                            = require('../common/Formatter');
 import UserProfile                                          = require('../models/UserProfile');
+import UserSkill                                            = require('../models/UserSkill');
 import PricingScheme                                        = require('../models/PricingScheme');
 import Schedule                                             = require('./Schedule');
 import ScheduleRule                                         = require('./ScheduleRule');
 import IndustryCode                                         = require('../enums/IndustryCode');
 import Salutation                                           = require('../enums/Salutation');
+import ForeignKey                                           = require('./ForeignKey');
 
 class User extends BaseModel
 {
@@ -35,6 +37,16 @@ class User extends BaseModel
 
     static DEFAULT_FIELDS:string[] = [User.ID, User.TITLE, User.FIRST_NAME, User.LAST_NAME, User.EMAIL,
         User.INDUSTRY, User.TIMEZONE, User.DATE_OF_BIRTH, User.EMAIL_VERIFIED, User.ACTIVE, User.VERIFIED, User.PASSWORD, User.PASSWORD_SEED];
+
+    constructor(data:Object = {})
+    {
+        super(data);
+        if (!User._INITIALIZED)
+        {
+            this.hasMany(new ForeignKey(User.ID, UserSkill, UserSkill.USER_ID,'skill'));
+            User._INITIALIZED = true;
+        }
+    }
 
     private title:Salutation;
     private first_name:string;
@@ -74,6 +86,7 @@ class User extends BaseModel
     getSchedule():Schedule[]                                    { return this.schedule; }
     getScheduleRule():ScheduleRule[]                            { return this.schedule_rule; }
     getPricingScheme():PricingScheme[]                          { return this.pricing_scheme; }
+    getSkill():UserSkill[]                                      { return null; }
 
     isValid():boolean {
         return !Utils.isNullOrEmpty(this.getEmail()) && validator.isEmail(this.getEmail());
@@ -98,6 +111,7 @@ class User extends BaseModel
     setSchedule(val:Schedule[]):void                            { this.schedule = val; }
     setScheduleRule(val:ScheduleRule[]):void                    { this.schedule_rule = val; }
     setPricingScheme(val:PricingScheme[]):void                  { this.pricing_scheme = val; }
+    setSkill(val:UserSkill[])                                   { }
 
     getPasswordHash(email?:string, password?:string, passwordSeed?:string):string
     {

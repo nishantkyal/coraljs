@@ -793,4 +793,20 @@
     <changeSet author="Nishant (generated)" id="1405680295954-6">
         <addForeignKeyConstraint baseColumnNames="unit" baseTableName="phone_call" constraintName="FK_phone_call_unit" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="ref_money_unit"/>
     </changeSet>
+    <changeSet author="Ankit (generated)" id="1405682859505-1">
+        <addColumn tableName="user_skill">
+            <column name="user_id" type="INT(10)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1405682859505-2">
+        <addUniqueConstraint columnNames="user_id, skill_id" constraintName="unique_userId_skillId" deferrable="false" disabled="false" initiallyDeferred="false" tableName="user_skill"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1405682859505-3">
+        <createIndex indexName="fk_expertise_expertise_idx" tableName="map_expertise_skill" unique="false">
+            <column name="expertise_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1405682859505-4">
+        <dropTable tableName="map_profile_skill"/>
+    </changeSet>
 </databaseChangeLog>

@@ -9,11 +9,13 @@ import MysqlDelegate                                                    = requir
 import UserProfileDelegate                                              = require('../delegates/UserProfileDelegate');
 import ImageDelegate                                                    = require('../delegates/ImageDelegate');
 import UserPhoneDelegate                                                = require('../delegates/UserPhoneDelegate');
+import UserSkillDelegate                                                = require('../delegates/UserSkillDelegate');
 import ScheduleDelegate                                                 = require('../delegates/ScheduleDelegate');
 import ScheduleRuleDelegate                                             = require('../delegates/ScheduleRuleDelegate');
 import PricingSchemeDelegate                                            = require('../delegates/PricingSchemeDelegate');
 import User                                                             = require('../models/User');
 import UserProfile                                                      = require('../models/UserProfile');
+import UserSkill                                                        = require('../models/UserSkill');
 import PricingScheme                                                    = require('../models/PricingScheme');
 import IncludeFlag                                                      = require('../enums/IncludeFlag');
 import ImageSize                                                        = require('../enums/ImageSize');
@@ -28,6 +30,7 @@ class UserDelegate extends BaseDaoDelegate
     private imageDelegate = new ImageDelegate();
     private userProfileDelegate = new UserProfileDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
+    private userSkillDelegate = new UserSkillDelegate();
     private scheduleRuleDelegate = new ScheduleRuleDelegate();
     private scheduleDelegate = new ScheduleDelegate();
     private pricingSchemeDelegate = new PricingSchemeDelegate();
@@ -127,6 +130,9 @@ class UserDelegate extends BaseDaoDelegate
 
             case IncludeFlag.INCLUDE_SCHEDULE_RULES:
                 return self.scheduleRuleDelegate.getRulesByUser(result[0][User.ID]);
+
+            case IncludeFlag.INCLUDE_SKILL:
+                return self.userSkillDelegate.search(Utils.createSimpleObject(UserSkill.USER_ID,result[User.ID]), null,[IncludeFlag.INCLUDE_SKILL]);
         }
         return super.getIncludeHandler(include, result);
     }

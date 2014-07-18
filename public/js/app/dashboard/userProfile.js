@@ -71,81 +71,19 @@ $('#basicProfile .edit-card form').bootstrapValidator({
     }
 });
 
-var skillSet = [];
-var fetchedSkill = new Bloodhound({
-    datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
-    queryTokenizer: Bloodhound.tokenizers.whitespace,
-    limit         : 10,
-    remote        : {
-        url    : '//www.linkedin.com/ta/skill?query=',
-        replace: function(url, query)
-        {
-            return url + query;
-        },
-        ajax   : {
-            dataType: 'jsonp',
-            method  : 'get'
-        },
-        filter : function(response)
-        {
-            $('form#AddUserSkillForm #spinningWheel').hide();
-            skillSet = _.map(response.resultList, function(skill)
-            {
-                return {
-                    value: skill.displayName,
-                    code : skill.id
-                };
-            });
-
-            return _.pluck(skillSet, 'value');
-        }
-    }
-});
-
-fetchedSkill.initialize();
-
-var count = 0;
-$('form#AddUserSkillForm .typeahead').keypress(function(event)
-{
-    if (event.key == 'Backspace') {
-        if (count > 0)
-            count--;
-    }
-    else
-        count++;
-    if (count > 0)
-        $('form#AddUserSkillForm #spinningWheel').show();
-    else
-        $('form#AddUserSkillForm #spinningWheel').hide();
-});
-
-$('form#AddUserSkillForm .typeahead').typeahead(
-    {
-        items : 'all',
-        name  : 'skillName',
-        source: fetchedSkill.ttAdapter()
-    }
-);
-
 $('form#AddUserSkillForm').bootstrapValidator({
     submitHandler: function()
     {
-        var updatedSkill = $('#AddUserSkillForm input[name="skill_name"]').val();
-        var skillLkinCode;
-        $.each(skillSet, function(key, skill)
-        {
-            if (skill.value == updatedSkill)
-                skillLkinCode = skill.code;
+        var selectedSkills = _.map($('form#AddUserSkillForm .tokeninput').tokenInput("get"), function(skill) {
+            return {
+                skill_name         : skill.name
+            }
         });
         $.ajax({
             url    : '/rest/user/skill',
             type   : 'put',
             data   : {
-                skill    : {
-                    skill_linkedin_code: skillLkinCode,
-                    skill_name         : updatedSkill
-                },
-                profileId: userProfile.id
+                skill    : selectedSkills
             },
             success: function()
             {
@@ -177,7 +115,6 @@ $('.deleteUserSkill').click(function()
         type   : 'DELETE',
         data   : {
             id       : skillId,
-            profileId: userProfile.id
         },
         success: function()
         {
@@ -226,7 +163,7 @@ $('form#linkedinFetch').bootstrapValidator({
     }
 });
 
-$('#expertise .edit-card form .tokeninput').tokenInput('//www.linkedin.com/ta/skill', {
+$('#expertise .edit-card form .tokeninput, form#AddUserSkillForm .tokeninput').tokenInput('//www.linkedin.com/ta/skill', {
     theme: "facebook",
     queryParam: 'query',
     onResult:processLinkedInResponse,
@@ -331,7 +268,6 @@ $('#expertise .edit-card form').bootstrapValidator({
         var expertiseUrl = expertiseId ? '/rest/user/expertise/' + expertiseId : '/rest/user/expertise';
         var selectedSkills = _.map($('#expertise .edit-card form .tokeninput').tokenInput("get"), function(skill) {
             return {
-                skill_linkedin_code: skill.id || '',
                 skill_name         : skill.name
             }
         });

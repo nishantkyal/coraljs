@@ -248,28 +248,14 @@ class UserProfileDelegate extends BaseDaoDelegate
                 if (!Utils.isNullOrEmpty(profile.skills) && profile.skills._total > 0)
                     var tasks = _.map(profile.skills.values, function (skillObject:any)
                     {
+                        var userSkill = new UserSkill();
+                        userSkill.setUserId(userId);
+
                         var skillCode = new SkillCode();
                         var skill:any = skillObject.skill;
                         skillCode.setSkill(skill.name);
-                        return new SkillCodeDelegate().create(skillCode, transaction)
-                            .then(
-                            function skillCodesCreated(createdSkillCodes:SkillCode)
-                            {
-                                var userSkill = new UserSkill();
-                                userSkill.setSkillId(createdSkillCodes.getId())
-                                return new UserSkillDelegate().createUserSkillWithMap(userSkill, profileId, transaction);
-                            })
-                            .fail(
-                            function skillCodeExists(){
-                                return new SkillCodeDelegate().find(Utils.createSimpleObject(SkillCode.SKILL, skillCode.getSkill()))
-                                    .then(
-                                    function skillCodesFound(skillCodeFetched:SkillCode)
-                                    {
-                                        var userSkill = new UserSkill();
-                                        userSkill.setSkillId(skillCodeFetched.getId())
-                                        return new UserSkillDelegate().createUserSkillWithMap(userSkill, profileId, transaction);
-                                    })
-                            })
+
+                        return new UserSkillDelegate().createUserSkill(skillCode, userId, transaction);
                     });
                 return q.all(tasks);
             })
@@ -401,12 +387,12 @@ class UserProfileDelegate extends BaseDaoDelegate
             return MysqlDelegate.executeInTransaction(self, arguments);
 
         var userSkillDelegate = new UserSkillDelegate();
-        return userSkillDelegate.search({'profileId': profileId})
+        return userSkillDelegate.search(Utils.createSimpleObject(UserSkill.USER_ID, userId))
             .then(
             function SkillFetched(userSkills:UserSkill[]):any
             {
                 if (userSkills && userSkills.length > 0)
-                    return userSkillDelegate.delete({id: _.pluck(userSkills, UserSkill.ID), profileId: profileId}, transaction, false);
+                    return userSkillDelegate.delete({id: _.pluck(userSkills, UserSkill.ID), user_id: userId}, transaction, false);
                 else
                     return false;
             })

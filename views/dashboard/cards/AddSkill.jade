@@ -10,10 +10,7 @@
             .item
                 .row
                     .form-group
-                        .form-group
-                            input.form-control#skill_name(class='typeahead', type='text', name='skill_name', data-provide="typeahead", autocomplete="off")
-                            span.form-control-feedback
-                                i.icon-spinner
+                        input.form-control(id='tokeninput', class='tokeninput', type='text', name='user_skill', autocomplete="off", width="15")
                     .links-editing
                         p.edit-schedules
                             input.btn.btn-primary(type='submit', value='Save')
