@@ -1,8 +1,4 @@
 (function($) {
-    $.fn.bootstrapValidator.i18n.mac = $.extend($.fn.bootstrapValidator.i18n.mac || {}, {
-        'default': 'Please enter a valid MAC address'
-    });
-
     $.fn.bootstrapValidator.validators.mac = {
         /**
          * Return true if the input value is a MAC address.
@@ -15,7 +11,7 @@
          */
         validate: function(validator, $field, options) {
             var value = $field.val();
-            if (value === '') {
+            if (value == '') {
                 return true;
             }
 

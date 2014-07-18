@@ -1,9 +1,4 @@
 (function($) {
-    $.fn.bootstrapValidator.i18n.uuid = $.extend($.fn.bootstrapValidator.i18n.uuid || {}, {
-        'default': 'Please enter a valid UUID number',
-        version: 'Please enter a valid UUID version %s number'
-    });
-
     $.fn.bootstrapValidator.validators.uuid = {
         html5Attributes: {
             message: 'message',
@@ -19,11 +14,11 @@
          * @param {Object} options Consist of key:
          * - message: The invalid message
          * - version: Can be 3, 4, 5, null
-         * @returns {Boolean|Object}
+         * @returns {Boolean}
          */
         validate: function(validator, $field, options) {
             var value = $field.val();
-            if (value === '') {
+            if (value == '') {
                 return true;
             }
 
@@ -35,12 +30,7 @@
                     all: /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i
                 },
                 version = options.version ? (options.version + '') : 'all';
-            return {
-                valid: (null === patterns[version]) ? true : patterns[version].test(value),
-                message: options.version
-                            ? $.fn.bootstrapValidator.helpers.format(options.message || $.fn.bootstrapValidator.i18n.uuid.version, options.version)
-                            : (options.message || $.fn.bootstrapValidator.i18n.uuid['default'])
-            };
+            return (null == patterns[version]) ? true : patterns[version].test(value);
         }
     };
 }(window.jQuery));

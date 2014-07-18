@@ -117,16 +117,6 @@ function valuesToPattern(values)
 }
 
 $('form#pricingSchemeForm').bootstrapValidator({
-    fields: {
-        min_duration: {
-            validators: {
-                greaterThan: {
-                    value: 'pulse_rate',
-                    message: 'Min duration must be greater than pulse rate'
-                }
-            }
-        }
-    },
     submitHandler: function()
     {
         var schemeId = $('form#pricingSchemeForm input[type=hidden]').val();
@@ -140,7 +130,7 @@ $('form#pricingSchemeForm').bootstrapValidator({
             contentType: 'application/json',
             data: JSON.stringify({
                 pricingScheme: {
-                    charging_rate: $('form#pricingSchemeForm input[name=charging_rate]').val(),
+                    pulse_rate: $('form#pricingSchemeForm input[name=pulse_rate]').val(),
                     unit: $('form#pricingSchemeForm select[name=unit]').val(),
                     min_duration: $('form#pricingSchemeForm input[name=min_duration]').val(),
                     pulse_rate: $('form#pricingSchemeForm select[name=pulse_rate]').val(),

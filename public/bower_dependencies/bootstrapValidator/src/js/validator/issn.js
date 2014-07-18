@@ -1,8 +1,4 @@
 (function($) {
-    $.fn.bootstrapValidator.i18n.issn = $.extend($.fn.bootstrapValidator.i18n.issn || {}, {
-        'default': 'Please enter a valid ISSN number'
-    });
-
     $.fn.bootstrapValidator.validators.issn = {
         /**
          * Validate ISSN (International Standard Serial Number)
@@ -19,7 +15,7 @@
          */
         validate: function(validator, $field, options) {
             var value = $field.val();
-            if (value === '') {
+            if (value == '') {
                 return true;
             }
 
@@ -34,13 +30,13 @@
                 length = chars.length,
                 sum    = 0;
 
-            if (chars[7] === 'X') {
+            if (chars[7] == 'X') {
                 chars[7] = 10;
             }
             for (var i = 0; i < length; i++) {
-                sum += parseInt(chars[i], 10) * (8 - i);
+                sum += ((8 - i) * parseInt(chars[i]));
             }
-            return (sum % 11 === 0);
+            return (sum % 11 == 0);
         }
     };
 }(window.jQuery));

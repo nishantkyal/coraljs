@@ -1,8 +1,4 @@
 (function($) {
-    $.fn.bootstrapValidator.i18n.isin = $.extend($.fn.bootstrapValidator.i18n.isin || {}, {
-        'default': 'Please enter a valid ISIN number'
-    });
-
     $.fn.bootstrapValidator.validators.isin = {
         // Available country codes
         // See http://isin.net/country-codes/
@@ -23,7 +19,7 @@
          */
         validate: function(validator, $field, options) {
             var value = $field.val();
-            if (value === '') {
+            if (value == '') {
                 return true;
             }
 
@@ -43,17 +39,17 @@
 
             var digits = '',
                 n      = converted.length,
-                group  = (n % 2 !== 0) ? 0 : 1;
+                group  = (n % 2 != 0) ? 0 : 1;
             for (i = 0; i < n; i++) {
-                digits += (parseInt(converted[i], 10) * ((i % 2) === group ? 2 : 1) + '');
+                digits += (parseInt(converted[i]) * ((i % 2) == group ? 2 : 1) + '');
             }
 
             var sum = 0;
             for (i = 0; i < digits.length; i++) {
-                sum += parseInt(digits.charAt(i), 10);
+                sum += parseInt(digits.charAt(i));
             }
             sum = (10 - (sum % 10)) % 10;
-            return sum + '' === value.charAt(length - 1);
+            return sum == value.charAt(length - 1);
         }
     };
 }(window.jQuery));

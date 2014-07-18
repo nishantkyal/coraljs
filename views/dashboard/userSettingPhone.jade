@@ -58,14 +58,15 @@ title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setti
                                         .row
                                             h3 Phone Number:
                                             .form-group
-                                                .row
-                                                    .col-xs-4
-                                                        select.form-control(name='country_code')
+                                                .input-group
+                                                    .input-group-btn
+                                                        select.btn(style="width: 150px", name="country_code")
                                                             for name,abb in CountryName
-                                                                - var code = CountryCode[abb];
-                                                                option(value=code)= name + ' (+' + code + ')'
-                                                    .col-xs-8
-                                                        input.form-control.phone-number(type='text', placeholder='Phone Number', name='phone')
+                                                                -var code = CountryCode[abb];
+                                                                option(value=code, selected=code ==country_code)= name + ' (+' + code + ')'
+                                                    .input-group-btn
+                                                        input.form-control(style="width: 150px", type='text', placeholder='Area Code', name="area_code")
+                                                    input.form-control.phone-number#caller-phone(type='text', placeholder='Phone Number', name="phone")
                                             .clearer
                                             h3.update Verification Code:
                                             .form-group.update

@@ -2,23 +2,6 @@
 - var minDuration = pricing ? pricing.min_duration : 15;
 title ST-#{formatName(user.first_name, user.last_name, user.title)}
 include ../header
-style.
-    @media (max-width: 480px) {
-        .input-group-addon, .input-group-btn, .input-group .form-control {
-            display: block;
-            margin-bottom: 10px;
-            clear: both;
-        }
-
-        .input-group .form-control:first-child, .input-group-addon:first-child, .input-group-btn:first-child>.btn, .input-group-btn:first-child>.btn-group>.btn, .input-group-btn:first-child>.dropdown-toggle, .input-group-btn:last-child>.btn-group:not(:last-child)>.btn, .input-group-btn:last-child>.btn:not(:last-child):not(.dropdown-toggle),
-        .input-group .form-control:last-child, .input-group-addon:last-child, .input-group-btn:first-child>.btn-group:not(:first-child)>.btn, .input-group-btn:first-child>.btn:not(:first-child), .input-group-btn:last-child>.btn, .input-group-btn:last-child>.btn-group>.btn, .input-group-btn:last-child>.dropdown-toggle
-        {
-            border-radius: 4px;
-        }
-        .input-group {
-            display: block;
-        }
-    }
 div.modal.fade#scheduler
     .modal-dialog
         .modal-content
@@ -52,18 +35,18 @@ div.modal.fade#scheduler
                                 if pricing
                                     strong= formatMoney(pricing.charging_rate, pricing.unit)
                                     if pricing.pulse_rate > 1
-                                        | &nbsp;per&nbsp;
+                                        | &nbsp;for&nbsp;
                                         span= pricing.pulse_rate
                                         | &nbsp;mins.
                                     else
                                         | &nbsp;/ min.
-                                    if pricing.min_duration > 1
-                                        br
-                                        span.pull-right
-                                            span.small
-                                                | &nbsp;(minimum &nbsp;
-                                                span= pricing.min_duration
-                                                | &nbsp;mins.)
+                                        if pricing.min_duration > 1
+                                            br
+                                            span.pull-right
+                                                span.small
+                                                    | &nbsp;(minimum &nbsp;
+                                                    span= pricing.min_duration
+                                                    | &nbsp;mins.)
                                 else
                                     strong Free
                 .schedule-options
@@ -183,18 +166,18 @@ div.modal.fade#scheduler
                                     if pricing
                                         strong= formatMoney(pricing.charging_rate, pricing.unit)
                                         if pricing.pulse_rate > 1
-                                            | &nbsp;per&nbsp;
+                                            | &nbsp;for&nbsp;
                                             span= pricing.pulse_rate
                                             | &nbsp;mins.
                                         else
                                             | &nbsp;/ min.
-                                        if pricing.min_duration > 1
-                                            br
-                                            span.pull-right
-                                                span.small
-                                                    | &nbsp;(minimum &nbsp;
-                                                    span= pricing.min_duration
-                                                    | &nbsp;mins.)
+                                            if pricing.min_duration > 1
+                                                br
+                                                span.pull-right
+                                                    span.small
+                                                        | &nbsp;(minimum &nbsp;
+                                                        span= pricing.min_duration
+                                                        | &nbsp;mins.)
                                     else
                                         strong Free
                     .col-md-6
@@ -251,7 +234,7 @@ div.modal.fade#scheduler
                                     .form-group
                                         .input-group
                                             .input-group-btn
-                                                select.btn(style="width: 150px", name="area_code")
+                                                select.btn(style="width: 150px", name="country_code")
                                                     for name,abb in CountryName
                                                         -var code = CountryCode[abb];
                                                         option(value=code, selected=code ==country_code)= name + ' (+' + code + ')'
