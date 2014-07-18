@@ -65,6 +65,7 @@ function init(grunt) {
                     'public/bower_dependencies/bootstrap/dist/css/bootstrap.css',
                     'public/bower_dependencies/bootstrapValidator/dist/css/bootstrapValidator.css',
                     'public/bower_dependencies/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css',
+                    'public/bower_dependencies/jquery-tokeninput/styles/token-input-facebook.css',
                     'public/bower_dependencies/76d-social-icons/assets/css/social-icons.css',
                     'public/bower_dependencies/jquery-tokeninput/styles/token-input-facebook.css',
                     'public/bower_dependencies/76d-social-icons/assets/css/main.css',
