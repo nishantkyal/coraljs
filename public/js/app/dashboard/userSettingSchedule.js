@@ -130,7 +130,7 @@ $('form#pricingSchemeForm').bootstrapValidator({
             contentType: 'application/json',
             data: JSON.stringify({
                 pricingScheme: {
-                    pulse_rate: $('form#pricingSchemeForm input[name=pulse_rate]').val(),
+                    charging_rate: $('form#pricingSchemeForm input[name=charging_rate]').val(),
                     unit: $('form#pricingSchemeForm select[name=unit]').val(),
                     min_duration: $('form#pricingSchemeForm input[name=min_duration]').val(),
                     pulse_rate: $('form#pricingSchemeForm select[name=pulse_rate]').val(),
