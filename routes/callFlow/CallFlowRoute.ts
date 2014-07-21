@@ -87,7 +87,7 @@ class CallFlowRoute
         var userId = parseInt(req.params[ApiConstants.USER_ID]);
         var sessionData = new SessionData(req);
 
-        this.userDelegate.get(userId, null, [IncludeFlag.INCLUDE_SCHEDULES, IncludeFlag.INCLUDE_PRICING_SCHEMES])
+        this.userDelegate.get(userId, null, [IncludeFlag.INCLUDE_SCHEDULES, IncludeFlag.INCLUDE_PRICING_SCHEMES,IncludeFlag.INCLUDE_SKILL])
             .then(
             function expertFetched(user:User):any
             {
@@ -119,20 +119,10 @@ class CallFlowRoute
                         return {duration:exception.getDuration(), start_time:exception.getStartTime()}
                     }));
 
-                return [userProfile, exceptions, user, q.all([
-                    self.userSkillDelegate.getSkillWithName(userProfile.getId())
-                ])];
-            })
-            .spread(
-            function profileDetailsFetched(userProfile:UserProfile, exceptions:ScheduleException[], user:User, ...args)
-            {
-                var userSkill = args[0][0] || [];
-
                 sessionData.setUser(user);
                 sessionData.setExpertGmtOffset(self.timezoneDelegate.get(user.getTimezone()).getGmtOffset()*1000);
 
                 var pageData = _.extend(sessionData.getData(), {
-                    userSkill: _.sortBy(userSkill, function (skill) { return skill['skill_name'].length; }),
                     userProfile: userProfile,
                     exception: exceptions,
                     messages: req.flash()
