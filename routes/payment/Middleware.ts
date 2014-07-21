@@ -13,6 +13,7 @@ class Middleware
     {
         var sessionData = new CallFlowSessionData(req);
         var user = sessionData.getUser();
+        var areaCode:number = req.body[ApiConstants.AREA_CODE] || sessionData.getAreaCode();
         var countryCode:number = parseInt(req.body[ApiConstants.COUNTRY_CODE] || sessionData.getCountryCode());
         var callerPhone:string = req.body[ApiConstants.PHONE] || sessionData.getCallerPhone();
         var agenda:string = req.body[ApiConstants.AGENDA] || sessionData.getAgenda();
@@ -24,6 +25,7 @@ class Middleware
         if (!Utils.isNullOrEmpty(appointments) && Utils.getObjectType(appointments) == 'Array')
             appointments = _.map(appointments, function (time:any) { return parseInt(time); });
 
+        sessionData.setAreaCode(areaCode);
         sessionData.setCountryCode(countryCode);
         sessionData.setCallerPhone(callerPhone.toString());
         sessionData.setAgenda(agenda);

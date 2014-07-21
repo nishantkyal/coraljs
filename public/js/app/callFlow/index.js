@@ -110,9 +110,10 @@ $('#schedule-done').click(function()
 /* Helper method to validate input and process to payment page */
 function proceedToPayment()
 {
-    var agenda = $('#agenda').val().trim();
-    var countryCode = $('#country-code').val().trim();
-    var callerPhone = $('#caller-phone').val().trim();
+    var agenda = $('input[name=agenda]').val().trim();
+    var areaCode = $('input[name=area_code]').val().trim();
+    var countryCode = $('input[name=country_code]').val().trim();
+    var callerPhone = $('input[name=phone]').val().trim();
 
     // Show scheduling popup if 3 slots not selected
     if (selectedTimeSlots.length != 3) {
@@ -137,6 +138,7 @@ function proceedToPayment()
     var form = $('<form action="/payment" method="POST">' +
         '<input type="hidden" name="agenda" value="' + agenda + '">' +
         '<input type="hidden" name="duration" value="' + duration + '">' +
+        '<input type="hidden" name="area_code" value="' + areaCode + '">' +
         '<input type="hidden" name="countryCode" value="' + countryCode + '">' +
         '<input type="hidden" name="phone" value="' + callerPhone + '">' +
         '<input type="hidden" name="userGmtOffset" value="' + userGmtOffset + '">' +

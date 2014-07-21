@@ -200,7 +200,7 @@ class DashboardRoute
             .then(
             function integrationsFetched(integrationMembers:IntegrationMember[])
             {
-                if (integrationMembers.length != 0)
+                if (!Utils.isNullOrEmpty(integrationMembers))
                 {
                     var integrationId = selectedIntegrationId || integrationMembers[0].getIntegrationId();
 
