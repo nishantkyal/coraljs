@@ -773,21 +773,21 @@
     <changeSet author="Ankit (generated)" id="1405602719107-13">
         <modifyDataType columnName="skill" newDataType="varchar(80)" tableName="skill_codes"/>
     </changeSet>
-    <changeSet author="Nishant (generated)" id="1405680295954-1">
+    <changeSet author="Nishant (generated)" id="1405680295955-1">
         <dropIndex indexName="price_currency_idx" tableName="phone_call"/>
     </changeSet>
-    <changeSet author="Nishant (generated)" id="1405680295954-2">
+    <changeSet author="Nishant (generated)" id="1405680295955-2">
         <addColumn tableName="phone_call">
             <column name="min_duration" type="INT(10)"/>
         </addColumn>
     </changeSet>
-    <changeSet author="Nishant (generated)" id="1405680295954-3">
+    <changeSet author="Nishant (generated)" id="1405680295955-3">
         <renameColumn columnDataType="int" oldColumnName="chunk_size" newColumnName="pulse_rate" tableName="pricing_scheme"/>
     </changeSet>
-    <changeSet author="Nishant (generated)" id="1405680295954-4">
+    <changeSet author="Nishant (generated)" id="1405680295955-4">
         <renameColumn columnDataType="int" oldColumnName="price_currency" newColumnName="unit" tableName="phone_call"/>
     </changeSet>
-    <changeSet author="Nishant (generated)" id="1405680295954-5">
+    <changeSet author="Nishant (generated)" id="1405680295955-5">
         <renameColumn columnDataType="decimal" oldColumnName="price_per_min" newColumnName="charging_rate" tableName="phone_call"/>
     </changeSet>
     <changeSet author="Nishant (generated)" id="1405680295954-6">
@@ -809,10 +809,46 @@
     <changeSet author="Ankit (generated)" id="1405682859505-4">
         <dropTable tableName="map_profile_skill"/>
     </changeSet>
-    <changeSet author="Ankit (generated)" id="1405684374804-1">
-        <addForeignKeyConstraint baseColumnNames="skill_id" baseTableName="user_skill" constraintName="fk_userSkill_skill_id" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="skill_codes"/>
+    <changeSet author="Nishant (generated)" id="1405939653020-1">
+        <modifyDataType columnName="is_current" newDataType="int(1)" tableName="user_employment"/>
     </changeSet>
-    <changeSet author="Ankit (generated)" id="1405684374804-2">
-        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="user_skill" constraintName="fk_userSkill_user_id" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="user"/>
+    <changeSet author="Nishant (generated)" id="1405975717279-1">
+        <addColumn tableName="user_skill">
+            <column name="user_id" type="INT(10)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405975717279-2">
+        <addPrimaryKey columnNames="country_code" constraintName="PRIMARY" tableName="country"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405975717279-3">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="user_skill" constraintName="FK_user_skill_user_id" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="user"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405975717279-4">
+        <addUniqueConstraint columnNames="user_id, skill_id" constraintName="unique_userId_skillId" deferrable="false" disabled="false" initiallyDeferred="false" tableName="user_skill"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405975717279-5">
+        <addUniqueConstraint columnNames="zone_id, abbreviation, time_start, gmt_offset, dst" constraintName="zone_time_start" deferrable="false" disabled="false" initiallyDeferred="false" tableName="timezone"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405975717279-6">
+        <createIndex indexName="fk_expertise_expertise_idx" tableName="map_expertise_skill" unique="false">
+            <column name="expertise_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405975717279-7">
+        <dropTable tableName="map_profile_skill"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405975717279-8">
+        <addNotNullConstraint columnDataType="char(2)" columnName="country_code" tableName="country"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405975717279-9">
+        <modifyDataType columnName="is_current" newDataType="int(10)" tableName="user_employment"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405975717279-10">
+        <modifyDataType columnName="skill" newDataType="varchar(120)" tableName="skill_codes"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1405975717279-12">
+        <createIndex indexName="primary" tableName="country">
+            <column name="country_code"/>
+        </createIndex>
     </changeSet>
 </databaseChangeLog>

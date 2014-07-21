@@ -182,7 +182,7 @@ div.modal.fade#scheduler
                                     else
                                         strong Free
                     .col-md-6
-                        .call-card
+                        form#call-details.card
                             .user-schedule-summary
                                 if (is_available)
                                     .current-status.status-ok Currently available
@@ -228,7 +228,9 @@ div.modal.fade#scheduler
                                             .tagit-label
                                         li.tagit-new
                                             input(type='text', placeholder='Choose three timeslots', readonly="readonly")
-                                .row.input-row
+                                    .form-group
+                                        input(name='slots', type='text', style="display: none;")
+                                .row.input-rowdexpot
                                     h1
                                         i.icon-phone
                                         | Recepient Phone
@@ -240,7 +242,7 @@ div.modal.fade#scheduler
                                                         -var code = CountryCode[abb];
                                                         option(value=code, selected=code ==country_code)= name + ' (+' + code + ')'
                                             .input-group-btn
-                                                input.form-control(style="width: 150px", type='text', placeholder='Area Code', value=caller_phone, name="area_code")
+                                                input.form-control(style="width: 100px", type='text', placeholder='Area Code', value=caller_phone, name="area_code")
                                             input.form-control.phone-number#caller-phone(type='text', placeholder='Phone Number', value=caller_phone, name="phone")
                                 .row.input-row
                                     h1
@@ -249,17 +251,18 @@ div.modal.fade#scheduler
                                     .form-group
                                         textarea.form-control(name='agenda', type='text', placeholder='Enter an agenda for your call (optional)')= agenda
                             .call-actions
-                                a.btn.btn-lg.btn-primary.first#schedule Proceed
+                                input.btn.btn-lg.btn-block.btn-primary.first(type='submit', value='Proceed')
             // /.content
 include ../footer
 script.
+    var userGmtOffset = new Date().getTimezoneOffset() * -60 * 1000;
     var schedules = JSON.parse( '!{JSON.stringify(user.schedule)}' );
-    var expertGmtOffset = #{expertGmtOffset};
+    var expertGmtOffset = '!{expertGmtOffset}';
     var exceptions = JSON.parse( '!{JSON.stringify(exception)}' );
     var duration = parseInt('!{duration || (pricing ? pricing.min_duration : 15)}');
     var selectedTimeSlots = [];
     try {
-        selectedTimeSlots = JSON.parse( '!{JSON.stringify(appointments)}' ) || [];
+        selectedTimeSlots = [].concat(JSON.parse( '!{JSON.stringify(appointments)}' ) || []);
     }
     catch(e){}
 script(src='/js/app/callFlow/index.js')

@@ -1,27 +1,16 @@
 /* Index schedules */
+/* Index schedules */
 var userGmtOffset = new Date().getTimezoneOffset() * -60 * 1000;
 
 schedules = schedules || [moment()];
 var timeSlotsByDate = _.groupBy(schedules, function(schedule) { return moment(schedule.start_time).format('DD-MM-YYYY') });
 var exceptionsByDate = _.groupBy(exceptions, function(exception) { return moment(exception.start_time).format('DD-MM-YYYY') });
 
-setMonth(schedules[0].start_time);
-
 /* Duration select - Event handler */
 $('.duration li').click(function(event)
 {
-    var selectedDurationIndex = $(event.currentTarget).parent().children().index($(event.currentTarget))
-    $('.duration li').removeClass('active');
-    $('.duration li:nth-child(' + (selectedDurationIndex + 1) + ')').addClass('active');
     duration = $('a', event.currentTarget).text();
-
-    //clear time slots as duration has changed
-    selectedTimeSlots = [];
-    updateSelectedTimeSlots();
-
-    var dateElement = $('a.date-link.active');
-    var selectedDate = parseInt($(dateElement).parent().attr('value'));
-    selectDate(selectedDate, dateElement);
+    selectDuration(duration);
 });
 
 /* Prev month selected - Event Handler */
@@ -79,78 +68,11 @@ $('.row.scheduled-slots li .col-xs-4.remove').click(function(event)
     $('.timeslot-widget li[data-slot="' + removedSlot[0] + '"] span').removeClass('checked');
 });
 
-/* Schedule clicked - Event Handler */
-$('#schedule').click(function()
-{
-    proceedToPayment()
-});
-
 /* Schedule selected - Event Handler */
 $('#schedule-done').click(function()
 {
     $('#scheduler').modal('hide');
 });
-
-/* Call now clicked - Event Handler
- $('#call-now').click(function()
- {
- var agenda = $('#agenda').val().trim();
- var callerName = $('#caller-name').val().trim();
- var callerPhone = $('#caller-phone').val().trim();
-
- $('<form action="/expert/call/payment" method="POST">' +
- '<input type="hidden" name="agenda" value="' + agenda + '">' +
- '<input type="hidden" name="duration" value="' + duration + '">' +
- '<input type="hidden" name="name" value="' + callerName + '">' +
- '<input type="hidden" name="phone" value="' + callerPhone + '">' +
- '<input type="hidden" name="call-now" value="true">' +
- '</form>').submit();
- });*/
-
-/* Helper method to validate input and process to payment page */
-function proceedToPayment()
-{
-    var agenda = $('input[name=agenda]').val().trim();
-    var areaCode = $('input[name=area_code]').val().trim();
-    var countryCode = $('input[name=country_code]').val().trim();
-    var callerPhone = $('input[name=phone]').val().trim();
-
-    // Show scheduling popup if 3 slots not selected
-    if (selectedTimeSlots.length != 3) {
-        $('#scheduler').modal('show');
-        return;
-    }
-
-    // Dismiss modal if agenda or phone not supplied
-    if (agenda.length == 0) {
-        $('#scheduler').modal('hide');
-        $('#agenda').focus();
-        return;
-    }
-
-    // Dismiss modal if agenda or phone not supplied
-    if (callerPhone.length == 0) {
-        $('#scheduler').modal('hide');
-        $('#caller-phone').focus();
-        return;
-    }
-
-    var form = $('<form action="/payment" method="POST">' +
-        '<input type="hidden" name="agenda" value="' + agenda + '">' +
-        '<input type="hidden" name="duration" value="' + duration + '">' +
-        '<input type="hidden" name="area_code" value="' + areaCode + '">' +
-        '<input type="hidden" name="countryCode" value="' + countryCode + '">' +
-        '<input type="hidden" name="phone" value="' + callerPhone + '">' +
-        '<input type="hidden" name="userGmtOffset" value="' + userGmtOffset + '">' +
-        _.map(selectedTimeSlots, function(slot)
-        {
-            return '<input type="hidden" name="startTime" value="' + (slot) + '">';
-        }).join('') +
-        '</form>');
-
-    $('body').append(form);
-    form.submit();
-}
 
 /* Helper method to mark a data selected */
 function selectDate(selectedDate, dateElement)
@@ -176,8 +98,7 @@ function selectDate(selectedDate, dateElement)
     var exceptionsForSelectedDate = exceptionsByDate[moment(selectedDate).format('DD-MM-YYYY')];
     slots = applyExceptions(slots, exceptionsForSelectedDate);
 
-    if (slots.length != 0)
-    {
+    if (slots.length != 0) {
         $('a.date-link').removeClass('active');
         if (dateElement)
             $(dateElement).addClass('active');
@@ -296,27 +217,74 @@ function updateSelectedTimeSlots()
     }
 
     $('.num-slots').text(selectedTimeSlots.length);
-
+    $('form#call-details input[name=slots]').val(selectedTimeSlots.join(','));
 }
 
-$('#caller-phone').keydown(function(event)
-{
-    var code = (event.keyCode ? event.keyCode : event.which)
-
-    // Allow: backspace, delete, tab, escape, and enter
-    if (code == 46 || code == 8 || code == 9 || code == 27 || code == 13 ||
-        // Allow: Ctrl+A
-        (code == 65 && event.ctrlKey === true) ||
-        // Allow: home, end, left, right
-        (code >= 35 && code <= 39) ||
-        (code >= 48 && code <= 57)) {
-        // let it happen, don't do anything
-        return;
-    }
-    else {
-        // Ensure that it is a number and stop the keypress
-        if (event.shiftKey || (code < 48 || code > 57) && (code < 96 || code > 105 )) {
-            event.preventDefault();
+$('form#call-details').bootstrapValidator({
+    fields: {
+        agenda: {
+            validators: {
+                notEmpty: { message: 'This is a required field'}
+            }
+        },
+        phone : {
+            validators: {
+                notEmpty: { message: 'Phone number is a required field'},
+                digits  : { message: 'Phone number can only contain digits'}
+            }
+        },
+        slots : {
+            validators: {
+                notEmpty: { message: 'Please select at least three time slots'},
+                callback: function(val)
+                {
+                    return {
+                        valid  : val.split(',').length == 3,
+                        message: 'Please select at least three time slots'
+                    };
+                }
+            }
         }
+    },
+    excluded: ':disabled',
+    submitHandler: function()
+    {
+        var agenda = $('textarea[name=agenda]').val().trim();
+        var areaCode = $('input[name=area_code]').val().trim();
+        var countryCode = $('select[name=country_code]').val().trim();
+        var callerPhone = $('input[name=phone]').val().trim();
+
+        var form = $('<form action="/payment" method="POST">' +
+            '<input type="hidden" name="agenda" value="' + agenda + '">' +
+            '<input type="hidden" name="duration" value="' + duration + '">' +
+            '<input type="hidden" name="area_code" value="' + areaCode + '">' +
+            '<input type="hidden" name="countryCode" value="' + countryCode + '">' +
+            '<input type="hidden" name="phone" value="' + callerPhone + '">' +
+            '<input type="hidden" name="userGmtOffset" value="' + userGmtOffset + '">' +
+            _.map(selectedTimeSlots, function(slot)
+            {
+                return '<input type="hidden" name="startTime" value="' + (slot) + '">';
+            }).join('') +
+            '</form>');
+
+        $('body').append(form);
+        form.submit();
     }
 });
+
+function selectDuration(duration)
+{
+    $('.duration li').removeClass('active');
+    $('.duration li:contains(' + duration + ')').addClass('active');
+
+    //clear time slots as duration has changed
+    selectedTimeSlots = [];
+    updateSelectedTimeSlots();
+
+    var dateElement = $('a.date-link.active');
+    var selectedDate = parseInt($(dateElement).parent().attr('value'));
+    selectDate(selectedDate, dateElement);
+}
+
+setMonth(schedules[0].start_time);
+selectDuration(duration + 15 - (duration % 15));

@@ -19,7 +19,7 @@ class TimezoneDelegate
 
     updateTimezoneCache():q.Promise<any>
     {
-        var query:string = 'SELECT z.zone_id, current_tz.time_start, z.zone_name, current_tz.gmt_offset, current_tz.dst ' +
+        var query:string = 'SELECT z.zone_id, current_tz.time_start, z.zone_name, current_tz.gmt_offset, current_tz.dst, z.country_code ' +
             'FROM zone z,( ' +
             'SELECT tz.* ' +
             'FROM timezone tz, ' +
