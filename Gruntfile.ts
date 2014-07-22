@@ -262,7 +262,6 @@ function init(grunt)
             "gitcommit:bumpup", "gitpush:bumpup"
         ]
     );
-
 }
 
 export = init;
