@@ -4,7 +4,7 @@ head
     meta(http-equiv='X-UA-Compatible', content='IE=edge')
     meta(name='viewport', content='width=device-width, initial-scale=1, user-scalable=false')
 
-    //-<!-- build:js /js/scripts.min.js -->
+    //-<!-- build:js /js/scripts.min-#{version}-#{seed}.js -->
     script(src='/bower_dependencies/jquery/jquery.js', type='text/javascript')
     script(src='/bower_dependencies/bootstrap/dist/js/bootstrap.js', type='text/javascript')
     script(src='/bower_dependencies/jquery-expander/jquery.expander.js', type='text/javascript')
@@ -24,7 +24,7 @@ head
       script(src='https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js')
     link(href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic', rel='stylesheet', type='text/css')
 
-    //-<!-- build:css test/compiled/style.min.css -->
+    //-<!-- build:css /css/style.min-#{version}-#{seed}.css -->
     link(href='/bower_dependencies/bootstrap/dist/css/bootstrap.css', rel='stylesheet')
     link(href='/bower_dependencies/bootstrapValidator/dist/css/bootstrapValidator.css', rel='stylesheet')
     link(href='/bower_dependencies/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css', rel='stylesheet')
@@ -105,9 +105,10 @@ title SearchNTalk
                 .title
                     h1
                         em For&nbsp;
-                        | Subject Matter Experts
+                        a(href=AuthenticationUrls.register()) Subject Matter Experts
                 .image
-                    img.retina-image(src='/images/hero_experts.png')
+                    a(href=AuthenticationUrls.register())
+                        img.retina-image(src='/images/hero_experts.png')
                 .description
                     h2 Have or want to create an online presence?
                     p Register on searchntalk.com to instantly start offering advice for a fee!
@@ -115,9 +116,10 @@ title SearchNTalk
                 .title
                     h1
                         em For&nbsp;
-                        | Networks of Experts
+                        a(href=AuthenticationUrls.register()) Networks of Experts
                 .image
-                    img.retina-image(src='/images/hero_networks.png')
+                    a(href=AuthenticationUrls.register())
+                        img.retina-image(src='/images/hero_networks.png')
                 .description
                     h2 Have access to several experts on a subject?
                     p
@@ -126,9 +128,10 @@ title SearchNTalk
                 .title
                     h1
                         em For&nbsp;
-                        | Content Websites
+                        a(href=AuthenticationUrls.register()) Content Websites
                 .image
-                    img.retina-image(src='/images/hero_content.png')
+                    a(href=AuthenticationUrls.register())
+                        img.retina-image(src='/images/hero_content.png')
                 .description
                     h2 Own a content website?
                     p

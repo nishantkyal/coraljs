@@ -217,7 +217,7 @@ function updateSelectedTimeSlots()
     }
 
     $('.num-slots').text(selectedTimeSlots.length);
-    $('form#call-details input[name=slots]').val(selectedTimeSlots.join(','));
+    $('form#call-details input[name=slots]').val(selectedTimeSlots);
 }
 
 $('form#call-details').bootstrapValidator({
@@ -239,7 +239,7 @@ $('form#call-details').bootstrapValidator({
                 callback: function(val)
                 {
                     return {
-                        valid  : val.split(',').length == 3,
+                        valid  : val.length == 3,
                         message: 'Please select at least three time slots'
                     };
                 }
