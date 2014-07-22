@@ -9,10 +9,9 @@
  * Module dependencies.
  */
 
-var finalhandler = require('finalhandler');
-var http = require('http');
-var debug = require('debug')('connect:dispatcher');
-var parseUrl = require('parseurl');
+var http = require('http')
+  , utils = require('./utils')
+  , debug = require('debug')('connect:dispatcher');
 
 // prototype
 
@@ -33,6 +32,26 @@ var env = process.env.NODE_ENV || 'development';
  * be invoked on _/admin_, and _/admin/settings_, however it would
  * not be invoked for _/_, or _/posts_.
  *
+ * Examples:
+ *
+ *      var app = connect();
+ *      app.use(connect.favicon());
+ *      app.use(connect.logger());
+ *      app.use(connect.static(__dirname + '/public'));
+ *
+ * If we wanted to prefix static files with _/public_, we could
+ * "mount" the `static()` middleware:
+ *
+ *      app.use('/public', connect.static(__dirname + '/public'));
+ *
+ * This api is chainable, so the following is valid:
+ *
+ *      connect()
+ *        .use(connect.favicon())
+ *        .use(connect.logger())
+ *        .use(connect.static(__dirname + '/public'))
+ *        .listen(3000);
+ *
  * @param {String|Function|Server} route, callback or server
  * @param {Function|Server} callback or server
  * @return {Server} for chaining
@@ -49,7 +68,7 @@ app.use = function(route, fn){
   // wrap sub-apps
   if ('function' == typeof fn.handle) {
     var server = fn;
-    server.route = route;
+    fn.route = route;
     fn = function(req, res, next){
       server.handle(req, res, next);
     };
@@ -89,12 +108,6 @@ app.handle = function(req, res, out) {
     , slashAdded = false
     , index = 0;
 
-  // final function handler
-  var done = out || finalhandler(req, res, {
-    env: env,
-    onerror: logerror
-  });
-
   function next(err) {
     var layer, path, c;
 
@@ -111,13 +124,44 @@ app.handle = function(req, res, out) {
     layer = stack[index++];
 
     // all done
-    if (!layer) {
-      done(err);
+    if (!layer || res.headerSent) {
+      // delegate to parent
+      if (out) return out(err);
+
+      // unhandled error
+      if (err) {
+        // default to 500
+        if (res.statusCode < 400) res.statusCode = 500;
+        debug('default %s', res.statusCode);
+
+        // respect err.status
+        if (err.status) res.statusCode = err.status;
+
+        // production gets a basic error message
+        var msg = 'production' == env
+          ? http.STATUS_CODES[res.statusCode]
+          : err.stack || err.toString();
+        msg = utils.escape(msg);
+
+        // log to stderr in a non-test env
+        if ('test' != env) console.error(err.stack || err.toString());
+        if (res.headerSent) return req.socket.destroy();
+        res.setHeader('Content-Type', 'text/html');
+        res.setHeader('Content-Length', Buffer.byteLength(msg));
+        if ('HEAD' == req.method) return res.end();
+        res.end(msg);
+      } else {
+        debug('default 404');
+        res.statusCode = 404;
+        res.setHeader('Content-Type', 'text/html');
+        if ('HEAD' == req.method) return res.end();
+        res.end('Cannot ' + utils.escape(req.method) + ' ' + utils.escape(req.originalUrl) + '\n');
+      }
       return;
     }
 
     try {
-      path = parseUrl(req).pathname;
+      path = utils.parseUrl(req).pathname;
       if (undefined == path) path = '/';
 
       // skip this layer if the route doesn't match.
@@ -187,14 +231,3 @@ app.listen = function(){
   var server = http.createServer(this);
   return server.listen.apply(server, arguments);
 };
-
-/**
- * Log error using console.error.
- *
- * @param {Error} err
- * @api public
- */
-
-function logerror(err){
-  if (env !== 'test') console.error(err.stack || err.toString());
-}
