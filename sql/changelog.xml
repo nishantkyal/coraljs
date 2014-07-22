@@ -835,9 +835,6 @@
             <column name="pulse_rate" type="INT(10)"/>
         </addColumn>
     </changeSet>
-    <changeSet author="Nishant (generated)" id="1406013137555-2">
-        <addUniqueConstraint columnNames="country_code" constraintName="idx_country_code" deferrable="false" disabled="false" initiallyDeferred="false" tableName="country"/>
-    </changeSet>
     <changeSet author="Nishant (generated)" id="1406013137555-4">
         <modifyDataType columnName="charging_rate" newDataType="decimal(5)" tableName="phone_call"/>
     </changeSet>

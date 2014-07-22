@@ -35,6 +35,7 @@ title ST-#{formatName(user.first_name, user.last_name, user.title)} | Payment fo
                             .hidden-xs.avatar
                                 .shadow
                                     a(href=DashboardUrls.userProfile(user.id))
+                                        .initials-profile-image= getNameInitials(user.first_name, user.last_name)
                                         img(src=ApiUrlDelegate.userProfilePicture(user.id)+ '?imageSize=200', width='100%', height='100%')
                             .info
                                 .user-displayname= formatName(user.first_name, user.last_name, user.title)
@@ -52,12 +53,13 @@ title ST-#{formatName(user.first_name, user.last_name, user.title)} | Payment fo
                                             | &nbsp;mins.
                                         else
                                             | &nbsp;/ min.
-                                        if pricing.min_duration > 0
-                                            .pull-right
-                                                .small
-                                                    | &nbsp;(minimum &nbsp;
-                                                    span= pricing.min_duration
-                                                    | &nbsp;mins.)
+                                            if pricing.min_duration > 1
+                                                br
+                                                span.pull-right
+                                                    span.small
+                                                        | &nbsp;(minimum &nbsp;
+                                                        span= pricing.min_duration
+                                                        | &nbsp;mins.)
                                     else
                                         strong Free
                             .meta.meta-schedule
