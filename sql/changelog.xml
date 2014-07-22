@@ -830,4 +830,15 @@
     <changeSet author="Nishant (generated)" id="1405975717279-10">
         <modifyDataType columnName="skill" newDataType="varchar(120)" tableName="skill_codes"/>
     </changeSet>
+    <changeSet author="Nishant (generated)" id="1406013137555-1">
+        <addColumn tableName="phone_call">
+            <column name="pulse_rate" type="INT(10)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1406013137555-2">
+        <addUniqueConstraint columnNames="country_code" constraintName="idx_country_code" deferrable="false" disabled="false" initiallyDeferred="false" tableName="country"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1406013137555-4">
+        <modifyDataType columnName="charging_rate" newDataType="decimal(5)" tableName="phone_call"/>
+    </changeSet>
 </databaseChangeLog>
