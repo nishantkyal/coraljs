@@ -111,7 +111,6 @@ class DashboardRoute
         app.get(Urls.userSettingPassword(), Middleware.allowOnlyMe, this.settingPassword.bind(this));
 
         app.get(Urls.emailAccountVerification(), this.emailAccountVerification.bind(this));
-
         app.get(Urls.widgetCreator(), this.widgetCreator.bind(this));
     }
 
