@@ -27,6 +27,11 @@ title Widget Creator
                                     h3 Expert Id
                                     .form-group
                                         input.form-control(name='expertId', value=loggedInUser ? loggedInUser.id : null)
+                                    h3 Verb
+                                    .form-group
+                                        select.form-control(name='verb')
+                                            for verb in allowedVerbs
+                                                option= verb
                         .col-md-5
                             .item
                                 .row

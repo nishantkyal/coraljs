@@ -77,7 +77,8 @@
                 var widgetId = jQuery(widgetTag).data('id');
                 var widgetTheme = jQuery(widgetTag).data('theme') || '';
                 var widgetSize = jQuery(widgetTag).data('size') || 'tall';
-                var widgetUrl = '//searchntalk.com/widget?userId=' + widgetId + '&size=' + widgetSize + '&theme=' + widgetTheme;
+                var widgetVerb = jQuery(widgetTag).data('verb');
+                var widgetUrl = '//searchntalk.com/widget?userId=' + widgetId + '&size=' + widgetSize + '&theme=' + widgetTheme + '&verb=' + escape(widgetVerb);
 
                 if (widgetId)
                     jQuery(widgetTag).append('<iframe scrolling="no" style="overflow: hidden, border: none;" frameBorder="0" class="snt-expert-iframe" src="' + widgetUrl + '" width="' + WIDGET_SIZES[widgetSize].width + '" height="' + WIDGET_SIZES[widgetSize].height + '"></iframe>');

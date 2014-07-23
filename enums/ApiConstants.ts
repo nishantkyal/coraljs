@@ -10,6 +10,7 @@ class ApiConstants
     static RETURN_TO:string                             = 'returnTo';
     static CONTEXT:string                               = 'context';
     static SIZE:string                                  = 'size';
+    static VERB:string                                  = 'verb';
     static THEME:string                                 = 'theme';
 
     /* Param constants */

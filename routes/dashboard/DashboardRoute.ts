@@ -433,7 +433,7 @@ class DashboardRoute
     {
         var sessionData = new SessionData(req);
         var pageData = _.extend(sessionData.getData(), {
-
+            'allowedVerbs': WidgetDelegate.ALLOWED_VERBS
         });
         res.render(DashboardRoute.PAGE_WIDGET_CREATOR, pageData);
     }
