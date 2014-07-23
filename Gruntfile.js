@@ -22,6 +22,7 @@ function init(grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+        buildDir: process.env.SNT_BUILD_DIR || (process.env.ENV == 'development' ? '' : '/var/searchntalk/releases/current'),
         "rename": {
             "release": {
                 "options": {
@@ -45,7 +46,7 @@ function init(grunt) {
             },
             "release": {
                 "src": "/var/searchntalk/releases/release-" + grunt.file.readJSON('package.json').version,
-                "dest": "/var/searchntalk/releases/current"
+                "dest": "<%= buildDir %>"
             }
         },
         "db_dump": {
@@ -77,7 +78,7 @@ function init(grunt) {
                 "force": true
             },
             "typescript": ["app.js", "*/**/*.js", "*/**/*.js.map", "!Gruntfile.js", "!public/**/*.js", "!node_modules/**/*.js", "!common/Config.js"],
-            "release": "/var/searchntalk/releases/current"
+            "release": "<%= buildDir %>"
         },
         "bumpup": {
             "files": ["package.json", "bower.json"]
@@ -144,8 +145,8 @@ function init(grunt) {
                         "js": ["concat", "uglify"],
                         "css": ["concat", "cssmin"]
                     },
-                    "prefix": "public",
-                    "targetPrefix": "public",
+                    "prefix": "<%= buildDir %>/public",
+                    "targetPrefix": "<%= buildDir %>/public",
                     replacePath: {
                         '#{version}': "<%= grunt.file.readJSON('package.json').version %>",
                         '#{seed}': "<%= new Date().getTime() %>"
@@ -154,11 +155,11 @@ function init(grunt) {
                 files: [
                     {
                         src: 'views/header.jade',
-                        dest: '/var/searchntalk/releases/current/views/header.jade'
+                        dest: '<%= buildDir %>/views/header.jade'
                     },
                     {
                         src: 'views/dashboard/home.jade',
-                        dest: '/var/searchntalk/releases/current/views/dashboard/home.jade'
+                        dest: '<%= buildDir %>/views/dashboard/home.jade'
                     }
                 ]
             }
