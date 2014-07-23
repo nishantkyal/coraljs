@@ -18,9 +18,9 @@ $('#userEducation .edit-card form').bootstrapValidator({
                     degree          : $('#userEducation .edit-card form input[name="degree"]').val(),
                     field_of_study  : $('#userEducation .edit-card form input[name="field_of_study"]').val(),
                     activities      : $('#userEducation .edit-card form input[name="activities"]').val(),
-                    notes           : $('#userEducation .edit-card form input[name="description"]').val()
-                },
-                profileId           : userProfile.id
+                    notes           : $('#userEducation .edit-card form input[name="description"]').val(),
+                    user_id         : userId
+                }
             },
             success: function()
             {

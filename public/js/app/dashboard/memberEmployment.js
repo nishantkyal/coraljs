@@ -57,9 +57,9 @@ $('#userEmployment .edit-card form').bootstrapValidator({
                     end_date        : endDate,
                     summary         : $('#userEmployment .edit-card form input[name="summary"]').val(),
                     company         : $('#userEmployment .edit-card form input[name="company"]').val(),
-                    is_current      : $('#userEmployment .edit-card form select[name="is_current"]').val()
-                },
-                profileId           : userProfile.id
+                    is_current      : $('#userEmployment .edit-card form select[name="is_current"]').val(),
+                    user_id         : userId
+                }
             },
             success: function()
             {

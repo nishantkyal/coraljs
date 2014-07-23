@@ -6,7 +6,6 @@ import UserSkillDelegate                                        = require('../de
 import SkillCodeDelegate                                        = require('../delegates/SkillCodeDelegate');
 import MapExpertiseSkillDelegate                                = require('../delegates/MapExpertiseSkillDelegate');
 import ExpertiseSkillDelegate                                   = require('../delegates/ExpertiseSkillDelegate');
-import MapExpertiseSkillDao                                     = require('../dao/MapExpertiseSkillDao');
 import Expertise                                                = require('../models/Expertise');
 import UserSkill                                                = require('../models/UserSkill');
 import SkillCode                                                = require('../models/SkillCode');

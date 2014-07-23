@@ -5,6 +5,9 @@ import Utils                                                = require('../common
 import Formatter                                            = require('../common/Formatter');
 import UserProfile                                          = require('../models/UserProfile');
 import UserSkill                                            = require('../models/UserSkill');
+import UserEducation                                        = require('../models/UserEducation');
+import UserEmployment                                       = require('../models/UserEmployment');
+import UserUrl                                              = require('../models/UserUrl');
 import PricingScheme                                        = require('../models/PricingScheme');
 import Schedule                                             = require('./Schedule');
 import ScheduleRule                                         = require('./ScheduleRule');
@@ -44,6 +47,9 @@ class User extends BaseModel
         if (!User._INITIALIZED)
         {
             this.hasMany(new ForeignKey(User.ID, UserSkill, UserSkill.USER_ID,'skill'));
+            this.hasMany(new ForeignKey(User.ID, UserEducation, UserEducation.USER_ID, 'education'));
+            this.hasMany(new ForeignKey(User.ID, UserEmployment, UserEmployment.USER_ID, 'employment'));
+            this.hasMany(new ForeignKey(User.ID, UserUrl, UserUrl.USER_ID, 'url'));
             User._INITIALIZED = true;
         }
     }
@@ -87,6 +93,9 @@ class User extends BaseModel
     getScheduleRule():ScheduleRule[]                            { return this.schedule_rule; }
     getPricingScheme():PricingScheme[]                          { return this.pricing_scheme; }
     getSkill():UserSkill[]                                      { return null; }
+    getEducation():UserEducation[]                              { return null; }
+    getEmployment():UserEmployment[]                            { return null; }
+    getUrl():UserUrl[]                                          { return null; }
 
     isValid():boolean {
         return !Utils.isNullOrEmpty(this.getEmail()) && validator.isEmail(this.getEmail());
@@ -112,6 +121,9 @@ class User extends BaseModel
     setScheduleRule(val:ScheduleRule[]):void                    { this.schedule_rule = val; }
     setPricingScheme(val:PricingScheme[]):void                  { this.pricing_scheme = val; }
     setSkill(val:UserSkill[])                                   { }
+    setEducation(val:UserEducation[])                           { }
+    setEmployment(val:UserEmployment[])                         { }
+    setUrl(val:UserUrl[])                                       { }
 
     getPasswordHash(email?:string, password?:string, passwordSeed?:string):string
     {

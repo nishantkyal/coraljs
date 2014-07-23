@@ -30,9 +30,8 @@ class UserEmploymentApi
             var loggedInUser = req['user'];
             var employment:UserEmployment = new UserEmployment();
             employment = req.body[ApiConstants.USER_EMPLOYMENT];
-            var profileId = req.body[ApiConstants.USER_PROFILE_ID];
 
-            self.userEmploymentDelegate.createUserEmployment(employment,profileId)
+            self.userEmploymentDelegate.create(employment)
                 .then(
                 function userUpdated() { res.send(200); },
                 function userUpdateError(error) { res.send(500); }

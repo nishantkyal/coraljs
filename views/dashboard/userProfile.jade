@@ -75,9 +75,9 @@ if isEditable
         var userId = '!{user.id}';
         var user = JSON.parse( '!{JSON.stringify(user)}' );
         var userProfile = JSON.parse ( '!{JSON.stringify(userProfile)}' );
-        var userEducation = JSON.parse( '!{JSON.stringify(escapeObject(userEducation))}' );
-        var userEmployment = JSON.parse( '!{JSON.stringify(escapeObject(userEmployment))}' );
-        var userExpertise = JSON.parse( '!{JSON.stringify(escapeObject(userExpertise))}' );
+        var userEducation = JSON.parse( '!{JSON.stringify(escapeObject(user.education))}' );
+        var userEmployment = JSON.parse( '!{JSON.stringify(escapeObject(user.employment))}' );
+        var userExpertise = JSON.parse( '!{JSON.stringify(escapeObject(userexpertise))}' );
         var unEscapeObject = !{unEscapeObject};
     script(src='/js/app/dashboard/userProfile.js')
     script(src='/js/app/dashboard/fileUpload.js')

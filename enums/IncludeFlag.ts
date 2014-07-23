@@ -15,5 +15,8 @@ class IncludeFlag
     static INCLUDE_SCHEDULE_RULES:string = 'schedule_rule';
     static INCLUDE_TRANSACTION_LINE:string = 'transaction_line';
     static INCLUDE_SKILL:string = 'skill';
+    static INCLUDE_EDUCATION:string = 'education';
+    static INCLUDE_EMPLOYMENT:string = 'employment';
+    static INCLUDE_URL:string = 'url';
 }
 export = IncludeFlag

@@ -260,13 +260,10 @@ class DashboardRoute
             .then(
             function profileFetched(userProfile:UserProfile)
             {
-                var profileInfoTasks = [self.userDelegate.get(userId,null, [IncludeFlag.INCLUDE_SKILL])];
+                var profileInfoTasks = [self.userDelegate.get(userId,null, [IncludeFlag.INCLUDE_SKILL, IncludeFlag.INCLUDE_EDUCATION, IncludeFlag.INCLUDE_EMPLOYMENT])];
 
                 if (!Utils.isNullOrEmpty(userProfile) && userProfile.getId())
                     profileInfoTasks = profileInfoTasks.concat([
-                        self.userEducationDelegate.search({'profileId': userProfile.getId()}),
-                        self.userEmploymentDelegate.search({'profileId': userProfile.getId()}),
-                        self.userUrlDelegate.search({'profileId': userProfile.getId()}),
                         self.expertiseDelegate.search(Utils.createSimpleObject(Expertise.USER_ID, userId), null, [IncludeFlag.INCLUDE_SKILL])
                     ]);
 
@@ -276,9 +273,6 @@ class DashboardRoute
             function userDetailsFetched(userProfile,...args)
             {
                 var user = args[0][0];
-                var userEducation = args[0][1] || [];
-                var userEmployment = args[0][2] || [];
-                var userUrl = args[0][3] || [];
                 var expertise = args[0][4] || [];
 
                 var isEditable = loggedInUser ? loggedInUser.getId() == user.getId() : false;
@@ -294,10 +288,7 @@ class DashboardRoute
                     'user': user,
                     //'userSkill': _.sortBy(userSkill, function (skill) { return skill['skill_name'].length; }),
                     'userProfile': userProfile,
-                    'userEducation': userEducation,
-                    'userEmployment': userEmployment,
                     'userExpertise': expertise,
-                    'userUrl': userUrl,
                     'messages': req.flash(),
                     'isEditable': isEditable
                 });

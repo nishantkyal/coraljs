@@ -8,29 +8,30 @@
             .header-row.row
                 h5.col-xs-12 Education Details
             div.clearer
-    if userEducation.length != 0
-        each edu in userEducation
-            .item
-                .row
-                    h5.col-xs-8 #{edu.school_name}
-                    .header-link.col-xs-4
-                        if isEditable
-                            a.btn.btn-link.editUserEducation(data-id=edu.id)
-                                i.icon-pencil
-                            | &nbsp;
-                            a.btn.btn-link.deleteUserEducation(data-id=edu.id)
-                                i.icon-trash
-                    div
-                    if edu.degree
-                        | #{edu.degree}
-                        if edu.field_of_study
-                            | , #{edu.field_of_study}
-                            br
-                    if edu.start_year
-                        | #{edu.start_year}&nbsp
-                        if edu.end_year
-                            | - #{edu.end_year}
-                            br
+    if user.education
+        if user.education.length != 0
+            each edu in user.education
+                .item
+                    .row
+                        h5.col-xs-8 #{edu.school_name}
+                        .header-link.col-xs-4
+                            if isEditable
+                                a.btn.btn-link.editUserEducation(data-id=edu.id)
+                                    i.icon-pencil
+                                | &nbsp;
+                                a.btn.btn-link.deleteUserEducation(data-id=edu.id)
+                                    i.icon-trash
+                        div
+                        if edu.degree
+                            | #{edu.degree}
+                            if edu.field_of_study
+                                | , #{edu.field_of_study}
+                                br
+                        if edu.start_year
+                            | #{edu.start_year}&nbsp
+                            if edu.end_year
+                                | - #{edu.end_year}
+                                br
     else
         .alert.alert-warning
             p No schools added yet

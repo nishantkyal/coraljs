@@ -11,8 +11,9 @@ class UserEducation extends BaseModel
     static SCHOOL_NAME:string = 'school_name';
     static ACTIVITIES:string = 'activities';
     static NOTES:string = 'notes';
+    static USER_ID:string = 'user_id';
 
-    static DEFAULT_FIELDS:string[] = [UserEducation.ID,UserEducation.START_YEAR, UserEducation.END_YEAR, UserEducation.DEGREE,
+    static DEFAULT_FIELDS:string[] = [UserEducation.ID,UserEducation.USER_ID,UserEducation.START_YEAR, UserEducation.END_YEAR, UserEducation.DEGREE,
         UserEducation.FIELD_OF_STUDY, UserEducation.SCHOOL_NAME, UserEducation.ACTIVITIES, UserEducation.NOTES];
 
     private start_year:number;
@@ -22,6 +23,7 @@ class UserEducation extends BaseModel
     private school_name:string;
     private activities:string;
     private notes:string;
+    private user_id:number;
 
     /* Getters */
     getStartYear():number           { return this.start_year; }
@@ -31,6 +33,7 @@ class UserEducation extends BaseModel
     getSchoolName():string          { return this.school_name; }
     getActivities():string          { return this.activities; }
     getNotes():string               { return this.notes; }
+    getUserId():number              { return this.user_id; }
 
     /* Setters */
     setStartYear(val:number):void   { this.start_year = val; }
@@ -40,5 +43,6 @@ class UserEducation extends BaseModel
     setSchoolName(val:string):void  { this.school_name = val; }
     setActivities(val:string):void  { this.activities = val; }
     setNotes(val:string):void       { this.notes = val; }
+    setUserId(val:number):void      { this.user_id = val; }
 }
 export = UserEducation

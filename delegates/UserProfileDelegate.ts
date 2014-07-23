@@ -144,8 +144,9 @@ class UserProfileDelegate extends BaseDaoDelegate
                         tempUserEducation.setNotes(education.notes);
                         tempUserEducation.setStartYear(education.startDate ? education.startDate.year : null);
                         tempUserEducation.setEndYear(education.endDate ? education.endDate.year : null);
+                        tempUserEducation.setUserId(userId);
 
-                        return new UserEducationDelegate().createUserEducation(tempUserEducation, profileId, transaction);
+                        return new UserEducationDelegate().create(tempUserEducation, transaction);
                     }));
                 }
             })
@@ -189,8 +190,9 @@ class UserProfileDelegate extends BaseDaoDelegate
                                 tempUserEmployment.setEndDate(moment(position.endDate.month + ' ' + position.endDate.year, 'MM YYYY').valueOf());
                             else
                                 tempUserEmployment.setEndDate(-1);
+                        tempUserEmployment.setUserId(userId);
 
-                        return new UserEmploymentDelegate().createUserEmployment(tempUserEmployment, profileId, transaction);
+                        return new UserEmploymentDelegate().create(tempUserEmployment, transaction);
                     }));
                 }
             })
@@ -338,7 +340,7 @@ class UserProfileDelegate extends BaseDaoDelegate
         if (Utils.isNullOrEmpty(transaction))
             return MysqlDelegate.executeInTransaction(self, arguments);
 
-        return userEducationDelegate.search({'profileId': profileId})
+        return userEducationDelegate.search({'user_id': userId})
             .then(
             function educationFetched(userEducation:UserEducation[]):any
             {
@@ -363,7 +365,7 @@ class UserProfileDelegate extends BaseDaoDelegate
         if (Utils.isNullOrEmpty(transaction))
             return MysqlDelegate.executeInTransaction(self, arguments);
 
-        return userEmploymentDelegate.search({'profileId': profileId})
+        return userEmploymentDelegate.search({'user_id': userId})
             .then(
             function EmploymentFetched(userEmployment:UserEmployment[]):any
             {

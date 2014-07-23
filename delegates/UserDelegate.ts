@@ -10,6 +10,9 @@ import UserProfileDelegate                                              = requir
 import ImageDelegate                                                    = require('../delegates/ImageDelegate');
 import UserPhoneDelegate                                                = require('../delegates/UserPhoneDelegate');
 import UserSkillDelegate                                                = require('../delegates/UserSkillDelegate');
+import UserEducationDelegate                                            = require('../delegates/UserEducationDelegate');
+import UserEmploymentDelegate                                           = require('../delegates/UserEmploymentDelegate');
+import UserUrlDelegate                                                  = require('../delegates/UserUrlDelegate');
 import ScheduleDelegate                                                 = require('../delegates/ScheduleDelegate');
 import ScheduleRuleDelegate                                             = require('../delegates/ScheduleRuleDelegate');
 import PricingSchemeDelegate                                            = require('../delegates/PricingSchemeDelegate');
@@ -31,6 +34,9 @@ class UserDelegate extends BaseDaoDelegate
     private userProfileDelegate = new UserProfileDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
     private userSkillDelegate = new UserSkillDelegate();
+    private userEducationDelegate = new UserEducationDelegate();
+    private userEmploymentDelegate = new UserEmploymentDelegate();
+    private userUrlDelegate = new UserUrlDelegate();
     private scheduleRuleDelegate = new ScheduleRuleDelegate();
     private scheduleDelegate = new ScheduleDelegate();
     private pricingSchemeDelegate = new PricingSchemeDelegate();
@@ -133,6 +139,15 @@ class UserDelegate extends BaseDaoDelegate
 
             case IncludeFlag.INCLUDE_SKILL:
                 return self.userSkillDelegate.search(Utils.createSimpleObject(UserSkill.USER_ID,result[User.ID]), null,[IncludeFlag.INCLUDE_SKILL]);
+
+            case IncludeFlag.INCLUDE_EDUCATION:
+                return self.userEducationDelegate.search(Utils.createSimpleObject(UserSkill.USER_ID,result[User.ID]));
+
+            case IncludeFlag.INCLUDE_EMPLOYMENT:
+                return self.userEmploymentDelegate.search(Utils.createSimpleObject(UserSkill.USER_ID,result[User.ID]));
+
+            case IncludeFlag.INCLUDE_URL:
+                return self.userUrlDelegate.search(Utils.createSimpleObject(UserSkill.USER_ID,result[User.ID]));
         }
         return super.getIncludeHandler(include, result);
     }

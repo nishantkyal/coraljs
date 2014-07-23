@@ -29,9 +29,8 @@ class UserEducationApi
         {
             var loggedInUser = req['user'];
             var education:UserEducation = req.body[ApiConstants.USER_EDUCATION];
-            var profileId = req.body[ApiConstants.USER_PROFILE_ID];
 
-            self.userEducationDelegate.createUserEducation(education, profileId)
+            self.userEducationDelegate.create(education)
                 .then(
                 function userUpdated() { res.send(200); },
                 function userUpdateError(error) { res.send(500); }

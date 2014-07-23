@@ -815,4 +815,34 @@
     <changeSet author="Ankit (generated)" id="1405684374804-2">
         <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="user_skill" constraintName="fk_userSkill_user_id" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="user"/>
     </changeSet>
+    <changeSet author="Ankit (generated)" id="1406120411375-1">
+        <addColumn tableName="user_education">
+            <column name="user_id" type="INT(10)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1406120411375-2">
+        <addColumn tableName="user_employment">
+            <column name="user_id" type="INT(10)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1406120411375-3">
+        <addColumn tableName="user_url">
+            <column name="user_id" type="INT(10)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1406120411375-4">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="user_education" constraintName="fk_education_userId" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="user"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1406120411375-5">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="user_employment" constraintName="fk_employment_userId" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="user"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1406120411375-6">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="user_url" constraintName="fk_url_userId" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="user"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1406120411375-7">
+        <dropTable tableName="map_profile_education"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1406120411375-8">
+        <dropTable tableName="map_profile_employment"/>
+    </changeSet>
 </databaseChangeLog>

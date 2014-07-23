@@ -8,32 +8,33 @@
             .header-row.row
                 h5.col-xs-12 Employment Details
         div.clearer
-    if userEmployment.length != 0
-        each emp in userEmployment
-            .item
-                .row
-                    h5.col-xs-8 #{emp.title}
-                    .header-link.col-xs-4
-                        if isEditable
-                            a.btn.btn-primary.editCardBtn(data-id=emp.id)
-                                i.icon-pencil
-                            | &nbsp;
-                            a.btn.btn-danger(data-id=emp.id, name = 'deleteUserEmployment')
-                                si.icon-trash
-                    div
-                    if emp.company
-                        | #{emp.company}
-                        br
-                    if emp.start_date && emp.start_date != -1
-                        | #{formatDate(emp.start_date, 'MMMM YYYY')}&nbsp;
-                    if emp.is_current
-                        | - Present
-                    else
-                        if emp.end_date && emp.end_date != -1
-                            | - #{formatDate(emp.end_date, 'MMMM YYYY')}
+    if user.employment
+        if user.employment.length != 0
+            each emp in user.employment
+                .item
+                    .row
+                        h5.col-xs-8 #{emp.title}
+                        .header-link.col-xs-4
+                            if isEditable
+                                a.btn.btn-primary.editCardBtn(data-id=emp.id)
+                                    i.icon-pencil
+                                | &nbsp;
+                                a.btn.btn-danger(data-id=emp.id, name = 'deleteUserEmployment')
+                                    si.icon-trash
+                        div
+                        if emp.company
+                            | #{emp.company}
                             br
-                    if emp.summary
-                        p.empSummary #{emp.summary}
+                        if emp.start_date && emp.start_date != -1
+                            | #{formatDate(emp.start_date, 'MMMM YYYY')}&nbsp;
+                        if emp.is_current
+                            | - Present
+                        else
+                            if emp.end_date && emp.end_date != -1
+                                | - #{formatDate(emp.end_date, 'MMMM YYYY')}
+                                br
+                        if emp.summary
+                            p.empSummary #{emp.summary}
     else
         .alert.alert-warning
             p No workplaces added yet
