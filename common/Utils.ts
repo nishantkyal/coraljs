@@ -188,6 +188,8 @@ class Utils
                         .replace(/\t/g,'&tab;');
                     data[key] = value;
                 }
+                else if (Object.prototype.toString.call(value) =='[object Array]')
+                    data[key] = Utils.escapeObject(value);
             }
             return data;
         })

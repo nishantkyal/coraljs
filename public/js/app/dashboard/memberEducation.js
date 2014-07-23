@@ -49,7 +49,7 @@ $('.editUserEducation').click(function(event)
     var educationId = $(this).data('id');
     var education = _.findWhere(userEducation, {id: educationId});
 
-    userEducationCard.edit(education, $(event.currentTarget))
+    userEducationCard.edit(unEscapeObject(education), $(event.currentTarget))
 });
 
 $('.deleteUserEducation').click(function()

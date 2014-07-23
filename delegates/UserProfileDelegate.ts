@@ -346,7 +346,7 @@ class UserProfileDelegate extends BaseDaoDelegate
             {
                 if (userEducation && userEducation.length > 0)
                 //TODO: Check if this can be done in one statement using the IN clause of SQL
-                    return userEducationDelegate.delete({id: _.pluck(userEducation, UserEducation.ID), profileId: profileId}, transaction, false);
+                    return userEducationDelegate.delete({id: _.pluck(userEducation, UserEducation.ID), user_id: userId}, transaction, false);
                 else
                     return false;
             })
@@ -370,7 +370,7 @@ class UserProfileDelegate extends BaseDaoDelegate
             function EmploymentFetched(userEmployment:UserEmployment[]):any
             {
                 if (userEmployment && userEmployment.length > 0)
-                    return userEmploymentDelegate.delete({id: _.pluck(userEmployment, UserEmployment.ID), profileId: profileId}, transaction, false);
+                    return userEmploymentDelegate.delete({id: _.pluck(userEmployment, UserEmployment.ID), user_id: userId}, transaction, false);
                 else
                     return false;
             })

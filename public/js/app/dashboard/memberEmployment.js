@@ -7,7 +7,7 @@ $('#userEmployment .editCardBtn').click(function(event)
     var employmentId = $(this).data('id');
     var employment = _.findWhere(userEmployment, {id: employmentId});
 
-    userEmploymentCard.edit(employment, $(event.currentTarget));
+    userEmploymentCard.edit(unEscapeObject(employment), $(event.currentTarget));
     
     if (employment.start_date)
         $('#userEmployment .edit-card form input[name="start_date"]').val(moment.unix(parseInt(employment.start_date/1000)).format('MM-YYYY'));
