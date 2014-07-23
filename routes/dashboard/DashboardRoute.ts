@@ -111,7 +111,6 @@ class DashboardRoute
         app.get(Urls.userSettingPassword(), Middleware.allowOnlyMe, this.settingPassword.bind(this));
 
         app.get(Urls.emailAccountVerification(), this.emailAccountVerification.bind(this));
-
         app.get(Urls.widgetCreator(), this.widgetCreator.bind(this));
     }
 
@@ -200,7 +199,7 @@ class DashboardRoute
             .then(
             function integrationsFetched(integrationMembers:IntegrationMember[])
             {
-                if (integrationMembers.length != 0)
+                if (!Utils.isNullOrEmpty(integrationMembers))
                 {
                     var integrationId = selectedIntegrationId || integrationMembers[0].getIntegrationId();
 
@@ -425,7 +424,7 @@ class DashboardRoute
     {
         var sessionData = new SessionData(req);
         var pageData = _.extend(sessionData.getData(), {
-
+            'allowedVerbs': WidgetDelegate.ALLOWED_VERBS
         });
         res.render(DashboardRoute.PAGE_WIDGET_CREATOR, pageData);
     }

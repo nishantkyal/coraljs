@@ -27,6 +27,11 @@ title Widget Creator
                                     h3 Expert Id
                                     .form-group
                                         input.form-control(name='expertId', value=loggedInUser ? loggedInUser.id : null)
+                                    h3 Verb
+                                    .form-group
+                                        select.form-control(name='verb')
+                                            for verb in allowedVerbs
+                                                option= verb
                         .col-md-5
                             .item
                                 .row
@@ -34,7 +39,7 @@ title Widget Creator
                             .item
                                 .row
                                     h3 1. Include this code once on your page (ideally just after opening <body> tag)
-                                    p.code &lt;script src=&quot;//searchntalk.com/js/embed.js&quot; type=&quot;text/javascript&quot;/&gt;
+                                    p.code &lt;script src=&quot;//searchntalk.com/js/embed.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
                             .item
                                 .row
                                     h3 2. Place this code wherever you want to display the expert widget

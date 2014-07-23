@@ -12,18 +12,20 @@ function init(grunt)
     grunt.loadNpmTasks('grunt-contrib-symlink');
     grunt.loadNpmTasks('grunt-mysql-dump');
     grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-text-replace');
     grunt.loadNpmTasks('grunt-promise-q');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-typescript');
     grunt.loadNpmTasks('grunt-bumpup');
     grunt.loadNpmTasks('grunt-prompt');
     grunt.loadNpmTasks('grunt-git');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-jade-usemin');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+        buildDir: process.env.SNT_BUILD_DIR || (process.env.ENV == 'development' ? '' : '/var/searchntalk/releases/current'),
         "rename": {
             "release": {
                 "options": {
@@ -47,7 +49,7 @@ function init(grunt)
             },
             "release": {
                 "src": "/var/searchntalk/releases/release-" + grunt.file.readJSON('package.json').version,
-                "dest": "/var/searchntalk/releases/current"
+                "dest": "<%= buildDir %>"
             }
         },
         "db_dump": {
@@ -62,51 +64,6 @@ function init(grunt)
 
                     "backup_to": "/var/searchntalk/backups/" + moment().format('DD_MMM_YYYY_hh_mm_ss') + ".sql"
                 }
-            }
-        },
-        "concat": {
-            "css": {
-                "src": [
-                    'public/bower_dependencies/bootstrap/dist/css/bootstrap.css',
-                    'public/bower_dependencies/bootstrapValidator/dist/css/bootstrapValidator.css',
-                    'public/bower_dependencies/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css',
-                    'public/bower_dependencies/jquery-tokeninput/styles/token-input-facebook.css',
-                    'public/bower_dependencies/76d-social-icons/assets/css/social-icons.css',
-                    'public/bower_dependencies/jquery-tokeninput/styles/token-input-facebook.css',
-                    'public/bower_dependencies/76d-social-icons/assets/css/main.css',
-                    'public/css/main.css',
-                    'public/css/style.css'
-                ],
-                "dest": 'public/css/combined.css'
-            }
-        },
-        "uglify": {
-            "options": {
-                sourceMap: false
-            },
-            "js": {
-                "files": {
-                    'public/js/combined.min.js': [
-                        'public/bower_dependencies/jquery/jquery.js',
-                        'public/bower_dependencies/bootstrap/dist/js/bootstrap.js',
-                        'public/bower_dependencies/jquery-expander/jquery.expander.js',
-                        'public/bower_dependencies/bootstrapValidator/dist/js/bootstrapValidator.js',
-                        'public/bower_dependencies/bootbox/bootbox.js',
-                        'public/bower_dependencies/underscore/underscore.js',
-                        'public/bower_dependencies/moment/moment.js',
-                        'public/bower_dependencies/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js',
-                        'public/bower_dependencies/jquery-tokeninput/src/jquery.tokeninput.js',
-                        'public/js/app/common.js',
-                        'public/js/lib/bloodhound.js',
-                        'public/js/app/jquery.card.js'
-                    ]
-                }
-            }
-        },
-        "cssmin": {
-            "css": {
-                "src": 'public/css/combined.css',
-                "dest": 'public/css/combined.min.css'
             }
         },
         "typescript": {
@@ -126,7 +83,7 @@ function init(grunt)
                 "force": true
             },
             "typescript": ["app.js", "*/**/*.js", "*/**/*.js.map", "!Gruntfile.js", "!public/**/*.js", "!node_modules/**/*.js", "!common/Config.js"],
-            "release": "/var/searchntalk/releases/current"
+            "release": "<%= buildDir %>"
         },
         "bumpup": {
             "files": ["package.json", "bower.json"]
@@ -191,14 +148,30 @@ function init(grunt)
                 "tasks": ["typescript"]
             }
         },
-        "replace": {
-            "asset_version": {
-                "src": "/var/searchntalk/releases/current/views/header.jade",
-                "overwrite": true,
-                "replacements": [{
-                        "from": "v=version",
-                        "to": "v=<%= pkg.version %>&seed=" + Math.floor(Math.random() * 1000)
-                    }]
+        "jadeUsemin": {
+            "scripts": {
+                "options": {
+                    "tasks": {
+                        "js": ["concat", "uglify"],
+                        "css": ["concat", "cssmin"]
+                    },
+                    "prefix": "<%= buildDir %>/public",
+                    "targetPrefix": "<%= buildDir %>/public",
+                    replacePath: {
+                        '#{version}': "<%= grunt.file.readJSON('package.json').version %>",
+                        '#{seed}': "<%= new Date().getTime() %>"
+                    }
+                },
+                files: [
+                    {
+                        src: 'views/header.jade',
+                        dest: '<%= buildDir %>/views/header.jade'
+                    },
+                    {
+                        src: 'views/dashboard/home.jade',
+                        dest: '<%= buildDir %>/views/dashboard/home.jade'
+                    }
+                ]
             }
         }
     });
@@ -280,19 +253,16 @@ function init(grunt)
     });
 
     grunt.registerTask('generate-change-set', ['create-alter-script', 'update-db:refDb:db', 'sync-changeLog']);
-    grunt.registerTask('process-assets', ['uglify:js', 'concat:css', 'cssmin:css']);
     grunt.registerTask('release',
         [
             "clean:typescript",
-            "typescript:coral", "process-assets",
+            "typescript:coral",
             "prompt:bumpup", "prompt_bumpup",
-            "rename:release", "copy:release", "clean:release", "symlink:release",
-            "replace:asset_version",
+            "rename:release", "copy:release", "clean:release", "symlink:release", "jadeUsemin",
             "db_dump:release", "update-db:originalDb",
             "gitcommit:bumpup", "gitpush:bumpup"
         ]
     );
-
 }
 
 export = init;

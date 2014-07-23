@@ -543,10 +543,10 @@ body {
   text-shadow: 0px -1px 0px #c28405;
 }
 .widget .button .label {
-  float: left;
-  font-weight: bold;
-  margin: 0px 10px;
-  text-align: left;
+    float: left;
+    font-weight: bold;
+    margin-left: 6px;
+    text-align: center;
 }
 .widget .button .graphic {
   float: right;

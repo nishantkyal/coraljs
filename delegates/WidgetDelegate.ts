@@ -21,6 +21,12 @@ class WidgetDelegate
     private static widgetTemplateCache:{[templateNameAndLocale:string]:string} = {};
     private logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
     private widgetExpertDelegate = new WidgetExpertDelegate();
+    static ALLOWED_VERBS:string[] = [
+        'Talk to an Expert',
+        'Talk to Author',
+        'Engage',
+        'Get Advice'
+    ]
 
     /* Static constructor workaround */
     private static ctor = (() =>
@@ -188,8 +194,11 @@ class WidgetDelegate
      return null;
      }*/
 
-    render(userId:number, size:string = 'small', theme:string = ''):q.Promise<string>
+    render(userId:number, size:string = 'small', theme:string = '', verb:string = WidgetDelegate.ALLOWED_VERBS[0]):q.Promise<string>
     {
+        if (WidgetDelegate.ALLOWED_VERBS.indexOf(verb) == -1)
+            verb = WidgetDelegate.ALLOWED_VERBS[0];
+
         var self = this;
 
         return self.widgetExpertDelegate.get(userId)
@@ -198,7 +207,7 @@ class WidgetDelegate
             {
                 var widgetBaseHtml = WidgetDelegate.widgetTemplateCache[size.toUpperCase()+'_WIDGET'];
                 var widgetHtmlWithExpertData = self.renderWidgetExpertData(widgetBaseHtml, widgetExpert)
-                var widgetHtmlWithSettingsAndExpertData = self.renderWidgetSettings(widgetHtmlWithExpertData, {theme: theme});
+                var widgetHtmlWithSettingsAndExpertData = self.renderWidgetSettings(widgetHtmlWithExpertData, {theme: theme, verb: verb});
                 return widgetHtmlWithSettingsAndExpertData;
             });
     }

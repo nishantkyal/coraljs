@@ -21,6 +21,7 @@ class WidgetApi
             var self = this;
             var theme:string = req.query[ApiConstants.THEME] || 'light';
             var size:string = req.query[ApiConstants.SIZE] || 'small';
+            var verb:string = req.query[ApiConstants.VERB];
             var userId:number = parseInt(req.query[ApiConstants.USER_ID]);
 
             // TODO: Handle caching of response sent by this endpoint
@@ -31,7 +32,7 @@ class WidgetApi
             // TODO: Handle cross-domain goofiness
             // TODO: Compile Widget jade
 
-            widgetDelegate.render(userId, size, theme)
+            widgetDelegate.render(userId, size, theme, verb)
                 .then(
                 function widgetRendered(widgetHtml:string)
                 {

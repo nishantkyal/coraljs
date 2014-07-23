@@ -620,11 +620,14 @@ hr {
 .hero {
 	background: @secondary;
 	overflow: hidden;
-	height: 500px;
 	.container {
 		padding: 0px;
 		.row {
 			margin: 0px;
+		}
+		img {
+			width: 100%;
+			max-height: 500px;
 		}
 	}
 }
@@ -655,12 +658,25 @@ hr {
 			margin: 40px 20px 20px 20px;			
 		}
 		.image {
-			width: 150px;
-			height: 150px;
 			margin: 0 auto;
 		}
 		.description {
 			margin: 20px 20px 40px 20px;			
+		}
+	}
+	.value-prop {
+		.description {
+			h2 {
+				color: @secondary;
+			}
+		}
+		.image {
+			width: 300px;
+			height: 100px;
+			img {
+				width: 300px;
+				height: 100px;				
+			}
 		}
 	}
 	.feature {
@@ -669,6 +685,9 @@ hr {
 		}
 		p {
 			font-size: 14px;
+		}
+		.image {
+			width: 150px;
 		}
 		.description {
 			margin: 40px;

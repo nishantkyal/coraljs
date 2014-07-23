@@ -54,6 +54,10 @@ The available options are:
   --source-map-url   The path to the source map to be added in //#
                      sourceMappingURL.  Defaults to the value passed with
                      --source-map.                                      [string]
+  --source-map-include-sources
+                     Pass this flag if you want to include the content of
+                     source files in the source map as sourcesContent
+                     property.                                         [boolean]
   --in-source-map    Input source map, useful if you're compressing JS that was
                      generated from some other original code.
   --screw-ie8        Pass this flag if you don't care about full compliance
@@ -87,6 +91,10 @@ The available options are:
                      Note that currently not *all* comments can be kept when
                      compression is on, because of dead code removal or
                      cascading statements into sequences.               [string]
+  --preamble         Preamble to prepend to the output.  You can use this to
+                     insert a comment, for example for licensing information.
+                     This will not be parsed, but the source map will adjust
+                     for its presence.
   --stats            Display operations run time on STDERR.            [boolean]
   --acorn            Use Acorn for parsing.                            [boolean]
   --spidermonkey     Assume input files are SpiderMonkey AST format (as JSON).
@@ -165,7 +173,7 @@ To enable the mangler you need to pass `--mangle` (`-m`).  The following
 - `toplevel` — mangle names declared in the toplevel scope (disabled by
   default).
 
-- `eval` — mangle names visible in scopes where `eval` or `when` are used
+- `eval` — mangle names visible in scopes where `eval` or `with` are used
   (disabled by default).
 
 When mangling is enabled but you want to prevent certain names from being
@@ -245,6 +253,9 @@ to set `true`; it's effectively a shortcut for `foo=true`).
   statement would get discarded.  The current implementation adds some
   overhead (compression will be slower).
 
+- `drop_console` -- default `false`.  Pass `true` to discard calls to
+  `console.*` functions.
+
 ### The `unsafe` option
 
 It enables some transformations that *might* break code logic in certain
@@ -257,7 +268,7 @@ when this flag is on:
 - `String(exp)` or `exp.toString()` → `"" + exp`
 - `new Object/RegExp/Function/Error/Array (...)` → we discard the `new`
 - `typeof foo == "undefined"` → `foo === void 0`
-- `void 0` → `"undefined"` (if there is a variable named "undefined" in
+- `void 0` → `undefined` (if there is a variable named "undefined" in
   scope; we do it because the variable name will be mangled, typically
   reduced to a single character).
 
@@ -328,6 +339,10 @@ can pass additional arguments that control the code output:
   you pass `false` then whenever possible we will use a newline instead of a
   semicolon, leading to more readable output of uglified code (size before
   gzip could be smaller; size after gzip insignificantly larger).
+- `preamble` (default `null`) -- when passed it must be a string and
+  it will be prepended to the output literally.  The source map will
+  adjust for this text.  Can be used to insert a comment containing
+  licensing information, for example.
 
 ### Keeping copyright notices or other comments
 
@@ -494,7 +509,7 @@ something like this:
 ```javascript
 var toplevel = null;
 files.forEach(function(file){
-	var code = fs.readFileSync(file);
+	var code = fs.readFileSync(file, "utf8");
 	toplevel = UglifyJS.parse(code, {
 		filename: file,
 		toplevel: toplevel
