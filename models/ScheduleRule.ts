@@ -24,7 +24,7 @@ class ScheduleRule extends BaseModel
     static COL_DURATION:string                                      = 'duration';
     static COL_PRICING_SCHEME_ID:string                             = 'pricing_scheme_id';
 
-    static DEFAULT_FIELDS:string[] = [ScheduleRule.COL_USER_ID, ScheduleRule.COL_TITLE, ScheduleRule.COL_REPEAT_END, ScheduleRule.COL_REPEAT_START,
+    static PUBLIC_FIELDS:string[] = [ScheduleRule.COL_USER_ID, ScheduleRule.COL_TITLE, ScheduleRule.COL_REPEAT_END, ScheduleRule.COL_REPEAT_START,
         ScheduleRule.COL_CRON_RULE, ScheduleRule.COL_DURATION, ScheduleRule.COL_PRICING_SCHEME_ID];
 
     private user_id:number;

@@ -26,7 +26,7 @@ class UserOauth extends BaseModel
     private refresh_token_expiry:number;
     private email:string;
 
-    static DEFAULT_FIELDS:string[] = [UserOauth.COL_USER_ID, UserOauth.COL_PROVIDER_ID, UserOauth.COL_OAUTH_USER_ID, UserOauth.COL_ACCESS_TOKEN,
+    static PUBLIC_FIELDS:string[] = [UserOauth.COL_USER_ID, UserOauth.COL_PROVIDER_ID, UserOauth.COL_OAUTH_USER_ID, UserOauth.COL_ACCESS_TOKEN,
         UserOauth.COL_ACCESS_TOKEN_EXPIRY, UserOauth.COL_REFRESH_TOKEN, UserOauth.COL_REFRESH_TOKEN_EXPIRY, UserOauth.COL_EMAIL];
 
     /* Getters */

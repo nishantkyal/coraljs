@@ -10,7 +10,7 @@ class UserReview extends BaseModel
     static COL_REVIEW:string                                = 'review';
     static COL_FROM_USER_ID:string                          = 'from_user_id';
 
-    static DEFAULT_FIELDS:string[] = [UserReview.COL_ID, UserReview.COL_TARGET_USER_ID, UserReview.COL_ITEM_ID, UserReview.COL_RATING,
+    static PUBLIC_FIELDS:string[] = [UserReview.COL_ID, UserReview.COL_TARGET_USER_ID, UserReview.COL_ITEM_ID, UserReview.COL_RATING,
         UserReview.COL_REVIEW, UserReview.COL_FROM_USER_ID];
 
     private target_user_id:number;

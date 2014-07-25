@@ -13,6 +13,7 @@ import Schedule                                             = require('./Schedul
 import ScheduleRule                                         = require('./ScheduleRule');
 import IndustryCode                                         = require('../enums/IndustryCode');
 import Salutation                                           = require('../enums/Salutation');
+import ForeignKeyType                                       = require('../enums/ForeignKeyType');
 import ForeignKey                                           = require('./ForeignKey');
 
 class User extends BaseModel
@@ -33,21 +34,13 @@ class User extends BaseModel
     static COL_ACTIVE:string                                    = 'active';
     static COL_VERIFIED:string                                  = 'verified';
 
-    static DEFAULT_FIELDS:string[] = [User.COL_ID, User.COL_TITLE, User.COL_FIRST_NAME, User.COL_LAST_NAME, User.COL_EMAIL,
+    static PUBLIC_FIELDS:string[] = [User.COL_ID, User.COL_TITLE, User.COL_FIRST_NAME, User.COL_LAST_NAME, User.COL_EMAIL,
         User.COL_INDUSTRY, User.COL_TIMEZONE, User.COL_DATE_OF_BIRTH, User.COL_EMAIL_VERIFIED, User.COL_ACTIVE, User.COL_VERIFIED, User.COL_PASSWORD, User.COL_PASSWORD_SEED];
 
-    constructor(data:Object = {})
-    {
-        super(data);
-        if (!User._INITIALIZED)
-        {
-            this.hasMany(new ForeignKey(User.COL_ID, UserSkill, UserSkill.COL_USER_ID, 'skill'));
-            this.hasMany(new ForeignKey(User.COL_ID, UserEducation, UserEducation.COL_USER_ID, 'education'));
-            this.hasMany(new ForeignKey(User.COL_ID, UserEmployment, UserEmployment.COL_USER_ID, 'employment'));
-            this.hasMany(new ForeignKey(User.COL_ID, UserUrl, UserUrl.COL_USER_ID, 'url'));
-            User._INITIALIZED = true;
-        }
-    }
+    static FK_USER_SKILL = new ForeignKey(ForeignKeyType.ONE_TO_MANY, User.COL_ID, UserSkill, UserSkill.COL_USER_ID, 'skill');
+    static FK_USER_EDUCATION = new ForeignKey(ForeignKeyType.ONE_TO_MANY, User.COL_ID, UserEducation, UserEducation.COL_USER_ID, 'education');
+    static FK_USER_EMPLOYMENT = new ForeignKey(ForeignKeyType.ONE_TO_MANY, User.COL_ID, UserEmployment, UserEmployment.COL_USER_ID, 'employment');
+    static FK_USER_URL = new ForeignKey(ForeignKeyType.ONE_TO_MANY, User.COL_ID, UserUrl, UserUrl.COL_USER_ID, 'url');
 
     private title:Salutation;
     private first_name:string;

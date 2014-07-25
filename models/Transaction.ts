@@ -12,7 +12,7 @@ class Transaction extends BaseModel
     static COL_STATUS:string                                    = 'status';
     static COL_TRANSACTION_LINE:string                          = 'transaction_line';
 
-    static DEFAULT_FIELDS:string[] = [Transaction.COL_ID, Transaction.COL_USER_ID, Transaction.COL_PAYMENT_ID, Transaction.COL_STATUS];
+    static PUBLIC_FIELDS:string[] = [Transaction.COL_ID, Transaction.COL_USER_ID, Transaction.COL_PAYMENT_ID, Transaction.COL_STATUS];
 
     private user_id:number;
     private payment_id:number;

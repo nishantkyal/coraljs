@@ -6,7 +6,7 @@ class SkillCode extends BaseModel
 
     static COL_SKILL:string = 'skill';
 
-    static DEFAULT_FIELDS:string[] = [SkillCode.COL_ID, SkillCode.COL_SKILL];
+    static PUBLIC_FIELDS:string[] = [SkillCode.COL_ID, SkillCode.COL_SKILL];
 
     private skill:string;
 

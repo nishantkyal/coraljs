@@ -9,32 +9,31 @@ class AbstractModel
 
     constructor(data:Object = {})
     {
-        var thisProto = this.__proto__;
-        var thisProtoConstructor = thisProto.constructor;
-        thisProto['COLUMNS'] = thisProto['COLUMNS'] || [];
+        var thisProtoConstructor = this.__proto__.constructor;
+        thisProtoConstructor['COLUMNS'] = thisProtoConstructor['COLUMNS'] || [];
         var self = this;
 
-        if (thisProto['COLUMNS'].length == 0)
+        if (thisProtoConstructor['COLUMNS'].length == 0)
             for (var classProperty in thisProtoConstructor)
-                if (typeof this.__proto__[classProperty] == 'string'
-                    && classProperty.indexOf(/^COL_/) != -1)
+                if (typeof thisProtoConstructor[classProperty] == 'string'
+                    && classProperty.match(/^COL_/) != null)
                 {
-                    var key:string = Utils.camelToSnakeCase(classProperty.replace(/^COL_/, ''));
+                    var key:string = classProperty.replace(/^COL_/, '').toLowerCase();
                     if (!Utils.isNullOrEmpty(key))
-                        thisProto['COLUMNS'].push(key);
+                        thisProtoConstructor['COLUMNS'].push(key);
                 }
 
-        _.each (thisProto['COLUMNS'], function(column:string) {
+        _.each (thisProtoConstructor['COLUMNS'], function(column:string) {
             self[column] = data[column];
         });
     }
 
     toJson():any
     {
-        var thisProto = this.__proto__;
+        var thisProtoConstructor = this.__proto__.constructor;
         var self = this;
         var data = {};
-        _.each (thisProto['COLUMNS'], function(column:string) {
+        _.each (thisProtoConstructor['COLUMNS'], function(column:string) {
             if (Utils.getObjectType(self[column]) == 'Array')
             {
                 data[column] = _.map(self[column], function(obj:any)

@@ -14,7 +14,7 @@ class UserPhone extends BaseModel
     static COL_TYPE:string = 'type';
     static COL_VERIFIED:string = 'verified';
 
-    static DEFAULT_FIELDS:string[] = [UserPhone.COL_ID, UserPhone.COL_USER_ID, UserPhone.COL_COUNTRY_CODE, UserPhone.COL_AREA_CODE, UserPhone.COL_PHONE, UserPhone.COL_TYPE, UserPhone.COL_VERIFIED];
+    static PUBLIC_FIELDS:string[] = [UserPhone.COL_ID, UserPhone.COL_USER_ID, UserPhone.COL_COUNTRY_CODE, UserPhone.COL_AREA_CODE, UserPhone.COL_PHONE, UserPhone.COL_TYPE, UserPhone.COL_VERIFIED];
 
     private user_id:number;
     private country_code:CountryCode;

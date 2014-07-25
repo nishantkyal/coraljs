@@ -10,7 +10,7 @@ class UserProfile extends BaseModel
     static COL_SHORT_DESC:string                            = 'short_desc';
     static COL_LONG_DESC:string                             = 'long_desc';
 
-    static DEFAULT_FIELDS:string[] = [UserProfile.COL_ID,  UserProfile.COL_USER_ID, UserProfile.COL_LOCALE, UserProfile.COL_SHORT_DESC, UserProfile.COL_LONG_DESC];
+    static PUBLIC_FIELDS:string[] = [UserProfile.COL_ID,  UserProfile.COL_USER_ID, UserProfile.COL_LOCALE, UserProfile.COL_SHORT_DESC, UserProfile.COL_LONG_DESC];
 
     private user_id:number;
     private locale:string;

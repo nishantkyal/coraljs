@@ -19,7 +19,7 @@ class Coupon extends BaseModel
     static COL_INTEGRATION_ID:string            = 'integration_id';
     static COL_EXPERT_RESOURCE_ID:string        = 'expert_resource_id';
 
-    static DEFAULT_FIELDS = [Coupon.COL_ID, Coupon.COL_CODE];
+    static PUBLIC_FIELDS = [Coupon.COL_ID, Coupon.COL_CODE];
     static DASHBOARD_FIELDS = [Coupon.COL_ID, Coupon.COL_CODE, Coupon.COL_EXPERT_RESOURCE_ID, Coupon.COL_COUPON_TYPE, Coupon.COL_DISCOUNT_AMOUNT, Coupon.COL_DISCOUNT_UNIT, Coupon.COL_EXPIRY_TIME, Coupon.COL_MAX_COUPONS, Coupon.COL_NUM_USED, Coupon.COL_INTEGRATION_ID];
 
     private code:string;

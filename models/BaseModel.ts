@@ -3,6 +3,8 @@ import _                                                = require('underscore');
 import Utils                                            = require('../common/Utils');
 import AbstractModel                                    = require('./AbstractModel');
 import ForeignKey                                       = require('../models/ForeignKey');
+import ForeignKeyType                                   = require('../enums/ForeignKeyType');
+
 /*
  * Base class for Models
  */
@@ -19,7 +21,33 @@ class BaseModel extends AbstractModel
     private updated:number;
     private deleted:boolean;
 
-    static DEFAULT_FIELDS:string[] = [BaseModel.COL_ID];
+    static PUBLIC_FIELDS:string[] = [BaseModel.COL_ID];
+
+    constructor(data:Object = {})
+    {
+        super(data);
+        var thisProtoConstructor = this.__proto__.constructor;
+
+        for (var classProperty in thisProtoConstructor)
+            if (Utils.getObjectType(thisProtoConstructor[classProperty]) == 'ForeignKey'
+                && classProperty.match(/^FK_/) != null)
+            {
+                var fk:ForeignKey = thisProtoConstructor[classProperty];
+                switch(fk.type)
+                {
+                    case ForeignKeyType.ONE_TO_MANY:
+                    case ForeignKeyType.MANY_TO_MANY:
+                        this.hasMany(fk);
+                        break;
+
+                    case ForeignKeyType.MANY_TO_ONE:
+                    case ForeignKeyType.ONE_TO_ONE:
+                        this.hasOne(fk);
+                        break;
+                }
+            }
+
+    }
 
     /* Getters */
     getId():number                                      { return this.id; }
@@ -60,7 +88,7 @@ class BaseModel extends AbstractModel
     isValid():boolean { return true; }
 
     /* Foreign key methods */
-    hasOne(fk:ForeignKey):void
+    private hasOne(fk:ForeignKey):void
     {
         // FIXME: Foreign key association where srcKey name doesn't contain _id uses targetKey name
         var srcPropertyName:string = fk.localPropertyToSet || (fk.srcKey.indexOf('_id') != -1 ? fk.srcKey.replace('_id', '') : fk.targetKey.replace('_id', ''));
@@ -86,7 +114,7 @@ class BaseModel extends AbstractModel
         };
     }
 
-    hasMany(fk:ForeignKey):void
+    private hasMany(fk:ForeignKey):void
     {
         // FIXME: Foreign key association where srcKey name doesn't contain _id uses targetKey name
         var srcPropertyName:string = fk.localPropertyToSet || (fk.srcKey.indexOf('_id') != -1 ? fk.srcKey.replace('_id', '') : fk.targetKey.replace('_id', ''));

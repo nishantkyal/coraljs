@@ -13,7 +13,7 @@ class UserEducation extends BaseModel
     static COL_NOTES:string = 'notes';
     static COL_USER_ID:string = 'user_id';
 
-    static DEFAULT_FIELDS:string[] = [UserEducation.COL_ID, UserEducation.COL_USER_ID, UserEducation.COL_START_YEAR, UserEducation.COL_END_YEAR, UserEducation.COL_DEGREE,
+    static PUBLIC_FIELDS:string[] = [UserEducation.COL_ID, UserEducation.COL_USER_ID, UserEducation.COL_START_YEAR, UserEducation.COL_END_YEAR, UserEducation.COL_DEGREE,
         UserEducation.COL_FIELD_OF_STUDY, UserEducation.COL_SCHOOL_NAME, UserEducation.COL_ACTIVITIES, UserEducation.COL_NOTES];
 
     private start_year:number;

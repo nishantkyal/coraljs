@@ -11,7 +11,7 @@ class PricingScheme extends BaseModel
     static COL_PULSE_RATE:string                                    = 'pulse_rate';
     static COL_MIN_DURATION:string                                  = 'min_duration';
 
-    static DEFAULT_FIELDS:string[] = [PricingScheme.COL_ID, PricingScheme.COL_USER_ID, PricingScheme.COL_CHARGING_RATE, PricingScheme.COL_UNIT, PricingScheme.COL_PULSE_RATE, PricingScheme.COL_MIN_DURATION];
+    static PUBLIC_FIELDS:string[] = [PricingScheme.COL_ID, PricingScheme.COL_USER_ID, PricingScheme.COL_CHARGING_RATE, PricingScheme.COL_UNIT, PricingScheme.COL_PULSE_RATE, PricingScheme.COL_MIN_DURATION];
 
     private user_id:number;
     private charging_rate:number;

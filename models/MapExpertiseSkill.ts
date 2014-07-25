@@ -1,7 +1,7 @@
-import BaseModel            = require('./BaseModel');
-import SkillCode            = require('./SkillCode');
-import ForeignKey           = require('./ForeignKey');
-
+import BaseModel                                            = require('./BaseModel');
+import SkillCode                                            = require('./SkillCode');
+import ForeignKey                                           = require('./ForeignKey');
+import ForeignKeyType                                       = require('../enums/ForeignKeyType');
 
 class MapExpertiseSkill extends BaseModel
 {
@@ -10,17 +10,9 @@ class MapExpertiseSkill extends BaseModel
     static COL_EXPERTISE_ID:string = 'expertise_id';
     static COL_SKILL_ID:string = 'skill_id';
 
-    static DEFAULT_FIELDS:string[] = [MapExpertiseSkill.COL_ID,  MapExpertiseSkill.COL_EXPERTISE_ID, MapExpertiseSkill.COL_SKILL_ID];
+    static PUBLIC_FIELDS:string[] = [MapExpertiseSkill.COL_ID,  MapExpertiseSkill.COL_EXPERTISE_ID, MapExpertiseSkill.COL_SKILL_ID];
 
-    constructor(data:Object = {})
-    {
-        super(data);
-        if (!MapExpertiseSkill._INITIALIZED)
-        {
-            this.hasOne(new ForeignKey(MapExpertiseSkill.COL_SKILL_ID, SkillCode, SkillCode.COL_ID));
-            MapExpertiseSkill._INITIALIZED = true;
-        }
-    }
+    static FK_EXPERTISE_SKILL = new ForeignKey(ForeignKeyType.ONE_TO_ONE, MapExpertiseSkill.COL_SKILL_ID, SkillCode, SkillCode.COL_ID);
 
     private expertise_id:number;
     private skill_id:number;

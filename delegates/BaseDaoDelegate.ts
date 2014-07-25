@@ -28,7 +28,7 @@ class BaseDaoDelegate
 
     get(id:any, fields?:string[], includes:IncludeFlag[] = [], transaction?:Object):q.Promise<any>
     {
-        fields = fields || this.dao.modelClass.DEFAULT_FIELDS;
+        fields = fields || this.dao.modelClass.PUBLIC_FIELDS;
 
         if (Utils.getObjectType(id) === 'Array' && id.length > 0)
             return this.search({'id': id}, fields, includes);
@@ -73,7 +73,7 @@ class BaseDaoDelegate
     {
         var self:BaseDaoDelegate = this;
 
-        fields = fields || this.dao.modelClass.DEFAULT_FIELDS;
+        fields = fields || this.dao.modelClass.PUBLIC_FIELDS;
 
         return this.dao.find(search, fields, transaction)
             .then(
@@ -110,7 +110,7 @@ class BaseDaoDelegate
     {
         var self:BaseDaoDelegate = this;
 
-        fields = fields || this.dao.modelClass.DEFAULT_FIELDS;
+        fields = fields || this.dao.modelClass.PUBLIC_FIELDS;
 
         return this.dao.search(search, fields, transaction)
             .then(

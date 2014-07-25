@@ -5,13 +5,14 @@ import UserProfile                                      = require('./UserProfile
 import ForeignKey                                       = require('./ForeignKey');
 import MoneyUnit                                        = require('../enums/MoneyUnit');
 import IntegrationMemberRole                            = require('../enums/IntegrationMemberRole');
+import ForeignKeyType                                   = require('../enums/ForeignKeyType');
 
 /*
  Bean class for Integration member
  */
 class IntegrationMember extends BaseModel
 {
-    static COL_TABLE_NAME:string = 'integration_member';
+    static TABLE_NAME:string = 'integration_member';
 
     static COL_INTEGRATION_ID:string = 'integration_id';
     static COL_USER_ID:string = 'user_id';
@@ -24,7 +25,10 @@ class IntegrationMember extends BaseModel
     static COL_REVENUE_SHARE:string = 'revenue_share';
     static COL_REVENUE_SHARE_UNIT:string = 'revenue_share_unit';
 
-    static DEFAULT_FIELDS:string[] = [IntegrationMember.COL_ID, IntegrationMember.COL_INTEGRATION_ID, IntegrationMember.COL_ROLE, IntegrationMember.COL_USER_ID];
+    static FK_USER:ForeignKey = new ForeignKey(ForeignKeyType.MANY_TO_ONE, IntegrationMember.COL_USER_ID, User, User.COL_ID);
+    static FK_INTEGRATION:ForeignKey = new ForeignKey(ForeignKeyType.MANY_TO_ONE, IntegrationMember.COL_INTEGRATION_ID, Integration, Integration.COL_ID);
+
+    static PUBLIC_FIELDS:string[] = [IntegrationMember.COL_ID, IntegrationMember.COL_INTEGRATION_ID, IntegrationMember.COL_ROLE, IntegrationMember.COL_USER_ID];
     static DASHBOARD_FIELDS:string[] = [IntegrationMember.COL_ID, IntegrationMember.COL_INTEGRATION_ID, IntegrationMember.COL_ROLE, IntegrationMember.COL_USER_ID, IntegrationMember.COL_REVENUE_SHARE, IntegrationMember.COL_REVENUE_SHARE_UNIT];
 
     private integration_id:number;
@@ -44,8 +48,6 @@ class IntegrationMember extends BaseModel
         super(data);
         if (!IntegrationMember._INITIALIZED)
         {
-            this.hasOne(new ForeignKey(IntegrationMember.COL_USER_ID, User, User.COL_ID));
-            this.hasOne(new ForeignKey(IntegrationMember.COL_INTEGRATION_ID, Integration, Integration.COL_ID));
             IntegrationMember._INITIALIZED = true;
         }
     }

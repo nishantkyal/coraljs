@@ -21,7 +21,7 @@ class UserEmployment extends BaseModel
     private company:string;
     private user_id:number;
 
-    static DEFAULT_FIELDS:string[] = [UserEmployment.COL_ID, UserEmployment.COL_USER_ID, UserEmployment.COL_TITLE, UserEmployment.COL_SUMMARY, UserEmployment.COL_START_DATE,
+    static PUBLIC_FIELDS:string[] = [UserEmployment.COL_ID, UserEmployment.COL_USER_ID, UserEmployment.COL_TITLE, UserEmployment.COL_SUMMARY, UserEmployment.COL_START_DATE,
         UserEmployment.COL_END_DATE, UserEmployment.COL_IS_CURRENT, UserEmployment.COL_COMPANY];
 
     /* Getters */

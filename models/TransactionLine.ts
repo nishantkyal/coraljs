@@ -15,7 +15,7 @@ class TransactionLine extends BaseModel
     static COL_AMOUNT:string                                = 'amount';
     static COL_AMOUNT_UNIT:string                           = 'amount_unit';
 
-    static DEFAULT_FIELDS:string[] = [TransactionLine.COL_ID, TransactionLine.COL_TRANSACTION_ID, TransactionLine.COL_ITEM_ID, TransactionLine.COL_ITEM_TYPE,
+    static PUBLIC_FIELDS:string[] = [TransactionLine.COL_ID, TransactionLine.COL_TRANSACTION_ID, TransactionLine.COL_ITEM_ID, TransactionLine.COL_ITEM_TYPE,
                                         TransactionLine.COL_TRANSACTION_TYPE, TransactionLine.COL_AMOUNT, TransactionLine.COL_AMOUNT_UNIT];
 
     private transaction_id:number;

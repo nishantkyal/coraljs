@@ -31,7 +31,7 @@ class PhoneCall extends BaseModel
     static COL_PULSE_RATE:string                            = 'pulse_rate';
     static COL_MIN_DURATION:string                          = 'min_duration';
 
-    static DEFAULT_FIELDS:string[] = [PhoneCall.COL_ID, PhoneCall.COL_CALLER_USER_ID, PhoneCall.COL_CALLER_PHONE_ID, PhoneCall.COL_EXPERT_PHONE_ID,
+    static PUBLIC_FIELDS:string[] = [PhoneCall.COL_ID, PhoneCall.COL_CALLER_USER_ID, PhoneCall.COL_CALLER_PHONE_ID, PhoneCall.COL_EXPERT_PHONE_ID,
                                       PhoneCall.COL_START_TIME, PhoneCall.COL_DURATION, PhoneCall.COL_STATUS, PhoneCall.COL_AGENDA, PhoneCall.COL_EXPERT_USER_ID];
     private caller_user_id:number;
     private expert_user_id:number;

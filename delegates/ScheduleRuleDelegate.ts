@@ -129,7 +129,7 @@ class ScheduleRuleDelegate extends BaseDaoDelegate
             });
     }
 
-    getRulesByUser(userId:number, startTime?:number, endTime?:number, fields:string[] = ScheduleRule.DEFAULT_FIELDS, transaction?:Object):q.Promise<any>
+    getRulesByUser(userId:number, startTime?:number, endTime?:number, fields:string[] = ScheduleRule.PUBLIC_FIELDS, transaction?:Object):q.Promise<any>
     {
         var expertScheduleRuleDao:any = this.dao;
         return expertScheduleRuleDao.getRulesByUser(userId, startTime, endTime, fields, transaction);
