@@ -1,10 +1,9 @@
 (function () {
 
-    var scriptName = "embed.js"; //name of this script, used to get reference to own tag
-    var jQuery; //noconflict reference to jquery
+    var scriptName = "embed.js";
+    var jQuery;
     var jqueryPath = "http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js";
     var jqueryVersion = "1.8.3";
-    var scriptTag; //reference to the html script tag
 
     /******** Get reference to self (scriptTag) *********/
     var allScripts = document.getElementsByTagName('script');
@@ -14,8 +13,6 @@
         if(name && name.indexOf(scriptName) > 0)
             targetScripts.push(allScripts[i]);
     }
-
-    scriptTag = targetScripts[targetScripts.length - 1];
 
     /******** helper function to load external scripts *********/
     function loadScript(src, onLoad) {
@@ -56,10 +53,7 @@
         main();
     }
 
-    /******** starting point for your widget ********/
     function main() {
-        //your widget code goes here
-
         jQuery(document).ready(function ($) {
 
             var WIDGET_SIZES = {
@@ -83,17 +77,6 @@
                 if (widgetId)
                     jQuery(widgetTag).append('<iframe scrolling="no" style="overflow: hidden, border: none;" frameBorder="0" class="snt-expert-iframe" src="' + widgetUrl + '" width="' + WIDGET_SIZES[widgetSize].width + '" height="' + WIDGET_SIZES[widgetSize].height + '"></iframe>');
             }
-
-            /*var jsonp_url = "//searchntalk.com/widget/" + widgetId + "?size=" + widgetSize + "callback=?";
-            jQuery.getJSON(jsonp_url, function(result) {
-                alert("win");
-            });*/
-
-            //example load css
-            //loadCss("//searchntalk.com/css/" + widgetCssFile);
-
-            //example script load
-            //loadScript("//searchntalk.com/css/" + widgetCssFile, function() { /* loaded */ });
         });
 
     }

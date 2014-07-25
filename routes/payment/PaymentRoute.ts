@@ -225,10 +225,10 @@ class PaymentRoute
         }
 
         var userPhone = new UserPhone();
+        userPhone.setAreaCode(sessionData.getAreaCode());
         userPhone.setCountryCode(sessionData.getCountryCode());
         userPhone.setPhone(sessionData.getCallerPhone());
         userPhone.setUserId(sessionData.getLoggedInUser().getId());
-        userPhone.setType(PhoneType.MOBILE);
 
         // 1. Begin sql transaction
         // 2. Create phone number entry
