@@ -93,25 +93,5 @@ class IntegrationMemberDelegate extends BaseDaoDelegate
                 return null;
             });
     }
-
-    getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
-    {
-        var self = this;
-        var member:IntegrationMember = result;
-
-        switch (include)
-        {
-            case IncludeFlag.INCLUDE_INTEGRATION:
-                return self.integrationDelegate.get(_.uniq(_.pluck(result, IntegrationMember.INTEGRATION_ID)));
-
-            case IncludeFlag.INCLUDE_USER:
-                if (Utils.getObjectType(result) == 'Array')
-                    return self.userDelegate.get(_.uniq(_.pluck(result, IntegrationMember.USER_ID)));
-                else
-                    return self.userDelegate.get(result.getUserId());
-        }
-        return super.getIncludeHandler(include, result);
-    }
-
 }
 export = IntegrationMemberDelegate

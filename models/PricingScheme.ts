@@ -5,13 +5,13 @@ class PricingScheme extends BaseModel
 {
     static TABLE_NAME:string                                    = 'pricing_scheme';
 
-    static USER_ID:string                                       = 'user_id';
-    static CHARGING_RATE:string                                 = 'charging_rate';
-    static UNIT:string                                          = 'unit';
-    static PULSE_RATE:string                                    = 'pulse_rate';
-    static MIN_DURATION:string                                  = 'min_duration';
+    static COL_USER_ID:string                                       = 'user_id';
+    static COL_CHARGING_RATE:string                                 = 'charging_rate';
+    static COL_UNIT:string                                          = 'unit';
+    static COL_PULSE_RATE:string                                    = 'pulse_rate';
+    static COL_MIN_DURATION:string                                  = 'min_duration';
 
-    static DEFAULT_FIELDS:string[] = [PricingScheme.ID, PricingScheme.USER_ID, PricingScheme.CHARGING_RATE, PricingScheme.UNIT, PricingScheme.PULSE_RATE, PricingScheme.MIN_DURATION];
+    static DEFAULT_FIELDS:string[] = [PricingScheme.COL_ID, PricingScheme.COL_USER_ID, PricingScheme.COL_CHARGING_RATE, PricingScheme.COL_UNIT, PricingScheme.COL_PULSE_RATE, PricingScheme.COL_MIN_DURATION];
 
     private user_id:number;
     private charging_rate:number;

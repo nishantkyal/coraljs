@@ -9,14 +9,6 @@ import IncludeFlag                                          = require('../enums/
 
 class UserEducationDelegate extends BaseDaoDelegate
 {
-    constructor()
-    {
-        super(UserEducation);
-    }
-
-    getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
-    {
-        return super.getIncludeHandler(include, result);
-    }
+    constructor() { super(UserEducation); }
 }
 export = UserEducationDelegate

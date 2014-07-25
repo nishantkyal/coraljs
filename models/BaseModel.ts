@@ -8,10 +8,10 @@ import ForeignKey                                       = require('../models/For
  */
 class BaseModel extends AbstractModel
 {
-    static ID:string = 'id';
-    static CREATED:string = 'created';
-    static UPDATED:string = 'updated';
-    static DELETED:string = 'deleted';
+    static COL_ID:string = 'id';
+    static COL_CREATED:string = 'created';
+    static COL_UPDATED:string = 'updated';
+    static COL_DELETED:string = 'deleted';
     static _INITIALIZED:boolean = false;
 
     private id:number;
@@ -19,9 +19,7 @@ class BaseModel extends AbstractModel
     private updated:number;
     private deleted:boolean;
 
-    static DEFAULT_FIELDS:string[] = [BaseModel.ID];
-    static TIMESTAMP_FIELDS:string[] = [BaseModel.CREATED, BaseModel.UPDATED, BaseModel.DELETED];
-
+    static DEFAULT_FIELDS:string[] = [BaseModel.COL_ID];
 
     /* Getters */
     getId():number                                      { return this.id; }

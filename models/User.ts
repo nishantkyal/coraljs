@@ -19,37 +19,32 @@ class User extends BaseModel
 {
     static TABLE_NAME:string                                = 'user';
 
-    static TITLE:string                                     = 'title';
-    static FIRST_NAME:string                                = 'first_name';
-    static MIDDLE_NAME:string                               = 'middle_name';
-    static LAST_NAME:string                                 = 'last_name';
-    static EMAIL:string                                     = 'email';
-    static PASSWORD:string                                  = 'password';
-    static PASSWORD_SEED:string                             = 'password_seed'
-    static DATE_OF_BIRTH:string                             = 'date_of_birth';
-    static INDUSTRY:string                                  = 'industry';
-    static TIMEZONE:string                                  = 'timezone';
-    static EMAIL_VERIFIED:string                            = 'email_verified';
-    static ACTIVE:string                                    = 'active';
-    static VERIFIED:string                                  = 'verified';
+    static COL_TITLE:string                                     = 'title';
+    static COL_FIRST_NAME:string                                = 'first_name';
+    static COL_MIDDLE_NAME:string                               = 'middle_name';
+    static COL_LAST_NAME:string                                 = 'last_name';
+    static COL_EMAIL:string                                     = 'email';
+    static COL_PASSWORD:string                                  = 'password';
+    static COL_PASSWORD_SEED:string                             = 'password_seed'
+    static COL_DATE_OF_BIRTH:string                             = 'date_of_birth';
+    static COL_INDUSTRY:string                                  = 'industry';
+    static COL_TIMEZONE:string                                  = 'timezone';
+    static COL_EMAIL_VERIFIED:string                            = 'email_verified';
+    static COL_ACTIVE:string                                    = 'active';
+    static COL_VERIFIED:string                                  = 'verified';
 
-    static USER_PROFILE:string                              = 'user_profile';
-    static SCHEDULE:string                                  = 'schedule';
-    static PRICING_SCHEME:string                            = 'pricing_scheme';
-    static SCHEDULE_RULE:string                             = 'schedule_rule';
-
-    static DEFAULT_FIELDS:string[] = [User.ID, User.TITLE, User.FIRST_NAME, User.LAST_NAME, User.EMAIL,
-        User.INDUSTRY, User.TIMEZONE, User.DATE_OF_BIRTH, User.EMAIL_VERIFIED, User.ACTIVE, User.VERIFIED, User.PASSWORD, User.PASSWORD_SEED];
+    static DEFAULT_FIELDS:string[] = [User.COL_ID, User.COL_TITLE, User.COL_FIRST_NAME, User.COL_LAST_NAME, User.COL_EMAIL,
+        User.COL_INDUSTRY, User.COL_TIMEZONE, User.COL_DATE_OF_BIRTH, User.COL_EMAIL_VERIFIED, User.COL_ACTIVE, User.COL_VERIFIED, User.COL_PASSWORD, User.COL_PASSWORD_SEED];
 
     constructor(data:Object = {})
     {
         super(data);
         if (!User._INITIALIZED)
         {
-            this.hasMany(new ForeignKey(User.ID, UserSkill, UserSkill.USER_ID,'skill'));
-            this.hasMany(new ForeignKey(User.ID, UserEducation, UserEducation.USER_ID, 'education'));
-            this.hasMany(new ForeignKey(User.ID, UserEmployment, UserEmployment.USER_ID, 'employment'));
-            this.hasMany(new ForeignKey(User.ID, UserUrl, UserUrl.USER_ID, 'url'));
+            this.hasMany(new ForeignKey(User.COL_ID, UserSkill, UserSkill.COL_USER_ID, 'skill'));
+            this.hasMany(new ForeignKey(User.COL_ID, UserEducation, UserEducation.COL_USER_ID, 'education'));
+            this.hasMany(new ForeignKey(User.COL_ID, UserEmployment, UserEmployment.COL_USER_ID, 'employment'));
+            this.hasMany(new ForeignKey(User.COL_ID, UserUrl, UserUrl.COL_USER_ID, 'url'));
             User._INITIALIZED = true;
         }
     }
@@ -68,12 +63,6 @@ class User extends BaseModel
     private active:boolean;
     private verified:boolean;
 
-    private user_profile:UserProfile;
-    private schedule:Schedule[];
-    private schedule_rule:ScheduleRule[];
-    private pricing_scheme:PricingScheme[];
-
-    /* Getters */
     getTitle():Salutation                                       { return this.title; }
     getFirstName():string                                       { return this.first_name; }
     getMiddleName():string                                      { return this.middle_name; }
@@ -88,10 +77,10 @@ class User extends BaseModel
     getActive():boolean                                         { return this.active; }
     getVerified():boolean                                       { return this.verified; }
 
-    getUserProfile():UserProfile                                { return this.user_profile; }
-    getSchedule():Schedule[]                                    { return this.schedule; }
-    getScheduleRule():ScheduleRule[]                            { return this.schedule_rule; }
-    getPricingScheme():PricingScheme[]                          { return this.pricing_scheme; }
+    getUserProfile():UserProfile                                { return null; }
+    getSchedule():Schedule[]                                    { return null; }
+    getScheduleRule():ScheduleRule[]                            { return null; }
+    getPricingScheme():PricingScheme[]                          { return null; }
     getSkill():UserSkill[]                                      { return null; }
     getEducation():UserEducation[]                              { return null; }
     getEmployment():UserEmployment[]                            { return null; }
@@ -116,10 +105,10 @@ class User extends BaseModel
     setActive(val:boolean)                                      { this.active = val; }
     setVerified(val:boolean)                                    { this.verified = val; }
 
-    setUserProfile(val:UserProfile):void                        { this.user_profile = val; }
-    setSchedule(val:Schedule[]):void                            { this.schedule = val; }
-    setScheduleRule(val:ScheduleRule[]):void                    { this.schedule_rule = val; }
-    setPricingScheme(val:PricingScheme[]):void                  { this.pricing_scheme = val; }
+    setUserProfile(val:UserProfile):void                        { }
+    setSchedule(val:Schedule[]):void                            { }
+    setScheduleRule(val:ScheduleRule[]):void                    { }
+    setPricingScheme(val:PricingScheme[]):void                  { }
     setSkill(val:UserSkill[])                                   { }
     setEducation(val:UserEducation[])                           { }
     setEmployment(val:UserEmployment[])                         { }

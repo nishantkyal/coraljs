@@ -9,18 +9,18 @@ class Coupon extends BaseModel
 {
     static TABLE_NAME:string = 'coupon';
 
-    static CODE:string                      = 'code';
-    static NUM_USED:string                  = 'num_used';
-    static MAX_COUPONS:string               = 'max_coupons';
-    static COUPON_TYPE:string               = 'coupon_type';
-    static DISCOUNT_AMOUNT:string           = 'discount_amount';
-    static DISCOUNT_UNIT:string             = 'discount_unit';
-    static EXPIRY_TIME:string               = 'expiry_time';
-    static INTEGRATION_ID:string            = 'integration_id';
-    static EXPERT_RESOURCE_ID:string        = 'expert_resource_id';
+    static COL_CODE:string                      = 'code';
+    static COL_NUM_USED:string                  = 'num_used';
+    static COL_MAX_COUPONS:string               = 'max_coupons';
+    static COL_COUPON_TYPE:string               = 'coupon_type';
+    static COL_DISCOUNT_AMOUNT:string           = 'discount_amount';
+    static COL_DISCOUNT_UNIT:string             = 'discount_unit';
+    static COL_EXPIRY_TIME:string               = 'expiry_time';
+    static COL_INTEGRATION_ID:string            = 'integration_id';
+    static COL_EXPERT_RESOURCE_ID:string        = 'expert_resource_id';
 
-    static DEFAULT_FIELDS = [Coupon.ID, Coupon.CODE];
-    static DASHBOARD_FIELDS = [Coupon.ID, Coupon.CODE, Coupon.EXPERT_RESOURCE_ID, Coupon.COUPON_TYPE, Coupon.DISCOUNT_AMOUNT, Coupon.DISCOUNT_UNIT, Coupon.EXPIRY_TIME, Coupon.MAX_COUPONS, Coupon.NUM_USED, Coupon.INTEGRATION_ID];
+    static DEFAULT_FIELDS = [Coupon.COL_ID, Coupon.COL_CODE];
+    static DASHBOARD_FIELDS = [Coupon.COL_ID, Coupon.COL_CODE, Coupon.COL_EXPERT_RESOURCE_ID, Coupon.COL_COUPON_TYPE, Coupon.COL_DISCOUNT_AMOUNT, Coupon.COL_DISCOUNT_UNIT, Coupon.COL_EXPIRY_TIME, Coupon.COL_MAX_COUPONS, Coupon.COL_NUM_USED, Coupon.COL_INTEGRATION_ID];
 
     private code:string;
     private num_used:number;

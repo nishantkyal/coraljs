@@ -14,7 +14,7 @@ class ScheduleRuleDao extends AbstractDao
     getRulesByUser(userId:number, startTime:number, endTime:number, fields?:string[], transaction?:Object):q.Promise<any>
     {
         if (Utils.isNullOrEmpty(startTime) || Utils.isNullOrEmpty(endTime))
-            return this.search(Utils.createSimpleObject(ScheduleRule.USER_ID, userId));
+            return this.search(Utils.createSimpleObject(ScheduleRule.COL_USER_ID, userId));
         else
         {
             var selectColumns:string = !Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';

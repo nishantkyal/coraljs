@@ -53,8 +53,7 @@ class AccessControl
             {
                 AccessControl.logger.error('Error fetching role for accessToken: ' + accessToken + ', ' + error);
                 res.send(500);
-            }
-        )
+            });
     }
 
     static allowAdmin(req, res, next)

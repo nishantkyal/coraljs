@@ -23,6 +23,7 @@ class BaseDaoDelegate
     constructor(dao:any)
     {
         this.dao = Utils.getObjectType(dao) === 'Object' ? dao : new AbstractDao(dao);
+        this.dao.modelClass.DELEGATE = this;
     }
 
     get(id:any, fields?:string[], includes:IncludeFlag[] = [], transaction?:Object):q.Promise<any>
@@ -66,12 +67,6 @@ class BaseDaoDelegate
 
                 return result;
             });
-    }
-
-    /* Abstract method self defines how flags are handled in get query */
-    getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
-    {
-        return null;
     }
 
     find(search:Object, fields?:string[], includes:IncludeFlag[] = [], transaction?:Object):q.Promise<any>
@@ -159,9 +154,9 @@ class BaseDaoDelegate
         function prepareData(data:BaseModel)
         {
             var generatedId:number = new GlobalIdDelegate().generate(self.dao.modelClass.TABLE_NAME);
-            data[BaseModel.ID] = generatedId;
-            data[BaseModel.CREATED] = moment().valueOf();
-            data[BaseModel.UPDATED] = moment().valueOf();
+            data[BaseModel.COL_ID] = generatedId;
+            data[BaseModel.COL_CREATED] = moment().valueOf();
+            data[BaseModel.COL_UPDATED] = moment().valueOf();
             return data;
         };
 
@@ -175,9 +170,9 @@ class BaseDaoDelegate
     update(criteria:any, newValues:any, transaction?:Object):q.Promise<any>
     {
         // Compose update statement based on newValues
-        newValues[BaseModel.UPDATED] = new Date().getTime();
-        delete newValues[BaseModel.CREATED];
-        delete newValues[BaseModel.ID];
+        newValues[BaseModel.COL_UPDATED] = new Date().getTime();
+        delete newValues[BaseModel.COL_CREATED];
+        delete newValues[BaseModel.COL_ID];
 
         return this.dao.update(criteria, newValues, transaction);
     }
@@ -192,5 +187,9 @@ class BaseDaoDelegate
             return this.dao.delete(criteria, transaction);
     }
 
+    getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
+    {
+        return null;
+    }
 }
 export = BaseDaoDelegate

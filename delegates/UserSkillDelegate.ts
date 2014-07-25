@@ -47,7 +47,7 @@ class UserSkillDelegate extends BaseDaoDelegate
             })
             .fail(
             function codeExists(){
-                return self.skillCodeDelegate.find(Utils.createSimpleObject(SkillCode.SKILL,skillCode.getSkill()))
+                return self.skillCodeDelegate.find(Utils.createSimpleObject(SkillCode.COL_SKILL, skillCode.getSkill()))
                     .then(
                     function skillFound(refSkill){
                         userSkill.setSkillId(refSkill.getId());
@@ -65,19 +65,6 @@ class UserSkillDelegate extends BaseDaoDelegate
         skillCode.setSkill(skillName);
 
         return self.skillCodeDelegate.create(skillCode,transaction);
-    }
-
-    getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
-    {
-        var self = this;
-
-        switch (include)
-        {
-            case IncludeFlag.INCLUDE_SKILL:
-                return self.skillCodeDelegate.get(_.uniq(_.pluck(result, UserSkill.SKILL_ID)));
-
-        }
-        return super.getIncludeHandler(include, result);
     }
 }
 export = UserSkillDelegate

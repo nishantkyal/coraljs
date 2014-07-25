@@ -4,8 +4,8 @@ class MapProfileUrl extends AbstractModel
 {
     static TABLE_NAME:string = 'map_profile_url';
 
-    static PROFILE_ID:string = 'profile_id';
-    static URL_ID:string = 'url_id';
+    static COL_PROFILE_ID:string = 'profile_id';
+    static COL_URL_ID:string = 'url_id';
 
     private profile_id:number;
     private url_id:number;

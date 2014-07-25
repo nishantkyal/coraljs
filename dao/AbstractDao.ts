@@ -6,7 +6,6 @@ import log4js                                       = require('log4js');
 import MysqlDelegate                                = require('../delegates/MysqlDelegate')
 import GlobalIdDelegate                             = require('../delegates/GlobalIDDelegate');
 import BaseModel                                    = require('../models/BaseModel');
-import AbstractModel                                = require('../models/AbstractModel');
 import Utils                                        = require('../common/Utils');
 
 /*
@@ -14,11 +13,11 @@ import Utils                                        = require('../common/Utils')
  */
 class AbstractDao
 {
-    public modelClass;
+    public modelClass:typeof BaseModel;
     public tableName:string;
     public logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
 
-    constructor(modelClass:typeof AbstractModel)
+    constructor(modelClass:typeof BaseModel)
     {
         this.modelClass = modelClass;
 
@@ -172,7 +171,7 @@ class AbstractDao
 
         return MysqlDelegate.executeQuery(queryString, values, transaction)
             .then(
-            function handleSearchResults(result) {
+            function handleSearchResults(result):any {
                 if (result.length == 1)
                     return new self.modelClass(result[0]);
                 else

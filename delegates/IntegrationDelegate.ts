@@ -44,7 +44,7 @@ class IntegrationDelegate extends BaseDaoDelegate
 
     create(object:any, transaction?:Object):q.Promise<any>
     {
-        object[Integration.SECRET] = object[Integration.SECRET] || Utils.getRandomString(20);
+        object[Integration.COL_SECRET] = object[Integration.COL_SECRET] || Utils.getRandomString(20);
         return super.create(object, transaction);
     }
 

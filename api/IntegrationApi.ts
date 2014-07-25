@@ -106,7 +106,7 @@ class IntegrationApi
             var integrationId = req.params[ApiConstants.INTEGRATION_ID];
             var integration:Integration = req.body[ApiConstants.INTEGRATION];
 
-            self.integrationDelegate.update(Utils.createSimpleObject(Integration.ID, integrationId),integration)
+            self.integrationDelegate.update(Utils.createSimpleObject(Integration.COL_ID, integrationId),integration)
                 .then(
                 function handleIntegrationUpdated(result) { res.json(result); },
                 function handleIntegrationUpdateError(err) { res.status(500).json(err); }

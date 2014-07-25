@@ -32,18 +32,6 @@ class ExpertiseDelegate extends BaseDaoDelegate
         }))
     }
 
-    getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
-    {
-        var self = this;
-
-        switch (include)
-        {
-            case IncludeFlag.INCLUDE_SKILL:
-                return self.mapExpertiseSkillDelegate.search(Utils.createSimpleObject(MapExpertiseSkill.EXPERTISE_ID,_.uniq(_.pluck(result, Expertise.ID))), null,[IncludeFlag.INCLUDE_SKILL]);
-        }
-        return super.getIncludeHandler(include, result);
-    }
-
     createExpertiseSkillMap(skillName:string,expertiseId:number, transaction?:Object):q.Promise<any>
     {
         var self = this;

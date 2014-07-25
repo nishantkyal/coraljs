@@ -67,10 +67,10 @@ class UserProfileDelegate extends BaseDaoDelegate
             .then(
             function profileFetched(profile:UserProfile):any
             {
-                if (Utils.isNullOrEmpty(profile) && criteria.hasOwnProperty(UserProfile.USER_ID))
+                if (Utils.isNullOrEmpty(profile) && criteria.hasOwnProperty(UserProfile.COL_USER_ID))
                 {
                     var profile = new UserProfile();
-                    profile.setUserId(criteria[UserProfile.USER_ID]);
+                    profile.setUserId(criteria[UserProfile.COL_USER_ID]);
 
                     return self.create(profile, dbTransaction);
                 }
@@ -346,7 +346,7 @@ class UserProfileDelegate extends BaseDaoDelegate
             {
                 if (userEducation && userEducation.length > 0)
                 //TODO: Check if this can be done in one statement using the IN clause of SQL
-                    return userEducationDelegate.delete({id: _.pluck(userEducation, UserEducation.ID), user_id: userId}, transaction, false);
+                    return userEducationDelegate.delete({id: _.pluck(userEducation, UserEducation.COL_ID), user_id: userId}, transaction, false);
                 else
                     return false;
             })
@@ -370,7 +370,7 @@ class UserProfileDelegate extends BaseDaoDelegate
             function EmploymentFetched(userEmployment:UserEmployment[]):any
             {
                 if (userEmployment && userEmployment.length > 0)
-                    return userEmploymentDelegate.delete({id: _.pluck(userEmployment, UserEmployment.ID), user_id: userId}, transaction, false);
+                    return userEmploymentDelegate.delete({id: _.pluck(userEmployment, UserEmployment.COL_ID), user_id: userId}, transaction, false);
                 else
                     return false;
             })
@@ -389,12 +389,12 @@ class UserProfileDelegate extends BaseDaoDelegate
             return MysqlDelegate.executeInTransaction(self, arguments);
 
         var userSkillDelegate = new UserSkillDelegate();
-        return userSkillDelegate.search(Utils.createSimpleObject(UserSkill.USER_ID, userId))
+        return userSkillDelegate.search(Utils.createSimpleObject(UserSkill.COL_USER_ID, userId))
             .then(
             function SkillFetched(userSkills:UserSkill[]):any
             {
                 if (userSkills && userSkills.length > 0)
-                    return userSkillDelegate.delete({id: _.pluck(userSkills, UserSkill.ID), user_id: userId}, transaction, false);
+                    return userSkillDelegate.delete({id: _.pluck(userSkills, UserSkill.COL_ID), user_id: userId}, transaction, false);
                 else
                     return false;
             })

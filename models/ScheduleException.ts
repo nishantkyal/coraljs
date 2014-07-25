@@ -10,7 +10,7 @@ class ScheduleException extends Schedule
 {
     static TABLE_NAME = 'expert_schedule_exception';
 
-    static USER_ID:string       = 'user_id';
+    static COL_USER_ID:string       = 'user_id';
 
     private user_id:number;
 

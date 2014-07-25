@@ -134,7 +134,7 @@ class PaymentRoute
             .then(
             function allDone(...args)
             {
-                return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, callFlowSessionData.getTransaction().getId()));
+                return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.COL_TRANSACTION_ID, callFlowSessionData.getTransaction().getId()));
             }).
             then(function transactionLinesFetched(lines:TransactionLine[])
             {
@@ -144,7 +144,7 @@ class PaymentRoute
                 });
 
                 // If discount applied, fetch coupon name
-                var discountLine = _.findWhere(lines, Utils.createSimpleObject(TransactionLine.TRANSACTION_TYPE, TransactionType.DISCOUNT));
+                var discountLine = _.findWhere(lines, Utils.createSimpleObject(TransactionLine.COL_TRANSACTION_TYPE, TransactionType.DISCOUNT));
                 if (Utils.isNullOrEmpty(discountLine))
                     return [lines];
                 else
@@ -248,12 +248,12 @@ class PaymentRoute
                 var userId = sessionData.getLoggedInUser().getId();
 
                 var phoneCallUpdates = {};
-                phoneCallUpdates[PhoneCall.CALLER_PHONE_ID] = createdPhone.getId();
-                phoneCallUpdates[PhoneCall.CALLER_USER_ID] = userId;
+                phoneCallUpdates[PhoneCall.COL_CALLER_PHONE_ID] = createdPhone.getId();
+                phoneCallUpdates[PhoneCall.COL_CALLER_USER_ID] = userId;
 
                 return q.all([
                     self.phoneCallDelegate.update(call.getId(), phoneCallUpdates, dbTransaction),
-                    self.transactionDelegate.update(transaction.getId(), Utils.createSimpleObject(Transaction.USER_ID, userId), dbTransaction)
+                    self.transactionDelegate.update(transaction.getId(), Utils.createSimpleObject(Transaction.COL_USER_ID, userId), dbTransaction)
                 ]);
             })
             .then(
@@ -264,13 +264,13 @@ class PaymentRoute
             .then(
             function transactionCommitted()
             {
-                return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, transaction.getId()), null, null, dbTransaction);
+                return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.COL_TRANSACTION_ID, transaction.getId()), null, null, dbTransaction);
             })
             .then(
             function transactionLinesFetched(lines:TransactionLine[])
             {
                 var payZippyProvider = new PayZippyProvider();
-                var amount:number = _.reduce(_.pluck(lines, TransactionLine.AMOUNT), function (memo:number, num:number) { return memo + num; }, 0) * 100;
+                var amount:number = _.reduce(_.pluck(lines, TransactionLine.COL_AMOUNT), function (memo:number, num:number) { return memo + num; }, 0) * 100;
 
                 if (amount > 0)
                     res.redirect(payZippyProvider.getPaymentUrl(transaction, parseFloat(amount.toFixed(2)), sessionData.getLoggedInUser()));
@@ -299,14 +299,14 @@ class PaymentRoute
             .then(
             function responseProcessed(transactionId:number)
             {
-                return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, transactionId))
+                return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.COL_TRANSACTION_ID, transactionId))
             },
             function responseProcessingFailed(error)
             {
                 if (error == 'HASH_MISMATCH' && noPayment)
                 {
                     var transactionId = callFlowSessionData.getTransaction().getId();
-                    return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, transactionId))
+                    return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.COL_TRANSACTION_ID, transactionId))
                 }
                 else
                     throw(error);

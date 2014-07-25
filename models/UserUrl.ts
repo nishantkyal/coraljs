@@ -4,15 +4,15 @@ class UserUrl extends BaseModel
 {
     static TABLE_NAME:string = 'user_url';
 
-    static LINKEDIN:string = 'linkedin';
-    static FACEBOOK:string = 'facebook';
-    static TWITTER:string = 'twitter';
-    static TUMBLR:string = 'tumblr';
-    static BLOG:string = 'blog';
-    static WEBSITE:string = 'website';
-    static USER_ID:string = 'user_id';
+    static COL_LINKEDIN:string = 'linkedin';
+    static COL_FACEBOOK:string = 'facebook';
+    static COL_TWITTER:string = 'twitter';
+    static COL_TUMBLR:string = 'tumblr';
+    static COL_BLOG:string = 'blog';
+    static COL_WEBSITE:string = 'website';
+    static COL_USER_ID:string = 'user_id';
 
-    static DEFAULT_FIELDS:string[] = [UserUrl.ID,UserUrl.USER_ID, UserUrl.LINKEDIN, UserUrl.FACEBOOK, UserUrl.TWITTER, UserUrl.TUMBLR, UserUrl.BLOG, UserUrl.WEBSITE];
+    static DEFAULT_FIELDS:string[] = [UserUrl.COL_ID, UserUrl.COL_USER_ID, UserUrl.COL_LINKEDIN, UserUrl.COL_FACEBOOK, UserUrl.COL_TWITTER, UserUrl.COL_TUMBLR, UserUrl.COL_BLOG, UserUrl.COL_WEBSITE];
 
     private linkedin:string;
     private facebook:string;

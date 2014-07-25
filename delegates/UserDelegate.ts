@@ -48,7 +48,7 @@ class UserDelegate extends BaseDaoDelegate
         if (Utils.isNullOrEmpty(dbTransaction))
             return MysqlDelegate.executeInTransaction(this, arguments);
 
-        if (!Utils.isNullOrEmpty(object) && object.hasOwnProperty(User.PASSWORD))
+        if (!Utils.isNullOrEmpty(object) && object.hasOwnProperty(User.COL_PASSWORD))
         {
             object = new User(object);
             var newSeed = Utils.getRandomString(Config.get(Config.PASSWORD_SEED_LENGTH));
@@ -81,75 +81,24 @@ class UserDelegate extends BaseDaoDelegate
     update(criteria:number, newValues:any, transaction?:Object):q.Promise<any>;
     update(criteria:any, newValues:any, transaction?:Object):q.Promise<any>
     {
-        var self = this;
         var superUpdate = super.update.bind(this);
-        delete newValues[User.ID];
-        delete newValues[User.EMAIL];
+        delete newValues[User.COL_ID];
+        delete newValues[User.COL_EMAIL];
 
-        if (newValues.hasOwnProperty(User.PASSWORD) && !Utils.isNullOrEmpty(newValues[User.PASSWORD]))
+        if (newValues.hasOwnProperty(User.COL_PASSWORD) && !Utils.isNullOrEmpty(newValues[User.COL_PASSWORD]))
         {
             return this.find(criteria)
                 .then(
                 function userFetched(user:User)
                 {
                     var newSeed = Utils.getRandomString(Config.get(Config.PASSWORD_SEED_LENGTH));
-                    user.setPassword(user.getPasswordHash(user.getEmail(), newValues[User.PASSWORD], newSeed));
+                    user.setPassword(user.getPasswordHash(user.getEmail(), newValues[User.COL_PASSWORD], newSeed));
                     user.setPasswordSeed(newSeed);
                     return superUpdate(criteria, user, transaction);
                 });
         }
 
         return super.update(criteria, newValues);
-    }
-
-    getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
-    {
-        var self = this;
-
-        switch (include)
-        {
-            case IncludeFlag.INCLUDE_USER_PROFILE:
-                return self.userProfileDelegate.search({'user_id': result.getId()});
-
-            case IncludeFlag.INCLUDE_INTEGRATION_MEMBER:
-                var IntegrationMemberDelegate:any = require('../delegates/IntegrationMemberDelegate');
-                var integrationMemberDelegate = new IntegrationMemberDelegate();
-                return integrationMemberDelegate.searchByUser(result.getId());
-
-            case IncludeFlag.INCLUDE_PRICING_SCHEMES:
-                return self.pricingSchemeDelegate.search(Utils.createSimpleObject(PricingScheme.USER_ID, result.getId()));
-
-            case IncludeFlag.INCLUDE_USER_PROFILE:
-                return self.userProfileDelegate.search({'user_id': _.uniq(_.pluck(result, User.ID))});
-
-            case IncludeFlag.INCLUDE_SCHEDULES:
-                // Return schedules for next 4 months
-                var scheduleStartTime = moment().hours(0).valueOf();
-                var scheduleEndTime = moment().add({months: 4}).valueOf();
-
-                if (Utils.getObjectType(result) != 'Array')
-                    return self.scheduleDelegate.getSchedulesForUser(result.getId(), scheduleStartTime, scheduleEndTime)
-            /*
-             else
-             return self.scheduleDelegate.getSchedulesForExpert(_.uniq(_.pluck(result, IntegrationMember.ID)), scheduleStartTime, scheduleEndTime);
-             */
-
-            case IncludeFlag.INCLUDE_SCHEDULE_RULES:
-                return self.scheduleRuleDelegate.getRulesByUser(result[0][User.ID]);
-
-            case IncludeFlag.INCLUDE_SKILL:
-                return self.userSkillDelegate.search(Utils.createSimpleObject(UserSkill.USER_ID,result[User.ID]), null,[IncludeFlag.INCLUDE_SKILL]);
-
-            case IncludeFlag.INCLUDE_EDUCATION:
-                return self.userEducationDelegate.search(Utils.createSimpleObject(UserSkill.USER_ID,result[User.ID]));
-
-            case IncludeFlag.INCLUDE_EMPLOYMENT:
-                return self.userEmploymentDelegate.search(Utils.createSimpleObject(UserSkill.USER_ID,result[User.ID]));
-
-            case IncludeFlag.INCLUDE_URL:
-                return self.userUrlDelegate.search(Utils.createSimpleObject(UserSkill.USER_ID,result[User.ID]));
-        }
-        return super.getIncludeHandler(include, result);
     }
 
     processProfileImage(userId:number, tempImagePath:string):q.Promise<any>

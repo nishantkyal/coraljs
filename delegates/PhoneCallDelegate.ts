@@ -81,7 +81,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
 
         // TODO: Check that we're not scheduling a conflicting call
 
-        if (object[PhoneCall.EXPERT_USER_ID] == object[PhoneCall.CALLER_USER_ID])
+        if (object[PhoneCall.COL_EXPERT_USER_ID] == object[PhoneCall.COL_CALLER_USER_ID])
             throw new Error("You can't call yourself!");
 
         return super.create(object, dbTransaction);
@@ -101,19 +101,19 @@ class PhoneCallDelegate extends BaseDaoDelegate
             criteria = {id: criteria};
         }
         else
-            callId = criteria[PhoneCall.ID];
+            callId = criteria[PhoneCall.COL_ID];
 
         return self.get(callId,null,null,transaction)
             .then( function callFetched(call:PhoneCall){
 
                 // Ensure we don't update to an invalid step (based on possible next steps)
-                if (newValues.hasOwnProperty(PhoneCall.STATUS))
+                if (newValues.hasOwnProperty(PhoneCall.COL_STATUS))
                 {
                     var allowedStatus = PhoneCallDelegate.ALLOWED_NEXT_STATUS[call.getStatus()];
 
                     var isNewStatusValid:boolean = false;
                     _.each(allowedStatus, function(status){
-                        if (status == newValues[PhoneCall.STATUS])
+                        if (status == newValues[PhoneCall.COL_STATUS])
                             isNewStatusValid = true;
                     })
                     if(!isNewStatusValid)
@@ -121,20 +121,20 @@ class PhoneCallDelegate extends BaseDaoDelegate
                 }
 
                 //check that caller User Id is not same as expert as one can't schedule call with himself
-                if (newValues.hasOwnProperty(PhoneCall.CALLER_USER_ID))
+                if (newValues.hasOwnProperty(PhoneCall.COL_CALLER_USER_ID))
                 {
-                    if (newValues[PhoneCall.CALLER_USER_ID] == call.getExpertUserId())
+                    if (newValues[PhoneCall.COL_CALLER_USER_ID] == call.getExpertUserId())
                         return q.reject('Call with self is not allowed');
                 }
 
                 //Ensure that the schedule time of call doesn't conflict with expert exceptions
-                if (newValues.hasOwnProperty(PhoneCall.START_TIME))
+                if (newValues.hasOwnProperty(PhoneCall.COL_START_TIME))
                 {
                     return  self.getScheduledCalls(call.getExpertUserId(),transaction)
                         .then(
                         function scheduledCallsFetched(calls:PhoneCall[]):any
                         {
-                            var startTime = newValues[PhoneCall.START_TIME];
+                            var startTime = newValues[PhoneCall.COL_START_TIME];
                             var durationInMillis = call.getDuration()*1000;
                             var isStartTimeValid:boolean = true;
 
@@ -156,25 +156,6 @@ class PhoneCallDelegate extends BaseDaoDelegate
             .then( function newValuesChecked(){
                 return updateProxy.call(self, criteria, newValues, transaction);
             })
-    }
-
-    getIncludeHandler(include:IncludeFlag, result:PhoneCall):q.Promise<any>
-    {
-        var self = this;
-        switch (include)
-        {
-            case IncludeFlag.INCLUDE_EXPERT_USER:
-                return self.userDelegate.get(result.getExpertUserId());
-            case IncludeFlag.INCLUDE_USER:
-                return self.userDelegate.get(result.getCallerUserId());
-            case IncludeFlag.INCLUDE_EXPERT_PHONE:
-                return self.userPhoneDelegate.get(result.getExpertPhoneId());
-            case IncludeFlag.INCLUDE_USER_PHONE:
-                return self.userPhoneDelegate.get(result.getCallerPhoneId());
-            case IncludeFlag.INCLUDE_TRANSACTION_LINE:
-                return self.transactionLineDelegate.getTransactionLinesForItemId(result.getId());
-        }
-        return super.getIncludeHandler(include, result);
     }
 
     /* Trigger the call */
@@ -211,7 +192,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.get(call, null, [IncludeFlag.INCLUDE_USER,IncludeFlag.INCLUDE_EXPERT_USER, IncludeFlag.INCLUDE_EXPERT_PHONE, IncludeFlag.INCLUDE_USER_PHONE])
+            return self.get(call, null, [IncludeFlag.INCLUDE_USER, IncludeFlag.INCLUDE_EXPERT_USER, IncludeFlag.INCLUDE_EXPERT_PHONE, IncludeFlag.INCLUDE_USER_PHONE])
                 .then(function (fetchedCall:PhoneCall)
                 {
                     self.queueCallForTriggering(fetchedCall);
@@ -290,7 +271,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
         // 4. Cancel trigger task
 
         var tasks = [
-            self.update(call.getId(), Utils.createSimpleObject(PhoneCall.STATUS, CallStatus.CANCELLED)),
+            self.update(call.getId(), Utils.createSimpleObject(PhoneCall.COL_STATUS, CallStatus.CANCELLED)),
             self.phoneCallCache.delete(call.getId()),
         ];
 
@@ -342,7 +323,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
                         call.setExpertPhoneId(phoneNumberId);
                     else
                         call.setCallerPhoneId(phoneNumberId);
-                    return [call, self.update(callId, Utils.createSimpleObject(isExpert ? PhoneCall.EXPERT_PHONE_ID: PhoneCall.CALLER_PHONE_ID, phoneNumberId))];
+                    return [call, self.update(callId, Utils.createSimpleObject(isExpert ? PhoneCall.COL_EXPERT_PHONE_ID: PhoneCall.COL_CALLER_PHONE_ID, phoneNumberId))];
                 }
                 else
                     return [call, true];
@@ -405,7 +386,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
     getScheduledCalls(userId:number, transaction?:any):q.Promise<any>
     {
         var self = this;
-        return self.search({'expert_user_id':userId, 'status':[CallStatus.SCHEDULED,CallStatus.IN_PROGRESS]},[PhoneCall.START_TIME,PhoneCall.DURATION],null,transaction);
+        return self.search({'expert_user_id':userId, 'status':[CallStatus.SCHEDULED, CallStatus.IN_PROGRESS]},[PhoneCall.COL_START_TIME, PhoneCall.COL_DURATION],null,transaction);
     }
 
     constructor() { super(new PhoneCallDao()); }

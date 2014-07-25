@@ -16,16 +16,16 @@ class ScheduleRule extends BaseModel
 {
     static TABLE_NAME = 'expert_schedule_rule';
 
-    static USER_ID:string                                       = 'user_id';
-    static TITLE:string                                         = 'title';
-    static REPEAT_START:string                                  = 'repeat_start';
-    static CRON_RULE:string                                     = 'cron_rule';
-    static REPEAT_END:string                                    = 'repeat_end';
-    static DURATION:string                                      = 'duration';
-    static PRICING_SCHEME_ID:string                             = 'pricing_scheme_id';
+    static COL_USER_ID:string                                       = 'user_id';
+    static COL_TITLE:string                                         = 'title';
+    static COL_REPEAT_START:string                                  = 'repeat_start';
+    static COL_CRON_RULE:string                                     = 'cron_rule';
+    static COL_REPEAT_END:string                                    = 'repeat_end';
+    static COL_DURATION:string                                      = 'duration';
+    static COL_PRICING_SCHEME_ID:string                             = 'pricing_scheme_id';
 
-    static DEFAULT_FIELDS:string[] = [ScheduleRule.USER_ID, ScheduleRule.TITLE, ScheduleRule.REPEAT_END, ScheduleRule.REPEAT_START,
-        ScheduleRule.CRON_RULE, ScheduleRule.DURATION, ScheduleRule.PRICING_SCHEME_ID];
+    static DEFAULT_FIELDS:string[] = [ScheduleRule.COL_USER_ID, ScheduleRule.COL_TITLE, ScheduleRule.COL_REPEAT_END, ScheduleRule.COL_REPEAT_START,
+        ScheduleRule.COL_CRON_RULE, ScheduleRule.COL_DURATION, ScheduleRule.COL_PRICING_SCHEME_ID];
 
     private user_id:number;
     private title:string;

@@ -4,17 +4,17 @@ class UserEducation extends BaseModel
 {
     static TABLE_NAME:string = 'user_education';
 
-    static START_YEAR:string = 'start_year';
-    static END_YEAR:string = 'end_year';
-    static DEGREE:string = 'degree';
-    static FIELD_OF_STUDY:string = 'field_of_study';
-    static SCHOOL_NAME:string = 'school_name';
-    static ACTIVITIES:string = 'activities';
-    static NOTES:string = 'notes';
-    static USER_ID:string = 'user_id';
+    static COL_START_YEAR:string = 'start_year';
+    static COL_END_YEAR:string = 'end_year';
+    static COL_DEGREE:string = 'degree';
+    static COL_FIELD_OF_STUDY:string = 'field_of_study';
+    static COL_SCHOOL_NAME:string = 'school_name';
+    static COL_ACTIVITIES:string = 'activities';
+    static COL_NOTES:string = 'notes';
+    static COL_USER_ID:string = 'user_id';
 
-    static DEFAULT_FIELDS:string[] = [UserEducation.ID,UserEducation.USER_ID,UserEducation.START_YEAR, UserEducation.END_YEAR, UserEducation.DEGREE,
-        UserEducation.FIELD_OF_STUDY, UserEducation.SCHOOL_NAME, UserEducation.ACTIVITIES, UserEducation.NOTES];
+    static DEFAULT_FIELDS:string[] = [UserEducation.COL_ID, UserEducation.COL_USER_ID, UserEducation.COL_START_YEAR, UserEducation.COL_END_YEAR, UserEducation.COL_DEGREE,
+        UserEducation.COL_FIELD_OF_STUDY, UserEducation.COL_SCHOOL_NAME, UserEducation.COL_ACTIVITIES, UserEducation.COL_NOTES];
 
     private start_year:number;
     private end_year:number;

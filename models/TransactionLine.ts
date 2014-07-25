@@ -8,15 +8,15 @@ class TransactionLine extends BaseModel
 {
     static TABLE_NAME:string = 'transaction_line';
 
-    static TRANSACTION_ID:string                        = 'transaction_id';
-    static ITEM_ID:string                               = 'item_id';
-    static ITEM_TYPE:string                             = 'item_type';
-    static TRANSACTION_TYPE:string                      = 'transaction_type';
-    static AMOUNT:string                                = 'amount';
-    static AMOUNT_UNIT:string                           = 'amount_unit';
+    static COL_TRANSACTION_ID:string                        = 'transaction_id';
+    static COL_ITEM_ID:string                               = 'item_id';
+    static COL_ITEM_TYPE:string                             = 'item_type';
+    static COL_TRANSACTION_TYPE:string                      = 'transaction_type';
+    static COL_AMOUNT:string                                = 'amount';
+    static COL_AMOUNT_UNIT:string                           = 'amount_unit';
 
-    static DEFAULT_FIELDS:string[] = [TransactionLine.ID, TransactionLine.TRANSACTION_ID, TransactionLine.ITEM_ID, TransactionLine.ITEM_TYPE,
-                                        TransactionLine.TRANSACTION_TYPE, TransactionLine.AMOUNT, TransactionLine.AMOUNT_UNIT];
+    static DEFAULT_FIELDS:string[] = [TransactionLine.COL_ID, TransactionLine.COL_TRANSACTION_ID, TransactionLine.COL_ITEM_ID, TransactionLine.COL_ITEM_TYPE,
+                                        TransactionLine.COL_TRANSACTION_TYPE, TransactionLine.COL_AMOUNT, TransactionLine.COL_AMOUNT_UNIT];
 
     private transaction_id:number;
     private item_id:number;

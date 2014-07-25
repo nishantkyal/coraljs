@@ -8,12 +8,12 @@ class PayoutDetail extends BaseModel
 {
     static TABLE_NAME:string = 'payout_detail';
 
-    static USER_ID:string = 'user_id';
-    static MODE:string = 'mode';
-    static ACCOUNT_HOLDER_NAME:string = 'account_holder_name';
-    static ACCOUNT_NUM:string = 'account_num';
-    static IFSC_CODE:string = 'ifsc_code';
-    static BANK_NAME:string = 'bank_name';
+    static COL_USER_ID:string = 'user_id';
+    static COL_MODE:string = 'mode';
+    static COL_ACCOUNT_HOLDER_NAME:string = 'account_holder_name';
+    static COL_ACCOUNT_NUM:string = 'account_num';
+    static COL_IFSC_CODE:string = 'ifsc_code';
+    static COL_BANK_NAME:string = 'bank_name';
 
     private user_id:number;
     private mode:number;

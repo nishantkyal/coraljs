@@ -73,7 +73,7 @@ class TransactionDelegate extends BaseDaoDelegate
                 var transaction:Transaction = args[0][0];
                 var transactionLines:TransactionLine[] = args[0][1];
 
-                var amount:number = _.reduce(_.pluck(transactionLines, TransactionLine.AMOUNT), function (memo:number, num:number) { return memo + num; }, 0) * 100;
+                var amount:number = _.reduce(_.pluck(transactionLines, TransactionLine.COL_AMOUNT), function (memo:number, num:number) { return memo + num; }, 0) * 100;
                 var cancellationAmount:number = amount * Config.get(Config.CALL_CANCELLATION_CHARGES_PERCENT) / 100;
                 var cancellationAmountUnit:MoneyUnit = transactionLines[0].getAmountUnit();
 
@@ -104,8 +104,8 @@ class TransactionDelegate extends BaseDaoDelegate
 
         // Check that discount has not already been applied to this transaction
         var discountLineSearch = {};
-        discountLineSearch[TransactionLine.TRANSACTION_TYPE] = TransactionType.DISCOUNT;
-        discountLineSearch[TransactionLine.TRANSACTION_ID] = transactionId;
+        discountLineSearch[TransactionLine.COL_TRANSACTION_TYPE] = TransactionType.DISCOUNT;
+        discountLineSearch[TransactionLine.COL_TRANSACTION_ID] = transactionId;
 
         return self.transactionLineDelegate.find(discountLineSearch)
             .then(
@@ -164,7 +164,7 @@ class TransactionDelegate extends BaseDaoDelegate
                     }
                 });
 
-                var discountableAmounts = _.pluck(discountableLines, TransactionLine.AMOUNT);
+                var discountableAmounts = _.pluck(discountableLines, TransactionLine.COL_AMOUNT);
                 var discountableTotalAmount = _.reduce(discountableAmounts, function (sum:number, n:number) { return sum += n; })
                 var discount:number = (discountUnit == MoneyUnit.PERCENT) ? discountableTotalAmount * discountAmount / 100 : discountAmount;
                 discount = Math.min(discountableTotalAmount, discount);
@@ -195,8 +195,8 @@ class TransactionDelegate extends BaseDaoDelegate
         var self = this;
 
         var criteria = {};
-        criteria[TransactionLine.TRANSACTION_ID] = transactionId;
-        criteria[TransactionLine.TRANSACTION_TYPE] = TransactionType.DISCOUNT;
+        criteria[TransactionLine.COL_TRANSACTION_ID] = transactionId;
+        criteria[TransactionLine.COL_TRANSACTION_TYPE] = TransactionType.DISCOUNT;
 
         return q.all([
             self.transactionLineDelegate.delete(criteria, dbTransaction),
@@ -216,12 +216,12 @@ class TransactionDelegate extends BaseDaoDelegate
         // 2. Remove all coupons from transaction and free them
 
         var couponLinesSearch = {};
-        couponLinesSearch[TransactionLine.TRANSACTION_ID] = transactionId;
-        couponLinesSearch[TransactionLine.TRANSACTION_TYPE] = TransactionType.DISCOUNT;
+        couponLinesSearch[TransactionLine.COL_TRANSACTION_ID] = transactionId;
+        couponLinesSearch[TransactionLine.COL_TRANSACTION_TYPE] = TransactionType.DISCOUNT;
 
         return q.all([
-            self.update(transactionId, Utils.createSimpleObject(Transaction.STATUS, TransactionStatus.EXPIRED), dbTransaction),
-            self.transactionLineDelegate.find(couponLinesSearch, [TransactionLine.ID, TransactionLine.ITEM_ID])
+            self.update(transactionId, Utils.createSimpleObject(Transaction.COL_STATUS, TransactionStatus.EXPIRED), dbTransaction),
+            self.transactionLineDelegate.find(couponLinesSearch, [TransactionLine.COL_ID, TransactionLine.COL_ITEM_ID])
         ])
             .then(
             function couponsFetched(...args)
@@ -233,19 +233,6 @@ class TransactionDelegate extends BaseDaoDelegate
                     self.transactionLineDelegate.delete(couponLine.getId(), dbTransaction)
                 ]);
             });
-    }
-
-    getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
-    {
-        var self = this;
-        result = [].concat(result);
-
-        switch (include)
-        {
-            case IncludeFlag.INCLUDE_TRANSACTION_LINE:
-                return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, _.pluck(result, Transaction.ID)));
-        }
-        return super.getIncludeHandler(include, result);
     }
 }
 export = TransactionDelegate

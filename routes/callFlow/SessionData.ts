@@ -72,7 +72,7 @@ class SessionData extends AbstractSessionData
         {
             var nextAvailableSchedule:ExpertSchedule = _.find(this.getUser().getSchedule(), function (schedule):boolean
             {
-                var scheduleEndTime = schedule[ExpertSchedule.START_TIME] + schedule[ExpertSchedule.DURATION];
+                var scheduleEndTime = schedule[ExpertSchedule.COL_START_TIME] + schedule[ExpertSchedule.COL_DURATION];
                 return scheduleEndTime > moment().add({minutes: 15}).valueOf();
             });
 
@@ -80,7 +80,7 @@ class SessionData extends AbstractSessionData
             {
                 this.set(SessionData.NEXT_AVAILABLE_SCHEDULE, nextAvailableSchedule);
                 var currentTime = moment().valueOf();
-                this.set(SessionData.IS_AVAILABLE, currentTime > nextAvailableSchedule[ExpertSchedule.START_TIME] && currentTime < (nextAvailableSchedule[ExpertSchedule.START_TIME] + nextAvailableSchedule[ExpertSchedule.DURATION]));
+                this.set(SessionData.IS_AVAILABLE, currentTime > nextAvailableSchedule[ExpertSchedule.COL_START_TIME] && currentTime < (nextAvailableSchedule[ExpertSchedule.COL_START_TIME] + nextAvailableSchedule[ExpertSchedule.COL_DURATION]));
             }
         }
     }

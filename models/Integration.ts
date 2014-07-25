@@ -8,11 +8,11 @@ class Integration extends BaseModel
 {
     static TABLE_NAME:string = 'integration';
 
-    static TITLE:string = 'title';
-    static WEBSITE_URL:string = 'website_url';
-    static REDIRECT_URL:string = 'redirect_url';
-    static SECRET:string = 'secret';
-    static STATUS:string = 'status';
+    static COL_TITLE:string = 'title';
+    static COL_WEBSITE_URL:string = 'website_url';
+    static COL_REDIRECT_URL:string = 'redirect_url';
+    static COL_SECRET:string = 'secret';
+    static COL_STATUS:string = 'status';
 
     private title:string;
     private website_url:string;
@@ -20,7 +20,7 @@ class Integration extends BaseModel
     private secret:string;
     private status:IntegrationStatus;
 
-    static DEFAULT_FIELDS:string[] = [Integration.ID, Integration.TITLE, Integration.WEBSITE_URL, Integration.REDIRECT_URL];
+    static DEFAULT_FIELDS:string[] = [Integration.COL_ID, Integration.COL_TITLE, Integration.COL_WEBSITE_URL, Integration.COL_REDIRECT_URL];
 
     /* Getters */
     getTitle():string                                   { return this.title; }

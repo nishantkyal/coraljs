@@ -5,11 +5,11 @@ class Payment extends BaseModel
 {
     static TABLE_NAME:string = 'payment';
 
-    static AMOUNT:string                                = 'amount';
-    static AMOUNT_UNIT:string                           = 'amount_unit';
-    static GATEWAY_ID:string                            = 'gateway_id';
-    static GATEWAY_TRANSACTION_ID:string                = 'gateway_transaction_id';
-    static GATEWAY_RESPONSE_CODE:string                 = 'gateway_response_code';
+    static COL_AMOUNT:string                                = 'amount';
+    static COL_AMOUNT_UNIT:string                           = 'amount_unit';
+    static COL_GATEWAY_ID:string                            = 'gateway_id';
+    static COL_GATEWAY_TRANSACTION_ID:string                = 'gateway_transaction_id';
+    static COL_GATEWAY_RESPONSE_CODE:string                 = 'gateway_response_code';
 
     private amount:number;
     private amount_unit:MoneyUnit;

@@ -159,7 +159,7 @@ class AuthenticationDelegate
             }
 
             var userDelegate = new UserDelegate();
-            userDelegate.find(Utils.createSimpleObject(User.EMAIL, user.getEmail()), User.DEFAULT_FIELDS.concat(User.PASSWORD))
+            userDelegate.find(Utils.createSimpleObject(User.COL_EMAIL, user.getEmail()), User.DEFAULT_FIELDS.concat(User.COL_PASSWORD))
                 .then(
                 function authComplete(matchingUser:User)
                 {

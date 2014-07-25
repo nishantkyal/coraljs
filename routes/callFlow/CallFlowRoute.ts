@@ -92,9 +92,9 @@ class CallFlowRoute
             function expertFetched(user:User):any
             {
                 return [user, q.all([
-                    self.userProfileDelegate.find(Utils.createSimpleObject(UserProfile.USER_ID, user.getId())),
+                    self.userProfileDelegate.find(Utils.createSimpleObject(UserProfile.COL_USER_ID, user.getId())),
                     self.phoneCallDelegate.getScheduledCalls(user.getId()),
-                    self.scheduleExceptionDelegate.search(Utils.createSimpleObject(ScheduleException.USER_ID, user.getId()), [Schedule.START_TIME, Schedule.DURATION])
+                    self.scheduleExceptionDelegate.search(Utils.createSimpleObject(ScheduleException.COL_USER_ID, user.getId()), [Schedule.COL_START_TIME, Schedule.COL_DURATION])
                 ])];
             },
             function handleExpertSearchFailed(error)
@@ -181,7 +181,7 @@ class CallFlowRoute
                         if (!Utils.isNullOrEmpty(call.getExpertPhoneId()))
                             returnArray.push(self.userPhoneDelegate.get(call.getExpertPhoneId()));
                         else
-                            returnArray.push(self.userPhoneDelegate.find(Utils.createSimpleObject(UserPhone.USER_ID, call.getExpertUserId())));
+                            returnArray.push(self.userPhoneDelegate.find(Utils.createSimpleObject(UserPhone.COL_USER_ID, call.getExpertUserId())));
 
                     // If viewer == caller
                     case call.getCallerUserId():
@@ -193,8 +193,8 @@ class CallFlowRoute
             .spread(
             function expertPhonesFetched(startTimes:number[], call:PhoneCall, phone:UserPhone):any
             {
-                var lines = call.getTransactionLine();
-                var productLine:TransactionLine = _.findWhere(lines, Utils.createSimpleObject(TransactionLine.TRANSACTION_TYPE, TransactionType.PRODUCT));
+                /*var lines = call.getTransactionLine();
+                var productLine:TransactionLine = _.findWhere(lines, Utils.createSimpleObject(TransactionLine.COL_TRANSACTION_TYPE, TransactionType.PRODUCT));*/
                 /*var revenueShare:number = call.getIntegrationMember().getRevenueShare();
                 var revenueShareUnit:MoneyUnit = call.getIntegrationMember().getRevenueShareUnit();
 
@@ -220,7 +220,6 @@ class CallFlowRoute
                     selectedStartTime: startTime,
                     phone: phone,
                     code: appointmentCode,
-                    lines: lines,
                     loggedInUserId: loggedInUserId,
                     expertGmtOffset: self.timezoneDelegate.get(call.getExpertUser().getTimezone()).getGmtOffset()*1000,
                     userGmtOffset: self.timezoneDelegate.get(call.getUser().getTimezone()).getGmtOffset()*1000

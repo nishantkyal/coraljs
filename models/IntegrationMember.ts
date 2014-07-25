@@ -11,21 +11,21 @@ import IntegrationMemberRole                            = require('../enums/Inte
  */
 class IntegrationMember extends BaseModel
 {
-    static TABLE_NAME:string = 'integration_member';
+    static COL_TABLE_NAME:string = 'integration_member';
 
-    static INTEGRATION_ID:string = 'integration_id';
-    static USER_ID:string = 'user_id';
-    static ROLE:string = 'role';
-    static AUTH_CODE:string = 'auth_code';
-    static ACCESS_TOKEN:string = 'access_token';
-    static ACCESS_TOKEN_EXPIRY:string = 'access_token_expiry';
-    static REFRESH_TOKEN:string = 'refresh_token';
-    static REFRESH_TOKEN_EXPIRY:string = 'refresh_token_expiry';
-    static REVENUE_SHARE:string = 'revenue_share';
-    static REVENUE_SHARE_UNIT:string = 'revenue_share_unit';
+    static COL_INTEGRATION_ID:string = 'integration_id';
+    static COL_USER_ID:string = 'user_id';
+    static COL_ROLE:string = 'role';
+    static COL_AUTH_CODE:string = 'auth_code';
+    static COL_ACCESS_TOKEN:string = 'access_token';
+    static COL_ACCESS_TOKEN_EXPIRY:string = 'access_token_expiry';
+    static COL_REFRESH_TOKEN:string = 'refresh_token';
+    static COL_REFRESH_TOKEN_EXPIRY:string = 'refresh_token_expiry';
+    static COL_REVENUE_SHARE:string = 'revenue_share';
+    static COL_REVENUE_SHARE_UNIT:string = 'revenue_share_unit';
 
-    static DEFAULT_FIELDS:string[] = [IntegrationMember.ID, IntegrationMember.INTEGRATION_ID, IntegrationMember.ROLE, IntegrationMember.USER_ID];
-    static DASHBOARD_FIELDS:string[] = [IntegrationMember.ID, IntegrationMember.INTEGRATION_ID, IntegrationMember.ROLE, IntegrationMember.USER_ID, IntegrationMember.REVENUE_SHARE, IntegrationMember.REVENUE_SHARE_UNIT];
+    static DEFAULT_FIELDS:string[] = [IntegrationMember.COL_ID, IntegrationMember.COL_INTEGRATION_ID, IntegrationMember.COL_ROLE, IntegrationMember.COL_USER_ID];
+    static DASHBOARD_FIELDS:string[] = [IntegrationMember.COL_ID, IntegrationMember.COL_INTEGRATION_ID, IntegrationMember.COL_ROLE, IntegrationMember.COL_USER_ID, IntegrationMember.COL_REVENUE_SHARE, IntegrationMember.COL_REVENUE_SHARE_UNIT];
 
     private integration_id:number;
     private user_id:number;
@@ -44,8 +44,8 @@ class IntegrationMember extends BaseModel
         super(data);
         if (!IntegrationMember._INITIALIZED)
         {
-            this.hasOne(new ForeignKey(IntegrationMember.USER_ID, User, User.ID));
-            this.hasOne(new ForeignKey(IntegrationMember.INTEGRATION_ID, Integration, Integration.ID));
+            this.hasOne(new ForeignKey(IntegrationMember.COL_USER_ID, User, User.COL_ID));
+            this.hasOne(new ForeignKey(IntegrationMember.COL_INTEGRATION_ID, Integration, Integration.COL_ID));
             IntegrationMember._INITIALIZED = true;
         }
     }

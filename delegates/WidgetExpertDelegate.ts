@@ -43,7 +43,7 @@ class WidgetExpertDelegate
                 return [
                     user,
                     self.scheduleDelegate.getSchedulesForUser(user.getId(), moment().subtract({days: 1}).valueOf(), moment().add({days: 7}).valueOf()),
-                    self.pricingSchemeDelegate.search(Utils.createSimpleObject(PricingScheme.USER_ID, user.getId()))
+                    self.pricingSchemeDelegate.search(Utils.createSimpleObject(PricingScheme.COL_USER_ID, user.getId()))
                 ];
             })
             .spread(

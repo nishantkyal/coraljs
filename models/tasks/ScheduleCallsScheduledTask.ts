@@ -37,7 +37,7 @@ class ScheduleCallsScheduledTask extends AbstractScheduledTask
             }
         };
 
-        return self.phoneCallDelegate.search(query, [PhoneCall.ID])
+        return self.phoneCallDelegate.search(query, [PhoneCall.COL_ID])
             .then(
             function callIdsFetched(calls:PhoneCall[]):any
             {
