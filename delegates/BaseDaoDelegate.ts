@@ -36,7 +36,6 @@ class BaseDaoDelegate
             id = id[0];
 
 
-        var rawResult;
         var self = this;
 
         // 1. Get the queried object
@@ -49,22 +48,23 @@ class BaseDaoDelegate
                 if (Utils.isNullOrEmpty(result))
                     return result;
 
-                rawResult = result;
-                var includeTasks = [];
-                _.each(includes, function (flag)
+                var includeTasks = _.map(includes, function (flag)
                 {
-                    var handler;
-                    if (handler = self.getIncludeHandler(flag, result))
-                        includeTasks.push(handler);
+                    return self.getIncludeHandler(flag, result);
                 });
-                return q.all(includeTasks);
+                return [result, q.all(includeTasks)];
             })
-            .then(
-            function handleIncludesProcessed(...args:any[]):any
+            .spread(
+            function handleIncludesProcessed(result, ...args:any[]):any
             {
-                for (var i = 0; i < args[0].length; i++)
-                    rawResult.set(includes[i], args[0][i]);
-                return rawResult;
+                self.logger.debug('Includes processed for %s', Utils.getClassName(self.dao.modelClass));
+                var results = args[0];
+
+                _.each(results, function(resultSet, index) {
+                    result.set(includes[index], resultSet);
+                });
+
+                return result;
             });
     }
 
@@ -77,7 +77,6 @@ class BaseDaoDelegate
     find(search:Object, fields?:string[], includes:IncludeFlag[] = [], transaction?:Object):q.Promise<any>
     {
         var self:BaseDaoDelegate = this;
-        var rawResult;
 
         fields = fields || this.dao.modelClass.DEFAULT_FIELDS;
 
@@ -88,81 +87,63 @@ class BaseDaoDelegate
                 if (Utils.isNullOrEmpty(result))
                     return result;
 
-                rawResult = result;
-                var includeTasks = [];
-                _.each(includes, function (flag)
+                var includeTasks = _.map(includes, function (flag)
                 {
-                    var handler;
-                    if (handler = self.getIncludeHandler(flag, result))
-                        includeTasks.push(handler);
+                    return self.getIncludeHandler(flag, result);
                 });
-                return q.all(includeTasks);
+                return [result, q.all(includeTasks)];
             })
-            .then(
-            function handleIncludesProcessed(...args)
+            .spread(
+            function handleIncludesProcessed(result, ...args)
             {
+                self.logger.debug('Includes processed for %s', Utils.getClassName(self.dao.modelClass));
                 var results = args[0];
 
                 _.each(results, function (resultSet:any, index)
                 {
-                    // TODO: Implement foreign keys so mapping can work in search
-                    rawResult.set(includes[index], _.map(resultSet, function (res)
-                    {
-                        // return result[foreignKeyColumn] == res['id'] ? res : null;
-                        return res;
-                    }));
+                    result.set(includes[index], resultSet);
                 });
-                return rawResult;
+                return result;
             });
     }
 
     /*
-     * Perform search based on seacrh query
+     * Perform search based on search query
      * Also fetch joint fields
      */
     search(search:Object, fields?:string[], includes:IncludeFlag[] = [], transaction?:Object):q.Promise<any>
     {
         var self:BaseDaoDelegate = this;
-        var rawResult;
 
         fields = fields || this.dao.modelClass.DEFAULT_FIELDS;
 
         return this.dao.search(search, fields, transaction)
             .then(
-            function processIncludes(result):any
+            function processIncludes(baseSearchResults):any
             {
-                if (Utils.isNullOrEmpty(result) || result.length === 0)
+                if (Utils.isNullOrEmpty(baseSearchResults))
                     return null;
 
-                rawResult = result;
-                var includeTasks = [];
-                _.each(includes, function (flag)
+                var includeTasks = _.map(includes, function (flag)
                 {
-                    var handler;
-                    if (handler = self.getIncludeHandler(flag, result))
-                        includeTasks.push(handler);
+                    return self.getIncludeHandler(flag, baseSearchResults);
                 });
-                return q.all(includeTasks);
+                return [baseSearchResults, q.all(includeTasks)];
             })
-            .then(
-            function handleIncludesProcessed(...args)
+            .spread(
+            function handleIncludesProcessed(baseSearchResults, ...args)
             {
+                self.logger.debug('Includes processed for %s', Utils.getClassName(self.dao.modelClass));
                 var results = args[0];
 
-                _.each(rawResult, function (result:any)
+                _.each(baseSearchResults, function (baseSearchResult:any)
                 {
                     _.each(results, function (resultSet:any, index)
                     {
-                        // TODO: Implement foreign keys so mapping can work in search
-                        var foreignKeyColumn = null;
-                        result.set(includes[index], _.map(resultSet, function (res)
-                        {
-                            // return result[foreignKeyColumn] == res['id'] ? res : null;
-                            return res;
-                        }));
-                    });
+                        baseSearchResult.set(includes[index], resultSet);
+                    })
                 });
-                return rawResult;
+                return baseSearchResults;
             });
     }
 
