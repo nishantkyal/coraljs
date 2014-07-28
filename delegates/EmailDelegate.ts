@@ -533,7 +533,7 @@ class EmailDelegate
             expert: expert
         };
 
-        return this.integrationMemberDelegate.get(expert.getId(), null, [IncludeFlag.INCLUDE_USER])
+        return this.integrationMemberDelegate.get(expert.getId(), null, [IntegrationMember.FK_USER])
             .then(
             function expertUserFetched(expertUser:IntegrationMember)
             {

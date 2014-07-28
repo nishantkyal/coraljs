@@ -34,9 +34,8 @@ class ExpertApi
         app.get(ApiUrlDelegate.expert(), AuthenticationDelegate.checkLogin(), function (req:express.Request, res:express.Response)
         {
             var searchCriteria:Object = req.body;
-            var includes:IncludeFlag[] = [].concat(req.query[ApiConstants.INCLUDE]);
 
-            self.integrationMemberDelegate.search(searchCriteria, null, includes)
+            self.integrationMemberDelegate.search(searchCriteria, null)
                 .then(
                 function handleExpertSearched(result) { res.json(result); },
                 function handleExpertSearchError(err) { res.status(500).json(err); }
@@ -47,9 +46,8 @@ class ExpertApi
         app.get(ApiUrlDelegate.expertById(), function (req:express.Request, res:express.Response)
         {
             var expertId = parseInt(req.params[ApiConstants.EXPERT_ID]);
-            var includes:string[] = [].concat(req.query[ApiConstants.INCLUDE]);
 
-            self.integrationMemberDelegate.get(expertId, null, includes)
+            self.integrationMemberDelegate.get(expertId, null)
                 .then(
                 function handleExpertSearched(integrationMember) { res.json(integrationMember.toJson()); },
                 function handleExpertSearchError(err) { res.status(500).json(err); }

@@ -1,4 +1,3 @@
-///<reference path='../_references.d.ts'/>
 import _                                                                = require('underscore');
 import q                                                                = require('q');
 import moment                                                           = require('moment');
@@ -14,7 +13,6 @@ import TransactionDelegate                                              = requir
 import TransactionLineDelegate                                          = require('../delegates/TransactionLineDelegate');
 import ScheduleExceptionDelegate                                        = require('../delegates/ScheduleExceptionDelegate');
 import CallStatus                                                       = require('../enums/CallStatus');
-import IncludeFlag                                                      = require('../enums/IncludeFlag');
 import PhoneType                                                        = require('../enums/PhoneType');
 import ScheduledTaskType                                                = require('../enums/ScheduledTaskType');
 import PhoneCall                                                        = require('../models/PhoneCall');
@@ -25,6 +23,7 @@ import AbstractScheduledTask                                            = requir
 import TriggerPhoneCallTask                                             = require('../models/tasks/TriggerPhoneCallTask');
 import CallReminderNotificationScheduledTask                            = require('../models/tasks/CallReminderNotificationScheduledTask');
 import Schedule                                                         = require('../models/Schedule');
+import ForeignKey                                                       = require('../models/ForeignKey');
 import UnscheduledCallsCache                                            = require('../caches/UnscheduledCallsCache');
 import PhoneCallCache                                                   = require('../caches/PhoneCallCache');
 import CallProviderFactory                                              = require('../factories/CallProviderFactory');
@@ -55,7 +54,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
         PhoneCallDelegate.ALLOWED_NEXT_STATUS[CallStatus.AGENDA_DECLINED] = [CallStatus.SCHEDULING];
     })();
 
-    get(id:any, fields?:string[], includes:IncludeFlag[] = [], transaction?:Object):q.Promise<any>
+    get(id:any, fields?:string[], foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
     {
         var superGet = super.get;
         var self = this;
@@ -67,11 +66,11 @@ class PhoneCallDelegate extends BaseDaoDelegate
                 if (!Utils.isNullOrEmpty(result))
                     return new PhoneCall(result);
                 else
-                    return superGet.call(self, id, fields, includes, transaction);
+                    return superGet.call(self, id, fields, foreignKeys, transaction);
             },
             function callFetchError()
             {
-                return superGet(id, fields, includes);
+                return superGet(id, fields, foreignKeys);
             });
     }
 
@@ -162,7 +161,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
     triggerCall(callId:number):q.Promise<any>
     {
         var self = this;
-        return self.get(callId, null, [IncludeFlag.INCLUDE_USER_PHONE])
+        return self.get(callId, null, [PhoneCall.FK_PHONE_CALL_CALLER_PHONE])
             .then(
             function callFetched(call:PhoneCall)
             {
@@ -192,7 +191,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.get(call, null, [IncludeFlag.INCLUDE_USER, IncludeFlag.INCLUDE_EXPERT_USER, IncludeFlag.INCLUDE_EXPERT_PHONE, IncludeFlag.INCLUDE_USER_PHONE])
+            return self.get(call, null, [PhoneCall.FK_PHONE_CALL_CALLER, PhoneCall.FK_PHONE_CALL_EXPERT, PhoneCall.FK_PHONE_CALL_EXPERT_PHONE, PhoneCall.FK_PHONE_CALL_CALLER_PHONE])
                 .then(function (fetchedCall:PhoneCall)
                 {
                     self.queueCallForTriggering(fetchedCall);
@@ -312,7 +311,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
         var isConfirmation = pickedSlots.length == 1 && _.contains(originalSlots, pickedSlots[0]);
         var isSuggestion = _.intersection(originalSlots, pickedSlots).length == 0;
 
-        return self.get(callId, null, [IncludeFlag.INCLUDE_EXPERT_USER,IncludeFlag.INCLUDE_USER, IncludeFlag.INCLUDE_INTEGRATION_MEMBER])
+        return self.get(callId, null, [PhoneCall.FK_PHONE_CALL_EXPERT, PhoneCall.FK_PHONE_CALL_CALLER])
             .then(
             function callFetched(call:PhoneCall):any
             {

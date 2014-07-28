@@ -2,6 +2,7 @@ import BaseModel                                        = require('./BaseModel')
 import Integration                                      = require('./Integration');
 import User                                             = require('./User');
 import UserProfile                                      = require('./UserProfile');
+import ScheduleRule                                     = require('./ScheduleRule');
 import ForeignKey                                       = require('./ForeignKey');
 import MoneyUnit                                        = require('../enums/MoneyUnit');
 import IntegrationMemberRole                            = require('../enums/IntegrationMemberRole');
@@ -27,6 +28,7 @@ class IntegrationMember extends BaseModel
 
     static FK_USER:ForeignKey = new ForeignKey(ForeignKeyType.MANY_TO_ONE, IntegrationMember.COL_USER_ID, User, User.COL_ID);
     static FK_INTEGRATION:ForeignKey = new ForeignKey(ForeignKeyType.MANY_TO_ONE, IntegrationMember.COL_INTEGRATION_ID, Integration, Integration.COL_ID);
+    static FK_SCHEDULE_RULES:ForeignKey = new ForeignKey(ForeignKeyType.MANY_TO_ONE, IntegrationMember.COL_USER_ID, ScheduleRule, ScheduleRule.COL_USER_ID, 'schedule_rule');
 
     static PUBLIC_FIELDS:string[] = [IntegrationMember.COL_ID, IntegrationMember.COL_INTEGRATION_ID, IntegrationMember.COL_ROLE, IntegrationMember.COL_USER_ID];
     static DASHBOARD_FIELDS:string[] = [IntegrationMember.COL_ID, IntegrationMember.COL_INTEGRATION_ID, IntegrationMember.COL_ROLE, IntegrationMember.COL_USER_ID, IntegrationMember.COL_REVENUE_SHARE, IntegrationMember.COL_REVENUE_SHARE_UNIT];
@@ -42,15 +44,6 @@ class IntegrationMember extends BaseModel
     private refresh_token_expiry:string;
     private revenue_share:number;
     private revenue_share_unit:number;
-
-    constructor(data:Object = {})
-    {
-        super(data);
-        if (!IntegrationMember._INITIALIZED)
-        {
-            IntegrationMember._INITIALIZED = true;
-        }
-    }
 
     /* Getters */
     getIntegrationId():number                           { return this.integration_id; }

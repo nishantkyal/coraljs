@@ -8,7 +8,6 @@ import RequestHandler                                       = require('../../mid
 import MysqlDelegate                                        = require('../../delegates/MysqlDelegate');
 import AuthenticationDelegate                               = require('../../delegates/AuthenticationDelegate');
 import IntegrationDelegate                                  = require('../../delegates/IntegrationDelegate');
-import IntegrationMemberDelegate                            = require('../../delegates/IntegrationMemberDelegate');
 import PhoneCallDelegate                                    = require('../../delegates/PhoneCallDelegate');
 import EmailDelegate                                        = require('../../delegates/EmailDelegate');
 import TransactionDelegate                                  = require('../../delegates/TransactionDelegate');
@@ -18,9 +17,6 @@ import UserPhoneDelegate                                    = require('../../del
 import UserProfileDelegate                                  = require('../../delegates/UserProfileDelegate');
 import NotificationDelegate                                 = require('../../delegates/NotificationDelegate');
 import UserDelegate                                         = require('../../delegates/UserDelegate');
-import UserEducationDelegate                                = require('../../delegates/UserEducationDelegate');
-import UserSkillDelegate                                    = require('../../delegates/UserSkillDelegate');
-import UserEmploymentDelegate                               = require('../../delegates/UserEmploymentDelegate');
 import ScheduleDelegate                                     = require('../../delegates/ScheduleDelegate');
 import ScheduleExceptionDelegate                            = require('../../delegates/ScheduleExceptionDelegate');
 import CouponDelegate                                       = require('../../delegates/CouponDelegate');
@@ -56,20 +52,17 @@ import SessionData                                          = require('./Session
 
 class CallFlowRoute
 {
-    private static INDEX:string                             = 'callFlow/index';
-    private static SCHEDULING_PAGE_FOR_EXPERT:string        = 'callFlow/schedulingPageForExpert';x
-    private static SCHEDULING_PAGE_FOR_CALLER:string        = 'callFlow/schedulingPageForCaller';
+    private static INDEX:string = 'callFlow/index';
+    private static SCHEDULING_PAGE_FOR_EXPERT:string = 'callFlow/schedulingPageForExpert';
+    private static SCHEDULING_PAGE_FOR_CALLER:string = 'callFlow/schedulingPageForCaller';
 
     private logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
-    private integrationMemberDelegate = new IntegrationMemberDelegate();
     private phoneCallDelegate = new PhoneCallDelegate();
     private userProfileDelegate = new UserProfileDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
     private userDelegate = new UserDelegate();
-    private userEmploymentDelegate = new UserEmploymentDelegate();
-    private userSkillDelegate = new UserSkillDelegate();
-    private userEducationDelegate = new UserEducationDelegate();
     private scheduleExceptionDelegate = new ScheduleExceptionDelegate();
+    private scheduleDelegate = new ScheduleDelegate();
     private verificationCodeDelegate = new VerificationCodeDelegate();
     private timezoneDelegate = new TimezoneDelegate();
 
@@ -87,43 +80,47 @@ class CallFlowRoute
         var userId = parseInt(req.params[ApiConstants.USER_ID]);
         var sessionData = new SessionData(req);
 
-        this.userDelegate.get(userId, null, [IncludeFlag.INCLUDE_SCHEDULES, IncludeFlag.INCLUDE_PRICING_SCHEMES,IncludeFlag.INCLUDE_SKILL])
-            .then(
-            function expertFetched(user:User):any
-            {
-                return [user, q.all([
-                    self.userProfileDelegate.find(Utils.createSimpleObject(UserProfile.COL_USER_ID, user.getId())),
-                    self.phoneCallDelegate.getScheduledCalls(user.getId()),
-                    self.scheduleExceptionDelegate.search(Utils.createSimpleObject(ScheduleException.COL_USER_ID, user.getId()), [Schedule.COL_START_TIME, Schedule.COL_DURATION])
-                ])];
-            },
+        return q.all([
+            self.userProfileDelegate.find(Utils.createSimpleObject(UserProfile.COL_USER_ID, userId)),
+            self.phoneCallDelegate.getScheduledCalls(userId),
+            self.scheduleExceptionDelegate.search(Utils.createSimpleObject(ScheduleException.COL_USER_ID, userId), [Schedule.COL_START_TIME, Schedule.COL_DURATION]),
+            self.userDelegate.get(userId, null, [User.FK_USER_PRICING_SCHEME, User.FK_USER_SKILL]),
+            self.scheduleDelegate.getSchedulesForUser(userId)
+        ]).then(
             function handleExpertSearchFailed(error)
             {
-                self.logger.error('Error in getting expert details - ' +  error);
+                self.logger.error('Error in getting expert details - ' + error);
                 throw('No such expert exists!');
             })
             .spread(
-            function userProfileFetched(user:User, ...args):any
+            function userProfileFetched(...args):any
             {
                 var userProfile:UserProfile = args[0][0];
+                var scheduledCalls:PhoneCall[] = args[0][1];
+                var scheduleExceptions:ScheduleException[] = args[0][2];
+                var user:User = args[0][3];
+                var schedule:Schedule = args[0][4];
 
                 var exceptions = [];
 
-                if(!Utils.isNullOrEmpty(args[0][1]))
-                    exceptions = exceptions.concat(_.map(args[0][1], function(call:any){
-                        return {duration:call.getDuration(), start_time:call.getStartTime()}
+                if (!Utils.isNullOrEmpty(scheduledCalls))
+                    exceptions = exceptions.concat(_.map(scheduledCalls, function (call:PhoneCall)
+                    {
+                        return {duration: call.getDuration(), start_time: call.getStartTime()}
                     }));
 
-                if(!Utils.isNullOrEmpty(args[0][2]))
-                    exceptions = exceptions.concat( _.map(args[0][2], function(exception:any){
-                        return {duration:exception.getDuration(), start_time:exception.getStartTime()}
+                if (!Utils.isNullOrEmpty(scheduleExceptions))
+                    exceptions = exceptions.concat(_.map(scheduleExceptions, function (exception:ScheduleException)
+                    {
+                        return {duration: exception.getDuration(), start_time: exception.getStartTime()}
                     }));
 
                 sessionData.setUser(user);
-                sessionData.setExpertGmtOffset(self.timezoneDelegate.get(user.getTimezone()).getGmtOffset()*1000);
+                sessionData.setExpertGmtOffset(self.timezoneDelegate.get(user.getTimezone()).getGmtOffset() * 1000);
 
                 var pageData = _.extend(sessionData.getData(), {
                     userProfile: userProfile,
+                    schedule: schedule,
                     exception: exceptions,
                     messages: req.flash()
                 });
@@ -161,7 +158,7 @@ class CallFlowRoute
 
         q.all([
             self.verificationCodeDelegate.verifyAppointmentAcceptCode(appointmentCode),
-            self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_EXPERT_USER,IncludeFlag.INCLUDE_USER, IncludeFlag.INCLUDE_TRANSACTION_LINE])
+            self.phoneCallDelegate.get(callId, null, [PhoneCall.FK_PHONE_CALL_EXPERT, PhoneCall.FK_PHONE_CALL_CALLER])
         ])
             .then(
             function callAndSchedulingDetailsFetched(...args)
@@ -194,25 +191,25 @@ class CallFlowRoute
             function expertPhonesFetched(startTimes:number[], call:PhoneCall, phone:UserPhone):any
             {
                 /*var lines = call.getTransactionLine();
-                var productLine:TransactionLine = _.findWhere(lines, Utils.createSimpleObject(TransactionLine.COL_TRANSACTION_TYPE, TransactionType.PRODUCT));*/
+                 var productLine:TransactionLine = _.findWhere(lines, Utils.createSimpleObject(TransactionLine.COL_TRANSACTION_TYPE, TransactionType.PRODUCT));*/
                 /*var revenueShare:number = call.getIntegrationMember().getRevenueShare();
-                var revenueShareUnit:MoneyUnit = call.getIntegrationMember().getRevenueShareUnit();
+                 var revenueShareUnit:MoneyUnit = call.getIntegrationMember().getRevenueShareUnit();
 
-                var earning:number = 0;
-                var earningUnit:MoneyUnit = revenueShareUnit;
+                 var earning:number = 0;
+                 var earningUnit:MoneyUnit = revenueShareUnit;
 
-                switch(revenueShareUnit)
-                {
-                    case MoneyUnit.PERCENT:
-                        earning = revenueShare * productLine.getAmount() / 100;
-                        break;
+                 switch(revenueShareUnit)
+                 {
+                 case MoneyUnit.PERCENT:
+                 earning = revenueShare * productLine.getAmount() / 100;
+                 break;
 
-                    default:
-                        // TODO: Handle currency conversion if different currencies
-                        if (revenueShareUnit == productLine.getAmountUnit())
-                            earning = Math.min(productLine.getAmount(), revenueShare);
-                        break;
-                }*/
+                 default:
+                 // TODO: Handle currency conversion if different currencies
+                 if (revenueShareUnit == productLine.getAmountUnit())
+                 earning = Math.min(productLine.getAmount(), revenueShare);
+                 break;
+                 }*/
 
                 var pageData = {
                     call: call,
@@ -221,8 +218,8 @@ class CallFlowRoute
                     phone: phone,
                     code: appointmentCode,
                     loggedInUserId: loggedInUserId,
-                    expertGmtOffset: self.timezoneDelegate.get(call.getExpertUser().getTimezone()).getGmtOffset()*1000,
-                    userGmtOffset: self.timezoneDelegate.get(call.getUser().getTimezone()).getGmtOffset()*1000
+                    expertGmtOffset: self.timezoneDelegate.get(call.getExpertUser().getTimezone()).getGmtOffset() * 1000,
+                    userGmtOffset: self.timezoneDelegate.get(call.getUser().getTimezone()).getGmtOffset() * 1000
                 };
 
                 if (loggedInUserId == call.getExpertUserId())

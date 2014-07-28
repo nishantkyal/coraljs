@@ -172,7 +172,7 @@ class MemberRegistrationRoute
         var userId = sessionData.getLoggedInUser().getId();
         var self = this;
 
-        self.integrationMemberDelegate.find({'user_id': userId, 'integration_id': integrationId}, null, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
+        self.integrationMemberDelegate.find({'user_id': userId, 'integration_id': integrationId}, null, [IntegrationMember.FK_SCHEDULE_RULES])
             .then(
             function scheduleRulesFetched(member:IntegrationMember)
             {

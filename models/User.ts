@@ -41,6 +41,7 @@ class User extends BaseModel
     static FK_USER_EDUCATION = new ForeignKey(ForeignKeyType.ONE_TO_MANY, User.COL_ID, UserEducation, UserEducation.COL_USER_ID, 'education');
     static FK_USER_EMPLOYMENT = new ForeignKey(ForeignKeyType.ONE_TO_MANY, User.COL_ID, UserEmployment, UserEmployment.COL_USER_ID, 'employment');
     static FK_USER_URL = new ForeignKey(ForeignKeyType.ONE_TO_MANY, User.COL_ID, UserUrl, UserUrl.COL_USER_ID, 'url');
+    static FK_USER_PRICING_SCHEME = new ForeignKey(ForeignKeyType.ONE_TO_MANY, User.COL_ID, PricingScheme, PricingScheme.COL_USER_ID, 'pricing_scheme');
 
     private title:Salutation;
     private first_name:string;

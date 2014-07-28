@@ -167,7 +167,6 @@ class AuthenticationDelegate
 
                     var hashedPassword = user.getPasswordHash();
                     var reason;
-
                     if (Utils.isNullOrEmpty(matchingUser))
                         reason = 'Invalid email';
                     else if (hashedPassword != matchingUser.getPassword())

@@ -316,7 +316,7 @@ class PaymentRoute
             {
                 // Assumption: We only have one call on the transaction
                 var callId = _.findWhere(lines, {item_type: ItemType.PHONE_CALL}).getItemId();
-                return [lines, self.phoneCallDelegate.get(callId, null, [IncludeFlag.INCLUDE_EXPERT_USER])];
+                return [lines, self.phoneCallDelegate.get(callId, null, [PhoneCall.FK_PHONE_CALL_EXPERT])];
             })
             .spread(
             function callFetched(lines:TransactionLine[], call:PhoneCall)

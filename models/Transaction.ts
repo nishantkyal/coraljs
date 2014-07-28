@@ -1,7 +1,9 @@
 import BaseModel                                            = require('./BaseModel');
 import TransactionLine                                      = require('./TransactionLine');
+import ForeignKey                                           = require('./ForeignKey');
 import Utils                                                = require('../common/Utils');
 import TransactionStatus                                    = require('../enums/TransactionStatus');
+import ForeignKeyType                                       = require('../enums/ForeignKeyType');
 
 class Transaction extends BaseModel
 {
@@ -17,6 +19,8 @@ class Transaction extends BaseModel
     private user_id:number;
     private payment_id:number;
     private status:TransactionStatus;
+
+    static FK_TRANSACTION_LINES:ForeignKey = new ForeignKey(ForeignKeyType.ONE_TO_MANY, Transaction.COL_ID, TransactionLine, TransactionLine.COL_TRANSACTION_ID, 'lines');
 
     /* Getters */
     getUserId():number                                      { return this.user_id; }

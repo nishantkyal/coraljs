@@ -1,4 +1,3 @@
-///<reference path='../_references.d.ts'/>
 import _                                        = require('underscore');
 import moment                                   = require('moment');
 import passport                                 = require('passport');
@@ -22,12 +21,12 @@ import UserUrl                                  = require('../models/UserUrl');
 import SkillCode                                = require('../models/SkillCode');
 import User                                     = require('../models/User');
 import UserOauth                                = require('../models/UserOauth');
+import ForeignKey                               = require('../models/ForeignKey');
 import IntegrationMember                        = require('../models/IntegrationMember');
 import Config                                   = require('../common/Config');
 import Credentials                              = require('../common/Credentials');
 import Utils                                    = require('../common/Utils');
 import IndustryCodes                            = require('../enums/IndustryCode');
-import IncludeFlag                              = require('../enums/IncludeFlag');
 
 class UserProfileDelegate extends BaseDaoDelegate
 {
@@ -59,11 +58,11 @@ class UserProfileDelegate extends BaseDaoDelegate
             });
     }
 
-    find(criteria:Object, fields?:string[], includes:IncludeFlag[] = [], dbTransaction?:Object):q.Promise<any>
+    find(criteria:Object, fields?:string[], foreignKeys:ForeignKey[] = [], dbTransaction?:Object):q.Promise<any>
     {
         var self = this;
 
-        return super.find(criteria, fields, includes, dbTransaction)
+        return super.find(criteria, fields, foreignKeys, dbTransaction)
             .then(
             function profileFetched(profile:UserProfile):any
             {

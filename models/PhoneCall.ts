@@ -5,6 +5,8 @@ import IntegrationMember                                = require('../models/Int
 import UserPhone                                        = require('../models/UserPhone');
 import TransactionLine                                  = require('../models/TransactionLine');
 import MoneyUnit                                        = require('../enums/MoneyUnit');
+import ForeignKey                                       = require('../models/ForeignKey');
+import ForeignKeyType                                   = require('../enums/ForeignKeyType');
 
 /**
  Bean class for Phone call
@@ -22,7 +24,6 @@ class PhoneCall extends BaseModel
     static COL_STATUS:string                                = 'status';
     static COL_AGENDA:string                                = 'agenda';
     static COL_RECORDED:string                              = 'recorded';
-    static COL_EXTENSION:string                             = 'extension';
     static COL_NUM_RESCHEDULES:string                       = 'num_reschedules';
     static COL_NUM_REATTEMPTS:string                        = 'num_reattempts';
     static COL_DELAY:string                                 = 'delay';
@@ -32,7 +33,8 @@ class PhoneCall extends BaseModel
     static COL_MIN_DURATION:string                          = 'min_duration';
 
     static PUBLIC_FIELDS:string[] = [PhoneCall.COL_ID, PhoneCall.COL_CALLER_USER_ID, PhoneCall.COL_CALLER_PHONE_ID, PhoneCall.COL_EXPERT_PHONE_ID,
-                                      PhoneCall.COL_START_TIME, PhoneCall.COL_DURATION, PhoneCall.COL_STATUS, PhoneCall.COL_AGENDA, PhoneCall.COL_EXPERT_USER_ID];
+                                      PhoneCall.COL_START_TIME, PhoneCall.COL_DURATION, PhoneCall.COL_STATUS, PhoneCall.COL_AGENDA, PhoneCall.COL_EXPERT_USER_ID,
+                                    PhoneCall.COL_UNIT, PhoneCall.COL_PULSE_RATE, PhoneCall.COL_MIN_DURATION, PhoneCall.COL_CHARGING_RATE];
     private caller_user_id:number;
     private expert_user_id:number;
     private caller_phone_id:number;
@@ -42,7 +44,6 @@ class PhoneCall extends BaseModel
     private status:number;
     private agenda:string;
     private recorded:boolean;
-    private extension:string;
     private num_reschedules:number;
     private num_reattempts:number;
     private delay:number;
@@ -50,6 +51,11 @@ class PhoneCall extends BaseModel
     private unit:MoneyUnit;
     private pulse_rate:number;                                  // Sizes of chargeable time chunks
     private min_duration:number;                                // Min duration for the call
+
+    static FK_PHONE_CALL_CALLER:ForeignKey = new ForeignKey(ForeignKeyType.ONE_TO_ONE, PhoneCall.COL_CALLER_USER_ID, User, User.COL_ID, 'caller');
+    static FK_PHONE_CALL_CALLER_PHONE:ForeignKey = new ForeignKey(ForeignKeyType.ONE_TO_ONE, PhoneCall.COL_CALLER_PHONE_ID, UserPhone, UserPhone.COL_ID, 'caller_phone');
+    static FK_PHONE_CALL_EXPERT:ForeignKey = new ForeignKey(ForeignKeyType.ONE_TO_ONE, PhoneCall.COL_EXPERT_USER_ID, User, User.COL_ID, 'expert');
+    static FK_PHONE_CALL_EXPERT_PHONE:ForeignKey = new ForeignKey(ForeignKeyType.ONE_TO_ONE, PhoneCall.COL_EXPERT_PHONE_ID, UserPhone, UserPhone.COL_ID, 'expert_phone');
 
     /* Getters */
     getCallerUserId():number                            { return this.caller_user_id; }
@@ -62,7 +68,6 @@ class PhoneCall extends BaseModel
     getStatus():number                                  { return this.status; }
     getAgenda():string                                  { return this.agenda; }
     getRecorded():boolean                               { return this.recorded; }
-    getExtension():string                               { return this.extension; }
     getNumReschedules():number                          { return this.num_reschedules; }
     getNumReattempts():number                           { return this.num_reattempts; }
     getChargingRate():number                            { return this.charging_rate; }
@@ -86,7 +91,6 @@ class PhoneCall extends BaseModel
     setStatus(val:number):void                          { this.status = val; }
     setAgenda(val:string):void                          { this.agenda = val; }
     setRecorded(val:boolean):void                       { this.recorded = val; }
-    setExtension(val:string):void                       { this.extension = val; }
     setNumReschedules(val:number):void                  { this.num_reschedules = val; }
     setNumReattempts(val:number):void                   { this.num_reattempts = val; }
     setChargingRate(val:number)                         { this.charging_rate = val; }

@@ -35,7 +35,7 @@ class TransactionDelegate extends BaseDaoDelegate
                 .then(
                 function transactionLinesCreated(transactionId:number)
                 {
-                    return self.get(transactionId, null, [IncludeFlag.INCLUDE_TRANSACTION_LINE]);
+                    return self.get(transactionId, null, [Transaction.FK_TRANSACTION_LINES]);
                 });
 
         return this.create(object, dbTransaction)

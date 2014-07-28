@@ -18,5 +18,13 @@ class ForeignKey
         this.localPropertyToSet = localPropertyToSet;
     }
 
+    // Helper method to get the name of the property to set in the base object after the results are fetched
+    getSourcePropertyName():string
+    {
+        // FIXME: Foreign key association where srcKey name doesn't contain _id uses targetKey name
+        return this.localPropertyToSet || (this.srcKey.indexOf('_id') != -1 ? this.srcKey.replace('_id', '') : this.targetKey.replace('_id', ''));
+    }
+
+    toString():string { return '[object ForeignKey]'; }
 }
 export = ForeignKey

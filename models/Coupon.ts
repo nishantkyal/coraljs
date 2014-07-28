@@ -1,8 +1,10 @@
-///<reference path='../_references.d.ts'/>
 import BaseModel                                                = require('../models/BaseModel');
 import IntegrationMember                                        = require('../models/IntegrationMember');
+import ForeignKey                                               = require('../models/ForeignKey');
+import User                                                     = require('../models/User');
 import MoneyUnit                                                = require('../enums/MoneyUnit');
 import CouponType                                               = require('../enums/CouponType');
+import ForeignKeyType                                           = require('../enums/ForeignKeyType');
 import Utils                                                    = require('../common/Utils');
 
 class Coupon extends BaseModel
@@ -21,6 +23,8 @@ class Coupon extends BaseModel
 
     static PUBLIC_FIELDS = [Coupon.COL_ID, Coupon.COL_CODE];
     static DASHBOARD_FIELDS = [Coupon.COL_ID, Coupon.COL_CODE, Coupon.COL_EXPERT_RESOURCE_ID, Coupon.COL_COUPON_TYPE, Coupon.COL_DISCOUNT_AMOUNT, Coupon.COL_DISCOUNT_UNIT, Coupon.COL_EXPIRY_TIME, Coupon.COL_MAX_COUPONS, Coupon.COL_NUM_USED, Coupon.COL_INTEGRATION_ID];
+
+    static FK_COUPON_EXPERT = new ForeignKey(ForeignKeyType.ONE_TO_ONE, Coupon.COL_EXPERT_RESOURCE_ID, User, User.COL_ID, 'user');
 
     private code:string;
     private num_used:number;

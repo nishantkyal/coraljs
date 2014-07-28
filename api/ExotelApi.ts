@@ -33,7 +33,7 @@ class ExotelApi
 
                 if (callId && callerNumber && exotelCallId && callTime)
                 {
-                    new PhoneCallDelegate().get(callId, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER])
+                    new PhoneCallDelegate().get(callId, null, [PhoneCall.FK_PHONE_CALL_EXPERT])
                         .then(
                         function callFetched(call:PhoneCall)
                         {

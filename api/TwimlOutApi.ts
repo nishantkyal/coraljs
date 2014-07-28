@@ -60,7 +60,7 @@ class TwimlOutApi
         app.get(TwilioUrlDelegate.twimlJoinCall(), function (req:express.Request, res:express.Response)
         {
             var callId = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
-            self.phoneCallDelegate.get(callId, null,[IncludeFlag.INCLUDE_EXPERT_USER])
+            self.phoneCallDelegate.get(callId, null, [PhoneCall.FK_PHONE_CALL_EXPERT])
                 .then(
                 function callFetched(call:PhoneCall)
                 {

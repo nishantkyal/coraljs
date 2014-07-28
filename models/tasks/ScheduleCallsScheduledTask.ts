@@ -42,7 +42,7 @@ class ScheduleCallsScheduledTask extends AbstractScheduledTask
             function callIdsFetched(calls:PhoneCall[]):any
             {
                 return q.all(_.map(calls, function (call:PhoneCall){
-                    return self.phoneCallDelegate.get(call.getId(), null, [IncludeFlag.INCLUDE_EXPERT_USER, IncludeFlag.INCLUDE_USER_PHONE, IncludeFlag.INCLUDE_EXPERT_PHONE])
+                    return self.phoneCallDelegate.get(call.getId(), null, [PhoneCall.FK_PHONE_CALL_EXPERT, PhoneCall.FK_PHONE_CALL_CALLER_PHONE, PhoneCall.FK_PHONE_CALL_EXPERT_PHONE])
                 }));
             })
             .then(
