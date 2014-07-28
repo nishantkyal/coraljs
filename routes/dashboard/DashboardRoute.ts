@@ -28,7 +28,6 @@ import TransactionLineDelegate                          = require('../../delegat
 import ExpertiseDelegate                                = require('../../delegates/ExpertiseDelegate');
 import WidgetDelegate                                   = require('../../delegates/WidgetDelegate');
 import MoneyUnit                                        = require('../../enums/MoneyUnit');
-import IncludeFlag                                      = require('../../enums/IncludeFlag');
 import TransactionType                                  = require('../../enums/TransactionType');
 import ItemType                                         = require('../../enums/ItemType');
 import User                                             = require('../../models/User');

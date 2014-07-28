@@ -11,7 +11,6 @@ import ScheduleDelegate                                     = require('../delega
 import TimezoneDelegate                                     = require('../delegates/TimezoneDelegate');
 import PricingSchemeDelegate                                = require('../delegates/PricingSchemeDelegate');
 import Utils                                                = require('../common/Utils');
-import IncludeFlag                                          = require('../enums/IncludeFlag');
 
 class WidgetExpertDelegate
 {

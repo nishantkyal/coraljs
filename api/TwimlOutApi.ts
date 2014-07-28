@@ -3,7 +3,6 @@ import express                                              = require('express')
 import json2xml                                             = require('json2xml');
 import log4js                                               = require('log4js');
 import ApiConstants                                         = require('../enums/ApiConstants');
-import IncludeFlag                                          = require('../enums/IncludeFlag');
 import PhoneType                                            = require('../enums/PhoneType');
 import CallFragmentStatus                                   = require('../enums/CallFragmentStatus');
 import CallStatus                                           = require('../enums/CallStatus');

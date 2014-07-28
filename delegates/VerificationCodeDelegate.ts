@@ -10,7 +10,6 @@ import IntegrationMemberDelegate                                = require('../de
 import SMSDelegate                                              = require('../delegates/SMSDelegate');
 import UserDelegate                                             = require('../delegates/UserDelegate');
 import Utils                                                    = require('../common/Utils');
-import IncludeFlag                                              = require('../enums/IncludeFlag');
 import SmsTemplate                                              = require('../enums/SmsTemplate');
 import CacheHelper                                              = require('../caches/CacheHelper');
 

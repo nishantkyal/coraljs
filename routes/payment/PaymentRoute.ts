@@ -25,7 +25,6 @@ import User                                                 = require('../../mod
 import PricingScheme                                        = require('../../models/PricingScheme');
 import CallStatus                                           = require('../../enums/CallStatus');
 import ApiConstants                                         = require('../../enums/ApiConstants');
-import IncludeFlag                                          = require('../../enums/IncludeFlag');
 import MoneyUnit                                            = require('../../enums/MoneyUnit');
 import PhoneType                                            = require('../../enums/PhoneType');
 import TransactionStatus                                    = require('../../enums/TransactionStatus');

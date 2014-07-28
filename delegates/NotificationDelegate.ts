@@ -1,15 +1,13 @@
-///<reference path='../_references.d.ts'/>
-import q                                                    = require('q');
-import Config                                               = require('../common/Config');
-import EmailDelegate                                        = require('../delegates/EmailDelegate');
-import SMSDelegate                                          = require('../delegates/SMSDelegate');
-import PhoneCall                                            = require('../models/PhoneCall');
-import IntegrationMember                                    = require('../models/IntegrationMember');
-import CallFragment                                         = require('../models/CallFragment');
-import User                                                 = require('../models/User');
+import q                                                            = require('q');
+import Config                                                       = require('../common/Config');
+import EmailDelegate                                                = require('../delegates/EmailDelegate');
+import SMSDelegate                                                  = require('../delegates/SMSDelegate');
+import PhoneCall                                                    = require('../models/PhoneCall');
+import IntegrationMember                                            = require('../models/IntegrationMember');
+import CallFragment                                                 = require('../models/CallFragment');
+import User                                                         = require('../models/User');
 import CallReminderNotificationScheduledTask                        = require('../models/tasks/CallReminderNotificationScheduledTask');
-import Utils                                                = require('../common/Utils');
-import IncludeFlag                                          = require('../enums/IncludeFlag');
+import Utils                                                        = require('../common/Utils');
 
 class NotificationDelegate
 {

@@ -4,8 +4,6 @@ import BaseDaoDelegate                              = require('../delegates/Base
 import SkillCodeDelegate                            = require('../delegates/SkillCodeDelegate');
 import MapExpertiseSkill                            = require('../models/MapExpertiseSkill');
 import SkillCode                                    = require('../models/SkillCode');
-import IncludeFlag                                  = require('../enums/IncludeFlag');
-
 
 class MapExpertiseSkillDelegate extends BaseDaoDelegate
 {

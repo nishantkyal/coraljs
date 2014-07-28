@@ -10,7 +10,6 @@ import Expertise                                                = require('../mo
 import UserSkill                                                = require('../models/UserSkill');
 import SkillCode                                                = require('../models/SkillCode');
 import MapExpertiseSkill                                        = require('../models/MapExpertiseSkill');
-import IncludeFlag                                              = require('../enums/IncludeFlag');
 import Utils                                                    = require('../common/Utils');
 
 class ExpertiseDelegate extends BaseDaoDelegate

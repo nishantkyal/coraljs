@@ -8,7 +8,6 @@ import PhoneCall                                                = require('../..
 import Config                                                   = require('../../common/Config');
 import Utils                                                    = require('../../common/Utils');
 import ScheduledTaskType                                        = require('../../enums/ScheduledTaskType');
-import IncludeFlag                                              = require('../../enums/IncludeFlag');
 
 class ScheduleCallsScheduledTask extends AbstractScheduledTask
 {

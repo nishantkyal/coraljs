@@ -15,7 +15,6 @@ import User                                         = require('../models/User');
 import AccessControl                                = require('../middleware/AccessControl');
 import Utils                                        = require('../common/Utils');
 import Config                                       = require('../common/Config');
-import IncludeFlag                                  = require('../enums/IncludeFlag');
 import IntegrationMemberRole                        = require('../enums/IntegrationMemberRole');
 import IntegrationStatus                            = require('../enums/IntegrationStatus');
 import ImageSize                                    = require('../enums/ImageSize');
@@ -153,7 +152,7 @@ class IntegrationApi
             var self = this;
 
             if (!Utils.isNullOrEmpty(userId))
-                self.integrationMemberDelegate.search({user_id: userId}, null, [IncludeFlag.INCLUDE_INTEGRATION, IncludeFlag.INCLUDE_USER])
+                self.integrationMemberDelegate.search({user_id: userId}, null, [IntegrationMember.FK_INTEGRATION, IntegrationMember.FK_USER])
                     .then(
                     function integrationFetched(result:Array<Integration>) { res.json(result); },
                     function integrationFetchError(error) { res.status(500).json(error); }

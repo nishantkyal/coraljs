@@ -5,7 +5,6 @@ import MysqlDelegate                                        = require('../delega
 import UserEducation                                        = require('../models/UserEducation');
 import MapProfileEducation                                  = require('../models/MapProfileEducation');
 import Utils                                                = require('../common/Utils');
-import IncludeFlag                                          = require('../enums/IncludeFlag');
 
 class UserEducationDelegate extends BaseDaoDelegate
 {

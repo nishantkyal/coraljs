@@ -8,7 +8,6 @@ import IntegrationMemberDelegate                            = require('../delega
 import CouponDao                                            = require('../dao/CouponDao');
 import Coupon                                               = require('../models/Coupon');
 import IntegrationMember                                    = require('../models/IntegrationMember');
-import IncludeFlag                                          = require('../enums/IncludeFlag');
 import Utils                                                = require('../common/Utils');
 
 class CouponDelegate extends BaseDaoDelegate

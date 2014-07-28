@@ -6,7 +6,6 @@ import BaseDaoDelegate                              = require('../delegates/Base
 import MysqlDelegate                                = require('../delegates/MysqlDelegate');
 import IntegrationDelegate                          = require('../delegates/IntegrationDelegate');
 import IntegrationMemberRole                        = require('../enums/IntegrationMemberRole');
-import IncludeFlag                                  = require('../enums/IncludeFlag');
 import Integration                                  = require('../models/Integration');
 import User                                         = require('../models/User');
 import IntegrationMember                            = require('../models/IntegrationMember');

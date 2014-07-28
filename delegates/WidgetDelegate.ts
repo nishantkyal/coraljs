@@ -11,7 +11,6 @@ import IntegrationMemberDelegate                                = require('../de
 import IntegrationMember                                        = require('../models/IntegrationMember');
 import WidgetExpert                                             = require('../models/WidgetExpert');
 import WidgetRuntimeData                                        = require('../models/WidgetRuntimeData');
-import IncludeFlag                                              = require('../enums/IncludeFlag');
 import Config                                                   = require('../common/Config');
 import Credentials                                              = require('../common/Credentials');
 import Utils                                                    = require('../common/Utils');

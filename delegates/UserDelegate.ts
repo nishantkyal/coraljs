@@ -20,7 +20,6 @@ import User                                                             = requir
 import UserProfile                                                      = require('../models/UserProfile');
 import UserSkill                                                        = require('../models/UserSkill');
 import PricingScheme                                                    = require('../models/PricingScheme');
-import IncludeFlag                                                      = require('../enums/IncludeFlag');
 import ImageSize                                                        = require('../enums/ImageSize');
 import Config                                                           = require('../common/Config');
 import Utils                                                            = require('../common/Utils');

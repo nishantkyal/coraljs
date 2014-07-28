@@ -15,7 +15,6 @@ import TransactionType                                      = require('../enums/
 import CouponType                                           = require('../enums/CouponType');
 import ItemType                                             = require('../enums/ItemType');
 import MoneyUnit                                            = require('../enums/MoneyUnit');
-import IncludeFlag                                          = require('../enums/IncludeFlag');
 import TransactionStatus                                    = require('../enums/TransactionStatus');
 
 class TransactionDelegate extends BaseDaoDelegate

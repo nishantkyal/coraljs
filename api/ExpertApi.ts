@@ -12,7 +12,6 @@ import UserDelegate                                         = require('../delega
 import IntegrationMember                                    = require('../models/IntegrationMember');
 import User                                                 = require('../models/User');
 import IntegrationMemberRole                                = require('../enums/IntegrationMemberRole');
-import IncludeFlag                                          = require('../enums/IncludeFlag');
 import Utils                                                = require('../common/Utils');
 
 /*

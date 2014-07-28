@@ -15,7 +15,6 @@ import Schedule                                                     = require('.
 import PhoneCall                                                    = require('../models/PhoneCall');
 import ApiConstants                                                 = require('../enums/ApiConstants');
 import CallStatus                                                   = require('../enums/CallStatus');
-import IncludeFlag                                                  = require('../enums/IncludeFlag');
 import IntegrationMemberRole                                        = require('../enums/IntegrationMemberRole');
 import ApiUrlDelegate                                               = require('../delegates/ApiUrlDelegate');
 import UserDelegate                                                 = require('../delegates/UserDelegate');
@@ -197,7 +196,7 @@ class EmailDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_USER])
+            return self.phoneCallDelegate.get(call, null, [PhoneCall.FK_PHONE_CALL_CALLER])
                 .then(
                 function (fetchedCall:PhoneCall)
                 {
@@ -214,7 +213,7 @@ class EmailDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_EXPERT_USER])
+            return self.phoneCallDelegate.get(call, null, [PhoneCall.FK_PHONE_CALL_EXPERT])
                 .then(
                 function (fetchedCall:PhoneCall)
                 {
@@ -259,7 +258,7 @@ class EmailDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_EXPERT_USER, IncludeFlag.INCLUDE_USER])
+            return self.phoneCallDelegate.get(call, null, [PhoneCall.FK_PHONE_CALL_EXPERT, PhoneCall.FK_PHONE_CALL_CALLER])
                 .then(
                 function (fetchedCall:PhoneCall)
             {
@@ -286,7 +285,7 @@ class EmailDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_USER])
+            return self.phoneCallDelegate.get(call, null, [PhoneCall.FK_PHONE_CALL_CALLER])
                 .then(
                 function (fetchedCall:PhoneCall)
                 {
@@ -333,7 +332,7 @@ class EmailDelegate
             appointments = [].concat(appointments);
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call, null,[IncludeFlag.INCLUDE_EXPERT_USER])
+            return self.phoneCallDelegate.get(call, null, [PhoneCall.FK_PHONE_CALL_EXPERT])
                 .then(
                 function (fetchedCall:PhoneCall)
                 {
@@ -426,7 +425,7 @@ class EmailDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_EXPERT_USER, IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall)
+            return self.phoneCallDelegate.get(call, null, [PhoneCall.FK_PHONE_CALL_EXPERT, PhoneCall.FK_PHONE_CALL_CALLER]).then(function (fetchedCall:PhoneCall)
             {
                 return self.sendCallReminderEmail(fetchedCall);
             });

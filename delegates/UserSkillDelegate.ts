@@ -7,7 +7,6 @@ import UserSkill                                            = require('../models
 import SkillCode                                            = require('../models/SkillCode');
 import MysqlDelegate                                        = require('../delegates/MysqlDelegate');
 import Utils                                                = require('../common/Utils');
-import IncludeFlag                                          = require('../enums/IncludeFlag');
 
 class UserSkillDelegate extends BaseDaoDelegate
 {

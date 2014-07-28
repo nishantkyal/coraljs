@@ -8,7 +8,6 @@ import ScheduleRule                                                     = requir
 import User                                                             = require('../models/User');
 import Schedule                                                         = require('../models/Schedule');
 import Utils                                                            = require('../common/Utils');
-import IncludeFlag                                                      = require('../enums/IncludeFlag');
 
 class ScheduleDelegate
 {
