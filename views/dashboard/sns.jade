@@ -1,0 +1,89 @@
+include ../header
+title Search Expert in Network - #{integration.title}
+.matter
+    .container
+        .col-md-3.content
+            .row
+                .card
+                    .item
+                        .row
+                            h5.col-xs-8 Search Filters
+                        .row
+                            form#search
+                                h3 Years of Experience
+                                input#years_of_experience(type='text', name='years_of_experience')
+                                h3 Price
+                                input#price(type='text', name='price')
+                                br
+                                input(type='checkbox', name='availability' value='1')
+                                |&nbsp; Currently Available
+                                h3 Skill
+                                input.form-control(id='tokeninput', class='tokeninput', type='text', name='skill', autocomplete="off")
+                                div.links-editing
+                                    p.edit-schedules
+                                        input.btn.btn-primary(type='submit', value='Search')
+                                        input.btn.btn-primary#reset(value='Reset')
+        .col-md-9.content
+            .row
+                .card
+                    .item
+                        .row
+                            h5.col-xs-8 Search Results
+            if experts
+                each expert in experts
+                    .row
+                        .card
+                            .item
+                                .row
+                                    .col-md-2
+                                        .item
+                                            .user-profile
+                                                .avatar
+                                                    .shadow
+                                                    .initials-profile-image-large= getNameInitials(expert.first_name, expert.last_name)
+                                                    img(src=ApiUrlDelegate.userProfilePicture(expert.id) + '?imageSize=200')
+                                    .col-md-8
+                                        .info
+                                            .info-container
+                                                .info-upper
+                                                    .user-displayname= formatName(expert.first_name, expert.last_name, expert.title)
+                                                    if expert.date_of_birth
+                                                        .user-age= moment(expert.date_of_birth,'DD-MM-YYYY').fromNow(true)
+                                                .info-lower
+                                                    .user-timezone
+                                                        each zone in Timezone
+                                                            if zone.zone_id == expert.timezone
+                                                                | #{formatTimezone(zone.gmt_offset)}
+                                        .item
+                                            .row
+                                                .meta.meta-keywords
+                                                    if expert.skill
+                                                        if expert.skill.length != 0
+                                                            big Skills/Keywords
+                                                            ul
+                                                                each skill in expert.skill
+                                                                    li
+                                                                        | #{skill.skill.skill}
+                                                    big Charges -&nbsp;
+                                                    - var pricing = expert.pricing_scheme ? expert.pricing_scheme[0] : null;
+                                                    if pricing
+                                                        strong= formatMoney(pricing.charging_rate, pricing.unit)
+                                                        if pricing.pulse_rate > 1
+                                                            | &nbsp;for&nbsp;
+                                                            span= pricing.pulse_rate
+                                                            | &nbsp;mins.
+                                                        else
+                                                            | &nbsp;/ min.
+                                                            if pricing.min_duration > 1
+                                                                span.small
+                                                                    | &nbsp;(minimum &nbsp;
+                                                                    span= pricing.min_duration
+                                                                    | &nbsp;mins.)
+                                                    else
+                                                        strong Free
+                                    .col-md-2
+                                        a.btn.btn-linkedin(href=DashboardUrls.userProfile(expert.id) + '?mode=public') View Profile
+                                        a.btn.btn-primary(target='_blank', href=CallFlowUrls.callExpert(expert.id))
+                                            b Call Expert
+include ../footer
+script(src='/js/app/dashboard/sns.js')

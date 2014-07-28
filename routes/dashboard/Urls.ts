@@ -9,6 +9,7 @@ class Urls
     static index()                                          { return '/'; }
     static home()                                           { return '/home'; }
     static dashboard()                                      { return '/dashboard'; }
+    static sns(integrationId?:number)                       { return ApiUrlDelegate.get('/sns/:integrationId(\\d+)', {integrationId: integrationId}); }
     static payments()                                       { return '/payments'; }
     static integration(baseUrl?:string)                     { return ApiUrlDelegate.get('/network', null, baseUrl); }
     static userProfile(userId?:number, baseUrl?:string)     { return ApiUrlDelegate.get('/user/:userId(\\d+)/profile', {userId: userId}, baseUrl); }
