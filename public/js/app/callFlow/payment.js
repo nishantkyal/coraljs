@@ -41,8 +41,28 @@ $('#applyCoupon, #checkout').on('click', function(event)
 });
 
 $('form.login').bootstrapValidator({
-    submitHandler: function()
-    {
+    fields       : {
+        email   : {
+            validators: {
+                notEmpty    : { message: "This field is required"},
+                emailAddress: {message: "Please enter a valid email"}
+            }
+        },
+        password: {
+            validators: {
+                notEmpty: { message: "This field is required"}
+            }
+        }
+    }
+})
+    .on('success.form.bv', function(e) {
+        // Prevent form submission
+        e.preventDefault();
+
+        var $form        = $(e.target),
+            validator    = $form.data('bootstrapValidator'),
+            submitButton = validator.getSubmitButton();
+
         $.ajax({
             url        : '/login',
             type       : 'post',
@@ -67,25 +87,41 @@ $('form.login').bootstrapValidator({
                 $('#login-modal .alert').text(jqXhr.responseText);
             }
         });
-    },
+    });
+
+$('form.register').bootstrapValidator({
     fields       : {
-        email   : {
+        email     : {
             validators: {
                 notEmpty    : { message: "This field is required"},
                 emailAddress: {message: "Please enter a valid email"}
             }
         },
-        password: {
+        first_name: {
+            validators: {
+                notEmpty: { message: "This field is required"}
+            }
+        },
+        last_name : {
+            validators: {
+                notEmpty: { message: "This field is required"}
+            }
+        },
+        password  : {
             validators: {
                 notEmpty: { message: "This field is required"}
             }
         }
     }
-});
+})
+    .on('success.form.bv', function(e) {
+        // Prevent form submission
+        e.preventDefault();
 
-$('form.register').bootstrapValidator({
-    submitHandler: function()
-    {
+        var $form        = $(e.target),
+            validator    = $form.data('bootstrapValidator'),
+            submitButton = validator.getSubmitButton();
+
         $.ajax({
             url        : '/register',
             type       : 'post',
@@ -116,31 +152,7 @@ $('form.register').bootstrapValidator({
                 $('#login-modal .alert').text('Registration Failed');
             }
         });
-    },
-    fields       : {
-        email     : {
-            validators: {
-                notEmpty    : { message: "This field is required"},
-                emailAddress: {message: "Please enter a valid email"}
-            }
-        },
-        first_name: {
-            validators: {
-                notEmpty: { message: "This field is required"}
-            }
-        },
-        last_name : {
-            validators: {
-                notEmpty: { message: "This field is required"}
-            }
-        },
-        password  : {
-            validators: {
-                notEmpty: { message: "This field is required"}
-            }
-        }
-    }
-});
+    });
 
 /* Switch login/register UI */
 $('#register-link,#login-link').click(function(event)

@@ -1,28 +1,4 @@
 $('form#changePasswordForm').bootstrapValidator({
-    submitHandler: function()
-    {
-        $.ajax({
-            url    : '/rest/user/' + user.id,
-            type   : 'post',
-            data   : {
-                oldPass: $('form#changePasswordForm input[name="oldPassword"]').val(),
-                pass   : $('form#changePasswordForm input[name="newPassword"]').val(),
-                user   : user
-            },
-            success: function(res)
-            {
-                bootbox.alert(res, function()
-                {
-                    location.reload();
-                });
-            },
-            error  : function(error)
-            {
-                $('form#changePasswordForm .alert').show();
-                $('form#changePasswordForm .alert').text(error.responseText);
-            }
-        })
-    },
     feedbackIcons: {
         valid     : 'glyphicon glyphicon-ok',
         invalid   : 'glyphicon glyphicon-remove',
@@ -56,4 +32,34 @@ $('form#changePasswordForm').bootstrapValidator({
             }
         }
     }
-});
+})
+    .on('success.form.bv', function(e) {
+        // Prevent form submission
+        e.preventDefault();
+
+        var $form        = $(e.target),
+            validator    = $form.data('bootstrapValidator'),
+            submitButton = validator.getSubmitButton();
+
+        $.ajax({
+            url    : '/rest/user/' + user.id,
+            type   : 'post',
+            data   : {
+                oldPass: $('form#changePasswordForm input[name="oldPassword"]').val(),
+                pass   : $('form#changePasswordForm input[name="newPassword"]').val(),
+                user   : user
+            },
+            success: function(res)
+            {
+                bootbox.alert(res, function()
+                {
+                    location.reload();
+                });
+            },
+            error  : function(error)
+            {
+                $('form#changePasswordForm .alert').show();
+                $('form#changePasswordForm .alert').text(error.responseText);
+            }
+        });
+    });

@@ -246,30 +246,36 @@ $('form#call-details').bootstrapValidator({
             }
         }
     },
-    excluded: ':disabled',
-    submitHandler: function()
-    {
-        var agenda = $('textarea[name=agenda]').val().trim();
-        var areaCode = $('input[name=area_code]').val().trim();
-        var countryCode = $('select[name=country_code]').val().trim();
-        var callerPhone = $('input[name=phone]').val().trim();
+    excluded: ':disabled'
+})
+    .on('success.form.bv', function(e) {
+    // Prevent form submission
+    e.preventDefault();
 
-        var form = $('<form action="/payment" method="POST">' +
-            '<input type="hidden" name="agenda" value="' + agenda + '">' +
-            '<input type="hidden" name="duration" value="' + duration + '">' +
-            '<input type="hidden" name="area_code" value="' + areaCode + '">' +
-            '<input type="hidden" name="countryCode" value="' + countryCode + '">' +
-            '<input type="hidden" name="phone" value="' + callerPhone + '">' +
-            '<input type="hidden" name="userGmtOffset" value="' + userGmtOffset + '">' +
-            _.map(selectedTimeSlots, function(slot)
-            {
-                return '<input type="hidden" name="startTime" value="' + (slot) + '">';
-            }).join('') +
-            '</form>');
+    var $form        = $(e.target),
+    validator    = $form.data('bootstrapValidator'),
+    submitButton = validator.getSubmitButton();
 
-        $('body').append(form);
-        form.submit();
-    }
+    var agenda = $('textarea[name=agenda]').val().trim();
+    var areaCode = $('input[name=area_code]').val().trim();
+    var countryCode = $('select[name=country_code]').val().trim();
+    var callerPhone = $('input[name=phone]').val().trim();
+
+    var form = $('<form action="/payment" method="POST">' +
+        '<input type="hidden" name="agenda" value="' + agenda + '">' +
+        '<input type="hidden" name="duration" value="' + duration + '">' +
+        '<input type="hidden" name="area_code" value="' + areaCode + '">' +
+        '<input type="hidden" name="countryCode" value="' + countryCode + '">' +
+        '<input type="hidden" name="phone" value="' + callerPhone + '">' +
+        '<input type="hidden" name="userGmtOffset" value="' + userGmtOffset + '">' +
+        _.map(selectedTimeSlots, function(slot)
+        {
+            return '<input type="hidden" name="startTime" value="' + (slot) + '">';
+        }).join('') +
+        '</form>');
+
+    $('body').append(form);
+    form.submit();
 });
 
 function selectDuration(duration)
