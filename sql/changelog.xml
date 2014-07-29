@@ -773,24 +773,24 @@
     <changeSet author="Ankit (generated)" id="1405602719107-13">
         <modifyDataType columnName="skill" newDataType="varchar(80)" tableName="skill_codes"/>
     </changeSet>
-    <changeSet author="Nishant (generated)" id="1405680295955-1">
+    <changeSet author="Nishant (generated)" id="1405680295955-1" failOnError="false">
         <dropIndex indexName="price_currency_idx" tableName="phone_call"/>
     </changeSet>
-    <changeSet author="Nishant (generated)" id="1405680295955-2">
+    <changeSet author="Nishant (generated)" id="1405680295955-2" failOnError="false">
         <addColumn tableName="phone_call">
             <column name="min_duration" type="INT(10)"/>
         </addColumn>
     </changeSet>
-    <changeSet author="Nishant (generated)" id="1405680295955-3">
+    <changeSet author="Nishant (generated)" id="1405680295955-3" failOnError="false">
         <renameColumn columnDataType="int" oldColumnName="chunk_size" newColumnName="pulse_rate" tableName="pricing_scheme"/>
     </changeSet>
-    <changeSet author="Nishant (generated)" id="1405680295955-4">
+    <changeSet author="Nishant (generated)" id="1405680295955-4" failOnError="false">
         <renameColumn columnDataType="int" oldColumnName="price_currency" newColumnName="unit" tableName="phone_call"/>
     </changeSet>
-    <changeSet author="Nishant (generated)" id="1405680295955-5">
+    <changeSet author="Nishant (generated)" id="1405680295955-5" failOnError="false">
         <renameColumn columnDataType="decimal" oldColumnName="price_per_min" newColumnName="charging_rate" tableName="phone_call"/>
     </changeSet>
-    <changeSet author="Nishant (generated)" id="1405680295954-6">
+    <changeSet author="Nishant (generated)" id="1405680295954-6" failOnError="false">
         <addForeignKeyConstraint baseColumnNames="unit" baseTableName="phone_call" constraintName="FK_phone_call_unit" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="ref_money_unit"/>
     </changeSet>
     <changeSet author="Ankit (generated)" id="1405682859505-1">
@@ -867,5 +867,17 @@
     </changeSet>
     <changeSet author="Ankit (generated)" id="1406120411375-8">
         <dropTable tableName="map_profile_employment"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1406623072906-1" failOnError="false">
+        <addUniqueConstraint columnNames="country_code" constraintName="idx_country_code" deferrable="false" disabled="false" initiallyDeferred="false" tableName="country"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1406623072906-2" failOnError="false">
+        <dropPrimaryKey constraintName="PRIMARY" tableName="country"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1406623072906-3">
+        <dropColumn columnName="verification_code" tableName="user_phone"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1406623072906-4">
+        <modifyDataType columnName="charging_rate" newDataType="decimal(5)" tableName="phone_call"/>
     </changeSet>
 </databaseChangeLog>

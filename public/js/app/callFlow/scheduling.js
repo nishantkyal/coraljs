@@ -13,36 +13,47 @@ $('[name="newSlot"]').on('click', function(){
 })
 
 /* Send scheduling details */
-$('form#scheduling').validate({
+$('form#scheduling').bootstrapValidator({
     ignore: "",
-    rules        : {
-        'phoneNumberId': {
-            required: true
-        },
-        'startTime': {
-            required: function(element) {
-                return $('form#scheduling [class="checkbox checked"]').data('id') == null;
+    fields        : {
+        'start_time': {
+            validators: {
+                choice: {
+                    min: function() {
+                        return $('form#scheduling input[name=start_time_input]').val().trim().length == 0 ? 1 : 0;
+                    },
+                    message: 'Please choose at least one time slot or suggest an alternate time'
+                }
             }
         },
-        'startTimeInput': {
-            required: function(element) {
-                return $("form#scheduling input#newSlot").val().trim().length == 0;
+        'start_time_input': {
+            validators: {
+                requiredIf: {
+                    field: 'start_time'
+                }
             }
         }
-    },
-    submitHandler: function(form)
-    {
+    }
+})
+    .on('success.form.bv', function(e) {
+        // Prevent form submission
+        e.preventDefault();
+
+        var $form        = $(e.target),
+            validator    = $form.data('bootstrapValidator'),
+            submitButton = validator.getSubmitButton();
+
         $.ajax({
             type: 'post',
-            url: form.action,
+            url: $form[0].action,
             data: {
                 startTime: $('form#scheduling [class="checkbox checked"]').data('id') || moment($('form#scheduling input#newSlot').val()).valueOf(),
-                code: $('form#scheduling input[name="code"]').val(),
-                phoneNumberId: $('form#scheduling input[name="phoneNumberId"]').val()
+                code: $('form#scheduling input[name=code]').val(),
+                phoneNumberId: $('form#scheduling input[name=phoneNumberId]').val()
             },
             success: function(result)
             {
-                var message = 'Done';
+                var message;
 
                 switch(result)
                 {
@@ -63,8 +74,7 @@ $('form#scheduling').validate({
                 bootbox.alert(error.responseText);
             }
         });
-    }
-});
+    });
 
 /* Cancel call with a reason */
 $('#reject-call').click(function()

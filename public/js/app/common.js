@@ -63,8 +63,10 @@ function checkCookie() {
             if (sourceField == null)
                 return true;
 
-            var sourceFieldValue = sourceField.val().trim();
-            if (!options.value || sourceFieldValue != options.value)
+            var sourceFieldValue = $(sourceField).attr('type') == 'radio' ? $(sourceField).filter(':checked').val() : sourceField.val();
+            sourceFieldValue = sourceFieldValue ? sourceFieldValue.trim() : sourceFieldValue;
+
+            if (sourceFieldValue === options.value)
                 return true;
 
             return value.length != 0;

@@ -28,13 +28,13 @@ title Scheduling
                                 h1
                                     i.icon-scheduler
                                     | Requested Time Slots
-                                ul
+                                ul.form-group
                                     for slot in startTimes
                                         li
-                                            .checkbox(name='checkbox', data-id=slot)
-                                            span= formatDate(slot + expertGmtOffset,'DD/MM/YYYY hh:mm a') + ' (' +  formatTimezone(expertGmtOffset/1000) + ')'
+                                            input(type='radio', name='start_time', value=slot, id='slot-' + slot)
+                                            label(for='slot-' + slot)= formatDate(slot + expertGmtOffset,'DD/MM/YYYY hh:mm a') + ' (' +  formatTimezone(expertGmtOffset/1000) + ')'
                                 .form-group
-                                    input.form-control.datepicker#newSlot(name='newSlot', type='text', placeholder='Suggest alternate time slot', readonly=true, style='background-color: white; cursor: default;')
+                                    input.form-control.datepicker(name='start_time_input', type='text', placeholder='Suggest alternate time slot', readonly=true, style='background-color: white; cursor: default;')
                             .payment-summary.call-inputs
                                 h1
                                     i.icon-phone
@@ -42,19 +42,12 @@ title Scheduling
                                 .form-group
                                     .row
                                         .col-xs-4
-                                            select#country-code.form-control
+                                            select.form-control(name="country_code")
                                                 for name,abb in CountryName
                                                     -var code = CountryCode[abb];
                                                     option(value=code, selected=code ==phone.country_code)= name + ' (+' + code + ')'
                                         .col-xs-8
-                                            input#caller-phone.form-control.phone-number(type='text', placeholder='Phone Number', value = phone.phone)
-                            if earning > 0
-                                .payment-summary.call-inputs
-                                    h1
-                                        i.icon-bill
-                                        | You Earn
-                                    .form-group
-                                        .form-control-static= formatMoney(earning, earningUnit)
+                                            input#caller-phone.form-control(type='text', placeholder='Phone Number', name='phone', value = phone.phone)
                             input(type='hidden', name='phoneNumberId', value=phone ? phone.id : null)
                             input(type='hidden', name='code', value=code)
                             input.btn.btn-primary.btn-block(type='submit', value='Confirm')

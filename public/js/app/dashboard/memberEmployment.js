@@ -38,8 +38,29 @@ $('[name="deleteUserEmployment"]').click(function()
 });
 
 $('#userEmployment .edit-card form').bootstrapValidator({
-    submitHandler : function()
-    {
+    feedbackIcons: {
+        valid     : 'glyphicon glyphicon-ok',
+        invalid   : 'glyphicon glyphicon-remove',
+        validating: 'glyphicon glyphicon-refresh'
+    },
+    fields         : {
+        title : {
+            validators: {
+                notEmpty: {
+                    message: 'This field is required and cannot be empty'
+                }
+            }
+        }
+    }
+})
+    .on('success.form.bv', function(e) {
+        // Prevent form submission
+        e.preventDefault();
+
+        var $form        = $(e.target),
+            validator    = $form.data('bootstrapValidator'),
+            submitButton = validator.getSubmitButton();
+
         var startDate = $('#userEmployment .edit-card form input[name="start_date"]').val() == "" ? -1:moment($('#userEmployment .edit-card form input[name="start_date"]').val(),'MM-YYYY').valueOf()
         var endDate = $('#userEmployment .edit-card form input[name="end_date"]').val() == "" ? -1:moment($('#userEmployment .edit-card form input[name="end_date"]').val(),'MM-YYYY').valueOf();
 
@@ -65,20 +86,5 @@ $('#userEmployment .edit-card form').bootstrapValidator({
             {
                 location.reload();
             }
-        })
-    },
-    feedbackIcons: {
-        valid     : 'glyphicon glyphicon-ok',
-        invalid   : 'glyphicon glyphicon-remove',
-        validating: 'glyphicon glyphicon-refresh'
-    },
-    fields         : {
-        title : {
-            validators: {
-                notEmpty: {
-                    message: 'This field is required and cannot be empty'
-                }
-            }
-        }
-    }
-});
+        });
+    });

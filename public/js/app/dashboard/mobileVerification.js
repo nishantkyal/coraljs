@@ -6,9 +6,16 @@ $('form#sendCode').bootstrapValidator({
                 digits: {message: "Please enter a valid number"}
             }
         }
-    },
-    submitHandler : function()
-    {
+    }
+})
+    .on('success.form.bv', function(e) {
+        // Prevent form submission
+        e.preventDefault();
+
+        var $form        = $(e.target),
+            validator    = $form.data('bootstrapValidator'),
+            submitButton = validator.getSubmitButton();
+
         $.ajax({
             url     : '/rest/code/mobile/verification',
             type    : 'post',
@@ -27,8 +34,7 @@ $('form#sendCode').bootstrapValidator({
                 bootbox.alert(jqXHR.responseText);
             }
         })
-    }
-});
+    });
 
 $('form#verifyCode').bootstrapValidator({
     fields: {
@@ -38,9 +44,16 @@ $('form#verifyCode').bootstrapValidator({
                 digits: {message: "Please enter a valid number"}
             }
         }
-    },
-    submitHandler : function()
-    {
+    }
+})
+    .on('success.form.bv', function(e) {
+        // Prevent form submission
+        e.preventDefault();
+
+        var $form        = $(e.target),
+            validator    = $form.data('bootstrapValidator'),
+            submitButton = validator.getSubmitButton();
+
         $.ajax({
             url     : '/rest/code/mobile/verification',
             type    : 'get',
@@ -59,9 +72,8 @@ $('form#verifyCode').bootstrapValidator({
             error: function(jqXHR, textStatus, errorThrown) {
                 bootbox.alert(jqXHR.responseText);
             }
-        })
-    }
-});
+        });
+    });
 
 $('#sendCode #phoneNumber').keydown(function()
 {

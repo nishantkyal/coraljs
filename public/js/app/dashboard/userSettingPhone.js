@@ -8,41 +8,6 @@ $('.editPhoneBtn').click(function(event)
 });
 
 $('#userPhone .edit-card form').bootstrapValidator({
-    submitHandler: function(validator, form, submitBtn)
-    {
-        var method = $(submitBtn).attr('name') == 'sendCode' ? 'post' : 'get';
-
-        $.ajax({
-            url     : '/rest/code/mobile/verification',
-            type    : method,
-            dataType: 'json',
-            data    : {
-                code       : $('#userPhone .edit-card form input[name="code"]').val(),
-                phoneNumber: {
-                    phone       : $('#userPhone .edit-card form input[name="phone"]').val(),
-                    country_code: $('#userPhone .edit-card form select[name="country_code"]').val(),
-                    area_code: $('#userPhone .edit-card form input[name="country_code"]').val(),
-                    id          : $('#userPhone .edit-card form input[name="id"]').attr('id')
-                }
-            },
-            success : function()
-            {
-                if (method == 'post') {
-                    $('.update').show();
-                    $('.sendCode').hide();
-                    $('#userPhone .edit-card form').data('bootstrapValidator').enableFieldValidators('code', true);
-                }
-                else {
-                    location.reload();
-                }
-            },
-            error   : function(jqXHR, textStatus, errorThrown)
-            {
-                $('#userPhone .edit-card .alert-danger').show();
-                $('#userPhone .edit-card .alert-danger').text(jqXHR.responseText);
-            }
-        });
-    },
     feedbackIcons: {
         valid     : 'glyphicon glyphicon-ok',
         invalid   : 'glyphicon glyphicon-remove',
@@ -76,7 +41,48 @@ $('#userPhone .edit-card form').bootstrapValidator({
             }
         }
     }
-});
+})
+    .on('success.form.bv', function(e) {
+        // Prevent form submission
+        e.preventDefault();
+
+        var $form        = $(e.target),
+            validator    = $form.data('bootstrapValidator'),
+            submitButton = validator.getSubmitButton();
+
+        var method = $(submitButton).attr('name') == 'sendCode' ? 'post' : 'get';
+
+        $.ajax({
+            url     : '/rest/code/mobile/verification',
+            type    : method,
+            dataType: 'json',
+            data    : {
+                code       : $('#userPhone .edit-card form input[name="code"]').val(),
+                phoneNumber: {
+                    phone       : $('#userPhone .edit-card form input[name="phone"]').val(),
+                    country_code: $('#userPhone .edit-card form select[name="country_code"]').val(),
+                    area_code: $('#userPhone .edit-card form input[name="country_code"]').val(),
+                    id          : $('#userPhone .edit-card form input[name="id"]').attr('id')
+                }
+            },
+            success : function()
+            {
+                if (method == 'post') {
+                    $('.update').show();
+                    $('.sendCode').hide();
+                    $('#userPhone .edit-card form').data('bootstrapValidator').enableFieldValidators('code', true);
+                }
+                else {
+                    location.reload();
+                }
+            },
+            error   : function(jqXHR, textStatus, errorThrown)
+            {
+                $('#userPhone .edit-card .alert-danger').show();
+                $('#userPhone .edit-card .alert-danger').text(jqXHR.responseText);
+            }
+        });
+    });
 
 $('#userPhone .edit-card form input[name=phone],select[name=country_code]').change(function()
 {
