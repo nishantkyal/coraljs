@@ -57,9 +57,9 @@ class TokenApi
                     res.send(createdPhone.toJson());
                 })
                 .fail(
-                function codeVerificationError(error)
+                function codeVerificationError(error:Error)
                 {
-                    res.json(500, error);
+                    res.json(500, error.message);
                 });
         });
 
