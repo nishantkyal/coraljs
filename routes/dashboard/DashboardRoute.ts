@@ -63,6 +63,7 @@ import SessionData                                      = require('./SessionData
 class DashboardRoute
 {
     private static PAGE_HOME:string = 'dashboard/home';
+    private static PAGE_SNS:string = 'dashboard/sns';
     private static PAGE_FORGOT_PASSWORD:string = 'dashboard/forgotPassword';
     private static PAGE_MOBILE_VERIFICATION:string = 'dashboard/mobileVerification';
     private static PAGE_DASHBOARD:string = 'dashboard/dashboard';
@@ -98,6 +99,7 @@ class DashboardRoute
         // Pages
         app.get(Urls.index(), AuthenticationDelegate.checkLogin({failureRedirect: Urls.home()}), this.dashboard.bind(this));
         app.get(Urls.home(), this.home.bind(this));
+        app.get(Urls.sns(), this.sns.bind(this));
         app.get(Urls.forgotPassword(), this.forgotPassword.bind(this));
         app.get(Urls.mobileVerification(), AuthenticationDelegate.checkLogin({failureRedirect: Urls.index(), setReturnTo: true}), this.verifyMobile.bind(this));
 
@@ -112,6 +114,42 @@ class DashboardRoute
 
         app.get(Urls.emailAccountVerification(), this.emailAccountVerification.bind(this));
         app.get(Urls.widgetCreator(), this.widgetCreator.bind(this));
+    }
+    private sns(req:express.Request, res:express.Response)
+    {
+        var self = this;
+        var sessionData = new SessionData(req);
+        var integrationId = parseInt(req.params[ApiConstants.INTEGRATION_ID]);
+
+        q.all([
+                self.integrationDelegate.get(integrationId),
+                self.integrationMemberDelegate.search({'integration_id':integrationId,'role':IntegrationMemberRole.Expert})
+            ])
+            .then(
+            function detailsFetched(...args)
+            {
+                var integration = args[0][0];
+                var members = args[0][1];
+                var tasks = _.map(members, function(member:IntegrationMember){
+                    return self.userDelegate.find({'id':member.getUserId()},null,[IncludeFlag.INCLUDE_PRICING_SCHEMES, IncludeFlag.INCLUDE_SKILL, IncludeFlag.INCLUDE_SCHEDULES, IncludeFlag.INCLUDE_USER_PROFILE]);
+                });
+
+                return [integration,q.all(tasks)];
+            })
+            .spread(function expertDetailsFetched(integration,...args)
+            {
+                var pageData = _.extend(sessionData.getData(), {
+                    integration:integration,
+                    experts:args[0]
+                });
+
+                res.render(DashboardRoute.PAGE_SNS, pageData);
+            })
+            .fail (
+            function integrationFetchError(error)
+            {
+                res.render('500',{error:error});
+            })
     }
 
     private home(req:express.Request, res:express.Response)

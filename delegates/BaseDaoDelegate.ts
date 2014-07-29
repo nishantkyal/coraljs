@@ -122,7 +122,7 @@ class BaseDaoDelegate
             function processIncludes(baseSearchResults):any
             {
                 if (Utils.isNullOrEmpty(baseSearchResults))
-                    return null;
+                    return baseSearchResults;
 
                 var includeTasks = _.map(includes, function (flag)
                 {
