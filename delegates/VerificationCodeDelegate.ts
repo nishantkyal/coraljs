@@ -150,7 +150,7 @@ class VerificationCodeDelegate
             .then(
             function tokenSearched(result)
             {
-                if (result == code && !Utils.isNullOrEmpty(code))
+                if (result.toString() === code && !Utils.isNullOrEmpty(code))
                     return true;
                 else
                     throw ('Invalid code entered');

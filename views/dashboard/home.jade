@@ -94,9 +94,12 @@ title SearchNTalk
                             option(value='en', selected='')
                                 | English
 // /.masthead
-.hero
-    .container
-        img.retina-image(src='/images/hero_main.png')
+div.hero
+    div.container
+        img.retina-image.hidden-xs.hidden-sm(src='/images/hero_main.png')
+        img.retina-image.visible-sm(src='/images/hero_main_sm.png')
+        img.retina-image.visible-xs(src='/images/hero_main_xs.png')
+
 // /.hero
 .highlights
     .container

@@ -176,14 +176,13 @@ class AbstractDao
                 if (result.length == 1)
                     return new self.modelClass(result[0]);
                 else
-                    return null;
+                    return result;
             },
-            function findError(error)
+            function findError(error:Error)
             {
-                self.logger.error('FIND failed for table: %s, criteria: %s, error: %s', self.tableName, JSON.stringify(searchQuery), JSON.stringify(error));
+                self.logger.error('FIND failed for table: %s, criteria: %s, error: %s', self.tableName, JSON.stringify(searchQuery), error.message);
                 throw(error);
-            }
-        );
+            });
     }
 
     /**

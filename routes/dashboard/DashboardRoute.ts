@@ -283,8 +283,8 @@ class DashboardRoute
         var userId = parseInt(req[ApiConstants.USER].id);
 
         q.all([
-                self.expertiseDelegate.search(Utils.createSimpleObject(Expertise.USER_ID, userId))
-            ])
+            self.expertiseDelegate.search(Utils.createSimpleObject(Expertise.USER_ID, userId))
+        ])
             .then(
             function dashboardDetailsFetched(...args)
             {
@@ -426,13 +426,10 @@ class DashboardRoute
         var userId:number = parseInt(req.params[ApiConstants.USER_ID]);
         var sessionData = new SessionData(req);
 
-        q.all([
-                self.userPhoneDelegate.search(Utils.createSimpleObject(UserPhone.USER_ID, userId))
-            ])
-            .then(function detailsFetched(...args)
+        self.userPhoneDelegate.search(Utils.createSimpleObject(UserPhone.USER_ID, userId))
+            .then(
+            function detailsFetched(userPhone:UserPhone[])
             {
-                var userPhone:UserPhone[] = args[0][2];
-
                 var pageData = _.extend(sessionData.getData(), {
                     userPhone: userPhone
                 });

@@ -45,7 +45,7 @@ class SessionData extends AbstractSessionData
     getDuration():number                                { return parseInt(this.getData()[SessionData.DURATION]); }
     getTransaction():Transaction                        { return this.getData()[SessionData.TRANSACTION] ? new Transaction(this.getData()[SessionData.TRANSACTION]) : null; }
     getAreaCode():string                                { return this.getData()[SessionData.AREA_CODE]; }
-    getCountryCode():number                             { return parseInt(this.getData()[SessionData.COUNTRY_CODE]); }
+    getCountryCode():number                             { return this.getData()[SessionData.COUNTRY_CODE]; }
     getCallerPhone():string                             { return this.getData()[SessionData.CALLER_PHONE]; }
     getAgenda():string                                  { return this.getData()[SessionData.AGENDA]; }
     getExpertGmtOffset():number                         { return this.getData()[SessionData.EXPERT_GMT_OFFSET]}

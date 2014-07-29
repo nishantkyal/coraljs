@@ -46,7 +46,8 @@ class BaseModel extends AbstractModel
     set(propertyName:string, val:any):void
     {
         var thisProto = this.__proto__;
-        if (thisProto['COLUMNS'].indexOf(propertyName) == -1)
+        var thisProtoConstructor = this.__proto__.constructor;
+        if (thisProtoConstructor['COLUMNS'].indexOf(propertyName) == -1)
             throw('Non-existent property: ' + propertyName + ' referenced');
         else
         {
