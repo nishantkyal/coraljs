@@ -11,7 +11,8 @@
         "bootstrap-select": "1.5.2",
         "bootstrap3-typeahead": "3.0.3",
         "bootstrap-sortable": "1.8.0",
-        "tag-it": "*"
+        "tag-it": "*",
+        "iCheck": "1.0.2"
     },
     "private": true
 }
