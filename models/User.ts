@@ -1,4 +1,6 @@
-import crypto                                                           = require('crypto');
+import crypto                                               = require('crypto');
+import _                                                    = require('underscore');
+import moment                                               = require('moment');
 import validator                                            = require('validator');
 import BaseModel                                            = require('./BaseModel')
 import Utils                                                = require('../common/Utils');
@@ -129,6 +131,26 @@ class User extends BaseModel
     {
         var md5sum = crypto.createHash('md5');
         return md5sum.update((email || this.email) + ':' + (password || this.password) + (passwordSeed || this.password_seed || '')).digest('hex');
+    }
+
+    isCurrentlyAvailable():boolean
+    {
+        var currentTime = moment().valueOf();
+        var nextAvailableSchedule:Schedule = this.getNextAvailableSchedule();
+        return !Utils.isNullOrEmpty(nextAvailableSchedule) ? (currentTime > nextAvailableSchedule[Schedule.START_TIME]
+            && currentTime < (nextAvailableSchedule[Schedule.START_TIME] + nextAvailableSchedule[Schedule.DURATION])) : false;
+    }
+
+    getNextAvailableSchedule():Schedule
+    {
+        if (this.getSchedule())
+            return _.find(this.getSchedule(), function (schedule):boolean
+            {
+                var scheduleEndTime = schedule[Schedule.START_TIME] + schedule[Schedule.DURATION];
+                return scheduleEndTime > moment().add({minutes: 15}).valueOf();
+            });
+        else
+            return null;
     }
 }
 export = User
