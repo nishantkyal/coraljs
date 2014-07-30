@@ -12,11 +12,13 @@ import UserDelegate                                             = require('../de
 import Utils                                                    = require('../common/Utils');
 import IncludeFlag                                              = require('../enums/IncludeFlag');
 import SmsTemplate                                              = require('../enums/SmsTemplate');
-import CacheHelper                                              = require('../caches/CacheHelper');
+import CacheHelperFactory                                       = require('../factories/CacheHelperFactory');
+import CacheHelperType                                          = require('../enums/CacheHelperType');
 
 class VerificationCodeDelegate
 {
     private logger = log4js.getLogger(Utils.getClassName(this));
+    private cacheHelper = CacheHelperFactory.getCacheHelper(CacheHelperType.CACHE_HELPER);
 
     private integrationMemberDelegate = new IntegrationMemberDelegate();
     private emailDelegate;
@@ -59,7 +61,7 @@ class VerificationCodeDelegate
             function oldCodeDeleted()
             {
                 var code = Utils.getRandomString(20, 'ABXDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890');
-                return [code, CacheHelper.addToHash('ic-' + integrationId, code, member)];
+                return [code, self.cacheHelper.addToHash('ic-' + integrationId, code, member)];
             })
             .spread(
             function codeGenerated(code:string, result)
@@ -103,7 +105,7 @@ class VerificationCodeDelegate
                 if (!Utils.isNullOrEmpty(invitedMembers))
                     return q.all(_.map(_.keys(invitedMembers), function (code:string)
                     {
-                        return CacheHelper.delFromHash('ic-' + integrationId, code);
+                        return self.cacheHelper.delFromHash('ic-' + integrationId, code);
                     }));
             });
     }
@@ -112,7 +114,7 @@ class VerificationCodeDelegate
     {
         var self = this;
 
-        return CacheHelper.getHash('ic-' + integrationId)
+        return self.cacheHelper.getHash('ic-' + integrationId)
             .then(
             function codesFetched(invites:any[])
             {
@@ -140,13 +142,13 @@ class VerificationCodeDelegate
 
         return q.all([
             self.smsDelegate.sendVerificationSMS(phoneNumber.getCompleteNumber(), code),
-            CacheHelper.set('mv-' + phoneNumber.getCompleteNumber(), code, secondsInAnHr, true)
+            self.cacheHelper.set('mv-' + phoneNumber.getCompleteNumber(), code, secondsInAnHr, true)
         ]);
     }
 
     verifyMobileCode(code:string, phoneNumber:UserPhone):q.Promise<any>
     {
-        return CacheHelper.get('mv-' + phoneNumber.getCompleteNumber())
+        return this.cacheHelper.get('mv-' + phoneNumber.getCompleteNumber())
             .then(
             function tokenSearched(result)
             {
@@ -161,7 +163,7 @@ class VerificationCodeDelegate
     {
         var code:string = Utils.getRandomString(20);
 
-        return CacheHelper.set('aa-' + code, {id: call.getId(), startTimes: startTimes, from: fromUserId})
+        return this.cacheHelper.set('aa-' + code, {id: call.getId(), startTimes: startTimes, from: fromUserId})
             .then(
             function codeSaved() { return code; }
         );
@@ -169,12 +171,12 @@ class VerificationCodeDelegate
 
     verifyAppointmentAcceptCode(code:string):q.Promise<any>
     {
-        return CacheHelper.get('aa-' + code);
+        return this.cacheHelper.get('aa-' + code);
     }
 
     deleteAppointmentAcceptCode(code:string):q.Promise<boolean>
     {
-        return CacheHelper.del('aa-' + code);
+        return this.cacheHelper.del('aa-' + code);
     }
 
     createAndSendEmailVerificationCode(user:User):q.Promise<any>
@@ -183,7 +185,7 @@ class VerificationCodeDelegate
         var code = Utils.getRandomString(20);
         var secondsInThreeDays:number = 60 * 60 * 24 * 3;
 
-        return CacheHelper.set('ev-' + code, user, secondsInThreeDays)
+        return self.cacheHelper.set('ev-' + code, user, secondsInThreeDays)
             .then(
             function codeCreated()
             {
@@ -193,7 +195,7 @@ class VerificationCodeDelegate
 
     verifyEmailVerificationCode(code:string, email:string):q.Promise<boolean>
     {
-        return CacheHelper.get('ev-' + code)
+        return this.cacheHelper.get('ev-' + code)
             .then(
             function codeFetched(result:Object)
             {
@@ -204,7 +206,7 @@ class VerificationCodeDelegate
 
     deleteEmailVerificationCode(code:string):q.Promise<boolean>
     {
-        return CacheHelper.del('ev-' + code);
+        return this.cacheHelper.del('ev-' + code);
     }
 
     createPasswordResetCode(email:string):q.Promise<any>
@@ -213,7 +215,7 @@ class VerificationCodeDelegate
         var self = this;
         var secondsInAnHr:number = 60 * 60;
 
-        return CacheHelper.set('pr-' + code, email, secondsInAnHr)
+        return self.cacheHelper.set('pr-' + code, email, secondsInAnHr)
             .then(
             function codeCreated()
             {
@@ -225,7 +227,7 @@ class VerificationCodeDelegate
     {
         var self = this;
 
-        return CacheHelper.get('pr-' + code)
+        return self.cacheHelper.get('pr-' + code)
             .then(
             function codeFound(email:string)
             {
@@ -234,13 +236,13 @@ class VerificationCodeDelegate
             .then(
             function passwordUpdated()
             {
-                return CacheHelper.del('pr-' + code);
+                return self.cacheHelper.del('pr-' + code);
             });
     }
 
     searchInvitationCode(code:string, integrationId:number):q.Promise<any>
     {
-        return CacheHelper.getFromHash('ic-' + integrationId, code)
+        return this.cacheHelper.getFromHash('ic-' + integrationId, code)
             .then(
             function invitationCodeSearched(invitedUser)
             {
@@ -254,12 +256,12 @@ class VerificationCodeDelegate
 
     deleteInvitationCode(code:string, integrationId:number):q.Promise<any>
     {
-        return CacheHelper.delFromHash('ic-' + integrationId, code);
+        return this.cacheHelper.delFromHash('ic-' + integrationId, code);
     }
 
     getInvitationCodes(integrationId:number):q.Promise<any>
     {
-        return CacheHelper.getHash('ic-' + integrationId);
+        return this.cacheHelper.getHash('ic-' + integrationId);
     }
 
 }

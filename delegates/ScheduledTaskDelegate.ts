@@ -7,9 +7,10 @@ import GlobalIdDelegate                                         = require('../de
 import Utils                                                    = require('../common/Utils');
 import Config                                                   = require('../common/Config');
 import AbstractScheduledTask                                    = require('../models/tasks/AbstractScheduledTask');
-import CacheHelper                                              = require('../caches/CacheHelper');
 import ScheduledTaskType                                        = require('../enums/ScheduledTaskType');
 import TaskTypeFactory                                          = require('../factories/TaskTypeFactory');
+import CacheHelperFactory                                       = require('../factories/CacheHelperFactory');
+import CacheHelperType                                          = require('../enums/CacheHelperType');
 
 interface TimeoutAndTask
 {
@@ -22,6 +23,7 @@ class ScheduledTaskDelegate extends events.EventEmitter
     logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
     private static tasks:{[id:number]: TimeoutAndTask} = {};
     private static instance;
+    private cacheHelper = CacheHelperFactory.getCacheHelper(CacheHelperType.CACHE_HELPER);
 
     static getInstance():ScheduledTaskDelegate
     {
@@ -138,7 +140,7 @@ class ScheduledTaskDelegate extends events.EventEmitter
             return timeoutAndTask.task.toJson();
         });
 
-        return CacheHelper.set('ScheduledTasks', tasksSaveArray, null, true)
+        return self.cacheHelper.set('ScheduledTasks', tasksSaveArray, null, true)
             .then(
             function tasksSynced():any
             {
@@ -156,7 +158,7 @@ class ScheduledTaskDelegate extends events.EventEmitter
     {
         var self = this;
 
-        return CacheHelper.get('ScheduledTasks')
+        return self.cacheHelper.get('ScheduledTasks')
             .then(
             function tasksFetched(results):any
             {

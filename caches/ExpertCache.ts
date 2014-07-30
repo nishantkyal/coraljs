@@ -1,8 +1,10 @@
-import q                        = require('q');
-import CacheHelper              = require('./CacheHelper');
+import q                                                = require('q');
+import CacheHelperFactory                               = require('../factories/CacheHelperFactory');
+import CacheHelperType                                  = require('../enums/CacheHelperType');
 
 class ExpertCache
 {
+    private cacheHelper = CacheHelperFactory.getCacheHelper(CacheHelperType.CACHE_HELPER);
     /*
      * Get information required to render expert widget
      * Ratings, pricing
@@ -10,7 +12,7 @@ class ExpertCache
      */
     getWidgetProfile(expertId:string):q.Promise<any>
     {
-        return CacheHelper.get(expertId);
+        return this.cacheHelper.get(expertId);
     }
 
 }

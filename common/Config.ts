@@ -29,7 +29,9 @@ class Config
     static REF_DATABASE_NAME:string                     = 'ref.database.name';
     static DATABASE_SOCKET:string                       = 'database.socket';
     static REDIS_HOST:string                            = 'redis.host';
-    static REDIS_PORT:string                            = 'redis.port';
+    static REDIS_SESSION_PORT:string                    = 'redis.session.port';
+    static REDIS_VERIFICATION_PORT:string               = 'redis.verification.port';
+    static REDIS_COUNTER_PORT:string                    = 'redis.counter.port';
     static EMAIL_TEMPLATE_BASE_DIR:string               = 'email_template_base_dir';
     static EMAIL_CDN_BASE_URI:string                    = 'email.cdn.base_uri';
     static WIDGET_TEMPLATE_BASE_DIR:string              = 'widget_template_base_dir';
