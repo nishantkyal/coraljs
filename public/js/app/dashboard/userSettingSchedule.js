@@ -117,8 +117,16 @@ function valuesToPattern(values)
 }
 
 $('form#pricingSchemeForm').bootstrapValidator({
-    submitHandler: function()
-    {
+
+})
+    .on('success.form.bv', function(e) {
+        // Prevent form submission
+        e.preventDefault();
+
+        var $form        = $(e.target),
+            validator    = $form.data('bootstrapValidator'),
+            submitButton = validator.getSubmitButton();
+
         var schemeId = $('form#pricingSchemeForm input[type=hidden]').val();
         var method = schemeId ? 'post' : 'put';
         var url = schemeId ? '/rest/pricingScheme/' + schemeId : '/rest/pricingScheme';
@@ -146,5 +154,4 @@ $('form#pricingSchemeForm').bootstrapValidator({
                 $('form#pricingSchemeForm .alert').show().text(jqXHR.responseText);
             }
         });
-    }
-});
+    });

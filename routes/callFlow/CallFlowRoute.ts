@@ -153,7 +153,7 @@ class CallFlowRoute
         //      b. Verify that request was not sent by me
         // 2. Fetch call details
         // 3. If expert, check that we've a verified mobile number else ask to verify
-        if (startTime < moment().valueOf())
+        if (startTime  && startTime < moment().valueOf())
         {
             res.render('500', {error: 'The selected start time(' + Formatter.formatDate(startTime) + ') has already passed. Please choose another slot from the suggested slots or suggest a new one'});
             return;

@@ -8,9 +8,50 @@ $('.editPhoneBtn').click(function(event)
 });
 
 $('#userPhone .edit-card form').bootstrapValidator({
-    submitHandler: function(validator, form, submitBtn)
+    feedbackIcons: {
+        valid     : 'glyphicon glyphicon-ok',
+        invalid   : 'glyphicon glyphicon-remove',
+        validating: 'glyphicon glyphicon-refresh'
+    },
+    fields       : {
+        phone    : {
+            validators: {
+                notEmpty: {
+                    message: 'This field is required and cannot be empty'
+                },
+                digits  : { message: 'Phone number can only contain digit' }
+            }
+        },
+        area_code: {
+            validators: {
+                digits: {message: 'Area code can only contain digit'}
+            }
+        },
+        code     : {
+            enabled   : false,
+            validators: {
+                digits      : {
+                    message: 'Please enter a valid number'
+                },
+                stringLength: {
+                    max    : 5,
+                    min    : 5,
+                    message: 'Please enter the code sent to your phone'
+                }
+            }
+        }
+    }
+})
+    .on('success.form.bv', function(e)
     {
-        var method = $(submitBtn).attr('name') == 'sendCode' ? 'post' : 'get';
+        // Prevent form submission
+        e.preventDefault();
+
+        var $form = $(e.target),
+            validator = $form.data('bootstrapValidator'),
+            submitButton = validator.getSubmitButton();
+
+        var method = $(submitButton).attr('name') == 'sendCode' ? 'post' : 'get';
 
         $.ajax({
             url     : '/rest/code/mobile/verification',
@@ -21,7 +62,7 @@ $('#userPhone .edit-card form').bootstrapValidator({
                 phoneNumber: {
                     phone       : $('#userPhone .edit-card form input[name="phone"]').val(),
                     country_code: $('#userPhone .edit-card form select[name="country_code"]').val(),
-                    area_code: $('#userPhone .edit-card form input[name="country_code"]').val(),
+                    area_code   : $('#userPhone .edit-card form input[name="country_code"]').val(),
                     id          : $('#userPhone .edit-card form input[name="id"]').attr('id')
                 }
             },
@@ -42,41 +83,7 @@ $('#userPhone .edit-card form').bootstrapValidator({
                 $('#userPhone .edit-card .alert-danger').text(jqXHR.responseText);
             }
         });
-    },
-    feedbackIcons: {
-        valid     : 'glyphicon glyphicon-ok',
-        invalid   : 'glyphicon glyphicon-remove',
-        validating: 'glyphicon glyphicon-refresh'
-    },
-    fields       : {
-        phone: {
-            validators: {
-                notEmpty: {
-                    message: 'This field is required and cannot be empty'
-                },
-                digits  : { message: 'Phone number can only contain digit' }
-            }
-        },
-        area_code: {
-            validators: {
-                digits: {message: 'Area code can only contain digit'}
-            }
-        },
-        code : {
-            enabled   : false,
-            validators: {
-                digits      : {
-                    message: 'Please enter a valid number'
-                },
-                stringLength: {
-                    max    : 5,
-                    min    : 5,
-                    message: 'Please enter the code sent to your phone'
-                }
-            }
-        }
-    }
-});
+    });
 
 $('#userPhone .edit-card form input[name=phone],select[name=country_code]').change(function()
 {

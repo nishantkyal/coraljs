@@ -217,3 +217,8 @@ select.btn {
         display: block;
     }
 }
+.iradio_square-green + span
+{
+    padding: 3px 0px 10px 10px;
+    display: inline-block;
+}

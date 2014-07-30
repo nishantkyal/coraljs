@@ -17,8 +17,36 @@ $('#cancelAddUserSkill').click(function()
 });
 
 $('#basicProfile .edit-card form').bootstrapValidator({
-    submitHandler: function()
-    {
+    feedbackIcons: {
+        valid     : 'glyphicon glyphicon-ok',
+        invalid   : 'glyphicon glyphicon-remove',
+        validating: 'glyphicon glyphicon-refresh'
+    },
+    fields       : {
+        first_name: {
+            validators: {
+                notEmpty: {
+                    message: 'This field is required and cannot be empty'
+                }
+            }
+        },
+        last_name : {
+            validators: {
+                notEmpty: {
+                    message: 'This field is required and cannot be empty'
+                }
+            }
+        }
+    }
+})
+    .on('success.form.bv', function(e) {
+        // Prevent form submission
+        e.preventDefault();
+
+        var $form        = $(e.target),
+            validator    = $form.data('bootstrapValidator'),
+            submitButton = validator.getSubmitButton();
+
         $.ajax({
             url        : '/rest/user/' + user.id,
             type       : 'post',
@@ -46,22 +74,17 @@ $('#basicProfile .edit-card form').bootstrapValidator({
             {
                 bootbox.alert(error.responseText);
             }
-        })
-    },
+        });
+    });
+
+$('form#AddUserSkillForm').bootstrapValidator({
     feedbackIcons: {
         valid     : 'glyphicon glyphicon-ok',
         invalid   : 'glyphicon glyphicon-remove',
         validating: 'glyphicon glyphicon-refresh'
     },
     fields       : {
-        first_name: {
-            validators: {
-                notEmpty: {
-                    message: 'This field is required and cannot be empty'
-                }
-            }
-        },
-        last_name : {
+        skill_name: {
             validators: {
                 notEmpty: {
                     message: 'This field is required and cannot be empty'
@@ -69,11 +92,15 @@ $('#basicProfile .edit-card form').bootstrapValidator({
             }
         }
     }
-});
+})
+    .on('success.form.bv', function(e) {
+        // Prevent form submission
+        e.preventDefault();
 
-$('form#AddUserSkillForm').bootstrapValidator({
-    submitHandler: function()
-    {
+        var $form        = $(e.target),
+            validator    = $form.data('bootstrapValidator'),
+            submitButton = validator.getSubmitButton();
+
         var selectedSkills = _.map($('form#AddUserSkillForm .tokeninput').tokenInput("get"), function(skill) {
             return {
                 skill_name         : skill.name
@@ -89,23 +116,8 @@ $('form#AddUserSkillForm').bootstrapValidator({
             {
                 location.reload();
             }
-        })
-    },
-    feedbackIcons: {
-        valid     : 'glyphicon glyphicon-ok',
-        invalid   : 'glyphicon glyphicon-remove',
-        validating: 'glyphicon glyphicon-refresh'
-    },
-    fields       : {
-        skill_name: {
-            validators: {
-                notEmpty: {
-                    message: 'This field is required and cannot be empty'
-                }
-            }
-        }
-    }
-});
+        });
+    });
 
 $('.deleteUserSkill').click(function()
 {
@@ -137,8 +149,16 @@ $('#cancelLinkedinFetch').click(function(event)
 })
 
 $('form#linkedinFetch').bootstrapValidator({
-    submitHandler: function()
-    {
+
+})
+    .on('success.form.bv', function(e) {
+        // Prevent form submission
+        e.preventDefault();
+
+        var $form        = $(e.target),
+            validator    = $form.data('bootstrapValidator'),
+            submitButton = validator.getSubmitButton();
+
         bootbox.confirm('Are you sure you want to replace the current information with information from LinkedIn?', function(result)
         {
             if (result) {
@@ -160,8 +180,7 @@ $('form#linkedinFetch').bootstrapValidator({
                 IN.User.authorize(linkedInLogin);
             }
         });
-    }
-});
+    });
 
 $('#expertise .edit-card form .tokeninput, form#AddUserSkillForm .tokeninput').tokenInput('//www.linkedin.com/ta/skill', {
     theme: "facebook",
@@ -260,9 +279,16 @@ $('#expertise .edit-card form').bootstrapValidator({
                 notEmpty: { message: 'This field is required'}
             }
         }
-    },
-    submitHandler: function()
-    {
+    }
+})
+    .on('success.form.bv', function(e) {
+        // Prevent form submission
+        e.preventDefault();
+
+        var $form        = $(e.target),
+            validator    = $form.data('bootstrapValidator'),
+            submitButton = validator.getSubmitButton();
+
         var expertiseId = $('#expertise .edit-card form input[name=id]').val();
         var method = expertiseId ? 'post' : 'put';
         var expertiseUrl = expertiseId ? '/rest/user/expertise/' + expertiseId : '/rest/user/expertise';
@@ -312,9 +338,7 @@ $('#expertise .edit-card form').bootstrapValidator({
                 bootbox.alert(jqXHR.responseText);
             }
         });
-
-    }
-});
+    });
 
 $('#addExpertiseBtn').click(expertiseCard.create);
 $('.editExpertiseBtn').click(function()

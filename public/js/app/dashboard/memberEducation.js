@@ -1,8 +1,29 @@
 var userEducationCard = $('#userEducation').card();
 
 $('#userEducation .edit-card form').bootstrapValidator({
-    submitHandler : function(form)
-    {
+    feedbackIcons: {
+        valid     : 'glyphicon glyphicon-ok',
+        invalid   : 'glyphicon glyphicon-remove',
+        validating: 'glyphicon glyphicon-refresh'
+    },
+    fields         : {
+        school_name : {
+            validators: {
+                notEmpty: {
+                    message: 'This field is required and cannot be empty'
+                }
+            }
+        }
+    }
+})
+    .on('success.form.bv', function(e) {
+        // Prevent form submission
+        e.preventDefault();
+
+        var $form        = $(e.target),
+            validator    = $form.data('bootstrapValidator'),
+            submitButton = validator.getSubmitButton();
+
         var educationId = $('#userEducation .edit-card form input[name="id"]').val();
         var url = educationId ? '/rest/user/education/' + educationId : '/rest/user/education';
         var method = educationId ? 'post' : 'put';
@@ -26,23 +47,8 @@ $('#userEducation .edit-card form').bootstrapValidator({
             {
                 location.reload();
             }
-        })
-    },
-    feedbackIcons: {
-        valid     : 'glyphicon glyphicon-ok',
-        invalid   : 'glyphicon glyphicon-remove',
-        validating: 'glyphicon glyphicon-refresh'
-    },
-    fields         : {
-        school_name : {
-            validators: {
-                notEmpty: {
-                    message: 'This field is required and cannot be empty'
-                }
-            }
-        }
-    }
-});
+        });
+    });
 
 $('.editUserEducation').click(function(event)
 {
