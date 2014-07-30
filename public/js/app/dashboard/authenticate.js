@@ -25,7 +25,7 @@ $("#login-form").bootstrapValidator({
                 }
             }
         },
-        login_password : {
+        password : {
             validators: {
                 notEmpty: {
                     message: 'This field is required and cannot be empty'

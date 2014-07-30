@@ -14,7 +14,7 @@ $('#userPhone .edit-card form').bootstrapValidator({
         validating: 'glyphicon glyphicon-refresh'
     },
     fields       : {
-        phone: {
+        phone    : {
             validators: {
                 notEmpty: {
                     message: 'This field is required and cannot be empty'
@@ -27,7 +27,7 @@ $('#userPhone .edit-card form').bootstrapValidator({
                 digits: {message: 'Area code can only contain digit'}
             }
         },
-        code : {
+        code     : {
             enabled   : false,
             validators: {
                 digits      : {
@@ -42,12 +42,13 @@ $('#userPhone .edit-card form').bootstrapValidator({
         }
     }
 })
-    .on('success.form.bv', function(e) {
+    .on('success.form.bv', function(e)
+    {
         // Prevent form submission
         e.preventDefault();
 
-        var $form        = $(e.target),
-            validator    = $form.data('bootstrapValidator'),
+        var $form = $(e.target),
+            validator = $form.data('bootstrapValidator'),
             submitButton = validator.getSubmitButton();
 
         var method = $(submitButton).attr('name') == 'sendCode' ? 'post' : 'get';
@@ -61,7 +62,7 @@ $('#userPhone .edit-card form').bootstrapValidator({
                 phoneNumber: {
                     phone       : $('#userPhone .edit-card form input[name="phone"]').val(),
                     country_code: $('#userPhone .edit-card form select[name="country_code"]').val(),
-                    area_code: $('#userPhone .edit-card form input[name="country_code"]').val(),
+                    area_code   : $('#userPhone .edit-card form input[name="country_code"]').val(),
                     id          : $('#userPhone .edit-card form input[name="id"]').attr('id')
                 }
             },
