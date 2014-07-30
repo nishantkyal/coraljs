@@ -70,17 +70,12 @@ class SessionData extends AbstractSessionData
     {
         if (this.getUser() && this.getUser().isValid() && this.getUser().getSchedule())
         {
-            var nextAvailableSchedule:ExpertSchedule = _.find(this.getUser().getSchedule(), function (schedule):boolean
-            {
-                var scheduleEndTime = schedule[ExpertSchedule.START_TIME] + schedule[ExpertSchedule.DURATION];
-                return scheduleEndTime > moment().add({minutes: 15}).valueOf();
-            });
+            var nextAvailableSchedule:ExpertSchedule = this.getUser().getNextAvailableSchedule();
 
             if (!Utils.isNullOrEmpty(nextAvailableSchedule))
             {
                 this.set(SessionData.NEXT_AVAILABLE_SCHEDULE, nextAvailableSchedule);
-                var currentTime = moment().valueOf();
-                this.set(SessionData.IS_AVAILABLE, currentTime > nextAvailableSchedule[ExpertSchedule.START_TIME] && currentTime < (nextAvailableSchedule[ExpertSchedule.START_TIME] + nextAvailableSchedule[ExpertSchedule.DURATION]));
+                this.set(SessionData.IS_AVAILABLE, this.getUser().isCurrentlyAvailable());
             }
         }
     }

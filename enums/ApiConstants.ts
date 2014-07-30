@@ -82,6 +82,9 @@ class ApiConstants
     static TRANSACTION:string                           = 'transaction';
     static NO_PAYMENT:string                            = 'noPayment';
     static PRICING_SCHEME:string                        = 'pricingScheme';
+    static PRICE_RANGE:string                           = 'priceRange';
+    static EXPERIENCE_RANGE:string                      = 'expRange';
+    static AVAILIBILITY:string                          = 'availability';
 
     // Query Constants
     static MODE:string                                  = 'mode';

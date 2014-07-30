@@ -10,19 +10,19 @@ title Search Expert in Network - #{integration.title}
                             h5.col-xs-8 Search Filters
                         .row
                             form#search
-                                h3 Years of Experience
-                                input#years_of_experience(type='text', name='years_of_experience')
+                                //h3 Years of Experience
+                                //input.form-control#years_of_experience(type='text', name='expRange')
                                 h3 Price
-                                input#price(type='text', name='price')
+                                input.form-control#price(type='text', name='priceRange')
                                 br
-                                input(type='checkbox', name='availability' value='1')
+                                input#availability(type='checkbox', value='true', name='availability')
                                 |&nbsp; Currently Available
                                 h3 Skill
-                                input.form-control(id='tokeninput', class='tokeninput', type='text', name='skill', autocomplete="off")
+                                input(id='tokeninput', class='tokeninput', type='text', name='skill', autocomplete="off")
                                 div.links-editing
                                     p.edit-schedules
                                         input.btn.btn-primary(type='submit', value='Search')
-                                        input.btn.btn-primary#reset(value='Reset')
+                                        a.btn.btn-primary#reset Reset
         .col-md-9.content
             .row
                 .card
@@ -86,4 +86,6 @@ title Search Expert in Network - #{integration.title}
                                         a.btn.btn-primary(target='_blank', href=CallFlowUrls.callExpert(expert.id))
                                             b Call Expert
 include ../footer
+script.
+    var searchParameters = JSON.parse ( '!{JSON.stringify(searchParameters)}' );
 script(src='/js/app/dashboard/sns.js')

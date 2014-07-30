@@ -115,11 +115,22 @@ class DashboardRoute
         app.get(Urls.emailAccountVerification(), this.emailAccountVerification.bind(this));
         app.get(Urls.widgetCreator(), this.widgetCreator.bind(this));
     }
+
     private sns(req:express.Request, res:express.Response)
     {
         var self = this;
         var sessionData = new SessionData(req);
         var integrationId = parseInt(req.params[ApiConstants.INTEGRATION_ID]);
+
+        var searchParameters = {};
+        if (req.query[ApiConstants.PRICE_RANGE])
+            searchParameters[ApiConstants.PRICE_RANGE] = _.map((req.query[ApiConstants.PRICE_RANGE]).split(','), function(value:string){ return parseInt(value) });
+        if (req.query[ApiConstants.EXPERIENCE_RANGE])
+            searchParameters[ApiConstants.EXPERIENCE_RANGE] = _.map((req.query[ApiConstants.EXPERIENCE_RANGE]).split(','), function(value:string){ return parseInt(value) });
+        if (req.query[ApiConstants.USER_SKILL])
+            searchParameters[ApiConstants.USER_SKILL] = (req.query[ApiConstants.USER_SKILL]).split(',')
+        if (req.query[ApiConstants.AVAILIBILITY])
+            searchParameters[ApiConstants.AVAILIBILITY] =  req.query[ApiConstants.AVAILIBILITY] == "true" ? true:false ;
 
         q.all([
                 self.integrationDelegate.get(integrationId),
@@ -140,7 +151,8 @@ class DashboardRoute
             {
                 var pageData = _.extend(sessionData.getData(), {
                     integration:integration,
-                    experts:args[0]
+                    experts:self.applySearchParameters(searchParameters,args[0]),
+                    searchParameters:searchParameters || {}
                 });
 
                 res.render(DashboardRoute.PAGE_SNS, pageData);
@@ -150,6 +162,68 @@ class DashboardRoute
             {
                 res.render('500',{error:error});
             })
+    }
+
+    applySearchParameters(searchParameters:Object, experts:User[]):User[]
+    {
+        var keys = _.keys(searchParameters);
+        var invalidIndex = [];
+        _.each(keys, function(key){
+            switch(key)
+            {
+                case ApiConstants.PRICE_RANGE:
+                    _.each(experts, function(expert:User,index){
+                        if (!Utils.isNullOrEmpty(expert.getPricingScheme()))
+                        {
+                            var pricing:PricingScheme = expert.getPricingScheme()[0];
+                            var perMinChargeInRupees = pricing.getChargingRate();
+
+                            if (pricing.getPulseRate() > 1)
+                                perMinChargeInRupees = perMinChargeInRupees / pricing.getPulseRate();
+                            if (pricing.getUnit() == MoneyUnit.DOLLAR)
+                                perMinChargeInRupees *= 60;
+
+                            if (perMinChargeInRupees < searchParameters[key][0] || perMinChargeInRupees > searchParameters[key][1])
+                                invalidIndex.push(index);
+                        }
+                        if (Utils.isNullOrEmpty(expert.getPricingScheme()) && searchParameters[key][0] > 0) //don't display experts with no pricing scheme when search price range > 0
+                            invalidIndex.push(index);
+                    });
+                    break;
+
+                case ApiConstants.EXPERIENCE_RANGE:
+                    break;
+
+                case ApiConstants.AVAILIBILITY:
+                    _.each(experts, function(expert:User,index){
+                        if (!expert.isCurrentlyAvailable())
+                            invalidIndex.push(index);
+                    });
+                    break;
+
+                case ApiConstants.USER_SKILL:
+                    _.each(experts, function(expert,index){
+
+                        var expertSkills = _.map(expert.getSkill(), function(skill:any){
+                            return skill.skill.skill;
+                        });
+
+                        var isValid = false;
+                        _.each(searchParameters[key], function(skill){
+                            if(_.indexOf(expertSkills,skill) != -1)
+                                isValid = true;
+                        })
+
+                        if (!isValid)
+                            invalidIndex.push(index);
+                    });
+                    break;
+            }
+        });
+        _.each(_.uniq(invalidIndex), function(index){
+            delete experts[index];
+        })
+        return _.compact(experts);
     }
 
     private home(req:express.Request, res:express.Response)
@@ -376,9 +450,9 @@ class DashboardRoute
         var sessionData = new SessionData(req);
 
         q.all([
-            self.scheduleRuleDelegate.getRulesByUser(userId),
-            self.pricingSchemeDelegate.search(Utils.createSimpleObject(PricingScheme.USER_ID, userId))
-        ])
+                self.scheduleRuleDelegate.getRulesByUser(userId),
+                self.pricingSchemeDelegate.search(Utils.createSimpleObject(PricingScheme.USER_ID, userId))
+            ])
             .then(function detailsFetched(...args)
             {
                 var rules:ScheduleRule[] = [].concat(args[0][0]);
