@@ -16,6 +16,7 @@
         "cron": "1.0.3",
         "cron-parser": "0.2.5",
         "express": "3.4.1",
+        "express-session": "1.7.2",
         "gm": "1.16",
         "grunt": "*",
         "grunt-bumpup": "*",
