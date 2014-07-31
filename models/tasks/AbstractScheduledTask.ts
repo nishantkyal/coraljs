@@ -25,7 +25,7 @@ class AbstractScheduledTask
 
     execute():q.Promise<any>
     {
-        throw('Implement this method');
+        throw new Error('Implement this method');
         return q.reject('Implement this method');
     }
 

@@ -1,3 +1,4 @@
+import q                                                = require('q');
 import BaseModel                                        = require('./BaseModel');
 import Integration                                      = require('./Integration');
 import User                                             = require('./User');
@@ -57,9 +58,8 @@ class IntegrationMember extends BaseModel
     getRefreshTokenExpiry():string                      { return this.refresh_token_expiry; }
     getRevenueShare():number                            { return this.revenue_share; }
     getRevenueShareUnit():number                        { return this.revenue_share_unit; }
-
-    getIntegration():Integration                        { return null; }
-    getUser():User                                      { return null; }
+    getIntegration():q.Promise<Integration>             { return null; }
+    getUser():q.Promise<User>                           { return null; }
 
     isValid():boolean {
         return !isNaN(this.getIntegrationId()) && !isNaN(this.getRole());
@@ -77,7 +77,6 @@ class IntegrationMember extends BaseModel
     setRefreshTokenExpiry(val:string):void              { this.refresh_token_expiry = val; }
     setRevenueShare(val:number):void                    { this.revenue_share = val; }
     setRevenueShareUnit(val:MoneyUnit):void             { this.revenue_share_unit = val; }
-
     setIntegration(val:Integration):void                { }
     setUser(val:User):void                              { }
 }

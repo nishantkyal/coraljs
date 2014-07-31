@@ -1,3 +1,4 @@
+import q                                                = require('q');
 import BaseModel                                        = require('./BaseModel');
 import SkillCode                                        = require('./SkillCode');
 import ForeignKey                                       = require('./ForeignKey');
@@ -18,14 +19,13 @@ class UserSkill extends BaseModel
     private user_id:number;
 
     /* Getters */
-    getSkillId():number             { return this.skill_id; }
-    getUserId():number              { return this.user_id; }
+    getSkillId():number                                 { return this.skill_id; }
+    getUserId():number                                  { return this.user_id; }
+    getSkill():q.Promise<SkillCode>                     { return null; }
 
-    getSkill():SkillCode                { return null; }
     /* Setters */
-    setSkillId(val:number):void     { this.skill_id = val; }
-    setUserId(val:number):void      { this.user_id = val; }
-
-    setSkill(val:SkillCode)             { }
+    setSkillId(val:number):void                         { this.skill_id = val; }
+    setUserId(val:number):void                          { this.user_id = val; }
+    setSkill(val:SkillCode)                             { }
 }
 export = UserSkill

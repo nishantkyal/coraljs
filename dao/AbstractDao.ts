@@ -24,7 +24,7 @@ class AbstractDao
         if (this.modelClass && this.modelClass.TABLE_NAME)
             this.tableName = this.modelClass.TABLE_NAME;
         else
-            throw ('Invalid Model class specified for ' + Utils.getClassName(this));
+            throw new Error('Invalid Model class specified for ' + Utils.getClassName(this));
     }
 
     /**
@@ -61,7 +61,7 @@ class AbstractDao
                 rows.push(row);
             }
             else
-                throw('Inconsistent data. Not all values have same fields to be inserted');
+                throw new Error('Inconsistent data. Not all values have same fields to be inserted');
 
             insertedFields = fieldsToInsert;
         });
@@ -110,12 +110,12 @@ class AbstractDao
                 {
                     var errorMessage:string = 'No ' + self.tableName.replace('_', ' ') + ' found for id: ' + id;
                     self.logger.debug('No %s found for id: %s', self.tableName, id);
-                    throw(errorMessage);
+                    throw new Error(errorMessage);
                 }
                 else
                     return result;
             },
-            function objectFetchError(error)
+            function objectFetchError(error:Error)
             {
                 self.logger.error('GET failed table: %s, id: %s', self.tableName, id);
                 throw(error);
@@ -146,7 +146,7 @@ class AbstractDao
                 var typecastedResults = _.map(results, function (result) { return new self.modelClass(result); });
                 return typecastedResults;
             },
-            function searchError(error)
+            function searchError(error:Error)
             {
                 self.logger.error('SEARCH failed for table: %s, criteria: %s, error: %s', self.tableName, searchQuery, JSON.stringify(error));
                 throw(error);
@@ -175,14 +175,13 @@ class AbstractDao
                 if (result.length == 1)
                     return new self.modelClass(result[0]);
                 else
-                    return null;
+                    return result;
             },
-            function findError(error)
+            function findError(error:Error)
             {
                 self.logger.error('FIND failed for table: %s, criteria: %s, error: %s', self.tableName, JSON.stringify(searchQuery), JSON.stringify(error));
                 throw(error);
-            }
-        );
+            });
     }
 
     /**
@@ -221,12 +220,12 @@ class AbstractDao
                 if (result.affectedRows == 0)
                 {
                     self.logger.debug('Update did not change any rows in table - %s, for criteria - %s and values - %s', self.tableName, wheres.join(' AND') , values.join(','));
-                    throw('No rows were updated');
+                    throw new Error('No rows were updated');
                 }
                 else
                     return result;
             },
-            function updateError(error)
+            function updateError(error:Error)
             {
                 self.logger.error('UPDATE failed, error: %s, table: %s', JSON.stringify(error), self.tableName);
                 throw(error);
@@ -255,7 +254,7 @@ class AbstractDao
 
         return MysqlDelegate.executeQuery(query, values, transaction)
             .fail(
-            function deleteFailed(error)
+            function deleteFailed(error:Error)
             {
                 self.logger.error('DELETE failed for table: %s, criteria: %s, error: %s', self.tableName, criteria, JSON.stringify(error));
                 throw(error);

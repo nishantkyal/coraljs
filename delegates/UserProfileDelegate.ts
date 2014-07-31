@@ -150,7 +150,7 @@ class UserProfileDelegate extends BaseDaoDelegate
                 }
             })
             .fail(
-            function educationDetailsFetchedError(error)
+            function educationDetailsFetchedError(error:Error)
             {
                 self.logger.error(error);
                 throw(error);
@@ -196,7 +196,7 @@ class UserProfileDelegate extends BaseDaoDelegate
                 }
             })
             .fail(
-            function employmentDetailsFetchedError(error)
+            function employmentDetailsFetchedError(error:Error)
             {
                 self.logger.error(error);
                 throw(error);
@@ -228,7 +228,7 @@ class UserProfileDelegate extends BaseDaoDelegate
                 }
             })
             .fail(
-            function imageDetailsFetchedError(error)
+            function imageDetailsFetchedError(error:Error)
             {
                 self.logger.error(error);
                 throw(error);
@@ -261,11 +261,11 @@ class UserProfileDelegate extends BaseDaoDelegate
                 return q.all(tasks);
             })
             .fail(
-            function skillDetailsFetchedError(error)
+            function skillDetailsFetchedError(error:Error)
             {
                 self.logger.error(error);
                 throw(error);
-            })
+            });
     }
 
     fetchBasicDetailsFromLinkedIn(userId:number, profileId:number, transaction?:Object):q.Promise<any>
@@ -306,11 +306,11 @@ class UserProfileDelegate extends BaseDaoDelegate
                 ]);
             })
             .fail(
-            function basicDetailsFetchError(error)
+            function basicDetailsFetchError(error:Error)
             {
                 self.logger.error(error);
                 throw(error);
-            })
+            });
     }
 
     fetchAllDetailsFromLinkedIn(userId:number, profileId:number, transaction?:Object):q.Promise<any>

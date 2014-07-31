@@ -52,7 +52,7 @@ class ScheduleCallsScheduledTask extends AbstractScheduledTask
                     return self.phoneCallDelegate.queueCallForTriggering(call);
                 }));
             },
-            function callsFetchError(error):any
+            function callsFetchError(error:Error):any
             {
                 self.logger.fatal('An error occurred while scheduling calls. Error: %s', JSON.stringify(error));
                 throw(error);

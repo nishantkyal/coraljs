@@ -1,4 +1,5 @@
-import crypto                                                           = require('crypto');
+import q                                                    = require('q');
+import crypto                                               = require('crypto');
 import validator                                            = require('validator');
 import BaseModel                                            = require('./BaseModel')
 import Utils                                                = require('../common/Utils');
@@ -37,11 +38,12 @@ class User extends BaseModel
     static PUBLIC_FIELDS:string[] = [User.COL_ID, User.COL_TITLE, User.COL_FIRST_NAME, User.COL_LAST_NAME, User.COL_EMAIL,
         User.COL_INDUSTRY, User.COL_TIMEZONE, User.COL_DATE_OF_BIRTH, User.COL_EMAIL_VERIFIED, User.COL_ACTIVE, User.COL_VERIFIED, User.COL_PASSWORD, User.COL_PASSWORD_SEED];
 
-    static FK_USER_SKILL = new ForeignKey(ForeignKeyType.ONE_TO_MANY, User.COL_ID, UserSkill, UserSkill.COL_USER_ID, 'skill');
+    static FK_USER_SKILL = new ForeignKey(ForeignKeyType.ONE_TO_MANY, User.COL_ID, UserSkill, UserSkill.COL_USER_ID, 'skills');
     static FK_USER_EDUCATION = new ForeignKey(ForeignKeyType.ONE_TO_MANY, User.COL_ID, UserEducation, UserEducation.COL_USER_ID, 'education');
     static FK_USER_EMPLOYMENT = new ForeignKey(ForeignKeyType.ONE_TO_MANY, User.COL_ID, UserEmployment, UserEmployment.COL_USER_ID, 'employment');
     static FK_USER_URL = new ForeignKey(ForeignKeyType.ONE_TO_MANY, User.COL_ID, UserUrl, UserUrl.COL_USER_ID, 'url');
-    static FK_USER_PRICING_SCHEME = new ForeignKey(ForeignKeyType.ONE_TO_MANY, User.COL_ID, PricingScheme, PricingScheme.COL_USER_ID, 'pricing_scheme');
+    static FK_USER_PRICING_SCHEME = new ForeignKey(ForeignKeyType.ONE_TO_MANY, User.COL_ID, PricingScheme, PricingScheme.COL_USER_ID, 'pricing_schemes');
+    static FK_USER_SCHEDULE_RULE = new ForeignKey(ForeignKeyType.ONE_TO_MANY, User.COL_ID, ScheduleRule, ScheduleRule.COL_USER_ID, 'schedule_rules');
 
     private title:Salutation;
     private first_name:string;
@@ -70,15 +72,13 @@ class User extends BaseModel
     getEmailVerified():boolean                                  { return this.email_verified; }
     getActive():boolean                                         { return this.active; }
     getVerified():boolean                                       { return this.verified; }
-
-    getUserProfile():UserProfile                                { return null; }
-    getSchedule():Schedule[]                                    { return null; }
-    getScheduleRule():ScheduleRule[]                            { return null; }
-    getPricingScheme():PricingScheme[]                          { return null; }
-    getSkill():UserSkill[]                                      { return null; }
-    getEducation():UserEducation[]                              { return null; }
-    getEmployment():UserEmployment[]                            { return null; }
-    getUrl():UserUrl[]                                          { return null; }
+    getUserProfile():q.Promise<UserProfile>                     { return null; }
+    getScheduleRule():q.Promise<ScheduleRule[]>                 { return null; }
+    getPricingScheme():q.Promise<PricingScheme[]>               { return null; }
+    getSkill():q.Promise<UserSkill[]>                           { return null; }
+    getEducation():q.Promise<UserEducation[]>                   { return null; }
+    getEmployment():q.Promise<UserEmployment[]>                 { return null; }
+    getUrl():q.Promise<UserUrl[]>                               { return null; }
 
     isValid():boolean {
         return !Utils.isNullOrEmpty(this.getEmail()) && validator.isEmail(this.getEmail());
@@ -98,12 +98,10 @@ class User extends BaseModel
     setEmailVerified(val:boolean)                               { this.email_verified = val; }
     setActive(val:boolean)                                      { this.active = val; }
     setVerified(val:boolean)                                    { this.verified = val; }
-
     setUserProfile(val:UserProfile):void                        { }
-    setSchedule(val:Schedule[]):void                            { }
-    setScheduleRule(val:ScheduleRule[]):void                    { }
-    setPricingScheme(val:PricingScheme[]):void                  { }
-    setSkill(val:UserSkill[])                                   { }
+    setScheduleRules(val:ScheduleRule[]):void                   { }
+    setPricingSchemes(val:PricingScheme[]):void                 { }
+    setSkills(val:UserSkill[])                                  { }
     setEducation(val:UserEducation[])                           { }
     setEmployment(val:UserEmployment[])                         { }
     setUrl(val:UserUrl[])                                       { }

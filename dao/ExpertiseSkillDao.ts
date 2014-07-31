@@ -38,7 +38,7 @@ class ExpertiseSkillDao extends AbstractDao
 
                 return MysqlDelegate.executeQuery(query, values, transaction)
                     .fail(
-                    function deleteFailed(error)
+                    function deleteFailed(error:Error)
                     {
                         self.logger.error('DELETE failed for table: %s, criteria: %s, error: %s', self.tableName, criteria, JSON.stringify(error));
                         throw(error);

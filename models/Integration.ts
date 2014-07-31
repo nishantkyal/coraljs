@@ -35,6 +35,5 @@ class Integration extends BaseModel
     setRedirectUrl(val:string)                          { this.redirect_url = val; }
     setSecret(val:string)                               { this.secret = val; }
     setStatus(val:IntegrationStatus)                    { this.status = val; }
-
 }
 export = Integration

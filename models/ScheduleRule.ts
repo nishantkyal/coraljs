@@ -129,7 +129,7 @@ class ScheduleRule extends BaseModel
                     _.each(newSchedules, function (ns:Schedule)
                     {
                         if (es.conflicts(ns))
-                            throw('Conflicting schedule found');
+                            throw new Error('Conflicting schedule found');
                     });
                 });
                 return false;

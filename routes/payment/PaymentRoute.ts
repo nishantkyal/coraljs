@@ -300,9 +300,9 @@ class PaymentRoute
             {
                 return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.COL_TRANSACTION_ID, transactionId))
             },
-            function responseProcessingFailed(error)
+            function responseProcessingFailed(error:Error)
             {
-                if (error == 'HASH_MISMATCH' && noPayment)
+                if (error.message == 'HASH_MISMATCH' && noPayment)
                 {
                     var transactionId = callFlowSessionData.getTransaction().getId();
                     return self.transactionLineDelegate.search(Utils.createSimpleObject(TransactionLine.COL_TRANSACTION_ID, transactionId))

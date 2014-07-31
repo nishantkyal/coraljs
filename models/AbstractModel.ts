@@ -95,7 +95,7 @@ class AbstractModel
     {
         var thisProtoConstructor = this.__proto__.constructor;
         if (thisProtoConstructor['COLUMNS'].indexOf(propertyName) == -1)
-            throw('Non-existent property: ' + propertyName + ' referenced');
+            throw new Error('Non-existent property: ' + propertyName + ' referenced');
         return this[propertyName];
     }
 
@@ -107,7 +107,7 @@ class AbstractModel
         if (setterMethod)
             setterMethod.call(this, val);
         else
-            throw('Non-existent property: Tried calling non-existent setter: ' + setterMethodName + ' for model: ' + Utils.getClassName(this));
+            throw new Error('Non-existent property: Tried calling non-existent setter: ' + setterMethodName + ' for model: ' + Utils.getClassName(this));
     }
 
     /* Foreign key methods */
@@ -123,15 +123,22 @@ class AbstractModel
         // Getter method
         thisProto[getterMethod] = function ():q.Promise<any>
         {
+            var self = this;
+
             if (this[srcPropertyName])
                 return q.resolve(this[srcPropertyName]);
 
             return delegate.find(Utils.createSimpleObject(fk.targetKey, this[fk.srcKey]))
                 .then(
-                    function success(result)
-                    {
-                        return self[setterMethod].call(self, result);
-                    });
+                function success(result)
+                {
+                    return self[setterMethod].call(self, result);
+                })
+                .then(
+                function resultSet()
+                {
+                    return self[getterMethod].call(self);
+                });
         };
 
         // Setter method
@@ -154,11 +161,12 @@ class AbstractModel
         var setterMethod:string = 'set' + srcPropertyNameCamelCase;
         var thisProto = this.__proto__;
         var delegate = fk.referenced_table.DELEGATE;
-        var self = this;
 
         // Getter method
         thisProto[getterMethod] = function ():Object
         {
+            var self = this;
+
             if (this[srcPropertyName])
                 return q.resolve(this[srcPropertyName]);
 
@@ -167,6 +175,11 @@ class AbstractModel
                 function success(result)
                 {
                     return self[setterMethod].call(self, result);
+                })
+                .then(
+                function resultSet()
+                {
+                    return self[getterMethod].call(self);
                 });
         };
 

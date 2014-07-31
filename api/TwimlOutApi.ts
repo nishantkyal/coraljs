@@ -63,13 +63,24 @@ class TwimlOutApi
                 .then(
                 function callFetched(call:PhoneCall)
                 {
+                    return [call, q.all([
+                        call.getExpertPhone(),
+                        call.getExpertUser()
+                    ])];
+                })
+                .spread(
+                function expertDetailsFetched(call:PhoneCall, ...args)
+                {
+                    var expertPhone:UserPhone = args[0][0];
+                    var expert:User = args[0][1];
+
                     var pageData = {};
                     pageData['actionURL'] = TwilioUrlDelegate.twimlJoinCall(callId, Credentials.get(Credentials.TWILIO_URI));
                     pageData['timeLimit'] = call.getDuration();
                     //TODO[ankit] - get TotalDuration of all callFragments and set duration accordingly
-                    pageData['phoneNumber'] = call.getExpertPhone().getCompleteNumber();
+                    pageData['phoneNumber'] = expertPhone.getCompleteNumber();
                     pageData['record'] = (call.getRecorded() == false) ? 'false' : 'true';
-                    pageData['message'] = 'Welcome to Search n Talk. This is your scheduled call with' + Formatter.formatName(call.getExpertUser().getFirstName(), call.getExpertUser().getLastName(), call.getExpertUser().getTitle()) +
+                    pageData['message'] = 'Welcome to Search n Talk. This is your scheduled call with' + Formatter.formatName(expert.getFirstName(), expert.getLastName(), expert.getTitle()) +
                         'Please wait while we get the expert on the call';
                     res.render('twilio/TwilioXMLJoin.jade', pageData);
                 })

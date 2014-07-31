@@ -26,23 +26,19 @@ class WidgetExpert
     private next_slot_start_time:number;
     private next_slot_duration:number;
 
-    constructor(expert:User);
-    constructor(expert:Object);
-    constructor(expert:any)
+    constructor(expert:User, schedules:Schedule[]);
+    constructor(expert:Object, schedules:Schedule[]);
+    constructor(expert:any, schedules:Schedule[])
     {
-        var self = this;
-
         if (Utils.getObjectType(expert) == 'User')
         {
-            var user:User = expert;
+            this.user_id = expert.getId();
+            this.title = expert.getTitle();
+            this.first_name = expert.getFirstName();
+            this.last_name = expert.getLastName();
+            this.timezone = expert.getTimezone();
 
-            this.user_id = user.getId();
-            this.title = user.getTitle();
-            this.first_name = user.getFirstName();
-            this.last_name = user.getLastName();
-            this.timezone = user.getTimezone();
-
-            var nextAvailableSchedule:Schedule = _.find(user.getSchedule(), function (schedule:Schedule):boolean
+            var nextAvailableSchedule:Schedule = _.find(schedules, function (schedule:Schedule):boolean
             {
                 var scheduleEndTime = schedule.getStartTime() + schedule.getDuration();
                 return scheduleEndTime > moment().add({minutes: 15}).valueOf();

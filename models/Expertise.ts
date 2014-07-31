@@ -1,9 +1,9 @@
+import q                                                = require('q');
 import BaseModel                                        = require('../models/BaseModel');
 import MapExpertiseSkill                                = require('../models/MapExpertiseSkill');
 import MoneyUnit                                        = require('../enums/MoneyUnit');
 import ForeignKeyType                                   = require('../enums/ForeignKeyType');
 import ForeignKey                                       = require('./ForeignKey');
-
 
 class Expertise extends BaseModel
 {
@@ -19,7 +19,7 @@ class Expertise extends BaseModel
     static COL_OWN_RATING:string                            = 'own_rating';
     static COL_YEARS_OF_EXPERIENCE:string                   = 'years_of_experience';
 
-    static FK_EXPERTISE_SKILL = new ForeignKey(ForeignKeyType.MANY_TO_MANY, Expertise.COL_ID, MapExpertiseSkill, MapExpertiseSkill.COL_EXPERTISE_ID, 'skill');
+    static FK_EXPERTISE_SKILL = new ForeignKey(ForeignKeyType.MANY_TO_MANY, Expertise.COL_ID, MapExpertiseSkill, MapExpertiseSkill.COL_EXPERTISE_ID, 'skills');
 
     static PUBLIC_FIELDS:string[] = [Expertise.COL_ID, Expertise.COL_USER_ID, Expertise.COL_TITLE, Expertise.COL_SESSION_DURATION,
         Expertise.COL_SESSION_PRICE, Expertise.COL_SESSION_PRICE_UNIT, Expertise.COL_DESCRIPTION, Expertise.COL_VIDEO_URL,
@@ -45,7 +45,7 @@ class Expertise extends BaseModel
     getVideoUrl():string                                { return this.video_url; }
     getOwnRating():number                               { return this.own_rating; }
     getYearsOfExperience():number                       { return this.years_of_experience; }
-    getSkill():MapExpertiseSkill[]                     { return null; }
+    getSkills():q.Promise<MapExpertiseSkill[]>           { return null; }
 
     /* Setters */
     setUserId(val:number)                               { this.user_id = val; }
@@ -57,6 +57,6 @@ class Expertise extends BaseModel
     setVideoUrl(val:string)                             { this.video_url = val; }
     setOwnRating(val:number)                            { this.own_rating = val; }
     setYearsOfExperience(val:number)                    { this.years_of_experience = val; }
-    setSkill(val:MapExpertiseSkill[])                  {  }
+    setSkills(val:MapExpertiseSkill[])                   {  }
 }
 export = Expertise

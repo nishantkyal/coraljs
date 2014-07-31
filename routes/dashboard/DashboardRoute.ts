@@ -221,7 +221,12 @@ class DashboardRoute
                 var coupons = results[0][2] || [];
 
                 var isPartOfDefaultNetwork = !Utils.isNullOrEmpty(_.findWhere(members, Utils.createSimpleObject(IntegrationMember.COL_INTEGRATION_ID, Config.get(Config.DEFAULT_NETWORK_ID))));
-                integrationMembers = integrationMembers.concat(_.map(invitedMembers, function (invited) { return new IntegrationMember(invited); }));
+                integrationMembers = integrationMembers.concat(_.map(invitedMembers, function (invited)
+                {
+                    var invitedMember = new IntegrationMember(invited);
+                    invitedMember.setUser(invited['user']);
+                    return invitedMember;
+                }));
 
                 var pageData = _.extend(sessionData.getData(), {
                     'members': members,

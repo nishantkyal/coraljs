@@ -71,12 +71,12 @@ class ScheduleRuleDelegate extends BaseDaoDelegate
         return q.all([
             self.create(weekdaysRule, transaction),
             self.create(weekendRule, transaction)
-        ]).fail(
-            function rulesCreateFailed(error)
+        ])
+            .fail(
+            function rulesCreateFailed(error:Error)
             {
                 throw(error);
-            }
-        );
+            });
     }
 
     update(criteria:Object, updatedScheduleRule:ScheduleRule, transaction?:Object):q.Promise<any>
@@ -122,7 +122,7 @@ class ScheduleRuleDelegate extends BaseDaoDelegate
                 return scheduleExceptionDelegate.deleteByRuleId(ruleId, transaction, false)
             })
             .fail(
-            function (error)
+            function (error:Error)
             {
                 self.logger.debug('Error in deleting exceptions for ruleId - ' + ruleId + error);
                 throw error;

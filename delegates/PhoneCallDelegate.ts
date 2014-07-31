@@ -165,7 +165,15 @@ class PhoneCallDelegate extends BaseDaoDelegate
             .then(
             function callFetched(call:PhoneCall)
             {
-                return self.callProvider.makeCall(call.getUserPhone().getCompleteNumber(), callId, call.getNumReattempts());
+                return [call, call.getUserPhone()];
+            })
+            .spread(
+            function userPhoneFetched(...args)
+            {
+                var call:PhoneCall = args[0][0];
+                var userPhone:UserPhone = args[0][1];
+
+                return self.callProvider.makeCall(userPhone.getCompleteNumber(), callId, call.getNumReattempts());
             })
             .then(
             function callTriggered()
@@ -378,7 +386,7 @@ class PhoneCallDelegate extends BaseDaoDelegate
                             function sendResponse() { return CallStatus.SCHEDULING; });
                 }
                 else
-                    throw('Invalid request');
+                    throw new Error('Invalid request');
             });
     }
 

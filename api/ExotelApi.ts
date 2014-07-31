@@ -35,7 +35,6 @@ class ExotelApi
                         .then(
                         function callFetched(call:PhoneCall)
                         {
-                            user = call.getExpertUser();
                             res.json('OK');
                         },
                         function callFetchError(error) { res.status(401).json(error); }

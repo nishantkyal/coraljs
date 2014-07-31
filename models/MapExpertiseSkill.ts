@@ -1,3 +1,4 @@
+import q                                                    = require('q');
 import BaseModel                                            = require('./BaseModel');
 import SkillCode                                            = require('./SkillCode');
 import ForeignKey                                           = require('./ForeignKey');
@@ -17,12 +18,12 @@ class MapExpertiseSkill extends BaseModel
     private expertise_id:number;
     private skill_id:number;
 
-    getExpertiseId():number             { return this.expertise_id; }
-    getSkillId():number                 { return this.skill_id; }
-    getSkill():SkillCode                { return null; }
+    getExpertiseId():number                                 { return this.expertise_id; }
+    getSkillId():number                                     { return this.skill_id; }
+    getSkill():q.Promise<SkillCode>                         { return null; }
 
-    setExpertiseId(val:number)          { this.expertise_id = val; }
-    setSkillId(val:number)              { this.skill_id = val; }
-    setSkill(val:SkillCode)             { }
+    setExpertiseId(val:number)                              { this.expertise_id = val; }
+    setSkillId(val:number)                                  { this.skill_id = val; }
+    setSkill(val:SkillCode)                                 { }
 }
 export = MapExpertiseSkill

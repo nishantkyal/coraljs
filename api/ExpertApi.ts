@@ -70,8 +70,6 @@ class ExpertApi
                         .then(
                         function expertCreated(member:IntegrationMember)
                         {
-                            member.setUser(user);
-                            member.setIntegration(self.integrationDelegate.getSync(member.getIntegrationId()));
                             return [member, self.notificationDelegate.sendMemberAddedNotification(member)];
                         })
                         .spread(

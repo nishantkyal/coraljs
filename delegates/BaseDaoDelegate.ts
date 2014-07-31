@@ -30,10 +30,12 @@ class BaseDaoDelegate
     {
         fields = fields || this.dao.modelClass.PUBLIC_FIELDS;
 
-        if (Utils.getObjectType(id) === 'Array' && id.length > 0)
+        id = [].concat(id);
+
+        if (id.length > 1)
             return this.search({'id': id}, fields, foreignKeys);
 
-        if (Utils.getObjectType(id) === 'Array' && id.length === 1)
+        if (id.length === 1)
             return this.find({'id': id}, fields, foreignKeys);
     }
 
@@ -117,7 +119,7 @@ class BaseDaoDelegate
     create(object:any, transaction?:Object):q.Promise<any>
     {
         if (Utils.isNullOrEmpty(object))
-            throw ('Invalid data. Trying to create object with null data');
+            throw new Error('Invalid data. Trying to create object with null data');
 
         var self:BaseDaoDelegate = this;
 

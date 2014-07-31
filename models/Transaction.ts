@@ -1,3 +1,4 @@
+import q                                                    = require('q');
 import BaseModel                                            = require('./BaseModel');
 import TransactionLine                                      = require('./TransactionLine');
 import ForeignKey                                           = require('./ForeignKey');
@@ -20,19 +21,19 @@ class Transaction extends BaseModel
     private payment_id:number;
     private status:TransactionStatus;
 
-    static FK_TRANSACTION_LINES:ForeignKey = new ForeignKey(ForeignKeyType.ONE_TO_MANY, Transaction.COL_ID, TransactionLine, TransactionLine.COL_TRANSACTION_ID, 'lines');
+    static FK_TRANSACTION_LINES:ForeignKey = new ForeignKey(ForeignKeyType.ONE_TO_MANY, Transaction.COL_ID, TransactionLine, TransactionLine.COL_TRANSACTION_ID, 'transaction_lines');
 
     /* Getters */
     getUserId():number                                      { return this.user_id; }
     getPaymentId():number                                   { return this.payment_id; }
     getStatus():TransactionStatus                           { return this.status; }
-    getTransactionLine():TransactionLine[]                  { return null; }
+    getTransactionLines():q.Promise<TransactionLine[]>       { return null; }
 
     /* Setters */
     setUserId(val:number):void                              { this.user_id = val; }
     setPaymentId(val:number):void                           { this.payment_id = val; }
     setStatus(val:TransactionStatus):void                   { this.status = val; }
-    setTransactionLine(val:TransactionLine[]):void          {  }
+    setTransactionLines(val:TransactionLine[]):void          {  }
 
     isValid():boolean
     {

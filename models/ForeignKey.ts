@@ -21,7 +21,9 @@ class ForeignKey
     // Helper method to get the name of the property to set in the base object after the results are fetched
     getSourcePropertyName():string
     {
-        // FIXME: Foreign key association where srcKey name doesn't contain _id uses targetKey name
+        // 1. If srcKey contains the property name -> Excellent
+        // 2. If targetKey contains the
+
         return this.localPropertyToSet || (this.srcKey.indexOf('_id') != -1 ? this.srcKey.replace('_id', '') : this.targetKey.replace('_id', ''));
     }
 

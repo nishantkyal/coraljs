@@ -32,18 +32,17 @@ class VerificationCodeDelegate
         this.notificationDelegate = new NotificationDelegate();
     }
 
-    resendExpertInvitationCode(integrationId:number, member:IntegrationMember, sender?:User):q.Promise<any>
+    resendExpertInvitationCode(integrationId:number, invitedUser:User, sender?:User):q.Promise<any>
     {
         var self = this;
 
-        return self.findVerificationCode(integrationId, member.getUser().getEmail())
+        return self.findVerificationCode(integrationId, invitedUser.getEmail())
             .then(
             function codeFound(invites:Object)
             {
                 return q.all(_.map(_.keys(invites), function (code)
                 {
                     var member = new IntegrationMember(invites[code]);
-                    member.setUser(new User(member.getUser()));
                     return self.emailDelegate.sendExpertInvitationEmail(integrationId, code, member, sender)
                 }));
             });
@@ -53,7 +52,12 @@ class VerificationCodeDelegate
     {
         var self = this;
 
-        return self.deleteVerificationCode(integrationId, member.getUser().getEmail())
+        return member.getUser()
+            .then(
+            function userFetched(user:User)
+            {
+                return self.deleteVerificationCode(integrationId, user.getEmail());
+            })
             .then(
             function oldCodeDeleted()
             {
@@ -67,26 +71,27 @@ class VerificationCodeDelegate
             });
     }
 
-    checkExistingAndSendEmailVerificationCode(integrationId:number, member:IntegrationMember, sender?:User):q.Promise<any>
+    checkExistingAndSendEmailVerificationCode(integrationId:number, member:IntegrationMember, invitedUser:User, sender?:User):q.Promise<any>
     {
         var self = this;
 
         return q.all([
-            self.integrationMemberDelegate.findByEmail(member.getUser().getEmail(), integrationId),
-            self.findVerificationCode(integrationId, member.getUser().getEmail())
-        ]).
-            then(
+            self.integrationMemberDelegate.findByEmail(invitedUser.getEmail(), integrationId),
+            self.findVerificationCode(integrationId, invitedUser.getEmail())
+        ])
+            .then(
             function existingSearched(...args)
             {
                 var expert = args[0][0];
                 var invited = args[0][1];
 
                 if (!Utils.isNullOrEmpty(expert))
-                    throw('The expert is already registered');
+                    throw new Error('The expert is already registered');
 
                 if (!Utils.isNullOrEmpty(invited))
-                    throw('The expert is already registered');
+                    throw new Error('The expert is already registered');
 
+                member.setUser(invitedUser);
                 return self.createAndSendExpertInvitationCode(integrationId, member, sender);
             });
     }
@@ -152,7 +157,7 @@ class VerificationCodeDelegate
                 if (result == code && !Utils.isNullOrEmpty(code))
                     return true;
                 else
-                    throw ('Invalid code entered');
+                    throw new Error('Invalid code entered');
             });
     }
 
@@ -244,7 +249,7 @@ class VerificationCodeDelegate
             function invitationCodeSearched(invitedUser)
             {
                 if (Utils.isNullOrEmpty(invitedUser))
-                    throw('Invalid invitation code');
+                    throw new Error('Invalid invitation code');
                 else
                     return invitedUser;
             }

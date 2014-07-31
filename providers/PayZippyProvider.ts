@@ -116,7 +116,7 @@ class PayZippyProvider
             {
                 if (transactionStatus == TransactionStatus.PAYMENT_SUCCESS)
                     return transactionId;
-                throw(response[PayZippyProvider.TRANSACTION_RESPONSE_MESSAGE]);
+                throw new Error(response[PayZippyProvider.TRANSACTION_RESPONSE_MESSAGE]);
             });
     }
 }

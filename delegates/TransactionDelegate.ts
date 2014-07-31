@@ -116,7 +116,7 @@ class TransactionDelegate extends BaseDaoDelegate
                         self.transactionLineDelegate.search({transaction_id: transactionId})
                     ]);
                 else
-                    throw('Only one discount allowed at a time');
+                    throw new Error('Only one discount allowed at a time');
             })
             .then(
             function couponFetched(...result):any
@@ -125,7 +125,7 @@ class TransactionDelegate extends BaseDaoDelegate
                 var transactionLines = result[0][1];
 
                 if (Utils.isNullOrEmpty(coupon))
-                    throw('Invalid or expired coupon');
+                    throw new Error('Invalid or expired coupon');
 
                 // TODO: Check if coupon applies to selected expert
                 //var expertResourceId = coupon.getExpertId();
@@ -182,7 +182,7 @@ class TransactionDelegate extends BaseDaoDelegate
                     self.transactionLineDelegate.create(discountLine, dbTransaction)
                 ]);
             },
-            function couponFetchFailed(error)
+            function couponFetchFailed(error:Error)
             {
                 self.logger.error('Error while applying coupon: %s. Error: %s', code, JSON.stringify(error));
                 throw(error);

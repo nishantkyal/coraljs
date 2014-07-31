@@ -1,3 +1,4 @@
+import q                                                = require('q');
 import BaseModel                                        = require('./BaseModel');
 import Utils                                            = require('../common/Utils');
 import User                                             = require('../models/User');
@@ -74,11 +75,10 @@ class PhoneCall extends BaseModel
     getUnit():MoneyUnit                                 { return this.unit; }
     getPulseRate():number                               { return this.pulse_rate; }
     getMinDuration():number                             { return this.min_duration; }
-
-    getUser():User                                      { return null; }
-    getExpertUser():User                                { return null; }
-    getUserPhone():UserPhone                            { return null; }
-    getExpertPhone():UserPhone                          { return null; }
+    getUser():q.Promise<User>                           { return null; }
+    getExpertUser():q.Promise<User>                     { return null; }
+    getUserPhone():q.Promise<UserPhone>                 { return null; }
+    getExpertPhone():q.Promise<UserPhone>               { return null; }
 
     /* Setters */
     setCallerUserId(val:number):void                    { this.caller_user_id = val; }
@@ -97,7 +97,6 @@ class PhoneCall extends BaseModel
     setUnit(val:MoneyUnit)                              { this.unit = val; }
     setPulseRate(val:number)                            { this.pulse_rate = val; }
     setMinDuration(val:number)                          { this.min_duration = val; }
-
     setUser(val:User):void                              { }
     setExpertUser(val:User):void                        { }
     setUserPhone(val:UserPhone):void                    { }

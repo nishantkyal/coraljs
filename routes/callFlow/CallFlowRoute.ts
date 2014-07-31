@@ -85,20 +85,15 @@ class CallFlowRoute
             self.scheduleExceptionDelegate.search(Utils.createSimpleObject(ScheduleException.COL_USER_ID, userId), [Schedule.COL_START_TIME, Schedule.COL_DURATION]),
             self.userDelegate.get(userId, null, [User.FK_USER_PRICING_SCHEME, User.FK_USER_SKILL]),
             self.scheduleDelegate.getSchedulesForUser(userId)
-        ]).then(
-            function handleExpertSearchFailed(error)
-            {
-                self.logger.error('Error in getting expert details - ' + error);
-                throw('No such expert exists!');
-            })
-            .spread(
+        ])
+            .then(
             function userProfileFetched(...args):any
             {
                 var userProfile:UserProfile = args[0][0];
                 var scheduledCalls:PhoneCall[] = args[0][1];
                 var scheduleExceptions:ScheduleException[] = args[0][2];
                 var user:User = args[0][3];
-                var schedule:Schedule = args[0][4];
+                var schedule:Schedule[] = args[0][4];
 
                 var exceptions = [];
 
@@ -115,6 +110,7 @@ class CallFlowRoute
                     }));
 
                 sessionData.setUser(user);
+                sessionData.setSchedule(schedule);
                 sessionData.setExpertGmtOffset(self.timezoneDelegate.get(user.getTimezone()).getGmtOffset() * 1000);
 
                 var pageData = _.extend(sessionData.getData(), {
@@ -128,7 +124,13 @@ class CallFlowRoute
             },
             function handleExpertSearchFailed(error)
             {
-                res.render('500', {error: JSON.stringify(error)});
+                self.logger.error('Error in getting expert details - ' + error);
+                throw new Error('No such expert exists!');
+            })
+            .fail(
+            function handleFailed(error:Error)
+            {
+                res.render('500', {error: error.message});
             });
     }
 
@@ -166,28 +168,28 @@ class CallFlowRoute
                 var call:PhoneCall = args[0][1];
 
                 if (Utils.isNullOrEmpty(appointment) || (!Utils.isNullOrEmpty(startTime) && !_.contains(appointment.startTimes, startTime)) || appointment.from == loggedInUserId)
-                    throw 'Invalid request. Please click on one of the links in the email';
+                    throw new Error('Invalid request. Please click on one of the links in the email');
 
-                var returnArray = [appointment.startTimes, call];
+                var returnArray = [appointment.startTimes, call, call.getExpertUser()];
 
                 switch (loggedInUserId)
                 {
                     // If viewer == expert
                     case call.getExpertUserId():
                         if (!Utils.isNullOrEmpty(call.getExpertPhoneId()))
-                            returnArray.push(self.userPhoneDelegate.get(call.getExpertPhoneId()));
+                            returnArray.push(call.getExpertPhone());
                         else
                             returnArray.push(self.userPhoneDelegate.find(Utils.createSimpleObject(UserPhone.COL_USER_ID, call.getExpertUserId())));
 
                     // If viewer == caller
                     case call.getCallerUserId():
-                        returnArray.push(self.userPhoneDelegate.get(call.getCallerPhoneId()));
+                        returnArray.push(call.getUserPhone());
                 }
 
                 return returnArray;
             })
             .spread(
-            function expertPhonesFetched(startTimes:number[], call:PhoneCall, phone:UserPhone):any
+            function expertPhonesFetched(startTimes:number[], call:PhoneCall, expert:User, phone:UserPhone):any
             {
                 /*var lines = call.getTransactionLine();
                  var productLine:TransactionLine = _.findWhere(lines, Utils.createSimpleObject(TransactionLine.COL_TRANSACTION_TYPE, TransactionType.PRODUCT));*/
@@ -217,8 +219,8 @@ class CallFlowRoute
                     phone: phone,
                     code: appointmentCode,
                     loggedInUserId: loggedInUserId,
-                    expertGmtOffset: self.timezoneDelegate.get(call.getExpertUser().getTimezone()).getGmtOffset() * 1000,
-                    userGmtOffset: self.timezoneDelegate.get(call.getUser().getTimezone()).getGmtOffset() * 1000
+                    expertGmtOffset: self.timezoneDelegate.get(expert.getTimezone()).getGmtOffset() * 1000,
+                    userGmtOffset: self.timezoneDelegate.get(expert.getTimezone()).getGmtOffset() * 1000
                 };
 
                 if (loggedInUserId == call.getExpertUserId())

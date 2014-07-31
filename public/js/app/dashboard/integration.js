@@ -81,18 +81,19 @@ $('#integrationMemberCard .edit-card form').bootstrapValidator({
                 data   : {
                     integration_member: {
                         role          : $('#integrationMemberCard .edit-card form [name="role"]').val(),
-                        integration_id: integrationId,
-                        user          : {
-                            email     : $('#integrationMemberCard .edit-card form [name="email"]').val(),
-                            title     : $('#integrationMemberCard .edit-card form [name="title"]').val(),
-                            first_name: $('#integrationMemberCard .edit-card form [name="first_name"]').val(),
-                            last_name : $('#integrationMemberCard .edit-card form [name="last_name"]').val(),
-                            timezone  : zone.zone_id
-                        },
-                        phoneNumber   : {
-                            country_code: $('#integrationMemberCard .edit-card form [name="country_code"]').val(),
-                            phone       : $('#integrationMemberCard .edit-card form [name="phone"]').val()
-                        }
+                        integration_id: integrationId
+                    },
+                    user          : {
+                        email     : $('#integrationMemberCard .edit-card form [name="email"]').val(),
+                        title     : $('#integrationMemberCard .edit-card form [name="title"]').val(),
+                        first_name: $('#integrationMemberCard .edit-card form [name="first_name"]').val(),
+                        last_name : $('#integrationMemberCard .edit-card form [name="last_name"]').val(),
+                        timezone  : zone.zone_id
+                    },
+                    phoneNumber   : {
+                        area_code: $('#integrationMemberCard .edit-card form [name="area_code"]').val(),
+                        country_code: $('#integrationMemberCard .edit-card form [name="country_code"]').val(),
+                        phone       : $('#integrationMemberCard .edit-card form [name="phone"]').val()
                     }
                 },
                 success: function(result)
@@ -318,7 +319,7 @@ $('form#integration').bootstrapValidator({
             }),
             success    : function()
             {
-                location.reload();
+                location.href = '/network';
             },
             error      : function(jqXHR)
             {
@@ -327,3 +328,8 @@ $('form#integration').bootstrapValidator({
         })
     }
 });
+
+$('.sendAgain').click(function()
+{
+
+})
