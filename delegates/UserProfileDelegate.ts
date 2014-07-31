@@ -1,4 +1,3 @@
-///<reference path='../_references.d.ts'/>
 import _                                        = require('underscore');
 import moment                                   = require('moment');
 import passport                                 = require('passport');
@@ -22,12 +21,12 @@ import UserUrl                                  = require('../models/UserUrl');
 import SkillCode                                = require('../models/SkillCode');
 import User                                     = require('../models/User');
 import UserOauth                                = require('../models/UserOauth');
+import ForeignKey                               = require('../models/ForeignKey');
 import IntegrationMember                        = require('../models/IntegrationMember');
 import Config                                   = require('../common/Config');
 import Credentials                              = require('../common/Credentials');
 import Utils                                    = require('../common/Utils');
 import IndustryCodes                            = require('../enums/IndustryCode');
-import IncludeFlag                              = require('../enums/IncludeFlag');
 
 class UserProfileDelegate extends BaseDaoDelegate
 {
@@ -59,18 +58,18 @@ class UserProfileDelegate extends BaseDaoDelegate
             });
     }
 
-    find(criteria:Object, fields?:string[], includes:IncludeFlag[] = [], dbTransaction?:Object):q.Promise<any>
+    find(criteria:Object, fields?:string[], foreignKeys:ForeignKey[] = [], dbTransaction?:Object):q.Promise<any>
     {
         var self = this;
 
-        return super.find(criteria, fields, includes, dbTransaction)
+        return super.find(criteria, fields, foreignKeys, dbTransaction)
             .then(
             function profileFetched(profile:UserProfile):any
             {
-                if (Utils.isNullOrEmpty(profile) && criteria.hasOwnProperty(UserProfile.USER_ID))
+                if (Utils.isNullOrEmpty(profile) && criteria.hasOwnProperty(UserProfile.COL_USER_ID))
                 {
                     var profile = new UserProfile();
-                    profile.setUserId(criteria[UserProfile.USER_ID]);
+                    profile.setUserId(criteria[UserProfile.COL_USER_ID]);
 
                     return self.create(profile, dbTransaction);
                 }
@@ -151,7 +150,7 @@ class UserProfileDelegate extends BaseDaoDelegate
                 }
             })
             .fail(
-            function educationDetailsFetchedError(error)
+            function educationDetailsFetchedError(error:Error)
             {
                 self.logger.error(error);
                 throw(error);
@@ -197,7 +196,7 @@ class UserProfileDelegate extends BaseDaoDelegate
                 }
             })
             .fail(
-            function employmentDetailsFetchedError(error)
+            function employmentDetailsFetchedError(error:Error)
             {
                 self.logger.error(error);
                 throw(error);
@@ -229,7 +228,7 @@ class UserProfileDelegate extends BaseDaoDelegate
                 }
             })
             .fail(
-            function imageDetailsFetchedError(error)
+            function imageDetailsFetchedError(error:Error)
             {
                 self.logger.error(error);
                 throw(error);
@@ -262,11 +261,11 @@ class UserProfileDelegate extends BaseDaoDelegate
                 return q.all(tasks);
             })
             .fail(
-            function skillDetailsFetchedError(error)
+            function skillDetailsFetchedError(error:Error)
             {
                 self.logger.error(error);
                 throw(error);
-            })
+            });
     }
 
     fetchBasicDetailsFromLinkedIn(userId:number, profileId:number, transaction?:Object):q.Promise<any>
@@ -307,11 +306,11 @@ class UserProfileDelegate extends BaseDaoDelegate
                 ]);
             })
             .fail(
-            function basicDetailsFetchError(error)
+            function basicDetailsFetchError(error:Error)
             {
                 self.logger.error(error);
                 throw(error);
-            })
+            });
     }
 
     fetchAllDetailsFromLinkedIn(userId:number, profileId:number, transaction?:Object):q.Promise<any>
@@ -346,7 +345,7 @@ class UserProfileDelegate extends BaseDaoDelegate
             {
                 if (userEducation && userEducation.length > 0)
                 //TODO: Check if this can be done in one statement using the IN clause of SQL
-                    return userEducationDelegate.delete({id: _.pluck(userEducation, UserEducation.ID), user_id: userId}, transaction, false);
+                    return userEducationDelegate.delete({id: _.pluck(userEducation, UserEducation.COL_ID), user_id: userId}, transaction, false);
                 else
                     return false;
             })
@@ -370,7 +369,7 @@ class UserProfileDelegate extends BaseDaoDelegate
             function EmploymentFetched(userEmployment:UserEmployment[]):any
             {
                 if (userEmployment && userEmployment.length > 0)
-                    return userEmploymentDelegate.delete({id: _.pluck(userEmployment, UserEmployment.ID), user_id: userId}, transaction, false);
+                    return userEmploymentDelegate.delete({id: _.pluck(userEmployment, UserEmployment.COL_ID), user_id: userId}, transaction, false);
                 else
                     return false;
             })
@@ -389,12 +388,12 @@ class UserProfileDelegate extends BaseDaoDelegate
             return MysqlDelegate.executeInTransaction(self, arguments);
 
         var userSkillDelegate = new UserSkillDelegate();
-        return userSkillDelegate.search(Utils.createSimpleObject(UserSkill.USER_ID, userId))
+        return userSkillDelegate.search(Utils.createSimpleObject(UserSkill.COL_USER_ID, userId))
             .then(
             function SkillFetched(userSkills:UserSkill[]):any
             {
                 if (userSkills && userSkills.length > 0)
-                    return userSkillDelegate.delete({id: _.pluck(userSkills, UserSkill.ID), user_id: userId}, transaction, false);
+                    return userSkillDelegate.delete({id: _.pluck(userSkills, UserSkill.COL_ID), user_id: userId}, transaction, false);
                 else
                     return false;
             })

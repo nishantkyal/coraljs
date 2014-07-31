@@ -4,13 +4,13 @@ class UserEmployment extends BaseModel
 {
     static TABLE_NAME:string = 'user_employment';
 
-    static TITLE:string = 'title';
-    static SUMMARY:string = 'summary';
-    static START_DATE:string = 'start_date';
-    static END_DATE:string = 'end_date';
-    static IS_CURRENT:string = 'is_current';
-    static COMPANY:string = 'company';
-    static USER_ID:string = 'user_id';
+    static COL_TITLE:string = 'title';
+    static COL_SUMMARY:string = 'summary';
+    static COL_START_DATE:string = 'start_date';
+    static COL_END_DATE:string = 'end_date';
+    static COL_IS_CURRENT:string = 'is_current';
+    static COL_COMPANY:string = 'company';
+    static COL_USER_ID:string = 'user_id';
 
 
     private title:string;
@@ -21,8 +21,8 @@ class UserEmployment extends BaseModel
     private company:string;
     private user_id:number;
 
-    static DEFAULT_FIELDS:string[] = [UserEmployment.ID,UserEmployment.USER_ID, UserEmployment.TITLE, UserEmployment.SUMMARY, UserEmployment.START_DATE,
-        UserEmployment.END_DATE, UserEmployment.IS_CURRENT,UserEmployment.COMPANY];
+    static PUBLIC_FIELDS:string[] = [UserEmployment.COL_ID, UserEmployment.COL_USER_ID, UserEmployment.COL_TITLE, UserEmployment.COL_SUMMARY, UserEmployment.COL_START_DATE,
+        UserEmployment.COL_END_DATE, UserEmployment.COL_IS_CURRENT, UserEmployment.COL_COMPANY];
 
     /* Getters */
     getTitle():string               { return this.title; }
@@ -32,6 +32,7 @@ class UserEmployment extends BaseModel
     getIsCurrent():boolean          { return this.is_current; }
     getCompany():string             { return this.company; }
     getUserId():number              { return this.user_id; }
+
     /* Setters */
     setTitle(val:string):void       { this.title = val; }
     setSummary(val:string):void     { this.summary = val; }

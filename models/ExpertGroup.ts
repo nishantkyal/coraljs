@@ -4,8 +4,8 @@ class ExpertGroup extends BaseModel
 {
     static TABLE_NAME:string = 'expert_group';
 
-    static NAME:string                                  = 'name';
-    static CREATED_BY:number                            = 'created_by';
+    static COL_NAME:string                                  = 'name';
+    static COL_CREATED_BY:string                            = 'created_by';
 
     private name:string;
     private created_by:number;

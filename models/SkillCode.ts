@@ -4,9 +4,9 @@ class SkillCode extends BaseModel
 {
     static TABLE_NAME:string = 'skill_codes';
 
-    static SKILL:string = 'skill';
+    static COL_SKILL:string = 'skill';
 
-    static DEFAULT_FIELDS:string[] = [SkillCode.ID, SkillCode.SKILL];
+    static PUBLIC_FIELDS:string[] = [SkillCode.COL_ID, SkillCode.COL_SKILL];
 
     private skill:string;
 

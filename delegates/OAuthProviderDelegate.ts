@@ -23,7 +23,7 @@ class OAuthProviderDelegate
             function checkIntegration(integrationId, redirectURI, done)
             {
                 var search = {};
-                search[Integration.ID] = integrationId;
+                search[Integration.COL_ID] = integrationId;
 
                 // Note: No need to check redirect_url since we've a redirect step which sets role etc
                 var integrationDelegate = new IntegrationDelegate();
@@ -88,7 +88,7 @@ class OAuthProviderDelegate
                 function expertCreateError(error):any
                 {
                     if (error.code == 'ER_DUP_ENTRY')
-                        return integrationMemberDelegate.find({integration_id: expert.getIntegrationId(), user_id: expert.getUserId()}, [IntegrationMember.AUTH_CODE]);
+                        return integrationMemberDelegate.find({integration_id: expert.getIntegrationId(), user_id: expert.getUserId()}, [IntegrationMember.COL_AUTH_CODE]);
                     throw(error);
                 })
                 .then(
@@ -105,8 +105,8 @@ class OAuthProviderDelegate
         OAuthProviderDelegate.server.exchange(oauth2orize.exchange.code(function (integration, code, redirectURI, done):any
         {
             var search = {};
-            search[IntegrationMember.AUTH_CODE] = code;
-            search[IntegrationMember.INTEGRATION_ID] = code;
+            search[IntegrationMember.COL_AUTH_CODE] = code;
+            search[IntegrationMember.COL_INTEGRATION_ID] = code;
 
             if (integration.getRedirectUrl() != redirectURI)
             {

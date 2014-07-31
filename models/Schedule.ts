@@ -3,11 +3,11 @@ import MoneyUnit                                            = require('../enums/
 
 class Schedule extends BaseModel
 {
-    public static START_TIME:string                         = 'start_time';
-    public static DURATION:string                           = 'duration';
-    public static PRICE_PER_MIN:string                      = 'price_per_min';
-    public static PRICE_UNIT:string                         = 'price_unit';
-    public static PRICING_SCHEME_ID:string                  = 'pricing_scheme_id';
+    public static COL_START_TIME:string                         = 'start_time';
+    public static COL_DURATION:string                           = 'duration';
+    public static COL_PRICE_PER_MIN:string                      = 'price_per_min';
+    public static COL_PRICE_UNIT:string                         = 'price_unit';
+    public static COL_PRICING_SCHEME_ID:string                  = 'pricing_scheme_id';
 
     private start_time:number;
     private duration:number;

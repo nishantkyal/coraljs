@@ -6,8 +6,6 @@ import ApiUrlDelegate               = require('../delegates/ApiUrlDelegate');
 import User                         = require('../models/User');
 import IntegrationMember            = require('../models/IntegrationMember');
 import PhoneCall                    = require('../models/PhoneCall');
-import IncludeFlag                     = require('../enums/IncludeFlag');
-
 
 class ExotelApi
 {
@@ -29,17 +27,14 @@ class ExotelApi
                 var callerNumber:number = parseInt(req.query[ExotelApi.CALLER_ID]);
                 var exotelCallId:string = req.query[ExotelApi.CALL_SID]; // as it can contain '.'
                 var callTime:Date = new Date(req.query[ExotelApi.CALL_TIME]);
-                var expert:IntegrationMember, user:User;
+                var user:User;
 
                 if (callId && callerNumber && exotelCallId && callTime)
                 {
-                    new PhoneCallDelegate().get(callId, null, [IncludeFlag.INCLUDE_INTEGRATION_MEMBER])
+                    new PhoneCallDelegate().get(callId, null, [PhoneCall.FK_PHONE_CALL_EXPERT])
                         .then(
                         function callFetched(call:PhoneCall)
                         {
-                            //need to save exotelCallId as it will be used to send expert number afterwards
-                            expert = call[IncludeFlag.INCLUDE_INTEGRATION_MEMBER];
-                            user = expert[IncludeFlag.INCLUDE_USER];
                             res.json('OK');
                         },
                         function callFetchError(error) { res.status(401).json(error); }

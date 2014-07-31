@@ -159,7 +159,7 @@ class AuthenticationDelegate
             }
 
             var userDelegate = new UserDelegate();
-            userDelegate.find(Utils.createSimpleObject(User.EMAIL, user.getEmail()), User.DEFAULT_FIELDS.concat(User.PASSWORD))
+            userDelegate.find(Utils.createSimpleObject(User.COL_EMAIL, user.getEmail()), User.PUBLIC_FIELDS.concat(User.COL_PASSWORD))
                 .then(
                 function authComplete(matchingUser:User)
                 {
@@ -167,7 +167,6 @@ class AuthenticationDelegate
 
                     var hashedPassword = user.getPasswordHash();
                     var reason;
-
                     if (Utils.isNullOrEmpty(matchingUser))
                         reason = 'Invalid email';
                     else if (hashedPassword != matchingUser.getPassword())

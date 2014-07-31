@@ -256,7 +256,7 @@ div.modal.fade#scheduler
 include ../footer
 script.
     var userGmtOffset = new Date().getTimezoneOffset() * -60 * 1000;
-    var schedules = JSON.parse( '!{JSON.stringify(user.schedule)}' );
+    var schedules = JSON.parse( '!{JSON.stringify(schedule)}' );
     var expertGmtOffset = '!{expertGmtOffset}';
     var exceptions = JSON.parse( '!{JSON.stringify(exception)}' );
     var duration = parseInt('!{duration || (pricing ? pricing.min_duration : 15)}');

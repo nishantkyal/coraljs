@@ -5,7 +5,6 @@ class ApiConstants
 {
     static FIELDS:string                                = 'fields';
     static FILTERS:string                               = 'filters';
-    static INCLUDE:string                               = 'include';
     static ROLE:string                                  = 'role';
     static RETURN_TO:string                             = 'returnTo';
     static CONTEXT:string                               = 'context';

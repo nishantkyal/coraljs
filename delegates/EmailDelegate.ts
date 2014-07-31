@@ -15,7 +15,6 @@ import Schedule                                                     = require('.
 import PhoneCall                                                    = require('../models/PhoneCall');
 import ApiConstants                                                 = require('../enums/ApiConstants');
 import CallStatus                                                   = require('../enums/CallStatus');
-import IncludeFlag                                                  = require('../enums/IncludeFlag');
 import IntegrationMemberRole                                        = require('../enums/IntegrationMemberRole');
 import ApiUrlDelegate                                               = require('../delegates/ApiUrlDelegate');
 import UserDelegate                                                 = require('../delegates/UserDelegate');
@@ -40,24 +39,24 @@ import CallFlowUrls                                                 = require('.
  */
 class EmailDelegate
 {
-    private static EMAIL_TEST:string                                = 'EMAIL_TEST';
-    private static EMAIL_PASSWORD_RESET:string                      = 'EMAIL_PASSWORD_RESET';
-    private static EMAIL_EXPERT_INVITE:string                       = 'EMAIL_EXPERT_INVITE';
-    private static EMAIL_MEMBER_ADDED:string                        = 'EMAIL_MEMBER_ADDED';
-    private static EMAIL_INTEGRATION_ADDED:string                   = 'EMAIL_INTEGRATION_ADDED';
-    private static EMAIL_EXPERT_WELCOME:string                      = 'EMAIL_EXPERT_WELCOME';
-    private static EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION:string   = 'EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION';
-    private static EMAIL_EXPERT_SCHEDULING:string                   = 'EMAIL_EXPERT_SCHEDULING';
-    private static EMAIL_EXPERT_SCHEDULED:string                    = 'EMAIL_EXPERT_SCHEDULED';
-    private static EMAIL_EXPERT_CALL_REMINDER:string                = 'EMAIL_EXPERT_CALL_REMINDER';
-    private static EMAIL_NEW_SLOTS_TO_EXPERT:string                 = 'EMAIL_NEW_SLOTS_TO_EXPERT';
-    private static EMAIL_ACCOUNT_VERIFICATION:string                = 'EMAIL_ACCOUNT_VERIFICATION';
-    private static EMAIL_USER_CALL_REMINDER:string                  = 'EMAIL_USER_CALL_REMINDER';
-    private static EMAIL_USER_SCHEDULED:string                      = 'EMAIL_USER_SCHEDULED';
-    private static EMAIL_USER_AGENDA_FAIL:string                    = 'EMAIL_USER_AGENDA_FAIL';
-    private static EMAIL_SUGGESTED_TIME_TO_CALLER:string            = 'EMAIL_SUGGESTED_TIME_TO_CALLER';
-    private static EMAIL_EXPERT_REGISTRATION_SUCCESS:string         = 'EMAIL_EXPERT_REGISTRATION_SUCCESS';
-    private static EMAIL_USER_ACCOUNT_INCOMPLETE_REMINDER:string    = 'EMAIL_USER_ACCOUNT_INCOMPLETE_REMINDER';
+    private static EMAIL_TEST:string = 'EMAIL_TEST';
+    private static EMAIL_PASSWORD_RESET:string = 'EMAIL_PASSWORD_RESET';
+    private static EMAIL_EXPERT_INVITE:string = 'EMAIL_EXPERT_INVITE';
+    private static EMAIL_MEMBER_ADDED:string = 'EMAIL_MEMBER_ADDED';
+    private static EMAIL_INTEGRATION_ADDED:string = 'EMAIL_INTEGRATION_ADDED';
+    private static EMAIL_EXPERT_WELCOME:string = 'EMAIL_EXPERT_WELCOME';
+    private static EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION:string = 'EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION';
+    private static EMAIL_EXPERT_SCHEDULING:string = 'EMAIL_EXPERT_SCHEDULING';
+    private static EMAIL_EXPERT_SCHEDULED:string = 'EMAIL_EXPERT_SCHEDULED';
+    private static EMAIL_EXPERT_CALL_REMINDER:string = 'EMAIL_EXPERT_CALL_REMINDER';
+    private static EMAIL_NEW_SLOTS_TO_EXPERT:string = 'EMAIL_NEW_SLOTS_TO_EXPERT';
+    private static EMAIL_ACCOUNT_VERIFICATION:string = 'EMAIL_ACCOUNT_VERIFICATION';
+    private static EMAIL_USER_CALL_REMINDER:string = 'EMAIL_USER_CALL_REMINDER';
+    private static EMAIL_USER_SCHEDULED:string = 'EMAIL_USER_SCHEDULED';
+    private static EMAIL_USER_AGENDA_FAIL:string = 'EMAIL_USER_AGENDA_FAIL';
+    private static EMAIL_SUGGESTED_TIME_TO_CALLER:string = 'EMAIL_SUGGESTED_TIME_TO_CALLER';
+    private static EMAIL_EXPERT_REGISTRATION_SUCCESS:string = 'EMAIL_EXPERT_REGISTRATION_SUCCESS';
+    private static EMAIL_USER_ACCOUNT_INCOMPLETE_REMINDER:string = 'EMAIL_USER_ACCOUNT_INCOMPLETE_REMINDER';
 
     private static templateCache:{[templateNameAndLocale:string]:{bodyTemplate:Function; subjectTemplate:Function}} = {};
     private static transport:nodemailer.Transport;
@@ -197,7 +196,7 @@ class EmailDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_USER])
+            return self.phoneCallDelegate.get(call, null, [PhoneCall.FK_PHONE_CALL_CALLER])
                 .then(
                 function (fetchedCall:PhoneCall)
                 {
@@ -214,7 +213,7 @@ class EmailDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_EXPERT_USER])
+            return self.phoneCallDelegate.get(call, null, [PhoneCall.FK_PHONE_CALL_EXPERT])
                 .then(
                 function (fetchedCall:PhoneCall)
                 {
@@ -237,7 +236,7 @@ class EmailDelegate
                     appointments: appointments,
                     suggestTimeUrl: Utils.addQueryToUrl(CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
                     rejectUrl: Utils.addQueryToUrl(CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
-                    appointmentUrls: _.map(appointments, function(startTime)
+                    appointmentUrls: _.map(appointments, function (startTime)
                     {
                         var query = {};
                         query[ApiConstants.CODE] = code;
@@ -259,12 +258,12 @@ class EmailDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_EXPERT_USER, IncludeFlag.INCLUDE_USER])
+            return self.phoneCallDelegate.get(call, null, [PhoneCall.FK_PHONE_CALL_EXPERT, PhoneCall.FK_PHONE_CALL_CALLER])
                 .then(
                 function (fetchedCall:PhoneCall)
-            {
-                return self.sendSchedulingCompleteEmail(fetchedCall, appointment);
-            });
+                {
+                    return self.sendSchedulingCompleteEmail(fetchedCall, appointment);
+                });
 
         var emailData = {
             call: call,
@@ -286,7 +285,7 @@ class EmailDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_USER])
+            return self.phoneCallDelegate.get(call, null, [PhoneCall.FK_PHONE_CALL_CALLER])
                 .then(
                 function (fetchedCall:PhoneCall)
                 {
@@ -305,14 +304,14 @@ class EmailDelegate
                 query[ApiConstants.CODE] = code;
                 query[ApiConstants.START_TIME] = appointment;
 
-                var appointmentUrl =  Utils.addQueryToUrl(schedulingUrl, query);
+                var appointmentUrl = Utils.addQueryToUrl(schedulingUrl, query);
 
                 var emailData = {
                     call: call,
                     acceptCode: code,
                     appointment: appointment,
-                    appointmentUrl:appointmentUrl,
-                    suggestTimeUrl:Utils.addQueryToUrl(CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
+                    appointmentUrl: appointmentUrl,
+                    suggestTimeUrl: Utils.addQueryToUrl(CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
                     userGmtOffset: self.timezoneDelegate.get(call.getUser().getTimezone())['gmt_offset'] * 1000
                 };
 
@@ -333,7 +332,7 @@ class EmailDelegate
             appointments = [].concat(appointments);
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call, null,[IncludeFlag.INCLUDE_EXPERT_USER])
+            return self.phoneCallDelegate.get(call, null, [PhoneCall.FK_PHONE_CALL_EXPERT])
                 .then(
                 function (fetchedCall:PhoneCall)
                 {
@@ -353,7 +352,7 @@ class EmailDelegate
                     acceptCode: code,
                     appointments: appointments,
                     rejectUrl: Utils.addQueryToUrl(CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
-                    appointmentUrls: _.map(appointments, function(startTime)
+                    appointmentUrls: _.map(appointments, function (startTime)
                     {
                         var query = {};
                         query[ApiConstants.CODE] = code;
@@ -386,21 +385,34 @@ class EmailDelegate
             recipient: recipient.toJson(),
             sender: sender.toJson()
         };
-        return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_INVITE, recipient.getUser().getEmail(), emailData, Formatter.formatUserName(sender, true));
+
+        return recipient.getUser()
+            .then(function userFetched(user:User)
+            {
+                return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_INVITE, user.getEmail(), emailData, Formatter.formatUserName(sender, true));
+            });
     }
 
     sendWelcomeEmail(integrationId:number, recipient:IntegrationMember):q.Promise<any>
     {
         var integration = new IntegrationDelegate().getSync(integrationId)
+        var self = this;
+
         var emailData = {
             integration: integration,
             recipient: recipient.toJson()
         };
-        return this.composeAndSend(EmailDelegate.EMAIL_EXPERT_WELCOME, recipient.getUser().getEmail(), emailData);
+
+        return recipient.getUser()
+            .then(function userFetched(user:User)
+            {
+                return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_WELCOME, user.getEmail(), emailData);
+            });
     }
 
     sendMobileVerificationReminderEmail(integrationId:number, invitationCode:string, recipient:IntegrationMember):q.Promise<any>
     {
+        var self = this;
         var invitationUrl = ExpertRegistrationUrls.index();
         invitationUrl = url.resolve(Config.get(Config.DASHBOARD_URI), invitationUrl);
 
@@ -416,7 +428,13 @@ class EmailDelegate
             invitation_url: invitationUrl,
             recipient: recipient.toJson()
         };
-        return this.composeAndSend(EmailDelegate.EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION, recipient.getUser().getEmail(), emailData);
+
+        return recipient.getUser()
+            .then(
+            function userFetched(user:User)
+            {
+                return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_REMIND_MOBILE_VERIFICATION, user.getEmail(), emailData);
+            });
     }
 
     sendCallReminderEmail(call:number):q.Promise<any>;
@@ -426,7 +444,7 @@ class EmailDelegate
         var self = this;
 
         if (Utils.getObjectType(call) == 'Number')
-            return self.phoneCallDelegate.get(call, null, [IncludeFlag.INCLUDE_EXPERT_USER, IncludeFlag.INCLUDE_USER]).then(function (fetchedCall:PhoneCall)
+            return self.phoneCallDelegate.get(call, null, [PhoneCall.FK_PHONE_CALL_EXPERT, PhoneCall.FK_PHONE_CALL_CALLER]).then(function (fetchedCall:PhoneCall)
             {
                 return self.sendCallReminderEmail(fetchedCall);
             });
@@ -478,13 +496,24 @@ class EmailDelegate
             query[ApiConstants.INTEGRATION_ID] = member.getIntegrationId();
             getStartedUrl = Utils.addQueryToUrl(getStartedUrl, query);
         }
-        
-        var emailData = {
-            member: member,
-            getStartedUrl: getStartedUrl
-        };
 
-        return self.composeAndSend(EmailDelegate.EMAIL_MEMBER_ADDED, member.getUser().getEmail(), emailData);
+
+        return q.all([
+            member.getUser(),
+            member.getIntegration()
+        ])
+            .then(
+            function userFetched(...args)
+            {
+                var user:User = args[0][0];
+
+                var emailData = {
+                    member: member,
+                    getStartedUrl: getStartedUrl
+                };
+
+                return self.composeAndSend(EmailDelegate.EMAIL_MEMBER_ADDED, user.getEmail(), emailData);
+            });
     }
 
     sendAccountVerificationEmail(user:User, verificationCode:string):q.Promise<any>
@@ -533,11 +562,11 @@ class EmailDelegate
             expert: expert
         };
 
-        return this.integrationMemberDelegate.get(expert.getId(), null, [IncludeFlag.INCLUDE_USER])
+        return expert.getUser()
             .then(
-            function expertUserFetched(expertUser:IntegrationMember)
+            function userFetched(user:User)
             {
-                return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_REGISTRATION_SUCCESS, expertUser.getUser().getEmail(), emailData);
+                return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_REGISTRATION_SUCCESS, user.getEmail(), emailData);
             });
     }
 
@@ -548,11 +577,24 @@ class EmailDelegate
 
     sendIntegrationCreatedEmail(integrationOwner:IntegrationMember):q.Promise<any>
     {
-        var emailData = {
-            integration: integrationOwner.getIntegration(),
-            integration_url: Utils.addQueryToUrl(DashboardUrls.integration(Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.INTEGRATION_ID, integrationOwner.getIntegrationId()))
-        }
-        return this.composeAndSend(EmailDelegate.EMAIL_INTEGRATION_ADDED, integrationOwner.getUser().getEmail(), emailData);
+        var self = this;
+
+        return q.all([
+            integrationOwner.getUser(),
+            integrationOwner.getIntegration()
+        ])
+            .then(
+            function userFetched(...args)
+            {
+                var user:User = args[0][0];
+
+                var emailData = {
+                    integration: args[0][1],
+                    integration_url: Utils.addQueryToUrl(DashboardUrls.integration(Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.INTEGRATION_ID, integrationOwner.getIntegrationId()))
+                };
+
+                return self.composeAndSend(EmailDelegate.EMAIL_INTEGRATION_ADDED, user.getEmail(), emailData);
+            });
     }
 }
 export = EmailDelegate

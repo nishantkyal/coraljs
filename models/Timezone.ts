@@ -2,6 +2,15 @@ import BaseModel                                                    = require('.
 
 class Timezone extends BaseModel
 {
+    static COL_ZONE_ID:string                                       = 'zone_id';
+    static COL_ABBREVIATION:string                                  = 'abbreviation';
+    static COL_TIME_START:string                                    = 'time_start';
+    static COL_GMT_OFFSET:string                                    = 'gmt_offset';
+    static COL_DST:string                                           = 'dst';
+    static COL_ZONE_NAME:string                                     = 'zone_name';
+    static COL_COUNTRY_CODE:string                                  = 'country_code';
+    static COL_COUNTRY_NAME:string                                  = 'country_name';
+
     private zone_id:number;
     private abbreviation:string;
     private time_start:number;

@@ -5,12 +5,12 @@ class UserProfile extends BaseModel
 {
     static TABLE_NAME:string = 'user_profile';
 
-    static USER_ID:string                               = 'user_id';
-    static LOCALE:string                                = 'locale';
-    static SHORT_DESC:string                            = 'short_desc';
-    static LONG_DESC:string                             = 'long_desc';
+    static COL_USER_ID:string                               = 'user_id';
+    static COL_LOCALE:string                                = 'locale';
+    static COL_SHORT_DESC:string                            = 'short_desc';
+    static COL_LONG_DESC:string                             = 'long_desc';
 
-    static DEFAULT_FIELDS:string[] = [UserProfile.ID,  UserProfile.USER_ID, UserProfile.LOCALE, UserProfile.SHORT_DESC, UserProfile.LONG_DESC];
+    static PUBLIC_FIELDS:string[] = [UserProfile.COL_ID,  UserProfile.COL_USER_ID, UserProfile.COL_LOCALE, UserProfile.COL_SHORT_DESC, UserProfile.COL_LONG_DESC];
 
     private user_id:number;
     private locale:string;

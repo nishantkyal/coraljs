@@ -28,7 +28,6 @@ import TransactionLineDelegate                          = require('../../delegat
 import ExpertiseDelegate                                = require('../../delegates/ExpertiseDelegate');
 import WidgetDelegate                                   = require('../../delegates/WidgetDelegate');
 import MoneyUnit                                        = require('../../enums/MoneyUnit');
-import IncludeFlag                                      = require('../../enums/IncludeFlag');
 import TransactionType                                  = require('../../enums/TransactionType');
 import ItemType                                         = require('../../enums/ItemType');
 import User                                             = require('../../models/User');
@@ -256,7 +255,7 @@ class DashboardRoute
      */
     private verifyMobile(req:express.Request, res:express.Response)
     {
-        this.userPhoneDelegate.find(Utils.createSimpleObject(UserPhone.USER_ID, req[ApiConstants.USER].id))
+        this.userPhoneDelegate.find(Utils.createSimpleObject(UserPhone.COL_USER_ID, req[ApiConstants.USER].id))
             .then(
             function renderPage(numbers:UserPhone[])
             {
@@ -283,7 +282,7 @@ class DashboardRoute
         var userId = parseInt(req[ApiConstants.USER].id);
 
         q.all([
-            self.expertiseDelegate.search(Utils.createSimpleObject(Expertise.USER_ID, userId))
+            self.expertiseDelegate.search(Utils.createSimpleObject(Expertise.COL_USER_ID, userId))
         ])
             .then(
             function dashboardDetailsFetched(...args)
@@ -307,7 +306,7 @@ class DashboardRoute
 
         // 1. Get all member entries associated with the user
         // 2. Get coupons and members for the selected integration
-        this.integrationMemberDelegate.search({user_id: sessionData.getLoggedInUser().getId()}, null, [IncludeFlag.INCLUDE_INTEGRATION, IncludeFlag.INCLUDE_USER])
+        this.integrationMemberDelegate.search({user_id: sessionData.getLoggedInUser().getId()}, null, [IntegrationMember.FK_INTEGRATION])
             .then(
             function integrationsFetched(integrationMembers:IntegrationMember[])
             {
@@ -316,10 +315,9 @@ class DashboardRoute
                     var integrationId = selectedIntegrationId || integrationMembers[0].getIntegrationId();
 
                     return [integrationId, integrationMembers, q.all([
-                        self.integrationMemberDelegate.search({integration_id: integrationId}, IntegrationMember.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_USER]),
+                        self.integrationMemberDelegate.search({integration_id: integrationId}, IntegrationMember.DASHBOARD_FIELDS, [IntegrationMember.FK_USER]),
                         self.verificationCodeDelegate.getInvitationCodes(integrationId),
-                        self.couponDelegate.search({integration_id: integrationId}, Coupon.DASHBOARD_FIELDS, [IncludeFlag.INCLUDE_EXPERT]),
-                        self.integrationDelegate.get(integrationId)
+                        self.couponDelegate.search({integration_id: integrationId}, Coupon.DASHBOARD_FIELDS, [Coupon.FK_COUPON_EXPERT])
                     ])];
                 }
                 else
@@ -333,17 +331,21 @@ class DashboardRoute
                 var integrationMembers = results[0][0];
                 var invitedMembers = [].concat(_.values(results[0][1]));
                 var coupons = results[0][2] || [];
-                var integration = results[0][3];
 
-                var isPartOfDefaultNetwork = !Utils.isNullOrEmpty(_.findWhere(members, Utils.createSimpleObject(IntegrationMember.INTEGRATION_ID, Config.get(Config.DEFAULT_NETWORK_ID))));
-                integrationMembers = integrationMembers.concat(_.map(invitedMembers, function (invited) { return new IntegrationMember(invited); }));
+                var isPartOfDefaultNetwork = !Utils.isNullOrEmpty(_.findWhere(members, Utils.createSimpleObject(IntegrationMember.COL_INTEGRATION_ID, Config.get(Config.DEFAULT_NETWORK_ID))));
+                integrationMembers = integrationMembers.concat(_.map(invitedMembers, function (invited)
+                {
+                    var invitedMember = new IntegrationMember(invited);
+                    invitedMember.setUser(invited['user']);
+                    return invitedMember;
+                }));
 
                 var pageData = _.extend(sessionData.getData(), {
                     'members': members,
                     'selectedMember': _.findWhere(members, {'integration_id': integrationId}),
                     'integrationMembers': integrationMembers,
                     'coupons': coupons,
-                    integration: integration,
+                    integration: self.integrationDelegate.getSync(integrationId),
                     createIntegration: createIntegration,
                     isPartOfDefaultNetwork: isPartOfDefaultNetwork
                 });
@@ -367,15 +369,15 @@ class DashboardRoute
         var member:IntegrationMember;
         var loggedInUser = sessionData.getLoggedInUser();
 
-        self.userProfileDelegate.find(Utils.createSimpleObject(UserProfile.USER_ID, userId))
+         self.userProfileDelegate.find(Utils.createSimpleObject(UserProfile.COL_USER_ID, userId))
             .then(
             function profileFetched(userProfile:UserProfile)
             {
-                var profileInfoTasks = [self.userDelegate.get(userId,null, [IncludeFlag.INCLUDE_SKILL, IncludeFlag.INCLUDE_EDUCATION, IncludeFlag.INCLUDE_EMPLOYMENT])];
+                var profileInfoTasks = [self.userDelegate.get(userId, null, [User.FK_USER_SKILL, User.FK_USER_EDUCATION, User.FK_USER_EMPLOYMENT])];
 
                 if (!Utils.isNullOrEmpty(userProfile) && userProfile.getId())
                     profileInfoTasks = profileInfoTasks.concat([
-                        self.expertiseDelegate.search(Utils.createSimpleObject(Expertise.USER_ID, userId), null, [IncludeFlag.INCLUDE_SKILL])
+                        self.expertiseDelegate.search(Utils.createSimpleObject(Expertise.COL_USER_ID, userId), null, [Expertise.FK_EXPERTISE_SKILL])
                     ]);
 
                 return [userProfile, q.all(profileInfoTasks)];
@@ -426,10 +428,13 @@ class DashboardRoute
         var userId:number = parseInt(req.params[ApiConstants.USER_ID]);
         var sessionData = new SessionData(req);
 
-        self.userPhoneDelegate.search(Utils.createSimpleObject(UserPhone.USER_ID, userId))
-            .then(
-            function detailsFetched(userPhone:UserPhone[])
+        q.all([
+            self.userPhoneDelegate.search(Utils.createSimpleObject(UserPhone.COL_USER_ID, userId))
+        ])
+            .then(function detailsFetched(...args)
             {
+                var userPhone:UserPhone[] = args[0][2];
+
                 var pageData = _.extend(sessionData.getData(), {
                     userPhone: userPhone
                 });
@@ -450,9 +455,9 @@ class DashboardRoute
         var sessionData = new SessionData(req);
 
         q.all([
-                self.scheduleRuleDelegate.getRulesByUser(userId),
-                self.pricingSchemeDelegate.search(Utils.createSimpleObject(PricingScheme.USER_ID, userId))
-            ])
+            self.scheduleRuleDelegate.getRulesByUser(userId),
+            self.pricingSchemeDelegate.search(Utils.createSimpleObject(PricingScheme.COL_USER_ID, userId))
+        ])
             .then(function detailsFetched(...args)
             {
                 var rules:ScheduleRule[] = [].concat(args[0][0]);
@@ -500,9 +505,9 @@ class DashboardRoute
                 if (result)
                 {
                     var userActivationUpdate = {};
-                    userActivationUpdate[User.ACTIVE] =
-                        userActivationUpdate[User.EMAIL_VERIFIED] = true;
-                    return self.userDelegate.update(Utils.createSimpleObject(User.EMAIL, email), userActivationUpdate);
+                    userActivationUpdate[User.COL_ACTIVE] =
+                        userActivationUpdate[User.COL_EMAIL_VERIFIED] = true;
+                    return self.userDelegate.update(Utils.createSimpleObject(User.COL_EMAIL, email), userActivationUpdate);
                 }
                 else
                     return res.render('500', {error: 'Account verification failed. Invalid code or email'});
@@ -510,10 +515,10 @@ class DashboardRoute
             .then(
             function userActivated()
             {
-                if (req.isAuthenticated() && req[ApiConstants.USER][User.EMAIL] === email)
+                if (req.isAuthenticated() && req[ApiConstants.USER][User.COL_EMAIL] === email)
                 {
-                    req[ApiConstants.USER][User.ACTIVE] = true;
-                    req[ApiConstants.USER][User.EMAIL_VERIFIED] = true;
+                    req[ApiConstants.USER][User.COL_ACTIVE] = true;
+                    req[ApiConstants.USER][User.COL_EMAIL_VERIFIED] = true;
                 }
                 return res.render(DashboardRoute.PAGE_ACCOUNT_VERIFICATION);
             })

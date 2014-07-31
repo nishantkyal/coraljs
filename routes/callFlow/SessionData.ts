@@ -1,4 +1,3 @@
-///<reference path='../../_references.d.ts'/>
 import moment                                           = require('moment');
 import _                                                = require('underscore');
 import AbstractSessionData                              = require('../AbstractSessionData');
@@ -6,7 +5,7 @@ import PhoneCall                                        = require('../../models/
 import Integration                                      = require('../../models/Integration');
 import User                                             = require('../../models/User');
 import Transaction                                      = require('../../models/Transaction');
-import ExpertSchedule                                   = require('../../models/Schedule');
+import Schedule                                         = require('../../models/Schedule');
 import Utils                                            = require('../../common/Utils');
 
 class SessionData extends AbstractSessionData
@@ -15,6 +14,7 @@ class SessionData extends AbstractSessionData
     private static CALL:string                          = 'phoneCall';
     private static INTEGRATION:string                   = 'integration';
     private static USER:string                          = 'user';
+    private static SCHEDULES:string                     = 'schedules';
     private static IS_AVAILABLE:string                  = 'is_available';
     private static NEXT_AVAILABLE_SCHEDULE:string       = 'next_available_schedule';
     private static APPOINTMENTS:string                  = 'appointments';
@@ -39,13 +39,14 @@ class SessionData extends AbstractSessionData
     getCall():PhoneCall                                 { return new PhoneCall(this.getData()[SessionData.CALL]); }
     getIntegration():Integration                        { return new Integration(this.getData()[SessionData.INTEGRATION]); }
     getUser():User                                      { return new User(this.getData()[SessionData.USER]); }
-    getNextAvailableSchedule():ExpertSchedule           { return new ExpertSchedule(this.getData()[SessionData.NEXT_AVAILABLE_SCHEDULE]); }
+    getSchedule():Schedule[]                            { return _.map(JSON.parse(this.getData()[SessionData.SCHEDULES]), function(scheduleObj:Object) { return new Schedule(scheduleObj); }); }
+    getNextAvailableSchedule():Schedule                 { return new Schedule(this.getData()[SessionData.NEXT_AVAILABLE_SCHEDULE]); }
     getAppointments():number[]                          { return this.getData()[SessionData.APPOINTMENTS]; }
     getCallNow():boolean                                { return this.getData()[SessionData.CALL_NOW]; }
     getDuration():number                                { return parseInt(this.getData()[SessionData.DURATION]); }
     getTransaction():Transaction                        { return this.getData()[SessionData.TRANSACTION] ? new Transaction(this.getData()[SessionData.TRANSACTION]) : null; }
     getAreaCode():string                                { return this.getData()[SessionData.AREA_CODE]; }
-    getCountryCode():number                             { return this.getData()[SessionData.COUNTRY_CODE]; }
+    getCountryCode():number                             { return parseInt(this.getData()[SessionData.COUNTRY_CODE]); }
     getCallerPhone():string                             { return this.getData()[SessionData.CALLER_PHONE]; }
     getAgenda():string                                  { return this.getData()[SessionData.AGENDA]; }
     getExpertGmtOffset():number                         { return this.getData()[SessionData.EXPERT_GMT_OFFSET]}
@@ -54,7 +55,7 @@ class SessionData extends AbstractSessionData
     /* Setters */
     setCall(val:PhoneCall)                              { this.set(SessionData.CALL, val && val.toJson ? val.toJson() : val); }
     setIntegration(val:Integration)                     { this.set(SessionData.INTEGRATION, val.toJson()); }
-    setUser(val:User)                                   { this.set(SessionData.USER, val.toJson());  this.computeAvailability(); }
+    setUser(val:User)                                   { this.set(SessionData.USER, val.toJson()); }
     setAppointments(val:number[])                       { this.set(SessionData.APPOINTMENTS, val); }
     setCallNow(val:boolean)                             { this.set(SessionData.CALL_NOW, val); }
     setDuration(val:number)                             { this.set(SessionData.DURATION, val); }
@@ -65,17 +66,30 @@ class SessionData extends AbstractSessionData
     setAgenda(val:string)                               { this.set(SessionData.AGENDA, val); }
     setExpertGmtOffset(val:number)                      { this.set(SessionData.EXPERT_GMT_OFFSET, val); }
     setUserGmtOffset(val:number)                        { this.set(SessionData.USER_GMT_OFFSET, val); }
+    setSchedule(val:Schedule[])
+    {
+        this.set(SessionData.SCHEDULES, JSON.stringify(_.map(val, function(schedule:Schedule)
+        {
+            return schedule.toJson();
+        })));
+        this.computeAvailability();
+    }
 
     computeAvailability()
     {
-        if (this.getUser() && this.getUser().isValid() && this.getUser().getSchedule())
+        if (this.getUser() && this.getUser().isValid() && this.getSchedule())
         {
-            var nextAvailableSchedule:ExpertSchedule = this.getUser().getNextAvailableSchedule();
+            var nextAvailableSchedule:Schedule = _.find(this.getSchedule(), function (schedule):boolean
+            {
+                var scheduleEndTime = schedule[Schedule.COL_START_TIME] + schedule[Schedule.COL_DURATION];
+                return scheduleEndTime > moment().add({minutes: 15}).valueOf();
+            });
 
             if (!Utils.isNullOrEmpty(nextAvailableSchedule))
             {
                 this.set(SessionData.NEXT_AVAILABLE_SCHEDULE, nextAvailableSchedule);
-                this.set(SessionData.IS_AVAILABLE, this.getUser().isCurrentlyAvailable());
+                var currentTime = moment().valueOf();
+                this.set(SessionData.IS_AVAILABLE, currentTime > nextAvailableSchedule[Schedule.COL_START_TIME] && currentTime < (nextAvailableSchedule[Schedule.COL_START_TIME] + nextAvailableSchedule[Schedule.COL_DURATION]));
             }
         }
     }

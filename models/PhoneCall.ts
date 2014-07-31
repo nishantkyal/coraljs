@@ -1,3 +1,4 @@
+import q                                                = require('q');
 import BaseModel                                        = require('./BaseModel');
 import Utils                                            = require('../common/Utils');
 import User                                             = require('../models/User');
@@ -5,6 +6,8 @@ import IntegrationMember                                = require('../models/Int
 import UserPhone                                        = require('../models/UserPhone');
 import TransactionLine                                  = require('../models/TransactionLine');
 import MoneyUnit                                        = require('../enums/MoneyUnit');
+import ForeignKey                                       = require('../models/ForeignKey');
+import ForeignKeyType                                   = require('../enums/ForeignKeyType');
 
 /**
  Bean class for Phone call
@@ -13,31 +16,26 @@ class PhoneCall extends BaseModel
 {
     static TABLE_NAME:string                            = 'phone_call';
 
-    static CALLER_USER_ID:string                        = 'caller_user_id';
-    static EXPERT_USER_ID:string                        = 'expert_user_id';
-    static CALLER_PHONE_ID:string                       = 'caller_phone_id';
-    static EXPERT_PHONE_ID:string                       = 'expert_phone_id';
-    static START_TIME:string                            = 'start_time';
-    static DURATION:string                              = 'duration';
-    static STATUS:string                                = 'status';
-    static AGENDA:string                                = 'agenda';
-    static RECORDED:string                              = 'recorded';
-    static EXTENSION:string                             = 'extension';
-    static NUM_RESCHEDULES:string                       = 'num_reschedules';
-    static NUM_REATTEMPTS:string                        = 'num_reattempts';
-    static DELAY:string                                 = 'delay';
-    static CHARGING_RATE:string                         = 'charging_rate';
-    static UNIT:string                                  = 'unit';
-    static PULSE_RATE:string                            = 'pulse_rate';
-    static MIN_DURATION:string                          = 'min_duration';
+    static COL_CALLER_USER_ID:string                        = 'caller_user_id';
+    static COL_EXPERT_USER_ID:string                        = 'expert_user_id';
+    static COL_CALLER_PHONE_ID:string                       = 'caller_phone_id';
+    static COL_EXPERT_PHONE_ID:string                       = 'expert_phone_id';
+    static COL_START_TIME:string                            = 'start_time';
+    static COL_DURATION:string                              = 'duration';
+    static COL_STATUS:string                                = 'status';
+    static COL_AGENDA:string                                = 'agenda';
+    static COL_RECORDED:string                              = 'recorded';
+    static COL_NUM_RESCHEDULES:string                       = 'num_reschedules';
+    static COL_NUM_REATTEMPTS:string                        = 'num_reattempts';
+    static COL_DELAY:string                                 = 'delay';
+    static COL_CHARGING_RATE:string                         = 'charging_rate';
+    static COL_UNIT:string                                  = 'unit';
+    static COL_PULSE_RATE:string                            = 'pulse_rate';
+    static COL_MIN_DURATION:string                          = 'min_duration';
 
-    static USER:string                                  = 'user';
-    static EXPERT_USER:string                           = 'expert_user';
-    static CALLER_PHONE:string                          = 'user_phone';
-    static EXPERT_PHONE:string                          = 'expert_phone';
-
-    static DEFAULT_FIELDS:string[] = [PhoneCall.ID, PhoneCall.CALLER_USER_ID, PhoneCall.CALLER_PHONE_ID, PhoneCall.EXPERT_PHONE_ID,
-                                      PhoneCall.START_TIME, PhoneCall.DURATION, PhoneCall.STATUS, PhoneCall.AGENDA, PhoneCall.EXPERT_USER_ID];
+    static PUBLIC_FIELDS:string[] = [PhoneCall.COL_ID, PhoneCall.COL_CALLER_USER_ID, PhoneCall.COL_CALLER_PHONE_ID, PhoneCall.COL_EXPERT_PHONE_ID,
+                                      PhoneCall.COL_START_TIME, PhoneCall.COL_DURATION, PhoneCall.COL_STATUS, PhoneCall.COL_AGENDA, PhoneCall.COL_EXPERT_USER_ID,
+                                    PhoneCall.COL_UNIT, PhoneCall.COL_PULSE_RATE, PhoneCall.COL_MIN_DURATION, PhoneCall.COL_CHARGING_RATE];
     private caller_user_id:number;
     private expert_user_id:number;
     private caller_phone_id:number;
@@ -47,7 +45,6 @@ class PhoneCall extends BaseModel
     private status:number;
     private agenda:string;
     private recorded:boolean;
-    private extension:string;
     private num_reschedules:number;
     private num_reattempts:number;
     private delay:number;
@@ -56,11 +53,10 @@ class PhoneCall extends BaseModel
     private pulse_rate:number;                                  // Sizes of chargeable time chunks
     private min_duration:number;                                // Min duration for the call
 
-    private user:User;
-    private expert_user:User;
-    private user_phone:UserPhone;
-    private expert_phone:UserPhone;
-    private transaction_line:TransactionLine[];
+    static FK_PHONE_CALL_CALLER:ForeignKey = new ForeignKey(ForeignKeyType.ONE_TO_ONE, PhoneCall.COL_CALLER_USER_ID, User, User.COL_ID, 'caller');
+    static FK_PHONE_CALL_CALLER_PHONE:ForeignKey = new ForeignKey(ForeignKeyType.ONE_TO_ONE, PhoneCall.COL_CALLER_PHONE_ID, UserPhone, UserPhone.COL_ID, 'caller_phone');
+    static FK_PHONE_CALL_EXPERT:ForeignKey = new ForeignKey(ForeignKeyType.ONE_TO_ONE, PhoneCall.COL_EXPERT_USER_ID, User, User.COL_ID, 'expert');
+    static FK_PHONE_CALL_EXPERT_PHONE:ForeignKey = new ForeignKey(ForeignKeyType.ONE_TO_ONE, PhoneCall.COL_EXPERT_PHONE_ID, UserPhone, UserPhone.COL_ID, 'expert_phone');
 
     /* Getters */
     getCallerUserId():number                            { return this.caller_user_id; }
@@ -73,19 +69,16 @@ class PhoneCall extends BaseModel
     getStatus():number                                  { return this.status; }
     getAgenda():string                                  { return this.agenda; }
     getRecorded():boolean                               { return this.recorded; }
-    getExtension():string                               { return this.extension; }
     getNumReschedules():number                          { return this.num_reschedules; }
     getNumReattempts():number                           { return this.num_reattempts; }
     getChargingRate():number                            { return this.charging_rate; }
     getUnit():MoneyUnit                                 { return this.unit; }
     getPulseRate():number                               { return this.pulse_rate; }
     getMinDuration():number                             { return this.min_duration; }
-
-    getUser():User                                      { return this.user ? new User(this.user) : null; }
-    getExpertUser():User                                { return this.expert_user ? new User(this.expert_user) : null; }
-    getUserPhone():UserPhone                            { return this.user_phone ? new UserPhone(this.user_phone) : null; }
-    getExpertPhone():UserPhone                          { return this.expert_phone ? new UserPhone(this.expert_phone) : null; }
-    getTransactionLine():TransactionLine[]              { return this.transaction_line; }
+    getUser():q.Promise<User>                           { return null; }
+    getExpertUser():q.Promise<User>                     { return null; }
+    getUserPhone():q.Promise<UserPhone>                 { return null; }
+    getExpertPhone():q.Promise<UserPhone>               { return null; }
 
     /* Setters */
     setCallerUserId(val:number):void                    { this.caller_user_id = val; }
@@ -98,19 +91,16 @@ class PhoneCall extends BaseModel
     setStatus(val:number):void                          { this.status = val; }
     setAgenda(val:string):void                          { this.agenda = val; }
     setRecorded(val:boolean):void                       { this.recorded = val; }
-    setExtension(val:string):void                       { this.extension = val; }
     setNumReschedules(val:number):void                  { this.num_reschedules = val; }
     setNumReattempts(val:number):void                   { this.num_reattempts = val; }
     setChargingRate(val:number)                         { this.charging_rate = val; }
     setUnit(val:MoneyUnit)                              { this.unit = val; }
     setPulseRate(val:number)                            { this.pulse_rate = val; }
     setMinDuration(val:number)                          { this.min_duration = val; }
-
-    setUser(val:User):void                              { this.user = val; }
-    setExpertUser(val:User):void                        { this.expert_user = val; }
-    setUserPhone(val:UserPhone):void                    { this.user_phone = val; }
-    setExpertPhone(val:UserPhone):void                  { this.expert_phone = val; }
-    setTransactionLine(val:TransactionLine[]):void      { this.transaction_line = val; }
+    setUser(val:User):void                              { }
+    setExpertUser(val:User):void                        { }
+    setUserPhone(val:UserPhone):void                    { }
+    setExpertPhone(val:UserPhone):void                  { }
 
     isValid():boolean
     {

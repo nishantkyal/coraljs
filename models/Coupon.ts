@@ -1,26 +1,31 @@
-///<reference path='../_references.d.ts'/>
+import q                                                        = require('q');
 import BaseModel                                                = require('../models/BaseModel');
 import IntegrationMember                                        = require('../models/IntegrationMember');
+import ForeignKey                                               = require('../models/ForeignKey');
+import User                                                     = require('../models/User');
 import MoneyUnit                                                = require('../enums/MoneyUnit');
 import CouponType                                               = require('../enums/CouponType');
+import ForeignKeyType                                           = require('../enums/ForeignKeyType');
 import Utils                                                    = require('../common/Utils');
 
 class Coupon extends BaseModel
 {
     static TABLE_NAME:string = 'coupon';
 
-    static CODE:string                      = 'code';
-    static NUM_USED:string                  = 'num_used';
-    static MAX_COUPONS:string               = 'max_coupons';
-    static COUPON_TYPE:string               = 'coupon_type';
-    static DISCOUNT_AMOUNT:string           = 'discount_amount';
-    static DISCOUNT_UNIT:string             = 'discount_unit';
-    static EXPIRY_TIME:string               = 'expiry_time';
-    static INTEGRATION_ID:string            = 'integration_id';
-    static EXPERT_RESOURCE_ID:string        = 'expert_resource_id';
+    static COL_CODE:string                      = 'code';
+    static COL_NUM_USED:string                  = 'num_used';
+    static COL_MAX_COUPONS:string               = 'max_coupons';
+    static COL_COUPON_TYPE:string               = 'coupon_type';
+    static COL_DISCOUNT_AMOUNT:string           = 'discount_amount';
+    static COL_DISCOUNT_UNIT:string             = 'discount_unit';
+    static COL_EXPIRY_TIME:string               = 'expiry_time';
+    static COL_INTEGRATION_ID:string            = 'integration_id';
+    static COL_EXPERT_RESOURCE_ID:string        = 'expert_resource_id';
 
-    static DEFAULT_FIELDS = [Coupon.ID, Coupon.CODE];
-    static DASHBOARD_FIELDS = [Coupon.ID, Coupon.CODE, Coupon.EXPERT_RESOURCE_ID, Coupon.COUPON_TYPE, Coupon.DISCOUNT_AMOUNT, Coupon.DISCOUNT_UNIT, Coupon.EXPIRY_TIME, Coupon.MAX_COUPONS, Coupon.NUM_USED, Coupon.INTEGRATION_ID];
+    static PUBLIC_FIELDS = [Coupon.COL_ID, Coupon.COL_CODE];
+    static DASHBOARD_FIELDS = [Coupon.COL_ID, Coupon.COL_CODE, Coupon.COL_EXPERT_RESOURCE_ID, Coupon.COL_COUPON_TYPE, Coupon.COL_DISCOUNT_AMOUNT, Coupon.COL_DISCOUNT_UNIT, Coupon.COL_EXPIRY_TIME, Coupon.COL_MAX_COUPONS, Coupon.COL_NUM_USED, Coupon.COL_INTEGRATION_ID];
+
+    static FK_COUPON_EXPERT = new ForeignKey(ForeignKeyType.ONE_TO_ONE, Coupon.COL_EXPERT_RESOURCE_ID, User, User.COL_ID);
 
     private code:string;
     private num_used:number;
@@ -32,8 +37,6 @@ class Coupon extends BaseModel
     private integration_id:number;
     private expert_resource_id:number;
 
-    private expert:IntegrationMember;
-
     /* Getters */
     getCode():string                                        { return this.code.toUpperCase(); }
     getNumUsed():number                                     { return this.num_used; }
@@ -44,8 +47,7 @@ class Coupon extends BaseModel
     getExpiryTime():number                                  { return this.expiry_time; }
     getIntegrationId():number                               { return this.integration_id; }
     getExpertResourceId():number                            { return this.expert_resource_id; }
-
-    getExpert():IntegrationMember                           { return this.expert; }
+    getExpertResource():q.Promise<IntegrationMember>        { return null; }
 
     /* Setters */
     setCode(val:string):void                                { this.code = val.toUpperCase(); }
@@ -57,8 +59,7 @@ class Coupon extends BaseModel
     setExpiryTime(val:number):void                          { this.expiry_time = val; }
     setIntegrationId(val:number):void                       { this.integration_id = val; }
     setExpertResourceId(val:number):void                    { this.expert_resource_id = val; }
-
-    setExpert(val:IntegrationMember):void                   { this.expert = val; }
+    setExpertResource(val:IntegrationMember):void           { }
 
     isValid():boolean
     {

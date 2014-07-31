@@ -5,7 +5,6 @@ import request                                          = require('request');
 import BaseDaoDelegate                                  = require('./BaseDaoDelegate');
 import SkillCode                                        = require('../models/SkillCode');
 import Utils                                            = require('../common/Utils');
-import IncludeFlag                                      = require('../enums/IncludeFlag');
 
 class SkillCodeDelegate extends BaseDaoDelegate
 {

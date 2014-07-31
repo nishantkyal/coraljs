@@ -3,7 +3,6 @@ import express                                              = require('express')
 import json2xml                                             = require('json2xml');
 import log4js                                               = require('log4js');
 import ApiConstants                                         = require('../enums/ApiConstants');
-import IncludeFlag                                          = require('../enums/IncludeFlag');
 import PhoneType                                            = require('../enums/PhoneType');
 import CallFragmentStatus                                   = require('../enums/CallFragmentStatus');
 import CallStatus                                           = require('../enums/CallStatus');
@@ -60,17 +59,28 @@ class TwimlOutApi
         app.get(TwilioUrlDelegate.twimlJoinCall(), function (req:express.Request, res:express.Response)
         {
             var callId = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
-            self.phoneCallDelegate.get(callId, null,[IncludeFlag.INCLUDE_EXPERT_USER])
+            self.phoneCallDelegate.get(callId, null, [PhoneCall.FK_PHONE_CALL_EXPERT])
                 .then(
                 function callFetched(call:PhoneCall)
                 {
+                    return [call, q.all([
+                        call.getExpertPhone(),
+                        call.getExpertUser()
+                    ])];
+                })
+                .spread(
+                function expertDetailsFetched(call:PhoneCall, ...args)
+                {
+                    var expertPhone:UserPhone = args[0][0];
+                    var expert:User = args[0][1];
+
                     var pageData = {};
                     pageData['actionURL'] = TwilioUrlDelegate.twimlJoinCall(callId, Credentials.get(Credentials.TWILIO_URI));
                     pageData['timeLimit'] = call.getDuration();
                     //TODO[ankit] - get TotalDuration of all callFragments and set duration accordingly
-                    pageData['phoneNumber'] = call.getExpertPhone().getCompleteNumber();
+                    pageData['phoneNumber'] = expertPhone.getCompleteNumber();
                     pageData['record'] = (call.getRecorded() == false) ? 'false' : 'true';
-                    pageData['message'] = 'Welcome to Search n Talk. This is your scheduled call with' + Formatter.formatName(call.getExpertUser().getFirstName(), call.getExpertUser().getLastName(), call.getExpertUser().getTitle()) +
+                    pageData['message'] = 'Welcome to Search n Talk. This is your scheduled call with' + Formatter.formatName(expert.getFirstName(), expert.getLastName(), expert.getTitle()) +
                         'Please wait while we get the expert on the call';
                     res.render('twilio/TwilioXMLJoin.jade', pageData);
                 })

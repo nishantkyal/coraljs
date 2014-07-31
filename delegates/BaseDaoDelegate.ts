@@ -1,13 +1,13 @@
-///<reference path='../_references.d.ts'/>
-import _                                = require('underscore');
-import log4js                           = require('log4js');
-import q                                = require('q');
-import moment                           = require('moment');
-import AbstractDao                      = require('../dao/AbstractDao');
-import Utils                            = require('../common/Utils');
-import BaseModel                        = require('../models/BaseModel');
-import GlobalIdDelegate                 = require('../delegates/GlobalIDDelegate');
-import IncludeFlag                      = require('../enums/IncludeFlag');
+import _                                                = require('underscore');
+import log4js                                           = require('log4js');
+import q                                                = require('q');
+import moment                                           = require('moment');
+import AbstractDao                                      = require('../dao/AbstractDao');
+import Utils                                            = require('../common/Utils');
+import BaseModel                                        = require('../models/BaseModel');
+import ForeignKey                                       = require('../models/ForeignKey');
+import GlobalIdDelegate                                 = require('../delegates/GlobalIDDelegate');
+import ForeignKeyType                                   = require('../enums/ForeignKeyType');
 
 class BaseDaoDelegate
 {
@@ -23,75 +23,41 @@ class BaseDaoDelegate
     constructor(dao:any)
     {
         this.dao = Utils.getObjectType(dao) === 'Object' ? dao : new AbstractDao(dao);
+        this.dao.modelClass.DELEGATE = this;
     }
 
-    get(id:any, fields?:string[], includes:IncludeFlag[] = [], transaction?:Object):q.Promise<any>
+    get(id:any, fields?:string[], foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
     {
-        fields = fields || this.dao.modelClass.DEFAULT_FIELDS;
+        fields = fields || this.dao.modelClass.PUBLIC_FIELDS;
 
-        if (Utils.getObjectType(id) === 'Array' && id.length > 0)
-            return this.search({'id': id}, fields, includes);
+        id = [].concat(id);
 
-        if (Utils.getObjectType(id) === 'Array' && id.length === 1)
-            id = id[0];
+        if (id.length > 1)
+            return this.search({'id': id}, fields, foreignKeys);
 
-
-        var self = this;
-
-        // 1. Get the queried object
-        // 2. Parse flags and add handlers to a queue
-        // 3. When queue is complete, concat all results to queried object and return
-        return this.dao.get(id, fields, transaction)
-            .then(
-            function processIncludes(result):any
-            {
-                if (Utils.isNullOrEmpty(result))
-                    return result;
-
-                var includeTasks = _.map(includes, function (flag)
-                {
-                    return self.getIncludeHandler(flag, result);
-                });
-                return [result, q.all(includeTasks)];
-            })
-            .spread(
-            function handleIncludesProcessed(result, ...args:any[]):any
-            {
-                self.logger.debug('Includes processed for %s', Utils.getClassName(self.dao.modelClass));
-                var results = args[0];
-
-                _.each(results, function(resultSet, index) {
-                    result.set(includes[index], resultSet);
-                });
-
-                return result;
-            });
+        if (id.length === 1)
+            return this.find({'id': id}, fields, foreignKeys);
     }
 
-    /* Abstract method self defines how flags are handled in get query */
-    getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
-    {
-        return null;
-    }
-
-    find(search:Object, fields?:string[], includes:IncludeFlag[] = [], transaction?:Object):q.Promise<any>
+    find(search:Object, fields?:string[], foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
     {
         var self:BaseDaoDelegate = this;
 
-        fields = fields || this.dao.modelClass.DEFAULT_FIELDS;
+        fields = fields || this.dao.modelClass.PUBLIC_FIELDS;
 
         return this.dao.find(search, fields, transaction)
             .then(
-            function processIncludes(result)
+            function processForeignKeys(result:BaseModel):any
             {
                 if (Utils.isNullOrEmpty(result))
                     return result;
 
-                var includeTasks = _.map(includes, function (flag)
+                var foreignKeyTasks = _.map(foreignKeys, function (key:ForeignKey)
                 {
-                    return self.getIncludeHandler(flag, result);
+                    var delegate = key.referenced_table.DELEGATE;
+                    return delegate.search(Utils.createSimpleObject(key.targetKey, result.get(key.srcKey)));
                 });
-                return [result, q.all(includeTasks)];
+                return [result, q.all(foreignKeyTasks)];
             })
             .spread(
             function handleIncludesProcessed(result, ...args)
@@ -101,7 +67,7 @@ class BaseDaoDelegate
 
                 _.each(results, function (resultSet:any, index)
                 {
-                    result.set(includes[index], resultSet);
+                    result.set(foreignKeys[index].getSourcePropertyName(), resultSet);
                 });
                 return result;
             });
@@ -111,24 +77,25 @@ class BaseDaoDelegate
      * Perform search based on search query
      * Also fetch joint fields
      */
-    search(search:Object, fields?:string[], includes:IncludeFlag[] = [], transaction?:Object):q.Promise<any>
+    search(search:Object, fields?:string[], foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
     {
         var self:BaseDaoDelegate = this;
 
-        fields = fields || this.dao.modelClass.DEFAULT_FIELDS;
+        fields = fields || this.dao.modelClass.PUBLIC_FIELDS;
 
         return this.dao.search(search, fields, transaction)
             .then(
-            function processIncludes(baseSearchResults):any
+            function processIncludes(baseSearchResults:BaseModel[]):any
             {
                 if (Utils.isNullOrEmpty(baseSearchResults))
                     return baseSearchResults;
 
-                var includeTasks = _.map(includes, function (flag)
+                var foreignKeyTasks = _.map(foreignKeys, function (key:ForeignKey)
                 {
-                    return self.getIncludeHandler(flag, baseSearchResults);
+                    var delegate = key.referenced_table.DELEGATE;
+                    return delegate.search(Utils.createSimpleObject(key.targetKey, _.uniq(_.pluck(baseSearchResults, key.srcKey))));
                 });
-                return [baseSearchResults, q.all(includeTasks)];
+                return [baseSearchResults, q.all(foreignKeyTasks)];
             })
             .spread(
             function handleIncludesProcessed(baseSearchResults, ...args)
@@ -140,7 +107,7 @@ class BaseDaoDelegate
                 {
                     _.each(results, function (resultSet:any, index)
                     {
-                        baseSearchResult.set(includes[index], resultSet);
+                        baseSearchResult.set(foreignKeys[index].getSourcePropertyName(), resultSet);
                     })
                 });
                 return baseSearchResults;
@@ -152,16 +119,16 @@ class BaseDaoDelegate
     create(object:any, transaction?:Object):q.Promise<any>
     {
         if (Utils.isNullOrEmpty(object))
-            throw ('Invalid data. Trying to create object with null data');
+            throw new Error('Invalid data. Trying to create object with null data');
 
         var self:BaseDaoDelegate = this;
 
         function prepareData(data:BaseModel)
         {
             var generatedId:number = new GlobalIdDelegate().generate(self.dao.modelClass.TABLE_NAME);
-            data[BaseModel.ID] = generatedId;
-            data[BaseModel.CREATED] = moment().valueOf();
-            data[BaseModel.UPDATED] = moment().valueOf();
+            data[BaseModel.COL_ID] = generatedId;
+            data[BaseModel.COL_CREATED] = moment().valueOf();
+            data[BaseModel.COL_UPDATED] = moment().valueOf();
             return data;
         };
 
@@ -175,9 +142,9 @@ class BaseDaoDelegate
     update(criteria:any, newValues:any, transaction?:Object):q.Promise<any>
     {
         // Compose update statement based on newValues
-        newValues[BaseModel.UPDATED] = new Date().getTime();
-        delete newValues[BaseModel.CREATED];
-        delete newValues[BaseModel.ID];
+        newValues[BaseModel.COL_UPDATED] = new Date().getTime();
+        delete newValues[BaseModel.COL_CREATED];
+        delete newValues[BaseModel.COL_ID];
 
         return this.dao.update(criteria, newValues, transaction);
     }
@@ -192,5 +159,9 @@ class BaseDaoDelegate
             return this.dao.delete(criteria, transaction);
     }
 
+    getIncludeHandler(include:any, result:any):q.Promise<any>
+    {
+        return null;
+    }
 }
 export = BaseDaoDelegate

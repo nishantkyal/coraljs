@@ -31,6 +31,7 @@ import PaymentUrls                                  = require('./routes/payment/
 import MemberRegistrationUrls                       = require('./routes/expertRegistration/Urls');
 import AuthenticationUrls                           = require('./routes/authentication/Urls');
 var connect                                         = require('connect');
+var session                                         = require('express-session');
 var RedisStore                                      = require('connect-redis')(connect);
 
 
@@ -110,14 +111,15 @@ class appInit
         app.use(RequestHandler.parseRequest);
         app.use(express.cookieParser());
 
-        app.use(express.session({
+        app.use(session({
             secret: 'searchntalk.com',
             cookie: {maxAge: Config.get(Config.SESSION_EXPIRY)},
             store: new RedisStore({
                 host: Config.get(Config.REDIS_HOST),
                 port: Config.get(Config.REDIS_PORT),
                 db: 1
-            })
+            }),
+            rolling: true
         }));
 
         app.use(passport.initialize());

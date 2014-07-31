@@ -71,12 +71,12 @@ class ScheduleRuleDelegate extends BaseDaoDelegate
         return q.all([
             self.create(weekdaysRule, transaction),
             self.create(weekendRule, transaction)
-        ]).fail(
-            function rulesCreateFailed(error)
+        ])
+            .fail(
+            function rulesCreateFailed(error:Error)
             {
                 throw(error);
-            }
-        );
+            });
     }
 
     update(criteria:Object, updatedScheduleRule:ScheduleRule, transaction?:Object):q.Promise<any>
@@ -122,14 +122,14 @@ class ScheduleRuleDelegate extends BaseDaoDelegate
                 return scheduleExceptionDelegate.deleteByRuleId(ruleId, transaction, false)
             })
             .fail(
-            function (error)
+            function (error:Error)
             {
                 self.logger.debug('Error in deleting exceptions for ruleId - ' + ruleId + error);
                 throw error;
             });
     }
 
-    getRulesByUser(userId:number, startTime?:number, endTime?:number, fields:string[] = ScheduleRule.DEFAULT_FIELDS, transaction?:Object):q.Promise<any>
+    getRulesByUser(userId:number, startTime?:number, endTime?:number, fields:string[] = ScheduleRule.PUBLIC_FIELDS, transaction?:Object):q.Promise<any>
     {
         var expertScheduleRuleDao:any = this.dao;
         return expertScheduleRuleDao.getRulesByUser(userId, startTime, endTime, fields, transaction);

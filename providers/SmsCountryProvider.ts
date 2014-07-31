@@ -19,7 +19,7 @@ class SmsCountryProvider implements ISmsProvider
         var deferred = q.defer();
 
         if (Utils.getObjectType(to) == 'UserPhone' && to.getType() != PhoneType.MOBILE)
-            throw("Can't send SMS to " + to.toJson());
+            throw new Error("Can't send SMS to " + to.toJson());
 
         var smsCountrySendMessageUrl = Credentials.get(Credentials.SMS_COUNTRY_URL);
 

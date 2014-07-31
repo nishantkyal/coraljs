@@ -144,7 +144,7 @@ class MysqlDelegate
                 connection.release();
                 return rows;
             },
-            function queryFailed(err)
+            function queryFailed(err:Error)
             {
                 connection.release();
                 throw(err);
@@ -169,7 +169,7 @@ class MysqlDelegate
             {
                 return MysqlDelegate.commit(transaction, result);
             },
-            function operationFailed(error)
+            function operationFailed(error:Error)
             {
                 transaction.rollback();
                 throw (error);

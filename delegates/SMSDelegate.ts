@@ -18,7 +18,6 @@ import Priority                                                     = require('.
 import PhoneType                                                    = require('../enums/PhoneType');
 import SMSStatus                                                    = require('../enums/SMSStatus');
 import CallFragmentStatus                                           = require('../enums/CallFragmentStatus');
-import IncludeFlag                                                  = require('../enums/IncludeFlag');
 import SmsProviderFactory                                           = require('../factories/SmsProviderFactory');
 
 class SMSDelegate
