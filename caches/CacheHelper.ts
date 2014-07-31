@@ -15,7 +15,7 @@ class CacheHelper
     constructor(port:number)
     {
         // We're going to maintain just one connection to redis since both node and redis are single threaded
-        this.connection = redis.createClient(Config.get(Config.REDIS_VERIFICATION_PORT), Config.get(Config.REDIS_HOST), {connect_timeout: 60000});
+        this.connection = redis.createClient(port, Config.get(Config.REDIS_HOST), {connect_timeout: 60000});
         this.connection.on('error', function (error)
         {
             console.log(error);
@@ -325,7 +325,7 @@ class CacheHelper
     incrementCounter(counterName:string, increment:number = 1):q.Promise<any>
     {
         var deferred = q.defer();
-        return this.getConnection().incr(counterName, increment, function (error, result)
+        return this.getConnection().incr(counterName, function (error, result)
         {
             if (error)
                 deferred.reject(error);

@@ -74,12 +74,12 @@ class ScheduledTaskDelegate extends events.EventEmitter
             .then(
             function tasksSynced():any
             {
-                self.logger.info('Task of type %s scheduled, startTime: %s, id: %s', ScheduledTaskType[task.getTaskType()], moment(task.getStartTime()).format('DD/MM/YYYY hh:mm a'), task.getId());
+                self.logger.info('Task of type %s scheduled, startTime: %s, id: %s', ScheduledTaskType[task.getTaskType()], moment(task.getStartTime()).format('DD/MM/YYYY hh:mm:ss a'), task.getId());
                 return taskId;
             },
             function taskSyncFailed()
             {
-                self.logger.warn('Task of type %s scheduled, startTime: %s, id: %s', ScheduledTaskType[task.getTaskType()], moment(task.getStartTime()).format('DD/MM/YYYY hh:mm a'), task.getId());
+                self.logger.warn('Task of type %s scheduled, startTime: %s, id: %s', ScheduledTaskType[task.getTaskType()], moment(task.getStartTime()).format('DD/MM/YYYY hh:mm:ss a'), task.getId());
                 self.cancel(taskId);
             });
     }

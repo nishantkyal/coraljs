@@ -16,6 +16,11 @@ $('#cancelAddUserSkill').click(function()
     $('#addSkill').hide();
 });
 
+$('.editCardBtn').click(function(event)
+{
+    basicProfileCard.edit(unEscapeObject(userProfile), $(event.currentTarget))
+});
+
 $('#basicProfile .edit-card form').bootstrapValidator({
     feedbackIcons: {
         valid     : 'glyphicon glyphicon-ok',

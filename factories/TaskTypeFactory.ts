@@ -5,6 +5,7 @@ import PrintTimestampTask                                       = require('../mo
 import CallReminderNotificationScheduledTask                    = require('../models/tasks/CallReminderNotificationScheduledTask');
 import ScheduleCallsScheduledTask                               = require('../models/tasks/ScheduleCallsScheduledTask');
 import TimezoneRefreshTask                                      = require('../models/tasks/TimezoneRefreshTask');
+import SaveStatsTask                                            = require('../models/tasks/SaveStatsTask');
 
 class TaskTypeFactory
 {
@@ -25,7 +26,10 @@ class TaskTypeFactory
                 return new ScheduleCallsScheduledTask();
 
             case ScheduledTaskType.TIMEZONE_REFRESH:
-                return new TimezoneRefreshTask()
+                return new TimezoneRefreshTask();
+
+            case ScheduledTaskType.SAVE_STATS:
+                return new SaveStatsTask(result[SaveStatsTask.KEYS],result[SaveStatsTask.TYPE],result[SaveStatsTask.SAVE_STRING])
 
             case ScheduledTaskType.TEST_TIMESTAMP_PRINT:
                 return new PrintTimestampTask(result[PrintTimestampTask.ts]);

@@ -74,7 +74,7 @@ if isEditable
     script.
         var userId = '!{user.id}';
         var user = JSON.parse( '!{JSON.stringify(escapeObject(user))}' );
-        var userProfile = JSON.parse ( '!{JSON.stringify(userProfile)}' );
+        var userProfile = JSON.parse ( '!{JSON.stringify(escapeObject(userProfile))}' );
         var userEducation = JSON.parse( '!{JSON.stringify(escapeObject(user.education || {}))}' );
         var userEmployment = JSON.parse( '!{JSON.stringify(escapeObject(user.employment || {}))}' );
         var userExpertise = JSON.parse( '!{JSON.stringify(escapeObject(userExpertise))}' );

@@ -11,11 +11,13 @@ import path                                         = require('path');
 import appInit                                      = require('./appInit');
 import ScheduleCallsScheduledTask                   = require('./models/tasks/ScheduleCallsScheduledTask');
 import TimezoneRefreshTask                          = require('./models/tasks/TimezoneRefreshTask');
+import SaveStatsTask                                = require('./models/tasks/SaveStatsTask');
 import Config                                       = require('./common/Config');
 import Credentials                                  = require('./common/Credentials');
 import Formatter                                    = require('./common/Formatter');
 import Utils                                        = require('./common/Utils');
 import ScheduledTaskType                            = require('./enums/ScheduledTaskType');
+import SaveStatsTaskType                            = require('./enums/SaveStatsTaskType');
 import ApiUrlDelegate                               = require('./delegates/ApiUrlDelegate');
 import IntegrationDelegate                          = require('./delegates/IntegrationDelegate');
 import ScheduledTaskDelegate                        = require('./delegates/ScheduledTaskDelegate');
@@ -80,6 +82,42 @@ function serverStartupAction()
             if (Utils.isNullOrEmpty(scheduledTaskDelegate.find(ScheduledTaskType.CALL_SCHEDULE)))
                 newTasks.push(scheduledTaskDelegate.scheduleAfter(new ScheduleCallsScheduledTask(), 1));
 
+            var daily = true,weekly = true,monthly=true;
+            var saveString = '';
+
+            _.each(scheduledTaskDelegate.filter(ScheduledTaskType.SAVE_STATS), function(task){
+                switch(task.getType())
+                {
+                    case SaveStatsTaskType.DAILY:
+                        daily = false; break;
+                    case SaveStatsTaskType.WEEKLY:
+                        weekly = false; break;
+                    case SaveStatsTaskType.MONTHLY:
+                        monthly = false; break;
+                }
+            })
+
+            if (daily)
+            {
+                var millisTillMidnight:number = moment().hour(23).minute(59).second(0).valueOf() - moment().valueOf(); //midnight considered here to be 11:59pm to be in same day
+                saveString = 'DAY_' + moment().date() + '_OF_' + moment().format('MMM').toUpperCase() + '_' + moment().year();
+                newTasks.push(scheduledTaskDelegate.scheduleAfter(new SaveStatsTask(['loginCount'],SaveStatsTaskType.DAILY,saveString),millisTillMidnight));
+            }
+
+            if (weekly)
+            {
+                var millisTillMonday:number = moment().day(7).hour(23).minute(59).second(0).valueOf() - moment().valueOf();//Week start at Monday 12:00 am and ends at Sun 11:59 pm
+                saveString = 'WEEK_OF_' + moment().day(1).date() + '_' + moment().format('MMM').toUpperCase() + '_' + moment().year();
+                newTasks.push(scheduledTaskDelegate.scheduleAfter(new SaveStatsTask(['loginCount'],SaveStatsTaskType.WEEKLY,saveString),millisTillMonday));
+            }
+
+            if (monthly)
+            {
+                var millisTillNextMonth:number = moment().date(moment().daysInMonth()).hour(23).minute(59).second(0).valueOf() - moment().valueOf();
+                saveString = moment().format('MMM').toUpperCase() + '_' + moment().year();
+                newTasks.push(scheduledTaskDelegate.scheduleAfter(new SaveStatsTask(['loginCount'],SaveStatsTaskType.MONTHLY,saveString),millisTillNextMonth));
+            }
+
             return q.all(newTasks);
         });
 
@@ -88,6 +126,10 @@ function serverStartupAction()
         {
             log4js.getDefaultLogger().debug('Timezones updated');
             appInit.helpers['Timezone'] = TimezoneDelegate.TIMEZONES;
+        }
+        if (taskType === ScheduledTaskType.SAVE_STATS)
+        {
+            log4js.getDefaultLogger().debug('Save Stats tasks');
         }
     });
 
