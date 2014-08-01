@@ -2,7 +2,7 @@ import AbstractSessionData                                      = require('../Ab
 
 class StaticRoute
 {
-    constructor(app, secureApp)
+    constructor(app)
     {
         app.get('/privacy', function(req, res)
         {

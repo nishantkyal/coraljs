@@ -25,7 +25,7 @@ class ExpertApi
     private userDelegate = new UserDelegate();
     private notificationDelegate = new NotificationDelegate();
 
-    constructor(app, secureApp)
+    constructor(app)
     {
         var self = this;
 

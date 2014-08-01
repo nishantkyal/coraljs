@@ -24,32 +24,32 @@ import WidgetApi                                        = require('./WidgetApi')
 import ExpertiseApi                                     = require('./ExpertiseApi');
 import UserReviewApi                                    = require('./UserReviewApi');
 
-function init(app, secureApp?)
+function init(app)
 {
-    new CouponApi(app, secureApp);
-    new ExpertApi(app, secureApp);
-    new ScheduleRuleApi(app, secureApp);
-    new ScheduleExceptionApi(app, secureApp);
-    new IntegrationApi(app, secureApp);
-    new IntegrationOwnerApi(app, secureApp);
-    new PaymentApi(app, secureApp);
-    new PayoutDetailApi(app, secureApp);
-    new PricingSchemeApi(app, secureApp);
-    new PhoneCallApi(app, secureApp);
+    new CouponApi(app);
+    new ExpertApi(app);
+    new ScheduleRuleApi(app);
+    new ScheduleExceptionApi(app);
+    new IntegrationApi(app);
+    new IntegrationOwnerApi(app);
+    new PaymentApi(app);
+    new PayoutDetailApi(app);
+    new PricingSchemeApi(app);
+    new PhoneCallApi(app);
     new ScheduledTaskApi(app,  secureApp);
-    new UserPhoneApi(app, secureApp);
-    new TokenApi(app, secureApp);
-    new TransactionApi(app, secureApp);
-    new TwimlOutApi(app, secureApp);
+    new UserPhoneApi(app);
+    new TokenApi(app);
+    new TransactionApi(app);
+    new TwimlOutApi(app);
     new KookooApi(app,secureApp);
-    new ExotelApi(app, secureApp);
-    new UserApi(app, secureApp);
-    new UserProfileApi(app, secureApp);
-    new UserEducationApi(app, secureApp);
-    new UserEmploymentApi(app, secureApp);
-    new UserSkillApi(app, secureApp);
-    new WidgetApi(app, secureApp);
-    new ExpertiseApi(app, secureApp);
-    new UserReviewApi(app, secureApp);
+    new ExotelApi(app);
+    new UserApi(app);
+    new UserProfileApi(app);
+    new UserEducationApi(app);
+    new UserEmploymentApi(app);
+    new UserSkillApi(app);
+    new WidgetApi(app);
+    new ExpertiseApi(app);
+    new UserReviewApi(app);
 }
 export = init

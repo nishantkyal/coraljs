@@ -36,7 +36,7 @@ class MemberRegistrationRoute
     private verificationCodeDelegate = new VerificationCodeDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
 
-    constructor(app, secureApp)
+    constructor(app)
     {
         // Pages
         app.get(Urls.index(), AuthenticationDelegate.checkLogin({setReturnTo: true}), this.index.bind(this));

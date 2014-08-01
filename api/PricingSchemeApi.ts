@@ -10,7 +10,7 @@ class PricingSchemeApi
 {
     private pricingSchemeDelegate = new PricingSchemeDelegate();
 
-    constructor(app, secureApp)
+    constructor(app)
     {
         var self = this;
 

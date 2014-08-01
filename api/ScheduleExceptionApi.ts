@@ -14,7 +14,7 @@ import Utils                            = require('../common/Utils');
  */
 class ScheduleExceptionApi
 {
-    constructor(app, secureApp)
+    constructor(app)
     {
         var scheduleExceptionDelegate = new ScheduleExceptionDelegate();
 

@@ -7,7 +7,7 @@ import ApiUrlDelegate       = require('../delegates/ApiUrlDelegate');
  */
 class PaymentApi
 {
-    constructor(app, secureApp) {
+    constructor(app) {
 
         /* Search payment */
         app.get(ApiUrlDelegate.payment(), function(req:express.Request, res:express.Response)

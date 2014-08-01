@@ -12,7 +12,7 @@ import UserProfile                                          = require('../models
 
 class UserProfileApi
 {
-    constructor(app, secureApp)
+    constructor(app)
     {
         var userProfileDelegate = new UserProfileDelegate();
         var integrationMemberDelegate = new IntegrationMemberDelegate();

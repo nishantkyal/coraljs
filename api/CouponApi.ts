@@ -11,7 +11,7 @@ class CouponApi
 {
     couponDelegate = new CouponDelegate();
 
-    constructor(app, secureApp)
+    constructor(app)
     {
         var self = this;
 

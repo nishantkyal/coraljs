@@ -18,7 +18,7 @@ import UserPhone                                            = require('../models
 
 class TokenApi
 {
-    constructor(app, secureApp)
+    constructor(app)
     {
         var verificationCodeDelegate = new VerificationCodeDelegate();
         var userDelegate = new UserDelegate();

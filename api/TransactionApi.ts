@@ -10,7 +10,7 @@ import Transaction                              = require('../models/Transaction
  */
 class TransactionApi
 {
-    constructor(app, secureApp)
+    constructor(app)
     {
         var transactionDelegate = new TransactionDelegate();
 

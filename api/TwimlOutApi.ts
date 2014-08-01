@@ -46,7 +46,7 @@ class TwimlOutApi
     phoneCallCache = new PhoneCallCache();
     logger:log4js.Logger = log4js.getLogger('TwimlOutApi');
 
-    constructor(app, secureApp)
+    constructor(app)
     {
         var self = this;
 

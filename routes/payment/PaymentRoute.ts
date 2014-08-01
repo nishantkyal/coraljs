@@ -50,7 +50,7 @@ class PaymentRoute
     private userPhoneDelegate = new UserPhoneDelegate();
     private couponDelegate = new CouponDelegate();
 
-    constructor(app, secureApp)
+    constructor(app)
     {
         app.get(Urls.payment(), Middleware.requireCallerAndCallDetails, Middleware.ensureNotCallingSelf, this.callPaymentPage.bind(this));
 

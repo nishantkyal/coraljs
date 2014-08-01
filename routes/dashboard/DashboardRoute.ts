@@ -92,7 +92,7 @@ class DashboardRoute
     private searchDelegate = new SearchDelegate();
     private logger = log4js.getLogger(Utils.getClassName(this));
 
-    constructor(app, secureApp)
+    constructor(app)
     {
         // Pages
         app.get(Urls.index(), AuthenticationDelegate.checkLogin({failureRedirect: Urls.home()}), this.dashboard.bind(this));

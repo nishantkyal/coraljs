@@ -12,7 +12,7 @@ class UserSkillApi
 {
     userSkillDelegate;
 
-    constructor(app, secureApp)
+    constructor(app)
     {
         var self = this;
         this.userSkillDelegate = new UserSkillDelegate();

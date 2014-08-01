@@ -12,7 +12,7 @@ import IntegrationMember                = require('../models/IntegrationMember')
  */
 class IntegrationOwnerApi {
 
-    constructor(app, secureApp)
+    constructor(app)
     {
         var integrationMemberDelegate = new IntegrationMemberDelegate();
 

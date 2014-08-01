@@ -65,7 +65,7 @@ class CallFlowRoute
     private verificationCodeDelegate = new VerificationCodeDelegate();
     private timezoneDelegate = new TimezoneDelegate();
 
-    constructor(app, secureApp)
+    constructor(app)
     {
         app.get(Urls.callExpert(), this.index.bind(this));
         app.get(Urls.scheduling(), AuthenticationDelegate.checkLogin({setReturnTo: true}), this.scheduling.bind(this));

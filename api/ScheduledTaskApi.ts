@@ -6,7 +6,7 @@ import PrintTimestampTask                                       = require('../mo
 
 class ScheduledTaskApi
 {
-    constructor(app, secureApp)
+    constructor(app)
     {
         app.get(ApiUrlDelegate.scheduleTask(), function(req:express.Request, res:express.Response)
         {

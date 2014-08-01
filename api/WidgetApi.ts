@@ -9,7 +9,7 @@ class WidgetApi
 {
     private logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
 
-    constructor(app, secureApp)
+    constructor(app)
     {
         var widgetDelegate = new WidgetDelegate();
 

@@ -29,7 +29,7 @@ class IntegrationApi
     private verificationCodeDelegate = new VerificationCodeDelegate();
     private notificationDelegate = new NotificationDelegate();
 
-    constructor(app, secureApp)
+    constructor(app)
     {
         var self = this;
 
