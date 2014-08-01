@@ -84,13 +84,11 @@ class DashboardRoute
     private userDelegate = new UserDelegate();
     private verificationCodeDelegate = new VerificationCodeDelegate();
     private couponDelegate = new CouponDelegate();
-    private scheduleDelegate = new ScheduleDelegate();
     private scheduleRuleDelegate = new ScheduleRuleDelegate();
     private pricingSchemeDelegate = new PricingSchemeDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
     private userProfileDelegate = new UserProfileDelegate();
     private expertiseDelegate = new ExpertiseDelegate();
-    private widgetDelegate = new WidgetDelegate();
     private searchDelegate = new SearchDelegate();
     private logger = log4js.getLogger(Utils.getClassName(this));
 
@@ -143,9 +141,9 @@ class DashboardRoute
                 var members = args[0][1];
                 var uniqueUserIds:number[] = _.uniq(_.pluck(members, IntegrationMember.COL_USER_ID));
 
-                var foreignKeys = _.map(_.keys(req.query), function(filter:string)
+                var foreignKeys = _.map(_.keys(req.query), function (filter:string)
                 {
-                    switch(filter)
+                    switch (filter)
                     {
                         case ApiConstants.PRICE_RANGE: return User.FK_USER_PRICING_SCHEME;
                         case ApiConstants.USER_SKILL: return User.FK_USER_SKILL;
@@ -157,10 +155,15 @@ class DashboardRoute
             .spread(
             function expertDetailsFetched(integration, ...args)
             {
+                return [integration, self.searchDelegate.applyFiltersToExperts(searchParameters, args[0])];
+            })
+            .spread(
+            function filtersEvaluated(integration:Integration, experts:User[])
+            {
                 var pageData = _.extend(sessionData.getData(), {
-                    integration:integration,
-                    experts:self.searchDelegate.applySearchParameters(searchParameters,args[0]),
-                    searchParameters:searchParameters || {}
+                    integration: integration,
+                    experts: experts,
+                    searchParameters: searchParameters || {}
                 });
 
                 res.render(DashboardRoute.PAGE_SNS, pageData);
@@ -169,93 +172,7 @@ class DashboardRoute
             function integrationFetchError(error)
             {
                 res.render('500', {error: error});
-            })
-    }
-
-    applySearchParameters(searchParameters:Object, experts:User[]):q.Promise<User[]>
-    {
-        var keys = _.keys(searchParameters);
-        var invalidIndex = [];
-        var self = this;
-
-        _.each(keys, function (key)
-        {
-            switch (key)
-            {
-                case ApiConstants.PRICE_RANGE:
-                    _.each(experts, function (expert:User, index)
-                    {
-                        expert.getPricingScheme()
-                            .then(
-                            function pricingSchemeFetched(schemes:PricingScheme[])
-                            {
-                                if (!Utils.isNullOrEmpty(schemes))
-                                {
-                                    var pricing:PricingScheme = schemes[0];
-                                    var perMinChargeInRupees = pricing.getChargingRate();
-
-                                    if (pricing.getPulseRate() > 1)
-                                        perMinChargeInRupees = perMinChargeInRupees / pricing.getPulseRate();
-                                    if (pricing.getUnit() == MoneyUnit.DOLLAR)
-                                        perMinChargeInRupees *= 60;
-
-                                    if (perMinChargeInRupees < searchParameters[key][0] || perMinChargeInRupees > searchParameters[key][1])
-                                        invalidIndex.push(index);
-                                }
-                                if (Utils.isNullOrEmpty(schemes) && searchParameters[key][0] > 0) //don't display experts with no pricing scheme when search price range > 0
-                                    invalidIndex.push(index);
-                            });
-                    });
-                    break;
-
-                case ApiConstants.EXPERIENCE_RANGE:
-                    break;
-
-                case ApiConstants.AVAILIBILITY:
-                    _.each(experts, function (expert:User, index)
-                    {
-                        self.scheduleDelegate.getSchedulesForUser(expert.getId())
-                            .then(
-                            function scheduleFetched(schedules:Schedule[])
-                            {
-                                if (!expert.isCurrentlyAvailable(schedules))
-                                    invalidIndex.push(index);
-                            });
-                    });
-                    break;
-
-                case ApiConstants.USER_SKILL:
-                    _.each(experts, function (expert:User, index)
-                    {
-                        expert.getSkill()
-                            .then(
-                            function skillsFetched(skills:UserSkill[])
-                            {
-                                var expertSkills = _.map(skills, function (skill:any)
-                                {
-                                    return skill.skill.skill;
-                                });
-
-                                var isValid = false;
-                                _.each(searchParameters[key], function (skill)
-                                {
-                                    if (_.indexOf(expertSkills, skill) != -1)
-                                        isValid = true;
-                                })
-
-                                if (!isValid)
-                                    invalidIndex.push(index);
-                            });
-
-                    });
-                    break;
-            }
-        });
-        _.each(_.uniq(invalidIndex), function (index)
-        {
-            delete experts[index];
-        })
-        return _.compact(experts);
+            });
     }
 
     private home(req:express.Request, res:express.Response)
@@ -354,7 +271,12 @@ class DashboardRoute
                     ])];
                 }
                 else
-                    return [null, [], [[],[],[],{}]];
+                    return [null, [], [
+                        [],
+                        [],
+                        [],
+                        {}
+                    ]];
             })
             .spread(
             function integrationDetailsFetched(integrationId:number, members:IntegrationMember[], ...results)
