@@ -55,7 +55,7 @@ class ScheduledTaskDelegate extends events.EventEmitter
             return null;
         }
 
-        var timeout:any = setTimeout(function ()
+        var taskFunction = function ()
         {
             task.execute()
                 .then(function taskExecuted()
@@ -63,12 +63,21 @@ class ScheduledTaskDelegate extends events.EventEmitter
                     self.emit('taskCompletedEvent', task.getTaskType())
                 })
             self.cancel(task.getId());
-        }, interval);
+        };
+
+        var timeout:any = function setLongerTimeout(interval)
+        {
+            var maxTimeout = 0x7FFFFFFF; //setTimeout limit is MAX_INT32=(2^31-1)
+            if (interval < maxTimeout)
+                return setTimeout(taskFunction, interval);
+            else
+                return setTimeout(setLongerTimeout(interval - maxTimeout),maxTimeout);
+        }
 
         task.setId(taskId);
 
         // Add task to index and persist
-        ScheduledTaskDelegate.tasks[taskId] = {task: task, timeout: timeout};
+        ScheduledTaskDelegate.tasks[taskId] = {task: task, timeout: timeout(interval)};
 
         return self.syncToRedis()
             .then(
