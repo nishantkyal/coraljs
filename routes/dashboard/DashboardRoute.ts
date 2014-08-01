@@ -27,6 +27,7 @@ import TransactionDelegate                              = require('../../delegat
 import TransactionLineDelegate                          = require('../../delegates/TransactionLineDelegate');
 import ExpertiseDelegate                                = require('../../delegates/ExpertiseDelegate');
 import WidgetDelegate                                   = require('../../delegates/WidgetDelegate');
+import SearchDelegate                                   = require('../../delegates/SearchDelegate');
 import MoneyUnit                                        = require('../../enums/MoneyUnit');
 import IncludeFlag                                      = require('../../enums/IncludeFlag');
 import TransactionType                                  = require('../../enums/TransactionType');
@@ -92,6 +93,7 @@ class DashboardRoute
     private userUrlDelegate = new UserUrlDelegate();
     private expertiseDelegate = new ExpertiseDelegate();
     private widgetDelegate = new WidgetDelegate();
+    private searchDelegate = new SearchDelegate();
     private logger = log4js.getLogger(Utils.getClassName(this));
 
     constructor(app, secureApp)
@@ -142,7 +144,7 @@ class DashboardRoute
                 var integration = args[0][0];
                 var members = args[0][1];
                 var tasks = _.map(members, function(member:IntegrationMember){
-                    return self.userDelegate.find({'id':member.getUserId()},null,[IncludeFlag.INCLUDE_PRICING_SCHEMES, IncludeFlag.INCLUDE_SKILL, IncludeFlag.INCLUDE_SCHEDULES, IncludeFlag.INCLUDE_USER_PROFILE]);
+                    return self.userDelegate.find(Utils.createSimpleObject(User.ID,member.getUserId()),null,[IncludeFlag.INCLUDE_PRICING_SCHEMES, IncludeFlag.INCLUDE_SKILL, IncludeFlag.INCLUDE_SCHEDULES, IncludeFlag.INCLUDE_USER_PROFILE]);
                 });
 
                 return [integration,q.all(tasks)];
@@ -151,7 +153,7 @@ class DashboardRoute
             {
                 var pageData = _.extend(sessionData.getData(), {
                     integration:integration,
-                    experts:self.applySearchParameters(searchParameters,args[0]),
+                    experts:self.searchDelegate.applySearchParameters(searchParameters,args[0]),
                     searchParameters:searchParameters || {}
                 });
 
@@ -162,68 +164,6 @@ class DashboardRoute
             {
                 res.render('500',{error:error});
             })
-    }
-
-    applySearchParameters(searchParameters:Object, experts:User[]):User[]
-    {
-        var keys = _.keys(searchParameters);
-        var invalidIndex = [];
-        _.each(keys, function(key){
-            switch(key)
-            {
-                case ApiConstants.PRICE_RANGE:
-                    _.each(experts, function(expert:User,index){
-                        if (!Utils.isNullOrEmpty(expert.getPricingScheme()))
-                        {
-                            var pricing:PricingScheme = expert.getPricingScheme()[0];
-                            var perMinChargeInRupees = pricing.getChargingRate();
-
-                            if (pricing.getPulseRate() > 1)
-                                perMinChargeInRupees = perMinChargeInRupees / pricing.getPulseRate();
-                            if (pricing.getUnit() == MoneyUnit.DOLLAR)
-                                perMinChargeInRupees *= 60;
-
-                            if (perMinChargeInRupees < searchParameters[key][0] || perMinChargeInRupees > searchParameters[key][1])
-                                invalidIndex.push(index);
-                        }
-                        if (Utils.isNullOrEmpty(expert.getPricingScheme()) && searchParameters[key][0] > 0) //don't display experts with no pricing scheme when search price range > 0
-                            invalidIndex.push(index);
-                    });
-                    break;
-
-                case ApiConstants.EXPERIENCE_RANGE:
-                    break;
-
-                case ApiConstants.AVAILIBILITY:
-                    _.each(experts, function(expert:User,index){
-                        if (!expert.isCurrentlyAvailable())
-                            invalidIndex.push(index);
-                    });
-                    break;
-
-                case ApiConstants.USER_SKILL:
-                    _.each(experts, function(expert,index){
-
-                        var expertSkills = _.map(expert.getSkill(), function(skill:any){
-                            return skill.skill.skill;
-                        });
-
-                        var isValid = false;
-                        _.each(searchParameters[key], function(skill){
-                            if(_.indexOf(expertSkills,skill) != -1)
-                                isValid = true;
-                        })
-
-                        if (!isValid)
-                            invalidIndex.push(index);
-                    });
-                    break;
-            }
-        });
-        _.each(_.uniq(invalidIndex), function(index){
-            delete experts[index];
-        })
-        return _.compact(experts);
     }
 
     private home(req:express.Request, res:express.Response)
