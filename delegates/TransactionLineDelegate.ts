@@ -66,11 +66,11 @@ class TransactionLineDelegate extends BaseDaoDelegate
     {
         var self = this;
 
-        return self.find(Utils.createSimpleObject(TransactionLine.ITEM_ID, itemId))
+        return self.find(Utils.createSimpleObject(TransactionLine.COL_ITEM_ID, itemId))
             .then(
             function transactionIdFound(line:TransactionLine)
             {
-                return self.search(Utils.createSimpleObject(TransactionLine.TRANSACTION_ID, line.getTransactionId()));
+                return self.search(Utils.createSimpleObject(TransactionLine.COL_TRANSACTION_ID, line.getTransactionId()));
             });
     }
 }

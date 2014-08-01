@@ -9,7 +9,7 @@ import UserEmployment                                       = require('../models
 class UserEmploymentApi
 {
     private userEmploymentDelegate;
-    constructor(app, secureApp)
+    constructor(app)
     {
         var self = this;
         this.userEmploymentDelegate = new UserEmploymentDelegate();

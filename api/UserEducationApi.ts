@@ -9,7 +9,7 @@ import UserEducation                                        = require('../models
 class UserEducationApi
 {
     userEducationDelegate;
-    constructor(app, secureApp)
+    constructor(app)
     {
         var self = this;
         this.userEducationDelegate = new UserEducationDelegate();

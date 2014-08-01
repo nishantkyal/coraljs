@@ -10,7 +10,6 @@ import Expertise                                                = require('../mo
 import UserSkill                                                = require('../models/UserSkill');
 import SkillCode                                                = require('../models/SkillCode');
 import MapExpertiseSkill                                        = require('../models/MapExpertiseSkill');
-import IncludeFlag                                              = require('../enums/IncludeFlag');
 import Utils                                                    = require('../common/Utils');
 
 class ExpertiseDelegate extends BaseDaoDelegate
@@ -30,18 +29,6 @@ class ExpertiseDelegate extends BaseDaoDelegate
         return q.allSettled(_.map(skills, function(skill:any){
             return self.createExpertiseSkillMap(skill.skill_name,expertiseId,transaction);
         }))
-    }
-
-    getIncludeHandler(include:IncludeFlag, result:any):q.Promise<any>
-    {
-        var self = this;
-
-        switch (include)
-        {
-            case IncludeFlag.INCLUDE_SKILL:
-                return self.mapExpertiseSkillDelegate.search(Utils.createSimpleObject(MapExpertiseSkill.EXPERTISE_ID,_.uniq(_.pluck(result, Expertise.ID))), null,[IncludeFlag.INCLUDE_SKILL]);
-        }
-        return super.getIncludeHandler(include, result);
     }
 
     createExpertiseSkillMap(skillName:string,expertiseId:number, transaction?:Object):q.Promise<any>

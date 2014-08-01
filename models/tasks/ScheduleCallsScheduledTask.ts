@@ -8,7 +8,6 @@ import PhoneCall                                                = require('../..
 import Config                                                   = require('../../common/Config');
 import Utils                                                    = require('../../common/Utils');
 import ScheduledTaskType                                        = require('../../enums/ScheduledTaskType');
-import IncludeFlag                                              = require('../../enums/IncludeFlag');
 
 class ScheduleCallsScheduledTask extends AbstractScheduledTask
 {
@@ -37,12 +36,12 @@ class ScheduleCallsScheduledTask extends AbstractScheduledTask
             }
         };
 
-        return self.phoneCallDelegate.search(query, [PhoneCall.ID])
+        return self.phoneCallDelegate.search(query, [PhoneCall.COL_ID])
             .then(
             function callIdsFetched(calls:PhoneCall[]):any
             {
                 return q.all(_.map(calls, function (call:PhoneCall){
-                    return self.phoneCallDelegate.get(call.getId(), null, [IncludeFlag.INCLUDE_EXPERT_USER, IncludeFlag.INCLUDE_USER_PHONE, IncludeFlag.INCLUDE_EXPERT_PHONE])
+                    return self.phoneCallDelegate.get(call.getId(), null, [PhoneCall.FK_PHONE_CALL_EXPERT, PhoneCall.FK_PHONE_CALL_CALLER_PHONE, PhoneCall.FK_PHONE_CALL_EXPERT_PHONE])
                 }));
             })
             .then(
@@ -53,7 +52,7 @@ class ScheduleCallsScheduledTask extends AbstractScheduledTask
                     return self.phoneCallDelegate.queueCallForTriggering(call);
                 }));
             },
-            function callsFetchError(error):any
+            function callsFetchError(error:Error):any
             {
                 self.logger.fatal('An error occurred while scheduling calls. Error: %s', JSON.stringify(error));
                 throw(error);

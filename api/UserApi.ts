@@ -25,7 +25,7 @@ import Config                               = require('../common/Config');
  */
 class UserApi
 {
-    constructor(app, secureApp)
+    constructor(app)
     {
         var userDelegate = new UserDelegate();
         var userProfileDelegate = new UserProfileDelegate();

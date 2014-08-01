@@ -6,36 +6,8 @@ $('#networkSetting .editCardBtn').click(function(){
 });
 
 $('#networkSetting .edit-card form').bootstrapValidator({
-    feedbackIcons: {
-        valid     : 'glyphicon glyphicon-ok',
-        invalid   : 'glyphicon glyphicon-remove',
-        validating: 'glyphicon glyphicon-refresh'
-    },
-    fields       : {
-        title: {
-            validators: {
-                notEmpty: {
-                    message: 'This field is required and cannot be empty'
-                }
-            }
-        },
-        website_url : {
-            validators: {
-                uri: {
-                    message: 'Please enter a valid url. Enter full url (including the http:// part)'
-                }
-            }
-        }
-    }
-})
-    .on('success.form.bv', function(e) {
-        // Prevent form submission
-        e.preventDefault();
-
-        var $form        = $(e.target),
-            validator    = $form.data('bootstrapValidator'),
-            submitButton = validator.getSubmitButton();
-
+    submitHandler: function(form)
+    {
         $.ajax({
             url    : '/rest/integration/' + integration.id,
             type   : 'POST',
@@ -60,8 +32,30 @@ $('#networkSetting .edit-card form').bootstrapValidator({
                     location.reload();
                 });
             }
-        });
-    });
+        })
+    },
+    feedbackIcons: {
+        valid     : 'glyphicon glyphicon-ok',
+        invalid   : 'glyphicon glyphicon-remove',
+        validating: 'glyphicon glyphicon-refresh'
+    },
+    fields       : {
+        title: {
+            validators: {
+                notEmpty: {
+                    message: 'This field is required and cannot be empty'
+                }
+            }
+        },
+        website_url : {
+            validators: {
+                uri: {
+                    message: 'Please enter a valid url. Enter full url (including the http:// part)'
+                }
+            }
+        }
+    }
+});
 
 $(function()
 {
@@ -76,54 +70,9 @@ $('#integrationMemberCard').card();
 
 $('#integrationMemberCard .edit-card form').bootstrapValidator({
     message      : 'This value is not valid',
-    feedbackIcons: {
-        valid     : 'glyphicon glyphicon-ok',
-        invalid   : 'glyphicon glyphicon-remove',
-        validating: 'glyphicon glyphicon-refresh'
-    },
-    fields       : {
-        first_name: {
-            validators: {
-                notEmpty: {
-                    message: 'This field is required and cannot be empty'
-                }
-            }
-        },
-        last_name : {
-            validators: {
-                notEmpty: {
-                    message: 'This field is required and cannot be empty'
-                }
-            }
-        },
-        email     : {
-            validators: {
-                notEmpty    : {
-                    message: 'The email is required and cannot be empty'
-                },
-                emailAddress: {
-                    message: 'The input is not a valid email address'
-                }
-            }
-        },
-        phone     : {
-            validators: {
-                digits: {
-                    message: "Please enter a valid phone number"
-                }
-            }
-        }
-    }
-})
-    .on('success.form.bv', function(e) {
-        // Prevent form submission
-        e.preventDefault();
-
-        var $form        = $(e.target),
-            validator    = $form.data('bootstrapValidator'),
-            submitButton = validator.getSubmitButton();
-
-        var sendInvite = $(submitButton).attr('name') == 'send-invite';
+    submitHandler: function(form)
+    {
+        var sendInvite = form.$submitButton[0].name == 'send-invite';
 
         if (sendInvite) {
             $.ajax({
@@ -132,18 +81,19 @@ $('#integrationMemberCard .edit-card form').bootstrapValidator({
                 data   : {
                     integration_member: {
                         role          : $('#integrationMemberCard .edit-card form [name="role"]').val(),
-                        integration_id: integrationId,
-                        user          : {
-                            email     : $('#integrationMemberCard .edit-card form [name="email"]').val(),
-                            title     : $('#integrationMemberCard .edit-card form [name="title"]').val(),
-                            first_name: $('#integrationMemberCard .edit-card form [name="first_name"]').val(),
-                            last_name : $('#integrationMemberCard .edit-card form [name="last_name"]').val(),
-                            timezone  : zone.zone_id
-                        },
-                        phoneNumber   : {
-                            country_code: $('#integrationMemberCard .edit-card form [name="country_code"]').val(),
-                            phone       : $('#integrationMemberCard .edit-card form [name="phone"]').val()
-                        }
+                        integration_id: integrationId
+                    },
+                    user          : {
+                        email     : $('#integrationMemberCard .edit-card form [name="email"]').val(),
+                        title     : $('#integrationMemberCard .edit-card form [name="title"]').val(),
+                        first_name: $('#integrationMemberCard .edit-card form [name="first_name"]').val(),
+                        last_name : $('#integrationMemberCard .edit-card form [name="last_name"]').val(),
+                        timezone  : zone.zone_id
+                    },
+                    phoneNumber   : {
+                        area_code: $('#integrationMemberCard .edit-card form [name="area_code"]').val(),
+                        country_code: $('#integrationMemberCard .edit-card form [name="country_code"]').val(),
+                        phone       : $('#integrationMemberCard .edit-card form [name="phone"]').val()
                     }
                 },
                 success: function(result)
@@ -222,7 +172,46 @@ $('#integrationMemberCard .edit-card form').bootstrapValidator({
                 }
             })
         }
-    });
+    },
+    feedbackIcons: {
+        valid     : 'glyphicon glyphicon-ok',
+        invalid   : 'glyphicon glyphicon-remove',
+        validating: 'glyphicon glyphicon-refresh'
+    },
+    fields       : {
+        first_name: {
+            validators: {
+                notEmpty: {
+                    message: 'This field is required and cannot be empty'
+                }
+            }
+        },
+        last_name : {
+            validators: {
+                notEmpty: {
+                    message: 'This field is required and cannot be empty'
+                }
+            }
+        },
+        email     : {
+            validators: {
+                notEmpty    : {
+                    message: 'The email is required and cannot be empty'
+                },
+                emailAddress: {
+                    message: 'The input is not a valid email address'
+                }
+            }
+        },
+        phone     : {
+            validators: {
+                digits: {
+                    message: "Please enter a valid phone number"
+                }
+            }
+        }
+    }
+});
 
 /** COUPONS CARD **/
 var couponCard = $('#couponCard').card();
@@ -235,43 +224,8 @@ $('.editCouponBtn').click(function(event)
 });
 
 $('#couponCard .edit-card form').bootstrapValidator({
-    feedbackIcons: {
-        valid     : 'glyphicon glyphicon-ok',
-        invalid   : 'glyphicon glyphicon-remove',
-        validating: 'glyphicon glyphicon-refresh'
-    },
-    fields       : {
-        code           : {
-            validators: {
-                notEmpty: {
-                    message: 'This field is required and cannot be empty'
-                }
-            }
-        },
-        expiry_time    : {
-            validators: {
-                notEmpty: {
-                    message: 'This field is required and cannot be empty'
-                }
-            }
-        },
-        discount_amount: {
-            validators: {
-                notEmpty: {
-                    message: 'The email is required and cannot be empty'
-                }
-            }
-        }
-    }
-})
-    .on('success.form.bv', function(e) {
-        // Prevent form submission
-        e.preventDefault();
-
-        var $form        = $(e.target),
-            validator    = $form.data('bootstrapValidator'),
-            submitButton = validator.getSubmitButton();
-
+    submitHandler: function(form)
+    {
         var couponId = $('form#couponDetailsForm input[name="id"]').val();
         var url = couponId ? '/rest/coupon/' + couponId : '/rest/coupon';
         var method = couponId ? 'post' : 'put';
@@ -301,7 +255,36 @@ $('#couponCard .edit-card form').bootstrapValidator({
 
             }
         });
-    });
+    },
+    feedbackIcons: {
+        valid     : 'glyphicon glyphicon-ok',
+        invalid   : 'glyphicon glyphicon-remove',
+        validating: 'glyphicon glyphicon-refresh'
+    },
+    fields       : {
+        code           : {
+            validators: {
+                notEmpty: {
+                    message: 'This field is required and cannot be empty'
+                }
+            }
+        },
+        expiry_time    : {
+            validators: {
+                notEmpty: {
+                    message: 'This field is required and cannot be empty'
+                }
+            }
+        },
+        discount_amount: {
+            validators: {
+                notEmpty: {
+                    message: 'The email is required and cannot be empty'
+                }
+            }
+        }
+    }
+});
 
 $('form#integration').bootstrapValidator({
     fields       : {
@@ -319,16 +302,9 @@ $('form#integration').bootstrapValidator({
                 }
             }
         }
-    }
-})
-    .on('success.form.bv', function(e) {
-        // Prevent form submission
-        e.preventDefault();
-
-        var $form        = $(e.target),
-            validator    = $form.data('bootstrapValidator'),
-            submitButton = validator.getSubmitButton();
-
+    },
+    submitHandler: function(form)
+    {
         $.ajax({
             url        : '/rest/integration',
             type       : 'put',
@@ -343,11 +319,17 @@ $('form#integration').bootstrapValidator({
             }),
             success    : function()
             {
-                location.reload();
+                location.href = '/network';
             },
             error      : function(jqXHR)
             {
                 bootbox.alert(jqXHR.responseText);
             }
-        });
-    });
+        })
+    }
+});
+
+$('.sendAgain').click(function()
+{
+
+})

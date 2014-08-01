@@ -10,7 +10,7 @@ class ExpertiseApi
 {
     private expertiseDelegate = new ExpertiseDelegate();
 
-    constructor(app, secureApp)
+    constructor(app)
     {
         var self = this;
 

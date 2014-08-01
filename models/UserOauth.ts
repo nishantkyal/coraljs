@@ -8,14 +8,14 @@ class UserOauth extends BaseModel
 {
     static TABLE_NAME:string = 'user_oauth';
 
-    static USER_ID:string                           = 'user_id';
-    static PROVIDER_ID:string                       = 'provider_id';
-    static OAUTH_USER_ID:string                     = 'oauth_user_id';
-    static ACCESS_TOKEN:string                      = 'access_token';
-    static ACCESS_TOKEN_EXPIRY:string               = 'access_token_expiry';
-    static REFRESH_TOKEN:string                     = 'refresh_token';
-    static REFRESH_TOKEN_EXPIRY:string              = 'refresh_token_expiry';
-    static EMAIL:string                             = 'email';
+    static COL_USER_ID:string                           = 'user_id';
+    static COL_PROVIDER_ID:string                       = 'provider_id';
+    static COL_OAUTH_USER_ID:string                     = 'oauth_user_id';
+    static COL_ACCESS_TOKEN:string                      = 'access_token';
+    static COL_ACCESS_TOKEN_EXPIRY:string               = 'access_token_expiry';
+    static COL_REFRESH_TOKEN:string                     = 'refresh_token';
+    static COL_REFRESH_TOKEN_EXPIRY:string              = 'refresh_token_expiry';
+    static COL_EMAIL:string                             = 'email';
 
     private user_id:number;
     private provider_id:string;
@@ -26,8 +26,8 @@ class UserOauth extends BaseModel
     private refresh_token_expiry:number;
     private email:string;
 
-    static DEFAULT_FIELDS:string[] = [UserOauth.USER_ID, UserOauth.PROVIDER_ID, UserOauth.OAUTH_USER_ID, UserOauth.ACCESS_TOKEN,
-        UserOauth.ACCESS_TOKEN_EXPIRY, UserOauth.REFRESH_TOKEN, UserOauth.REFRESH_TOKEN_EXPIRY, UserOauth.EMAIL];
+    static PUBLIC_FIELDS:string[] = [UserOauth.COL_USER_ID, UserOauth.COL_PROVIDER_ID, UserOauth.COL_OAUTH_USER_ID, UserOauth.COL_ACCESS_TOKEN,
+        UserOauth.COL_ACCESS_TOKEN_EXPIRY, UserOauth.COL_REFRESH_TOKEN, UserOauth.COL_REFRESH_TOKEN_EXPIRY, UserOauth.COL_EMAIL];
 
     /* Getters */
     getUserId()                                     { return this.user_id; }

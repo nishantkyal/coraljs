@@ -85,35 +85,40 @@ function serverStartupAction()
             var daily = true,weekly = true,monthly=true;
             var saveString = '';
 
-            _.each(scheduledTaskDelegate.filter(ScheduledTaskType.SAVE_STATS), function(task){
-                switch(task.getType())
+            _.each(scheduledTaskDelegate.filter(ScheduledTaskType.SAVE_STATS), function(task)
+            {
+                var saveStatsTask:any = task;
+                switch(saveStatsTask.getType())
                 {
                     case SaveStatsTaskType.DAILY:
-                        daily = false; break;
+                        daily = false;
+                        break;
                     case SaveStatsTaskType.WEEKLY:
-                        weekly = false; break;
+                        weekly = false;
+                        break;
                     case SaveStatsTaskType.MONTHLY:
-                        monthly = false; break;
+                        monthly = false;
+                        break;
                 }
-            })
+            });
 
             if (daily)
             {
-                var millisTillMidnight:number = moment().hour(23).minute(59).second(0).valueOf() - moment().valueOf(); //midnight considered here to be 11:59pm to be in same day
+                var millisTillMidnight:number = moment().hours(23).minutes(59).seconds(0).valueOf() - moment().valueOf(); //midnight considered here to be 11:59pm to be in same day
                 saveString = 'DAY_' + moment().date() + '_OF_' + moment().format('MMM').toUpperCase() + '_' + moment().year();
                 newTasks.push(scheduledTaskDelegate.scheduleAfter(new SaveStatsTask(['loginCount'],SaveStatsTaskType.DAILY,saveString),millisTillMidnight));
             }
 
             if (weekly)
             {
-                var millisTillMonday:number = moment().day(7).hour(23).minute(59).second(0).valueOf() - moment().valueOf();//Week start at Monday 12:00 am and ends at Sun 11:59 pm
+                var millisTillMonday:number = moment().day(7).hours(23).minutes(59).seconds(0).valueOf() - moment().valueOf();//Week start at Monday 12:00 am and ends at Sun 11:59 pm
                 saveString = 'WEEK_OF_' + moment().day(1).date() + '_' + moment().format('MMM').toUpperCase() + '_' + moment().year();
                 newTasks.push(scheduledTaskDelegate.scheduleAfter(new SaveStatsTask(['loginCount'],SaveStatsTaskType.WEEKLY,saveString),millisTillMonday));
             }
 
             if (monthly)
             {
-                var millisTillNextMonth:number = moment().date(moment().daysInMonth()).hour(23).minute(59).second(0).valueOf() - moment().valueOf();
+                var millisTillNextMonth:number = moment().date(moment().daysInMonth()).hours(23).minutes(59).seconds(0).valueOf() - moment().valueOf();
                 saveString = moment().format('MMM').toUpperCase() + '_' + moment().year();
                 newTasks.push(scheduledTaskDelegate.scheduleAfter(new SaveStatsTask(['loginCount'],SaveStatsTaskType.MONTHLY,saveString),millisTillNextMonth));
             }

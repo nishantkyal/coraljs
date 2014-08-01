@@ -17,7 +17,6 @@ import User                                                 = require('../../mod
 import IntegrationMember                                    = require('../../models/IntegrationMember');
 import UserProfile                                          = require('../../models/UserProfile');
 import ApiConstants                                         = require('../../enums/ApiConstants');
-import IncludeFlag                                          = require('../../enums/IncludeFlag');
 import IntegrationMemberRole                                = require('../../enums/IntegrationMemberRole');
 import Config                                               = require('../../common/Config');
 import Utils                                                = require('../../common/Utils');
@@ -37,7 +36,7 @@ class MemberRegistrationRoute
     private verificationCodeDelegate = new VerificationCodeDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
 
-    constructor(app, secureApp)
+    constructor(app)
     {
         // Pages
         app.get(Urls.index(), AuthenticationDelegate.checkLogin({setReturnTo: true}), this.index.bind(this));
@@ -172,13 +171,13 @@ class MemberRegistrationRoute
         var userId = sessionData.getLoggedInUser().getId();
         var self = this;
 
-        self.integrationMemberDelegate.find({'user_id': userId, 'integration_id': integrationId}, null, [IncludeFlag.INCLUDE_SCHEDULE_RULES])
+        self.integrationMemberDelegate.find({'user_id': userId, 'integration_id': integrationId}, null, [IntegrationMember.FK_SCHEDULE_RULES])
             .then(
             function scheduleRulesFetched(member:IntegrationMember)
             {
                 var pageData = _.extend(sessionData.getData(), {
                     "SearchNTalkUri": Config.get(Config.DASHBOARD_URI),
-                    "schedule_rules": member[IncludeFlag.INCLUDE_SCHEDULE_RULES],
+                    "schedule_rules": member.get,
                     member: member
                 });
 

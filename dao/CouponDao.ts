@@ -13,7 +13,7 @@ class CouponDao extends AbstractDao
 
     incrementCouponUsedCount(criteria:any,transaction?:Object):q.Promise<any>
     {
-        var criteriaString= Utils.getObjectType(criteria) == 'String' ? Coupon.CODE + ' = \'' + criteria + '\'' : Coupon.ID + ' = ' + criteria;
+        var criteriaString= Utils.getObjectType(criteria) == 'String' ? Coupon.COL_CODE + ' = \'' + criteria + '\'' : Coupon.COL_ID + ' = ' + criteria;
 
         var query = 'UPDATE `coupon` SET num_used = num_used + 1 WHERE ' + criteriaString + ' AND max_coupons > num_used;' ;
         return MysqlDelegate.executeQuery(query, null, transaction)
@@ -35,7 +35,7 @@ class CouponDao extends AbstractDao
 
     decrementCouponUsedCount(criteria:any,transaction?:Object):q.Promise<any>
     {
-        var criteriaString= Utils.getObjectType(criteria) == 'String' ? Coupon.CODE + ' = \'' + criteria + '\'' : Coupon.ID + ' = ' + criteria;
+        var criteriaString= Utils.getObjectType(criteria) == 'String' ? Coupon.COL_CODE + ' = \'' + criteria + '\'' : Coupon.COL_ID + ' = ' + criteria;
 
         var query = 'UPDATE `coupon` SET num_used = num_used - 1 WHERE ' + criteriaString + ' AND num_used - 1 >= 0;' ;
         return MysqlDelegate.executeQuery(query, null, transaction)

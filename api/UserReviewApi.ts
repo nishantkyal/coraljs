@@ -9,7 +9,7 @@ import UserReview                                           = require('../models
 class UserReviewApi
 {
     userReviewDelegate;
-    constructor(app, secureApp)
+    constructor(app)
     {
         var self = this;
         this.userReviewDelegate = new UserReviewDelegate();

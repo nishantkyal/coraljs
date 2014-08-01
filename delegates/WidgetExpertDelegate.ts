@@ -11,7 +11,6 @@ import ScheduleDelegate                                     = require('../delega
 import TimezoneDelegate                                     = require('../delegates/TimezoneDelegate');
 import PricingSchemeDelegate                                = require('../delegates/PricingSchemeDelegate');
 import Utils                                                = require('../common/Utils');
-import IncludeFlag                                          = require('../enums/IncludeFlag');
 
 class WidgetExpertDelegate
 {
@@ -29,7 +28,7 @@ class WidgetExpertDelegate
             function widgetExpertFetchedFromCache(widgetExpert:WidgetExpert)
             {
                 if (Utils.isNullOrEmpty(widgetExpert))
-                    throw('Not found in cache');
+                    throw new Error('Not found in cache');
                 return widgetExpert;
             })
             .fail(
@@ -43,16 +42,14 @@ class WidgetExpertDelegate
                 return [
                     user,
                     self.scheduleDelegate.getSchedulesForUser(user.getId(), moment().subtract({days: 1}).valueOf(), moment().add({days: 7}).valueOf()),
-                    self.pricingSchemeDelegate.search(Utils.createSimpleObject(PricingScheme.USER_ID, user.getId()))
+                    self.pricingSchemeDelegate.search(Utils.createSimpleObject(PricingScheme.COL_USER_ID, user.getId()))
                 ];
             })
             .spread(
             function schedulesFetched(user:User, schedules:Schedule[], schemes:PricingScheme[])
             {
-                user.setSchedule(schedules);
-
-                var widgetExpert = new WidgetExpert(user);
-                self.widgetExpertCache.save(widgetExpert);
+                var widgetExpert = new WidgetExpert(user, schedules);
+                self.widgetExpertCache.save(user, schedules);
 
                 var timezone = new TimezoneDelegate().get(widgetExpert.getTimezone());
                 widgetExpert.setTimezoneOffset(timezone['gmt_offset']);

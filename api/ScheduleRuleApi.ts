@@ -16,7 +16,7 @@ import Utils                            = require('../common/Utils');
  */
 class ScheduleRuleApi
 {
-    constructor(app, secureApp)
+    constructor(app)
     {
         var scheduleRuleDelegate = new ScheduleRuleDelegate();
 

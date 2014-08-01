@@ -3,10 +3,6 @@ import SaveStats                                                = require('../mo
 
 class SaveStatsDelegate extends BaseDaoDelegate
 {
-    constructor()
-    {
-        super(SaveStats);
-    }
-
+    constructor() { super(SaveStats); }
 }
 export = SaveStatsDelegate

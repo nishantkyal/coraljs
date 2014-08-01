@@ -5,13 +5,13 @@ import PaymentRoute                                         = require('./payment
 import AuthenticationRoute                                  = require('./authentication/AuthenticationRoute');
 import StaticRoute                                          = require('./static/StaticRoute');
 
-function init(app, secureApp?)
+function init(app)
 {
-    new CallFlowRoute(app, secureApp);
-    new PaymentRoute(app, secureApp);
-    new DashboardRoute(app, secureApp);
-    new MemberRegistrationRoute(app, secureApp);
-    new AuthenticationRoute(app, secureApp);
-    new StaticRoute(app, secureApp);
+    new CallFlowRoute(app);
+    new PaymentRoute(app);
+    new DashboardRoute(app);
+    new MemberRegistrationRoute(app);
+    new AuthenticationRoute(app);
+    new StaticRoute(app);
 }
 export = init

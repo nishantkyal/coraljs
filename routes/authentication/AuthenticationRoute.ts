@@ -13,7 +13,7 @@ class AuthenticationRoute
     private static PAGE_LOGIN:string = 'dashboard/login';
     private static PAGE_REGISTER:string = 'dashboard/register';
 
-    constructor(app, secureApp)
+    constructor(app)
     {
         // Pages
         app.get(Urls.login(), this.login.bind(this));

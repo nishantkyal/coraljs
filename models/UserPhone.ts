@@ -7,14 +7,14 @@ class UserPhone extends BaseModel
 {
     static TABLE_NAME:string = 'user_phone';
 
-    static USER_ID:string = 'user_id';
-    static COUNTRY_CODE:string = 'country_code';
-    static AREA_CODE:string = 'area_code';
-    static PHONE:string = 'phone';
-    static TYPE:string = 'type';
-    static VERIFIED:string = 'verified';
+    static COL_USER_ID:string = 'user_id';
+    static COL_COUNTRY_CODE:string = 'country_code';
+    static COL_AREA_CODE:string = 'area_code';
+    static COL_PHONE:string = 'phone';
+    static COL_TYPE:string = 'type';
+    static COL_VERIFIED:string = 'verified';
 
-    static DEFAULT_FIELDS:string[] = [UserPhone.ID,  UserPhone.USER_ID, UserPhone.COUNTRY_CODE, UserPhone.AREA_CODE, UserPhone.PHONE, UserPhone.TYPE, UserPhone.VERIFIED];
+    static PUBLIC_FIELDS:string[] = [UserPhone.COL_ID, UserPhone.COL_USER_ID, UserPhone.COL_COUNTRY_CODE, UserPhone.COL_AREA_CODE, UserPhone.COL_PHONE, UserPhone.COL_TYPE, UserPhone.COL_VERIFIED];
 
     private user_id:number;
     private country_code:CountryCode;

@@ -33,7 +33,7 @@ class UserOAuthDelegate extends BaseDaoDelegate
         //and this function set that userId on Oauth
         var searchObject = {oauth_user_id: userOAuth.getOauthUserId(), provider_id: userOAuth.getProviderId()};
 
-        return this.dao.search(searchObject, [UserOauth.ID, UserOauth.USER_ID], transaction)
+        return this.dao.search(searchObject, [UserOauth.COL_ID, UserOauth.COL_USER_ID], transaction)
             .then(
             function oauthSearchCompleted(existingTokens)
             {

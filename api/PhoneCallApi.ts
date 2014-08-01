@@ -17,7 +17,7 @@ import Utils                                                = require('../common
  */
 class PhoneCallApi
 {
-    constructor(app, secureApp)
+    constructor(app)
     {
         var phoneCallDelegate = new PhoneCallDelegate();
         var verificationCodeDelegate = new VerificationCodeDelegate();

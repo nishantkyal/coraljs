@@ -156,7 +156,7 @@ class ScheduledTaskDelegate extends events.EventEmitter
                 self.logger.debug("Scheduled tasks synced to Redis");
                 return true;
             },
-            function tasksSyncError(error)
+            function tasksSyncError(error:Error)
             {
                 self.logger.debug("Error in Syncing Scheduled Tasks to Redis");
                 throw(error);
@@ -190,7 +190,7 @@ class ScheduledTaskDelegate extends events.EventEmitter
                 });
             })
             .fail(
-            function tasksFetchError(error)
+            function tasksFetchError(error:Error)
             {
                 self.logger.error("Error in Syncing Scheduled Tasks From Redis");
                 throw(error);

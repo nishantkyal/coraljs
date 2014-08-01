@@ -113,18 +113,16 @@ class Utils
         return type === 'Object' ? obj.toString().replace('[object ', '').replace(']', '') : type;
     }
 
-    static surroundWithQuotes(val:any):string
-    {
-        if (Utils.getObjectType(val) == 'String')
-            return "'" + val + "'";
-        return val;
-    }
-
-    static createSimpleObject(key:string, value:any):Object
+    static createSimpleObject(...args):Object
     {
         var obj:Object = {};
-        if (!Utils.isNullOrEmpty(key))
-            obj[key] = value;
+        for (var i = 0; i < args.length; i+=2)
+        {
+            var key = args[i];
+            var val = args[i+1];
+            if (!Utils.isNullOrEmpty(key))
+                obj[key] = val;
+        }
         return obj;
     }
 

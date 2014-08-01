@@ -15,7 +15,6 @@ import UserEmploymentDelegate                               = require('../delega
 import UserEducationDelegate                                = require('../delegates/UserEducationDelegate');
 import IntegrationMemberRole                                = require('../enums/IntegrationMemberRole');
 import ApiConstants                                         = require('../enums/ApiConstants');
-import IncludeFlag                                          = require('../enums/IncludeFlag');
 import Utils                                                = require('../common/Utils');
 import Config                                               = require('../common/Config');
 
@@ -53,8 +52,7 @@ class AccessControl
             {
                 AccessControl.logger.error('Error fetching role for accessToken: ' + accessToken + ', ' + error);
                 res.send(500);
-            }
-        )
+            });
     }
 
     static allowAdmin(req, res, next)

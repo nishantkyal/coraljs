@@ -15,7 +15,6 @@ import User                                         = require('../models/User');
 import AccessControl                                = require('../middleware/AccessControl');
 import Utils                                        = require('../common/Utils');
 import Config                                       = require('../common/Config');
-import IncludeFlag                                  = require('../enums/IncludeFlag');
 import IntegrationMemberRole                        = require('../enums/IntegrationMemberRole');
 import IntegrationStatus                            = require('../enums/IntegrationStatus');
 import ImageSize                                    = require('../enums/ImageSize');
@@ -30,7 +29,7 @@ class IntegrationApi
     private verificationCodeDelegate = new VerificationCodeDelegate();
     private notificationDelegate = new NotificationDelegate();
 
-    constructor(app, secureApp)
+    constructor(app)
     {
         var self = this;
 
@@ -106,7 +105,7 @@ class IntegrationApi
             var integrationId = req.params[ApiConstants.INTEGRATION_ID];
             var integration:Integration = req.body[ApiConstants.INTEGRATION];
 
-            self.integrationDelegate.update(Utils.createSimpleObject(Integration.ID, integrationId),integration)
+            self.integrationDelegate.update(Utils.createSimpleObject(Integration.COL_ID, integrationId),integration)
                 .then(
                 function handleIntegrationUpdated(result) { res.json(result); },
                 function handleIntegrationUpdateError(err) { res.status(500).json(err); }
@@ -153,7 +152,7 @@ class IntegrationApi
             var self = this;
 
             if (!Utils.isNullOrEmpty(userId))
-                self.integrationMemberDelegate.search({user_id: userId}, null, [IncludeFlag.INCLUDE_INTEGRATION, IncludeFlag.INCLUDE_USER])
+                self.integrationMemberDelegate.search({user_id: userId}, null, [IntegrationMember.FK_INTEGRATION, IntegrationMember.FK_USER])
                     .then(
                     function integrationFetched(result:Array<Integration>) { res.json(result); },
                     function integrationFetchError(error) { res.status(500).json(error); }

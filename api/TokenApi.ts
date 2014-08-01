@@ -18,7 +18,7 @@ import UserPhone                                            = require('../models
 
 class TokenApi
 {
-    constructor(app, secureApp)
+    constructor(app)
     {
         var verificationCodeDelegate = new VerificationCodeDelegate();
         var userDelegate = new UserDelegate();
@@ -68,9 +68,9 @@ class TokenApi
         {
             var sender:User = new User(req['user']);
             var member:IntegrationMember = req.body[ApiConstants.INTEGRATION_MEMBER];
-            member.setUser(new User(member.getUser()));
+            var invitedUser:User = req.body[ApiConstants.USER];
 
-            verificationCodeDelegate.checkExistingAndSendEmailVerificationCode(member.getIntegrationId(), member, sender)
+            verificationCodeDelegate.checkExistingAndSendEmailVerificationCode(member.getIntegrationId(), member, invitedUser, sender)
                 .then(
                 function codeSent() { res.send(JSON.stringify({status: 'OK'})); },
                 function codeSendError(error) { res.json(500, error); }
@@ -82,9 +82,9 @@ class TokenApi
         {
             var sender:User = new User(req['user']);
             var member:IntegrationMember = req.body[ApiConstants.INTEGRATION_MEMBER];
-            member.setUser(new User(member.getUser()));
+            var invitedUser:User = req.body[ApiConstants.USER];
 
-            verificationCodeDelegate.resendExpertInvitationCode(member.getIntegrationId(), member, sender)
+            verificationCodeDelegate.resendExpertInvitationCode(member.getIntegrationId(), invitedUser, sender)
                 .then(
                 function codeSent() { res.send(JSON.stringify({status: 'OK'})); },
                 function codeSendError(error) { res.json(500, error); }

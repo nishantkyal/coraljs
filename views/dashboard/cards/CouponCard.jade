@@ -52,8 +52,8 @@
                     .form-group
                         select.form-control(type='text', name='expert_resource_id')
                             option(value=0) All
-                            if members && members.length != 0
-                                for member in members
+                            if integrationMembers && integrationMembers.length != 0
+                                for member in integrationMembers
                                     option(value=member.id)= formatName(member.user.first_name, member.user.last_name, member.user.title)
                     h3 Expires On
                     .form-group

@@ -1,36 +1,29 @@
+import q                                                = require('q');
 import BaseModel                                        = require('../models/BaseModel');
 import MapExpertiseSkill                                = require('../models/MapExpertiseSkill');
 import MoneyUnit                                        = require('../enums/MoneyUnit');
+import ForeignKeyType                                   = require('../enums/ForeignKeyType');
 import ForeignKey                                       = require('./ForeignKey');
-
 
 class Expertise extends BaseModel
 {
-    static TABLE_NAME:string                            = 'user_expertise';
+    static TABLE_NAME:string                                = 'user_expertise';
 
-    static USER_ID:string                               = 'user_id';
-    static TITLE:string                                 = 'title';
-    static SESSION_DURATION:string                      = 'session_duration';
-    static SESSION_PRICE:string                         = 'session_price';
-    static SESSION_PRICE_UNIT:string                    = 'session_price_unit';
-    static DESCRIPTION:string                           = 'description';
-    static VIDEO_URL:string                             = 'video_url';
-    static OWN_RATING:string                            = 'own_rating';
-    static YEARS_OF_EXPERIENCE:string                   = 'years_of_experience';
+    static COL_USER_ID:string                               = 'user_id';
+    static COL_TITLE:string                                 = 'title';
+    static COL_SESSION_DURATION:string                      = 'session_duration';
+    static COL_SESSION_PRICE:string                         = 'session_price';
+    static COL_SESSION_PRICE_UNIT:string                    = 'session_price_unit';
+    static COL_DESCRIPTION:string                           = 'description';
+    static COL_VIDEO_URL:string                             = 'video_url';
+    static COL_OWN_RATING:string                            = 'own_rating';
+    static COL_YEARS_OF_EXPERIENCE:string                   = 'years_of_experience';
 
-    constructor(data:Object = {})
-    {
-        super(data);
-        if (!Expertise._INITIALIZED)
-        {
-            this.hasMany(new ForeignKey(Expertise.ID, MapExpertiseSkill, MapExpertiseSkill.EXPERTISE_ID, 'skill'));
-            Expertise._INITIALIZED = true;
-        }
-    }
+    static FK_EXPERTISE_SKILL = new ForeignKey(ForeignKeyType.MANY_TO_MANY, Expertise.COL_ID, MapExpertiseSkill, MapExpertiseSkill.COL_EXPERTISE_ID, 'skills');
 
-    static DEFAULT_FIELDS:string[] = [Expertise.ID, Expertise.USER_ID, Expertise.TITLE, Expertise.SESSION_DURATION,
-        Expertise.SESSION_PRICE, Expertise.SESSION_PRICE_UNIT, Expertise.DESCRIPTION, Expertise.VIDEO_URL,
-        Expertise.OWN_RATING, Expertise.YEARS_OF_EXPERIENCE];
+    static PUBLIC_FIELDS:string[] = [Expertise.COL_ID, Expertise.COL_USER_ID, Expertise.COL_TITLE, Expertise.COL_SESSION_DURATION,
+        Expertise.COL_SESSION_PRICE, Expertise.COL_SESSION_PRICE_UNIT, Expertise.COL_DESCRIPTION, Expertise.COL_VIDEO_URL,
+        Expertise.COL_OWN_RATING, Expertise.COL_YEARS_OF_EXPERIENCE];
 
     private user_id:number;
     private title:string;
@@ -52,8 +45,7 @@ class Expertise extends BaseModel
     getVideoUrl():string                                { return this.video_url; }
     getOwnRating():number                               { return this.own_rating; }
     getYearsOfExperience():number                       { return this.years_of_experience; }
-
-    getSkill():MapExpertiseSkill[]                     { return null; }
+    getSkills():q.Promise<MapExpertiseSkill[]>           { return null; }
 
     /* Setters */
     setUserId(val:number)                               { this.user_id = val; }
@@ -65,7 +57,6 @@ class Expertise extends BaseModel
     setVideoUrl(val:string)                             { this.video_url = val; }
     setOwnRating(val:number)                            { this.own_rating = val; }
     setYearsOfExperience(val:number)                    { this.years_of_experience = val; }
-
-    setSkill(val:MapExpertiseSkill[])                  {  }
+    setSkills(val:MapExpertiseSkill[])                   {  }
 }
 export = Expertise

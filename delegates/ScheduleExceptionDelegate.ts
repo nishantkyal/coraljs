@@ -65,7 +65,7 @@ class ScheduleExceptionDelegate extends BaseDaoDelegate
                     _.each(schedules, function(schedule)
                     {
                         if (schedule.conflicts(exception))
-                            throw('Conflict');
+                            throw new Error('Conflict');
                     });
                 });
         }));

@@ -1,9 +1,18 @@
 ///<reference path='../_references.d.ts'/>
 import q                                                    = require('q');
 import WidgetExpert                                         = require('../models/WidgetExpert');
+import Schedule                                             = require('../models/Schedule');
+import User                                                 = require('../models/User');
+import CacheHelper                                          = require('./CacheHelper');
 import Utils                                                = require('../common/Utils');
 import CacheHelperFactory                                   = require('../factories/CacheHelperFactory');
 import CacheHelperType                                      = require('../enums/CacheHelperType');
+
+interface CachedExpert
+{
+    user;
+    schedules;
+}
 
 class WidgetExpertCache
 {
@@ -13,17 +22,17 @@ class WidgetExpertCache
     {
         return this.cacheHelper.getFromHash('widget-experts', id)
             .then(
-            function widgetExpertFetched(result:Object)
+            function widgetExpertFetched(result:CachedExpert)
             {
                 if (Utils.isNullOrEmpty(result))
                     return null;
-                return new WidgetExpert(result);
+                return new WidgetExpert(new User(result.user), _.map(JSON.parse(result.schedules), function(scheduleObj:Object) {return new Schedule(scheduleObj); }));
             });
     }
 
-    save(expert:WidgetExpert):q.Promise<any>
+    save(expert:User, schedules:Schedule[]):q.Promise<any>
     {
-        return null;
+        return this.cacheHelper.addToHash('widget-experts', expert.getId(), {user: expert, schedules: schedules});
     }
 }
 export = WidgetExpertCache
