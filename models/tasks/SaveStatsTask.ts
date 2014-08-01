@@ -9,7 +9,6 @@ import AbstractScheduledTask                                    = require('./Abs
 import Config                                                   = require('../../common/Config');
 import Utils                                                    = require('../../common/Utils');
 import ScheduledTaskType                                        = require('../../enums/ScheduledTaskType');
-import IncludeFlag                                              = require('../../enums/IncludeFlag');
 import CacheHelperType                                          = require('../../enums/CacheHelperType');
 import SaveStatsTaskType                                        = require('../../enums/SaveStatsTaskType');
 

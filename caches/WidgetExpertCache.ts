@@ -32,7 +32,7 @@ class WidgetExpertCache
 
     save(expert:User, schedules:Schedule[]):q.Promise<any>
     {
-        return CacheHelper.addToHash('widget-experts', expert.getId(), {user: expert, schedules: schedules});
+        return this.cacheHelper.addToHash('widget-experts', expert.getId(), {user: expert, schedules: schedules});
     }
 }
 export = WidgetExpertCache

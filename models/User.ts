@@ -1,4 +1,5 @@
-import crypto                                                           = require('crypto');
+import q                                                    = require('q');
+import crypto                                               = require('crypto');
 import validator                                            = require('validator');
 import BaseModel                                            = require('./BaseModel')
 import Utils                                                = require('../common/Utils');
@@ -37,6 +38,7 @@ class User extends BaseModel
     static PUBLIC_FIELDS:string[] = [User.COL_ID, User.COL_TITLE, User.COL_FIRST_NAME, User.COL_LAST_NAME, User.COL_EMAIL,
         User.COL_INDUSTRY, User.COL_TIMEZONE, User.COL_DATE_OF_BIRTH, User.COL_EMAIL_VERIFIED, User.COL_ACTIVE, User.COL_VERIFIED, User.COL_PASSWORD, User.COL_PASSWORD_SEED];
 
+    static FK_USER_PROFILE = new ForeignKey(ForeignKeyType.ONE_TO_MANY, User.COL_ID, UserProfile, UserProfile.COL_USER_ID, 'profile');
     static FK_USER_SKILL = new ForeignKey(ForeignKeyType.ONE_TO_MANY, User.COL_ID, UserSkill, UserSkill.COL_USER_ID, 'skills');
     static FK_USER_EDUCATION = new ForeignKey(ForeignKeyType.ONE_TO_MANY, User.COL_ID, UserEducation, UserEducation.COL_USER_ID, 'education');
     static FK_USER_EMPLOYMENT = new ForeignKey(ForeignKeyType.ONE_TO_MANY, User.COL_ID, UserEmployment, UserEmployment.COL_USER_ID, 'employment');
@@ -111,20 +113,22 @@ class User extends BaseModel
         return md5sum.update((email || this.email) + ':' + (password || this.password) + (passwordSeed || this.password_seed || '')).digest('hex');
     }
 
-    isCurrentlyAvailable():boolean
+    isCurrentlyAvailable(schedules:Schedule[]):boolean
     {
         var currentTime = moment().valueOf();
-        var nextAvailableSchedule:Schedule = this.getNextAvailableSchedule();
-        return !Utils.isNullOrEmpty(nextAvailableSchedule) ? (currentTime > nextAvailableSchedule[Schedule.START_TIME]
-            && currentTime < (nextAvailableSchedule[Schedule.START_TIME] + nextAvailableSchedule[Schedule.DURATION])) : false;
+        var nextAvailableSchedule:Schedule = this.getNextAvailableSchedule(schedules);
+
+        return !Utils.isNullOrEmpty(nextAvailableSchedule) ?
+                (currentTime > nextAvailableSchedule.getStartTime() && currentTime < (nextAvailableSchedule.getStartTime() + nextAvailableSchedule.getDuration()))
+            : false;
     }
 
-    getNextAvailableSchedule():Schedule
+    getNextAvailableSchedule(schedules:Schedule[]):Schedule
     {
-        if (this.getSchedule())
-            return _.find(this.getSchedule(), function (schedule):boolean
+        if (schedules)
+            return _.find(schedules, function (schedule:Schedule):boolean
             {
-                var scheduleEndTime = schedule[Schedule.START_TIME] + schedule[Schedule.DURATION];
+                var scheduleEndTime = schedule.getStartTime() + schedule.getDuration();
                 return scheduleEndTime > moment().add({minutes: 15}).valueOf();
             });
         else

@@ -116,7 +116,7 @@ class appInit
             cookie: {maxAge: Config.get(Config.SESSION_EXPIRY)},
             store: new RedisStore({
                 host: Config.get(Config.REDIS_HOST),
-                port: Config.get(Config.REDIS_PORT)
+                port: Config.get(Config.REDIS_SESSION_PORT)
             }),
             rolling: true
         }));

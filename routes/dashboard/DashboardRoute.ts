@@ -19,6 +19,7 @@ import UserSkillDelegate                                = require('../../delegat
 import UserEmploymentDelegate                           = require('../../delegates/UserEmploymentDelegate');
 import RefSkillCodeDelegate                             = require('../../delegates/SkillCodeDelegate');
 import UserProfileDelegate                              = require('../../delegates/UserProfileDelegate');
+import ScheduleDelegate                                 = require('../../delegates/ScheduleDelegate');
 import ScheduleRuleDelegate                             = require('../../delegates/ScheduleRuleDelegate');
 import VerificationCodeDelegate                         = require('../../delegates/VerificationCodeDelegate');
 import MysqlDelegate                                    = require('../../delegates/MysqlDelegate');
@@ -39,10 +40,12 @@ import PhoneCall                                        = require('../../models/
 import UserProfile                                      = require('../../models/UserProfile');
 import Transaction                                      = require('../../models/Transaction');
 import TransactionLine                                  = require('../../models/TransactionLine');
+import Schedule                                         = require('../../models/Schedule');
 import ScheduleRule                                     = require('../../models/ScheduleRule');
 import CronRule                                         = require('../../models/CronRule');
 import PricingScheme                                    = require('../../models/PricingScheme');
 import Expertise                                        = require('../../models/Expertise');
+import UserSkill                                        = require('../../models/UserSkill');
 import IntegrationMemberRole                            = require('../../enums/IntegrationMemberRole');
 import ApiConstants                                     = require('../../enums/ApiConstants');
 import SmsTemplate                                      = require('../../enums/SmsTemplate');
@@ -80,17 +83,12 @@ class DashboardRoute
     private userDelegate = new UserDelegate();
     private verificationCodeDelegate = new VerificationCodeDelegate();
     private couponDelegate = new CouponDelegate();
-    private userEmploymentDelegate = new UserEmploymentDelegate();
-    private userSkillDelegate = new UserSkillDelegate();
-    private userEducationDelegate = new UserEducationDelegate();
+    private scheduleDelegate = new ScheduleDelegate();
     private scheduleRuleDelegate = new ScheduleRuleDelegate();
     private pricingSchemeDelegate = new PricingSchemeDelegate();
     private userPhoneDelegate = new UserPhoneDelegate();
-    private phoneCallDelegate = new PhoneCallDelegate();
     private userProfileDelegate = new UserProfileDelegate();
-    private userUrlDelegate = new UserUrlDelegate();
     private expertiseDelegate = new ExpertiseDelegate();
-    private widgetDelegate = new WidgetDelegate();
     private logger = log4js.getLogger(Utils.getClassName(this));
 
     constructor(app, secureApp)
@@ -123,70 +121,87 @@ class DashboardRoute
 
         var searchParameters = {};
         if (req.query[ApiConstants.PRICE_RANGE])
-            searchParameters[ApiConstants.PRICE_RANGE] = _.map((req.query[ApiConstants.PRICE_RANGE]).split(','), function(value:string){ return parseInt(value) });
+            searchParameters[ApiConstants.PRICE_RANGE] = _.map((req.query[ApiConstants.PRICE_RANGE]).split(','), function (value:string) { return parseInt(value) });
         if (req.query[ApiConstants.EXPERIENCE_RANGE])
-            searchParameters[ApiConstants.EXPERIENCE_RANGE] = _.map((req.query[ApiConstants.EXPERIENCE_RANGE]).split(','), function(value:string){ return parseInt(value) });
+            searchParameters[ApiConstants.EXPERIENCE_RANGE] = _.map((req.query[ApiConstants.EXPERIENCE_RANGE]).split(','), function (value:string) { return parseInt(value) });
         if (req.query[ApiConstants.USER_SKILL])
             searchParameters[ApiConstants.USER_SKILL] = (req.query[ApiConstants.USER_SKILL]).split(',')
         if (req.query[ApiConstants.AVAILIBILITY])
-            searchParameters[ApiConstants.AVAILIBILITY] =  req.query[ApiConstants.AVAILIBILITY] == "true" ? true:false ;
+            searchParameters[ApiConstants.AVAILIBILITY] = req.query[ApiConstants.AVAILIBILITY] == "true" ? true : false;
 
         q.all([
-                self.integrationDelegate.get(integrationId),
-                self.integrationMemberDelegate.search({'integration_id':integrationId,'role':IntegrationMemberRole.Expert})
-            ])
+            self.integrationDelegate.get(integrationId),
+            self.integrationMemberDelegate.search({'integration_id': integrationId, 'role': IntegrationMemberRole.Expert})
+        ])
             .then(
             function detailsFetched(...args)
             {
                 var integration = args[0][0];
                 var members = args[0][1];
-                var tasks = _.map(members, function(member:IntegrationMember){
-                    return self.userDelegate.find({'id':member.getUserId()},null,[IncludeFlag.INCLUDE_PRICING_SCHEMES, IncludeFlag.INCLUDE_SKILL, IncludeFlag.INCLUDE_SCHEDULES, IncludeFlag.INCLUDE_USER_PROFILE]);
-                });
+                var uniqueUserIds:number[] = _.uniq(_.pluck(members, IntegrationMember.COL_USER_ID));
 
-                return [integration,q.all(tasks)];
+                var foreignKeys = _.map(_.keys(req.query), function(filter:string)
+                {
+                    switch(filter)
+                    {
+                        case ApiConstants.PRICE_RANGE: return User.FK_USER_PRICING_SCHEME;
+                        case ApiConstants.USER_SKILL: return User.FK_USER_SKILL;
+                        default: return null;
+                    }
+                });
+                return [integration, self.userDelegate.search(Utils.createSimpleObject(User.COL_ID, uniqueUserIds), null, foreignKeys.concat(User.FK_USER_PROFILE))];
             })
-            .spread(function expertDetailsFetched(integration,...args)
+            .spread(
+            function expertDetailsFetched(integration, ...args)
             {
                 var pageData = _.extend(sessionData.getData(), {
-                    integration:integration,
-                    experts:self.applySearchParameters(searchParameters,args[0]),
-                    searchParameters:searchParameters || {}
+                    integration: integration,
+                    experts: self.applySearchParameters(searchParameters, args[0]),
+                    searchParameters: searchParameters || {}
                 });
 
                 res.render(DashboardRoute.PAGE_SNS, pageData);
             })
-            .fail (
+            .fail(
             function integrationFetchError(error)
             {
-                res.render('500',{error:error});
+                res.render('500', {error: error});
             })
     }
 
-    applySearchParameters(searchParameters:Object, experts:User[]):User[]
+    applySearchParameters(searchParameters:Object, experts:User[]):q.Promise<User[]>
     {
         var keys = _.keys(searchParameters);
         var invalidIndex = [];
-        _.each(keys, function(key){
-            switch(key)
+        var self = this;
+
+        _.each(keys, function (key)
+        {
+            switch (key)
             {
                 case ApiConstants.PRICE_RANGE:
-                    _.each(experts, function(expert:User,index){
-                        if (!Utils.isNullOrEmpty(expert.getPricingScheme()))
-                        {
-                            var pricing:PricingScheme = expert.getPricingScheme()[0];
-                            var perMinChargeInRupees = pricing.getChargingRate();
+                    _.each(experts, function (expert:User, index)
+                    {
+                        expert.getPricingScheme()
+                            .then(
+                            function pricingSchemeFetched(schemes:PricingScheme[])
+                            {
+                                if (!Utils.isNullOrEmpty(schemes))
+                                {
+                                    var pricing:PricingScheme = schemes[0];
+                                    var perMinChargeInRupees = pricing.getChargingRate();
 
-                            if (pricing.getPulseRate() > 1)
-                                perMinChargeInRupees = perMinChargeInRupees / pricing.getPulseRate();
-                            if (pricing.getUnit() == MoneyUnit.DOLLAR)
-                                perMinChargeInRupees *= 60;
+                                    if (pricing.getPulseRate() > 1)
+                                        perMinChargeInRupees = perMinChargeInRupees / pricing.getPulseRate();
+                                    if (pricing.getUnit() == MoneyUnit.DOLLAR)
+                                        perMinChargeInRupees *= 60;
 
-                            if (perMinChargeInRupees < searchParameters[key][0] || perMinChargeInRupees > searchParameters[key][1])
-                                invalidIndex.push(index);
-                        }
-                        if (Utils.isNullOrEmpty(expert.getPricingScheme()) && searchParameters[key][0] > 0) //don't display experts with no pricing scheme when search price range > 0
-                            invalidIndex.push(index);
+                                    if (perMinChargeInRupees < searchParameters[key][0] || perMinChargeInRupees > searchParameters[key][1])
+                                        invalidIndex.push(index);
+                                }
+                                if (Utils.isNullOrEmpty(schemes) && searchParameters[key][0] > 0) //don't display experts with no pricing scheme when search price range > 0
+                                    invalidIndex.push(index);
+                            });
                     });
                     break;
 
@@ -194,32 +209,47 @@ class DashboardRoute
                     break;
 
                 case ApiConstants.AVAILIBILITY:
-                    _.each(experts, function(expert:User,index){
-                        if (!expert.isCurrentlyAvailable())
-                            invalidIndex.push(index);
+                    _.each(experts, function (expert:User, index)
+                    {
+                        self.scheduleDelegate.getSchedulesForUser(expert.getId())
+                            .then(
+                            function scheduleFetched(schedules:Schedule[])
+                            {
+                                if (!expert.isCurrentlyAvailable(schedules))
+                                    invalidIndex.push(index);
+                            });
                     });
                     break;
 
                 case ApiConstants.USER_SKILL:
-                    _.each(experts, function(expert,index){
+                    _.each(experts, function (expert:User, index)
+                    {
+                        expert.getSkill()
+                            .then(
+                            function skillsFetched(skills:UserSkill[])
+                            {
+                                var expertSkills = _.map(skills, function (skill:any)
+                                {
+                                    return skill.skill.skill;
+                                });
 
-                        var expertSkills = _.map(expert.getSkill(), function(skill:any){
-                            return skill.skill.skill;
-                        });
+                                var isValid = false;
+                                _.each(searchParameters[key], function (skill)
+                                {
+                                    if (_.indexOf(expertSkills, skill) != -1)
+                                        isValid = true;
+                                })
 
-                        var isValid = false;
-                        _.each(searchParameters[key], function(skill){
-                            if(_.indexOf(expertSkills,skill) != -1)
-                                isValid = true;
-                        })
+                                if (!isValid)
+                                    invalidIndex.push(index);
+                            });
 
-                        if (!isValid)
-                            invalidIndex.push(index);
                     });
                     break;
             }
         });
-        _.each(_.uniq(invalidIndex), function(index){
+        _.each(_.uniq(invalidIndex), function (index)
+        {
             delete experts[index];
         })
         return _.compact(experts);
@@ -321,7 +351,12 @@ class DashboardRoute
                     ])];
                 }
                 else
-                    return [null, [], [[],[],[],{}]];
+                    return [null, [], [
+                        [],
+                        [],
+                        [],
+                        {}
+                    ]];
             })
             .spread(
             function integrationDetailsFetched(integrationId:number, members:IntegrationMember[], ...results)
@@ -369,7 +404,7 @@ class DashboardRoute
         var member:IntegrationMember;
         var loggedInUser = sessionData.getLoggedInUser();
 
-         self.userProfileDelegate.find(Utils.createSimpleObject(UserProfile.COL_USER_ID, userId))
+        self.userProfileDelegate.find(Utils.createSimpleObject(UserProfile.COL_USER_ID, userId))
             .then(
             function profileFetched(userProfile:UserProfile)
             {
@@ -383,7 +418,7 @@ class DashboardRoute
                 return [userProfile, q.all(profileInfoTasks)];
             })
             .spread(
-            function userDetailsFetched(userProfile,...args)
+            function userDetailsFetched(userProfile, ...args)
             {
                 var user = args[0][0];
                 var expertise = args[0][4] || [];

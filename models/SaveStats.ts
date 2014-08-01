@@ -2,13 +2,13 @@ import BaseModel                                                = require('../mo
 
 class SaveStats extends BaseModel
 {
-    static TABLE_NAME:string                                = 'stats';
+    static TABLE_NAME:string                                    = 'stats';
 
-    static NAME:string                                      = 'name';
-    static COUNT:string                                     = 'count';
-    static TYPE:string                                      = 'type';
+    static COL_NAME:string                                      = 'name';
+    static COL_COUNT:string                                     = 'count';
+    static COL_TYPE:string                                      = 'type';
 
-    static DEFAULT_FIELDS:string[] = [SaveStats.ID,SaveStats.NAME, SaveStats.COUNT, SaveStats.TYPE];
+    static PUBLIC_FIELDS:string[] = [SaveStats.COL_ID, SaveStats.COL_NAME, SaveStats.COL_COUNT, SaveStats.COL_TYPE];
 
     private name:string;
     private count:number;

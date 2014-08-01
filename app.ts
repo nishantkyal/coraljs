@@ -85,17 +85,22 @@ function serverStartupAction()
             var daily = true,weekly = true,monthly=true;
             var saveString = '';
 
-            _.each(scheduledTaskDelegate.filter(ScheduledTaskType.SAVE_STATS), function(task){
-                switch(task.getType())
+            _.each(scheduledTaskDelegate.filter(ScheduledTaskType.SAVE_STATS), function(task)
+            {
+                var saveStatsTask:any = task;
+                switch(saveStatsTask.getType())
                 {
                     case SaveStatsTaskType.DAILY:
-                        daily = false; break;
+                        daily = false;
+                        break;
                     case SaveStatsTaskType.WEEKLY:
-                        weekly = false; break;
+                        weekly = false;
+                        break;
                     case SaveStatsTaskType.MONTHLY:
-                        monthly = false; break;
+                        monthly = false;
+                        break;
                 }
-            })
+            });
 
             if (daily)
             {
