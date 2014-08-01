@@ -28,6 +28,7 @@ import TransactionDelegate                              = require('../../delegat
 import TransactionLineDelegate                          = require('../../delegates/TransactionLineDelegate');
 import ExpertiseDelegate                                = require('../../delegates/ExpertiseDelegate');
 import WidgetDelegate                                   = require('../../delegates/WidgetDelegate');
+import SearchDelegate                                   = require('../../delegates/SearchDelegate');
 import MoneyUnit                                        = require('../../enums/MoneyUnit');
 import TransactionType                                  = require('../../enums/TransactionType');
 import ItemType                                         = require('../../enums/ItemType');
@@ -89,6 +90,8 @@ class DashboardRoute
     private userPhoneDelegate = new UserPhoneDelegate();
     private userProfileDelegate = new UserProfileDelegate();
     private expertiseDelegate = new ExpertiseDelegate();
+    private widgetDelegate = new WidgetDelegate();
+    private searchDelegate = new SearchDelegate();
     private logger = log4js.getLogger(Utils.getClassName(this));
 
     constructor(app, secureApp)
@@ -155,9 +158,9 @@ class DashboardRoute
             function expertDetailsFetched(integration, ...args)
             {
                 var pageData = _.extend(sessionData.getData(), {
-                    integration: integration,
-                    experts: self.applySearchParameters(searchParameters, args[0]),
-                    searchParameters: searchParameters || {}
+                    integration:integration,
+                    experts:self.searchDelegate.applySearchParameters(searchParameters,args[0]),
+                    searchParameters:searchParameters || {}
                 });
 
                 res.render(DashboardRoute.PAGE_SNS, pageData);
@@ -351,12 +354,7 @@ class DashboardRoute
                     ])];
                 }
                 else
-                    return [null, [], [
-                        [],
-                        [],
-                        [],
-                        {}
-                    ]];
+                    return [null, [], [[],[],[],{}]];
             })
             .spread(
             function integrationDetailsFetched(integrationId:number, members:IntegrationMember[], ...results)
