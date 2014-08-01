@@ -5,6 +5,8 @@ import Schedule                                             = require('../models
 import User                                                 = require('../models/User');
 import CacheHelper                                          = require('./CacheHelper');
 import Utils                                                = require('../common/Utils');
+import CacheHelperFactory                                   = require('../factories/CacheHelperFactory');
+import CacheHelperType                                      = require('../enums/CacheHelperType');
 
 interface CachedExpert
 {
@@ -14,9 +16,11 @@ interface CachedExpert
 
 class WidgetExpertCache
 {
+    private cacheHelper = CacheHelperFactory.getCacheHelper(CacheHelperType.CACHE_HELPER);
+
     get(id:number):q.Promise<WidgetExpert>
     {
-        return CacheHelper.getFromHash('widget-experts', id)
+        return this.cacheHelper.getFromHash('widget-experts', id)
             .then(
             function widgetExpertFetched(result:CachedExpert)
             {

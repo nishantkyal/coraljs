@@ -1,7 +1,8 @@
-import q                    = require('q');
-import IntegrationMember    = require('../models/IntegrationMember');
-import Config               = require('../common/Config');
-import CacheHelper          = require('./CacheHelper');
+import q                                                = require('q');
+import IntegrationMember                                = require('../models/IntegrationMember');
+import Config                                           = require('../common/Config');
+import CacheHelperFactory                               = require('../factories/CacheHelperFactory');
+import CacheHelperType                                  = require('../enums/CacheHelperType');
 
 /*
  * Token cache
@@ -9,10 +10,11 @@ import CacheHelper          = require('./CacheHelper');
  */
 class AccessTokenCache
 {
+    private cacheHelper = CacheHelperFactory.getCacheHelper(CacheHelperType.CACHE_HELPER);
     /* Get details for token (integration, user id) */
     getAccessTokenDetails(token:string):q.Promise<any>
     {
-        return CacheHelper.get('at-' + token);
+        return this.cacheHelper.get('at-' + token);
     }
 
     /* Add token to cache */
