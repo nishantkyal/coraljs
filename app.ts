@@ -18,6 +18,7 @@ import Formatter                                    = require('./common/Formatte
 import Utils                                        = require('./common/Utils');
 import ScheduledTaskType                            = require('./enums/ScheduledTaskType');
 import SaveStatsTaskType                            = require('./enums/SaveStatsTaskType');
+import SaveStatsKey                                 = require('./enums/SaveStatsKey');
 import ApiUrlDelegate                               = require('./delegates/ApiUrlDelegate');
 import IntegrationDelegate                          = require('./delegates/IntegrationDelegate');
 import ScheduledTaskDelegate                        = require('./delegates/ScheduledTaskDelegate');
@@ -106,21 +107,21 @@ function serverStartupAction()
             {
                 var millisTillMidnight:number = moment().hours(23).minutes(59).seconds(0).valueOf() - moment().valueOf(); //midnight considered here to be 11:59pm to be in same day
                 saveString = 'DAY_' + moment().date() + '_OF_' + moment().format('MMM').toUpperCase() + '_' + moment().year();
-                newTasks.push(scheduledTaskDelegate.scheduleAfter(new SaveStatsTask(['loginCount'],SaveStatsTaskType.DAILY,saveString),millisTillMidnight));
+                newTasks.push(scheduledTaskDelegate.scheduleAfter(new SaveStatsTask(SaveStatsKey.keys,SaveStatsTaskType.DAILY,saveString),millisTillMidnight));
             }
 
             if (weekly)
             {
                 var millisTillMonday:number = moment().day(7).hours(23).minutes(59).seconds(0).valueOf() - moment().valueOf();//Week start at Monday 12:00 am and ends at Sun 11:59 pm
                 saveString = 'WEEK_OF_' + moment().day(1).date() + '_' + moment().format('MMM').toUpperCase() + '_' + moment().year();
-                newTasks.push(scheduledTaskDelegate.scheduleAfter(new SaveStatsTask(['loginCount'],SaveStatsTaskType.WEEKLY,saveString),millisTillMonday));
+                newTasks.push(scheduledTaskDelegate.scheduleAfter(new SaveStatsTask(SaveStatsKey.keys,SaveStatsTaskType.WEEKLY,saveString),millisTillMonday));
             }
 
             if (monthly)
             {
                 var millisTillNextMonth:number = moment().date(moment().daysInMonth()).hours(23).minutes(59).seconds(0).valueOf() - moment().valueOf();
                 saveString = moment().format('MMM').toUpperCase() + '_' + moment().year();
-                newTasks.push(scheduledTaskDelegate.scheduleAfter(new SaveStatsTask(['loginCount'],SaveStatsTaskType.MONTHLY,saveString),millisTillNextMonth));
+                newTasks.push(scheduledTaskDelegate.scheduleAfter(new SaveStatsTask(SaveStatsKey.keys,SaveStatsTaskType.MONTHLY,saveString),millisTillNextMonth));
             }
 
             return q.all(newTasks);

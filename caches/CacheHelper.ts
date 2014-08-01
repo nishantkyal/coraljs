@@ -322,7 +322,7 @@ class CacheHelper
         return deferred.promise;
     }
 
-    incrementCounter(counterName:string, increment:number = 1):q.Promise<any>
+    incrementCounter(counterName:string):q.Promise<any>
     {
         var deferred = q.defer();
         return this.getConnection().incr(counterName, function (error, result)

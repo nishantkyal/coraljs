@@ -54,13 +54,13 @@ class SaveStatsTask extends AbstractScheduledTask
             case SaveStatsTaskType.MONTHLY:
                 var dayAfterAMonth = moment().add('months',1);
                 newSaveString = dayAfterAMonth.format('MMM').toUpperCase() + '_' + dayAfterAMonth.year();
-                //millis *= moment().daysInMonth();//TODO[ankit] settimeout cannot take a month delay - need a work around
+                millis *= dayAfterAMonth.daysInMonth();
                 break;
         }
 
         _.each(self.keys, function(key){
             cacheFetchTasks.push(
-                CacheHelperFactory.getCacheHelper(CacheHelperType.STATS_CACHE_HELPER).get(key)
+                CacheHelperFactory.getCacheHelper(CacheHelperType.STATS_CACHE_HELPER).get(key + '_' + SaveStatsTaskType[self.getType()].toLowerCase())
                     .then( function(value)
                     {
                         var tempSaveStats:SaveStats = new SaveStats();
