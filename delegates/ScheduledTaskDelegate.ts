@@ -57,12 +57,11 @@ class ScheduledTaskDelegate extends events.EventEmitter
 
         var taskFunction = function ()
         {
-            if (interval > 10000) //setTimeout limit is MAX_INT32=(2^31-1)
-                task.execute()
-                    .then(function taskExecuted()
-                    {
-                        self.emit('taskCompletedEvent', task.getTaskType())
-                    })
+            task.execute()
+                .then(function taskExecuted()
+                {
+                    self.emit('taskCompletedEvent', task.getTaskType())
+                })
             self.cancel(task.getId());
         };
 
