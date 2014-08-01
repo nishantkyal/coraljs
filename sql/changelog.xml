@@ -880,4 +880,20 @@
     <changeSet author="Nishant (generated)" id="1406623072906-4">
         <modifyDataType columnName="charging_rate" newDataType="decimal(5)" tableName="phone_call"/>
     </changeSet>
+    <changeSet author="Ankit (generated)" id="1406879761297-1">
+        <createTable tableName="stats">
+            <column name="id" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(45)"/>
+            <column name="name" type="VARCHAR(45)"/>
+            <column name="count" type="BIGINT(19)"/>
+            <column name="created" type="BIGINT(19)"/>
+            <column name="updated" type="BIGINT(19)"/>
+            <column name="deleted" type="BIGINT(19)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1406879761297-2">
+        <addPrimaryKey columnNames="id" constraintName="PRIMARY" tableName="stats"/>
+    </changeSet>
 </databaseChangeLog>
