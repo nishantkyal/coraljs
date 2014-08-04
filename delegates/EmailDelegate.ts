@@ -223,10 +223,15 @@ class EmailDelegate
         var VerificationCodeDelegate:any = require('../delegates/VerificationCodeDelegate');
         var verificationCodeDelegate = new VerificationCodeDelegate();
 
-        return verificationCodeDelegate.createAppointmentAcceptCode(call, appointments, caller.getId())
+        return q.all([
+            call.getExpert(),
+            verificationCodeDelegate.createAppointmentAcceptCode(call, appointments, caller.getId())
+        ])
             .then(
-            function invitationAcceptCodeCreated(code:string)
+            function invitationAcceptCodeCreated(...args)
             {
+                var expertUser:User = args[0][0];
+                var code = args[0][1];
                 var schedulingUrl:string = CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI));
 
                 var emailData = {
@@ -244,10 +249,10 @@ class EmailDelegate
 
                         return Utils.addQueryToUrl(schedulingUrl, query);
                     }),
-                    expertGmtOffset: self.timezoneDelegate.get(call.getExpertUser().getTimezone())['gmt_offset'] * 1000
+                    expertGmtOffset: self.timezoneDelegate.get(expertUser.getTimezone())['gmt_offset'] * 1000
                 };
 
-                return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_SCHEDULING, call.getExpertUser().getEmail(), emailData);
+                return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_SCHEDULING, expertUser.getEmail(), emailData);
             });
     }
 

@@ -20,6 +20,7 @@ class AbstractModel
         if (!thisProtoConstructor._INITIALIZED)
         {
             thisProtoConstructor['COLUMNS'] = [];
+            thisProtoConstructor['FK_COLUMNS'] = [];
 
             for (var classProperty in thisProtoConstructor)
             {
@@ -37,6 +38,7 @@ class AbstractModel
                     && classProperty.match(/^FK_/) != null)
                 {
                     var fk:ForeignKey = thisProtoConstructor[classProperty];
+                    thisProtoConstructor['FK_COLUMNS'].push(fk.getSourcePropertyName());
                     switch (fk.type)
                     {
                         case ForeignKeyType.ONE_TO_MANY:
@@ -59,6 +61,13 @@ class AbstractModel
         {
             self[column] = data[column];
         });
+
+        _.each(thisProtoConstructor['FK_COLUMNS'], function (column:string)
+        {
+            var setterMethod:string = 'set' + Utils.snakeToCamelCase(column);
+
+            self[setterMethod].call(self, data[column]);
+        });
     }
 
     toJson():any
@@ -66,7 +75,8 @@ class AbstractModel
         var thisProtoConstructor = this.__proto__.constructor;
         var self = this;
         var data = {};
-        _.each(thisProtoConstructor['COLUMNS'], function (column:string)
+        var cols = thisProtoConstructor['COLUMNS'].concat(thisProtoConstructor['FK_COLUMNS']);
+        _.each(cols, function (column:string)
         {
             if (Utils.getObjectType(self[column]) == 'Array')
             {

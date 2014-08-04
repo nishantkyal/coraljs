@@ -75,7 +75,7 @@ class User extends BaseModel
     getVerified():boolean                                       { return this.verified; }
     getUserProfile():q.Promise<UserProfile>                     { return null; }
     getScheduleRule():q.Promise<ScheduleRule[]>                 { return null; }
-    getPricingScheme():q.Promise<PricingScheme[]>               { return null; }
+    getPricingSchemes():q.Promise<PricingScheme[]>              { return null; }
     getSkill():q.Promise<UserSkill[]>                           { return null; }
     getEducation():q.Promise<UserEducation[]>                   { return null; }
     getEmployment():q.Promise<UserEmployment[]>                 { return null; }

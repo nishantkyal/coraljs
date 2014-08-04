@@ -134,12 +134,12 @@ class PhoneCallDelegate extends BaseDaoDelegate
                         function scheduledCallsFetched(calls:PhoneCall[]):any
                         {
                             var startTime = newValues[PhoneCall.COL_START_TIME];
-                            var durationInMillis = call.getDuration()*1000;
+                            var durationInMillis = call.getDuration()*60*1000;
                             var isStartTimeValid:boolean = true;
 
                             _.each(calls, function (call:PhoneCall)
                             {
-                                if ( !(startTime > (call.getStartTime() + call.getDuration()*1000)) && !((startTime + durationInMillis) < call.getStartTime()) )
+                                if ( !(startTime > (call.getStartTime() + call.getDuration()*60*1000)) && !((startTime + durationInMillis) < call.getStartTime()) )
                                     isStartTimeValid = false;
                             });
 
