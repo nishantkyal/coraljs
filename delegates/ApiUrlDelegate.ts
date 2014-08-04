@@ -114,6 +114,7 @@ class ApiUrlDelegate
     /* URL patterns for temporary tokens (invite codes, password reset, mobile verification etc.) */
     static tempToken():string { return this.get('/rest/token'); }
     static mobileVerificationCode():string { return this.get('/rest/code/mobile/verification'); }
+    static resendMobileVerificationCode():string { return this.get('/rest/code/mobile/verification/resend'); }
     static expertInvitationCode():string { return this.get('/rest/code/expert/invitation'); }
     static expertInvitationCodeResend():string { return this.get('/rest/code/expert/invitation/resend'); }
     static sendForgotPasswordCode():string { return this.get('/rest/code/password/forgot'); }

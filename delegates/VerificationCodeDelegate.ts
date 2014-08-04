@@ -150,6 +150,16 @@ class VerificationCodeDelegate
         ]);
     }
 
+    resendMobileVerificationCode(phoneNumber:UserPhone):q.Promise<any>
+    {
+        var self = this;
+
+        return self.cacheHelper.get('mv-' + phoneNumber.getCompleteNumber())
+            .then( function(code){
+                return self.smsDelegate.sendVerificationSMS(phoneNumber.getCompleteNumber(), code.toString());
+            })
+    }
+
     verifyMobileCode(code:string, phoneNumber:UserPhone):q.Promise<any>
     {
         return this.cacheHelper.get('mv-' + phoneNumber.getCompleteNumber())

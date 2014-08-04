@@ -76,6 +76,7 @@ title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setti
                                                     input(type='hidden', name='id')
                                                     input.btn.btn-primary.sendCode(type='submit', value='Send Verification Code', name='sendCode')
                                                     input.btn.btn-primary.update(type='submit', value='Verify and Update', name='update')
+                                                    input.btn.btn-primary.resendCode(type='submit', value='Resend Verification Code', name='resendCode')
 script.
     var userPhones = JSON.parse( '!{JSON.stringify(userPhone || [])}' );
 script(src='/js/app/dashboard/userSettingPhone.js')

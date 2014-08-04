@@ -1,5 +1,9 @@
 var userPhoneCard = $('#userPhone').card();
 
+$(function(){
+    $('#userPhone .edit-card form .resendCode').hide();
+});
+
 $('.editPhoneBtn').click(function(event)
 {
     var phoneId = $(event.currentTarget).data('id');
@@ -52,9 +56,19 @@ $('#userPhone .edit-card form').bootstrapValidator({
             submitButton = validator.getSubmitButton();
 
         var method = $(submitButton).attr('name') == 'sendCode' ? 'post' : 'get';
+        var url = '/rest/code/mobile/verification';
+
+        if(method == 'post')
+            $('#userPhone .edit-card form .resendCode').show();
+
+        if($(submitButton).attr('name') == 'resendCode')
+        {
+            method = 'post';
+            url = '/rest/code/mobile/verification/resend';
+        }
 
         $.ajax({
-            url     : '/rest/code/mobile/verification',
+            url     : url,
             type    : method,
             dataType: 'json',
             data    : {
@@ -69,9 +83,17 @@ $('#userPhone .edit-card form').bootstrapValidator({
             success : function()
             {
                 if (method == 'post') {
-                    $('.update').show();
-                    $('.sendCode').hide();
-                    $('#userPhone .edit-card form').data('bootstrapValidator').enableFieldValidators('code', true);
+                    if($(submitButton).attr('name') != 'resendCode')
+                    {
+                        $('.update').show();
+                        $('.resendCode').show();
+                        $('.sendCode').hide();
+                        $('#userPhone .edit-card form').data('bootstrapValidator').enableFieldValidators('code', true);
+                    }
+                    else
+                    bootbox.alert('Verification Code Resent.', function(){
+                        $('.resendCode').hide();
+                    })
                 }
                 else {
                     location.reload();
@@ -88,5 +110,6 @@ $('#userPhone .edit-card form').bootstrapValidator({
 $('#userPhone .edit-card form input[name=phone],select[name=country_code]').change(function()
 {
     $('#userPhone .edit-card form .update').hide();
+    $('#userPhone .edit-card form .resendCode').hide();
     $('#userPhone .edit-card form .sendCode').show();
 });
