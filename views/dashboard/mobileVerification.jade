@@ -16,14 +16,15 @@ include ../header
                                 .row
                                     h3 Mobile Number
                                     .form-group
-                                        .row
-                                            .col-xs-5
-                                                select.form-control(name='country_code')
+                                        .input-group
+                                            .input-group-btn
+                                                select.btn(style="width: 150px", name="country_code")
                                                     for name,abb in CountryName
-                                                        - var code = CountryCode[abb];
+                                                        -var code = CountryCode[abb];
                                                         option(value=code)= name + ' (+' + code + ')'
-                                            .col-xs-7
-                                                input.form-control(type='text', name="phone", placeholder='Phone Number')
+                                            .input-group-btn
+                                                input.form-control(style="width: 100px", type='text', placeholder='Area Code', name="area_code")
+                                            input.form-control.phone-number(type='text', placeholder='Phone Number', name="phone")
                                     .links-editing
                                         .edit-schedules
                                             input.btn.btn-primary.form-control(type='submit', value='Send verification code', name='sendCode')
