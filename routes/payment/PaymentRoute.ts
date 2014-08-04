@@ -101,7 +101,7 @@ class PaymentRoute
             phoneCall.setExpertUserId(callFlowSessionData.getUser().getId());
             phoneCall.setDelay(0);
             phoneCall.setStatus(CallStatus.PLANNING);
-            phoneCall.setDuration(callFlowSessionData.getDuration()*60);
+            phoneCall.setDuration(callFlowSessionData.getDuration());
             phoneCall.setAgenda(callFlowSessionData.getAgenda());
             phoneCall.setChargingRate(new PricingScheme(user.getPricingScheme()[0]).getChargingRate());
             phoneCall.setUnit(new PricingScheme(user.getPricingScheme()[0]).getUnit());

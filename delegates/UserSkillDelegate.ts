@@ -7,10 +7,11 @@ import UserSkill                                            = require('../models
 import SkillCode                                            = require('../models/SkillCode');
 import MysqlDelegate                                        = require('../delegates/MysqlDelegate');
 import Utils                                                = require('../common/Utils');
+import UserSkillDao                                         = require('../dao/UserSkillDao');
 
 class UserSkillDelegate extends BaseDaoDelegate
 {
-    constructor() { super(UserSkill); }
+    constructor() { super(new UserSkillDao()); }
 
     private skillCodeDelegate = new SkillCodeDelegate();
 

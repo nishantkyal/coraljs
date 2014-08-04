@@ -2,6 +2,6 @@ class SaveStatsKey
 {
     static MEMBER_CREATED:string                                   = 'memberCreated';
 
-    static keys:string[] = [SaveStatsKey.MEMBER_CREATED];
+    static ALL_KEYS:string[] = [SaveStatsKey.MEMBER_CREATED];
 }
 export = SaveStatsKey

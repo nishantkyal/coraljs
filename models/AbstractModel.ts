@@ -10,6 +10,7 @@ class AbstractModel
     __proto__;
     static TABLE_NAME:string;
     static DELEGATE:BaseDaoDelegate;
+    private static FOREIGN_KEYS:ForeignKey[] = [];
     private static _INITIALIZED:boolean = false;
 
     constructor(data:Object = {})
@@ -20,6 +21,7 @@ class AbstractModel
         if (!thisProtoConstructor._INITIALIZED)
         {
             thisProtoConstructor['COLUMNS'] = [];
+            thisProtoConstructor['FOREIGN_KEYS'] = [];
 
             for (var classProperty in thisProtoConstructor)
             {
@@ -49,6 +51,7 @@ class AbstractModel
                             this.hasOne(fk);
                             break;
                     }
+                    thisProtoConstructor['FOREIGN_KEYS'].push(fk);
                 }
             }
 
@@ -128,7 +131,7 @@ class AbstractModel
             if (this[srcPropertyName])
                 return q.resolve(this[srcPropertyName]);
 
-            return delegate.find(Utils.createSimpleObject(fk.targetKey, this[fk.srcKey]))
+            return delegate.find(Utils.createSimpleObject(fk.target_key, this[fk.src_key]))
                 .then(
                 function success(result)
                 {
@@ -147,8 +150,8 @@ class AbstractModel
             this[srcPropertyName] = null;
 
             if (_.isArray(val))
-                this[srcPropertyName] = _.findWhere(val, Utils.createSimpleObject(fk.targetKey, this[fk.srcKey]));
-            if (_.isObject(val) && val[fk.targetKey] == this[fk.srcKey])
+                this[srcPropertyName] = _.findWhere(val, Utils.createSimpleObject(fk.target_key, this[fk.src_key]));
+            if (_.isObject(val) && val[fk.target_key] == this[fk.src_key])
                 this[srcPropertyName] = val;
         };
     }
@@ -170,7 +173,7 @@ class AbstractModel
             if (this[srcPropertyName])
                 return q.resolve(this[srcPropertyName]);
 
-            return delegate.search(Utils.createSimpleObject(fk.targetKey, this[fk.srcKey]))
+            return delegate.search(Utils.createSimpleObject(fk.target_key, this[fk.src_key]))
                 .then(
                 function success(result)
                 {
@@ -188,12 +191,16 @@ class AbstractModel
         {
             this[srcPropertyName] = null;
 
-            if (_.isObject(val) && val[fk.targetKey] == this[fk.srcKey])
+            if (_.isObject(val) && val[fk.target_key] == this[fk.src_key])
                 this[srcPropertyName] = [val];
             if (_.isArray(val))
-                this[srcPropertyName] = _.where(val, Utils.createSimpleObject(fk.targetKey, this[fk.srcKey]));
+                this[srcPropertyName] = _.where(val, Utils.createSimpleObject(fk.target_key, this[fk.src_key]));
         };
+    }
 
+    static getForeignKeyForSrcKey(srcKey:string):ForeignKey
+    {
+        return _.findWhere(this['FOREIGN_KEYS'], {src_key: srcKey});
     }
 }
 export = AbstractModel

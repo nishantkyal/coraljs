@@ -36,12 +36,12 @@ function init(app)
     new PayoutDetailApi(app);
     new PricingSchemeApi(app);
     new PhoneCallApi(app);
-    new ScheduledTaskApi(app,  secureApp);
+    new ScheduledTaskApi(app);
     new UserPhoneApi(app);
     new TokenApi(app);
     new TransactionApi(app);
     new TwimlOutApi(app);
-    new KookooApi(app,secureApp);
+    new KookooApi(app);
     new ExotelApi(app);
     new UserApi(app);
     new UserProfileApi(app);

@@ -4,27 +4,27 @@ import ForeignKeyType                                       = require('../enums/
 class ForeignKey
 {
     type:ForeignKeyType;
-    srcKey:string;
+    src_key:string;
     referenced_table:typeof BaseModel;
-    targetKey:string;
-    localPropertyToSet:string;
+    target_key:string;
+    local_property_to_set:string;
 
     constructor(type:ForeignKeyType, srcKey:string, referenced_table:typeof BaseModel, targetKey:string, localPropertyToSet?:string)
     {
         this.type = type;
-        this.srcKey = srcKey;
+        this.src_key = srcKey;
         this.referenced_table = referenced_table;
-        this.targetKey = targetKey;
-        this.localPropertyToSet = localPropertyToSet;
+        this.target_key = targetKey;
+        this.local_property_to_set = localPropertyToSet;
     }
 
     // Helper method to get the name of the property to set in the base object after the results are fetched
     getSourcePropertyName():string
     {
-        // 1. If srcKey contains the property name -> Excellent
-        // 2. If targetKey contains the
+        // 1. If src_key contains the property name -> Excellent
+        // 2. If target_key contains the
 
-        return this.localPropertyToSet || (this.srcKey.indexOf('_id') != -1 ? this.srcKey.replace('_id', '') : this.targetKey.replace('_id', ''));
+        return this.local_property_to_set || (this.src_key.indexOf('_id') != -1 ? this.src_key.replace('_id', '') : this.target_key.replace('_id', ''));
     }
 
     toString():string { return '[object ForeignKey]'; }
