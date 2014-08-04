@@ -55,7 +55,7 @@ class BaseDaoDelegate
                 var foreignKeyTasks = _.map(foreignKeys, function (key:ForeignKey)
                 {
                     var delegate = key.referenced_table.DELEGATE;
-                    return delegate.search(Utils.createSimpleObject(key.targetKey, result.get(key.srcKey)));
+                    return delegate.search(Utils.createSimpleObject(key.target_key, result.get(key.src_key)));
                 });
                 return [result, q.all(foreignKeyTasks)];
             })
@@ -93,7 +93,7 @@ class BaseDaoDelegate
                 var foreignKeyTasks = _.map(foreignKeys, function (key:ForeignKey)
                 {
                     var delegate = key.referenced_table.DELEGATE;
-                    return delegate.search(Utils.createSimpleObject(key.targetKey, _.uniq(_.pluck(baseSearchResults, key.srcKey))));
+                    return delegate.search(Utils.createSimpleObject(key.target_key, _.uniq(_.pluck(baseSearchResults, key.src_key))));
                 });
                 return [baseSearchResults, q.all(foreignKeyTasks)];
             })

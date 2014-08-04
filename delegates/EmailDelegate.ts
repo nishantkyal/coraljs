@@ -203,7 +203,12 @@ class EmailDelegate
                     return self.sendCallRequestRejectedEmail(fetchedCall, reason);
                 });
 
-        return self.composeAndSend(EmailDelegate.EMAIL_USER_AGENDA_FAIL, call.getUser().getEmail(), {call: call});
+        return call.getUser()
+            .then(
+            function userFetched(user:User)
+            {
+                return self.composeAndSend(EmailDelegate.EMAIL_USER_AGENDA_FAIL, user.getEmail(), {call: call});
+            });
     }
 
     sendNewCallRequestNotifications(call:number, appointments:number[], duration:number, caller:User):q.Promise<any>;
@@ -223,36 +228,36 @@ class EmailDelegate
         var VerificationCodeDelegate:any = require('../delegates/VerificationCodeDelegate');
         var verificationCodeDelegate = new VerificationCodeDelegate();
 
-        return q.all([
-            call.getExpert(),
-            verificationCodeDelegate.createAppointmentAcceptCode(call, appointments, caller.getId())
-        ])
+        return call.getExpertUser()
             .then(
-            function invitationAcceptCodeCreated(...args)
+            function expertFetched(expertUser:User)
             {
-                var expertUser:User = args[0][0];
-                var code = args[0][1];
-                var schedulingUrl:string = CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI));
-
-                var emailData = {
-                    call: call,
-                    caller: caller,
-                    duration: duration,
-                    appointments: appointments,
-                    suggestTimeUrl: Utils.addQueryToUrl(CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
-                    rejectUrl: Utils.addQueryToUrl(CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
-                    appointmentUrls: _.map(appointments, function (startTime)
+                return verificationCodeDelegate.createAppointmentAcceptCode(call, appointments, caller.getId())
+                    .then(
+                    function invitationAcceptCodeCreated(code:string)
                     {
-                        var query = {};
-                        query[ApiConstants.CODE] = code;
-                        query[ApiConstants.START_TIME] = startTime;
+                        var schedulingUrl:string = CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI));
 
-                        return Utils.addQueryToUrl(schedulingUrl, query);
-                    }),
-                    expertGmtOffset: self.timezoneDelegate.get(expertUser.getTimezone())['gmt_offset'] * 1000
-                };
+                        var emailData = {
+                            call: call,
+                            caller: caller,
+                            duration: duration,
+                            appointments: appointments,
+                            suggestTimeUrl: Utils.addQueryToUrl(CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
+                            rejectUrl: Utils.addQueryToUrl(CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
+                            appointmentUrls: _.map(appointments, function (startTime)
+                            {
+                                var query = {};
+                                query[ApiConstants.CODE] = code;
+                                query[ApiConstants.START_TIME] = startTime;
 
-                return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_SCHEDULING, expertUser.getEmail(), emailData);
+                                return Utils.addQueryToUrl(schedulingUrl, query);
+                            }),
+                            expertGmtOffset: self.timezoneDelegate.get(expertUser.getTimezone())['gmt_offset'] * 1000
+                        };
+
+                        return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_SCHEDULING, expertUser.getEmail(), emailData);
+                    });
             });
     }
 
@@ -270,17 +275,27 @@ class EmailDelegate
                     return self.sendSchedulingCompleteEmail(fetchedCall, appointment);
                 });
 
-        var emailData = {
-            call: call,
-            userGmtOffset: self.timezoneDelegate.get(call.getUser().getTimezone())['gmt_offset'] * 1000,
-            expertGmtOffset: self.timezoneDelegate.get(call.getExpertUser().getTimezone())['gmt_offset'] * 1000
-        };
-
         return q.all([
-            self.composeAndSend(EmailDelegate.EMAIL_EXPERT_SCHEDULED, call.getExpertUser().getEmail(), emailData),
-            self.composeAndSend(EmailDelegate.EMAIL_USER_SCHEDULED, call.getUser().getEmail(), emailData)
-        ]);
+            call.getExpertUser(),
+            call.getUser()
+        ])
+        .then(
+            function callDetailsFetched(...args)
+            {
+                var expertUser:User = args[0][0];
+                var user:User = args[0][1];
 
+                var emailData = {
+                    call: call,
+                    userGmtOffset: self.timezoneDelegate.get(user.getTimezone())['gmt_offset'] * 1000,
+                    expertGmtOffset: self.timezoneDelegate.get(expertUser.getTimezone())['gmt_offset'] * 1000
+                };
+
+                return q.all([
+                    self.composeAndSend(EmailDelegate.EMAIL_EXPERT_SCHEDULED, expertUser.getEmail(), emailData),
+                    self.composeAndSend(EmailDelegate.EMAIL_USER_SCHEDULED, user.getEmail(), emailData)
+                ]);
+            });
     }
 
     sendSuggestedAppointmentToCaller(call:number, appointment:number, expertUserId:number):q.Promise<any>;
@@ -300,29 +315,35 @@ class EmailDelegate
         var VerificationCodeDelegate:any = require('../delegates/VerificationCodeDelegate');
         var verificationCodeDelegate = new VerificationCodeDelegate();
 
-        return verificationCodeDelegate.createAppointmentAcceptCode(call, [appointment], expertUserId)
+
+        return call.getUser()
             .then(
-            function invitationAcceptCodeCreated(code:string)
+            function callUserFetched(user:User)
             {
-                var schedulingUrl:string = CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI));
-                var query = {};
-                query[ApiConstants.CODE] = code;
-                query[ApiConstants.START_TIME] = appointment;
+                return verificationCodeDelegate.createAppointmentAcceptCode(call, [appointment], expertUserId)
+                    .then(
+                    function invitationAcceptCodeCreated(code:string)
+                    {
+                        var schedulingUrl:string = CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI));
+                        var query = {};
+                        query[ApiConstants.CODE] = code;
+                        query[ApiConstants.START_TIME] = appointment;
 
-                var appointmentUrl = Utils.addQueryToUrl(schedulingUrl, query);
+                        var appointmentUrl = Utils.addQueryToUrl(schedulingUrl, query);
 
-                var emailData = {
-                    call: call,
-                    acceptCode: code,
-                    appointment: appointment,
-                    appointmentUrl: appointmentUrl,
-                    suggestTimeUrl: Utils.addQueryToUrl(CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
-                    userGmtOffset: self.timezoneDelegate.get(call.getUser().getTimezone())['gmt_offset'] * 1000
-                };
+                        var emailData = {
+                            call: call,
+                            acceptCode: code,
+                            appointment: appointment,
+                            appointmentUrl: appointmentUrl,
+                            suggestTimeUrl: Utils.addQueryToUrl(CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
+                            userGmtOffset: self.timezoneDelegate.get(call.getUser().getTimezone())['gmt_offset'] * 1000
+                        };
 
-                return q.all([
-                    self.composeAndSend(EmailDelegate.EMAIL_SUGGESTED_TIME_TO_CALLER, call.getUser().getEmail(), emailData)
-                ]);
+                        return q.all([
+                            self.composeAndSend(EmailDelegate.EMAIL_SUGGESTED_TIME_TO_CALLER, user.getEmail(), emailData)
+                        ]);
+                    });
             });
 
     }
@@ -347,28 +368,33 @@ class EmailDelegate
         var VerificationCodeDelegate:any = require('../delegates/VerificationCodeDelegate');
         var verificationCodeDelegate = new VerificationCodeDelegate();
 
-        return verificationCodeDelegate.createAppointmentAcceptCode(call, appointments, callerUserId)
+        return call.getExpertUser()
             .then(
-            function invitationAcceptCodeCreated(code:string)
+            function expertFetched(expertUser:User)
             {
-                var schedulingUrl:string = CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI));
-                var emailData = {
-                    call: call,
-                    acceptCode: code,
-                    appointments: appointments,
-                    rejectUrl: Utils.addQueryToUrl(CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
-                    appointmentUrls: _.map(appointments, function (startTime)
+                return verificationCodeDelegate.createAppointmentAcceptCode(call, appointments, callerUserId)
+                    .then(
+                    function invitationAcceptCodeCreated(code:string)
                     {
-                        var query = {};
-                        query[ApiConstants.CODE] = code;
-                        query[ApiConstants.START_TIME] = startTime;
+                        var schedulingUrl:string = CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI));
+                        var emailData = {
+                            call: call,
+                            acceptCode: code,
+                            appointments: appointments,
+                            rejectUrl: Utils.addQueryToUrl(CallFlowUrls.scheduling(call.getId(), Config.get(Config.DASHBOARD_URI)), Utils.createSimpleObject(ApiConstants.CODE, code)),
+                            appointmentUrls: _.map(appointments, function (startTime)
+                            {
+                                var query = {};
+                                query[ApiConstants.CODE] = code;
+                                query[ApiConstants.START_TIME] = startTime;
 
-                        return Utils.addQueryToUrl(schedulingUrl, query);
-                    }),
-                    expertGmtOffset: self.timezoneDelegate.get(call.getExpertUser().getTimezone())['gmt_offset'] * 1000
-                };
+                                return Utils.addQueryToUrl(schedulingUrl, query);
+                            }),
+                            expertGmtOffset: self.timezoneDelegate.get(expertUser.getTimezone())['gmt_offset'] * 1000
+                        };
 
-                return self.composeAndSend(EmailDelegate.EMAIL_NEW_SLOTS_TO_EXPERT, call.getExpertUser().getEmail(), emailData);
+                        return self.composeAndSend(EmailDelegate.EMAIL_NEW_SLOTS_TO_EXPERT, expertUser.getEmail(), emailData);
+                    });
             });
     }
 
@@ -456,18 +482,29 @@ class EmailDelegate
 
         var integration = new IntegrationDelegate().getSync(call.getIntegrationMember().getIntegrationId());
 
-        var emailData = {
-            integration: integration,
-            call: call,
-            appointment: call.getStartTime(),
-            userGmtOffset: self.timezoneDelegate.get(call.getUser().getTimezone())['gmt_offset'] * 1000,
-            expertGmtOffset: self.timezoneDelegate.get(call.getExpertUser().getTimezone())['gmt_offset'] * 1000
-        };
-
         return q.all([
-            self.composeAndSend(EmailDelegate.EMAIL_USER_CALL_REMINDER, call.getUser().getEmail(), emailData),
-            self.composeAndSend(EmailDelegate.EMAIL_EXPERT_CALL_REMINDER, call.getExpertUser().getEmail(), emailData)
-        ]);
+            call.getExpertUser(),
+            call.getUser()
+        ])
+        .then(
+            function callDetailsFetched(...args)
+            {
+                var expertUser:User = args[0][0];
+                var user:User = args[0][1];
+
+                var emailData = {
+                    integration: integration,
+                    call: call,
+                    appointment: call.getStartTime(),
+                    userGmtOffset: self.timezoneDelegate.get(call.getUser().getTimezone())['gmt_offset'] * 1000,
+                    expertGmtOffset: self.timezoneDelegate.get(call.getExpertUser().getTimezone())['gmt_offset'] * 1000
+                };
+
+                return q.all([
+                    self.composeAndSend(EmailDelegate.EMAIL_USER_CALL_REMINDER, user.getEmail(), emailData),
+                    self.composeAndSend(EmailDelegate.EMAIL_EXPERT_CALL_REMINDER, expertUser.getEmail(), emailData)
+                ]);
+            });
     }
 
     sendCallFailureEmail(call:number):q.Promise<any>;

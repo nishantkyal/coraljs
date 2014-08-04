@@ -21,6 +21,9 @@ class AbstractDao
     {
         this.modelClass = modelClass;
 
+        // Instantiate model once so that foreign keys etc get computed
+        new modelClass();
+
         if (this.modelClass && this.modelClass.TABLE_NAME)
             this.tableName = this.modelClass.TABLE_NAME;
         else
@@ -137,7 +140,10 @@ class AbstractDao
         var values = whereStatements.values;
         var selectColumns = !Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
 
-        var queryString = 'SELECT ' + selectColumns + ' FROM `' + this.tableName + '` WHERE ' + wheres.join(' AND ') + ' AND (deleted IS NULL OR deleted = 0)';
+        var queryString = 'SELECT ' + selectColumns + ' ' +
+            'FROM `' + this.tableName + '` ' +
+            'WHERE ' + wheres.join(' AND ') + ' ' +
+            'AND (deleted IS NULL OR deleted = 0)';
 
         return MysqlDelegate.executeQuery(queryString, values, transaction)
             .then(

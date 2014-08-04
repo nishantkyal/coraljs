@@ -874,7 +874,7 @@
     <changeSet author="Nishant (generated)" id="1406623072906-2" failOnError="false">
         <dropPrimaryKey constraintName="PRIMARY" tableName="country"/>
     </changeSet>
-    <changeSet author="Nishant (generated)" id="1406623072906-3">
+    <changeSet author="Nishant (generated)" id="1406623072906-3" failOnError="false">
         <dropColumn columnName="verification_code" tableName="user_phone"/>
     </changeSet>
     <changeSet author="Nishant (generated)" id="1406623072906-4">

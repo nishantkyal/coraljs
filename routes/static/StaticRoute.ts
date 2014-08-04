@@ -15,6 +15,18 @@ class StaticRoute
             var sessionData = new AbstractSessionData(req);
             res.render('static/terms-of-use', sessionData);
         });
+
+        app.get('/about-us', function(req, res)
+        {
+            var sessionData = new AbstractSessionData(req);
+            res.render('static/about-us', sessionData);
+        });
+
+        app.get('/faq', function(req, res)
+        {
+            var sessionData = new AbstractSessionData(req);
+            res.render('static/faq', sessionData);
+        });
     }
 }
 export = StaticRoute
