@@ -24,8 +24,8 @@ import IntegrationDelegate                          = require('./delegates/Integ
 import ScheduledTaskDelegate                        = require('./delegates/ScheduledTaskDelegate');
 import TimezoneDelegate                             = require('./delegates/TimezoneDelegate');
 import RequestHandler                               = require('./middleware/RequestHandler');
-var connect                                         = require('connect');
-var pjson                                           = require('./package.json');
+var connect = require('connect');
+var pjson = require('./package.json');
 
 log4js.configure('/var/searchntalk/config/log4js.json');
 Config.set(Config.VERSION, pjson['version']);
@@ -62,7 +62,7 @@ if (Config.get(Config.ENABLE_HTTPS))
 
     https.createServer(credentials, secureApp).listen(Config.get(Config.DASHBOARD_HTTPS_PORT), serverStartupAction);
 
-    log4js.getDefaultLogger().debug("SearchNTalk started on port %d in %s mode",Config.get(Config.DASHBOARD_HTTPS_PORT), secureApp.settings.env);
+    log4js.getDefaultLogger().debug("SearchNTalk started on port %d in %s mode", Config.get(Config.DASHBOARD_HTTPS_PORT), secureApp.settings.env);
 }
 
 function serverStartupAction()
@@ -83,13 +83,13 @@ function serverStartupAction()
             if (Utils.isNullOrEmpty(scheduledTaskDelegate.find(ScheduledTaskType.CALL_SCHEDULE)))
                 newTasks.push(scheduledTaskDelegate.scheduleAfter(new ScheduleCallsScheduledTask(), 1));
 
-            var daily = true,weekly = true,monthly=true;
+            var daily = true, weekly = true, monthly = true;
             var saveString = '';
 
-            _.each(scheduledTaskDelegate.filter(ScheduledTaskType.SAVE_STATS), function(task)
+            _.each(scheduledTaskDelegate.filter(ScheduledTaskType.SAVE_STATS), function (task)
             {
                 var saveStatsTask:any = task;
-                switch(saveStatsTask.getType())
+                switch (saveStatsTask.getType())
                 {
                     case SaveStatsTaskType.DAILY:
                         daily = false;
@@ -107,27 +107,28 @@ function serverStartupAction()
             {
                 var millisTillMidnight:number = moment().hours(23).minutes(59).seconds(0).valueOf() - moment().valueOf(); //midnight considered here to be 11:59pm to be in same day
                 saveString = 'DAY_' + moment().date() + '_OF_' + moment().format('MMM').toUpperCase() + '_' + moment().year();
-                newTasks.push(scheduledTaskDelegate.scheduleAfter(new SaveStatsTask(SaveStatsKey.keys,SaveStatsTaskType.DAILY,saveString),millisTillMidnight));
+                newTasks.push(scheduledTaskDelegate.scheduleAfter(new SaveStatsTask(SaveStatsKey.ALL_KEYS, SaveStatsTaskType.DAILY, saveString), millisTillMidnight));
             }
 
             if (weekly)
             {
                 var millisTillMonday:number = moment().day(7).hours(23).minutes(59).seconds(0).valueOf() - moment().valueOf();//Week start at Monday 12:00 am and ends at Sun 11:59 pm
                 saveString = 'WEEK_OF_' + moment().day(1).date() + '_' + moment().format('MMM').toUpperCase() + '_' + moment().year();
-                newTasks.push(scheduledTaskDelegate.scheduleAfter(new SaveStatsTask(SaveStatsKey.keys,SaveStatsTaskType.WEEKLY,saveString),millisTillMonday));
+                newTasks.push(scheduledTaskDelegate.scheduleAfter(new SaveStatsTask(SaveStatsKey.ALL_KEYS, SaveStatsTaskType.WEEKLY, saveString), millisTillMonday));
             }
 
             if (monthly)
             {
                 var millisTillNextMonth:number = moment().date(moment().daysInMonth()).hours(23).minutes(59).seconds(0).valueOf() - moment().valueOf();
                 saveString = moment().format('MMM').toUpperCase() + '_' + moment().year();
-                newTasks.push(scheduledTaskDelegate.scheduleAfter(new SaveStatsTask(SaveStatsKey.keys,SaveStatsTaskType.MONTHLY,saveString),millisTillNextMonth));
+                newTasks.push(scheduledTaskDelegate.scheduleAfter(new SaveStatsTask(SaveStatsKey.ALL_KEYS, SaveStatsTaskType.MONTHLY, saveString), millisTillNextMonth));
             }
 
             return q.all(newTasks);
         });
 
-    scheduledTaskDelegate.on('taskCompletedEvent', function(taskType:ScheduledTaskType){
+    scheduledTaskDelegate.on('taskCompletedEvent', function (taskType:ScheduledTaskType)
+    {
         if (taskType === ScheduledTaskType.TIMEZONE_REFRESH)
         {
             log4js.getDefaultLogger().debug('Timezones updated');
