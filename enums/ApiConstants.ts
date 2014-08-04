@@ -48,7 +48,7 @@ class ApiConstants
     static CODE_VERIFICATION:string                     = 'code_verification';
     static NAME:string                                  = 'name';
     static AREA_CODE:string                             = 'area_code';
-    static COUNTRY_CODE:string                          = 'country_code';
+    static COUNTRY_CODE:string                          = 'countryCode';
     static PHONE:string                                 = 'phone';
     static AGENDA:string                                = 'agenda';
     static CALL_NOW:string                              = 'call-now';

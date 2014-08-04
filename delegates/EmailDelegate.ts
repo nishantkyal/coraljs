@@ -253,7 +253,7 @@ class EmailDelegate
 
                                 return Utils.addQueryToUrl(schedulingUrl, query);
                             }),
-                            expertGmtOffset: self.timezoneDelegate.get(call.getExpertUser().getTimezone())['gmt_offset'] * 1000
+                            expertGmtOffset: self.timezoneDelegate.get(expertUser.getTimezone())['gmt_offset'] * 1000
                         };
 
                         return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_SCHEDULING, expertUser.getEmail(), emailData);

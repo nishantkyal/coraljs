@@ -103,17 +103,20 @@ class PaymentRoute
             phoneCall.setStatus(CallStatus.PLANNING);
             phoneCall.setDuration(callFlowSessionData.getDuration());
             phoneCall.setAgenda(callFlowSessionData.getAgenda());
-            phoneCall.setChargingRate(new PricingScheme(user.getPricingScheme()[0]).getChargingRate());
-            phoneCall.setUnit(new PricingScheme(user.getPricingScheme()[0]).getUnit());
-            phoneCall.setPulseRate(new PricingScheme(user.getPricingScheme()[0]).getPulseRate());
-            phoneCall.setMinDuration(new PricingScheme(user.getPricingScheme()[0]).getMinDuration());
             phoneCall.setCallerUserId(loggedInUserId);
 
             var transaction = new Transaction();
             transaction.setUserId(loggedInUserId);
             transaction.setStatus(TransactionStatus.CREATED);
 
-            tasks.push(self.phoneCallDelegate.create(phoneCall)
+            tasks.push(user.getPricingSchemes()
+                .then( function(pricingSchemes){
+                    phoneCall.setChargingRate(new PricingScheme(pricingSchemes[0]).getChargingRate());
+                    phoneCall.setUnit(new PricingScheme(pricingSchemes[0]).getUnit());
+                    phoneCall.setPulseRate(new PricingScheme(pricingSchemes[0]).getPulseRate());
+                    phoneCall.setMinDuration(new PricingScheme(pricingSchemes[0]).getMinDuration());
+                    return self.phoneCallDelegate.create(phoneCall)
+                })
                 .then(
                 function phoneCallCreated(createdCall:PhoneCall)
                 {
@@ -329,7 +332,7 @@ class PaymentRoute
                 // 2. Send notifications
                 return q.all([
                     self.phoneCallDelegate.update(call.getId(), {status: CallStatus.SCHEDULING}),
-                    self.notificationDelegate.sendNewCallRequestNotifications(call, callFlowSessionData.getAppointments(), call.getDuration()/60, callFlowSessionData.getLoggedInUser())
+                    self.notificationDelegate.sendNewCallRequestNotifications(call, callFlowSessionData.getAppointments(), call.getDuration(), callFlowSessionData.getLoggedInUser())
                 ])
                     .then(
                     function renderPage()

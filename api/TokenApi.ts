@@ -38,6 +38,18 @@ class TokenApi
             );
         });
 
+        // Resend Mobile Verification Code
+        app.post(ApiUrlDelegate.resendMobileVerificationCode(), AuthenticationDelegate.checkLogin(), function(req:express.Request, res:express.Response)
+        {
+            var phoneNumber:UserPhone = new UserPhone(req.body[ApiConstants.PHONE_NUMBER]);
+            phoneNumber.setUserId(req['user'].id);
+            verificationCodeDelegate.resendMobileVerificationCode(phoneNumber)
+                .then(
+                function codeResend() { res.json(200, {status: 'OK'}); },
+                function codeResendError(error) { res.send(500, error); }
+                )
+        });
+
         /* Verify mobile number code */
         app.get(ApiUrlDelegate.mobileVerificationCode(), AuthenticationDelegate.checkLogin(), function (req:express.Request, res:express.Response)
         {
@@ -62,6 +74,7 @@ class TokenApi
                     res.json(500, error.message);
                 });
         });
+
 
         /* Create and send expert invitation code */
         app.post(ApiUrlDelegate.expertInvitationCode(), AuthenticationDelegate.checkLogin(), function (req:express.Request, res:express.Response)
