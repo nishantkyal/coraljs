@@ -116,10 +116,10 @@ class Utils
     static createSimpleObject(...args):Object
     {
         var obj:Object = {};
-        for (var i = 0; i < args.length; i+=2)
+        for (var i = 0; i < args.length; i += 2)
         {
             var key = args[i];
-            var val = args[i+1];
+            var val = args[i + 1];
             if (!Utils.isNullOrEmpty(key))
                 obj[key] = val;
         }
@@ -171,28 +171,29 @@ class Utils
     static escapeObject(obj:any):any
     {
         var dataAsArray = [].concat(obj);
-        var isArray = Object.prototype.toString.call(obj) =='[object Array]' ? true : false;
+        var isArray = Object.prototype.toString.call(obj) == '[object Array]' ? true : false;
 
-        var escapedData = _.map(dataAsArray, function(data){
-            for(var key in data)
+        var escapedData = _.map(dataAsArray, function (data)
+        {
+            for (var key in data)
             {
                 var value = data[key];
-                if( typeof value == 'string')
+                if (typeof value == 'string')
                 {
                     value = value.replace(/"/g, '&quot;')
                         .replace(/'/g, '&squot;')
-                        .replace(/\\/g,'&bslash')
-                        .replace(/\n/g,'&endl;')
-                        .replace(/\t/g,'&tab;');
+                        .replace(/\\/g, '&bslash')
+                        .replace(/\n/g, '&endl;')
+                        .replace(/\t/g, '&tab;');
                     data[key] = value;
                 }
-                else if (Object.prototype.toString.call(value) =='[object Array]')
+                else if (Object.prototype.toString.call(value) == '[object Array]')
                     data[key] = Utils.escapeObject(value);
             }
             return data;
         })
 
-        if(isArray)
+        if (isArray)
             return escapedData;
         else
             return escapedData[0];
@@ -203,29 +204,39 @@ class Utils
     static unEscapeObject(obj:any):any
     {
         var dataAsArray = [].concat(obj);
-        var isArray = Object.prototype.toString.call(obj) =='[object Array]' ? true : false;
+        var isArray = Object.prototype.toString.call(obj) == '[object Array]' ? true : false;
 
-        var escapedData = _.map(dataAsArray, function(data){
-            for(var key in data)
+        var escapedData = _.map(dataAsArray, function (data)
+        {
+            for (var key in data)
             {
                 var value = data[key];
-                if( typeof value == 'string')
+                if (typeof value == 'string')
                 {
                     value = value.replace(/&quot;/g, '"')
                         .replace(/&squot;/g, '\'')
-                        .replace(/&bslash/g,'\\')
-                        .replace(/&endl;/g,'\n')
-                        .replace(/&tab;/g,'\t');
+                        .replace(/&bslash/g, '\\')
+                        .replace(/&endl;/g, '\n')
+                        .replace(/&tab;/g, '\t');
                     data[key] = value;
                 }
             }
             return data;
         })
 
-        if(isArray)
+        if (isArray)
             return escapedData;
         else
             return escapedData[0];
+    }
+
+    static setLongerTimeout(func:Function, interval:number, ...args)
+    {
+        var maxTimeout = 0x7FFFFFFF; //setTimeout limit is MAX_INT32=(2^31-1)
+        if (interval < maxTimeout)
+            return setTimeout(func, interval, args);
+        else
+            return setTimeout(Utils.setLongerTimeout(func, interval - maxTimeout, args), maxTimeout);
     }
 }
 export = Utils
