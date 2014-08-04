@@ -22,6 +22,12 @@ class StaticRoute
             res.render('static/about-us', sessionData);
         });
 
+        app.get('/contact-us', function(req, res)
+        {
+            var sessionData = new AbstractSessionData(req);
+            res.render('static/contact-us', sessionData);
+        });
+
         app.get('/faq', function(req, res)
         {
             var sessionData = new AbstractSessionData(req);
