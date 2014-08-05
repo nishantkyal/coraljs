@@ -55,5 +55,5 @@ include ../footer
 script.
     var widgetBaseUrl = '!{Config.get(Config.DASHBOARD_URI)}';
     var loggedInUser = JSON.parse( '!{JSON.stringify(loggedInUser)}' );
-script(src='/lib/iframe-resizer/src/iframeResizer.js', type='text/javascript')
+script(src='/lib/iframe-resizer/js/iframeResizer.min.js', type='text/javascript')
 script(src='/js/app/dashboard/widgetCreator.js')
