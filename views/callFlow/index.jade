@@ -230,7 +230,7 @@ div.modal.fade#scheduler
                                             input(type='text', placeholder='Choose three timeslots', readonly="readonly")
                                     .form-group
                                         input(name='slots[]', type='text', style="display: none;")
-                                .row.input-rowdexpot
+                                .row.input-row
                                     h1
                                         i.icon-phone
                                         | Recepient Phone
@@ -239,7 +239,7 @@ div.modal.fade#scheduler
                                             .input-group-btn
                                                 select.btn(style="width: 150px", name="country_code")
                                                     for name,abb in CountryName
-                                                        -var code = CountryCode[abb];
+                                                        - var code = CountryCode[abb];
                                                         option(value=code, selected=code ==country_code)= name + ' (+' + code + ')'
                                             .input-group-btn
                                                 input.form-control(style="width: 100px", type='text', placeholder='Area Code', value=caller_phone, name="area_code")

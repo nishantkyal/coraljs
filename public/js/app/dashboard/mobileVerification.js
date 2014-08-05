@@ -3,7 +3,12 @@ $('form#sendCode').bootstrapValidator({
         'phone': {
             validators: {
                 notEmpty: {message: "This is a required field"},
-                digits: {message: "Please enter a valid number"}
+                digits: {message: "Phone number can only contain digits"}
+            }
+        },
+        'area_code': {
+            validators: {
+                digits: {message: "Area code can only contain digits"}
             }
         }
     }
@@ -23,6 +28,7 @@ $('form#sendCode').bootstrapValidator({
             data    : {
                 phoneNumber: {
                     phone       : $('#sendCode input[name=phone]').val(),
+                    area_code   : $('#sendCode input[name=area_code]').val(),
                     country_code: $('#sendCode select[name=country_code]').val()
                 }
             },

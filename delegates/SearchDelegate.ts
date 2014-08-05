@@ -25,7 +25,7 @@ class SearchDelegate
                 switch (key)
                 {
                     case ApiConstants.PRICE_RANGE:
-                        return expert.getPricingScheme()
+                        return expert.getPricingSchemes()
                             .then(
                             function schemesFetched(schemes:PricingScheme[])
                             {
