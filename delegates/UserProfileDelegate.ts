@@ -212,7 +212,7 @@ class UserProfileDelegate extends BaseDaoDelegate
             function imageDetailsFetched(profile)
             {
                 var profilePictureUrl;
-                if (profile.pictureUrls && profile.pictureUrls.values.length > 0)
+                if (profile.pictureUrls && profile.pictureUrls.values && profile.pictureUrls.values.length > 0)
                     profilePictureUrl = profile.pictureUrls.values[0];
 
                 if (!Utils.isNullOrEmpty(profilePictureUrl))
@@ -322,7 +322,7 @@ class UserProfileDelegate extends BaseDaoDelegate
 
         self.logger.debug('Fetching all details for userId: %s', userId);
 
-        return q.all([
+        return q.allSettled([
             self.fetchBasicDetailsFromLinkedIn(userId, profileId, transaction),
             self.fetchEducationDetailsFromLinkedIn(userId, profileId, transaction),
             self.fetchEmploymentDetailsFromLinkedIn(userId, profileId, transaction),

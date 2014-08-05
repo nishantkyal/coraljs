@@ -442,13 +442,13 @@ class AuthenticationDelegate
         var profileId:number = req.cookies[ApiConstants.USER_PROFILE_ID];
         var userId:number = new User(req[ApiConstants.USER]).getId();
 
-        res.clearCookie(ApiConstants.LINKEDIN_FETCH_FIELDS);
+        res.clearCookie(ApiConstants.LINKEDIN_FETCH_FIELDS, { httpOnly: false, path: '/',secure:true  });
 
         var userProfileDelegate = new UserProfileDelegate();
 
         if (!Utils.isNullOrEmpty(fetchFields))
         {
-            q.all(_.map(fetchFields, function (field)
+            q.allSettled(_.map(fetchFields, function (field)
             {
                 switch (field)
                 {
