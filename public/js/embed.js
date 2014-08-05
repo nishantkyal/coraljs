@@ -2,8 +2,10 @@
 
     var scriptName = "embed.js";
     var jQuery;
-    var jqueryPath = "http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js";
+    var jqueryPath = "//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js";
     var jqueryVersion = "1.8.3";
+    var iframeResizerPath = "//localhost:3333/bower_dependencies/iframe-resizer/js/iframeResizer.contentWindow.min.js";
+    var iframeResizerVersion = "2.5.2";
 
     /******** Get reference to self (scriptTag) *********/
     var allScripts = document.getElementsByTagName('script');
@@ -50,18 +52,12 @@
 
     function initjQuery() {
         jQuery = window.jQuery.noConflict(true);
-        main();
+        loadScript(iframeResizerPath, main);
     }
 
     function main() {
-        jQuery(document).ready(function ($) {
-
-            var WIDGET_SIZES = {
-                'tiny': {width: 160, height: 115},
-                'small': {width: 160, height: 251},
-                'tall': {width: 160, height: 392}
-            };
-
+        jQuery(document).ready(function ($)
+        {
             // 1. Get embedded widget tags
             // 2. Process each by creating iframe inside each of those tags
             var widgetTags = jQuery('.snt-expert');
@@ -70,15 +66,14 @@
                 var widgetTag = widgetTags[i];
                 var widgetId = jQuery(widgetTag).data('id');
                 var widgetTheme = jQuery(widgetTag).data('theme') || '';
-                var widgetSize = jQuery(widgetTag).data('size') || 'tall';
+                var widgetWidth = jQuery(widgetTag).data('width') || 300;
                 var widgetVerb = jQuery(widgetTag).data('verb');
-                var widgetUrl = '//searchntalk.com/widget?userId=' + widgetId + '&size=' + widgetSize + '&theme=' + widgetTheme + '&verb=' + escape(widgetVerb);
+                var widgetUrl = '//searchntalk.com/widget?width=' + widgetWidth + '&userId=' + widgetId + '&theme=' + widgetTheme + '&verb=' + escape(widgetVerb);
 
                 if (widgetId)
-                    jQuery(widgetTag).append('<iframe scrolling="no" style="overflow: hidden, border: none;" frameBorder="0" class="snt-expert-iframe" src="' + widgetUrl + '" width="' + WIDGET_SIZES[widgetSize].width + '" height="' + WIDGET_SIZES[widgetSize].height + '"></iframe>');
+                    jQuery(widgetTag).append('<iframe scrolling="no" style="overflow: hidden, border: none;" frameBorder="0" class="snt-expert-iframe" src="' + widgetUrl + '></iframe>');
             }
         });
-
     }
 
 })();

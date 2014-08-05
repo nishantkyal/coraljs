@@ -193,7 +193,7 @@ class WidgetDelegate
      return null;
      }*/
 
-    render(userId:number, size:string = 'small', theme:string = '', verb:string = WidgetDelegate.ALLOWED_VERBS[0]):q.Promise<string>
+    render(userId:number, width:number, theme:string = '', verb:string = WidgetDelegate.ALLOWED_VERBS[0]):q.Promise<string>
     {
         if (WidgetDelegate.ALLOWED_VERBS.indexOf(verb) == -1)
             verb = WidgetDelegate.ALLOWED_VERBS[0];
@@ -204,9 +204,9 @@ class WidgetDelegate
             .then(
             function widgetExpertFetched(widgetExpert:WidgetExpert[])
             {
-                var widgetBaseHtml = WidgetDelegate.widgetTemplateCache[size.toUpperCase()+'_WIDGET'];
+                var widgetBaseHtml = WidgetDelegate.widgetTemplateCache['WIDGET'];
                 var widgetHtmlWithExpertData = self.renderWidgetExpertData(widgetBaseHtml, widgetExpert)
-                var widgetHtmlWithSettingsAndExpertData = self.renderWidgetSettings(widgetHtmlWithExpertData, {theme: theme, verb: verb});
+                var widgetHtmlWithSettingsAndExpertData = self.renderWidgetSettings(widgetHtmlWithExpertData, {theme: theme, verb: verb, width: width});
                 return widgetHtmlWithSettingsAndExpertData;
             });
     }

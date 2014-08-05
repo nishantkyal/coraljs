@@ -18,11 +18,10 @@ class WidgetApi
          */
         app.get(ApiUrlDelegate.widget(), function (req:express.Request, res:express.Response)
         {
-            var self = this;
             var theme:string = req.query[ApiConstants.THEME] || 'light';
-            var size:string = req.query[ApiConstants.SIZE] || 'small';
             var verb:string = req.query[ApiConstants.VERB];
             var userId:number = parseInt(req.query[ApiConstants.USER_ID]);
+            var width:number = parseInt(req.query[ApiConstants.WIDTH]) || 300;
 
             // TODO: Handle caching of response sent by this endpoint
             // Since the url is fixed, response will get cached
@@ -32,9 +31,9 @@ class WidgetApi
             // TODO: Handle cross-domain goofiness
             // TODO: Compile Widget jade
 
-            widgetDelegate.render(userId, size, theme, verb)
+            widgetDelegate.render(userId, width, theme, verb)
                 .then(
-                function widgetRendered(widgetHtml:string)
+                function widgetRendered(widgetHtml:string):any
                 {
                     res.send(widgetHtml);
                 },

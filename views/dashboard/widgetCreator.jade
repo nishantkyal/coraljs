@@ -18,12 +18,13 @@ title Widget Creator
                                         select.form-control(name='theme')
                                             option(value='dark') Dark
                                             option(value='light') Light
-                                    h3 Size
+                                    h3 Width
                                     .form-group
-                                        select.form-control(name='size')
-                                            option(value='tiny') Tiny
-                                            option(value='small') Small
-                                            option(value='tall') Tall
+                                        select.form-control(name='width')
+                                            option(value='160') 160
+                                            option(value='300') 300
+                                            option(value='320') 320
+                                            option(value='336') 336
                                     h3 Expert Id
                                     .form-group
                                         input.form-control(name='expertId', value=loggedInUser ? loggedInUser.id : null)
@@ -54,5 +55,5 @@ include ../footer
 script.
     var widgetBaseUrl = '!{Config.get(Config.DASHBOARD_URI)}';
     var loggedInUser = JSON.parse( '!{JSON.stringify(loggedInUser)}' );
+script(src='/bower_dependencies/iframe-resizer/src/iframeResizer.js', type='text/javascript')
 script(src='/js/app/dashboard/widgetCreator.js')
-

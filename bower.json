@@ -12,7 +12,8 @@
         "bootstrap3-typeahead": "3.0.3",
         "bootstrap-sortable": "1.8.0",
         "tag-it": "*",
-        "iCheck": "1.0.2"
+        "iCheck": "1.0.2",
+        "iframe-resizer": "2.5.2"
     },
     "private": true
 }
