@@ -40,7 +40,7 @@ title Widget Creator
                             .item
                                 .row
                                     h3 1. Include this code once on your page (ideally just after opening <body> tag)
-                                    p.code &lt;script src=&quot;//searchntalk.com/js/embed.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+                                    p.code &lt;script src=&quot;//searchntalk.com/widget.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
                             .item
                                 .row
                                     h3 2. Place this code wherever you want to display the expert widget
@@ -55,5 +55,5 @@ include ../footer
 script.
     var widgetBaseUrl = '!{Config.get(Config.DASHBOARD_URI)}';
     var loggedInUser = JSON.parse( '!{JSON.stringify(loggedInUser)}' );
-script(src='/bower_dependencies/iframe-resizer/src/iframeResizer.js', type='text/javascript')
+script(src='/lib/iframe-resizer/src/iframeResizer.js', type='text/javascript')
 script(src='/js/app/dashboard/widgetCreator.js')

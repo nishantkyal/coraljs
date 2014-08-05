@@ -4,7 +4,7 @@
     var jQuery;
     var jqueryPath = "//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js";
     var jqueryVersion = "1.8.3";
-    var iframeResizerPath = "//localhost:3333/bower_dependencies/iframe-resizer/js/iframeResizer.contentWindow.min.js";
+    var iframeResizerPath = "//localhost:3333/lib/iframe-resizer/js/iframeResizer.contentWindow.min.js";
     var iframeResizerVersion = "2.5.2";
 
     /******** Get reference to self (scriptTag) *********/
