@@ -1,3 +1,4 @@
+import _                                                    = require('underscore');
 import log4js                                               = require('log4js');
 import express                                              = require('express');
 import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');

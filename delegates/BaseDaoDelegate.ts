@@ -62,7 +62,6 @@ class BaseDaoDelegate
             .spread(
             function handleIncludesProcessed(result, ...args)
             {
-                self.logger.debug('Includes processed for %s', Utils.getClassName(self.dao.modelClass));
                 var results = args[0];
 
                 _.each(results, function (resultSet:any, index)
@@ -100,7 +99,6 @@ class BaseDaoDelegate
             .spread(
             function handleIncludesProcessed(baseSearchResults, ...args)
             {
-                self.logger.debug('Includes processed for %s', Utils.getClassName(self.dao.modelClass));
                 var results = args[0];
 
                 _.each(baseSearchResults, function (baseSearchResult:any)
