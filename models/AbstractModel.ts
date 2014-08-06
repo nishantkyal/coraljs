@@ -143,6 +143,7 @@ class AbstractModel
             if (this[srcPropertyName])
                 return q.resolve(this[srcPropertyName]);
 
+            self.logger.debug('Lazy loading for find %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);
             return delegate.find(Utils.createSimpleObject(fk.target_key, this[fk.src_key]))
                 .then(
                 function success(result)
@@ -191,6 +192,7 @@ class AbstractModel
             if (this[srcPropertyName])
                 return q.resolve(this[srcPropertyName]);
 
+            self.logger.debug('Lazy loading %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);
             return delegate.search(Utils.createSimpleObject(fk.target_key, this[fk.src_key]))
                 .then(
                 function success(result)
