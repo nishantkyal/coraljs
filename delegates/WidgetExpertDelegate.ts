@@ -49,10 +49,13 @@ class WidgetExpertDelegate
             function schedulesFetched(user:User, schedules:Schedule[], schemes:PricingScheme[])
             {
                 var widgetExpert = new WidgetExpert(user, schedules);
-                self.widgetExpertCache.save(user, schedules);
-
+                return [widgetExpert, schemes, self.widgetExpertCache.save(user, schedules)];
+            })
+            .spread(
+            function widgetExpertCached(widgetExpert:WidgetExpert, schemes:PricingScheme[])
+            {
                 var timezone = new TimezoneDelegate().get(widgetExpert.getTimezone());
-                widgetExpert.setTimezoneOffset(timezone['gmt_offset']);
+                widgetExpert.setTimezoneOffset(timezone.getGmtOffset());
                 if (!Utils.isNullOrEmpty(schemes))
                     widgetExpert.setPricingScheme(schemes[0]);
 

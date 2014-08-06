@@ -32,13 +32,10 @@ class WidgetApi
             var pricing:boolean = req.query[ApiConstants.PRICING] == "true";
             var skills:boolean = req.query[ApiConstants.SKILLS] == "true";
 
-            // TODO: Handle caching of response sent by this endpoint
             // Since the url is fixed, response will get cached
             // Which is fine for certain cases (e.g. my own call-me button)
-            // TODO: Handle customizable widget styling along with default styles
             // TODO: Handle widget versions
             // TODO: Handle cross-domain goofiness
-            // TODO: Compile Widget jade
 
             widgetDelegate.render(userId, width, message, theme, verb, {
                 user_name: user_name,
@@ -56,7 +53,7 @@ class WidgetApi
                 function widgetRenderError(error)
                 {
                     //self.logger.debug('Widget rendering failed. Error: %s', JSON.stringify(error));
-                    res.send(error || 'An error occured in rendering Widget.').status(500);
+                    res.send(500, error.message || 'An error occured in rendering Widget.');
                 });
         });
     }
