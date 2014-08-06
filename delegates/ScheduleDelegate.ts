@@ -1,3 +1,4 @@
+import log4js                                                           = require('log4js');
 import q                                                                = require('q');
 import moment                                                           = require('moment');
 import _                                                                = require('underscore');
@@ -11,6 +12,8 @@ import Utils                                                            = requir
 
 class ScheduleDelegate
 {
+    private logger = log4js.getLogger(Utils.getClassName(this));
+
     getSchedulesForUser(userId:number, startTime?:number, endTime?:number):q.Promise<any>
     {
         //TODO[ankit] handle array inout in getSchedulesForExpert
@@ -59,6 +62,11 @@ class ScheduleDelegate
                 {
                     return null;
                 }
+            })
+            .fail(
+            function handleFailure(error:Error)
+            {
+                self.logger.error('Error occurred while getting schedules for used id: %s, error: %s', userId, error.message);
             });
     }
 

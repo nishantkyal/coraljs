@@ -69,6 +69,11 @@ class BaseDaoDelegate
                     result.set(foreignKeys[index].getSourcePropertyName(), resultSet);
                 });
                 return result;
+            })
+            .fail(
+            function handleFailure(error:Error)
+            {
+                self.logger.error('Error occurred while finding %s for criteria: %s, error: %s', self.dao.modelClass.TABLE_NAME, JSON.stringify(search), error.message);
             });
     }
 
@@ -109,6 +114,11 @@ class BaseDaoDelegate
                     })
                 });
                 return baseSearchResults;
+            })
+            .fail(
+            function handleFailure(error:Error)
+            {
+                self.logger.error('Error occurred while searching %s for criteria: %s, error: %s', self.dao.modelClass.TABLE_NAME, JSON.stringify(search), error.message);
             });
     }
 
