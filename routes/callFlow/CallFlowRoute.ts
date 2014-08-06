@@ -22,6 +22,7 @@ import ScheduleExceptionDelegate                            = require('../../del
 import CouponDelegate                                       = require('../../delegates/CouponDelegate');
 import PricingSchemeDelegate                                = require('../../delegates/PricingSchemeDelegate');
 import TimezoneDelegate                                     = require('../../delegates/TimezoneDelegate');
+import PhoneCallReviewDelegate                              = require('../../delegates/PhoneCallReviewDelegate');
 import PhoneCall                                            = require('../../models/PhoneCall');
 import Schedule                                             = require('../../models/Schedule');
 import Transaction                                          = require('../../models/Transaction');
@@ -32,6 +33,7 @@ import TransactionLine                                      = require('../../mod
 import UserProfile                                          = require('../../models/UserProfile');
 import ScheduleException                                    = require('../../models/ScheduleException');
 import User                                                 = require('../../models/User');
+import PhoneCallReview                                      = require('../../models/PhoneCallReviewModel');
 import PricingScheme                                        = require('../../models/PricingScheme');
 import CallStatus                                           = require('../../enums/CallStatus');
 import ApiConstants                                         = require('../../enums/ApiConstants');
@@ -54,6 +56,8 @@ class CallFlowRoute
     private static INDEX:string = 'callFlow/index';
     private static SCHEDULING_PAGE_FOR_EXPERT:string = 'callFlow/schedulingPageForExpert';
     private static SCHEDULING_PAGE_FOR_CALLER:string = 'callFlow/schedulingPageForCaller';
+    private static REVIEW_PAGE_FOR_EXPERT:string = 'callFlow/reviewPageForExpert';
+    private static REVIEW_PAGE_FOR_CALLER:string = 'callFlow/reviewPageForCaller';
 
     private logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
     private phoneCallDelegate = new PhoneCallDelegate();
@@ -64,11 +68,14 @@ class CallFlowRoute
     private scheduleDelegate = new ScheduleDelegate();
     private verificationCodeDelegate = new VerificationCodeDelegate();
     private timezoneDelegate = new TimezoneDelegate();
+    private phoneCallReviewDelegate = new PhoneCallReviewDelegate();
 
     constructor(app)
     {
         app.get(Urls.callExpert(), this.index.bind(this));
         app.get(Urls.scheduling(), AuthenticationDelegate.checkLogin({setReturnTo: true}), this.scheduling.bind(this));
+        app.get(Urls.review(), AuthenticationDelegate.checkLogin({setReturnTo: true}), this.createReview.bind(this));
+        app.get(Urls.reviewById(), AuthenticationDelegate.checkLogin({setReturnTo: true}), this.review.bind(this));
     }
 
     /* Render index with expert schedules */
@@ -235,6 +242,69 @@ class CallFlowRoute
             {
                 res.render('500', {error: error});
             });
+    }
+
+    private createReview(req:express.Request, res:express.Response)
+    {
+        var self = this;
+        var callId:number = parseInt(req.params[ApiConstants.PHONE_CALL_ID]);
+        var loggedInUserId = req[ApiConstants.USER].id;
+        var review:number = parseInt(req.query[ApiConstants.REVIEW]) || 0;
+
+        var phoneCallReview:PhoneCallReview = new PhoneCallReview();
+
+        phoneCallReview.setUserId(loggedInUserId);
+        phoneCallReview.setCallId(callId);
+        phoneCallReview.setReview(review);
+
+        self.phoneCallReviewDelegate.create(phoneCallReview)
+            .then( function(review:PhoneCallReview)
+            {
+                var query = {};
+                query[ApiConstants.PHONE_CALL_ID] = callId;
+
+                res.redirect(Utils.addQueryToUrl(Urls.reviewById(review.getId()), query));
+            })
+            .fail( function(error)
+            {
+                res.render('500',{error:error})
+            })
+
+    }
+
+    private review(req:express.Request, res:express.Response)
+    {
+        var self = this;
+        var callId:number = parseInt(req.query[ApiConstants.PHONE_CALL_ID]);
+        var reviewId:number = parseInt(req.params[ApiConstants.REVIEW_ID]);
+        var loggedInUserId = req[ApiConstants.USER].id;
+        var sessionData = new SessionData(req);
+
+        q.all([
+            self.phoneCallDelegate.get(callId, null, [PhoneCall.FK_PHONE_CALL_EXPERT, PhoneCall.FK_PHONE_CALL_CALLER]),
+            self.phoneCallReviewDelegate.get(reviewId)
+        ])
+            .then(
+            function callDetailsFetched(...args)
+            {
+                var call:PhoneCall = args[0][0];
+                var review = args[0][1];
+                var pageData = _.extend(sessionData.getData(), {
+                    call: call,
+                    review:review,
+                    reviewId:reviewId
+                });
+
+                if (loggedInUserId == call.getExpertUserId())
+                    res.render(CallFlowRoute.REVIEW_PAGE_FOR_EXPERT, pageData);
+                else if (loggedInUserId == call.getCallerUserId())
+                    res.render(CallFlowRoute.REVIEW_PAGE_FOR_CALLER, pageData);
+            })
+            .fail(
+            function (error)
+            {
+                res.render('500',{error:error})
+            })
     }
 }
 

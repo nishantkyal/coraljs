@@ -48,6 +48,9 @@ class Config
     static MAXIMUM_REATTEMPTS:string                    = 'maximum.reattempts';
     static MINIMUM_YEAR:string                          = 'minimum.year';
 
+    static CALL_REVIEW_EXPERT_QUESTION_COUNT:string     = 'call.review.expert.question.count';
+    static CALL_REVIEW_USER_QUESTION_COUNT:string       = 'call.review.user.question.count';
+
     static DEFAULT_NETWORK_ID:string                    = 'default_network_id';
 
     static TIMEZONE_REFRESH_INTERVAL_SECS:string        = 'timezone.refresh.interval';

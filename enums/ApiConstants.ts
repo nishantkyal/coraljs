@@ -23,6 +23,7 @@ class ApiConstants
     static EXPERTISE_ID:string                          = 'expertiseId';
     static SKILLS:string                                = 'skills';
     static REVIEW_ID:string                             = 'reviewId';
+    static REVIEW:string                                = 'review';
     static SKILL_ID:string                              = 'skillId';
     static INTEGRATION_ID:string                        = 'integrationId';
     static TRANSACTION_ID:string                        = 'transactionId';
@@ -75,6 +76,8 @@ class ApiConstants
     static EXPERT:string                                = 'expert';
     static PHONE_NUMBER:string                          = 'phoneNumber';
     static PHONE_CALL:string                            = 'phoneCall';
+    static PHONE_CALL_REVIEW:string                     = 'phoneCallReview';
+    static PHONE_CALL_REVIEW_ID:string                  = 'phoneCallReviewId';
     static SCHEDULE_RULE:string                         = 'scheduleRule';
     static SCHEDULE_EXCEPTION:string                    = 'scheduleException';
     static SMS:string                                   = 'sms';
