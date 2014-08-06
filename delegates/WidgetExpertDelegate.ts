@@ -34,7 +34,7 @@ class WidgetExpertDelegate
             .fail(
             function widgetExpertFetchFailed():any
             {
-                return self.userDelegate.get(userId);
+                return self.userDelegate.get(userId, null, [User.FK_USER_SKILL]);
             })
             .then(
             function expertFetched(user:User):any

@@ -97,6 +97,7 @@ class ApiConstants
     static PRICING:string                               = 'pricing';
     static TIMEZONE:string                              = 'timezone';
     static PROFILE_PICTURE:string                       = 'profile_picture';
+    static USER_NAME:string                             = 'user_name';
 
 }
 export = ApiConstants

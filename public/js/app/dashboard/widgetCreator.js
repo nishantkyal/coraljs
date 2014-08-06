@@ -10,6 +10,7 @@ function updateWidget()
         verb : $('select[name=verb] option:selected').text(),
         title : $('textarea[name=title]').val(),
         user_id : $('input[name=user_id]').val(),
+        user_name: $('input[name=user_name]:checked').length != 0,
         profile_picture : $('input[name=profile_picture]:checked').length != 0,
         timezone : $('input[name=timezone]:checked').length != 0,
         availability : $('input[name=availability]:checked').length != 0,

@@ -25,6 +25,7 @@ class WidgetApi
             var width:number = parseInt(req.query[ApiConstants.WIDTH]) || 300;
             var message:string = Utils.escapeHTML(req.query[ApiConstants.TITLE] || '');
 
+            var user_name:boolean = req.query[ApiConstants.USER_NAME] == "true";
             var profile_picture:boolean = req.query[ApiConstants.PROFILE_PICTURE] == "true";
             var timezone:boolean = req.query[ApiConstants.TIMEZONE] == "true";
             var availability:boolean = req.query[ApiConstants.AVAILIBILITY] == "true";
@@ -40,6 +41,7 @@ class WidgetApi
             // TODO: Compile Widget jade
 
             widgetDelegate.render(userId, width, message, theme, verb, {
+                user_name: user_name,
                 profile_picture: profile_picture,
                 timezone: timezone,
                 availability: availability,
