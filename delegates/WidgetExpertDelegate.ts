@@ -1,6 +1,7 @@
 import _                                                    = require('underscore');
 import q                                                    = require('q');
 import moment                                               = require('moment');
+import log4js                                               = require('log4js');
 import WidgetExpert                                         = require('../models/WidgetExpert');
 import User                                                 = require('../models/User');
 import Schedule                                             = require('../models/Schedule');
@@ -18,6 +19,7 @@ class WidgetExpertDelegate
     private userDelegate = new UserDelegate();
     private scheduleDelegate = new ScheduleDelegate();
     private pricingSchemeDelegate = new PricingSchemeDelegate();
+    private logger = log4js.getLogger(Utils.getClassName(this));
 
     get(userId:number):q.Promise<any>
     {
@@ -60,6 +62,11 @@ class WidgetExpertDelegate
                     widgetExpert.setPricingScheme(schemes[0]);
 
                 return widgetExpert;
+            })
+            .fail(
+            function handleFailure(error:Error)
+            {
+                self.logger.error('Error occurred while getting widget expert for user id: %s, error: %s', userId, error.message);
             });
     }
 
