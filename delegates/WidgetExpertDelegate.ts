@@ -19,6 +19,7 @@ class WidgetExpertDelegate
     private userDelegate = new UserDelegate();
     private scheduleDelegate = new ScheduleDelegate();
     private pricingSchemeDelegate = new PricingSchemeDelegate();
+    private timezoneDelegate = new TimezoneDelegate();
     private logger = log4js.getLogger(Utils.getClassName(this));
 
     get(userId:number):q.Promise<any>
@@ -50,13 +51,17 @@ class WidgetExpertDelegate
             .spread(
             function schedulesFetched(user:User, schedules:Schedule[], schemes:PricingScheme[])
             {
+                self.logger.debug('Schedules, pricing fetched for user id: %s', userId);
+
                 var widgetExpert = new WidgetExpert(user, schedules);
                 return [widgetExpert, schemes, self.widgetExpertCache.save(user, schedules)];
             })
             .spread(
             function widgetExpertCached(widgetExpert:WidgetExpert, schemes:PricingScheme[])
             {
-                var timezone = new TimezoneDelegate().get(widgetExpert.getTimezone());
+                self.logger.debug('Widget expert cached for user id: %s', userId);
+
+                var timezone = self.timezoneDelegate.get(widgetExpert.getTimezone());
                 widgetExpert.setTimezoneOffset(timezone.getGmtOffset());
                 if (!Utils.isNullOrEmpty(schemes))
                     widgetExpert.setPricingScheme(schemes[0]);

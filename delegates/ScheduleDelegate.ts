@@ -67,6 +67,7 @@ class ScheduleDelegate
             function handleFailure(error:Error)
             {
                 self.logger.error('Error occurred while getting schedules for used id: %s, error: %s', userId, error.message);
+                throw error;
             });
     }
 
