@@ -74,6 +74,7 @@ class BaseDaoDelegate
             function handleFailure(error:Error)
             {
                 self.logger.error('Error occurred while finding %s for criteria: %s, error: %s', self.dao.modelClass.TABLE_NAME, JSON.stringify(search), error.message);
+                throw error;
             });
     }
 
@@ -119,6 +120,7 @@ class BaseDaoDelegate
             function handleFailure(error:Error)
             {
                 self.logger.error('Error occurred while searching %s for criteria: %s, error: %s', self.dao.modelClass.TABLE_NAME, JSON.stringify(search), error.message);
+                throw error;
             });
     }
 

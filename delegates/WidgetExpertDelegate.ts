@@ -67,6 +67,7 @@ class WidgetExpertDelegate
             function handleFailure(error:Error)
             {
                 self.logger.error('Error occurred while getting widget expert for user id: %s, error: %s', userId, error.message);
+                throw error;
             });
     }
 
