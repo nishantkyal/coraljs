@@ -133,18 +133,17 @@ class AbstractModel
         var getterMethod:string = 'get' + srcPropertyNameCamelCase;
         var setterMethod:string = 'set' + srcPropertyNameCamelCase;
         var thisProto = this.__proto__;
-        var delegate = fk.referenced_table.DELEGATE;
 
         // Getter method
         thisProto[getterMethod] = function ():q.Promise<any>
         {
             var self = this;
 
-            if (this[srcPropertyName])
+            if (typeof this[srcPropertyName] != undefined)
                 return q.resolve(this[srcPropertyName]);
 
-            self.logger.debug('Lazy loading for find %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);
-            return delegate.find(Utils.createSimpleObject(fk.target_key, this[fk.src_key]))
+            self.logger.debug('Lazily Finding %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);
+            return fk.referenced_table.DELEGATE.find(Utils.createSimpleObject(fk.target_key, this[fk.src_key]))
                 .then(
                 function success(result)
                 {
@@ -182,18 +181,17 @@ class AbstractModel
         var getterMethod:string = 'get' + srcPropertyNameCamelCase;
         var setterMethod:string = 'set' + srcPropertyNameCamelCase;
         var thisProto = this.__proto__;
-        var delegate = fk.referenced_table.DELEGATE;
 
         // Getter method
         thisProto[getterMethod] = function ():Object
         {
             var self = this;
 
-            if (this[srcPropertyName])
+            if (typeof this[srcPropertyName] != undefined)
                 return q.resolve(this[srcPropertyName]);
 
-            self.logger.debug('Lazy loading %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);
-            return delegate.search(Utils.createSimpleObject(fk.target_key, this[fk.src_key]))
+            self.logger.debug('Lazily Searching %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);
+            return fk.referenced_table.DELEGATE.search(Utils.createSimpleObject(fk.target_key, this[fk.src_key]))
                 .then(
                 function success(result)
                 {
