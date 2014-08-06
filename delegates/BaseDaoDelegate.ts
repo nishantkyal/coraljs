@@ -98,6 +98,7 @@ class BaseDaoDelegate
 
                 var foreignKeyTasks = _.map(foreignKeys, function (key:ForeignKey)
                 {
+
                     self.logger.debug('Processing search foreign key for %s', key.getSourcePropertyName());
                     var delegate = key.referenced_table.DELEGATE;
                     return delegate.search(Utils.createSimpleObject(key.target_key, _.uniq(_.pluck(baseSearchResults, key.src_key))));

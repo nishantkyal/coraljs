@@ -1,3 +1,4 @@
+import log4js                                      = require('log4js');
 import q                                                = require('q');
 import _                                                = require('underscore');
 import Utils                                            = require('../common/Utils');
@@ -12,6 +13,7 @@ class AbstractModel
     static DELEGATE:BaseDaoDelegate;
     private static FOREIGN_KEYS:ForeignKey[] = [];
     private static _INITIALIZED:boolean = false;
+    private logger = log4js.getLogger(Utils.getClassName(this));
 
     constructor(data:Object = {})
     {
@@ -151,6 +153,12 @@ class AbstractModel
                 function resultSet()
                 {
                     return self[getterMethod].call(self);
+                })
+                .fail(
+                function handleFailure(error:Error)
+                {
+                    self.logger.debug('Lazy loading failed for find %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);
+                    throw error;
                 });
         };
 
@@ -193,6 +201,12 @@ class AbstractModel
                 function resultSet()
                 {
                     return self[getterMethod].call(self);
+                })
+                .fail(
+                function handleFailure(error:Error)
+                {
+                    self.logger.debug('Lazy loading failed for search %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);
+                    throw error;
                 });
         };
 
