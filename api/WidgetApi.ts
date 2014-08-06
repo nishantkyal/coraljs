@@ -21,8 +21,15 @@ class WidgetApi
         {
             var theme:string = req.query[ApiConstants.THEME] || 'light';
             var verb:string = req.query[ApiConstants.VERB];
-            var userId:number = parseInt(req.query[ApiConstants.USER_ID]);
+            var userId:number = parseInt(req.query['user_id']);
             var width:number = parseInt(req.query[ApiConstants.WIDTH]) || 300;
+            var message:string = Utils.escapeHTML(req.query[ApiConstants.TITLE] || '');
+
+            var profile_picture:boolean = req.query[ApiConstants.PROFILE_PICTURE] == "true";
+            var timezone:boolean = req.query[ApiConstants.TIMEZONE] == "true";
+            var availability:boolean = req.query[ApiConstants.AVAILIBILITY] == "true";
+            var pricing:boolean = req.query[ApiConstants.PRICING] == "true";
+            var skills:boolean = req.query[ApiConstants.SKILLS] == "true";
 
             // TODO: Handle caching of response sent by this endpoint
             // Since the url is fixed, response will get cached
@@ -32,7 +39,13 @@ class WidgetApi
             // TODO: Handle cross-domain goofiness
             // TODO: Compile Widget jade
 
-            widgetDelegate.render(userId, width, theme, verb)
+            widgetDelegate.render(userId, width, message, theme, verb, {
+                profile_picture: profile_picture,
+                timezone: timezone,
+                availability: availability,
+                pricing: pricing,
+                skills: skills
+            })
                 .then(
                 function widgetRendered(widgetHtml:string):any
                 {

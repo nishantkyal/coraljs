@@ -1,4 +1,5 @@
 include ../header
+include ./dashboardHeader
 title Widget Creator
 .navigation
 .matter
@@ -27,12 +28,32 @@ title Widget Creator
                                             option(value='336') 336
                                     h3 Expert Id
                                     .form-group
-                                        input.form-control(name='expertId', value=loggedInUser ? loggedInUser.id : null)
+                                        input.form-control(name='user_id', value=loggedInUser ? loggedInUser.id : null)
                                     h3 Verb
                                     .form-group
                                         select.form-control(name='verb')
                                             for verb in allowedVerbs
                                                 option= verb
+                                    h3 Title
+                                    .form-group
+                                        textarea.form-control(name='title')
+                                    h3 Options
+                                    .form-group
+                                        p
+                                            input(type='checkbox', name='profile_picture', checked=true)
+                                            | Profile picture
+                                        p
+                                            input(type='checkbox', name='timezone', checked=true)
+                                            | Timezone
+                                        p
+                                            input(type='checkbox', name='availability', checked=true)
+                                            | Availability
+                                        p
+                                            input(type='checkbox', name='pricing', checked=true)
+                                            | Pricing
+                                        p
+                                            input(type='checkbox', name='skills', checked=true)
+                                            | Skills
                         .col-md-5
                             .item
                                 .row
@@ -40,7 +61,7 @@ title Widget Creator
                             .item
                                 .row
                                     h3 1. Include this code once on your page (ideally just after opening <body> tag)
-                                    p.code &lt;script src=&quot;//searchntalk.com/widget.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+                                    p.code &lt;script src=&quot;//searchntalk.com/v1/widget.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
                             .item
                                 .row
                                     h3 2. Place this code wherever you want to display the expert widget

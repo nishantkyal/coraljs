@@ -222,3 +222,7 @@ select.btn {
     padding: 3px 0px 10px 10px;
     display: inline-block;
 }
+
+.form-group input[type=checkbox] {
+    margin-right: 5px;
+}

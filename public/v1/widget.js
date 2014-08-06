@@ -64,14 +64,10 @@
             for (var i = 0; i < widgetTags.length; i++)
             {
                 var widgetTag = widgetTags[i];
-                var widgetId = jQuery(widgetTag).data('id');
-                var widgetTheme = jQuery(widgetTag).data('theme') || '';
-                var widgetWidth = jQuery(widgetTag).data('width') || 300;
-                var widgetVerb = jQuery(widgetTag).data('verb');
-                var widgetUrl = '//searchntalk.com/widget?width=' + widgetWidth + '&userId=' + widgetId + '&theme=' + widgetTheme + '&verb=' + escape(widgetVerb);
 
-                if (widgetId)
-                    jQuery(widgetTag).append('<iframe scrolling="no" style="overflow: hidden, border: none;" frameBorder="0" class="snt-expert-iframe" src="' + widgetUrl + '></iframe>');
+                var queryStringObject = jQuery(widgetTag).data();
+                var widgetUrl = '//searchntalk.com/widget?' + decodeURIComponent($.param(queryStringObject));
+                jQuery(widgetTag).append('<iframe scrolling="no" style="overflow: hidden, border: none;" frameBorder="0" class="snt-expert-iframe" src="' + widgetUrl + '></iframe>');
             }
         });
     }
