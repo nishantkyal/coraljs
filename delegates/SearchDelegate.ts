@@ -63,7 +63,7 @@ class SearchDelegate
                             });
 
                     case ApiConstants.USER_SKILL:
-                        return expert.getSkill()
+                        return expert.getSkills()
                             .then(
                             function skillsFetched(skills:UserSkill[])
                             {

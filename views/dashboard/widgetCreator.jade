@@ -1,4 +1,5 @@
 include ../header
+include ./dashboardHeader
 title Widget Creator
 .navigation
 .matter
@@ -18,20 +19,44 @@ title Widget Creator
                                         select.form-control(name='theme')
                                             option(value='dark') Dark
                                             option(value='light') Light
-                                    h3 Size
+                                    h3 Width
                                     .form-group
-                                        select.form-control(name='size')
-                                            option(value='tiny') Tiny
-                                            option(value='small') Small
-                                            option(value='tall') Tall
+                                        select.form-control(name='width')
+                                            option(value='160') 160
+                                            option(value='300') 300
+                                            option(value='320') 320
+                                            option(value='336') 336
                                     h3 Expert Id
                                     .form-group
-                                        input.form-control(name='expertId', value=loggedInUser ? loggedInUser.id : null)
+                                        input.form-control(name='user_id', value=loggedInUser ? loggedInUser.id : null)
                                     h3 Verb
                                     .form-group
                                         select.form-control(name='verb')
                                             for verb in allowedVerbs
                                                 option= verb
+                                    h3 Title
+                                    .form-group
+                                        textarea.form-control(name='title')
+                                    h3 Options
+                                    .form-group
+                                        p
+                                            input(type='checkbox', name='user_name', checked=true)
+                                            | Expert's name
+                                        p
+                                            input(type='checkbox', name='profile_picture', checked=true)
+                                            | Profile picture
+                                        p
+                                            input(type='checkbox', name='timezone', checked=true)
+                                            | Timezone
+                                        p
+                                            input(type='checkbox', name='availability', checked=true)
+                                            | Availability
+                                        p
+                                            input(type='checkbox', name='pricing', checked=true)
+                                            | Pricing
+                                        p
+                                            input(type='checkbox', name='skills', checked=true)
+                                            | Skills
                         .col-md-5
                             .item
                                 .row
@@ -39,7 +64,7 @@ title Widget Creator
                             .item
                                 .row
                                     h3 1. Include this code once on your page (ideally just after opening <body> tag)
-                                    p.code &lt;script src=&quot;//searchntalk.com/js/embed.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+                                    p.code &lt;script src=&quot;//searchntalk.com/v1/widget.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
                             .item
                                 .row
                                     h3 2. Place this code wherever you want to display the expert widget
@@ -54,5 +79,5 @@ include ../footer
 script.
     var widgetBaseUrl = '!{Config.get(Config.DASHBOARD_URI)}';
     var loggedInUser = JSON.parse( '!{JSON.stringify(loggedInUser)}' );
+script(src='/lib/iframe-resizer/js/iframeResizer.min.js', type='text/javascript')
 script(src='/js/app/dashboard/widgetCreator.js')
-

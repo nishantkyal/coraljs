@@ -54,6 +54,7 @@ class BaseDaoDelegate
 
                 var foreignKeyTasks = _.map(foreignKeys, function (key:ForeignKey)
                 {
+                    self.logger.debug('Processing find foreign key for %s', key.getSourcePropertyName());
                     var delegate = key.referenced_table.DELEGATE;
                     return delegate.search(Utils.createSimpleObject(key.target_key, result.get(key.src_key)));
                 });
@@ -69,6 +70,12 @@ class BaseDaoDelegate
                     result.set(foreignKeys[index].getSourcePropertyName(), resultSet);
                 });
                 return result;
+            })
+            .fail(
+            function handleFailure(error:Error)
+            {
+                self.logger.error('Error occurred while finding %s for criteria: %s, error: %s', self.dao.modelClass.TABLE_NAME, JSON.stringify(search), error.message);
+                throw error;
             });
     }
 
@@ -91,6 +98,8 @@ class BaseDaoDelegate
 
                 var foreignKeyTasks = _.map(foreignKeys, function (key:ForeignKey)
                 {
+
+                    self.logger.debug('Processing search foreign key for %s', key.getSourcePropertyName());
                     var delegate = key.referenced_table.DELEGATE;
                     return delegate.search(Utils.createSimpleObject(key.target_key, _.uniq(_.pluck(baseSearchResults, key.src_key))));
                 });
@@ -109,6 +118,12 @@ class BaseDaoDelegate
                     })
                 });
                 return baseSearchResults;
+            })
+            .fail(
+            function handleFailure(error:Error)
+            {
+                self.logger.error('Error occurred while searching %s for criteria: %s, error: %s', self.dao.modelClass.TABLE_NAME, JSON.stringify(search), error.message);
+                throw error;
             });
     }
 

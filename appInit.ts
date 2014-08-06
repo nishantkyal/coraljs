@@ -84,7 +84,7 @@ class appInit
                 // This middleware applies to all urls except
                 // 1. APIs (which start with "/rest")
                 // 2. Static content (which start with "/js" or "/css" or "/img")
-                var excludeRegex:RegExp = /^\/(rest|bower_dependencies|css|js|images|img|fonts|static)/;
+                var excludeRegex:RegExp = /^\/(rest|lib|css|js|images|img|fonts|static)/;
 
                 if (Utils.isNullOrEmpty(req.path.match(excludeRegex)))
                 {

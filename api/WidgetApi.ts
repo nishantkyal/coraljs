@@ -19,30 +19,41 @@ class WidgetApi
          */
         app.get(ApiUrlDelegate.widget(), function (req:express.Request, res:express.Response)
         {
-            var self = this;
             var theme:string = req.query[ApiConstants.THEME] || 'light';
-            var size:string = req.query[ApiConstants.SIZE] || 'small';
             var verb:string = req.query[ApiConstants.VERB];
-            var userId:number = parseInt(req.query[ApiConstants.USER_ID]);
+            var userId:number = parseInt(req.query['user_id']);
+            var width:number = parseInt(req.query[ApiConstants.WIDTH]) || 300;
+            var message:string = Utils.escapeHTML(req.query[ApiConstants.TITLE] || '');
 
-            // TODO: Handle caching of response sent by this endpoint
+            var user_name:boolean = req.query[ApiConstants.USER_NAME] == "true";
+            var profile_picture:boolean = req.query[ApiConstants.PROFILE_PICTURE] == "true";
+            var timezone:boolean = req.query[ApiConstants.TIMEZONE] == "true";
+            var availability:boolean = req.query[ApiConstants.AVAILIBILITY] == "true";
+            var pricing:boolean = req.query[ApiConstants.PRICING] == "true";
+            var skills:boolean = req.query[ApiConstants.SKILLS] == "true";
+
             // Since the url is fixed, response will get cached
             // Which is fine for certain cases (e.g. my own call-me button)
-            // TODO: Handle customizable widget styling along with default styles
             // TODO: Handle widget versions
             // TODO: Handle cross-domain goofiness
-            // TODO: Compile Widget jade
 
-            widgetDelegate.render(userId, size, theme, verb)
+            widgetDelegate.render(userId, width, message, theme, verb, {
+                user_name: user_name,
+                profile_picture: profile_picture,
+                timezone: timezone,
+                availability: availability,
+                pricing: pricing,
+                skills: skills
+            })
                 .then(
-                function widgetRendered(widgetHtml:string)
+                function widgetRendered(widgetHtml:string):any
                 {
                     res.send(widgetHtml);
                 },
                 function widgetRenderError(error)
                 {
                     //self.logger.debug('Widget rendering failed. Error: %s', JSON.stringify(error));
-                    res.send(error || 'An error occured in rendering Widget.').status(500);
+                    res.send(500, error.message || 'An error occured in rendering Widget.');
                 });
         });
     }

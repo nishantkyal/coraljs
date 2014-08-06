@@ -325,7 +325,6 @@ body {
   font-size: 14px;
   line-height: 18px;
   min-height: 100%;
-  background: #000000;
 }
 * {
   -ms-box-sizing: border-box;
@@ -395,8 +394,8 @@ body {
 .widget .avatar {
   position: relative;
   overflow: hidden;
-  width: 150px;
-  height: 150px;
+  width: 110px;
+  height: 110px;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
@@ -410,8 +409,8 @@ body {
   width: 100%;
   height: 100%;
   z-index: 9996;
-  font-size: 150px;
-  line-height: 150px;
+  font-size: 110px;
+  line-height: 110px;
 }
 .widget .avatar .placeholder::before {
   color: rgba(0, 0, 0, 0.1);
@@ -426,8 +425,8 @@ body {
   width: 100%;
   height: 100%;
   z-index: 9996;
-  font-size: 150px;
-  line-height: 150px;
+  font-size: 110px;
+  line-height: 110px;
   font-family: 'snticons';
   content: '\e008';
 }
@@ -471,8 +470,8 @@ body {
   height: 4px;
 }
 .widget .avatar.avatar-big {
-  width: 150px;
-  height: 150px;
+  width: 110px;
+  height: 110px;
 }
 .widget .username {
   padding: 5px;
@@ -508,7 +507,7 @@ body {
   color: #adadad;
 }
 .widget .availability {
-  padding: 20px 0px;
+  padding: 5px 0px 0px;
   text-align: center;
   font-size: 12px;
   line-height: 15px;

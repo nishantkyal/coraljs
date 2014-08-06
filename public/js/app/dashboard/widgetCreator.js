@@ -1,27 +1,35 @@
 var expertId = loggedInUser ? loggedInUser.id : null;
 
-var WIDGET_SIZES = {
-    'tiny': {width: 160, height: 115},
-    'small': {width: 160, height: 251},
-    'tall': {width: 160, height: 392}
-};
+$('input,select,textarea').on('change', updateWidget);
 
-$('input,select').on('change', updateWidget);
+function updateWidget() 
+{
+    var queryStringObject = {
+        theme : $('select[name=theme]').val(),
+        width : $('select[name=width]').val(),
+        verb : $('select[name=verb] option:selected').text(),
+        title : $('textarea[name=title]').val(),
+        user_id : $('input[name=user_id]').val(),
+        user_name: $('input[name=user_name]:checked').length != 0,
+        profile_picture : $('input[name=profile_picture]:checked').length != 0,
+        timezone : $('input[name=timezone]:checked').length != 0,
+        availability : $('input[name=availability]:checked').length != 0,
+        pricing : $('input[name=pricing]:checked').length != 0,
+        skills : $('input[name=skills]:checked').length != 0
+    };
 
-function updateWidget() {
-    var theme = $('select[name="theme"]').val();
-    var size = $('select[name="size"]').val();
-    var verb = $('select[name="verb"] option:selected').text();
-    expertId = $('input[name="expertId"]').val();
+    var widgetUrl = widgetBaseUrl + '/widget?' + decodeURIComponent($.param(queryStringObject));
+    var iframeCode = '<iframe scrolling="no" style="overflow: hidden" style="border: none;" class="snt-expert-iframe" src=' + widgetUrl  + '></iframe>';
+    var widgetEmbedCode = '<div class="snt-expert" ' + _.map(_.keys(queryStringObject), function(key) { return "data-" + key + "=\"" + queryStringObject[key] + "\""}).join(" ") + '></div>';
 
-    var widgetUrl = widgetBaseUrl + '/widget?size=' + size + '&theme=' + theme + '&userId=' + expertId + '&verb=' + escape(verb);
-    var iframeCode = '<iframe scrolling="no" style="overflow: hidden" style="border: none;" class="snt-expert-iframe" src=' + widgetUrl  + ' width=' + WIDGET_SIZES[size].width +
-        ' height=' + WIDGET_SIZES[size].height  + '></iframe>';
-
-    $('#widgetEmbedCode').text('<div class="snt-expert" data-id="' + expertId + '" data-theme="' + theme + '" data-size="' + size + '" data-verb="' + verb + '"></div>');
+    $('#widgetEmbedCode').text(widgetEmbedCode);
     $('#iframeContent').html(iframeCode);
+    $('#iframeContent iframe').iFrameResize({
+        sizeWidth: true
+    });
 }
 $(document).ready(function() {
     if (expertId)
         updateWidget();
 });
+

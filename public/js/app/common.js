@@ -2,7 +2,6 @@ function populate(form, data) {
     $.each(data, function(key, value){
         $('[name=' + key + ']', form).val(value);
     });
-    $(form).bootstrapValidator('validate');
 }
 
 function getFormData(form)

@@ -90,11 +90,17 @@ class ApiConstants
 
     // Query Constants
     static MODE:string                                  = 'mode';
+    static WIDTH:string                                 = 'width';
+    static TITLE:string                                 = 'title';
     static PUBLIC_MODE:string                           = 'public';
     static OFFSET:string                                = 'offset';
     static ZONE:string                                  = 'zone';
     static IMAGE_SIZE:string                            = 'imageSize';
     static CREATE_INTEGRATION:string                    = 'createIntegration';
+    static PRICING:string                               = 'pricing';
+    static TIMEZONE:string                              = 'timezone';
+    static PROFILE_PICTURE:string                       = 'profile_picture';
+    static USER_NAME:string                             = 'user_name';
 
 }
 export = ApiConstants

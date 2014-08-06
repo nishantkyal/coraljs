@@ -24,7 +24,8 @@ class WidgetDelegate
         'Talk to an Expert',
         'Talk to Author',
         'Engage',
-        'Get Advice'
+        'Get Advice',
+        'Call now'
     ]
 
     /* Static constructor workaround */
@@ -193,7 +194,7 @@ class WidgetDelegate
      return null;
      }*/
 
-    render(userId:number, size:string = 'small', theme:string = '', verb:string = WidgetDelegate.ALLOWED_VERBS[0]):q.Promise<string>
+    render(userId:number, width:number, message:string, theme:string = '', verb:string = WidgetDelegate.ALLOWED_VERBS[0], options:Object = {}):q.Promise<string>
     {
         if (WidgetDelegate.ALLOWED_VERBS.indexOf(verb) == -1)
             verb = WidgetDelegate.ALLOWED_VERBS[0];
@@ -204,9 +205,9 @@ class WidgetDelegate
             .then(
             function widgetExpertFetched(widgetExpert:WidgetExpert[])
             {
-                var widgetBaseHtml = WidgetDelegate.widgetTemplateCache[size.toUpperCase()+'_WIDGET'];
+                var widgetBaseHtml = WidgetDelegate.widgetTemplateCache['WIDGET'];
                 var widgetHtmlWithExpertData = self.renderWidgetExpertData(widgetBaseHtml, widgetExpert)
-                var widgetHtmlWithSettingsAndExpertData = self.renderWidgetSettings(widgetHtmlWithExpertData, {theme: theme, verb: verb});
+                var widgetHtmlWithSettingsAndExpertData = self.renderWidgetSettings(widgetHtmlWithExpertData, _.extend({theme: theme, verb: verb, width: width, message: message}, options));
                 return widgetHtmlWithSettingsAndExpertData;
             });
     }
