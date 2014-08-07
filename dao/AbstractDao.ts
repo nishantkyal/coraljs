@@ -266,7 +266,7 @@ class AbstractDao
             .fail(
             function deleteFailed(error:Error)
             {
-                self.logger.error('DELETE failed for table: %s, criteria: %s, error: %s', self.tableName, criteria, JSON.stringify(error));
+                self.logger.error('DELETE failed for table: %s, criteria: %s, error: %s', self.tableName, JSON.stringify(criteria), error.message);
                 throw(error);
             });
     }

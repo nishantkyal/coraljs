@@ -328,20 +328,17 @@ class DashboardRoute
             .then(
             function profileFetched(userProfile:UserProfile)
             {
-                var profileInfoTasks = [self.userDelegate.get(userId, null, [User.FK_USER_SKILL, User.FK_USER_EDUCATION, User.FK_USER_EMPLOYMENT])];
-
-                if (!Utils.isNullOrEmpty(userProfile) && userProfile.getId())
-                    profileInfoTasks = profileInfoTasks.concat([
-                        self.expertiseDelegate.search(Utils.createSimpleObject(Expertise.COL_USER_ID, userId), null, [Expertise.FK_EXPERTISE_SKILL])
-                    ]);
-
+                var profileInfoTasks = [
+                    self.userDelegate.get(userId, null, [User.FK_USER_SKILL, User.FK_USER_EDUCATION, User.FK_USER_EMPLOYMENT]),
+                    self.expertiseDelegate.search(Utils.createSimpleObject(Expertise.COL_USER_ID, userId), null, [Expertise.FK_EXPERTISE_SKILL])
+                ];
                 return [userProfile, q.all(profileInfoTasks)];
             })
             .spread(
             function userDetailsFetched(userProfile, ...args)
             {
                 var user = args[0][0];
-                var expertise = args[0][4] || [];
+                var expertise = args[0][1] || [];
 
                 var isEditable = loggedInUser ? loggedInUser.getId() == user.getId() : false;
 
