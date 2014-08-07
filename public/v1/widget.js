@@ -4,7 +4,7 @@
     var jQuery;
     var jqueryPath = "//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js";
     var jqueryVersion = "1.8.3";
-    var iframeResizerPath = "//searchntalk.com/lib/iframe-resizer/js/iframeResizer.contentWindow.min.js";
+    var iframeResizerPath = "//searchntalk.com/lib/iframe-resizer/js/iframeResizer.min.js";
     var iframeResizerVersion = "2.5.2";
 
     /******** Get reference to self (scriptTag) *********/
@@ -68,6 +68,11 @@
                 var queryStringObject = jQuery(widgetTag).data();
                 var widgetUrl = '//searchntalk.com/widget?' + decodeURIComponent($.param(queryStringObject));
                 jQuery(widgetTag).append('<iframe scrolling="no" style="overflow: hidden, border: none;" frameBorder="0" class="snt-expert-iframe" src="' + widgetUrl + '"></iframe>');
+
+                jQuery('iframe', widgetTag).iFrameResize({
+                    sizeWidth: true,
+                    checkOrigin: false
+                });
             }
         });
     }

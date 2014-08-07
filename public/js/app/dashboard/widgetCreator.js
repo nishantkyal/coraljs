@@ -25,7 +25,8 @@ function updateWidget()
     $('#widgetEmbedCode').text(widgetEmbedCode);
     $('#iframeContent').html(iframeCode);
     $('#iframeContent iframe').iFrameResize({
-        sizeWidth: true
+        sizeWidth: true,
+        checkOrigin: false
     });
 }
 $(document).ready(function() {
