@@ -67,7 +67,7 @@
 
                 var queryStringObject = jQuery(widgetTag).data();
                 var widgetUrl = '//searchntalk.com/widget?' + decodeURIComponent($.param(queryStringObject));
-                jQuery(widgetTag).append('<iframe scrolling="no" style="overflow: hidden, border: none;" frameBorder="0" class="snt-expert-iframe" src="' + widgetUrl + '></iframe>');
+                jQuery(widgetTag).append('<iframe scrolling="no" style="overflow: hidden, border: none;" frameBorder="0" class="snt-expert-iframe" src="' + widgetUrl + '"></iframe>');
             }
         });
     }
