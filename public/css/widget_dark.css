@@ -349,7 +349,7 @@ body {
   color: #b20000;
 }
 .widget {
-  width: 160px;
+  width: 100%;
   padding: 4px;
   border: 1px solid #525252;
   background: #3d3d3d;
