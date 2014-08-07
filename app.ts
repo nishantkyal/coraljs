@@ -56,8 +56,8 @@ if (Config.get(Config.ENABLE_HTTPS))
     appInit.initialise(secureApp);
 
     var credentials = {
-        key: fs.readFileSync(path.join(__dirname, Config.get(Config.SSL_KEY))),
-        cert: fs.readFileSync(path.join(__dirname, Config.get(Config.SSL_CERT)))
+        key: fs.readFileSync(Config.get(Config.SSL_KEY)),
+        cert: fs.readFileSync(Config.get(Config.SSL_CERT))
     };
 
     https.createServer(credentials, secureApp).listen(Config.get(Config.DASHBOARD_HTTPS_PORT), serverStartupAction);
