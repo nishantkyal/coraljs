@@ -13,6 +13,7 @@ class AbstractModel
     static DELEGATE:BaseDaoDelegate;
     private static FOREIGN_KEYS:ForeignKey[] = [];
     private static _INITIALIZED:boolean = false;
+    private logger = log4js.getLogger(Utils.getClassName(this));
 
     constructor(data:Object = {})
     {
@@ -141,7 +142,7 @@ class AbstractModel
             if (typeof this[srcPropertyName] != undefined)
                 return q.resolve(this[srcPropertyName]);
 
-            log4js.getLogger(Utils.getClassName(self)).debug('Lazily Finding %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);
+            self.logger.debug('Lazily Finding %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);
             return fk.referenced_table.DELEGATE.find(Utils.createSimpleObject(fk.target_key, this[fk.src_key]))
                 .then(
                 function success(result)
@@ -156,7 +157,7 @@ class AbstractModel
                 .fail(
                 function handleFailure(error:Error)
                 {
-                    log4js.getLogger(Utils.getClassName(self)).debug('Lazy loading failed for find %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);
+                    self.logger.debug('Lazy loading failed for find %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);
                     throw error;
                 });
         };
@@ -189,7 +190,7 @@ class AbstractModel
             if (typeof this[srcPropertyName] != undefined)
                 return q.resolve(this[srcPropertyName]);
 
-            log4js.getLogger(Utils.getClassName(self)).debug('Lazily Searching %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);
+            self.logger.debug('Lazily Searching %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);
             return fk.referenced_table.DELEGATE.search(Utils.createSimpleObject(fk.target_key, this[fk.src_key]))
                 .then(
                 function success(result)
@@ -204,7 +205,7 @@ class AbstractModel
                 .fail(
                 function handleFailure(error:Error)
                 {
-                    log4js.getLogger(Utils.getClassName(self)).debug('Lazy loading failed for search %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);
+                    self.logger.debug('Lazy loading failed for search %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);
                     throw error;
                 });
         };

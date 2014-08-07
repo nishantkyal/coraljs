@@ -49,6 +49,8 @@ class AbstractDao
 
         _.each(dataAsArray, function(row)
         {
+            row = _.pick(row, self.modelClass['COLUMNS']);
+
             // 1. Remove fields with undefined values
             // 2. Check if it matches the existing list of fields being inserted
             // 3. If matches, create query string and values array
@@ -205,6 +207,8 @@ class AbstractDao
         if (Utils.getObjectType(criteria) == 'Number')
             criteria = {id: criteria};
 
+        newValues = _.pick(newValues, self.modelClass['COLUMNS']);
+
         // Remove fields with null values
         _.each(criteria, function (val, key) { if (val == undefined) delete criteria[key]; });
         _.each(newValues, function (val, key) { if (val == undefined) delete newValues[key]; });
@@ -270,6 +274,9 @@ class AbstractDao
     /** Helper method to convert query objects to SQL fragments **/
     public generateWhereStatements(criteria:Object):{where: string[]; values: any[]}
     {
+        var self = this;
+        criteria = _.pick(criteria, self.modelClass['COLUMNS']);
+
         var whereStatements = [], values = [];
         for (var key in criteria)
         {
