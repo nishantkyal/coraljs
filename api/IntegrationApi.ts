@@ -1,5 +1,6 @@
 import q                                            = require('q');
 import fs                                           = require('fs');
+import path                                         = require('path');
 import express                                      = require('express');
 import ApiConstants                                 = require('../enums/ApiConstants');
 import AuthenticationDelegate                       = require('../delegates/AuthenticationDelegate');
@@ -170,7 +171,7 @@ class IntegrationApi
             if (fs.existsSync(imagePath))
                 res.sendfile(imagePath);
             else
-                res.sendfile('public/images/1x1.png');
+                res.sendfile(path.resolve(__dirname, '../public/images/1x1.png'));
         });
 
         app.post(ApiUrlDelegate.integrationLogo(), AuthenticationDelegate.checkLogin(), express.bodyParser({uploadDir: Config.get(Config.LOGO_PATH)}), function (req:express.Request, res:express.Response)

@@ -1,5 +1,6 @@
 import q                                    = require('q');
 import fs                                   = require('fs');
+import path                                 = require('path');
 import express                              = require('express');
 import _                                    = require('underscore');
 import ApiConstants                         = require('../enums/ApiConstants');
@@ -123,7 +124,7 @@ class UserApi
             if (fs.existsSync(imagePath))
                 res.sendfile(imagePath);
             else
-                res.sendfile('public/images/1x1.png');
+                res.sendfile(path.resolve(__dirname, '../public/images/1x1.png'));
         });
 
     }
