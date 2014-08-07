@@ -11,8 +11,11 @@ for expertise in userExpertise
                 if expertise.session_duration
                     .badge.badge-session.session-info
                         h2 Session
-                        h1= expertise.session_duration
-                            | &nbsp;mins.
+                        h1
+                            | #{formatMoney(expertise.session_price, expertise.session_price_unit)}
+                            | &nbsp;for&nbsp;
+                            | #{expertise.session_duration}
+                            | &nbsp;mins
                 .clearer
             .meta.meta-keywords
                 h5 Skills/Keywords
@@ -56,10 +59,12 @@ if isEditable
                             .form-group
                                 .row
                                     .col-md-2
-                                        input.form-control(type='text', name='session_pricing', placeholder='0 = Free')
+                                        input.form-control(type='text', name='session_price', placeholder='0 = Free')
                                     .col-md-2
                                         select.form-control(name='session_price_unit')
-                                            option $
+                                            option(value='1') Rs.
+                                            option(value='2') $
+                                            option(value='3') Points
                                     .col-md-1 for
                                     .col-md-3
                                         .input-group

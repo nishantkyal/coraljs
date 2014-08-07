@@ -309,9 +309,9 @@ $('#expertise .edit-card form').bootstrapValidator({
             contentType: 'application/json',
             data       : JSON.stringify({
                 expertise: {
-                    session_duration   : $('#expertise .edit-card form input[name=session_duration]').val(),
-                    session_price      : $('#expertise .edit-card form input[name=session_price]').val(),
-                    session_price_unit : $('#expertise .edit-card form input[name=session_price_unit]').val(),
+                    session_duration   : parseInt($('#expertise .edit-card form input[name=session_duration]').val()),
+                    session_price      : parseFloat($('#expertise .edit-card form input[name=session_price]').val()),
+                    session_price_unit : $('#expertise .edit-card form select[name=session_price_unit]').val(),
                     title              : $('#expertise .edit-card form input[name=title]').val(),
                     description        : $('#expertise .edit-card form textarea[name=description]').val(),
                     years_of_experience: $('#expertise .edit-card form input[name=years_of_experience]').val()
@@ -378,6 +378,7 @@ $('.deleteExpertiseBtn').click(function()
 
 $('#sessionToggle input').change(function()
 {
-    $('#expertiseDetails #pricing').toggle($('#sessionToggle input[name=pricing_scheme_id]:checked').val() != '0');
-    $('#expertise .edit-card form').data('bootstrapValidator').validate();
+    $('#expertise .edit-card form #pricing').toggle($(this).val() != '0');
+    $('#expertise .edit-card form').data('bootstrapValidator').revalidateField('session_price');
+    $('#expertise .edit-card form').data('bootstrapValidator').revalidateField('session_duration');
 });
