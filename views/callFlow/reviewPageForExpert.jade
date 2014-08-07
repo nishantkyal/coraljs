@@ -1,0 +1,64 @@
+include ../header
+-var reviewString = review ? (review.review ? review.review.toString() : '') : '';
+title Call Review
+.matter
+    .container
+        .row
+            .col-md-3
+                .row
+                    .call-profile
+                        h1
+                            | Call Details
+                        .meta
+                            h5 Call Id
+                            p= call.id
+                        .meta
+                            h5 Call Agenda
+                            p= call.agenda
+                        .meta
+                            h5 Duration
+                            p= call.duration
+                                | &nbsp; mins.
+            .col-md-9
+                .call-card
+                    h3 Call Feedback
+                    br
+                    form#review(action=ApiUrlDelegate.phoneCallReviewById(reviewId), method='post')
+                        h3 Lorem ipsum dolor sit amet, aliquet ut vel tincidunt nibh ac lorem. Magna diam dolor iaculis vestibulum ?
+                        div
+                            input(type='radio', name='1', value='1',checked=(reviewString[0] == '1'))
+                            normal 1
+                            input(type='radio', name='1', value='2',checked=(reviewString[0] == '2'))
+                            normal 2
+                            input(type='radio', name='1', value='3',checked=(reviewString[0] == '3'))
+                            normal 3
+                            input(type='radio', name='1', value='4',checked=(reviewString[0] == '4'))
+                            normal 4
+                            input(type='radio', name='1', value='5',checked=(reviewString[0] == '5'))
+                            normal 5
+                        br
+                        h3 Lorem ipsum dolor sit amet, aliquet ut vel tincidunt nibh ac lorem. Magna diam dolor iaculis vestibulum ?
+                        div
+                            input(type='radio', name='2', value='1',checked=(reviewString[1] == '1'))
+                            normal 1
+                            input(type='radio', name='2', value='2',checked=(reviewString[1] == '2'))
+                            normal 2
+                            input(type='radio', name='2', value='3',checked=(reviewString[1] == '3'))
+                            normal 3
+                            input(type='radio', name='2', value='4',checked=(reviewString[1] == '4'))
+                            normal 4
+                            input(type='radio', name='2', value='5',checked=(reviewString[1] == '5'))
+                            normal 5
+                        br
+                        h3 Comments
+                        div
+                            textarea#comment( rows ='3', cols = '90')=review.comment
+                        br
+                        .clearer
+                        div.links-editing
+                            p.edit-schedules
+                                input.btn.btn-primary(type='submit', value='Save')
+    include ../footer
+    script.
+        var reviewId = '!{review.id}';
+    script(src='/js/app/callFlow/review.js')

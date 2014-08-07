@@ -896,4 +896,36 @@
     <changeSet author="Ankit (generated)" id="1406879761297-2">
         <addPrimaryKey columnNames="id" constraintName="PRIMARY" tableName="stats"/>
     </changeSet>
+    <changeSet author="Ankit (generated)" id="1407242037461-1">
+        <createTable tableName="phone_call_review">
+            <column name="id" type="INT(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="call_id" type="INT(10)"/>
+            <column name="review" type="INT(10)"/>
+            <column name="comment" type="VARCHAR(200)"/>
+            <column name="created" type="BIGINT(19)"/>
+            <column name="updated" type="BIGINT(19)"/>
+            <column name="deleted" type="BIGINT(19)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1407242037461-2">
+        <addColumn tableName="user_phone">
+            <column name="verification_code" type="INT(10)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1407242037461-3">
+        <addPrimaryKey columnNames="id" constraintName="PRIMARY" tableName="phone_call_review"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1407242037461-4">
+        <addForeignKeyConstraint baseColumnNames="call_id" baseTableName="phone_call_review" constraintName="fk_call_review_callId" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="phone_call"/>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1407308989258-1">
+        <addColumn tableName="phone_call_review">
+            <column name="user_id" type="INT(10)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Ankit (generated)" id="1407308989258-2">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="phone_call_review" constraintName="fk_call_review_userIf" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="user"/>
+    </changeSet>
 </databaseChangeLog>

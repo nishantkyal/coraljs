@@ -7,6 +7,7 @@ import IntegrationOwnerApi                              = require('./Integration
 import PaymentApi                                       = require('./PaymentApi')
 import PayoutDetailApi                                  = require('./PayoutDetailApi');
 import PhoneCallApi                                     = require('./PhoneCallApi');
+import PhoneCallReviewApi                               = require('./PhoneCallReviewApi');
 import PricingSchemeApi                                 = require('./PricingSchemeApi');
 import ScheduledTaskApi                                 = require('./ScheduledTaskApi')
 import UserPhoneApi                                     = require('./UserPhoneApi');
@@ -36,6 +37,7 @@ function init(app)
     new PayoutDetailApi(app);
     new PricingSchemeApi(app);
     new PhoneCallApi(app);
+    new PhoneCallReviewApi(app);
     new ScheduledTaskApi(app);
     new UserPhoneApi(app);
     new TokenApi(app);

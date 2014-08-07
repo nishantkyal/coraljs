@@ -58,6 +58,10 @@ class ApiUrlDelegate
     static phoneCallById(callId?:number):string { return this.get('/rest/call/:callId(\\d+)', {callId: callId}); }
     static phoneCallScheduling(callId?:number):string { return this.get('/rest/call/:callId(\\d+)/scheduling', {callId: callId}); }
 
+    /* URL patterns for phone call reviews */
+    static phoneCallReview():string { return this.get('/rest/call/review'); }
+    static phoneCallReviewById(reviewId?:number):string { return this.get('/rest/call/review/:reviewId(\\d+)', {reviewId: reviewId}); }
+
     /* URL patterns for Scheduled Tasks */
     static scheduleTask():string { return this.get('/rest/scheduledTask')}
 

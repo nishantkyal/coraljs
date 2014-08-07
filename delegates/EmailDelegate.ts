@@ -49,9 +49,11 @@ class EmailDelegate
     private static EMAIL_EXPERT_SCHEDULING:string = 'EMAIL_EXPERT_SCHEDULING';
     private static EMAIL_EXPERT_SCHEDULED:string = 'EMAIL_EXPERT_SCHEDULED';
     private static EMAIL_EXPERT_CALL_REMINDER:string = 'EMAIL_EXPERT_CALL_REMINDER';
+    private static EMAIL_EXPERT_CALL_COMPLETE:string = 'EMAIL_EXPERT_CALL_COMPLETE';
     private static EMAIL_NEW_SLOTS_TO_EXPERT:string = 'EMAIL_NEW_SLOTS_TO_EXPERT';
     private static EMAIL_ACCOUNT_VERIFICATION:string = 'EMAIL_ACCOUNT_VERIFICATION';
     private static EMAIL_USER_CALL_REMINDER:string = 'EMAIL_USER_CALL_REMINDER';
+    private static EMAIL_USER_CALL_COMPLETE:string = 'EMAIL_USER_CALL_COMPLETE';
     private static EMAIL_USER_SCHEDULED:string = 'EMAIL_USER_SCHEDULED';
     private static EMAIL_USER_AGENDA_FAIL:string = 'EMAIL_USER_AGENDA_FAIL';
     private static EMAIL_SUGGESTED_TIME_TO_CALLER:string = 'EMAIL_SUGGESTED_TIME_TO_CALLER';
@@ -480,8 +482,6 @@ class EmailDelegate
                 return self.sendCallReminderEmail(fetchedCall);
             });
 
-        var integration = new IntegrationDelegate().getSync(call.getIntegrationMember().getIntegrationId());
-
         return q.all([
             call.getExpertUser(),
             call.getUser()
@@ -493,11 +493,10 @@ class EmailDelegate
                 var user:User = args[0][1];
 
                 var emailData = {
-                    integration: integration,
                     call: call,
                     appointment: call.getStartTime(),
-                    userGmtOffset: self.timezoneDelegate.get(call.getUser().getTimezone())['gmt_offset'] * 1000,
-                    expertGmtOffset: self.timezoneDelegate.get(call.getExpertUser().getTimezone())['gmt_offset'] * 1000
+                    userGmtOffset: self.timezoneDelegate.get(user.getTimezone())['gmt_offset'] * 1000,
+                    expertGmtOffset: self.timezoneDelegate.get(expertUser.getTimezone())['gmt_offset'] * 1000
                 };
 
                 return q.all([
@@ -507,6 +506,38 @@ class EmailDelegate
             });
     }
 
+    sendCallCompleteEmail(call:number):q.Promise<any>;
+    sendCallCompleteEmail(call:PhoneCall):q.Promise<any>;
+    sendCallCompleteEmail(call:any):q.Promise<any>
+    {
+        var self = this;
+
+        if (Utils.getObjectType(call) == 'Number')
+            return self.phoneCallDelegate.get(call, null, [PhoneCall.FK_PHONE_CALL_EXPERT, PhoneCall.FK_PHONE_CALL_CALLER]).then(function (fetchedCall:PhoneCall)
+            {
+                return self.sendCallCompleteEmail(fetchedCall);
+            });
+
+        return q.all([
+                call.getExpertUser(),
+                call.getUser()
+            ])
+            .then(
+            function callDetailsFetched(...args)
+            {
+                var expertUser:User = args[0][0];
+                var user:User = args[0][1];
+
+                var emailData = {
+                    call: call,
+                };
+
+                return q.all([
+                    self.composeAndSend(EmailDelegate.EMAIL_USER_CALL_COMPLETE, user.getEmail(), emailData),
+                    self.composeAndSend(EmailDelegate.EMAIL_EXPERT_CALL_COMPLETE, expertUser.getEmail(), emailData)
+                ]);
+            });
+    }
     sendCallFailureEmail(call:number):q.Promise<any>;
     sendCallFailureEmail(call:PhoneCall):q.Promise<any>;
     sendCallFailureEmail(call:any):q.Promise<any>
