@@ -257,7 +257,16 @@ class CallFlowRoute
         phoneCallReview.setCallId(callId);
         phoneCallReview.setReview(review);
 
-        self.phoneCallReviewDelegate.create(phoneCallReview)
+        self.phoneCallReviewDelegate.find(Utils.createSimpleObject(PhoneCallReview.COL_CALL_ID,callId,PhoneCallReview.COL_USER_ID,loggedInUserId))
+            .then(
+            function reviewExists(review:PhoneCallReview)
+            {
+                return q.resolve(review);
+            },
+            function reviewNotExists()
+            {
+                return self.phoneCallReviewDelegate.create(phoneCallReview);
+            })
             .then( function(review:PhoneCallReview)
             {
                 var query = {};
@@ -269,7 +278,6 @@ class CallFlowRoute
             {
                 res.render('500',{error:error})
             })
-
     }
 
     private review(req:express.Request, res:express.Response)
