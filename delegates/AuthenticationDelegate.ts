@@ -347,7 +347,7 @@ class AuthenticationDelegate
             },
             function tokenUpdateError(error)
             {
-                AuthenticationDelegate.logger.error('An error occurred while logging in using linkedin. Error: %s', error);
+                AuthenticationDelegate.logger.error('An error occurred while logging in using linkedin. Error: %s', error.message);
                 done(error);
             });
     }
