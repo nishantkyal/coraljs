@@ -69,11 +69,11 @@
                 var widgetUrl = '//searchntalk.com/widget?' + decodeURIComponent($.param(queryStringObject));
                 jQuery(widgetTag).append('<iframe scrolling="no" style="overflow: hidden, border: none;" frameBorder="0" class="snt-expert-iframe" src="' + widgetUrl + '"></iframe>');
 
-                jQuery('iframe', widgetTag).iFrameResize({
-                    sizeWidth: true,
-                    checkOrigin: false
-                });
             }
+            iFrameResize({
+                sizeWidth: true,
+                checkOrigin: false
+            }, '.snt-expert-iframe');
         });
     }
 
