@@ -24,7 +24,7 @@
                                 | #{member.user.id ? (member.user.active ? 'Active' : 'Inactive') : 'Invited'}
                                 if (!member.user.id)
                                     div
-                                        a.sendAgain(href='javascript:void(0)', data-emailid=member.user.email) Send Again
+                                        a.sendAgain(href='javascript:void(0)', data-email=member.user.email) Send Again
                             td(style='text-align: center;')
                                 if (member.id != undefined && (member.deleted == null || member.deleted == 0))
                                     a.fa.fa-pencil.save(href=DashboardUrls.userProfile(member.user.id))
