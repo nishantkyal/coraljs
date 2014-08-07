@@ -17,14 +17,12 @@ for expertise in userExpertise
                             | #{expertise.session_duration}
                             | &nbsp;mins
                 .clearer
-            .meta.meta-keywords
-                h5 Skills/Keywords
-                if expertise.skill && expertise.skill.length != 0
-                    ul
-                        for skill in expertise.skill
-                            li #{skill.skill.skill}
-                else
-                    div No skills added
+            if expertise.skill && expertise.skill.length != 0
+                .meta.meta-keywords
+                    h5 Skills/Keywords
+                        ul
+                            for skill in expertise.skill
+                                li #{skill.skill.skill}
             if expertise.description
                 .summary-and-description
                     p= expertise.description
@@ -32,6 +30,7 @@ for expertise in userExpertise
                 .meta.meta-keywords
                     h5 Experience
                     h1= expertise.years_of_experience
+                        | &nbsp; years
 if isEditable
     .card.edit-card
         form
