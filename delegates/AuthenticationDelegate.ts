@@ -163,14 +163,17 @@ class AuthenticationDelegate
                 .then(
                 function authComplete(matchingUser:User)
                 {
-                    user.setPasswordSeed(matchingUser.getPasswordSeed());
-
-                    var hashedPassword = user.getPasswordHash();
                     var reason;
                     if (Utils.isNullOrEmpty(matchingUser))
                         reason = 'Invalid email';
-                    else if (hashedPassword != matchingUser.getPassword())
-                        reason = 'Invalid password';
+                    else
+                    {
+                        user.setPasswordSeed(matchingUser.getPasswordSeed());
+                        var hashedPassword = user.getPasswordHash();
+
+                        if (hashedPassword != matchingUser.getPassword())
+                            reason = 'Invalid password';
+                    }
 
                     if (!Utils.isNullOrEmpty(reason))
                     {

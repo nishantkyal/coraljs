@@ -148,9 +148,9 @@ class TokenApi
                     res.send(200);
                 })
                 .fail(
-                function handleError(error)
+                function handleError(error:Error)
                 {
-                    res.json(400, error);
+                    res.json(400, error.message);
                 });
         });
 
