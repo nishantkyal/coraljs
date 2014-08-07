@@ -928,4 +928,7 @@
     <changeSet author="Ankit (generated)" id="1407308989258-2">
         <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="phone_call_review" constraintName="fk_call_review_userIf" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="user"/>
     </changeSet>
+    <changeSet author="Nishant (generated)" id="1407400458119-1">
+        <modifyDataType columnName="session_price" newDataType="float(7,2)" tableName="user_expertise"/>
+    </changeSet>
 </databaseChangeLog>
