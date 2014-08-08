@@ -422,6 +422,7 @@ class EmailDelegate
         return recipient.getUser()
             .then(function userFetched(user:User)
             {
+                user = new User(user);
                 return self.composeAndSend(EmailDelegate.EMAIL_EXPERT_INVITE, user.getEmail(), emailData, Formatter.formatUserName(sender, true));
             });
     }

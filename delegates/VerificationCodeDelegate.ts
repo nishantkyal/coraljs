@@ -34,11 +34,11 @@ class VerificationCodeDelegate
         this.notificationDelegate = new NotificationDelegate();
     }
 
-    resendExpertInvitationCode(integrationId:number, invitedUser:User, sender?:User):q.Promise<any>
+    resendExpertInvitationCode(integrationId:number, invitedUserEmail:string, sender?:User):q.Promise<any>
     {
         var self = this;
 
-        return self.findVerificationCode(integrationId, invitedUser.getEmail())
+        return self.findVerificationCode(integrationId, invitedUserEmail)
             .then(
             function codeFound(invites:Object)
             {

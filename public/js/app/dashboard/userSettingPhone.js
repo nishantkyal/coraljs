@@ -113,3 +113,8 @@ $('#userPhone .edit-card form input[name=phone],select[name=country_code]').chan
     $('#userPhone .edit-card form .resendCode').hide();
     $('#userPhone .edit-card form .sendCode').show();
 });
+
+$(function()
+{
+    $('select[name=country_code]').val(timezoneCountryMap[new Date().getTimezoneOffset() * -60].toString());
+});

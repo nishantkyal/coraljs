@@ -3,7 +3,7 @@ import express                                              = require('express')
 import AuthenticationDelegate                               = require('../delegates/AuthenticationDelegate');
 import ApiUrlDelegate                                       = require('../delegates/ApiUrlDelegate');
 import PhoneCallReviewDelegate                              = require('../delegates/PhoneCallReviewDelegate');
-import PhoneCallReview                                      = require('../models/PhoneCallReviewModel');
+import PhoneCallReview                                      = require('../models/PhoneCallReview');
 import ApiConstants                                         = require('../enums/ApiConstants');
 import Utils                                                = require('../common/Utils');
 

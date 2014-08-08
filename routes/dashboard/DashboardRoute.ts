@@ -66,7 +66,7 @@ import SessionData                                      = require('./SessionData
 class DashboardRoute
 {
     private static PAGE_HOME:string = 'dashboard/home';
-    private static PAGE_SNS:string = 'dashboard/sns';
+    private static PAGE_NETWORK_PROFILE:string = 'dashboard/networkProfile';
     private static PAGE_FORGOT_PASSWORD:string = 'dashboard/forgotPassword';
     private static PAGE_MOBILE_VERIFICATION:string = 'dashboard/mobileVerification';
     private static PAGE_DASHBOARD:string = 'dashboard/dashboard';
@@ -97,7 +97,7 @@ class DashboardRoute
         // Pages
         app.get(Urls.index(), AuthenticationDelegate.checkLogin({failureRedirect: Urls.home()}), this.dashboard.bind(this));
         app.get(Urls.home(), this.home.bind(this));
-        app.get(Urls.sns(), this.sns.bind(this));
+        app.get(Urls.networkProfile(), this.networkProfile.bind(this));
         app.get(Urls.forgotPassword(), this.forgotPassword.bind(this));
         app.get(Urls.mobileVerification(), AuthenticationDelegate.checkLogin({failureRedirect: Urls.index(), setReturnTo: true}), this.verifyMobile.bind(this));
 
@@ -114,11 +114,11 @@ class DashboardRoute
         app.get(Urls.widgetCreator(), this.widgetCreator.bind(this));
     }
 
-    private sns(req:express.Request, res:express.Response)
+    private networkProfile(req:express.Request, res:express.Response)
     {
         var self = this;
         var sessionData = new SessionData(req);
-        var integrationId = parseInt(req.params[ApiConstants.INTEGRATION_ID]);
+        var integrationId = parseInt(req.params[ApiConstants.NETWORK_ID]);
 
         var searchParameters = {};
         if (req.query[ApiConstants.PRICE_RANGE])
@@ -130,27 +130,14 @@ class DashboardRoute
         if (req.query[ApiConstants.AVAILIBILITY])
             searchParameters[ApiConstants.AVAILIBILITY] = req.query[ApiConstants.AVAILIBILITY] == "true" ? true : false;
 
-        q.all([
-            self.integrationDelegate.get(integrationId),
-            self.integrationMemberDelegate.search({'integration_id': integrationId, 'role': IntegrationMemberRole.Expert})
-        ])
-            .then(
-            function detailsFetched(...args)
-            {
-                var integration = args[0][0];
-                var members = args[0][1];
-                var uniqueUserIds:number[] = _.uniq(_.pluck(members, IntegrationMember.COL_USER_ID));
+        var integration:Integration = self.integrationDelegate.getSync(integrationId);
 
-                var foreignKeys = _.map(_.keys(req.query), function (filter:string)
-                {
-                    switch (filter)
-                    {
-                        case ApiConstants.PRICE_RANGE: return User.FK_USER_PRICING_SCHEME;
-                        case ApiConstants.USER_SKILL: return User.FK_USER_SKILL;
-                        default: return null;
-                    }
-                });
-                return [integration, self.userDelegate.search(Utils.createSimpleObject(User.COL_ID, uniqueUserIds), null, foreignKeys.concat(User.FK_USER_PROFILE))];
+        self.integrationMemberDelegate.search(Utils.createSimpleObject(IntegrationMember.COL_INTEGRATION_ID, integrationId, IntegrationMember.COL_ROLE, IntegrationMemberRole.Expert))
+            .then(
+            function detailsFetched(members:IntegrationMember[])
+            {
+                var uniqueUserIds:number[] = _.uniq(_.pluck(members, IntegrationMember.COL_USER_ID));
+                return [integration, self.userDelegate.search(Utils.createSimpleObject(User.COL_ID, uniqueUserIds, User.COL_ACTIVE, true, User.COL_EMAIL_VERIFIED, true), null, [User.FK_USER_SKILL, User.FK_USER_PRICING_SCHEME, User.FK_USER_PROFILE])];
             })
             .spread(
             function expertDetailsFetched(integration, ...args)
@@ -166,10 +153,10 @@ class DashboardRoute
                     searchParameters: searchParameters || {}
                 });
 
-                res.render(DashboardRoute.PAGE_SNS, pageData);
+                res.render(DashboardRoute.PAGE_NETWORK_PROFILE, pageData);
             })
             .fail(
-            function integrationFetchError(error)
+            function integrationFetchError(error:Error)
             {
                 res.render('500', {error: error});
             });
@@ -328,20 +315,17 @@ class DashboardRoute
             .then(
             function profileFetched(userProfile:UserProfile)
             {
-                var profileInfoTasks = [self.userDelegate.get(userId, null, [User.FK_USER_SKILL, User.FK_USER_EDUCATION, User.FK_USER_EMPLOYMENT])];
-
-                if (!Utils.isNullOrEmpty(userProfile) && userProfile.getId())
-                    profileInfoTasks = profileInfoTasks.concat([
-                        self.expertiseDelegate.search(Utils.createSimpleObject(Expertise.COL_USER_ID, userId), null, [Expertise.FK_EXPERTISE_SKILL])
-                    ]);
-
+                var profileInfoTasks = [
+                    self.userDelegate.get(userId, null, [User.FK_USER_SKILL, User.FK_USER_EDUCATION, User.FK_USER_EMPLOYMENT]),
+                    self.expertiseDelegate.search(Utils.createSimpleObject(Expertise.COL_USER_ID, userId), null, [Expertise.FK_EXPERTISE_SKILL])
+                ];
                 return [userProfile, q.all(profileInfoTasks)];
             })
             .spread(
             function userDetailsFetched(userProfile, ...args)
             {
                 var user = args[0][0];
-                var expertise = args[0][4] || [];
+                var expertise = args[0][1] || [];
 
                 var isEditable = loggedInUser ? loggedInUser.getId() == user.getId() : false;
 

@@ -156,7 +156,7 @@ class AbstractDao
             },
             function searchError(error:Error)
             {
-                self.logger.error('SEARCH failed for table: %s, criteria: %s, error: %s', self.tableName, searchQuery, JSON.stringify(error));
+                self.logger.error('SEARCH failed for table: %s, criteria: %s, error: %s', self.tableName, JSON.stringify(searchQuery), error.message);
                 throw(error);
             });
     }
@@ -266,7 +266,7 @@ class AbstractDao
             .fail(
             function deleteFailed(error:Error)
             {
-                self.logger.error('DELETE failed for table: %s, criteria: %s, error: %s', self.tableName, criteria, JSON.stringify(error));
+                self.logger.error('DELETE failed for table: %s, criteria: %s, error: %s', self.tableName, JSON.stringify(criteria), error.message);
                 throw(error);
             });
     }

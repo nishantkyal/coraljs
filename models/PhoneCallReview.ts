@@ -16,6 +16,7 @@ class PhoneCallReviewModel extends BaseModel
     private comment:string;
 
     static PUBLIC_FIELDS:string[] = [PhoneCallReviewModel.COL_CALL_ID,PhoneCallReviewModel.COL_ID,PhoneCallReviewModel.COL_USER_ID,PhoneCallReviewModel.COL_REVIEW,PhoneCallReviewModel.COL_COMMENT];
+
     /* Getters */
     getCallId():number                  { return this.call_id; }
     getUserId():number                  { return this.user_id; }

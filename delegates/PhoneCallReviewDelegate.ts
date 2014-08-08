@@ -1,7 +1,7 @@
-import _                            = require('underscore');
-import q                            = require('q');
-import BaseDaoDelegate              = require('./BaseDaoDelegate');
-import PhoneCallReview              = require('../models/PhoneCallReviewModel');
+import _                                        = require('underscore');
+import q                                        = require('q');
+import BaseDaoDelegate                          = require('./BaseDaoDelegate');
+import PhoneCallReview                          = require('../models/PhoneCallReview');
 
 class CallReviewDelegate extends BaseDaoDelegate
 {

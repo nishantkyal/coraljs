@@ -93,11 +93,11 @@ class TokenApi
         /* Create and send expert invitation code */
         app.post(ApiUrlDelegate.expertInvitationCodeResend(), AuthenticationDelegate.checkLogin(), function (req:express.Request, res:express.Response)
         {
-            var sender:User = new User(req['user']);
-            var member:IntegrationMember = req.body[ApiConstants.INTEGRATION_MEMBER];
-            var invitedUser:User = req.body[ApiConstants.USER];
+            var sender:User = new User(req[ApiConstants.USER]);
+            var invitedUserEmail:string = req.body[ApiConstants.EMAIL];
+            var integrationId:number = parseInt(req.body[ApiConstants.INTEGRATION_ID]);
 
-            verificationCodeDelegate.resendExpertInvitationCode(member.getIntegrationId(), invitedUser, sender)
+            verificationCodeDelegate.resendExpertInvitationCode(integrationId, invitedUserEmail, sender)
                 .then(
                 function codeSent() { res.send(JSON.stringify({status: 'OK'})); },
                 function codeSendError(error) { res.json(500, error); }

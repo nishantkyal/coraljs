@@ -8,20 +8,22 @@ for expertise in userExpertise
                         a.btn.btn-primary(data-id=expertise.id).editExpertiseBtn
                             i.icon-pencil
             .session-and-ratings
-                if expertise.session_duration
-                    .badge.badge-session.session-info
-                        h2 Session
-                        h1= expertise.session_duration
-                            | &nbsp;mins.
+                if expertise.charging_rate
+                    a(href=CallFlowUrls.callExpert(user.id) + '?expertiseId=' + expertise.id, target='_blank')
+                        .badge.badge-session.session-info
+                            h2 Session
+                            h1
+                                | #{formatMoney(expertise.charging_rate, expertise.unit)}
+                                | &nbsp;for&nbsp;
+                                | #{expertise.pulse_rate}
+                                | &nbsp;mins
                 .clearer
-            .meta.meta-keywords
-                h5 Skills/Keywords
-                if expertise.skill && expertise.skill.length != 0
-                    ul
-                        for skill in expertise.skill
-                            li #{skill.skill.skill}
-                else
-                    div No skills added
+            if expertise.skill && expertise.skill.length != 0
+                .meta.meta-keywords
+                    h5 Skills/Keywords
+                        ul
+                            for skill in expertise.skill
+                                li #{skill.skill.skill}
             if expertise.description
                 .summary-and-description
                     p= expertise.description
@@ -29,6 +31,7 @@ for expertise in userExpertise
                 .meta.meta-keywords
                     h5 Experience
                     h1= expertise.years_of_experience
+                        | &nbsp; years
 if isEditable
     .card.edit-card
         form
@@ -56,14 +59,16 @@ if isEditable
                             .form-group
                                 .row
                                     .col-md-2
-                                        input.form-control(type='text', name='session_pricing', placeholder='0 = Free')
+                                        input.form-control(type='text', name='charging_rate', placeholder='0 = Free')
                                     .col-md-2
-                                        select.form-control(name='session_price_unit')
-                                            option $
+                                        select.form-control(name='unit')
+                                            option(value='1') Rs.
+                                            option(value='2') $
+                                            option(value='3') Points
                                     .col-md-1 for
                                     .col-md-3
                                         .input-group
-                                            input.form-control(type='text', name='session_duration', placeholder='Session length')
+                                            input.form-control(type='text', name='pulse_rate', placeholder='Session length')
                                             .input-group-addon
                                                 span mins.
                         .clearer

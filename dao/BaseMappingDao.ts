@@ -20,7 +20,9 @@ class BaseMappingDao extends AbstractDao
         var srcPropertyNameCamelCase:string = Utils.snakeToCamelCase(fk.getSourcePropertyName());
         var setterMethod:string = 'set' + srcPropertyNameCamelCase;
         var whereStatements = this.generateWhereStatements(searchQuery);
-        var wheres = whereStatements.where;
+        var wheres = _.map(whereStatements.where, function(where) {
+            return 'mapping.' + where;
+        });
         var values = whereStatements.values;
         var self = this;
 
@@ -33,8 +35,8 @@ class BaseMappingDao extends AbstractDao
         var query:string = 'SELECT ' + mappingColumnNames + ',referenced.* ' +
             'FROM ' + this.modelClass.TABLE_NAME + ' mapping, ' + fk.referenced_table.TABLE_NAME + ' referenced ' +
             'WHERE ' + wheres.join(' AND ') + ' ' +
-            'AND mapping.' + fk.src_key + ' = referenced.' + fk.target_key + ' AND (mapping.deleted IS NULL OR mapping.deleted = 0)';
-        var values:any[] = [values];
+            'AND mapping.' + fk.src_key + ' = referenced.' + fk.target_key + ' ' +
+            'AND (mapping.deleted IS NULL OR mapping.deleted = 0)';
 
         return MysqlDelegate.executeQuery(query, values, transaction)
             .then(
@@ -68,6 +70,12 @@ class BaseMappingDao extends AbstractDao
                     typedMappingObject[setterMethod].call(typedMappingObject, referencedObjects);
                     return typedMappingObject;
                 });
+            })
+            .fail(
+            function handleFailure(error:Error)
+            {
+                self.logger.error('SEARCH failed for mapping table: %s, criteria: %s, error: %s', self.tableName, JSON.stringify(searchQuery), error.message);
+                throw(error);
             });
     }
 }

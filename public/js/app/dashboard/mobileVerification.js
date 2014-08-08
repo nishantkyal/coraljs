@@ -94,3 +94,8 @@ $('#sendCode #countryCode').change(function()
     $('#sendCode input[type="submit"]').show();
     $('#verifyCode').hide();
 });
+
+$(function()
+{
+    $('select[name=country_code]').val(timezoneCountryMap[new Date().getTimezoneOffset() * -60].toString());
+});

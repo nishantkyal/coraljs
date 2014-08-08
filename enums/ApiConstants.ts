@@ -26,6 +26,7 @@ class ApiConstants
     static REVIEW:string                                = 'review';
     static SKILL_ID:string                              = 'skillId';
     static INTEGRATION_ID:string                        = 'integrationId';
+    static NETWORK_ID:string                            = 'networkId';
     static TRANSACTION_ID:string                        = 'transactionId';
     static PRICING_SCHEME_ID:string                     = 'pricingSchemeId';
     static TRANSACTION_LINE_ID:string                   = 'transactionLineId';

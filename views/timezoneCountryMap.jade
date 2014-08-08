@@ -1,0 +1,4 @@
+- var timezoneCountryMap = {};
+- for (var i = 0; i < Timezone.length; i++) timezoneCountryMap[Timezone[i].gmt_offset] = CountryCode[Timezone[i].country_code];
+script.
+    var timezoneCountryMap = JSON.parse('!{JSON.stringify(timezoneCountryMap)}');

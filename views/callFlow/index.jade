@@ -1,4 +1,4 @@
-- var pricing = user.pricing_schemes ? user.pricing_schemes[0] : null;
+- var pricing = expertise ? expertise[0] : (user.pricing_schemes ? user.pricing_schemes[0] : null);
 - var minDuration = pricing ? pricing.min_duration : 15;
 title ST-#{formatName(user.first_name, user.last_name, user.title)}
 include ../header
@@ -161,6 +161,11 @@ div.modal.fade#scheduler
                                         ul
                                             each skill in user.skill
                                                 li= skill.skill.skill
+                            if expertise
+                                .meta.meta-price
+                                    h5 Session
+                                    p
+                                        span= expertise[0].title
                             .meta.meta-price
                                 h5 Charges
                                 p
@@ -254,6 +259,7 @@ div.modal.fade#scheduler
                                 input.btn.btn-lg.btn-block.btn-primary.first(type='submit', value='Proceed')
             // /.content
 include ../footer
+include ../timezoneCountryMap
 script.
     var userGmtOffset = new Date().getTimezoneOffset() * -60 * 1000;
     var schedules = JSON.parse( '!{JSON.stringify(schedule)}' );
