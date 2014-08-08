@@ -192,8 +192,6 @@ $('#expertise .edit-card form .tokeninput, form#AddUserSkillForm .tokeninput').t
     queryParam: 'query',
     onResult:processLinkedInResponse,
     onCachedResult:processLinkedInResponse,
-    onAdd:callValidate,
-    onDelete:callValidate,
     crossDomain:true,
     caching:false
 });
@@ -222,11 +220,6 @@ function preFillValues(expertiseId)
                 }
         }
     }
-}
-
-function callValidate()
-{
-    $('#expertise .edit-card form').data('bootstrapValidator').validate();
 }
 
 var expertiseCard = $('#expertise').card();
