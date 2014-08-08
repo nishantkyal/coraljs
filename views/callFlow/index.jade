@@ -259,6 +259,7 @@ div.modal.fade#scheduler
                                 input.btn.btn-lg.btn-block.btn-primary.first(type='submit', value='Proceed')
             // /.content
 include ../footer
+include ../timezoneCountryMap
 script.
     var userGmtOffset = new Date().getTimezoneOffset() * -60 * 1000;
     var schedules = JSON.parse( '!{JSON.stringify(schedule)}' );

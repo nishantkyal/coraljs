@@ -79,5 +79,6 @@ title SNT-#{formatName(loggedInUser.first_name, loggedInUser.last_name)} | Setti
                                                     input.btn.btn-primary.resendCode(type='submit', value='Resend Verification Code', name='resendCode')
 script.
     var userPhones = JSON.parse( '!{JSON.stringify(userPhone || [])}' );
+include ../timezoneCountryMap
 script(src='/js/app/dashboard/userSettingPhone.js')
 include ../footer

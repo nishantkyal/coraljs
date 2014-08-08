@@ -221,7 +221,7 @@ function updateSelectedTimeSlots()
 }
 
 $('form#call-details').bootstrapValidator({
-    fields: {
+    fields  : {
         agenda: {
             validators: {
                 notEmpty: { message: 'This is a required field'}
@@ -248,35 +248,36 @@ $('form#call-details').bootstrapValidator({
     },
     excluded: ':disabled'
 })
-    .on('success.form.bv', function(e) {
-    // Prevent form submission
-    e.preventDefault();
+    .on('success.form.bv', function(e)
+    {
+        // Prevent form submission
+        e.preventDefault();
 
-    var $form        = $(e.target),
-    validator    = $form.data('bootstrapValidator'),
-    submitButton = validator.getSubmitButton();
+        var $form = $(e.target),
+            validator = $form.data('bootstrapValidator'),
+            submitButton = validator.getSubmitButton();
 
-    var agenda = $('textarea[name=agenda]').val().trim();
-    var areaCode = $('input[name=area_code]').val().trim();
-    var countryCode = $('select[name=country_code]').val().trim();
-    var callerPhone = $('input[name=phone]').val().trim();
+        var agenda = $('textarea[name=agenda]').val().trim();
+        var areaCode = $('input[name=area_code]').val().trim();
+        var countryCode = $('select[name=country_code]').val().trim();
+        var callerPhone = $('input[name=phone]').val().trim();
 
-    var form = $('<form action="/payment" method="POST">' +
-        '<input type="hidden" name="agenda" value="' + agenda + '">' +
-        '<input type="hidden" name="duration" value="' + duration + '">' +
-        '<input type="hidden" name="area_code" value="' + areaCode + '">' +
-        '<input type="hidden" name="countryCode" value="' + countryCode + '">' +
-        '<input type="hidden" name="phone" value="' + callerPhone + '">' +
-        '<input type="hidden" name="userGmtOffset" value="' + userGmtOffset + '">' +
-        _.map(selectedTimeSlots, function(slot)
-        {
-            return '<input type="hidden" name="startTime" value="' + (slot) + '">';
-        }).join('') +
-        '</form>');
+        var form = $('<form action="/payment" method="POST">' +
+            '<input type="hidden" name="agenda" value="' + agenda + '">' +
+            '<input type="hidden" name="duration" value="' + duration + '">' +
+            '<input type="hidden" name="area_code" value="' + areaCode + '">' +
+            '<input type="hidden" name="countryCode" value="' + countryCode + '">' +
+            '<input type="hidden" name="phone" value="' + callerPhone + '">' +
+            '<input type="hidden" name="userGmtOffset" value="' + userGmtOffset + '">' +
+            _.map(selectedTimeSlots, function(slot)
+            {
+                return '<input type="hidden" name="startTime" value="' + (slot) + '">';
+            }).join('') +
+            '</form>');
 
-    $('body').append(form);
-    form.submit();
-});
+        $('body').append(form);
+        form.submit();
+    });
 
 function selectDuration(duration)
 {
@@ -294,3 +295,8 @@ function selectDuration(duration)
 
 setMonth(schedules[0].start_time);
 selectDuration(duration + 15 - (duration % 15));
+
+$(function()
+{
+    $('select[name=country_code]').val(timezoneCountryMap[new Date().getTimezoneOffset() * -60].toString());
+});
