@@ -23,6 +23,7 @@ import CouponDelegate                                       = require('../../del
 import PricingSchemeDelegate                                = require('../../delegates/PricingSchemeDelegate');
 import TimezoneDelegate                                     = require('../../delegates/TimezoneDelegate');
 import PhoneCallReviewDelegate                              = require('../../delegates/PhoneCallReviewDelegate');
+import ExpertiseDelegate                                    = require('../../delegates/ExpertiseDelegate');
 import PhoneCall                                            = require('../../models/PhoneCall');
 import Schedule                                             = require('../../models/Schedule');
 import Transaction                                          = require('../../models/Transaction');
@@ -35,6 +36,7 @@ import ScheduleException                                    = require('../../mod
 import User                                                 = require('../../models/User');
 import PhoneCallReview                                      = require('../../models/PhoneCallReviewModel');
 import PricingScheme                                        = require('../../models/PricingScheme');
+import Expertise                                            = require('../../models/Expertise');
 import CallStatus                                           = require('../../enums/CallStatus');
 import ApiConstants                                         = require('../../enums/ApiConstants');
 import MoneyUnit                                            = require('../../enums/MoneyUnit');
@@ -66,6 +68,7 @@ class CallFlowRoute
     private userDelegate = new UserDelegate();
     private scheduleExceptionDelegate = new ScheduleExceptionDelegate();
     private scheduleDelegate = new ScheduleDelegate();
+    private expertiseDelegate = new ExpertiseDelegate();
     private verificationCodeDelegate = new VerificationCodeDelegate();
     private timezoneDelegate = new TimezoneDelegate();
     private phoneCallReviewDelegate = new PhoneCallReviewDelegate();
@@ -85,14 +88,20 @@ class CallFlowRoute
         var self = this;
         var userId = parseInt(req.params[ApiConstants.USER_ID]);
         var sessionData = new SessionData(req);
+        var expertiseId = parseInt(req.query[ApiConstants.EXPERTISE_ID]);
 
-        return q.all([
+        var tasks = [
             self.userProfileDelegate.find(Utils.createSimpleObject(UserProfile.COL_USER_ID, userId)),
             self.phoneCallDelegate.getScheduledCalls(userId),
             self.scheduleExceptionDelegate.search(Utils.createSimpleObject(ScheduleException.COL_USER_ID, userId), [Schedule.COL_START_TIME, Schedule.COL_DURATION]),
             self.userDelegate.get(userId, null, [User.FK_USER_PRICING_SCHEME, User.FK_USER_SKILL]),
             self.scheduleDelegate.getSchedulesForUser(userId)
-        ])
+        ];
+
+        if (!Utils.isNullOrEmpty(expertiseId))
+            tasks.push(self.expertiseDelegate.search(Utils.createSimpleObject(Expertise.COL_USER_ID, userId)));
+
+        return q.all(tasks)
             .then(
             function userProfileFetched(...args):any
             {
@@ -101,6 +110,7 @@ class CallFlowRoute
                 var scheduleExceptions:ScheduleException[] = args[0][2];
                 var user:User = args[0][3];
                 var schedule:Schedule[] = args[0][4];
+                var expertise:Expertise[] = args[0][5];
 
                 var exceptions = [];
 
@@ -124,6 +134,7 @@ class CallFlowRoute
                     userProfile: userProfile,
                     schedule: schedule,
                     exception: exceptions,
+                    expertise: expertise,
                     messages: req.flash()
                 });
 

@@ -5,6 +5,7 @@ import User                                             = require('./User');
 import UserProfile                                      = require('./UserProfile');
 import ScheduleRule                                     = require('./ScheduleRule');
 import ForeignKey                                       = require('./ForeignKey');
+import PricingScheme                                    = require('./PricingScheme');
 import MoneyUnit                                        = require('../enums/MoneyUnit');
 import IntegrationMemberRole                            = require('../enums/IntegrationMemberRole');
 import ForeignKeyType                                   = require('../enums/ForeignKeyType');
@@ -29,7 +30,8 @@ class IntegrationMember extends BaseModel
 
     static FK_USER:ForeignKey = new ForeignKey(ForeignKeyType.MANY_TO_ONE, IntegrationMember.COL_USER_ID, User, User.COL_ID);
     static FK_INTEGRATION:ForeignKey = new ForeignKey(ForeignKeyType.MANY_TO_ONE, IntegrationMember.COL_INTEGRATION_ID, Integration, Integration.COL_ID);
-    static FK_SCHEDULE_RULES:ForeignKey = new ForeignKey(ForeignKeyType.MANY_TO_ONE, IntegrationMember.COL_USER_ID, ScheduleRule, ScheduleRule.COL_USER_ID, 'schedule_rule');
+    static FK_SCHEDULE_RULES:ForeignKey = new ForeignKey(ForeignKeyType.MANY_TO_ONE, IntegrationMember.COL_USER_ID, ScheduleRule, ScheduleRule.COL_USER_ID, 'schedule_rules');
+    static FK_PRICING_SCHEMES:ForeignKey = new ForeignKey(ForeignKeyType.MANY_TO_ONE, IntegrationMember.COL_USER_ID, PricingScheme, PricingScheme.COL_USER_ID, 'pricing_schemes');
 
     static PUBLIC_FIELDS:string[] = [IntegrationMember.COL_ID, IntegrationMember.COL_INTEGRATION_ID, IntegrationMember.COL_ROLE, IntegrationMember.COL_USER_ID];
     static DASHBOARD_FIELDS:string[] = [IntegrationMember.COL_ID, IntegrationMember.COL_INTEGRATION_ID, IntegrationMember.COL_ROLE, IntegrationMember.COL_USER_ID, IntegrationMember.COL_REVENUE_SHARE, IntegrationMember.COL_REVENUE_SHARE_UNIT];
@@ -60,6 +62,8 @@ class IntegrationMember extends BaseModel
     getRevenueShareUnit():number                        { return this.revenue_share_unit; }
     getIntegration():q.Promise<Integration>             { return null; }
     getUser():q.Promise<User>                           { return null; }
+    getScheduleRules():q.Promise<ScheduleRule[]>        { return null; }
+    getPricingSchemes():q.Promise<PricingScheme[]>      { return null; }
 
     isValid():boolean {
         return !isNaN(this.getIntegrationId()) && !isNaN(this.getRole());
@@ -79,5 +83,7 @@ class IntegrationMember extends BaseModel
     setRevenueShareUnit(val:MoneyUnit):void             { this.revenue_share_unit = val; }
     setIntegration(val:Integration):void                { }
     setUser(val:User):void                              { }
+    setScheduleRules(val:ScheduleRule[]):void           { }
+    setPricingSchemes(val:PricingScheme[]):void         { }
 }
 export = IntegrationMember

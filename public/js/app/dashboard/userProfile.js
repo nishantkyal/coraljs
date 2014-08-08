@@ -44,12 +44,13 @@ $('#basicProfile .edit-card form').bootstrapValidator({
         }
     }
 })
-    .on('success.form.bv', function(e) {
+    .on('success.form.bv', function(e)
+    {
         // Prevent form submission
         e.preventDefault();
 
-        var $form        = $(e.target),
-            validator    = $form.data('bootstrapValidator'),
+        var $form = $(e.target),
+            validator = $form.data('bootstrapValidator'),
             submitButton = validator.getSubmitButton();
 
         $.ajax({
@@ -98,24 +99,26 @@ $('form#AddUserSkillForm').bootstrapValidator({
         }
     }
 })
-    .on('success.form.bv', function(e) {
+    .on('success.form.bv', function(e)
+    {
         // Prevent form submission
         e.preventDefault();
 
-        var $form        = $(e.target),
-            validator    = $form.data('bootstrapValidator'),
+        var $form = $(e.target),
+            validator = $form.data('bootstrapValidator'),
             submitButton = validator.getSubmitButton();
 
-        var selectedSkills = _.map($('form#AddUserSkillForm .tokeninput').tokenInput("get"), function(skill) {
+        var selectedSkills = _.map($('form#AddUserSkillForm .tokeninput').tokenInput("get"), function(skill)
+        {
             return {
-                skill_name         : skill.name
+                skill_name: skill.name
             }
         });
         $.ajax({
             url    : '/rest/user/skill',
             type   : 'put',
             data   : {
-                skill    : selectedSkills
+                skill: selectedSkills
             },
             success: function()
             {
@@ -131,7 +134,7 @@ $('.deleteUserSkill').click(function()
         url    : '/rest/user/skill/' + skillId,
         type   : 'DELETE',
         data   : {
-            id       : skillId,
+            id: skillId,
         },
         success: function()
         {
@@ -156,12 +159,13 @@ $('#cancelLinkedinFetch').click(function(event)
 $('form#linkedinFetch').bootstrapValidator({
 
 })
-    .on('success.form.bv', function(e) {
+    .on('success.form.bv', function(e)
+    {
         // Prevent form submission
         e.preventDefault();
 
-        var $form        = $(e.target),
-            validator    = $form.data('bootstrapValidator'),
+        var $form = $(e.target),
+            validator = $form.data('bootstrapValidator'),
             submitButton = validator.getSubmitButton();
 
         bootbox.confirm('Are you sure you want to replace the current information with information from LinkedIn?', function(result)
@@ -188,14 +192,14 @@ $('form#linkedinFetch').bootstrapValidator({
     });
 
 $('#expertise .edit-card form .tokeninput, form#AddUserSkillForm .tokeninput').tokenInput('//www.linkedin.com/ta/skill', {
-    theme: "facebook",
-    queryParam: 'query',
-    onResult:processLinkedInResponse,
-    onCachedResult:processLinkedInResponse,
-    onAdd:callValidate,
-    onDelete:callValidate,
-    crossDomain:true,
-    caching:false
+    theme         : "facebook",
+    queryParam    : 'query',
+    onResult      : processLinkedInResponse,
+    onCachedResult: processLinkedInResponse,
+    onAdd         : callValidate,
+    onDelete      : callValidate,
+    crossDomain   : true,
+    caching       : false
 });
 
 function processLinkedInResponse(response)
@@ -204,21 +208,18 @@ function processLinkedInResponse(response)
     {
         return {
             name: skill.displayName,
-            id : skill.id
+            id  : skill.id
         };
     });
 }
 
 function preFillValues(expertiseId)
 {
-    for(var i = 0; i < userExpertise.length; i++ )
-    {
-        if(userExpertise[i].id == expertiseId)
-        {
-            if(userExpertise[i].skill && userExpertise[i].skill.length != 0)
-                for(var j=0; j< userExpertise[i].skill.length; j++)
-                {
-                    $('#expertise .edit-card form .tokeninput').tokenInput(("add"),{id:userExpertise[i].skill[j].skill.id, name:userExpertise[i].skill[j].skill.skill});
+    for (var i = 0; i < userExpertise.length; i++) {
+        if (userExpertise[i].id == expertiseId) {
+            if (userExpertise[i].skill && userExpertise[i].skill.length != 0)
+                for (var j = 0; j < userExpertise[i].skill.length; j++) {
+                    $('#expertise .edit-card form .tokeninput').tokenInput(("add"), {id: userExpertise[i].skill[j].skill.id, name: userExpertise[i].skill[j].skill.skill});
                 }
         }
     }
@@ -231,13 +232,13 @@ function callValidate()
 
 var expertiseCard = $('#expertise').card();
 $('#expertise .edit-card form').bootstrapValidator({
-    fields       : {
+    fields: {
         'title'            : {
             validators: {
                 notEmpty: { message: 'This field is required'}
             }
         },
-        session_price      : {
+        charging_rate      : {
             validators: {
                 digits  : {
                     message: "Please enter a valid number"
@@ -253,7 +254,7 @@ $('#expertise .edit-card form').bootstrapValidator({
                 }
             }
         },
-        session_duration   : {
+        pulse_rate : {
             validators: {
                 digits  : {
                     message: "Please enter a valid number"
@@ -279,27 +280,29 @@ $('#expertise .edit-card form').bootstrapValidator({
                 digits: { message: 'Please enter a valid number'}
             }
         },
-        skill_name: {
+        skill_name         : {
             validators: {
                 notEmpty: { message: 'This field is required'}
             }
         }
     }
 })
-    .on('success.form.bv', function(e) {
+    .on('success.form.bv', function(e)
+    {
         // Prevent form submission
         e.preventDefault();
 
-        var $form        = $(e.target),
-            validator    = $form.data('bootstrapValidator'),
+        var $form = $(e.target),
+            validator = $form.data('bootstrapValidator'),
             submitButton = validator.getSubmitButton();
 
         var expertiseId = $('#expertise .edit-card form input[name=id]').val();
         var method = expertiseId ? 'post' : 'put';
         var expertiseUrl = expertiseId ? '/rest/user/expertise/' + expertiseId : '/rest/user/expertise';
-        var selectedSkills = _.map($('#expertise .edit-card form .tokeninput').tokenInput("get"), function(skill) {
+        var selectedSkills = _.map($('#expertise .edit-card form .tokeninput').tokenInput("get"), function(skill)
+        {
             return {
-                skill_name         : skill.name
+                skill_name: skill.name
             }
         });
         $.ajax({
@@ -309,9 +312,9 @@ $('#expertise .edit-card form').bootstrapValidator({
             contentType: 'application/json',
             data       : JSON.stringify({
                 expertise: {
-                    session_duration   : parseInt($('#expertise .edit-card form input[name=session_duration]').val()),
-                    session_price      : parseFloat($('#expertise .edit-card form input[name=session_price]').val()),
-                    session_price_unit : $('#expertise .edit-card form select[name=session_price_unit]').val(),
+                    pulse_rate         : parseInt($('#expertise .edit-card form input[name=pulse_rate]').val()),
+                    charging_rate      : parseFloat($('#expertise .edit-card form input[name=charging_rate]').val()),
+                    unit               : $('#expertise .edit-card form select[name=unit]').val(),
                     title              : $('#expertise .edit-card form input[name=title]').val(),
                     description        : $('#expertise .edit-card form textarea[name=description]').val(),
                     years_of_experience: $('#expertise .edit-card form input[name=years_of_experience]').val()
@@ -325,8 +328,8 @@ $('#expertise .edit-card form').bootstrapValidator({
                     dataType   : 'json',
                     contentType: 'application/json',
                     data       : JSON.stringify({
-                        skills             : selectedSkills,
-                        expertiseId        : response.id || expertiseId
+                        skills     : selectedSkills,
+                        expertiseId: response.id || expertiseId
                     }),
                     success    : function()
                     {

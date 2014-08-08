@@ -1,0 +1,75 @@
+include ../header
+title Search Expert in Network - #{integration.title}
+.matter
+    .container
+        .col-md-12.content
+            if experts
+                each expert in experts
+                    .card.col-md-3
+                        .item
+                            .user-profile
+                                .avatar
+                                    .shadow
+                                    .initials-profile-image-large= getNameInitials(expert.first_name, expert.last_name)
+                                    img(src=ApiUrlDelegate.userProfilePicture(expert.id) + '?imageSize=200')
+                                    if isEditable
+                                    .image-edit
+                                    a.btn.btn-success.btn-xs(href="javascript: void(0);")#selectFileBtn
+                                        i.icon-pencil
+                                        form#fileUploadForm(action=ApiUrlDelegate.userProfilePicture(expert.id), method="post", enctype="multipart/form-data")
+                                            input#selectFile(type='file', name='profile', style='display: none')
+                                            input#selectFileSubmit(type='submit', style='display: none')
+                                .info
+                                    .info-container
+                                        .info-upper
+                                            .user-displayname= formatName(expert.first_name, expert.last_name, expert.title)
+                                            if expert.date_of_birth
+                                                .user-age= moment(expert.date_of_birth,'DD-MM-YYYY').fromNow(true)
+                                        .info-lower
+                                            .user-locale New Delhi
+                                            .user-timezone
+                                                each zone in Timezone
+                                                    if zone.zone_id == expert.timezone
+                                                        | #{formatTimezone(zone.gmt_offset)}
+                                .clearer
+                        .item
+                            .row
+                                if expert.skills && expert.skills.length != 0
+                                    .meta.meta-keywords
+                                        h5.col-xs-12 Skills/Keywords
+                                        .clearer
+                                        ul
+                                            each skill in user.skills
+                                                li
+                                                    | #{skill.skill.skill}
+                                                    if isEditable
+                                                        | &nbsp;&nbsp;
+                                                        a.deleteUserSkill(style="color: white;", data-id=skill.id)
+                                                            i.icon-cancel
+                        .item
+                            .row
+                                a.btn.btn-primary.btn-block(target='_blank', href=CallFlowUrls.callExpert(expert.id))
+                                    | CALL ME
+                                p(style='text-align: center;')
+                                    if expert.pricing_schemes
+                                        - var pricing = expert.pricing_schemes[0]
+                                            strong= formatMoney(pricing.charging_rate, pricing.unit)
+                                            if pricing.pulse_rate > 1
+                                                | &nbsp;for&nbsp;
+                                                span= pricing.pulse_rate
+                                                | &nbsp;mins.
+                                            else
+                                                | &nbsp;/ min.
+                                                if pricing.min_duration > 1
+                                                    br
+                                                    span.pull-right
+                                                        span.small
+                                                            | &nbsp;(minimum &nbsp;
+                                                            span= pricing.min_duration
+                                                            | &nbsp;mins.)
+                                    else
+                                        strong Free
+include ../footer
+script.
+    var searchParameters = JSON.parse ( '!{JSON.stringify(searchParameters)}' );
+script(src='/js/app/dashboard/sns.js')

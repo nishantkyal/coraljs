@@ -66,7 +66,7 @@ import SessionData                                      = require('./SessionData
 class DashboardRoute
 {
     private static PAGE_HOME:string = 'dashboard/home';
-    private static PAGE_SNS:string = 'dashboard/sns';
+    private static PAGE_NETWORK_PROFILE:string = 'dashboard/networkProfile';
     private static PAGE_FORGOT_PASSWORD:string = 'dashboard/forgotPassword';
     private static PAGE_MOBILE_VERIFICATION:string = 'dashboard/mobileVerification';
     private static PAGE_DASHBOARD:string = 'dashboard/dashboard';
@@ -97,7 +97,7 @@ class DashboardRoute
         // Pages
         app.get(Urls.index(), AuthenticationDelegate.checkLogin({failureRedirect: Urls.home()}), this.dashboard.bind(this));
         app.get(Urls.home(), this.home.bind(this));
-        app.get(Urls.sns(), this.sns.bind(this));
+        app.get(Urls.networkProfile(), this.networkProfile.bind(this));
         app.get(Urls.forgotPassword(), this.forgotPassword.bind(this));
         app.get(Urls.mobileVerification(), AuthenticationDelegate.checkLogin({failureRedirect: Urls.index(), setReturnTo: true}), this.verifyMobile.bind(this));
 
@@ -114,11 +114,11 @@ class DashboardRoute
         app.get(Urls.widgetCreator(), this.widgetCreator.bind(this));
     }
 
-    private sns(req:express.Request, res:express.Response)
+    private networkProfile(req:express.Request, res:express.Response)
     {
         var self = this;
         var sessionData = new SessionData(req);
-        var integrationId = parseInt(req.params[ApiConstants.INTEGRATION_ID]);
+        var integrationId = parseInt(req.params[ApiConstants.NETWORK_ID]);
 
         var searchParameters = {};
         if (req.query[ApiConstants.PRICE_RANGE])
@@ -132,7 +132,7 @@ class DashboardRoute
 
         q.all([
             self.integrationDelegate.get(integrationId),
-            self.integrationMemberDelegate.search({'integration_id': integrationId, 'role': IntegrationMemberRole.Expert})
+            self.integrationMemberDelegate.search(Utils.createSimpleObject(IntegrationMember.COL_INTEGRATION_ID, integrationId, IntegrationMember.COL_ROLE, IntegrationMemberRole.Expert), null, [IntegrationMember.FK_PRICING_SCHEMES])
         ])
             .then(
             function detailsFetched(...args)
@@ -166,10 +166,10 @@ class DashboardRoute
                     searchParameters: searchParameters || {}
                 });
 
-                res.render(DashboardRoute.PAGE_SNS, pageData);
+                res.render(DashboardRoute.PAGE_NETWORK_PROFILE, pageData);
             })
             .fail(
-            function integrationFetchError(error)
+            function integrationFetchError(error:Error)
             {
                 res.render('500', {error: error});
             });

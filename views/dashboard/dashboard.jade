@@ -4,7 +4,20 @@ title SearchNTalk - DashBoard
 .matter
     .container
         .row
-            .content.col-md-4
+            .content.col-md-3
+                .row
+                    .card
+                        .item
+                            .row
+                                h5.col-xs-8 Find Experts to Call
+                                .header-link.col-xs-4
+                        .item
+                            .row
+                                p Need advice? Searchntalk is your one-stop solution to find experts who can help you instantly
+                        .item
+                            .row
+                                a.btn.btn-primary(href=DashboardUrls.networkProfile(Config.get(Config.DEFAULT_NETWORK_ID))) See Experts List
+            .content.col-md-3
                 .row
                     .card
                         .item
@@ -27,7 +40,7 @@ title SearchNTalk - DashBoard
                         .item
                             .row
                                 a.btn.btn-primary(href=MemberRegistrationUrls.index() + '?integrationId=' + Config.get(Config.DEFAULT_NETWORK_ID)) Join Us
-            .content.col-md-4
+            .content.col-md-3
                 .row
                     .card#startExpertNetworkCard
                         .item
@@ -40,7 +53,7 @@ title SearchNTalk - DashBoard
                         .item
                             .row
                                 a.btn.btn-success(href=DashboardUrls.integration()) Manage your experts
-            .content.col-md-4
+            .content.col-md-3
                 .row
                     .card
                         .item

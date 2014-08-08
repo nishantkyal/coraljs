@@ -10,8 +10,9 @@ import UserEducation                                        = require('../models
 import UserEmployment                                       = require('../models/UserEmployment');
 import UserUrl                                              = require('../models/UserUrl');
 import PricingScheme                                        = require('../models/PricingScheme');
-import Schedule                                             = require('./Schedule');
-import ScheduleRule                                         = require('./ScheduleRule');
+import Schedule                                             = require('../models/Schedule');
+import ScheduleRule                                         = require('../models/ScheduleRule');
+import Expertise                                            = require('../models/Expertise');
 import IndustryCode                                         = require('../enums/IndustryCode');
 import Salutation                                           = require('../enums/Salutation');
 import ForeignKeyType                                       = require('../enums/ForeignKeyType');
@@ -45,6 +46,7 @@ class User extends BaseModel
     static FK_USER_URL = new ForeignKey(ForeignKeyType.ONE_TO_MANY, User.COL_ID, UserUrl, UserUrl.COL_USER_ID, 'url');
     static FK_USER_PRICING_SCHEME = new ForeignKey(ForeignKeyType.ONE_TO_MANY, User.COL_ID, PricingScheme, PricingScheme.COL_USER_ID, 'pricing_schemes');
     static FK_USER_SCHEDULE_RULE = new ForeignKey(ForeignKeyType.ONE_TO_MANY, User.COL_ID, ScheduleRule, ScheduleRule.COL_USER_ID, 'schedule_rules');
+    static FK_USER_EXPERTISE = new ForeignKey(ForeignKeyType.ONE_TO_MANY, User.COL_ID, Expertise, Expertise.COL_USER_ID, 'expertise');
 
     private title:Salutation;
     private first_name:string;
@@ -74,12 +76,13 @@ class User extends BaseModel
     getActive():boolean                                         { return this.active; }
     getVerified():boolean                                       { return this.verified; }
     getUserProfile():q.Promise<UserProfile>                     { return null; }
-    getScheduleRules():q.Promise<ScheduleRule[]>                 { return null; }
+    getScheduleRules():q.Promise<ScheduleRule[]>                { return null; }
     getPricingSchemes():q.Promise<PricingScheme[]>              { return null; }
     getSkills():q.Promise<UserSkill[]>                          { return null; }
     getEducation():q.Promise<UserEducation[]>                   { return null; }
     getEmployment():q.Promise<UserEmployment[]>                 { return null; }
     getUrl():q.Promise<UserUrl[]>                               { return null; }
+    getExpertise():q.Promise<Expertise[]>                       { return null; }
 
     isValid():boolean {
         return !Utils.isNullOrEmpty(this.getEmail()) && validator.isEmail(this.getEmail());
@@ -106,6 +109,7 @@ class User extends BaseModel
     setEducation(val:UserEducation[])                           { }
     setEmployment(val:UserEmployment[])                         { }
     setUrl(val:UserUrl[])                                       { }
+    setExpertise(val:Expertise[])                               { }
 
     getPasswordHash(email?:string, password?:string, passwordSeed?:string):string
     {

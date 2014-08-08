@@ -931,4 +931,13 @@
     <changeSet author="Nishant (generated)" id="1407400458119-1">
         <modifyDataType columnName="session_price" newDataType="float(7,2)" tableName="user_expertise"/>
     </changeSet>
+    <changeSet author="Nishant (generated)" id="1407401970206-1">
+        <renameColumn newColumnName="pulse_rate" oldCcolumnName="session_duration" tableName="user_expertise"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1407401970206-2">
+        <renameColumn newColumnName="charging_rate" oldColumnName="session_price" tableName="user_expertise"/>
+    </changeSet>
+    <changeSet author="Nishant (generated)" id="1407401970206-3">
+        <renameColumn newColumnName="unit" oldColumnName="session_price_unit" tableName="user_expertise"/>
+    </changeSet>
 </databaseChangeLog>
