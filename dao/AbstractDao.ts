@@ -156,7 +156,7 @@ class AbstractDao
             },
             function searchError(error:Error)
             {
-                self.logger.error('SEARCH failed for table: %s, criteria: %s, error: %s', self.tableName, searchQuery, JSON.stringify(error));
+                self.logger.error('SEARCH failed for table: %s, criteria: %s, error: %s', self.tableName, JSON.stringify(searchQuery), error.message);
                 throw(error);
             });
     }

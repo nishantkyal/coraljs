@@ -130,27 +130,14 @@ class DashboardRoute
         if (req.query[ApiConstants.AVAILIBILITY])
             searchParameters[ApiConstants.AVAILIBILITY] = req.query[ApiConstants.AVAILIBILITY] == "true" ? true : false;
 
-        q.all([
-            self.integrationDelegate.get(integrationId),
-            self.integrationMemberDelegate.search(Utils.createSimpleObject(IntegrationMember.COL_INTEGRATION_ID, integrationId, IntegrationMember.COL_ROLE, IntegrationMemberRole.Expert), null, [IntegrationMember.FK_PRICING_SCHEMES])
-        ])
-            .then(
-            function detailsFetched(...args)
-            {
-                var integration = args[0][0];
-                var members = args[0][1];
-                var uniqueUserIds:number[] = _.uniq(_.pluck(members, IntegrationMember.COL_USER_ID));
+        var integration:Integration = self.integrationDelegate.getSync(integrationId);
 
-                var foreignKeys = _.map(_.keys(req.query), function (filter:string)
-                {
-                    switch (filter)
-                    {
-                        case ApiConstants.PRICE_RANGE: return User.FK_USER_PRICING_SCHEME;
-                        case ApiConstants.USER_SKILL: return User.FK_USER_SKILL;
-                        default: return null;
-                    }
-                });
-                return [integration, self.userDelegate.search(Utils.createSimpleObject(User.COL_ID, uniqueUserIds), null, foreignKeys.concat(User.FK_USER_PROFILE))];
+        self.integrationMemberDelegate.search(Utils.createSimpleObject(IntegrationMember.COL_INTEGRATION_ID, integrationId, IntegrationMember.COL_ROLE, IntegrationMemberRole.Expert))
+            .then(
+            function detailsFetched(members:IntegrationMember[])
+            {
+                var uniqueUserIds:number[] = _.uniq(_.pluck(members, IntegrationMember.COL_USER_ID));
+                return [integration, self.userDelegate.search(Utils.createSimpleObject(User.COL_ID, uniqueUserIds), null, [User.FK_USER_SKILL, User.FK_USER_PRICING_SCHEME, User.FK_USER_PROFILE])];
             })
             .spread(
             function expertDetailsFetched(integration, ...args)
