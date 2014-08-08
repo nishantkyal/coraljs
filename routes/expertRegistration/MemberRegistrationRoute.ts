@@ -82,7 +82,6 @@ class MemberRegistrationRoute
         }
         else
         {
-            //Add invitation code to session
             sessionData.setInvitationCode(invitationCode);
 
             this.verificationCodeDelegate.searchInvitationCode(invitationCode, integrationId)
@@ -91,6 +90,13 @@ class MemberRegistrationRoute
                 {
                     invitedMember = new IntegrationMember(result);
                     sessionData.setMember(invitedMember);
+
+                    // Check that the user already signed is not the same as one trying to join
+                    if (invitedMember[ApiConstants.USER][User.COL_EMAIL] != req[ApiConstants.USER][User.COL_EMAIL])
+                    {
+                        req.logout();
+                        return res.redirect(AuthenticationUrls.login());
+                    }
 
                     res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
                     res.redirect(authorizationUrl);

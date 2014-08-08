@@ -137,7 +137,7 @@ class DashboardRoute
             function detailsFetched(members:IntegrationMember[])
             {
                 var uniqueUserIds:number[] = _.uniq(_.pluck(members, IntegrationMember.COL_USER_ID));
-                return [integration, self.userDelegate.search(Utils.createSimpleObject(User.COL_ID, uniqueUserIds), null, [User.FK_USER_SKILL, User.FK_USER_PRICING_SCHEME, User.FK_USER_PROFILE])];
+                return [integration, self.userDelegate.search(Utils.createSimpleObject(User.COL_ID, uniqueUserIds, User.COL_ACTIVE, true, User.COL_EMAIL_VERIFIED, true), null, [User.FK_USER_SKILL, User.FK_USER_PRICING_SCHEME, User.FK_USER_PROFILE])];
             })
             .spread(
             function expertDetailsFetched(integration, ...args)

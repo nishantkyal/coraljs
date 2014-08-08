@@ -1,4 +1,5 @@
 include ../header
+include ./dashboardHeader
 title Search Expert in Network - #{integration.title}
 .matter
     .container
@@ -29,8 +30,6 @@ title Search Expert in Network - #{integration.title}
                                         .info-container
                                             .info-upper
                                                 .user-displayname= formatName(expert.first_name, expert.last_name, expert.title)
-                                                if expert.date_of_birth
-                                                    .user-age= moment(expert.date_of_birth,'DD-MM-YYYY').fromNow(true)
                                             .info-lower
                                                 .user-locale New Delhi
                                                 .user-timezone
@@ -42,7 +41,7 @@ title Search Expert in Network - #{integration.title}
                                 .row
                                     if expert.skills && expert.skills.length != 0
                                         .meta.meta-keywords
-                                            h5.col-xs-12 Skills/Keywords
+                                            h5.col-xs-12 Skills
                                             .clearer
                                             ul
                                                 each skill in expert.skills
