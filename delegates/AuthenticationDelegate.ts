@@ -298,6 +298,8 @@ class AuthenticationDelegate
         user.setEmail(profile.emailAddress); //setting email id for new user, if user exists then this will be discarded
         user.setFirstName(profile.firstName);
         user.setLastName(profile.lastName);
+        user.setEmailVerified(true);
+        user.setActive(true);
         if (!Utils.isNullOrEmpty(profile.dateOfBirth))
         {
             var dob:string = profile.dateOfBirth.day + '-' + profile.dateOfBirth.month + '-' + profile.dateOfBirth.year;
