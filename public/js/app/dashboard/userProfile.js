@@ -192,14 +192,12 @@ $('form#linkedinFetch').bootstrapValidator({
     });
 
 $('#expertise .edit-card form .tokeninput, form#AddUserSkillForm .tokeninput').tokenInput('//www.linkedin.com/ta/skill', {
-    theme         : "facebook",
-    queryParam    : 'query',
-    onResult      : processLinkedInResponse,
-    onCachedResult: processLinkedInResponse,
-    onAdd         : callValidate,
-    onDelete      : callValidate,
-    crossDomain   : true,
-    caching       : false
+    theme: "facebook",
+    queryParam: 'query',
+    onResult:processLinkedInResponse,
+    onCachedResult:processLinkedInResponse,
+    crossDomain:true,
+    caching:false
 });
 
 function processLinkedInResponse(response)
@@ -223,11 +221,6 @@ function preFillValues(expertiseId)
                 }
         }
     }
-}
-
-function callValidate()
-{
-    $('#expertise .edit-card form').data('bootstrapValidator').validate();
 }
 
 var expertiseCard = $('#expertise').card();
