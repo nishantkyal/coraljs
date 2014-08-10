@@ -146,7 +146,7 @@ class MemberRegistrationRoute
         switch (parseInt(member.getRole().toString()))
         {
             case IntegrationMemberRole.Expert:
-                redirectUrl = !Utils.isNullOrEmpty(integration.getRedirectUrl()) ? mobileVerificationUrl : integration.getRedirectUrl();
+                redirectUrl = mobileVerificationUrl;
                 break;
 
             default:
