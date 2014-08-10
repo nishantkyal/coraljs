@@ -70,8 +70,8 @@ class AbstractModel
         _.each(thisProtoConstructor['FK_COLUMNS'], function (column:string)
         {
             var setterMethod:string = 'set' + Utils.snakeToCamelCase(column);
-
-            self[setterMethod].call(self, data[column]);
+            if (!Utils.isNullOrEmpty(data[column]))
+                self[setterMethod].call(self, data[column]);
         });
     }
 
@@ -139,7 +139,7 @@ class AbstractModel
         {
             var self = this;
 
-            if (typeof this[srcPropertyName] != undefined)
+            if (typeof this[srcPropertyName] != "undefined")
                 return q.resolve(this[srcPropertyName]);
 
             self.logger.debug('Lazily Finding %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);
@@ -187,7 +187,7 @@ class AbstractModel
         {
             var self = this;
 
-            if (typeof this[srcPropertyName] != undefined)
+            if (typeof this[srcPropertyName] != "undefined")
                 return q.resolve(this[srcPropertyName]);
 
             self.logger.debug('Lazily Searching %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);

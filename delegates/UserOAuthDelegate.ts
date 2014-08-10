@@ -59,7 +59,7 @@ class UserOAuthDelegate extends BaseDaoDelegate
                         function userCreateError(error):any
                         {
                             if (error.code == 'ER_DUP_ENTRY')
-                                return self.userDelegate.find({email: user.getEmail()});
+                                return self.userDelegate.find(Utils.createSimpleObject(User.COL_EMAIL, user.getEmail()));
                             throw(error);
                         })
                         .then(

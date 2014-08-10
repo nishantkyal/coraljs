@@ -55,94 +55,123 @@ class ExpertApi
 
         /* Convert user to expert for integrationId */
         app.put(ApiUrlDelegate.expert(), AuthenticationDelegate.checkLogin(), function (req:express.Request, res:express.Response)
-        {
-            var user:User = req.body[ApiConstants.USER];
-            user.setEmailVerified(true);
-            user.setActive(true);
-
-            var integrationMember:IntegrationMember = req.body[ApiConstants.INTEGRATION_MEMBER];
-
-            function createExpert():any
             {
-                if (integrationMember.isValid())
-                {
-                    return self.integrationMemberDelegate.create(integrationMember)
-                        .then(
-                        function expertCreated(member:IntegrationMember)
-                        {
-                            return [member, self.notificationDelegate.sendMemberAddedNotification(member)];
-                        })
-                        .spread(
-                        function welcomeEmailSent(member:IntegrationMember)
-                        {
-                            res.json(member.toJson());
-                        })
-                        .fail(
-                        function expertCreateFailed(error)
-                        {
-                            res.json(500, error);
-                        });
-                }
-                else
-                    res.json(401, 'Invalid input');
+                var user:User = req.body[ApiConstants.USER];
+                user.setEmailVerified(true);
+                user.setActive(true);
 
-                return null;
-            }
+                var integrationMember:IntegrationMember = req.body[ApiConstants.INTEGRATION_MEMBER];
 
-            if (!Utils.isNullOrEmpty(user) && user.isValid())
                 self.userDelegate.create(user)
+                    .fail(
+                    function userCreateFailed(error):any
+                    {
+                        if (error.code == 'ER_DUP_ENTRY')
+                            return self.userDelegate.find(Utils.createSimpleObject(User.COL_EMAIL, user.getEmail()));
+                        throw error;
+                    })
                     .then(
-                    function userCreated(user:User)
+                    function createExpert(user:User):any
                     {
                         integrationMember.setUserId(user.getId());
-                        return createExpert();
+
+                        return self.integrationMemberDelegate.create(integrationMember);
+                    })
+                    .then(
+                    function expertCreated(member:IntegrationMember)
+                    {
+                        return [member, self.notificationDelegate.sendMemberAddedNotification(member)];
+                    })
+                    .spread(
+                    function welcomeEmailSent(member:IntegrationMember)
+                    {
+                        res.json(member.toJson());
                     })
                     .fail(
                     function expertCreateFailed(error)
                     {
-                        res.json(500, error);
+                        res.json(500, error.message);
                     });
-            else
-                createExpert();
-        });
+            }
+        );
 
         /* Remove expert status of user for integrationId */
-        app.delete(ApiUrlDelegate.expertById(), AccessControl.allowAdmin, function (req:express.Request, res:express.Response)
-        {
-            var expertId = req.params[ApiConstants.EXPERT_ID];
+        app
+            .
+            delete(ApiUrlDelegate
 
-            self.integrationMemberDelegate.delete(expertId)
-                .then(
-                function expertDeleted(result) { res.json(result); },
-                function expertDeleteFailed(error) { res.status(500).json(error); }
-            );
-        });
+                .
+                expertById()
+
+            ,
+            AccessControl
+                .
+                allowAdmin
+            ,
+            function (req:express.Request, res:express.Response)
+            {
+                var expertId = req.params[ApiConstants.EXPERT_ID];
+
+                self.integrationMemberDelegate.delete(expertId)
+                    .then(
+                    function expertDeleted(result) { res.json(result); },
+                    function expertDeleteFailed(error) { res.status(500).json(error); }
+                );
+            }
+        );
 
         /*
          * Update expert's details (revenue share, enabled/disabled status)
          * Allow owner or admin
          */
-        app.post(ApiUrlDelegate.expertById(), AuthenticationDelegate.checkLogin(), function (req:express.Request, res:express.Response)
-        {
-            var expertId = parseInt(req.params[ApiConstants.EXPERT_ID]);
-            var integrationMember:IntegrationMember = req.body[ApiConstants.EXPERT];
+        app
+            .
+            post(ApiUrlDelegate
 
-            self.integrationMemberDelegate.update(expertId, integrationMember)
-                .then(
-                function expertUpdated(result) { res.json(result); },
-                function expertUpdateFailed(error) { res.status(500).json(error); }
-            );
+                .
+                expertById()
 
-        });
+            ,
+            AuthenticationDelegate
+                .
+                checkLogin()
+
+            ,
+            function (req:express.Request, res:express.Response)
+            {
+                var expertId = parseInt(req.params[ApiConstants.EXPERT_ID]);
+                var integrationMember:IntegrationMember = req.body[ApiConstants.EXPERT];
+
+                self.integrationMemberDelegate.update(expertId, integrationMember)
+                    .then(
+                    function expertUpdated(result) { res.json(result); },
+                    function expertUpdateFailed(error) { res.status(500).json(error); }
+                );
+
+            }
+        );
 
         /*
          * Get activity summary for expert
          * Allow expert
          */
-        app.get(ApiUrlDelegate.expertActivitySummary(), AccessControl.allowExpert, function (req:express.Request, res:express.Response)
-        {
+        app
+            .
+            get(ApiUrlDelegate
 
-        });
+                .
+                expertActivitySummary()
+
+            ,
+            AccessControl
+                .
+                allowExpert
+            ,
+            function (req:express.Request, res:express.Response)
+            {
+
+            }
+        );
 
     }
 
