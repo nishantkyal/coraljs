@@ -1,5 +1,0 @@
-enum SkillCodes
-{
-
-}
-export = SkillCodes

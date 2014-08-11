@@ -1,4 +1,4 @@
-*.js.map
+../Coral/delegates/KookooUrlDelegate.js.map
 .DS_Store
 .idea
 *.js

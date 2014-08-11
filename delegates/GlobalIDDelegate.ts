@@ -1,4 +1,3 @@
-///<reference path='../_references.d.ts'/>
 import q                = require('q');
 import Utils            = require('../common/Utils');
 

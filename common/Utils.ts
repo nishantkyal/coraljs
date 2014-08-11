@@ -238,5 +238,29 @@ class Utils
         else
             return setTimeout(Utils.setLongerTimeout(func, interval - maxTimeout, args), maxTimeout);
     }
+
+    /*
+     * Helper method to generate URLs with values substituted for parameters (if supplied)
+     * @param urlPattern
+     * @param values
+     * @returns {string}
+     */
+    static generateUrl(urlPattern:string, values?:Object, baseUrl?:string):string
+    {
+        if (values)
+            for (var key in values)
+                if (values[key] != null)
+                {
+                    var urlParamRegex:RegExp = new RegExp(':' + key);
+                    var urlParamTypeRegex:RegExp = new RegExp('\\(([^\\(]*)\\)', 'i');
+                    urlPattern = urlPattern
+                        .replace(urlParamTypeRegex, '')
+                        .replace(urlParamRegex, values[key]);
+                }
+        if (!Utils.isNullOrEmpty(baseUrl))
+            urlPattern = url.resolve(baseUrl, urlPattern);
+
+        return urlPattern;
+    }
 }
 export = Utils

@@ -4,7 +4,6 @@ import q                                            = require('q');
 import redis                                        = require('redis');
 import Config                                       = require('../common/Config');
 import Utils                                        = require('../common/Utils');
-
 /*
  Base class for all caches
  */
@@ -58,8 +57,7 @@ class CacheHelper
             else
             {
                 if (Utils.getObjectType(result) == 'Array')
-                    deferred.resolve(_.map(result, function (row:any)
-                    {
+                    deferred.resolve(_.map(result, function (row:any)              {
                         return JSON.parse(row);
                     }));
                 else
@@ -139,7 +137,7 @@ class CacheHelper
             if (result)
             {
                 if (Utils.getObjectType(result) == 'Array')
-                    deferred.resolve(_.map(result, function (row:any)
+                    deferred.resolve(_.map(result, function (row:string)
                     {
                         return JSON.parse(row);
                     }));

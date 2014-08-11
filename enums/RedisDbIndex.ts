@@ -1,5 +1,0 @@
-enum RedisDbIndex
-{
-
-}
-export = RedisDbIndex

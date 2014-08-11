@@ -2,13 +2,7 @@
 import moment                                                       = require('moment');
 import accounting                                                   = require('accounting');
 import MoneyUnit                                                    = require('../enums/MoneyUnit');
-import IntegrationMemberRole                                        = require('../enums/IntegrationMemberRole');
-import CallStatus                                                   = require('../enums/CallStatus');
 import Salutation                                                   = require('../enums/Salutation');
-import Schedule                                                     = require('../models/Schedule');
-import User                                                         = require('../models/User');
-import UserPhone                                                    = require('../models/UserPhone');
-import PricingScheme                                                = require('../models/PricingScheme');
 import Utils                                                        = require('../common/Utils');
 
 class Formatter
@@ -45,22 +39,10 @@ class Formatter
             return val.toString();
     }
 
-    static formatRole(role:IntegrationMemberRole):string
-    {
-        return IntegrationMemberRole[role];
-    }
 
     static formatName(firstName:string, lastName?:string, title?:Salutation):string
     {
         return [Salutation[title], firstName, lastName].join(' ');
-    }
-
-    static formatSchedule(schedule:Schedule):string
-    {
-        var endTime = moment(schedule['start_time']).add('seconds', schedule['duration']).format('h:mm A');
-        var startTime = moment(schedule['start_time']).format('DD-MM-YYYY h:mm A');
-
-        return startTime + ' - ' + endTime;
     }
 
     static formatDate(m:Date):string;
@@ -83,17 +65,7 @@ class Formatter
         return (isNegative ? '-' : '') + moment(m).format(format).toString();
     }
 
-    static formatCallStatus(status:CallStatus):string
-    {
-        return Utils.enumToNormalText(CallStatus)[status];
-    }
 
-    static formatUserName(user:User, includeEmail:boolean = false):string
-    {
-        if (includeEmail)
-            return Formatter.formatEmail(user.getEmail(), user.getFirstName(), user.getLastName(), user.getTitle());
-        return Formatter.formatName(user.getFirstName(), user.getLastName(), user.getTitle());
-    }
 
     static getNameInitials(firstName:string = ' ', lastName:string = ' '):string
     {
@@ -109,10 +81,6 @@ class Formatter
         return email;
     }
 
-    static formatPhone(phone:UserPhone):string
-    {
-        return !Utils.isNullOrEmpty(phone) && phone.isValid() ? phone.getCompleteNumber() : null;
-    }
 
     static formatTimezone(offset):string
     {
