@@ -1,14 +1,17 @@
 function init(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-text-replace');
-    grunt.loadNpmTasks('grunt-promise-q');
+    grunt.loadNpmTasks('grunt-typescript');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
-        clean: ['Coral.d.ts'],
+        clean: {
+            "options": {
+                "force": true
+            },
+            "typescript": ["*/**/*.js", "*/**/*.js.map", "*/**/*.d.ts", "!Gruntfile.js", "!node_modules/**/*.js"]
+        },
         concat: {
             dist: {
                 src: ['enums/*.d.ts', 'models/*.d.ts', 'dao/*.d.ts', 'delegates/*.d.ts', 'common/*.d.ts', 'caches/*.d.ts'],
@@ -48,6 +51,18 @@ function init(grunt) {
                     }
                 ]
             }
+        },
+        "typescript": {
+            "coral": {
+                "src": ['models\\*.ts', '!*\\*.d.ts'],
+                "options": {
+                    "module": 'commonjs',
+                    "target": 'es5',
+                    "basePath": '.',
+                    "sourceMap": false,
+                    "declaration": true
+                }
+            }
         }
     });
 
@@ -62,7 +77,7 @@ function init(grunt) {
         });
     });
 
-    grunt.registerTask('default', ['clean', 'concat', 'replace', 'generate-index']);
+    grunt.registerTask('default', ['concat', 'replace', 'generate-index']);
 }
 
 module.exports = init;
