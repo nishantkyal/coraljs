@@ -21,7 +21,7 @@ function init(grunt) {
         },
         'generate-index': {
             target: {
-                src: ['enums/*.js', 'models/*.js', 'delegates/ApiUrlDelegate.js', 'common/*.js'],
+                src: ['enums/*.js', 'models/*.js', 'dao/*.js', 'delegates/*.js', 'common/*.js', 'caches/*.js'],
                 dest: 'index.js'
             }
         },
