@@ -21,8 +21,6 @@ import GlobalIDDelegate = require("./delegates/GlobalIDDelegate");
 import ImageDelegate = require("./delegates/ImageDelegate");
 import LocalizationDelegate = require("./delegates/LocalizationDelegate");
 import MysqlDelegate = require("./delegates/MysqlDelegate");
-import Config = require("./common/Config");
-import Credentials = require("./common/Credentials");
 import Formatter = require("./common/Formatter");
 import Utils = require("./common/Utils");
 import CacheHelper = require("./caches/CacheHelper");
@@ -50,8 +48,6 @@ var exported = {
     ImageDelegate: ImageDelegate,
     LocalizationDelegate: LocalizationDelegate,
     MysqlDelegate: MysqlDelegate,
-    Config: Config,
-    Credentials: Credentials,
     Formatter: Formatter,
     Utils: Utils,
     CacheHelper: CacheHelper

@@ -2,7 +2,6 @@
 import _                                            = require('underscore');
 import q                                            = require('q');
 import redis                                        = require('redis');
-import Config                                       = require('../common/Config');
 import Utils                                        = require('../common/Utils');
 /*
  Base class for all caches
@@ -11,10 +10,10 @@ class CacheHelper
 {
     private connection:redis.RedisClient;
 
-    constructor(port:number)
+    constructor(host:string, port:number)
     {
         // We're going to maintain just one connection to redis since both node and redis are single threaded
-        this.connection = redis.createClient(port, Config.get(Config.REDIS_HOST), {connect_timeout: 60000});
+        this.connection = redis.createClient(port, host, {connect_timeout: 60000});
         this.connection.on('error', function (error)
         {
             console.log(error);

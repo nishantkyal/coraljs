@@ -2,7 +2,6 @@
 import mysql                                        = require('mysql');
 import q                                            = require('q');
 import log4js                                       = require('log4js');
-import Config                                       = require('../common/Config');
 import Utils                                        = require('../common/Utils');
 
 /*
@@ -32,7 +31,7 @@ class MysqlDelegate
     /*
      * Helper method to get a connection from pool
      */
-    createConnection(host:string = Config.get(Config.DATABASE_HOST), user:string = Config.get(Config.DATABASE_USER), password:string = Config.get(Config.DATABASE_PASS), socketPath:string = Config.get(Config.DATABASE_SOCKET)):q.Promise<any>
+    createConnection(host:string, user:string, password:string, socketPath:string):q.Promise<any>
     {
         var deferred = q.defer();
         var self = this;
