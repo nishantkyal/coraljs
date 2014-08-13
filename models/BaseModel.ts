@@ -1,3 +1,4 @@
+///<reference path='../_references.d.ts'/>
 import _                                                = require('underscore');
 import Utils                                            = require('../common/Utils');
 import AbstractModel                                    = require('./AbstractModel');

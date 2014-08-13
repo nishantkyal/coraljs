@@ -1,3 +1,4 @@
+///<reference path='../_references.d.ts'/>
 import BaseModel                                            = require('./BaseModel');
 import ForeignKeyType                                       = require('../enums/ForeignKeyType');
 

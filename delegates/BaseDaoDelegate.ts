@@ -1,3 +1,4 @@
+///<reference path='../_references.d.ts'/>
 import _                                                = require('underscore');
 import log4js                                           = require('log4js');
 import q                                                = require('q');

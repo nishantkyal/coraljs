@@ -1,3 +1,4 @@
+///<reference path='../_references.d.ts'/>
 import _                                                    = require('underscore');
 import q                                                    = require('q');
 import AbstractDao                                          = require('./AbstractDao');

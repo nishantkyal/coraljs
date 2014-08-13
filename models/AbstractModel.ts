@@ -1,4 +1,5 @@
-import log4js                                      = require('log4js');
+///<reference path='../_references.d.ts'/>
+import log4js                                           = require('log4js');
 import q                                                = require('q');
 import _                                                = require('underscore');
 import Utils                                            = require('../common/Utils');
