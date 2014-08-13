@@ -3,6 +3,7 @@
 *.js
 *.js.map
 *.d.ts
-!_references.d.ts
-!.gitignore
 *.html
+!.gitignore
+!_references.d.ts
+!node_modules/**/*.js
