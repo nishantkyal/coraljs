@@ -38,11 +38,12 @@ class AbstractModel
                 }
 
                 // Detect Foreign Keys
-                if (Utils.getObjectType(thisProtoConstructor[classProperty]) == 'ForeignKey'
-                    && classProperty.match(/^FK_/) != null)
+                if (Utils.getObjectType(thisProtoConstructor[classProperty]) == 'ForeignKey')
                 {
                     var fk:ForeignKey = thisProtoConstructor[classProperty];
                     thisProtoConstructor['FK_COLUMNS'].push(fk.getSourcePropertyName());
+
+                    // TODO: Also add reverse foreign keys to referenced model
                     switch (fk.type)
                     {
                         case ForeignKeyType.ONE_TO_MANY:

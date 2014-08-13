@@ -38,7 +38,7 @@ class BaseMappingDao extends AbstractDao
             'AND mapping.' + fk.src_key + ' = referenced.' + fk.target_key + ' ' +
             'AND (mapping.deleted IS NULL OR mapping.deleted = 0)';
 
-        return MysqlDelegate.executeQuery(query, values, transaction)
+        return self.mysqlDelegate.executeQuery(query, values, transaction)
             .then(
             function handleResults(rows:Object[])
             {

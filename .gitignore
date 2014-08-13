@@ -1,6 +1,8 @@
-../Coral/delegates/KookooUrlDelegate.js.map
 .DS_Store
 .idea
 *.js
+*.js.map
+*.d.ts
+!_references.d.ts
 !.gitignore
 *.html

@@ -16,6 +16,7 @@ class AbstractDao
     public modelClass:typeof BaseModel;
     public tableName:string;
     public logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
+    mysqlDelegate = new MysqlDelegate()
 
     constructor(modelClass:typeof BaseModel)
     {
@@ -74,7 +75,7 @@ class AbstractDao
         var query = 'INSERT INTO `' + self.tableName + '` (' + insertedFields.join(',') + ') VALUES ';
         query += Utils.repeatChar('(' + Utils.repeatChar('?', insertedFields.length, ',') + ')', rows.length, ',');
 
-        return MysqlDelegate.executeQuery(query, values, transaction)
+        return self.mysqlDelegate.executeQuery(query, values, transaction)
             .then(
             function created():any
             {
@@ -147,7 +148,7 @@ class AbstractDao
             'WHERE ' + wheres.join(' AND ') + ' ' +
             'AND (deleted IS NULL OR deleted = 0)';
 
-        return MysqlDelegate.executeQuery(queryString, values, transaction)
+        return self.mysqlDelegate.executeQuery(queryString, values, transaction)
             .then(
             function handleSearchResults(results:any[]):any
             {
@@ -177,7 +178,7 @@ class AbstractDao
 
         var queryString = 'SELECT ' + selectColumns + ' FROM `' + this.tableName + '` WHERE ' + wheres.join(' AND ') + ' AND (deleted IS NULL OR deleted = 0)' + ' LIMIT 1';
 
-        return MysqlDelegate.executeQuery(queryString, values, transaction)
+        return self.mysqlDelegate.executeQuery(queryString, values, transaction)
             .then(
             function handleSearchResults(result):any {
                 if (result.length == 1)
@@ -223,7 +224,7 @@ class AbstractDao
 
         var query = 'UPDATE `' + this.tableName + '` SET ' + updates.join(",") + ' WHERE ' + wheres.join(" AND ");
 
-        return MysqlDelegate.executeQuery(query, values, transaction)
+        return self.mysqlDelegate.executeQuery(query, values, transaction)
             .then(
             function updateComplete(result:mysql.OkPacket):any
             {
@@ -262,7 +263,7 @@ class AbstractDao
 
         var query = 'DELETE FROM `' + this.tableName + '` WHERE ' + wheres.join(' AND ');
 
-        return MysqlDelegate.executeQuery(query, values, transaction)
+        return self.mysqlDelegate.executeQuery(query, values, transaction)
             .fail(
             function deleteFailed(error:Error)
             {

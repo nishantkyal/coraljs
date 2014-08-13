@@ -549,10 +549,12 @@ export class ForeignKey {
 
 
 
+
 export class AbstractDao {
     public modelClass: typeof BaseModel;
     public tableName: string;
     public logger: log4js.Logger;
+    public mysqlDelegate: MysqlDelegate;
     constructor(modelClass: typeof BaseModel);
     /**
     * Persist model
@@ -636,9 +638,8 @@ export class BaseDaoDelegate {
     public create(object: Object[], transaction?: Object): q.Promise<any>;
     public update(criteria: Object, newValues: any, transaction?: Object): q.Promise<any>;
     public update(criteria: number, newValues: any, transaction?: Object): q.Promise<any>;
-    public delete(criteria: number, transaction?: Object, softDelete?: boolean): q.Promise<any>;
-    public delete(criteria: Object, transaction?: Object, softDelete?: boolean): q.Promise<any>;
-    public getIncludeHandler(include: any, result: any): q.Promise<any>;
+    public delete(criteria: number, softDelete?: boolean, transaction?: Object): q.Promise<any>;
+    public delete(criteria: Object, softDelete?: boolean, transaction?: Object): q.Promise<any>;
 }
 
 
@@ -683,17 +684,16 @@ export class LocalizationDelegate {
 
 
 
-
 export class MysqlDelegate {
     private static pool;
-    private static logger;
-    private static ctor;
-    static createConnection(host?: string, user?: string, password?: string, socketPath?: string): q.Promise<any>;
-    static getConnectionFromPool(): q.Promise<any>;
-    static beginTransaction(transaction?: Object): q.Promise<any>;
-    static executeQuery(query: string, parameters?: any[], connection?: any): q.Promise<any>;
-    static executeInTransaction(thisArg: any, args?: IArguments): q.Promise<any>;
-    static commit(transaction: any, result?: any): q.Promise<any>;
+    private logger;
+    constructor(host?: string, database?: string, user?: string, password?: string, socketPath?: string);
+    public createConnection(host?: string, user?: string, password?: string, socketPath?: string): q.Promise<any>;
+    public getConnectionFromPool(): q.Promise<any>;
+    public beginTransaction(transaction?: Object): q.Promise<any>;
+    public executeQuery(query: string, parameters?: any[], connection?: any): q.Promise<any>;
+    public executeInTransaction(thisArg: any, args?: IArguments): q.Promise<any>;
+    public commit(transaction: any, result?: any): q.Promise<any>;
 }
 
 

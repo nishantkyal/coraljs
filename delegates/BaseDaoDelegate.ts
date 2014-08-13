@@ -162,19 +162,14 @@ class BaseDaoDelegate
         return this.dao.update(criteria, newValues, transaction);
     }
 
-    delete(criteria:number, transaction?:Object, softDelete?:boolean):q.Promise<any>;
-    delete(criteria:Object, transaction?:Object, softDelete?:boolean):q.Promise<any>;
-    delete(criteria:any, transaction?:Object, softDelete:boolean = true):q.Promise<any>
+    delete(criteria:number, softDelete?:boolean, transaction?:Object):q.Promise<any>;
+    delete(criteria:Object, softDelete?:boolean, transaction?:Object):q.Promise<any>;
+    delete(criteria:any, softDelete:boolean = true, transaction?:Object):q.Promise<any>
     {
         if (softDelete)
             return this.dao.update(criteria, {'deleted': moment().valueOf()}, transaction);
         else
             return this.dao.delete(criteria, transaction);
-    }
-
-    getIncludeHandler(include:any, result:any):q.Promise<any>
-    {
-        return null;
     }
 }
 export = BaseDaoDelegate
