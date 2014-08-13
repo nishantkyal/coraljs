@@ -641,6 +641,7 @@ export enum ServiceRequestStatus {
 
 
 
+
 export class AbstractModel {
     public __proto__: any;
     static TABLE_NAME: string;
@@ -657,6 +658,7 @@ export class AbstractModel {
     private hasMany(fk);
     static getForeignKeyForSrcKey(srcKey: string): ForeignKey;
 }
+
 
 
 
@@ -680,6 +682,7 @@ export class BaseModel extends AbstractModel {
     public setDeleted(val: boolean): void;
     public isValid(): boolean;
 }
+
 
 
 
@@ -762,10 +765,12 @@ export class AbstractDao {
 
 
 
+
 export class BaseMappingDao extends AbstractDao {
     public find(searchQuery: Object, fields?: string[], transaction?: Object): q.Promise<any>;
     public search(searchQuery: Object, fields?: string[], transaction?: Object): q.Promise<any>;
 }
+
 
 
 
@@ -800,6 +805,7 @@ export class FileWatcherDelegate {
 }
 
 
+
 export class GlobalIDDelegate {
     static TIMESTAMP_SHIFT: number;
     static OBJECT_TYPE_SHIFT: number;
@@ -832,6 +838,7 @@ export class LocalizationDelegate {
     static get(key: string, locale?: string): string;
     static setLocale(locale: string): void;
 }
+
 
 
 

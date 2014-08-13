@@ -19,7 +19,6 @@
         "grunt-contrib-clean" : "*",
         "grunt-contrib-concat": "*",
         "grunt-text-replace"  : "*",
-        "grunt-typescript"    : "*",
         "i18n"                : "0.4.1",
         "json2xml"            : "0.1.1",
         "log4js"              : "0.6.9",

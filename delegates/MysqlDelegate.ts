@@ -1,3 +1,4 @@
+///<reference path='../_references.d.ts'/>
 import mysql                                        = require('mysql');
 import q                                            = require('q');
 import log4js                                       = require('log4js');

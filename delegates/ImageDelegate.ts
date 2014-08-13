@@ -1,4 +1,4 @@
-///<reference path='../../SearchNTalk/_references.d.ts'/>
+///<reference path='../_references.d.ts'/>
 import q                                            = require('q');
 import fs                                           = require('fs');
 import http                                         = require('http');

@@ -1,8 +1,10 @@
+///<reference path='./_references.d.ts'/>
+var childProcess = require('child_process');
+
 function init(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-text-replace');
-    grunt.loadNpmTasks('grunt-typescript');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -53,16 +55,7 @@ function init(grunt) {
             }
         },
         "typescript": {
-            "coral": {
-                "src": ['models\\*.ts', '!*\\*.d.ts'],
-                "options": {
-                    "module": 'commonjs',
-                    "target": 'es5',
-                    "basePath": '.',
-                    "sourceMap": false,
-                    "declaration": true
-                }
-            }
+            "coral-index": {}
         }
     });
 
@@ -77,7 +70,17 @@ function init(grunt) {
         });
     });
 
-    grunt.registerTask('default', ['concat', 'replace', 'generate-index']);
+    grunt.registerMultiTask("typescript", function () {
+        var exec = childProcess.exec;
+        var done = this.async();
+        exec('tsc -m commonjs -d --sourcemap index.ts', function (error, stdout, stderr) {
+            console.log(stdout);
+            console.log(stderr);
+            done();
+        });
+    });
+
+    grunt.registerTask('default', ['clean', 'typescript', 'concat', 'replace']);
 }
 
 module.exports = init;
