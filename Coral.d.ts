@@ -920,6 +920,7 @@ export class CacheHelper {
     public delFromOrderedSet(set: any, key: any): q.Promise<any>;
     public setExpiry(key: any, expiry: any): q.Promise<any>;
     public incrementCounter(counterName: string): q.Promise<any>;
+    public incrementHashKey(hash: string, counterName: string, increment?: number): q.Promise<any>;
 }
 
 }
