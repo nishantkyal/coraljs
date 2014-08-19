@@ -1,4 +1,3 @@
-///<reference path='../_references.d.ts'/>
 import mysql                                        = require('mysql');
 import q                                            = require('q');
 import log4js                                       = require('log4js');
@@ -15,7 +14,7 @@ class MysqlDelegate
 
     constructor(host?:string, database?:string, user?:string, password?:string, socketPath?:string)
     {
-        if (Utils.isNullOrEmpty(MysqlDelegate.pool))
+        if (Utils.isNullOrEmpty(MysqlDelegate.pool) && !Utils.isNullOrEmpty(host))
         {
             MysqlDelegate.pool = mysql.createPool({
                 host: host,

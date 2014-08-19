@@ -173,7 +173,7 @@ class CacheHelper
             .then(
             function valuesFetched(...args)
             {
-                var keys = args[0][0];
+                var keys:string[] = args[0][0];
                 var values = args[0][1];
                 var indexed = {};
                 _.each(keys, function(code:string, index) {
@@ -323,6 +323,19 @@ class CacheHelper
     {
         var deferred = q.defer();
         return this.getConnection().incr(counterName, function (error, result)
+        {
+            if (error)
+                deferred.reject(error);
+            else
+                deferred.resolve(result);
+        });
+        return deferred.promise;
+    }
+
+    incrementHashKey(hash:string, counterName:string, increment:number = 1):q.Promise<any>
+    {
+        var deferred = q.defer();
+        return this.getConnection().hincrby(hash, counterName, increment, function (error, result)
         {
             if (error)
                 deferred.reject(error);
