@@ -15,6 +15,7 @@ class sqlToModel
                 break;
 
             case 'varchar':
+            case 'text':
                 temp += 'string'
                 break;
 

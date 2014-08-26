@@ -23,6 +23,7 @@ import LocalizationDelegate = require("./delegates/LocalizationDelegate");
 import MysqlDelegate = require("./delegates/MysqlDelegate");
 import Formatter = require("./common/Formatter");
 import Utils = require("./common/Utils");
+import sqlToModel = require("./common/sqlToModel");
 import CacheHelper = require("./caches/CacheHelper");
 
 var exported = {
@@ -50,6 +51,7 @@ var exported = {
     MysqlDelegate: MysqlDelegate,
     Formatter: Formatter,
     Utils: Utils,
+    sqlToModel: sqlToModel,
     CacheHelper: CacheHelper
 };
 
