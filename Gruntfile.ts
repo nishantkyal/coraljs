@@ -1,4 +1,3 @@
-///<reference path='./_references.d.ts'/>
 import childProcess                                         = require('child_process');
 
 function init(grunt)
@@ -13,7 +12,7 @@ function init(grunt)
             "options": {
                 "force": true
             },
-            "typescript": ["*/**/*.js", "*/**/*.js.map", "*/**/*.d.ts", "!Gruntfile.js", "!node_modules/**/*.js"]
+            "typescript": ["*/**/*.js", "*/**/*.js.map", "*/**/*.d.ts", "!_references.d.ts", "!Gruntfile.js", "!node_modules/**/*.js"]
         },
         concat: {
             dist: {

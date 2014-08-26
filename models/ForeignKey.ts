@@ -1,16 +1,16 @@
 ///<reference path='../_references.d.ts'/>
-import BaseModel                                            = require('./BaseModel');
+import AbstractModel                                            = require('./AbstractModel');
 import ForeignKeyType                                       = require('../enums/ForeignKeyType');
 
 class ForeignKey
 {
     type:ForeignKeyType;
     src_key:string;
-    referenced_table:typeof BaseModel;
+    referenced_table:typeof AbstractModel;
     target_key:string;
     local_property_to_set:string;
 
-    constructor(type:ForeignKeyType, srcKey:string, referenced_table:typeof BaseModel, targetKey:string, localPropertyToSet?:string)
+    constructor(type:ForeignKeyType, srcKey:string, referenced_table:typeof AbstractModel, targetKey:string, localPropertyToSet?:string)
     {
         this.type = type;
         this.src_key = srcKey;
