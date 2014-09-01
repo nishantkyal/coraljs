@@ -16,6 +16,8 @@ class AbstractModel
     private static _INITIALIZED:boolean = false;
     private logger = log4js.getLogger(Utils.getClassName(this));
 
+    static PUBLIC_FIELDS:string[] = [];
+
     constructor(data:Object = {})
     {
         var thisProtoConstructor = this.__proto__.constructor;

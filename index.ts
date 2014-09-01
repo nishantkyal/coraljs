@@ -16,6 +16,7 @@ import ForeignKey = require("./models/ForeignKey");
 import AbstractDao = require("./dao/AbstractDao");
 import BaseMappingDao = require("./dao/BaseMappingDao");
 import BaseDaoDelegate = require("./delegates/BaseDaoDelegate");
+import BaseMappingDaoDelegate = require("./delegates/BaseMappingDaoDelegate");
 import FileWatcherDelegate = require("./delegates/FileWatcherDelegate");
 import GlobalIDDelegate = require("./delegates/GlobalIDDelegate");
 import ImageDelegate = require("./delegates/ImageDelegate");
@@ -44,6 +45,7 @@ var exported = {
     AbstractDao: AbstractDao,
     BaseMappingDao: BaseMappingDao,
     BaseDaoDelegate: BaseDaoDelegate,
+    BaseMappingDaoDelegate: BaseMappingDaoDelegate,
     FileWatcherDelegate: FileWatcherDelegate,
     GlobalIDDelegate: GlobalIDDelegate,
     ImageDelegate: ImageDelegate,
