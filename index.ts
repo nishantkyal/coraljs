@@ -16,6 +16,7 @@ import ForeignKey = require("./models/ForeignKey");
 import AbstractDao = require("./dao/AbstractDao");
 import BaseMappingDao = require("./dao/BaseMappingDao");
 import BaseDaoDelegate = require("./delegates/BaseDaoDelegate");
+import BaseMappingDaoDelegate = require("./delegates/BaseMappingDaoDelegate");
 import FileWatcherDelegate = require("./delegates/FileWatcherDelegate");
 import GlobalIDDelegate = require("./delegates/GlobalIDDelegate");
 import ImageDelegate = require("./delegates/ImageDelegate");
@@ -23,6 +24,7 @@ import LocalizationDelegate = require("./delegates/LocalizationDelegate");
 import MysqlDelegate = require("./delegates/MysqlDelegate");
 import Formatter = require("./common/Formatter");
 import Utils = require("./common/Utils");
+import sqlToModel = require("./common/sqlToModel");
 import CacheHelper = require("./caches/CacheHelper");
 
 var exported = {
@@ -43,6 +45,7 @@ var exported = {
     AbstractDao: AbstractDao,
     BaseMappingDao: BaseMappingDao,
     BaseDaoDelegate: BaseDaoDelegate,
+    BaseMappingDaoDelegate: BaseMappingDaoDelegate,
     FileWatcherDelegate: FileWatcherDelegate,
     GlobalIDDelegate: GlobalIDDelegate,
     ImageDelegate: ImageDelegate,
@@ -50,6 +53,7 @@ var exported = {
     MysqlDelegate: MysqlDelegate,
     Formatter: Formatter,
     Utils: Utils,
+    sqlToModel: sqlToModel,
     CacheHelper: CacheHelper
 };
 

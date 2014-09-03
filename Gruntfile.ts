@@ -56,6 +56,11 @@ function init(grunt)
         },
         "typescript": {
             "coral-index": {}
+        },
+        "sqlToModel": {
+            "target" : {
+
+            }
         }
     });
 
@@ -83,6 +88,14 @@ function init(grunt)
             console.log(stderr);
             done();
         });
+    });
+
+    grunt.registerMultiTask("sqlToModel", function ()
+    {
+        var sqlString = grunt.option('sql');
+        var sqlToModel = require('./common/sqlToModel');
+        console.log(sqlString);
+        sqlToModel.sqlToModel(sqlString);
     });
 
     grunt.registerTask('default', ['clean', 'typescript', 'concat', 'replace']);

@@ -18,8 +18,6 @@ class BaseModel extends AbstractModel
     private updated:number;
     private deleted:boolean;
 
-    static PUBLIC_FIELDS:string[] = [BaseModel.COL_ID];
-
     /* Getters */
     getId():number                                      { return this.id; }
     getCreated():number                                 { return this.created; }

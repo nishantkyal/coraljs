@@ -5,7 +5,7 @@ import _                                            = require('underscore');
 import log4js                                       = require('log4js');
 import MysqlDelegate                                = require('../delegates/MysqlDelegate')
 import GlobalIdDelegate                             = require('../delegates/GlobalIDDelegate');
-import BaseModel                                    = require('../models/BaseModel');
+import AbstractModel                                    = require('../models/AbstractModel');
 import Utils                                        = require('../common/Utils');
 
 /*
@@ -13,12 +13,12 @@ import Utils                                        = require('../common/Utils')
  */
 class AbstractDao
 {
-    public modelClass:typeof BaseModel;
+    public modelClass:typeof AbstractModel;
     public tableName:string;
     public logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
     mysqlDelegate = new MysqlDelegate()
 
-    constructor(modelClass:typeof BaseModel)
+    constructor(modelClass:typeof AbstractModel)
     {
         this.modelClass = modelClass;
 
