@@ -1,5 +1,4 @@
 ///<reference path='../_references.d.ts'/>
-import url                                          = require('url');
 import log4js                                       = require('log4js');
 import _                                            = require('underscore');
 
@@ -161,9 +160,7 @@ class Utils
 
     static addQueryToUrl(baseUrl:string, query:Object):string
     {
-        var urlObj = url.parse(baseUrl);
-        urlObj.query = _.extend(urlObj.query || {}, query);
-        return url.format(urlObj);
+        return new URI(baseUrl).addQuery(query).href();
     }
 
     static escapeObject(Obj:Object):Object;
@@ -258,7 +255,7 @@ class Utils
                         .replace(urlParamRegex, values[key]);
                 }
         if (!Utils.isNullOrEmpty(baseUrl))
-            urlPattern = url.resolve(baseUrl, urlPattern);
+            urlPattern = new URI(urlPattern).relativeTo(baseUrl).href();
 
         return urlPattern;
     }
