@@ -16,7 +16,7 @@ function init(grunt)
     grunt.loadNpmTasks('grunt-promise-q');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
-    grunt.loadNpmTasks('grunt-typescript');
+    grunt.loadNpmTasks('grunt-ts');
     grunt.loadNpmTasks('grunt-bumpup');
     grunt.loadNpmTasks('grunt-prompt');
     grunt.loadNpmTasks('grunt-git');
@@ -66,12 +66,11 @@ function init(grunt)
                 }
             }
         },
-        "typescript": {
+        "ts": {
             "coral": {
                 "src": ['app.ts'],
                 "options": {
                     "module": 'commonjs', //or commonjs
-                    "target": 'es5', //or es3
                     "basePath": '.',
                     "sourceMap": false,
                     "declaration": false
@@ -82,7 +81,7 @@ function init(grunt)
             "options": {
                 "force": true
             },
-            "typescript": ["app.js", "*/**/*.js", "*/**/*.js.map", "*/**/*.d.ts", "!Gruntfile.js", "!_references.d.ts", "!public/**/*.js", "!node_modules/**/*.js", "!common/Config.js"],
+            "typescript": ["app.js", "*/**/*.js", "*/**/*.js.map", "*/**/*.d.ts", "!Gruntfile.js", "!_references.d.ts", "!public/**/*.js", "!node_modules/**/*", "!common/Config.js"],
             "release": "<%= buildDir %>"
         },
         "bumpup": {
@@ -256,7 +255,7 @@ function init(grunt)
     grunt.registerTask('release',
         [
             "clean:typescript",
-            "typescript:coral",
+            "ts:coral",
             "prompt:bumpup", "prompt_bumpup",
             "rename:release", "copy:release", "clean:release", "symlink:release", "jadeUsemin",
             "db_dump:release", "update-db:originalDb",
