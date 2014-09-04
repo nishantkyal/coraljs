@@ -294,32 +294,42 @@ class AuthenticationDelegate
         userOauth.setAccessTokenExpiry(expiry);
         userOauth.setEmail(profile.emailAddress);
 
-        var user = new User();
-        user.setEmail(profile.emailAddress); //setting email id for new user, if user exists then this will be discarded
-        user.setFirstName(profile.firstName);
-        user.setLastName(profile.lastName);
-        user.setEmailVerified(true);
-        user.setActive(true);
-        if (!Utils.isNullOrEmpty(profile.dateOfBirth))
-        {
-            var dob:string = profile.dateOfBirth.day + '-' + profile.dateOfBirth.month + '-' + profile.dateOfBirth.year;
-            user.setDateOfBirth(dob);
-        }
-        if (!Utils.isNullOrEmpty(profile.industry))
-        {
-            var industry:string = profile.industry.toString().replace(/-|\/|\s/g, '_').toUpperCase();
-            user.setIndustry(IndustryCodes[industry]);
-        }
+        var user;
 
-        try
+        if (req.user)
         {
-            if (!Utils.isNullOrEmpty(req.cookies[ApiConstants.ZONE]))
-                user.setTimezone(req.cookie[ApiConstants.ZONE]);
-            else if (!Utils.isNullOrEmpty(req.cookies[ApiConstants.OFFSET]))
-                user.setTimezone(new TimezoneDelegate().getZoneByOffset(parseInt(req.cookies[ApiConstants.OFFSET])).getZoneId());
-        } catch (e)
+            user = new User(req.user);
+        }
+        else
         {
-            user.setTimezone(194);
+            user = new User();
+            user.setEmail(profile.emailAddress); //setting email id for new user, if user exists then this will be discarded
+            user.setFirstName(profile.firstName);
+            user.setLastName(profile.lastName);
+            user.setEmailVerified(true);
+            user.setActive(true);
+
+            if (!Utils.isNullOrEmpty(profile.dateOfBirth))
+            {
+                var dob:string = profile.dateOfBirth.day + '-' + profile.dateOfBirth.month + '-' + profile.dateOfBirth.year;
+                user.setDateOfBirth(dob);
+            }
+            if (!Utils.isNullOrEmpty(profile.industry))
+            {
+                var industry:string = profile.industry.toString().replace(/-|\/|\s/g, '_').toUpperCase();
+                user.setIndustry(IndustryCodes[industry]);
+            }
+
+            try
+            {
+                if (!Utils.isNullOrEmpty(req.cookies[ApiConstants.ZONE]))
+                    user.setTimezone(req.cookie[ApiConstants.ZONE]);
+                else if (!Utils.isNullOrEmpty(req.cookies[ApiConstants.OFFSET]))
+                    user.setTimezone(new TimezoneDelegate().getZoneByOffset(parseInt(req.cookies[ApiConstants.OFFSET])).getZoneId());
+            } catch (e)
+            {
+                user.setTimezone(194);
+            }
         }
 
         return new UserOAuthDelegate().addOrUpdateToken(userOauth, user)
@@ -344,9 +354,9 @@ class AuthenticationDelegate
                     if (Utils.isNullOrEmpty(userId) || (createdUser.getId() == userId))
                         req.logIn(createdUser, done);
                     else
-                        done('This LinkedIn account is already associated with another SearchNTalk.com account.');
+                        done(new Error('This LinkedIn account is already associated with another SearchNTalk.com account.'));
                 else
-                    done('Login failed');
+                    done(new Error('Login failed'));
 
                 return createdUser;
             },
