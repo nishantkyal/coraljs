@@ -13,7 +13,6 @@ class AbstractModel
     static TABLE_NAME:string;
     static DELEGATE:BaseDaoDelegate;
     private static FOREIGN_KEYS:ForeignKey[] = [];
-    private static _INITIALIZED:boolean = false;
     private logger = log4js.getLogger(Utils.getClassName(this));
 
     static PUBLIC_FIELDS:string[] = [];

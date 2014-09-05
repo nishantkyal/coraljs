@@ -91,7 +91,7 @@ class MysqlDelegate
                 function handleConnection(connection)
                 {
                     self.logger.debug("Connection obtained");
-                    connection.beginTransaction(
+                    connection.beginProductTransaction(
                         function handleTransactionCallback(error, transaction)
                         {
                             if (error)

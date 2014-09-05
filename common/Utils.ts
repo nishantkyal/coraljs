@@ -1,6 +1,7 @@
 ///<reference path='../_references.d.ts'/>
 import log4js                                       = require('log4js');
 import _                                            = require('underscore');
+import URI                                          = require('uri-js');
 
 class Utils
 {
@@ -160,7 +161,7 @@ class Utils
 
     static addQueryToUrl(baseUrl:string, query:Object):string
     {
-        return new URI(baseUrl).addQuery(query).href();
+        return URI(baseUrl).addQuery(query).href();
     }
 
     static escapeObject(Obj:Object):Object;
@@ -255,7 +256,7 @@ class Utils
                         .replace(urlParamRegex, values[key]);
                 }
         if (!Utils.isNullOrEmpty(baseUrl))
-            urlPattern = new URI(urlPattern).relativeTo(baseUrl).href();
+            urlPattern = URI(urlPattern).relativeTo(baseUrl).href();
 
         return urlPattern;
     }
