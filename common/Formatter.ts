@@ -33,6 +33,7 @@ class Formatter
                     symbol: 'Points'
                 });
         }
+
         if (Utils.isNullOrEmpty(val))
             return '';
         else
