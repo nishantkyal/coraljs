@@ -105,27 +105,32 @@ class AbstractDao
     get(id:any, fields?:string[], transaction?:Object):q.Promise<any>
     {
         var self = this;
-        if (Utils.getObjectType(id) == 'Array')
+        if (Utils.getObjectType(id) == 'Array' && id.length > 1)
             return this.search({id: id}, fields, transaction);
         else
+        {
+            if (Utils.getObjectType(id) == 'Array')
+                id = id[0];
+
             return this.find({id: id}, fields,transaction)
-            .then(
-            function objectFetched(result:any)
-            {
-                if (Utils.isNullOrEmpty(result))
+                .then(
+                function objectFetched(result:any)
                 {
-                    var errorMessage:string = 'No ' + self.tableName.replace('_', ' ') + ' found for id: ' + id;
-                    self.logger.debug('No %s found for id: %s', self.tableName, id);
-                    throw new Error(errorMessage);
-                }
-                else
-                    return result;
-            },
-            function objectFetchError(error:Error)
-            {
-                self.logger.error('GET failed table: %s, id: %s', self.tableName, id);
-                throw(error);
-            });
+                    if (Utils.isNullOrEmpty(result))
+                    {
+                        var errorMessage:string = 'No ' + self.tableName.replace('_', ' ') + ' found for id: ' + id;
+                        self.logger.debug('No %s found for id: %s', self.tableName, id);
+                        throw new Error(errorMessage);
+                    }
+                    else
+                        return result;
+                },
+                function objectFetchError(error:Error)
+                {
+                    self.logger.error('GET failed table: %s, id: %s', self.tableName, id);
+                    throw(error);
+                });
+        }
     }
 
     /**
