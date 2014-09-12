@@ -43,7 +43,7 @@ class Formatter
 
     static formatName(firstName:string, lastName?:string, title?:Salutation):string
     {
-        return [Salutation[title], firstName, lastName].join(' ');
+        return [Salutation[title], firstName, lastName].join(' ').trim();
     }
 
     static formatDate(m:Date):string;
