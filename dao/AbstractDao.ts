@@ -38,7 +38,9 @@ class AbstractDao
      * @param transaction
      */
     create(data:Object[], transaction?:Object):q.Promise<any>;
+
     create(data:Object, transaction?:Object):q.Promise<any>;
+
     create(data:any, transaction?:Object):q.Promise<any>
     {
         var self = this;
@@ -48,14 +50,15 @@ class AbstractDao
         var values = [];
         var rows = [];
 
-        _.each(dataAsArray, function(row)
+        _.each(dataAsArray, function (row)
         {
             row = _.pick(row, self.modelClass['COLUMNS']);
 
             // 1. Remove fields with undefined values
             // 2. Check if it matches the existing list of fields being inserted
             // 3. If matches, create query string and values array
-            _.each(row, function(value, key) {
+            _.each(row, function (value, key)
+            {
                 if (value == undefined || Utils.getObjectType(value) == 'Array' || Utils.getObjectType(value) == 'Object')
                     delete row[key];
             });
@@ -86,7 +89,7 @@ class AbstractDao
             {
                 self.logger.error('Error while creating a new %s, error: %s', self.tableName, error.message);
                 error.message = 'Error while creating a new ' + self.tableName + ', error: ' + error.message;
-                switch(error.code)
+                switch (error.code)
                 {
                     case 'ER_DUP_ENTRY':
                         error.message = Utils.snakeToCamelCase(self.tableName) + ' already exists with those details';
@@ -101,7 +104,9 @@ class AbstractDao
      * @param fields
      */
     get(id:number[], fields?:string[], transaction?:Object):q.Promise<any>;
+
     get(id:number, fields?:string[], transaction?:Object):q.Promise<any>;
+
     get(id:any, fields?:string[], transaction?:Object):q.Promise<any>
     {
         var self = this;
@@ -112,7 +117,7 @@ class AbstractDao
             if (Utils.getObjectType(id) == 'Array')
                 id = id[0];
 
-            return this.find({id: id}, fields,transaction)
+            return this.find({id: id}, fields, transaction)
                 .then(
                 function objectFetched(result:any)
                 {
@@ -148,10 +153,12 @@ class AbstractDao
         var values = whereStatements.values;
         var selectColumns = !Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
 
+        var whereStatmentString = (wheres.length != 0) ? 'WHERE ' + wheres.join(' AND ') + 'AND' : '';
+
         var queryString = 'SELECT ' + selectColumns + ' ' +
-            'FROM `' + this.tableName + '` ' +
-            'WHERE ' + wheres.join(' AND ') + ' ' +
-            'AND (deleted IS NULL OR deleted = 0)';
+            'FROM `' + this.tableName + '` '
+            + whereStatementString
+            + ' (deleted IS NULL OR deleted = 0)';
 
         return self.mysqlDelegate.executeQuery(queryString, values, transaction)
             .then(
@@ -185,7 +192,8 @@ class AbstractDao
 
         return self.mysqlDelegate.executeQuery(queryString, values, transaction)
             .then(
-            function handleSearchResults(result):any {
+            function handleSearchResults(result):any
+            {
                 if (result.length == 1)
                     return new self.modelClass(result[0]);
                 else
@@ -205,7 +213,9 @@ class AbstractDao
      * @param transaction
      */
     update(criteria:number, newValues:Object, transaction?:Object):q.Promise<any>;
+
     update(criteria:Object, newValues:Object, transaction?:Object):q.Promise<any>;
+
     update(criteria:any, newValues:any, transaction?:Object):q.Promise<any>
     {
         var self = this;
@@ -235,7 +245,7 @@ class AbstractDao
             {
                 if (result.affectedRows == 0)
                 {
-                    self.logger.debug('Update did not change any rows in table - %s, for criteria - %s and values - %s', self.tableName, wheres.join(' AND') , values.join(','));
+                    self.logger.debug('Update did not change any rows in table - %s, for criteria - %s and values - %s', self.tableName, wheres.join(' AND'), values.join(','));
                     throw new Error('No rows were updated');
                 }
                 else
@@ -254,7 +264,9 @@ class AbstractDao
      * @param transaction
      */
     delete(criteria:number, transaction?:Object):q.Promise<any>;
+
     delete(criteria:Object, transaction?:Object):q.Promise<any>;
+
     delete(criteria:any, transaction?:Object):q.Promise<any>
     {
         var self = this;
@@ -278,9 +290,10 @@ class AbstractDao
     }
 
     /** Helper method to convert query objects to SQL fragments **/
-    public generateWhereStatements(criteria:Object):{where: string[]; values: any[]}
+    public generateWhereStatements(criteria:Object = {}):{where: string[]; values: any[]}
     {
         var self = this;
+
         criteria = _.pick(criteria, self.modelClass['COLUMNS']);
 
         var whereStatements = [], values = [];
