@@ -143,7 +143,7 @@ class AbstractDao
      * @param fields
      * @returns {"q".Promise<U>|"q".Promise<undefined>|"q".Promise<any>}
      */
-    search(searchQuery:Object, fields?:string[], transaction?:Object):q.Promise<any>
+    search(searchQuery?:Object, fields?:string[], transaction?:Object):q.Promise<any>
     {
         var self = this;
         var whereStatements = this.generateWhereStatements(searchQuery);
@@ -151,7 +151,7 @@ class AbstractDao
         var values = whereStatements.values;
         var selectColumns = !Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
 
-        var whereStatementString = (wheres.length != 0) ? 'WHERE ' + wheres.join(' AND ') + ' AND ' : '';
+        var whereStatementString = (wheres.length != 0) ? 'WHERE ' + wheres.join(' AND ') + 'AND' : 'WHERE ';
 
         var queryString = 'SELECT ' + selectColumns + ' ' +
             'FROM `' + this.tableName + '` '

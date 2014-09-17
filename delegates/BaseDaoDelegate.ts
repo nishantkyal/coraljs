@@ -84,7 +84,7 @@ class BaseDaoDelegate
      * Perform search based on search query
      * Also fetch joint fields
      */
-    search(search:Object, fields?:string[], foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
+    search(search?:Object, fields?:string[], foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
     {
         var self:BaseDaoDelegate = this;
 
