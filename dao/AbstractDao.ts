@@ -149,7 +149,7 @@ class AbstractDao
         var values = whereStatements.values;
         var selectColumns = !Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
 
-        var whereStatementString = (wheres.length != 0) ? 'WHERE ' + wheres.join(' AND ') + ' AND ' : 'WHERE ';
+        var whereStatementString = (wheres.length != 0) ? 'WHERE ' + wheres.join(' AND ') + ' AND' : 'WHERE ';
 
         var queryString = 'SELECT ' + selectColumns + ' ' +
             'FROM `' + this.tableName + '` '
@@ -258,9 +258,7 @@ class AbstractDao
      * @param transaction
      */
     delete(criteria:number, transaction?:Object):q.Promise<any>;
-
     delete(criteria:Object, transaction?:Object):q.Promise<any>;
-
     delete(criteria:any, transaction?:Object):q.Promise<any>
     {
         var self = this;
