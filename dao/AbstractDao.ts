@@ -38,9 +38,7 @@ class AbstractDao
      * @param transaction
      */
     create(data:Object[], transaction?:Object):q.Promise<any>;
-
     create(data:Object, transaction?:Object):q.Promise<any>;
-
     create(data:any, transaction?:Object):q.Promise<any>
     {
         var self = this;
@@ -151,7 +149,7 @@ class AbstractDao
         var values = whereStatements.values;
         var selectColumns = !Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
 
-        var whereStatementString = (wheres.length != 0) ? 'WHERE ' + wheres.join(' AND ') + 'AND' : 'WHERE ';
+        var whereStatementString = (wheres.length != 0) ? 'WHERE ' + wheres.join(' AND ') + ' AND ' : 'WHERE ';
 
         var queryString = 'SELECT ' + selectColumns + ' ' +
             'FROM `' + this.tableName + '` '

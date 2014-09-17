@@ -74,6 +74,7 @@ class MysqlDelegate
                 else if (connection)
                     deferred.resolve(connection);
             });
+
         return deferred.promise;
     }
 
@@ -82,7 +83,6 @@ class MysqlDelegate
      */
     beginTransaction(transaction?:Object):q.Promise<any>
     {
-        var deferred = q.defer();
         var self = this;
 
         if (Utils.isNullOrEmpty(transaction))
@@ -107,12 +107,7 @@ class MysqlDelegate
                         });
                 });
         else
-            process.nextTick(function ()
-            {
-                deferred.resolve(transaction);
-            });
-
-        return deferred.promise;
+            return q.resolve(transaction);
     }
 
     /*
