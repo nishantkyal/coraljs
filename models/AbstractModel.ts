@@ -84,6 +84,7 @@ class AbstractModel
         var self = this;
         var data = {};
         var cols = thisProtoConstructor['COLUMNS'].concat(thisProtoConstructor['FK_COLUMNS']);
+
         _.each(cols, function (column:string)
         {
             if (Utils.getObjectType(self[column]) == 'Array')

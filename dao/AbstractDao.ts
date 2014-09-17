@@ -104,9 +104,7 @@ class AbstractDao
      * @param fields
      */
     get(id:number[], fields?:string[], transaction?:Object):q.Promise<any>;
-
     get(id:number, fields?:string[], transaction?:Object):q.Promise<any>;
-
     get(id:any, fields?:string[], transaction?:Object):q.Promise<any>
     {
         var self = this;
@@ -153,7 +151,7 @@ class AbstractDao
         var values = whereStatements.values;
         var selectColumns = !Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
 
-        var whereStatmentString = (wheres.length != 0) ? 'WHERE ' + wheres.join(' AND ') + 'AND' : '';
+        var whereStatementString = (wheres.length != 0) ? 'WHERE ' + wheres.join(' AND ') + ' AND ' : '';
 
         var queryString = 'SELECT ' + selectColumns + ' ' +
             'FROM `' + this.tableName + '` '
@@ -213,9 +211,7 @@ class AbstractDao
      * @param transaction
      */
     update(criteria:number, newValues:Object, transaction?:Object):q.Promise<any>;
-
     update(criteria:Object, newValues:Object, transaction?:Object):q.Promise<any>;
-
     update(criteria:any, newValues:any, transaction?:Object):q.Promise<any>
     {
         var self = this;
