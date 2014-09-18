@@ -1,7 +1,7 @@
 ///<reference path='../_references.d.ts'/>
 import log4js                                       = require('log4js');
 import _                                            = require('underscore');
-import URI                                          = require('uri-js');
+import URI                                          = require('URIjs');
 
 class Utils
 {
@@ -256,7 +256,7 @@ class Utils
                         .replace(urlParamRegex, values[key]);
                 }
         if (!Utils.isNullOrEmpty(baseUrl))
-            urlPattern = URI(urlPattern).relativeTo(baseUrl).href();
+            urlPattern = URI(urlPattern).relativeTo(baseUrl);
 
         return urlPattern;
     }
