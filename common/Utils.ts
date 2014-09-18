@@ -256,7 +256,7 @@ class Utils
                         .replace(urlParamRegex, values[key]);
                 }
         if (!Utils.isNullOrEmpty(baseUrl))
-            urlPattern = URI(urlPattern).relativeTo(baseUrl);
+            urlPattern = URI(urlPattern).relativeTo(baseUrl).href();
 
         return urlPattern;
     }
