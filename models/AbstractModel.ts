@@ -62,6 +62,7 @@ class AbstractModel
                 }
             }
 
+            thisProtoConstructor['PUBLIC_FIELDS'] = thisProtoConstructor['PUBLIC_FIELDS'] || thisProtoConstructor['COLUMNS'];
             thisProtoConstructor._INITIALIZED = true;
         }
 
