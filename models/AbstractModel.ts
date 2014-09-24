@@ -13,6 +13,7 @@ class AbstractModel
     static TABLE_NAME:string;
     static DELEGATE:BaseDaoDelegate;
     private static FOREIGN_KEYS:ForeignKey[] = [];
+    private static FK_COLUMNS:string[] = [];
     private logger = log4js.getLogger(Utils.getClassName(this));
 
     static PUBLIC_FIELDS:string[] = [];
@@ -230,6 +231,17 @@ class AbstractModel
     static getForeignKeyForSrcKey(srcKey:string):ForeignKey
     {
         return _.findWhere(this['FOREIGN_KEYS'], {src_key: srcKey});
+    }
+
+    static getForeignKeyForColumn(col:string):ForeignKey
+    {
+        var index;
+        _.each(this['FK_COLUMNS'], function(fk_col:string,i){
+            if(fk_col == col)
+                index = i;
+        })
+
+        return this['FOREIGN_KEYS'][index];
     }
 }
 export = AbstractModel
