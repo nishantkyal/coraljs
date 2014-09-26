@@ -208,7 +208,7 @@ class BaseMappingDaoDelegate
             .then(
             function created(item)
             {
-                mappingObject[fk.getSourcePropertyName()] = item.id;
+                mappingObject[fk.getSourcePropertyName() + '_id'] = item.id;
                 return self.dao.create(mappingObject, transaction);
             })
             .fail(
