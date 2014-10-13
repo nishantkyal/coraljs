@@ -260,5 +260,15 @@ class Utils
 
         return urlPattern;
     }
+
+    static removeParameterFromUrl(urlPattern:string):string
+    {
+        var urlParamTypeRegex:RegExp = new RegExp('\\(([^\\(]*)\\)', 'i');
+        var urlParamRegex:RegExp = new RegExp(':.*/');
+        var urlParamEndRegex:RegExp = new RegExp('/:.*$');
+        urlPattern = urlPattern.replace(urlParamTypeRegex, '').replace(urlParamRegex, '');
+        urlPattern = urlPattern.replace(urlParamEndRegex, '');
+        return urlPattern;
+    }
 }
 export = Utils
