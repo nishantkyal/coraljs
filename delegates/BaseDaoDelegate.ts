@@ -131,47 +131,53 @@ class BaseDaoDelegate
     searchWithIncludes(search?:Object, fields?:string[], includes?:Object[], transaction?:Object):q.Promise<any>
     {
         var self:BaseDaoDelegate = this;
-        var foreignKeys:ForeignKey[] = [];
 
         fields = fields || this.dao.modelClass.PUBLIC_FIELDS;
 
         return this.dao.search(search, fields, transaction)
-            .then(
-            function processIncludes(baseSearchResults:BaseModel[]):any
+            .then(function searchComplete(baseSearchResults:BaseModel[]):any
             {
                 if (Utils.isNullOrEmpty(baseSearchResults))
                     return baseSearchResults;
-                var foreignKeyTasks = [];
+                return self.processIncludes(baseSearchResults,search,includes,transaction);
+            });
+    }
 
-                _.each(includes, function(include:any)
+    processIncludes(baseSearchResults:BaseModel[],search?:Object,includes?:Object[], transaction?:Object):q.Promise<any>
+    {
+        var self:BaseDaoDelegate = this;
+        var foreignKeyTasks = [];
+        var foreignKeys:ForeignKey[] = [];
+
+        _.each(includes, function(include:any)
+        {
+            if (typeof include === 'string') //if no nested includes
+            {
+                var tempForeignKey:ForeignKey = self.dao.modelClass.getForeignKeyForColumn(include);
+                if(!Utils.isNullOrEmpty(tempForeignKey))
                 {
-                    if (typeof include === 'string') //if no nested includes
-                    {
-                        var tempForeignKey:ForeignKey = self.dao.modelClass.getForeignKeyForColumn(include);
-                        if(!Utils.isNullOrEmpty(tempForeignKey))
-                        {
-                            foreignKeys.push(tempForeignKey);
-                            self.logger.debug('Processing search foreign key for %s', tempForeignKey.getSourcePropertyName());
-                            var delegate = tempForeignKey.referenced_table.DELEGATE;
-                            foreignKeyTasks.push(delegate.searchWithIncludes(Utils.createSimpleObject(tempForeignKey.target_key, _.uniq(_.pluck(baseSearchResults, tempForeignKey.src_key)))));
-                        }
-                    }
-                    else // if nested includes then pass on to next call
-                    {
-                        var tempForeignKey:ForeignKey = self.dao.modelClass.getForeignKeyForColumn(_.keys(include)[0]);
-                        if(!Utils.isNullOrEmpty(tempForeignKey))
-                        {
-                            foreignKeys.push(tempForeignKey);
-                            self.logger.debug('Processing search foreign key for %s', tempForeignKey.getSourcePropertyName());
-                            var delegate = tempForeignKey.referenced_table.DELEGATE;
-                            foreignKeyTasks.push(delegate.searchWithIncludes(Utils.createSimpleObject(tempForeignKey.target_key, _.uniq(_.pluck(baseSearchResults, tempForeignKey.src_key))), null, _.values(include)[0]));
-                        }
-                    }
-                });
-                return [baseSearchResults, q.all(foreignKeyTasks)];
-            })
-            .spread(
-            function handleIncludesProcessed(baseSearchResults, ...args)
+                    foreignKeys.push(tempForeignKey);
+                    self.logger.debug('Processing search foreign key for %s', tempForeignKey.getSourcePropertyName());
+                    var delegate = tempForeignKey.referenced_table.DELEGATE;
+                    foreignKeyTasks.push(delegate.searchWithIncludes(Utils.createSimpleObject(tempForeignKey.target_key, _.uniq(_.pluck(baseSearchResults, tempForeignKey.src_key)))));
+                }
+            }
+            else // if nested includes then pass on to next call
+            {
+                var tempForeignKey:ForeignKey = self.dao.modelClass.getForeignKeyForColumn(_.keys(include)[0]);
+                if(!Utils.isNullOrEmpty(tempForeignKey))
+                {
+                    foreignKeys.push(tempForeignKey);
+                    self.logger.debug('Processing search foreign key for %s', tempForeignKey.getSourcePropertyName());
+                    var delegate = tempForeignKey.referenced_table.DELEGATE;
+                    foreignKeyTasks.push(delegate.searchWithIncludes(Utils.createSimpleObject(tempForeignKey.target_key, _.uniq(_.pluck(baseSearchResults, tempForeignKey.src_key))), null, _.values(include)[0]));
+                }
+            }
+        });
+
+        return q.all(foreignKeyTasks)
+            .then(
+            function handleIncludesProcessed(...args)
             {
                 var results = args[0];
 
@@ -191,6 +197,7 @@ class BaseDaoDelegate
                 throw error;
             });
     }
+
 
     create(object:Object, transaction?:Object):q.Promise<any>;
     create(object:Object[], transaction?:Object):q.Promise<any>;
