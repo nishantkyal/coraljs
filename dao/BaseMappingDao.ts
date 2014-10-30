@@ -37,7 +37,7 @@ class BaseMappingDao extends AbstractDao
             'FROM ' + this.modelClass.TABLE_NAME + ' mapping, ' + fk.referenced_table.TABLE_NAME + ' referenced ' +
             'WHERE ' + wheres.join(' AND ') + ' ' +
             'AND mapping.' + fk.src_key + ' = referenced.' + fk.target_key + ' ' +
-            'AND (mapping.deleted IS NULL OR mapping.deleted = 0)';
+            'AND (referenced.deleted IS NULL OR referenced.deleted = 0)';
 
         return self.mysqlDelegate.executeQuery(query, values, transaction)
             .then(
