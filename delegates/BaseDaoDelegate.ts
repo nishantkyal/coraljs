@@ -179,7 +179,7 @@ class BaseDaoDelegate
             .then(
             function handleIncludesProcessed(...args)
             {
-                var results = args[0];
+                var results:any = args[0];
 
                 _.each(baseSearchResults, function (baseSearchResult:any)
                 {
