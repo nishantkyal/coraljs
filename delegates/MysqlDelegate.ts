@@ -22,7 +22,8 @@ class MysqlDelegate
                 user: user,
                 password: password,
                 socketPath: socketPath,
-                supportBigNumbers: true
+                supportBigNumbers: true,
+                waitForConnections: false
             });
         }
     }
@@ -154,7 +155,8 @@ class MysqlDelegate
             },
             function queryFailed(err:Error)
             {
-                connection.release();
+                if (connection)
+                    connection.release();
                 throw(err);
             });
     }
