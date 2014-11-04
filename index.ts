@@ -13,7 +13,8 @@ import ServiceRequestStatus = require("./enums/ServiceRequestStatus");
 import AbstractModel = require("./models/AbstractModel");
 import BaseModel = require("./models/BaseModel");
 import ForeignKey = require("./models/ForeignKey");
-import AbstractDao = require("./dao/AbstractDao");
+import SolrDao = require("./dao/SolrDao");
+import MysqlDao = require("./dao/MysqlDao");
 import BaseMappingDao = require("./dao/BaseMappingDao");
 import BaseDaoDelegate = require("./delegates/BaseDaoDelegate");
 import BaseMappingDaoDelegate = require("./delegates/BaseMappingDaoDelegate");
@@ -42,7 +43,8 @@ var exported = {
     AbstractModel: AbstractModel,
     BaseModel: BaseModel,
     ForeignKey: ForeignKey,
-    AbstractDao: AbstractDao,
+    SolrDao: SolrDao,
+    MysqlDao: MysqlDao,
     BaseMappingDao: BaseMappingDao,
     BaseDaoDelegate: BaseDaoDelegate,
     BaseMappingDaoDelegate: BaseMappingDaoDelegate,

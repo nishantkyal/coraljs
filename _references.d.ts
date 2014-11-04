@@ -30,3 +30,4 @@
 ///<reference path='../DefinitelyTyped/oauth2orize/oauth2orize.d.ts'/>
 ///<reference path='../DefinitelyTyped/request/request.d.ts'/>
 ///<reference path='../DefinitelyTyped/urijs/URI.d.ts'/>
+///<reference path='../DefinitelyTyped/solr-client/solr-client.d.ts'/>
