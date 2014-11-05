@@ -5,6 +5,7 @@ import log4js                                       = require('log4js');
 import solr_client                                  = require('solr-client');
 import http                                         = require('http');
 import IDao                                         = require('../dao/IDao');
+import IDaoFetchOptions                             = require('../dao/IDaoFetchOptions');
 import AbstractModel                                = require('../models/AbstractModel');
 import Utils                                        = require('../common/Utils');
 
@@ -41,19 +42,19 @@ class SolrDao implements IDao
         return deferred.promise;
     }
 
-    get(id:any, fields?:string[]):q.Promise<any>;
-    get(id:number, fields?:string[]):q.Promise<any>;
-    get(id:any, fields?:string[]):q.Promise<any>
+    get(id:any, options?:IDaoFetchOptions):q.Promise<any>;
+    get(id:number, options?:IDaoFetchOptions):q.Promise<any>;
+    get(id:any, options?:IDaoFetchOptions):q.Promise<any>
     {
         var self = this;
         if (Utils.getObjectType(id) == 'Array' && id.length > 1)
-            return this.search({id: id}, fields);
+            return this.search({id: id}, options);
         else
         {
             if (Utils.getObjectType(id) == 'Array')
                 id = id[0];
 
-            return this.find({id: id}, fields)
+            return this.find({id: id}, options)
                 .then(
                 function objectFetched(result:any)
                 {
@@ -74,14 +75,15 @@ class SolrDao implements IDao
         }
     }
 
-    search(searchQuery?:Object, fields?:string[]):q.Promise<any>
+    search(searchQuery:Object, options?:IDaoFetchOptions):q.Promise<any>
     {
         var deferred = q.defer<any>();
         var self = this;
 
         var solrQuery = this.solrClient.createQuery();
         solrQuery.q(searchQuery);
-        solrQuery.fl(fields);
+        if (!Utils.isNullOrEmpty(options.fields))
+            solrQuery.fl(options.fields);
 
         this.solrClient.search(solrQuery, function(err:Error, obj:Object)
         {
@@ -97,13 +99,14 @@ class SolrDao implements IDao
         return deferred.promise;
     }
 
-    find(searchQuery:Object, fields?:string[]):q.Promise<any>
+    find(searchQuery:Object, options?:IDaoFetchOptions):q.Promise<any>
     {
         var deferred = q.defer<any>();
 
         var solrQuery = this.solrClient.createQuery();
         solrQuery.q(searchQuery);
-        solrQuery.fl(fields);
+        if (!Utils.isNullOrEmpty(options.fields))
+            solrQuery.fl(options.fields);
         solrQuery.rows(1);
 
         this.solrClient.search(solrQuery, function(err:Error, obj:Object)
@@ -120,27 +123,31 @@ class SolrDao implements IDao
         return deferred.promise;
     }
 
-    update(criteria:number, newValues:Object):q.Promise<any>;
-    update(criteria:Object, newValues:Object):q.Promise<any>;
-    update(criteria:any, newValues:Object):q.Promise<any>
+    update(criteria:number, newValues:any):q.Promise<any>;
+    update(criteria:Object, newValues:any):q.Promise<any>;
+    update(criteria:any, newValues:any):q.Promise<any>
     {
         var deferred = q.defer<any>();
+        var self = this;
 
-        var oldDocSolrQuery = this.solrClient.createQuery();
-        oldDocSolrQuery.q(criteria);
-        oldDocSolrQuery.fl(['id', '_version_']);
-
-        this.find(oldDocSolrQuery)
+        self.find(criteria, {fields: ['id', '_version_']})
             .then(
             function documentFetched(document)
             {
-                newValues['_version_'] = document['_version'];
-                this.solrClient.update(newValues, function(err:Error, obj:Object)
+                newValues = newValues.toJson();
+                newValues['_version_'] = document['_version_'];
+                newValues['id'] = document['id'];
+
+
+                self.solrClient.add(newValues, function(err:Error, obj:Object)
                 {
                     if (!Utils.isNullOrEmpty(err))
                         deferred.reject(err);
                     else
-                        deferred.resolve(obj);
+                        self.solrClient.commit(function(err:Error, obj:Object)
+                        {
+                            deferred.resolve(obj);
+                        });
                 });
             });
 

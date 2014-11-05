@@ -7,7 +7,7 @@ import IDao                                         = require('../dao/IDao');
 import MysqlDelegate                                = require('../delegates/MysqlDelegate')
 import AbstractModel                                = require('../models/AbstractModel');
 import Utils                                        = require('../common/Utils');
-
+import IDaoFetchOptions                             = require('../dao/IDaoFetchOptions');
 /*
  Base class for DAO
  */
@@ -101,19 +101,19 @@ class MysqlDao implements IDao
      * @param id
      * @param fields
      */
-    get(id:number[], fields?:string[], transaction?:Object):q.Promise<any>;
-    get(id:number, fields?:string[], transaction?:Object):q.Promise<any>;
-    get(id:any, fields?:string[], transaction?:Object):q.Promise<any>
+    get(id:number[], options?:IDaoFetchOptions, transaction?:Object):q.Promise<any>;
+    get(id:number, options?:IDaoFetchOptions, transaction?:Object):q.Promise<any>;
+    get(id:any, options?:IDaoFetchOptions, transaction?:Object):q.Promise<any>
     {
         var self = this;
         if (Utils.getObjectType(id) == 'Array' && id.length > 1)
-            return this.search({id: id}, fields, transaction);
+            return this.search({id: id}, options, transaction);
         else
         {
             if (Utils.getObjectType(id) == 'Array')
                 id = id[0];
 
-            return this.find({id: id}, fields, transaction)
+            return this.find({id: id}, options, transaction)
                 .then(
                 function objectFetched(result:any)
                 {
@@ -141,20 +141,28 @@ class MysqlDao implements IDao
      * @param fields
      * @returns {"q".Promise<U>|"q".Promise<undefined>|"q".Promise<any>}
      */
-    search(searchQuery?:Object, fields?:string[], transaction?:Object):q.Promise<any>
+    search(searchQuery?:Object, options?:IDaoFetchOptions, transaction?:Object):q.Promise<any>
     {
         var self = this;
         var whereStatements = this.generateWhereStatements(searchQuery);
         var wheres = whereStatements.where;
         var values = whereStatements.values;
-        var selectColumns = !Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
+        var selectColumns = !Utils.isNullOrEmpty(options.fields) ? options.fields.join(',') : '*';
 
         var whereStatementString = (wheres.length != 0) ? 'WHERE ' + wheres.join(' AND ') + ' AND' : 'WHERE ';
 
+        var limitClause:string = '';
+        if (options.max && options.offset)
+        {
+            options.max = options.max || 18446744073709551610;
+            limitClause = ' LIMIT ' + options.offset + ',' + options.max + ' ';
+        }
+        else if (options.max)
+            limitClause = ' LIMIT ' + options.max + ' ';
+
         var queryString = 'SELECT ' + selectColumns + ' ' +
             'FROM `' + this.tableName + '` '
-            + whereStatementString
-            + ' (deleted IS NULL OR deleted = 0)';
+            + whereStatementString + limitClause;
 
         return self.mysqlDelegate.executeQuery(queryString, values, transaction)
             .then(
@@ -176,17 +184,12 @@ class MysqlDao implements IDao
      * @param fields
      * @returns {"q".Promise<U>|"q".Promise<undefined>|"q".Promise<any|null>}
      */
-    find(searchQuery:Object, fields?:string[], transaction?:Object):q.Promise<any>
+    find(searchQuery:Object, options?:IDaoFetchOptions, transaction?:Object):q.Promise<any>
     {
         var self = this;
-        var whereStatements = this.generateWhereStatements(searchQuery);
-        var wheres = whereStatements.where;
-        var values = whereStatements.values;
-        var selectColumns:string = !Utils.isNullOrEmpty(fields) ? fields.join(',') : '*';
+        options.max = 1;
 
-        var queryString = 'SELECT ' + selectColumns + ' FROM `' + this.tableName + '` WHERE ' + wheres.join(' AND ') + ' AND (deleted IS NULL OR deleted = 0)' + ' LIMIT 1';
-
-        return self.mysqlDelegate.executeQuery(queryString, values, transaction)
+        return self.search(searchQuery, options, transaction)
             .then(
             function handleSearchResults(result):any
             {
@@ -208,8 +211,8 @@ class MysqlDao implements IDao
      * @param newValues
      * @param transaction
      */
-    update(criteria:number, newValues:Object, transaction?:Object):q.Promise<any>;
-    update(criteria:Object, newValues:Object, transaction?:Object):q.Promise<any>;
+    update(criteria:number, newValues:any, transaction?:Object):q.Promise<any>;
+    update(criteria:Object, newValues:any, transaction?:Object):q.Promise<any>;
     update(criteria:any, newValues:any, transaction?:Object):q.Promise<any>
     {
         var self = this;

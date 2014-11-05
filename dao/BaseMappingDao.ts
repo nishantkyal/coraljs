@@ -1,7 +1,8 @@
 ///<reference path='../_references.d.ts'/>
 import _                                                    = require('underscore');
 import q                                                    = require('q');
-import MysqlDao                                          = require('./MysqlDao');
+import IDaoFetchOptions                                     = require('./IDaoFetchOptions');
+import MysqlDao                                             = require('./MysqlDao');
 import BaseModel                                            = require('../models/BaseModel');
 import ForeignKey                                           = require('../models/ForeignKey');
 import MysqlDelegate                                        = require('../delegates/MysqlDelegate');
@@ -9,12 +10,7 @@ import Utils                                                = require('../common
 
 class BaseMappingDao extends MysqlDao
 {
-    find(searchQuery:Object, fields?:string[], transaction?:Object):q.Promise<any>
-    {
-        return this.search(searchQuery, fields, transaction);
-    }
-
-    search(searchQuery:Object, fields?:string[], transaction?:Object):q.Promise<any>
+    search(searchQuery:Object, options:IDaoFetchOptions, transaction?:Object):q.Promise<any>
     {
         // Create join query to fetch the mapped resource automatically
         var fk:ForeignKey = this.modelClass['FOREIGN_KEYS'][0];
@@ -36,8 +32,7 @@ class BaseMappingDao extends MysqlDao
         var query:string = 'SELECT ' + mappingColumnNames + ',referenced.* ' +
             'FROM ' + this.modelClass.TABLE_NAME + ' mapping, ' + fk.referenced_table.TABLE_NAME + ' referenced ' +
             'WHERE ' + wheres.join(' AND ') + ' ' +
-            'AND mapping.' + fk.src_key + ' = referenced.' + fk.target_key + ' ' +
-            'AND (referenced.deleted IS NULL OR referenced.deleted = 0)';
+            'AND mapping.' + fk.src_key + ' = referenced.' + fk.target_key;
 
         return self.mysqlDelegate.executeQuery(query, values, transaction)
             .then(

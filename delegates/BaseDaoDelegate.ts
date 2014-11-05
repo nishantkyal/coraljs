@@ -4,6 +4,7 @@ import log4js                                           = require('log4js');
 import q                                                = require('q');
 import moment                                           = require('moment');
 import IDao                                             = require('../dao/IDao');
+import IDaoFetchOptions                                 = require('../dao/IDaoFetchOptions');
 import MysqlDao                                         = require('../dao/MysqlDao');
 import Utils                                            = require('../common/Utils');
 import BaseModel                                        = require('../models/BaseModel');
@@ -28,26 +29,26 @@ class BaseDaoDelegate
         this.dao.modelClass.DELEGATE = this;
     }
 
-    get(id:any, fields?:string[], foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
+    get(id:any, options?:IDaoFetchOptions, foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
     {
-        fields = fields || this.dao.modelClass.PUBLIC_FIELDS;
+        options.fields = options.fields || this.dao.modelClass.PUBLIC_FIELDS;
 
         id = [].concat(id);
 
         if (id.length > 1)
-            return this.search({'id': id}, fields, foreignKeys, transaction);
+            return this.search({'id': id}, options, foreignKeys, transaction);
 
         if (id.length === 1)
-            return this.find({'id': id}, fields, foreignKeys, transaction);
+            return this.find({'id': id}, options, foreignKeys, transaction);
     }
 
-    find(search:Object, fields?:string[], foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
+    find(search:Object, options?:IDaoFetchOptions, foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
     {
         var self:BaseDaoDelegate = this;
 
-        fields = fields || this.dao.modelClass.PUBLIC_FIELDS;
+        options.fields = options.fields || this.dao.modelClass.PUBLIC_FIELDS;
 
-        return this.dao.find(search, fields, transaction)
+        return this.dao.find(search, options, transaction)
             .then(
             function processForeignKeys(result:BaseModel):any
             {
@@ -85,13 +86,13 @@ class BaseDaoDelegate
      * Perform search based on search query
      * Also fetch joint fields
      */
-    search(search?:Object, fields?:string[], foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
+    search(search?:Object, options?:IDaoFetchOptions, foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
     {
         var self:BaseDaoDelegate = this;
 
-        fields = fields || this.dao.modelClass.PUBLIC_FIELDS;
+        options.fields = options.fields || this.dao.modelClass.PUBLIC_FIELDS;
 
-        return this.dao.search(search, fields, transaction)
+        return this.dao.search(search, options, transaction)
             .then(
             function processIncludes(baseSearchResults:BaseModel[]):any
             {
@@ -128,13 +129,13 @@ class BaseDaoDelegate
             });
     }
 
-    searchWithIncludes(search?:Object, fields?:string[], includes?:Object[], transaction?:Object):q.Promise<any>
+    searchWithIncludes(search?:Object, options?:IDaoFetchOptions, includes?:Object[], transaction?:Object):q.Promise<any>
     {
         var self:BaseDaoDelegate = this;
 
-        fields = fields || this.dao.modelClass.PUBLIC_FIELDS;
+        options.fields = options.fields || this.dao.modelClass.PUBLIC_FIELDS;
 
-        return this.dao.search(search, fields, transaction)
+        return this.dao.search(search, options, transaction)
             .then(function searchComplete(baseSearchResults:BaseModel[]):any
             {
                 if (Utils.isNullOrEmpty(baseSearchResults))
