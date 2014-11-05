@@ -85,6 +85,9 @@ class SolrDao implements IDao
         if (!Utils.isNullOrEmpty(options.fields))
             solrQuery.fl(options.fields);
 
+        if (!Utils.isNullOrEmpty(options.sort))
+            _.each(options.sort, solrQuery.sort, solrQuery);
+
         this.solrClient.search(solrQuery, function(err:Error, obj:Object)
         {
             if (!Utils.isNullOrEmpty(err))
@@ -134,7 +137,6 @@ class SolrDao implements IDao
                 newValues = newValues.toJson();
                 newValues['_version_'] = document['_version_'];
                 newValues['id'] = document['id'];
-
 
                 self.solrClient.add(newValues, function(err:Error, obj:Object)
                 {

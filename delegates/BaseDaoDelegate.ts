@@ -29,7 +29,7 @@ class BaseDaoDelegate
         this.dao.modelClass.DELEGATE = this;
     }
 
-    get(id:any, options?:IDaoFetchOptions, foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
+    get(id:any, options:IDaoFetchOptions = {}, foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
     {
         options.fields = options.fields || this.dao.modelClass.PUBLIC_FIELDS;
 
@@ -42,7 +42,7 @@ class BaseDaoDelegate
             return this.find({'id': id}, options, foreignKeys, transaction);
     }
 
-    find(search:Object, options?:IDaoFetchOptions, foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
+    find(search:Object, options:IDaoFetchOptions = {}, foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
     {
         var self:BaseDaoDelegate = this;
 
@@ -86,7 +86,7 @@ class BaseDaoDelegate
      * Perform search based on search query
      * Also fetch joint fields
      */
-    search(search?:Object, options?:IDaoFetchOptions, foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
+    search(search?:Object, options:IDaoFetchOptions = {}, foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
     {
         var self:BaseDaoDelegate = this;
 
@@ -129,7 +129,7 @@ class BaseDaoDelegate
             });
     }
 
-    searchWithIncludes(search?:Object, options?:IDaoFetchOptions, includes?:Object[], transaction?:Object):q.Promise<any>
+    searchWithIncludes(search?:Object, options:IDaoFetchOptions = {}, includes?:Object[], transaction?:Object):q.Promise<any>
     {
         var self:BaseDaoDelegate = this;
 

@@ -151,6 +151,8 @@ class MysqlDao implements IDao
 
         var whereStatementString = (wheres.length != 0) ? 'WHERE ' + wheres.join(' AND ') + ' AND' : 'WHERE ';
 
+        // TODO: Validate max > offset etc
+        // Pagination
         var limitClause:string = '';
         if (options.max && options.offset)
         {
@@ -160,10 +162,19 @@ class MysqlDao implements IDao
         else if (options.max)
             limitClause = ' LIMIT ' + options.max + ' ';
 
+        // TODO: Validate column names
+        // Sort
+        var sortClause = '';
+        if (options.sort)
+        {
+            sortClause = ' ORDER BY ' + options.sort.join(",");
+        }
+
         var queryString = 'SELECT ' + selectColumns + ' ' +
             'FROM `' + this.tableName + '` '
-            + whereStatementString + limitClause +
-            ' (deleted IS NULL OR deleted = 0)';
+            + whereStatementString +
+            ' (deleted IS NULL OR deleted = 0)'
+            + limitClause + sortClause;
 
         return self.mysqlDelegate.executeQuery(queryString, values, transaction)
             .then(

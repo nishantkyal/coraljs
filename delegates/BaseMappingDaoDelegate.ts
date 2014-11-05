@@ -21,16 +21,14 @@ class BaseMappingDaoDelegate
      * @param dao
      */
     constructor(dao:typeof BaseModel);
-
     constructor(dao:MysqlDao);
-
     constructor(dao:any)
     {
         this.dao = Utils.getObjectType(dao) === 'Object' ? dao : new MysqlDao(dao);
         this.dao.modelClass.DELEGATE = this;
     }
 
-    get(id:any, options?:IDaoFetchOptions, foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
+    get(id:any, options:IDaoFetchOptions = {}, foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
     {
         options.fields = options.fields || this.dao.modelClass.PUBLIC_FIELDS;
 
@@ -43,7 +41,7 @@ class BaseMappingDaoDelegate
             return this.find({'id': id}, options, foreignKeys);
     }
 
-    find(search:Object, options?:IDaoFetchOptions, foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
+    find(search:Object, options:IDaoFetchOptions = {}, foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
     {
         var self:BaseMappingDaoDelegate = this;
 
@@ -87,7 +85,7 @@ class BaseMappingDaoDelegate
      * Perform search based on search query
      * Also fetch joint fields
      */
-    search(search:Object, options?:IDaoFetchOptions, foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
+    search(search:Object, options:IDaoFetchOptions = {}, foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
     {
         var self:BaseMappingDaoDelegate = this;
 
@@ -131,7 +129,7 @@ class BaseMappingDaoDelegate
             });
     }
 
-    searchWithIncludes(search?:Object, options?:IDaoFetchOptions, includes?:Object[], transaction?:Object):q.Promise<any>
+    searchWithIncludes(search?:Object, options:IDaoFetchOptions = {}, includes?:Object[], transaction?:Object):q.Promise<any>
     {
         var self:BaseMappingDaoDelegate = this;
 
@@ -144,7 +142,7 @@ class BaseMappingDaoDelegate
             });
     }
 
-    processIncludes(baseSearchResults:BaseModel[], search?:Object, options?:IDaoFetchOptions, includes?:Object[], transaction?:Object):any
+    processIncludes(baseSearchResults:BaseModel[], search?:Object, options:IDaoFetchOptions = {}, includes?:Object[], transaction?:Object):any
     {
         if (Utils.isNullOrEmpty(baseSearchResults))
             return baseSearchResults;
@@ -203,9 +201,7 @@ class BaseMappingDaoDelegate
     }
 
     create(mappingObject:Object, object:Object, transaction?:Object):q.Promise<any>;
-
     create(mappingObject:Object, object:Object[], transaction?:Object):q.Promise<any>;
-
     create(mappingObject:Object, object:any, transaction?:Object):q.Promise<any>
     {
         var self = this;
@@ -237,18 +233,14 @@ class BaseMappingDaoDelegate
     }
 
     update(criteria:Object, newValues:any, transaction?:Object):q.Promise<any>;
-
     update(criteria:number, newValues:any, transaction?:Object):q.Promise<any>;
-
     update(criteria:any, newValues:any, transaction?:Object):q.Promise<any>
     {
         return this.dao.update(criteria, newValues, transaction);
     }
 
     delete(criteria:number, softDelete?:boolean, transaction?:Object):q.Promise<any>;
-
     delete(criteria:Object, softDelete?:boolean, transaction?:Object):q.Promise<any>;
-
     delete(criteria:any, softDelete:boolean = true, transaction?:Object):q.Promise<any>
     {
         return this.dao.delete(criteria, transaction);
