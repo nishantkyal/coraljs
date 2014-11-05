@@ -28,7 +28,17 @@ class SolrDao implements IDao
     create(data:Object):q.Promise<any>;
     create(data:any):q.Promise<any>
     {
-        return null;
+        var deferred = q.defer<any>();
+
+        this.solrClient.add(data.toJson(), function(err:Error, obj:Object)
+        {
+            if (!Utils.isNullOrEmpty(err))
+                deferred.reject(err);
+            else
+                deferred.resolve(obj);
+        });
+
+        return deferred.promise;
     }
 
     get(id:any, fields?:string[]):q.Promise<any>;
@@ -67,6 +77,7 @@ class SolrDao implements IDao
     search(searchQuery?:Object, fields?:string[]):q.Promise<any>
     {
         var deferred = q.defer<any>();
+        var self = this;
 
         var solrQuery = this.solrClient.createQuery();
         solrQuery.q(searchQuery);
@@ -77,7 +88,10 @@ class SolrDao implements IDao
             if (!Utils.isNullOrEmpty(err))
                 deferred.reject(err);
             else
-                deferred.resolve(obj['response']['docs']);
+                deferred.resolve(_.map(obj['response']['docs'], function(doc)
+                {
+                    return new self.modelClass(doc);
+                }));
         });
 
         return deferred.promise;
