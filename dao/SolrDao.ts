@@ -75,7 +75,7 @@ class SolrDao implements IDao
         }
     }
 
-    search(searchQuery:Object, options?:IDaoFetchOptions):q.Promise<any>
+    search(searchQuery:Object, options:IDaoFetchOptions = {}):q.Promise<any>
     {
         var deferred = q.defer<any>();
         var self = this;
@@ -99,28 +99,25 @@ class SolrDao implements IDao
         return deferred.promise;
     }
 
-    find(searchQuery:Object, options?:IDaoFetchOptions):q.Promise<any>
+    find(searchQuery:Object, options:IDaoFetchOptions = {}):q.Promise<any>
     {
-        var deferred = q.defer<any>();
+        var self = this;
+        options.max = 1;
 
-        var solrQuery = this.solrClient.createQuery();
-        solrQuery.q(searchQuery);
-        if (!Utils.isNullOrEmpty(options.fields))
-            solrQuery.fl(options.fields);
-        solrQuery.rows(1);
-
-        this.solrClient.search(solrQuery, function(err:Error, obj:Object)
-        {
-            if (!Utils.isNullOrEmpty(err))
-                deferred.reject(err);
-            else
+        return self.search(searchQuery, options)
+            .then(
+            function handleSearchResults(results:Object[]):any
             {
-                var docs = obj['response']['docs'];
-                deferred.resolve(docs.length != 0 ? docs[0] : null);
-            }
-        });
-
-        return deferred.promise;
+                if (!Utils.isNullOrEmpty(results))
+                    return results[0];
+                else
+                    return results;
+            },
+            function findError(error:Error)
+            {
+                self.logger.error('FIND failed for table: %s, criteria: %s, error: %s', self.tableName, JSON.stringify(searchQuery), error.message);
+                throw(error);
+            });
     }
 
     update(criteria:number, newValues:any):q.Promise<any>;
