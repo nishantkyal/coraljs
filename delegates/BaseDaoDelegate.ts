@@ -3,7 +3,8 @@ import _                                                = require('underscore');
 import log4js                                           = require('log4js');
 import q                                                = require('q');
 import moment                                           = require('moment');
-import AbstractDao                                      = require('../dao/AbstractDao');
+import IDao                                             = require('../dao/IDao');
+import MysqlDao                                         = require('../dao/MysqlDao');
 import Utils                                            = require('../common/Utils');
 import BaseModel                                        = require('../models/BaseModel');
 import ForeignKey                                       = require('../models/ForeignKey');
@@ -13,17 +14,17 @@ import ForeignKeyType                                   = require('../enums/Fore
 class BaseDaoDelegate
 {
     logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
-    dao:AbstractDao;
+    dao:IDao;
 
     /** Can be constructed using just the model in case dao doesn't do anything special
-     * e.g. Execute custom queries which AbstractDao doesn't support
+     * e.g. Execute custom queries which IDao doesn't support
      * @param dao
      */
     constructor(dao:typeof BaseModel);
-    constructor(dao:AbstractDao);
+    constructor(dao:IDao);
     constructor(dao:any)
     {
-        this.dao = Utils.getObjectType(dao) === 'Object' ? dao : new AbstractDao(dao);
+        this.dao = Utils.getObjectType(dao) === 'Object' ? dao : new MysqlDao(dao);
         this.dao.modelClass.DELEGATE = this;
     }
 
@@ -34,10 +35,10 @@ class BaseDaoDelegate
         id = [].concat(id);
 
         if (id.length > 1)
-            return this.search({'id': id}, fields, foreignKeys);
+            return this.search({'id': id}, fields, foreignKeys, transaction);
 
         if (id.length === 1)
-            return this.find({'id': id}, fields, foreignKeys);
+            return this.find({'id': id}, fields, foreignKeys, transaction);
     }
 
     find(search:Object, fields?:string[], foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
@@ -99,7 +100,6 @@ class BaseDaoDelegate
 
                 var foreignKeyTasks = _.map(foreignKeys, function (key:ForeignKey)
                 {
-
                     self.logger.debug('Processing search foreign key for %s', key.getSourcePropertyName());
                     var delegate = key.referenced_table.DELEGATE;
                     return delegate.search(Utils.createSimpleObject(key.target_key, _.uniq(_.pluck(baseSearchResults, key.src_key))));
@@ -159,7 +159,7 @@ class BaseDaoDelegate
                     foreignKeys.push(tempForeignKey);
                     self.logger.debug('Processing search foreign key for %s', tempForeignKey.getSourcePropertyName());
                     var delegate = tempForeignKey.referenced_table.DELEGATE;
-                    foreignKeyTasks.push(delegate.searchWithIncludes(Utils.createSimpleObject(tempForeignKey.target_key, _.uniq(_.pluck(baseSearchResults, tempForeignKey.src_key)))));
+                    foreignKeyTasks.push(delegate.searchWithIncludes(Utils.createSimpleObject(tempForeignKey.target_key, _.uniq(_.pluck(baseSearchResults, tempForeignKey.src_key)))), transaction);
                 }
             }
             else // if nested includes then pass on to next call
@@ -170,7 +170,7 @@ class BaseDaoDelegate
                     foreignKeys.push(tempForeignKey);
                     self.logger.debug('Processing search foreign key for %s', tempForeignKey.getSourcePropertyName());
                     var delegate = tempForeignKey.referenced_table.DELEGATE;
-                    foreignKeyTasks.push(delegate.searchWithIncludes(Utils.createSimpleObject(tempForeignKey.target_key, _.uniq(_.pluck(baseSearchResults, tempForeignKey.src_key))), null, _.values(include)[0]));
+                    foreignKeyTasks.push(delegate.searchWithIncludes(Utils.createSimpleObject(tempForeignKey.target_key, _.uniq(_.pluck(baseSearchResults, tempForeignKey.src_key))), null, _.values(include)[0], transaction));
                 }
             }
         });
@@ -179,7 +179,7 @@ class BaseDaoDelegate
             .then(
             function handleIncludesProcessed(...args)
             {
-                var results = args[0];
+                var results:any = args[0];
 
                 _.each(baseSearchResults, function (baseSearchResult:any)
                 {

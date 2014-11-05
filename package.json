@@ -36,6 +36,7 @@
         "underscore"          : "1.5.2",
         "validator"           : "*",
         "watch"               : "0.9.0",
-        "URIjs"              : "*"
+        "URIjs"               : "*",
+        "solr-client"         : "*"
     }
 }

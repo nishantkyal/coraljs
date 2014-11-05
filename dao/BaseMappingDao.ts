@@ -1,13 +1,13 @@
 ///<reference path='../_references.d.ts'/>
 import _                                                    = require('underscore');
 import q                                                    = require('q');
-import AbstractDao                                          = require('./AbstractDao');
+import MysqlDao                                          = require('./MysqlDao');
 import BaseModel                                            = require('../models/BaseModel');
 import ForeignKey                                           = require('../models/ForeignKey');
 import MysqlDelegate                                        = require('../delegates/MysqlDelegate');
 import Utils                                                = require('../common/Utils');
 
-class BaseMappingDao extends AbstractDao
+class BaseMappingDao extends MysqlDao
 {
     find(searchQuery:Object, fields?:string[], transaction?:Object):q.Promise<any>
     {

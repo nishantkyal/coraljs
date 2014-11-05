@@ -3,7 +3,7 @@ import _                                                = require('underscore');
 import log4js                                           = require('log4js');
 import q                                                = require('q');
 import moment                                           = require('moment');
-import AbstractDao                                      = require('../dao/AbstractDao');
+import MysqlDao                                      = require('../dao/MysqlDao');
 import Utils                                            = require('../common/Utils');
 import BaseModel                                        = require('../models/BaseModel');
 import ForeignKey                                       = require('../models/ForeignKey');
@@ -13,17 +13,17 @@ import ForeignKeyType                                   = require('../enums/Fore
 class BaseMappingDaoDelegate
 {
     logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
-    dao:AbstractDao;
+    dao:MysqlDao;
 
     /** Can be constructed using just the model in case dao doesn't do anything special
-     * e.g. Execute custom queries which AbstractDao doesn't support
+     * e.g. Execute custom queries which MysqlDao doesn't support
      * @param dao
      */
     constructor(dao:typeof BaseModel);
-    constructor(dao:AbstractDao);
+    constructor(dao:MysqlDao);
     constructor(dao:any)
     {
-        this.dao = Utils.getObjectType(dao) === 'Object' ? dao : new AbstractDao(dao);
+        this.dao = Utils.getObjectType(dao) === 'Object' ? dao : new MysqlDao(dao);
         this.dao.modelClass.DELEGATE = this;
     }
 
@@ -179,7 +179,7 @@ class BaseMappingDaoDelegate
             .then(
             function handleIncludesProcessed(...args)
             {
-                var results = args[0];
+                var results:any = args[0];
 
                 _.each(baseSearchResults, function (baseSearchResult:any)
                 {
