@@ -140,11 +140,11 @@ class BaseDaoDelegate
             {
                 if (Utils.isNullOrEmpty(baseSearchResults))
                     return baseSearchResults;
-                return self.processIncludes(baseSearchResults, search, includes, transaction);
+                return self.processIncludes(baseSearchResults, search, options, includes, transaction);
             });
     }
 
-    processIncludes(baseSearchResults:BaseModel[],search?:Object,includes?:Object[], transaction?:Object):q.Promise<any>
+    processIncludes(baseSearchResults:BaseModel[],search?:Object, options?:IDaoFetchOptions, includes?:Object[], transaction?:Object):q.Promise<any>
     {
         var self:BaseDaoDelegate = this;
         var foreignKeyTasks = [];

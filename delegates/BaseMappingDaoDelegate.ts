@@ -28,8 +28,9 @@ class BaseMappingDaoDelegate
         this.dao.modelClass.DELEGATE = this;
     }
 
-    get(id:any, options:IDaoFetchOptions = {}, foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
+    get(id:any, options?:IDaoFetchOptions, foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
     {
+        options = options || {};
         options.fields = options.fields || this.dao.modelClass.PUBLIC_FIELDS;
 
         id = [].concat(id);
@@ -41,10 +42,11 @@ class BaseMappingDaoDelegate
             return this.find({'id': id}, options, foreignKeys);
     }
 
-    find(search:Object, options:IDaoFetchOptions = {}, foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
+    find(search:Object, options?:IDaoFetchOptions, foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
     {
         var self:BaseMappingDaoDelegate = this;
 
+        options = options || {};
         options.fields = options.fields || this.dao.modelClass.PUBLIC_FIELDS;
 
         return this.dao.find(search, options, transaction)
@@ -85,10 +87,11 @@ class BaseMappingDaoDelegate
      * Perform search based on search query
      * Also fetch joint fields
      */
-    search(search:Object, options:IDaoFetchOptions = {}, foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
+    search(search:Object, options?:IDaoFetchOptions, foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
     {
         var self:BaseMappingDaoDelegate = this;
 
+        options = options || {};
         options.fields = options.fields || this.dao.modelClass.PUBLIC_FIELDS;
 
         return this.dao.search(search, options, transaction)
@@ -129,10 +132,11 @@ class BaseMappingDaoDelegate
             });
     }
 
-    searchWithIncludes(search?:Object, options:IDaoFetchOptions = {}, includes?:Object[], transaction?:Object):q.Promise<any>
+    searchWithIncludes(search?:Object, options?:IDaoFetchOptions, includes?:Object[], transaction?:Object):q.Promise<any>
     {
         var self:BaseMappingDaoDelegate = this;
 
+        options = options || {};
         options.fields = options.fields || this.dao.modelClass.PUBLIC_FIELDS;
 
         return this.dao.search(search, options, transaction)
@@ -142,7 +146,7 @@ class BaseMappingDaoDelegate
             });
     }
 
-    processIncludes(baseSearchResults:BaseModel[], search?:Object, options:IDaoFetchOptions = {}, includes?:Object[], transaction?:Object):any
+    processIncludes(baseSearchResults:BaseModel[], search?:Object, options?:IDaoFetchOptions, includes?:Object[], transaction?:Object):any
     {
         if (Utils.isNullOrEmpty(baseSearchResults))
             return baseSearchResults;

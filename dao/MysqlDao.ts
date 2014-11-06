@@ -103,7 +103,7 @@ class MysqlDao implements IDao
      */
     get(id:number[], options?:IDaoFetchOptions, transaction?:Object):q.Promise<any>;
     get(id:number, options?:IDaoFetchOptions, transaction?:Object):q.Promise<any>;
-    get(id:any, options:IDaoFetchOptions = {}, transaction?:Object):q.Promise<any>
+    get(id:any, options?:IDaoFetchOptions, transaction?:Object):q.Promise<any>
     {
         var self = this;
         if (Utils.getObjectType(id) == 'Array' && id.length > 1)
@@ -141,7 +141,7 @@ class MysqlDao implements IDao
      * @param fields
      * @returns {"q".Promise<U>|"q".Promise<undefined>|"q".Promise<any>}
      */
-    search(searchQuery?:Object, options:IDaoFetchOptions = {}, transaction?:Object):q.Promise<any>
+    search(searchQuery?:Object, options?:IDaoFetchOptions, transaction?:Object):q.Promise<any>
     {
         var self = this;
         var whereStatements = this.generateWhereStatements(searchQuery);
@@ -194,7 +194,7 @@ class MysqlDao implements IDao
      * @param fields
      * @returns {"q".Promise<U>|"q".Promise<undefined>|"q".Promise<any|null>}
      */
-    find(searchQuery:Object, options:IDaoFetchOptions = {}, transaction?:Object):q.Promise<any>
+    find(searchQuery:Object, options?:IDaoFetchOptions, transaction?:Object):q.Promise<any>
     {
         var self = this;
         options.max = 1;
