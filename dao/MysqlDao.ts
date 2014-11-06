@@ -165,10 +165,8 @@ class MysqlDao implements IDao
         // TODO: Validate column names
         // Sort
         var sortClause = '';
-        if (options.sort)
-        {
+        if (!Utils.isNullOrEmpty(options.sort))
             sortClause = ' ORDER BY ' + options.sort.join(",");
-        }
 
         var queryString = 'SELECT ' + selectColumns + ' ' +
             'FROM `' + this.tableName + '` '
