@@ -329,8 +329,11 @@ class MysqlDao implements IDao
                     whereStatements.push(statement);
                     break;
                 case 'Array':
-                    whereStatements.push(key + ' IN (?) ');
-                    values.push(query);
+                    if (query.length != 0)
+                    {
+                        whereStatements.push(key + ' IN (?) ');
+                        values.push(query);
+                    }
                     break;
                 case 'Number':
                 case 'String':
