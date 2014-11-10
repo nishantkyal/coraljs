@@ -141,7 +141,7 @@ class MysqlDao implements IDao
      * @param fields
      * @returns {"q".Promise<U>|"q".Promise<undefined>|"q".Promise<any>}
      */
-    search(searchQuery?:Object, options?:IDaoFetchOptions, transaction?:Object):q.Promise<any>
+    search(searchQuery?:Object, options:IDaoFetchOptions = {}, transaction?:Object):q.Promise<any>
     {
         var self = this;
         var whereStatements = this.generateWhereStatements(searchQuery);
@@ -329,8 +329,11 @@ class MysqlDao implements IDao
                     whereStatements.push(statement);
                     break;
                 case 'Array':
-                    whereStatements.push(key + ' IN (?) ');
-                    values.push(query);
+                    if (query.length != 0)
+                    {
+                        whereStatements.push(key + ' IN (?) ');
+                        values.push(query);
+                    }
                     break;
                 case 'Number':
                 case 'String':
