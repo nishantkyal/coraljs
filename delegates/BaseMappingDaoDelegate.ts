@@ -3,7 +3,8 @@ import _                                                = require('underscore');
 import log4js                                           = require('log4js');
 import q                                                = require('q');
 import moment                                           = require('moment');
-import MysqlDao                                      = require('../dao/MysqlDao');
+import IDaoFetchOptions                                 = require('../dao/IDaoFetchOptions');
+import MysqlDao                                         = require('../dao/MysqlDao');
 import Utils                                            = require('../common/Utils');
 import BaseModel                                        = require('../models/BaseModel');
 import ForeignKey                                       = require('../models/ForeignKey');
@@ -27,26 +28,28 @@ class BaseMappingDaoDelegate
         this.dao.modelClass.DELEGATE = this;
     }
 
-    get(id:any, fields?:string[], foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
+    get(id:any, options?:IDaoFetchOptions, foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
     {
-        fields = fields || this.dao.modelClass.PUBLIC_FIELDS;
+        options = options || {};
+        options.fields = options.fields || this.dao.modelClass.PUBLIC_FIELDS;
 
         id = [].concat(id);
 
         if (id.length > 1)
-            return this.search({'id': id}, fields, foreignKeys);
+            return this.search({'id': id}, options, foreignKeys);
 
         if (id.length === 1)
-            return this.find({'id': id}, fields, foreignKeys);
+            return this.find({'id': id}, options, foreignKeys);
     }
 
-    find(search:Object, fields?:string[], foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
+    find(search:Object, options?:IDaoFetchOptions, foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
     {
         var self:BaseMappingDaoDelegate = this;
 
-        fields = fields || this.dao.modelClass.PUBLIC_FIELDS;
+        options = options || {};
+        options.fields = options.fields || this.dao.modelClass.PUBLIC_FIELDS;
 
-        return this.dao.find(search, fields, transaction)
+        return this.dao.find(search, options, transaction)
             .then(
             function processForeignKeys(result:BaseModel):any
             {
@@ -84,13 +87,14 @@ class BaseMappingDaoDelegate
      * Perform search based on search query
      * Also fetch joint fields
      */
-    search(search:Object, fields?:string[], foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
+    search(search:Object, options?:IDaoFetchOptions, foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
     {
         var self:BaseMappingDaoDelegate = this;
 
-        fields = fields || this.dao.modelClass.PUBLIC_FIELDS;
+        options = options || {};
+        options.fields = options.fields || this.dao.modelClass.PUBLIC_FIELDS;
 
-        return this.dao.search(search, fields, transaction)
+        return this.dao.search(search, options, transaction)
             .then(
             function processIncludes(baseSearchResults:BaseModel[]):any
             {
@@ -128,19 +132,21 @@ class BaseMappingDaoDelegate
             });
     }
 
-    searchWithIncludes(search?:Object, fields?:string[], includes?:Object[], transaction?:Object):q.Promise<any>
+    searchWithIncludes(search?:Object, options?:IDaoFetchOptions, includes?:Object[], transaction?:Object):q.Promise<any>
     {
         var self:BaseMappingDaoDelegate = this;
 
-        fields = fields || this.dao.modelClass.PUBLIC_FIELDS;
+        options = options || {};
+        options.fields = options.fields || this.dao.modelClass.PUBLIC_FIELDS;
 
-        return this.dao.search(search, fields, transaction)
-            .then(function searchComplete(baseSearchResults:BaseModel[]){
-                return self.processIncludes(baseSearchResults,search,includes,transaction);
+        return this.dao.search(search, options, transaction)
+            .then(function searchComplete(baseSearchResults:BaseModel[])
+            {
+                return self.processIncludes(baseSearchResults, search, options, includes, transaction);
             });
     }
 
-    processIncludes(baseSearchResults:BaseModel[],search?:Object,includes?:Object[], transaction?:Object):any
+    processIncludes(baseSearchResults:BaseModel[], search?:Object, options?:IDaoFetchOptions, includes?:Object[], transaction?:Object):any
     {
         if (Utils.isNullOrEmpty(baseSearchResults))
             return baseSearchResults;
@@ -149,28 +155,28 @@ class BaseMappingDaoDelegate
         var foreignKeyTasks = [];
         var foreignKeys:ForeignKey[] = [];
 
-        _.each(includes, function(include:any)
+        _.each(includes, function (include:any)
         {
             if (typeof include === 'string') //if no nested includes
             {
                 var tempForeignKey:ForeignKey = self.dao.modelClass.getForeignKeyForColumn(include);
-                if(!Utils.isNullOrEmpty(tempForeignKey))
+                if (!Utils.isNullOrEmpty(tempForeignKey))
                 {
                     foreignKeys.push(tempForeignKey);
                     self.logger.debug('Processing search foreign key for %s', tempForeignKey.getSourcePropertyName());
                     var delegate = tempForeignKey.referenced_table.DELEGATE;
-                    foreignKeyTasks.push(delegate.searchWithIncludes(Utils.createSimpleObject(tempForeignKey.target_key, _.uniq(_.pluck(baseSearchResults, tempForeignKey.src_key)))));
+                    foreignKeyTasks.push(delegate.searchWithIncludes(Utils.createSimpleObject(tempForeignKey.target_key, _.uniq(_.pluck(baseSearchResults, tempForeignKey.src_key)))), options, null, transaction);
                 }
             }
             else // if nested includes then pass on to next call
             {
                 var tempForeignKey:ForeignKey = self.dao.modelClass.getForeignKeyForColumn(_.keys(include)[0]);
-                if(!Utils.isNullOrEmpty(tempForeignKey))
+                if (!Utils.isNullOrEmpty(tempForeignKey))
                 {
                     foreignKeys.push(tempForeignKey);
                     self.logger.debug('Processing search foreign key for %s', tempForeignKey.getSourcePropertyName());
                     var delegate = tempForeignKey.referenced_table.DELEGATE;
-                    foreignKeyTasks.push(delegate.searchWithIncludes(Utils.createSimpleObject(tempForeignKey.target_key, _.uniq(_.pluck(baseSearchResults, tempForeignKey.src_key))), null, _.values(include)[0]));
+                    foreignKeyTasks.push(delegate.searchWithIncludes(Utils.createSimpleObject(tempForeignKey.target_key, _.uniq(_.pluck(baseSearchResults, tempForeignKey.src_key))), options, _.values(include)[0]), transaction);
                 }
             }
         });
@@ -224,7 +230,7 @@ class BaseMappingDaoDelegate
                     .then(
                     function fetched(item)
                     {
-                        mappingObject[fk.getSourcePropertyName()+'_id'] = item.id;
+                        mappingObject[fk.getSourcePropertyName() + '_id'] = item.id;
                         return self.dao.create(mappingObject, transaction);
                     })
             })
