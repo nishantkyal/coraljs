@@ -141,7 +141,7 @@ class MysqlDao implements IDao
      * @param fields
      * @returns {"q".Promise<U>|"q".Promise<undefined>|"q".Promise<any>}
      */
-    search(searchQuery?:Object, options?:IDaoFetchOptions, transaction?:Object):q.Promise<any>
+    search(searchQuery?:Object, options:IDaoFetchOptions = {}, transaction?:Object):q.Promise<any>
     {
         var self = this;
         var whereStatements = this.generateWhereStatements(searchQuery);
