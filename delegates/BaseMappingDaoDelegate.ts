@@ -132,7 +132,7 @@ class BaseMappingDaoDelegate
             });
     }
 
-    searchWithIncludes(search?:Object, options?:IDaoFetchOptions, includes?:Object[], transaction?:Object):q.Promise<any>
+    searchWithIncludes(search?:Object, options:IDaoFetchOptions = {}, includes?:Object[], transaction?:Object):q.Promise<any>
     {
         var self:BaseMappingDaoDelegate = this;
 
@@ -165,7 +165,7 @@ class BaseMappingDaoDelegate
                     foreignKeys.push(tempForeignKey);
                     self.logger.debug('Processing search foreign key for %s', tempForeignKey.getSourcePropertyName());
                     var delegate = tempForeignKey.referenced_table.DELEGATE;
-                    foreignKeyTasks.push(delegate.searchWithIncludes(Utils.createSimpleObject(tempForeignKey.target_key, _.uniq(_.pluck(baseSearchResults, tempForeignKey.src_key)))), options, null, transaction);
+                    foreignKeyTasks.push(delegate.searchWithIncludes(Utils.createSimpleObject(tempForeignKey.target_key, _.uniq(_.pluck(baseSearchResults, tempForeignKey.src_key))), {}, null, transaction));
                 }
             }
             else // if nested includes then pass on to next call
@@ -176,7 +176,7 @@ class BaseMappingDaoDelegate
                     foreignKeys.push(tempForeignKey);
                     self.logger.debug('Processing search foreign key for %s', tempForeignKey.getSourcePropertyName());
                     var delegate = tempForeignKey.referenced_table.DELEGATE;
-                    foreignKeyTasks.push(delegate.searchWithIncludes(Utils.createSimpleObject(tempForeignKey.target_key, _.uniq(_.pluck(baseSearchResults, tempForeignKey.src_key))), options, _.values(include)[0]), transaction);
+                    foreignKeyTasks.push(delegate.searchWithIncludes(Utils.createSimpleObject(tempForeignKey.target_key, _.uniq(_.pluck(baseSearchResults, tempForeignKey.src_key))), {}, _.values(include)[0]), transaction);
                 }
             }
         });

@@ -38,8 +38,10 @@ class BaseMappingDao extends MysqlDao
             .then(
             function handleResults(rows:Object[])
             {
-                // 1. Collect unique base objects
-                var uniqueSourceIds = _.uniq(_.pluck(rows, self.modelClass.TABLE_NAME + '.' + fk.src_key));
+                var nameSpaceMappings = {};
+                _.each(self.modelClass['COLUMNS'], function(colName) {
+                    nameSpaceMappings[self.modelClass.TABLE_NAME + '.' + colName] = colName;
+                });
 
                 // 2. Collect unique mapped objects
                 var referencedObjects = _.map(rows, function(row)
@@ -48,22 +50,18 @@ class BaseMappingDao extends MysqlDao
                 });
 
                 // 3. Merge and return
-                return _.map(uniqueSourceIds, function (srcId:Object)
+                return _.map(rows, function (row:Object)
                 {
                     // Remove the namespacing prefix from columns
-                    var mappingObject = _.findWhere(rows, Utils.createSimpleObject(self.modelClass.TABLE_NAME + '.' + fk.src_key, srcId));
-                    var nameSpaceMappings = {};
-                    _.each(self.modelClass['COLUMNS'], function(colName) {
-                       nameSpaceMappings[self.modelClass.TABLE_NAME + '.' + colName] = colName;
-                    });
+                    var mappingObject = _.findWhere(referencedObjects, Utils.createSimpleObject(fk.target_key, row[self.modelClass.TABLE_NAME + "." + fk.src_key]));
 
-                    _.each(_.keys(mappingObject), function(key:string)
+                    _.each(_.keys(row), function(key:string)
                     {
-                        mappingObject[nameSpaceMappings[key]] = mappingObject[key];
+                        row[nameSpaceMappings[key]] = row[key];
                     });
 
-                    var typedMappingObject = new self.modelClass(mappingObject);
-                    typedMappingObject[setterMethod].call(typedMappingObject, referencedObjects);
+                    var typedMappingObject = new self.modelClass(row);
+                    typedMappingObject[setterMethod].call(typedMappingObject, mappingObject);
                     return typedMappingObject;
                 });
             })
