@@ -23,7 +23,8 @@ class MysqlDelegate
                 password: password,
                 socketPath: socketPath,
                 supportBigNumbers: true,
-                waitForConnections: false
+                waitForConnections: false,
+                connectionLimit: 20
             });
         }
     }
@@ -183,6 +184,8 @@ class MysqlDelegate
             function operationFailed(error:Error)
             {
                 transaction.rollback();
+                if (transaction)
+                    transaction.release();
                 throw (error);
             });
     }
@@ -195,6 +198,8 @@ class MysqlDelegate
         var deferred = q.defer();
         transaction.commit(function transactionCommitted()
         {
+            if (transaction)
+                transaction.release();
             deferred.resolve(result);
         });
         return deferred.promise;
