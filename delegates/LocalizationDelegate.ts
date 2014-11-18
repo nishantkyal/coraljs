@@ -13,12 +13,14 @@ class LocalizationDelegate
         i18n.configure({
             defaultLocale: 'en',
             locales:['en'],
-            directory: '/var/searchntalk/localization'
+            updateFiles: false,
+            directory: '/var/searchntalk/localization',
+            objectNotation: true
         });
     })();
 
     /* Getters */
-    static get(key:string, locale?:string):string {
+    static get(key:string, locale:string = 'en'):string {
         if (locale)
             return i18n.__({'phrase': key, 'locale': locale});
         return i18n.__(key);
