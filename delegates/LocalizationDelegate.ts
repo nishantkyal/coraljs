@@ -20,15 +20,10 @@ class LocalizationDelegate
     })();
 
     /* Getters */
-    static get(key:string, locale:string = 'en'):string {
+    static get(key:string, data?:Object, locale:string = 'en'):string {
         if (locale)
-            return i18n.__({'phrase': key, 'locale': locale});
+            return i18n.__({'phrase': key, 'locale': locale}, data);
         return i18n.__(key);
-    }
-
-    static getTemplatedMessage(key:string, data:Object, locale?:string):string
-    {
-        return _.template(LocalizationDelegate.get(key, locale))(data);
     }
 
     /* Setters */
