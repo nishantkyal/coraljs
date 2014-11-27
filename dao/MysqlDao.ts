@@ -316,6 +316,16 @@ class MysqlDao implements IDao
                         values.push(query['value'][0]);
                         values.push(query['value'][1]);
                     }
+                    else if (operator && operator.toLowerCase() === 'greaterthan')
+                    {
+                        statement = key + ' > ?';
+                        values.push(query['value']);
+                    }
+                    else if (operator && operator.toLowerCase() === 'lessthan')
+                    {
+                        statement = key + ' < ?';
+                        values.push(query['value']);
+                    }
                     else if (query['value'])
                     {
                         statement = key + ' ' + operator + ' ?';
