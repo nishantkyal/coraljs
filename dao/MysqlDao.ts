@@ -255,7 +255,7 @@ class MysqlDao implements IDao
             },
             function updateError(error:Error)
             {
-                self.logger.error('UPDATE failed, error: %s, table: %s', JSON.stringify(error), self.tableName);
+                self.logger.error('UPDATE failed, error: %s, table: %s', error.message, self.tableName);
                 throw(error);
             });
     }
