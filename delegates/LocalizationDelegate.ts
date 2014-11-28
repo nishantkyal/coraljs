@@ -1,5 +1,6 @@
 ///<reference path='../_references.d.ts'/>
-import i18n         = require('i18n');
+import i18n                                         = require('i18n');
+import _                                            = require('underscore');
 
 /*
  Delegate to manage localization
@@ -12,14 +13,16 @@ class LocalizationDelegate
         i18n.configure({
             defaultLocale: 'en',
             locales:['en'],
-            directory: '/var/searchntalk/localization'
+            updateFiles: false,
+            directory: '/var/searchntalk/localization',
+            objectNotation: true
         });
     })();
 
     /* Getters */
-    static get(key:string, locale?:string):string {
+    static get(key:string, data?:Object, locale:string = 'en'):string {
         if (locale)
-            return i18n.__({'phrase': key, 'locale': locale});
+            return i18n.__({'phrase': key, 'locale': locale}, data);
         return i18n.__(key);
     }
 

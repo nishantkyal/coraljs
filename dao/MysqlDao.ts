@@ -250,7 +250,7 @@ class MysqlDao implements IDao
             .then(
             function updateComplete(result:mysql.OkPacket):any
             {
-                self.logger.debug('Update did not change any rows in table - %s, for criteria - %s and values - %s', self.tableName, wheres.join(' AND'), values.join(','));
+                self.logger.info('Update did not change any rows in table - %s, for criteria - %s and values - %s', self.tableName, wheres.join(' AND'), values.join(','));
                 return result;
             },
             function updateError(error:Error)
