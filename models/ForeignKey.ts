@@ -8,7 +8,7 @@ class ForeignKey
     src_key:string;
     referenced_table:typeof AbstractModel;
     target_key:string;
-    local_property_to_set:string;
+    private local_property_to_set:string;
 
     constructor(type:ForeignKeyType, srcKey:string, referenced_table:typeof AbstractModel, targetKey:string, localPropertyToSet?:string)
     {
