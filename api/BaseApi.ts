@@ -4,15 +4,14 @@ class BaseApi
 {
     constructor(app)
     {
-
     }
 
-    getEndPoint():string
+    getEndPoint(baseUrl?:string):string
     {
         return null;
     }
 
-    getIdEndPoint(id?:number):string
+    getIdEndPoint(id?:number, baseUrl?:string):string
     {
         return null;
     }
