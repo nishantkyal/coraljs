@@ -1,10 +1,8 @@
 var childProcess = require('child_process');
-
 function init(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-text-replace');
-
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         clean: {
@@ -15,7 +13,7 @@ function init(grunt) {
         },
         concat: {
             dist: {
-                src: ['enums/*.d.ts', 'models/*.d.ts', 'dao/*.d.ts', 'delegates/*.d.ts', 'common/*.d.ts', 'caches/*.d.ts'],
+                src: ['enums/*.d.ts', 'models/*.d.ts', 'dao/*.d.ts', 'delegates/*.d.ts', 'common/*.d.ts', 'caches/*.d.ts', 'api/*.d.ts'],
                 dest: 'Coral.d.ts',
                 options: {
                     banner: "///<reference path='_references.d.ts'/>\ndeclare module 'Coral'\n{\nimport q = require(\"q\");\nimport log4js = require(\"log4js\");\nimport redis = require(\"redis\");\n\n",
@@ -25,7 +23,7 @@ function init(grunt) {
         },
         'generate-index': {
             target: {
-                src: ['enums/*.js', 'models/*.js', 'dao/*.js', 'delegates/*.js', 'common/*.js', 'caches/*.js'],
+                src: ['enums/*.js', 'models/*.js', 'dao/*.js', 'delegates/*.js', 'common/*.js', 'caches/*.js', 'api/*.js'],
                 dest: 'index.js'
             }
         },
@@ -60,7 +58,6 @@ function init(grunt) {
             "target": {}
         }
     });
-
     /* Generate indx.js by combining all generated .js files */
     grunt.registerMultiTask('generate-index', function () {
         this.files.forEach(function (file) {
@@ -71,7 +68,6 @@ function init(grunt) {
             grunt.file.write(file.dest, output);
         });
     });
-
     grunt.registerMultiTask("typescript", function () {
         var exec = childProcess.exec;
         var done = this.async();
@@ -81,16 +77,13 @@ function init(grunt) {
             done();
         });
     });
-
     grunt.registerMultiTask("sqlToModel", function () {
         var sqlString = grunt.option('sql');
         var sqlToModel = require('./common/sqlToModel');
         console.log(sqlString);
         sqlToModel.sqlToModel(sqlString);
     });
-
     grunt.registerTask('default', ['clean', 'typescript', 'concat', 'replace']);
 }
-
 module.exports = init;
 //# sourceMappingURL=Gruntfile.js.map

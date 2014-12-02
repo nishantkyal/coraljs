@@ -16,7 +16,7 @@ function init(grunt)
         },
         concat: {
             dist: {
-                src: ['enums/*.d.ts', 'models/*.d.ts', 'dao/*.d.ts', 'delegates/*.d.ts', 'common/*.d.ts', 'caches/*.d.ts'],
+                src: ['enums/*.d.ts', 'models/*.d.ts', 'dao/*.d.ts', 'delegates/*.d.ts', 'common/*.d.ts', 'caches/*.d.ts', 'api/*.d.ts'],
                 dest: 'Coral.d.ts',
                 options: {
                     banner: "///<reference path='_references.d.ts'/>\ndeclare module 'Coral'\n{\nimport q = require(\"q\");\nimport log4js = require(\"log4js\");\nimport redis = require(\"redis\");\n\n",
@@ -26,7 +26,7 @@ function init(grunt)
         },
         'generate-index': {
             target: {
-                src: ['enums/*.js', 'models/*.js', 'dao/*.js', 'delegates/*.js', 'common/*.js', 'caches/*.js'],
+                src: ['enums/*.js', 'models/*.js', 'dao/*.js', 'delegates/*.js', 'common/*.js', 'caches/*.js', 'api/*.js'],
                 dest: 'index.js'
             }
         },

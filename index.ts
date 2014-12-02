@@ -17,6 +17,7 @@ import SolrDao = require("./dao/SolrDao");
 import MysqlDao = require("./dao/MysqlDao");
 import BaseMappingDao = require("./dao/BaseMappingDao");
 import BaseDaoDelegate = require("./delegates/BaseDaoDelegate");
+import BaseApi = require("./api/BaseApi");
 import BaseMappingDaoDelegate = require("./delegates/BaseMappingDaoDelegate");
 import FileWatcherDelegate = require("./delegates/FileWatcherDelegate");
 import GlobalIDDelegate = require("./delegates/GlobalIDDelegate");
@@ -47,6 +48,7 @@ var exported = {
     MysqlDao: MysqlDao,
     BaseMappingDao: BaseMappingDao,
     BaseDaoDelegate: BaseDaoDelegate,
+    BaseApi: BaseApi,
     BaseMappingDaoDelegate: BaseMappingDaoDelegate,
     FileWatcherDelegate: FileWatcherDelegate,
     GlobalIDDelegate: GlobalIDDelegate,
