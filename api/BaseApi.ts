@@ -6,12 +6,12 @@ class BaseApi
     {
     }
 
-    getEndPoint(baseUrl?:string):string
+    static getEndpoint(baseUrl?:string):string
     {
         return null;
     }
 
-    getIdEndPoint(id?:number, baseUrl?:string):string
+    static getIdEndpoint(id?:number, baseUrl?:string):string
     {
         return null;
     }
