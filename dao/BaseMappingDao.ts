@@ -13,6 +13,7 @@ class BaseMappingDao extends MysqlDao
     search(searchQuery:Object, options:IDaoFetchOptions, transaction?:Object):q.Promise<any>
     {
         // Create join query to fetch the mapped resource automatically
+        var self = this;
         var fk:ForeignKey = this.modelClass['FOREIGN_KEYS'][0];
         var srcPropertyNameCamelCase:string = Utils.snakeToCamelCase(fk.getSourcePropertyName());
         var setterMethod:string = 'set' + srcPropertyNameCamelCase;
@@ -21,7 +22,6 @@ class BaseMappingDao extends MysqlDao
             return self.modelClass.TABLE_NAME + '.' + where;
         });
         var values = whereStatements.values;
-        var self = this;
 
         // Namespace columns in the SQL query so we can segregate them later
         var mappingColumnNames = _.map(this.modelClass['COLUMNS'], function (colName)
@@ -30,7 +30,7 @@ class BaseMappingDao extends MysqlDao
         }).join(',');
 
         var query:string = 'SELECT ' + mappingColumnNames + ',' + fk.referenced_table.TABLE_NAME +'.* ' +
-            'FROM ' + this.modelClass.TABLE_NAME + fk.referenced_table.TABLE_NAME +
+            'FROM ' + this.modelClass.TABLE_NAME + ',' + fk.referenced_table.TABLE_NAME + ' ' +
             'WHERE ' + wheres.join(' AND ') + ' ' +
             'AND ' + this.modelClass.TABLE_NAME + '.' + fk.src_key + ' = ' + fk.referenced_table.TABLE_NAME + '.' + fk.target_key;
 
