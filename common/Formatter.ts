@@ -17,11 +17,11 @@ class Formatter
                     precision: 2,
                     symbol: '%'
                 });
-            case MoneyUnit.DOLLAR:
+            case MoneyUnit.USD:
                 return accounting.formatMoney(val, {
                     format: '%s %v'
                 });
-            case MoneyUnit.RUPEE:
+            case MoneyUnit.INR:
                 return accounting.formatMoney(val, {
                     format: '%s %v',
                     symbol: 'Rs.'
@@ -66,8 +66,6 @@ class Formatter
         return (isNegative ? '-' : '') + moment(m).format(format).toString();
     }
 
-
-
     static getNameInitials(firstName:string = ' ', lastName:string = ' '):string
     {
         firstName = firstName || ' ';
@@ -82,7 +80,6 @@ class Formatter
         return email;
     }
 
-
     static formatTimezone(offset):string
     {
         var min = Math.floor(Math.abs(offset)/60)%60;
@@ -93,6 +90,11 @@ class Formatter
         gmt_string +=  min < 10 ? ('0' + min.toString()) : min.toString();
 
         return gmt_string;
+    }
+
+    static formatCurrency(currency:MoneyUnit):string
+    {
+        return MoneyUnit[currency];
     }
 }
 export = Formatter
