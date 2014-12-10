@@ -20,12 +20,6 @@ class AbstractModel
 
     constructor(data:Object = {})
     {
-        if (Utils.getClassName(this) == Utils.getClassName(data))
-        {
-            var model:any = data;
-            return model;
-        }
-
         var thisProtoConstructor = this.__proto__.constructor;
         var self = this;
 
