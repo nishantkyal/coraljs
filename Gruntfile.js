@@ -1,3 +1,4 @@
+///<reference path='./_references.d.ts'/>
 var childProcess = require('child_process');
 function init(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');

@@ -1,3 +1,4 @@
+///<reference path='./_references.d.ts'/>
 import childProcess                                         = require('child_process');
 
 function init(grunt)
