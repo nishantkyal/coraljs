@@ -19,7 +19,7 @@ class FileWatcherDelegate
                     });
                 }
             },
-            function monitorCreated(monitor)
+            function monitorCreated(monitor:any)
             {
                 monitor = monitor;
                 if (!Utils.isNullOrEmpty(initHandler))
