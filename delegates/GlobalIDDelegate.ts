@@ -24,7 +24,7 @@ class GlobalIDDelegate
 
     private static types = {
         'user': 1
-    }
+    };
 
     generate(type:string, shardId:number = 1):number
     {
