@@ -202,17 +202,14 @@ class SolrDao implements IDao
                             whereStatement.push(key + ':[* TO ' + value['value'] + '] ');
                         break;
 
-                    case 'Array':
-                        _.each(value, function(val){
-                            whereStatement.push(key + ':' + val);
-                        })
-                        break;
-
                     case 'Number':
                         whereStatement.push(key + ':' + value);
                         break;
                     case 'String':
-                        whereStatement.push(key + ':*' + value + '*');
+                        var values = value.split(' ');//TODO configure solr to support whitespace and * search together
+                        _.each(values, function(val){
+                            whereStatement.push(key + ':*' + val + '* ');
+                        })
                         break;
                 }
             })
