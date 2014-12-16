@@ -79,9 +79,16 @@ class SolrDao implements IDao
     {
         var deferred = q.defer<any>();
         var self = this;
-
         var solrQuery = this.solrClient.createQuery();
-        solrQuery.q(searchQuery);
+        solrQuery.rows(100);
+
+        var queryStatements = self.generateWhereStatement(searchQuery);
+
+        if(queryStatements.length == 0)
+            deferred.reject('Empty Search is not allowed.');
+        else
+            solrQuery.q(queryStatements.join(' AND '));
+
         if (!Utils.isNullOrEmpty(options.fields))
             solrQuery.fl(options.fields);
 
@@ -171,6 +178,47 @@ class SolrDao implements IDao
         });
 
         return deferred.promise;
+    }
+
+    /** Helper method to convert query objects to SQL fragments **/
+    public generateWhereStatement(criteria:Object = {}):string[]
+    {
+        var self = this;
+        var whereStatement = [];
+
+        for (var key in criteria)
+        {
+            var query = criteria[key];
+
+            _.each(query, function(value:any){
+                switch (Utils.getObjectType(value))
+                {
+                    case 'Object':
+                        var operator = value['operator'];
+
+                        if (operator && operator.toLowerCase() === 'lessthan')
+                            whereStatement.push(key + ':[' + value['value'] + ' TO *] ');
+                        else if(operator && operator.toLowerCase() === 'greaterthan')
+                            whereStatement.push(key + ':[* TO ' + value['value'] + '] ');
+                        break;
+
+                    case 'Array':
+                        _.each(value, function(val){
+                            whereStatement.push(key + ':' + val);
+                        })
+                        break;
+
+                    case 'Number':
+                        whereStatement.push(key + ':' + value);
+                        break;
+                    case 'String':
+                        whereStatement.push(key + ':*' + value + '*');
+                        break;
+                }
+            })
+        }
+
+        return whereStatement;
     }
 }
 export = SolrDao
