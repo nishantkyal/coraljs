@@ -40,7 +40,7 @@ class Utils
 
     static isNullOrEmpty(val:any):boolean
     {
-        if (val == null || val == undefined)
+        if (val == null || val == undefined || val == '' || val == {})
             return true;
 
         var objectType:string = this.getObjectType(val);
