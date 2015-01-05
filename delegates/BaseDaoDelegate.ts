@@ -31,6 +31,7 @@ class BaseDaoDelegate
 
     get(id:any, options:IDaoFetchOptions = {}, foreignKeys:ForeignKey[] = [], transaction?:Object):q.Promise<any>
     {
+        options = options || {};
         options.fields = options.fields || this.dao.modelClass.PUBLIC_FIELDS;
 
         id = [].concat(id);
@@ -46,6 +47,7 @@ class BaseDaoDelegate
     {
         var self:BaseDaoDelegate = this;
 
+        options = options || {};
         options.fields = options.fields || this.dao.modelClass.PUBLIC_FIELDS;
 
         return this.dao.find(search, options, transaction)
@@ -90,6 +92,7 @@ class BaseDaoDelegate
     {
         var self:BaseDaoDelegate = this;
 
+        options = options || {};
         options.fields = options.fields || this.dao.modelClass.PUBLIC_FIELDS;
 
         return this.dao.search(search, options, transaction)
@@ -133,6 +136,7 @@ class BaseDaoDelegate
     {
         var self:BaseDaoDelegate = this;
 
+        options = options || {};
         options.fields = options.fields || this.dao.modelClass.PUBLIC_FIELDS;
 
         return this.dao.search(search, options, transaction)
