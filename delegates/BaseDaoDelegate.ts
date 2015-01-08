@@ -22,7 +22,9 @@ class BaseDaoDelegate
      * @param dao
      */
     constructor(dao:typeof BaseModel);
+
     constructor(dao:IDao);
+
     constructor(dao:any)
     {
         this.dao = Utils.getObjectType(dao) === 'Object' ? dao : new MysqlDao(dao);
@@ -102,13 +104,24 @@ class BaseDaoDelegate
                 if (Utils.isNullOrEmpty(baseSearchResults))
                     return baseSearchResults;
 
+                var foreignKeysToPassOn = _.filter(foreignKeys, function (key:ForeignKey)
+                {
+                    return self.dao.modelClass['FOREIGN_KEYS'].indexOf(key) == -1;
+                });
+
+                foreignKeys = _.filter(foreignKeys, function (key:ForeignKey)
+                {
+                    return self.dao.modelClass['FOREIGN_KEYS'].indexOf(key) != -1;
+                });
+
                 var foreignKeyTasks = _.map(foreignKeys, function (key:ForeignKey)
                 {
                     self.logger.debug('Processing search foreign key for %s', key.getSourcePropertyName());
                     var delegate = key.referenced_table.DELEGATE;
-                    return delegate.search(Utils.createSimpleObject(key.target_key, _.uniq(_.pluck(baseSearchResults, key.src_key))));
+                    return delegate.search(Utils.createSimpleObject(key.target_key, _.uniq(_.pluck(baseSearchResults, key.src_key))), null, foreignKeysToPassOn);
                 });
-                return [baseSearchResults, q.all(foreignKeyTasks)];
+
+                return [baseSearchResults, q.all(_.compact(foreignKeyTasks))];
             })
             .spread(
             function handleIncludesProcessed(baseSearchResults, ...args)
@@ -148,18 +161,18 @@ class BaseDaoDelegate
             });
     }
 
-    processIncludes(baseSearchResults:BaseModel[],search?:Object, options?:IDaoFetchOptions, includes?:Object[], transaction?:Object):q.Promise<any>
+    processIncludes(baseSearchResults:BaseModel[], search?:Object, options?:IDaoFetchOptions, includes?:Object[], transaction?:Object):q.Promise<any>
     {
         var self:BaseDaoDelegate = this;
         var foreignKeyTasks = [];
         var foreignKeys:ForeignKey[] = [];
 
-        _.each(includes, function(include:any)
+        _.each(includes, function (include:any)
         {
             if (typeof include === 'string') //if no nested includes
             {
                 var tempForeignKey:ForeignKey = self.dao.modelClass.getForeignKeyForColumn(include);
-                if(!Utils.isNullOrEmpty(tempForeignKey))
+                if (!Utils.isNullOrEmpty(tempForeignKey))
                 {
                     foreignKeys.push(tempForeignKey);
                     self.logger.debug('Processing search foreign key for %s', tempForeignKey.getSourcePropertyName());
@@ -170,7 +183,7 @@ class BaseDaoDelegate
             else // if nested includes then pass on to next call
             {
                 var tempForeignKey:ForeignKey = self.dao.modelClass.getForeignKeyForColumn(_.keys(include)[0]);
-                if(!Utils.isNullOrEmpty(tempForeignKey))
+                if (!Utils.isNullOrEmpty(tempForeignKey))
                 {
                     foreignKeys.push(tempForeignKey);
                     self.logger.debug('Processing search foreign key for %s', tempForeignKey.getSourcePropertyName());
@@ -205,7 +218,9 @@ class BaseDaoDelegate
 
 
     create(object:Object, transaction?:Object):q.Promise<any>;
+
     create(object:Object[], transaction?:Object):q.Promise<any>;
+
     create(object:any, transaction?:Object):q.Promise<any>
     {
         if (Utils.isNullOrEmpty(object))
@@ -228,7 +243,9 @@ class BaseDaoDelegate
     }
 
     update(criteria:Object, newValues:any, transaction?:Object):q.Promise<any>;
+
     update(criteria:number, newValues:any, transaction?:Object):q.Promise<any>;
+
     update(criteria:any, newValues:any, transaction?:Object):q.Promise<any>
     {
         // Compose update statement based on newValues
@@ -240,7 +257,9 @@ class BaseDaoDelegate
     }
 
     delete(criteria:number, softDelete?:boolean, transaction?:Object):q.Promise<any>;
+
     delete(criteria:Object, softDelete?:boolean, transaction?:Object):q.Promise<any>;
+
     delete(criteria:any, softDelete:boolean = true, transaction?:Object):q.Promise<any>
     {
         if (softDelete)
