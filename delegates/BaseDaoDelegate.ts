@@ -164,10 +164,9 @@ class BaseDaoDelegate
     processIncludes(baseSearchResults:BaseModel[], search?:Object, options?:IDaoFetchOptions, includes?:Object[], transaction?:Object):q.Promise<any>
     {
         var self:BaseDaoDelegate = this;
-        var foreignKeyTasks = [];
         var foreignKeys:ForeignKey[] = [];
 
-        _.each(includes, function (include:any)
+        var foreignKeyTasks = _.map(includes, function (include:any)
         {
             if (typeof include === 'string') //if no nested includes
             {
@@ -177,7 +176,7 @@ class BaseDaoDelegate
                     foreignKeys.push(tempForeignKey);
                     self.logger.debug('Processing search foreign key for %s', tempForeignKey.getSourcePropertyName());
                     var delegate = tempForeignKey.referenced_table.DELEGATE;
-                    foreignKeyTasks.push(delegate.searchWithIncludes(Utils.createSimpleObject(tempForeignKey.target_key, _.uniq(_.pluck(baseSearchResults, tempForeignKey.src_key))), {}, null, transaction));
+                    return delegate.searchWithIncludes(Utils.createSimpleObject(tempForeignKey.target_key, _.uniq(_.pluck(baseSearchResults, tempForeignKey.src_key))), {}, null, transaction);
                 }
             }
             else // if nested includes then pass on to next call
@@ -188,7 +187,7 @@ class BaseDaoDelegate
                     foreignKeys.push(tempForeignKey);
                     self.logger.debug('Processing search foreign key for %s', tempForeignKey.getSourcePropertyName());
                     var delegate = tempForeignKey.referenced_table.DELEGATE;
-                    foreignKeyTasks.push(delegate.searchWithIncludes(Utils.createSimpleObject(tempForeignKey.target_key, _.uniq(_.pluck(baseSearchResults, tempForeignKey.src_key))), {}, _.values(include)[0], transaction));
+                    return delegate.searchWithIncludes(Utils.createSimpleObject(tempForeignKey.target_key, _.uniq(_.pluck(baseSearchResults, tempForeignKey.src_key))), {}, _.values(include)[0], transaction);
                 }
             }
         });
