@@ -13,26 +13,26 @@ class BaseMappingDao extends MysqlDao
     search(searchQuery:Object, options:IDaoFetchOptions, transaction?:Object):q.Promise<any>
     {
         // Create join query to fetch the mapped resource automatically
-        var self = this;
         var fk:ForeignKey = this.modelClass['FOREIGN_KEYS'][0];
         var srcPropertyNameCamelCase:string = Utils.snakeToCamelCase(fk.getSourcePropertyName());
         var setterMethod:string = 'set' + srcPropertyNameCamelCase;
         var whereStatements = this.generateWhereStatements(searchQuery);
         var wheres = _.map(whereStatements.where, function(where) {
-            return self.modelClass.TABLE_NAME + '.' + where;
+            return 'mapping.' + where;
         });
         var values = whereStatements.values;
+        var self = this;
 
         // Namespace columns in the SQL query so we can segregate them later
         var mappingColumnNames = _.map(this.modelClass['COLUMNS'], function (colName)
         {
-            return self.modelClass.TABLE_NAME + '.' + colName;
+            return 'mapping.' + colName + ' AS "'  + self.modelClass.TABLE_NAME + '.' + colName + '"';
         }).join(',');
 
-        var query:string = 'SELECT ' + mappingColumnNames + ',' + fk.referenced_table.TABLE_NAME +'.* ' +
-            'FROM ' + this.modelClass.TABLE_NAME + ',' + fk.referenced_table.TABLE_NAME + ' ' +
+        var query:string = 'SELECT ' + mappingColumnNames + ',referenced.* ' +
+            'FROM ' + this.modelClass.TABLE_NAME + ' mapping, ' + fk.referenced_table.TABLE_NAME + ' referenced ' +
             'WHERE ' + wheres.join(' AND ') + ' ' +
-            'AND ' + this.modelClass.TABLE_NAME + '.' + fk.src_key + ' = ' + fk.referenced_table.TABLE_NAME + '.' + fk.target_key;
+            'AND mapping.' + fk.src_key + ' = referenced.' + fk.target_key;
 
         return self.mysqlDelegate.executeQuery(query, values, transaction)
             .then(
@@ -52,9 +52,9 @@ class BaseMappingDao extends MysqlDao
                 // 3. Merge and return
                 return _.map(rows, function (row:Object)
                 {
+                    // Remove the namespacing prefix from columns
                     var mappingObject = _.findWhere(referencedObjects, Utils.createSimpleObject(fk.target_key, row[self.modelClass.TABLE_NAME + "." + fk.src_key]));
 
-                    // Remove the namespacing prefix from columns
                     _.each(_.keys(row), function(key:string)
                     {
                         row[nameSpaceMappings[key]] = row[key];

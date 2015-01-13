@@ -348,7 +348,11 @@ class MysqlDao implements IDao
                 case 'Number':
                 case 'String':
                     whereStatements.push(key + ' = ?');
-                    values.push(query)
+                    values.push(query);
+                    break;
+                case 'Boolean':
+                    whereStatements.push(key + ' = ?');
+                    values.push(query ? 1 : 0);
                     break;
             }
         }
