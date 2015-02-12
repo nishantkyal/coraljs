@@ -20,7 +20,7 @@ class CacheHelper
         })
     }
 
-    getConnection():redis.RedisClient           { return this.connection; }
+    getConnection():redis.RedisClient { return this.connection; }
 
     set(key, value, expiry?:number, overwrite:boolean = false):q.Promise<any>
     {
@@ -45,7 +45,9 @@ class CacheHelper
     }
 
     get(keys:string):q.Promise<any>;
+
     get(keys:string[]):q.Promise<any>;
+
     get(keys:any):q.Promise<any>
     {
         var deferred = q.defer();
@@ -62,12 +64,13 @@ class CacheHelper
             if (Utils.isNullOrEmpty(result))
                 return deferred.resolve(result);
 
-            if (Utils.getObjectType(result) == 'Array')
-                return deferred.resolve(_.map(result, function (row:any)              {
-                    return JSON.parse(row);
-                }));
+            var parsedResponse = _.map(result, function (row:any)
+            {
+                return JSON.parse(row);
+            });
 
-            deferred.resolve(JSON.parse(result));
+            var response = Utils.getObjectType(keys) == 'Array' ? parsedResponse : parsedResponse[0];
+            deferred.resolve(response);
         });
         return deferred.promise;
     }
@@ -182,7 +185,8 @@ class CacheHelper
                 var keys:string[] = args[0][0];
                 var values = args[0][1];
                 var indexed = {};
-                _.each(keys, function(code:string, index) {
+                _.each(keys, function (code:string, index)
+                {
                     indexed[code] = values[index];
                 });
                 return indexed;
@@ -363,7 +367,7 @@ class CacheHelper
     {
         var deferred = q.defer<string[]>();
 
-        this.getConnection().keys(nameOrPattern, function(error, result)
+        this.getConnection().keys(nameOrPattern, function (error, result)
         {
             if (error)
                 deferred.reject(error);
