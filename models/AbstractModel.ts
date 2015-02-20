@@ -175,7 +175,7 @@ class AbstractModel
 
             if (_.isArray(val))
                 this[srcPropertyName] = _.findWhere(val, Utils.createSimpleObject(fk.target_key, this[fk.src_key]));
-            if (_.isObject(val) && val[fk.target_key] == this[fk.src_key])
+            if (_.isObject(val) && (val[fk.target_key] == this[fk.src_key] || Utils.isNullOrEmpty(this[fk.src_key])))
                 this[srcPropertyName] = val;
         };
     }
