@@ -14,7 +14,7 @@ class AbstractModel
     static DELEGATE:BaseDaoDelegate;
     private static FOREIGN_KEYS:ForeignKey[] = [];
     private static FK_COLUMNS:string[] = [];
-    private logger = log4js.getLogger(Utils.getClassName(this));
+    public logger = log4js.getLogger(Utils.getClassName(this));
 
     static PUBLIC_FIELDS:string[] = [];
 
