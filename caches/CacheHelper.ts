@@ -45,9 +45,7 @@ class CacheHelper
     }
 
     get(keys:string):q.Promise<any>;
-
     get(keys:string[]):q.Promise<any>;
-
     get(keys:any):q.Promise<any>
     {
         var deferred = q.defer();
