@@ -57,13 +57,16 @@ class S3Dao implements IDao
             });
     }
 
-    update(srcObject:BaseS3Model, newObject:BaseS3Model, transaction?:Object):q.Promise<any>;
-    update(srcObject:any, newObject:any, transaction?:Object):q.Promise<any>
+    update(criteria:number, newValues:any):q.Promise<any>;
+    update(criteria:Object, newValues:any):q.Promise<any>;
+    update(srcObject:any, newObject:any):q.Promise<any>
     {
         throw new Error('Update operation not supported on S3, do it yourself');
         return null;
     }
 
+    delete(object:number):q.Promise<any>;
+    delete(object:Object):q.Promise<any>;
     delete(object:BaseS3Model):q.Promise<any>;
     delete(object:any):q.Promise<any>
     {
