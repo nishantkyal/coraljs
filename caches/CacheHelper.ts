@@ -49,7 +49,6 @@ class CacheHelper
     get(keys:any):q.Promise<any>
     {
         var deferred = q.defer();
-        var self = this;
 
         if (Utils.isNullOrEmpty(keys))
             return q.resolve(keys);
