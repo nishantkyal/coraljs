@@ -44,9 +44,7 @@ class CacheHelper
         return deferred.promise;
     }
 
-    get(keys:string):q.Promise<any>;
-    get(keys:string[]):q.Promise<any>;
-    get(keys:any):q.Promise<any>
+    mget(keys:string[]):q.Promise<any>
     {
         var deferred = q.defer();
 
@@ -61,14 +59,32 @@ class CacheHelper
             if (Utils.isNullOrEmpty(result))
                 return deferred.resolve(result);
 
-            var parsedResponse = _.map(result, function (row:any)
-            {
+            deferred.resolve(_.map(result, function(row:string) {
                 return JSON.parse(row);
-            });
-
-            var response = Utils.getObjectType(keys) == 'Array' ? parsedResponse : parsedResponse[0];
-            deferred.resolve(response);
+            }));
         });
+
+        return deferred.promise;
+    }
+
+    get(key:string):q.Promise<any>
+    {
+        var deferred = q.defer();
+
+        if (Utils.isNullOrEmpty(key))
+            return q.resolve(key);
+
+        this.getConnection().get(key, function (error, result:any)
+        {
+            if (error)
+                return deferred.reject(error);
+
+            if (Utils.isNullOrEmpty(result))
+                return deferred.resolve(result);
+
+            deferred.resolve(result);
+        });
+
         return deferred.promise;
     }
 
