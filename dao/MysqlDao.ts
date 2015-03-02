@@ -149,7 +149,7 @@ class MysqlDao implements IDao
         var values = whereStatements.values;
         var selectColumns = !Utils.isNullOrEmpty(options.fields) ? options.fields.join(',') : '*';
 
-        var whereStatementString = (wheres.length != 0) ? 'WHERE ' + wheres.join(' AND ') + ' AND' : 'WHERE ';
+        var whereStatementString = (wheres.length != 0) ? 'WHERE ' + wheres.join(' AND ') : 'WHERE ';
 
         // TODO: Validate max > offset etc
         // Pagination
@@ -162,6 +162,11 @@ class MysqlDao implements IDao
         else if (options.max)
             limitClause = ' LIMIT ' + options.max + ' ';
 
+
+        var deleteClause:string = ' AND (deleted IS NULL OR deleted = 0) ';
+        if (options.getDeleted)
+            deleteClause = ' ';
+
         // TODO: Validate column names
         // Sort
         var sortClause = '';
@@ -170,9 +175,7 @@ class MysqlDao implements IDao
 
         var queryString = 'SELECT ' + selectColumns + ' ' +
             'FROM `' + this.tableName + '` '
-            + whereStatementString +
-            ' (deleted IS NULL OR deleted = 0)'
-            + limitClause + sortClause;
+            + whereStatementString + deleteClause + limitClause + sortClause;
 
         return self.mysqlDelegate.executeQuery(queryString, values, transaction)
             .then(
