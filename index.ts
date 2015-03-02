@@ -14,6 +14,7 @@ import AbstractModel = require("./models/AbstractModel");
 import BaseModel = require("./models/BaseModel");
 import ForeignKey = require("./models/ForeignKey");
 import SolrDao = require("./dao/SolrDao");
+import S3Dao = require("./dao/S3Dao");
 import MysqlDao = require("./dao/MysqlDao");
 import BaseMappingDao = require("./dao/BaseMappingDao");
 import BaseDaoDelegate = require("./delegates/BaseDaoDelegate");
@@ -45,6 +46,7 @@ var exported = {
     BaseModel: BaseModel,
     ForeignKey: ForeignKey,
     SolrDao: SolrDao,
+    S3Dao: S3Dao,
     MysqlDao: MysqlDao,
     BaseMappingDao: BaseMappingDao,
     BaseDaoDelegate: BaseDaoDelegate,

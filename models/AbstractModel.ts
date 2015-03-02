@@ -14,7 +14,7 @@ class AbstractModel
     static DELEGATE:BaseDaoDelegate;
     private static FOREIGN_KEYS:ForeignKey[] = [];
     private static FK_COLUMNS:string[] = [];
-    private logger = log4js.getLogger(Utils.getClassName(this));
+    public logger = log4js.getLogger(Utils.getClassName(this));
 
     static PUBLIC_FIELDS:string[] = [];
 
@@ -175,7 +175,7 @@ class AbstractModel
 
             if (_.isArray(val))
                 this[srcPropertyName] = _.findWhere(val, Utils.createSimpleObject(fk.target_key, this[fk.src_key]));
-            if (_.isObject(val) && val[fk.target_key] == this[fk.src_key])
+            if (_.isObject(val) && (val[fk.target_key] == this[fk.src_key] || Utils.isNullOrEmpty(this[fk.src_key])))
                 this[srcPropertyName] = val;
         };
     }

@@ -249,5 +249,10 @@ class BaseMappingDaoDelegate
     {
         return this.dao.delete(criteria, transaction);
     }
+
+    save(object:Object, dbTransaction?:Object):q.Promise<any>
+    {
+        return Utils.isNullOrEmpty(object[BaseModel.COL_ID]) ? this.create(object, dbTransaction) : this.update(object[BaseModel.COL_ID], object, dbTransaction);
+    }
 }
 export = BaseMappingDaoDelegate

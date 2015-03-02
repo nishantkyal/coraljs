@@ -22,9 +22,7 @@ class BaseDaoDelegate
      * @param dao
      */
     constructor(dao:typeof BaseModel);
-
     constructor(dao:IDao);
-
     constructor(dao:any)
     {
         this.dao = Utils.getObjectType(dao) === 'Object' ? dao : new MysqlDao(dao);
@@ -59,11 +57,21 @@ class BaseDaoDelegate
                 if (Utils.isNullOrEmpty(result))
                     return result;
 
+                var foreignKeysToPassOn = _.filter(foreignKeys, function (key:ForeignKey)
+                {
+                    return self.dao.modelClass['FOREIGN_KEYS'].indexOf(key) == -1;
+                });
+
+                foreignKeys = _.filter(foreignKeys, function (key:ForeignKey)
+                {
+                    return self.dao.modelClass['FOREIGN_KEYS'].indexOf(key) != -1;
+                });
+
                 var foreignKeyTasks = _.map(foreignKeys, function (key:ForeignKey)
                 {
                     self.logger.debug('Processing find foreign key for %s', key.getSourcePropertyName());
                     var delegate = key.referenced_table.DELEGATE;
-                    return delegate.search(Utils.createSimpleObject(key.target_key, result.get(key.src_key)));
+                    return delegate.search(Utils.createSimpleObject(key.target_key, result.get(key.src_key)), null, foreignKeysToPassOn);
                 });
                 return [result, q.all(foreignKeyTasks)];
             })
@@ -217,9 +225,7 @@ class BaseDaoDelegate
 
 
     create(object:Object, transaction?:Object):q.Promise<any>;
-
     create(object:Object[], transaction?:Object):q.Promise<any>;
-
     create(object:any, transaction?:Object):q.Promise<any>
     {
         if (Utils.isNullOrEmpty(object))
@@ -242,9 +248,7 @@ class BaseDaoDelegate
     }
 
     update(criteria:Object, newValues:any, transaction?:Object):q.Promise<any>;
-
     update(criteria:number, newValues:any, transaction?:Object):q.Promise<any>;
-
     update(criteria:any, newValues:any, transaction?:Object):q.Promise<any>
     {
         // Compose update statement based on newValues
@@ -256,15 +260,21 @@ class BaseDaoDelegate
     }
 
     delete(criteria:number, softDelete?:boolean, transaction?:Object):q.Promise<any>;
-
     delete(criteria:Object, softDelete?:boolean, transaction?:Object):q.Promise<any>;
-
     delete(criteria:any, softDelete:boolean = true, transaction?:Object):q.Promise<any>
     {
+        if (Utils.isNullOrEmpty(criteria))
+            throw new Error('Please specify what to delete');
+
         if (softDelete)
             return this.dao.update(criteria, {'deleted': moment().valueOf()}, transaction);
         else
             return this.dao.delete(criteria, transaction);
+    }
+
+    save(object:Object, dbTransaction?:Object):q.Promise<any>
+    {
+        return Utils.isNullOrEmpty(object[BaseModel.COL_ID]) ? this.create(object, dbTransaction) : this.update(object[BaseModel.COL_ID], object, dbTransaction);
     }
 }
 export = BaseDaoDelegate

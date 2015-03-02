@@ -20,7 +20,7 @@ class CacheHelper
         })
     }
 
-    getConnection():redis.RedisClient           { return this.connection; }
+    getConnection():redis.RedisClient { return this.connection; }
 
     set(key, value, expiry?:number, overwrite:boolean = false):q.Promise<any>
     {
@@ -44,25 +44,47 @@ class CacheHelper
         return deferred.promise;
     }
 
-    get(key):q.Promise<any>
+    mget(keys:string[]):q.Promise<any>
     {
         var deferred = q.defer();
-        var self = this;
+
+        if (Utils.isNullOrEmpty(keys))
+            return q.resolve(keys);
+
+        this.getConnection().mget(keys, function (error, result:any)
+        {
+            if (error)
+                return deferred.reject(error);
+
+            if (Utils.isNullOrEmpty(result))
+                return deferred.resolve(result);
+
+            deferred.resolve(_.map(result, function(row:string) {
+                return JSON.parse(row);
+            }));
+        });
+
+        return deferred.promise;
+    }
+
+    get(key:string):q.Promise<any>
+    {
+        var deferred = q.defer();
+
+        if (Utils.isNullOrEmpty(key))
+            return q.resolve(key);
 
         this.getConnection().get(key, function (error, result:any)
         {
             if (error)
-                deferred.reject(error);
-            else
-            {
-                if (Utils.getObjectType(result) == 'Array')
-                    deferred.resolve(_.map(result, function (row:any)              {
-                        return JSON.parse(row);
-                    }));
-                else
-                    deferred.resolve(JSON.parse(result));
-            }
+                return deferred.reject(error);
+
+            if (Utils.isNullOrEmpty(result))
+                return deferred.resolve(result);
+
+            deferred.resolve(result);
         });
+
         return deferred.promise;
     }
 
@@ -167,16 +189,17 @@ class CacheHelper
         var self = this;
 
         return q.all([
-                self.getHashKeys(set),
-                self.getHashValues(set)
-            ])
+            self.getHashKeys(set),
+            self.getHashValues(set)
+        ])
             .then(
             function valuesFetched(...args)
             {
                 var keys:string[] = args[0][0];
                 var values = args[0][1];
                 var indexed = {};
-                _.each(keys, function(code:string, index) {
+                _.each(keys, function (code:string, index)
+                {
                     indexed[code] = values[index];
                 });
                 return indexed;
@@ -290,7 +313,8 @@ class CacheHelper
     delFromOrderedSet(set, key):q.Promise<any>
     {
         var deferred = q.defer();
-        return this.getConnection().zremrangebyscore(set, key, key, function (error, result)
+
+        this.getConnection().zremrangebyscore(set, key, key, function (error, result)
         {
             if (error)
                 deferred.reject(error);
@@ -303,45 +327,67 @@ class CacheHelper
 
                 }
         });
+
         return deferred.promise;
     }
 
     setExpiry(key, expiry):q.Promise<any>
     {
         var deferred = q.defer();
-        return this.getConnection().expire(key, expiry, function (error, result)
+
+        this.getConnection().expire(key, expiry, function (error, result)
         {
             if (error)
                 deferred.reject(error);
             else
                 deferred.resolve(result);
         });
+
         return deferred.promise;
     }
 
     incrementCounter(counterName:string):q.Promise<any>
     {
         var deferred = q.defer();
-        return this.getConnection().incr(counterName, function (error, result)
+
+        this.getConnection().incr(counterName, function (error, result)
         {
             if (error)
                 deferred.reject(error);
             else
                 deferred.resolve(result);
         });
+
         return deferred.promise;
     }
 
     incrementHashKey(hash:string, counterName:string, increment:number = 1):q.Promise<any>
     {
         var deferred = q.defer();
-        return this.getConnection().hincrby(hash, counterName, increment, function (error, result)
+
+        this.getConnection().hincrby(hash, counterName, increment, function (error, result)
         {
             if (error)
                 deferred.reject(error);
             else
                 deferred.resolve(result);
         });
+
+        return deferred.promise;
+    }
+
+    getKeys(nameOrPattern:string):q.Promise<string[]>
+    {
+        var deferred = q.defer<string[]>();
+
+        this.getConnection().keys(nameOrPattern, function (error, result)
+        {
+            if (error)
+                deferred.reject(error);
+            else
+                deferred.resolve(result);
+        });
+
         return deferred.promise;
     }
 
