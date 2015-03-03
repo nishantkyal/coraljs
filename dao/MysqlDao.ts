@@ -335,6 +335,12 @@ class MysqlDao implements IDao
                         statement = key + ' < ?';
                         values.push(query['value']);
                     }
+                    else if (operator && operator.toLowerCase() === 'or')
+                    {
+                        statement = '(' + key + ' = ? ' + operator + ' ' + key  + ' = ?) ';
+                        values.push(query['value'][0]);
+                        values.push(query['value'][1]);
+                    }
                     else if (query['value'])
                     {
                         statement = key + ' ' + operator + ' ?';
