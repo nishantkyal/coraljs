@@ -149,7 +149,17 @@ class MysqlDao implements IDao
         var values = whereStatements.values;
         var selectColumns = !Utils.isNullOrEmpty(options.fields) ? options.fields.join(',') : '*';
 
-        var whereStatementString = (wheres.length != 0) ? 'WHERE ' + wheres.join(' AND ') + ' AND' : 'WHERE ';
+        var whereStatementString;
+        var deleteClause:string = ' (deleted IS NULL OR deleted = 0) ';
+
+        if(wheres.length != 0 && !options.getDeleted)
+            whereStatementString = 'WHERE ' + wheres.join(' AND ') + ' AND ' + deleteClause;
+        else if(wheres.length != 0 && options.getDeleted)
+            whereStatementString = 'WHERE ' + wheres.join(' AND ');
+        else if(wheres.length == 0 && !options.getDeleted)
+            whereStatementString = 'WHERE ' + deleteClause;
+        else
+            whereStatementString = ' ';
 
         // TODO: Validate max > offset etc
         // Pagination
@@ -170,9 +180,7 @@ class MysqlDao implements IDao
 
         var queryString = 'SELECT ' + selectColumns + ' ' +
             'FROM `' + this.tableName + '` '
-            + whereStatementString +
-            ' (deleted IS NULL OR deleted = 0)'
-            + limitClause + sortClause;
+            + whereStatementString + limitClause + sortClause;
 
         return self.mysqlDelegate.executeQuery(queryString, values, transaction)
             .then(
@@ -326,6 +334,12 @@ class MysqlDao implements IDao
                     {
                         statement = key + ' < ?';
                         values.push(query['value']);
+                    }
+                    else if (operator && operator.toLowerCase() === 'or')
+                    {
+                        statement = '(' + key + ' = ? ' + operator + ' ' + key  + ' = ?) ';
+                        values.push(query['value'][0]);
+                        values.push(query['value'][1]);
                     }
                     else if (query['value'])
                     {
