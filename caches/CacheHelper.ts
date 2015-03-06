@@ -82,7 +82,7 @@ class CacheHelper
             if (Utils.isNullOrEmpty(result))
                 return deferred.resolve(result);
 
-            deferred.resolve(result);
+            deferred.resolve(JSON.parse(result));
         });
 
         return deferred.promise;
