@@ -32,7 +32,8 @@ class BaseMappingDao extends MysqlDao
         var query:string = 'SELECT ' + mappingColumnNames + ',referenced.* ' +
             'FROM ' + this.modelClass.TABLE_NAME + ' mapping, ' + fk.referenced_table.TABLE_NAME + ' referenced ' +
             'WHERE ' + wheres.join(' AND ') + ' ' +
-            'AND mapping.' + fk.src_key + ' = referenced.' + fk.target_key;
+            'AND mapping.' + fk.src_key + ' = referenced.' + fk.target_key + ' ' +
+            'AND (mapping.deleted IS NULL OR mapping.deleted = 0)';
 
         return self.mysqlDelegate.executeQuery(query, values, transaction)
             .then(
