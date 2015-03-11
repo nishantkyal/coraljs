@@ -3,7 +3,6 @@ import _                                                    = require('underscor
 import q                                                    = require('q');
 import IDaoFetchOptions                                     = require('./IDaoFetchOptions');
 import MysqlDao                                             = require('./MysqlDao');
-import BaseModel                                            = require('../models/BaseModel');
 import ForeignKey                                           = require('../models/ForeignKey');
 import MysqlDelegate                                        = require('../delegates/MysqlDelegate');
 import Utils                                                = require('../common/Utils');
@@ -32,8 +31,7 @@ class BaseMappingDao extends MysqlDao
         var query:string = 'SELECT ' + mappingColumnNames + ',referenced.* ' +
             'FROM ' + this.modelClass.TABLE_NAME + ' mapping, ' + fk.referenced_table.TABLE_NAME + ' referenced ' +
             'WHERE ' + wheres.join(' AND ') + ' ' +
-            'AND mapping.' + fk.src_key + ' = referenced.' + fk.target_key + ' ' +
-            'AND (mapping.deleted IS NULL OR mapping.deleted = 0)';
+            'AND mapping.' + fk.src_key + ' = referenced.' + fk.target_key;
 
         return self.mysqlDelegate.executeQuery(query, values, transaction)
             .then(
