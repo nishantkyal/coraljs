@@ -70,7 +70,7 @@ class Utils
 
     static camelToSnakeCase(camelCasedString:string):string
     {
-        var frags:Array<string> = camelCasedString.match(/[A-Z][a-z]+/g);
+        var frags:Array<string> = camelCasedString.match(/([A-Z]|^)[a-z]+/g);
         var lowerCasedFrags:Array<string> = _.map(frags, function (frag:string)
         {
             return frag.toLowerCase();
