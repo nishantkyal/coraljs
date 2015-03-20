@@ -31,7 +31,7 @@ class SolrDao implements IDao
     {
         var deferred = q.defer<any>();
 
-        this.solrClient.add(data.toJson(), function(err:Error, obj:Object)
+        this.solrClient.add(data, function(err:Error, obj:Object)
         {
             if (!Utils.isNullOrEmpty(err))
                 deferred.reject(err);
@@ -80,7 +80,11 @@ class SolrDao implements IDao
         var deferred = q.defer<any>();
         var self = this;
         var solrQuery = this.solrClient.createQuery();
-        solrQuery.rows(100);
+
+        if(!Utils.isNullOrEmpty(options.max))
+            solrQuery.rows(options.max);
+        else
+            solrQuery.rows(100);
 
         var queryStatements = self.generateWhereStatement(searchQuery);
 
@@ -141,7 +145,7 @@ class SolrDao implements IDao
             .then(
             function documentFetched(document)
             {
-                newValues = newValues.toJson();
+                //newValues = newValues.toJson();
                 newValues['_version_'] = document['_version_'];
                 newValues['id'] = document['id'];
 
