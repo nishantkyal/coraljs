@@ -391,5 +391,51 @@ class CacheHelper
         return deferred.promise;
     }
 
+    /* Sets */
+    addToSet(set:string, key:string):q.Promise<boolean>
+    {
+        var deferred = q.defer<boolean>();
+
+        this.getConnection().sadd(set, key, function (error, result)
+        {
+            if (error)
+                deferred.reject(error);
+            else
+                deferred.resolve(result);
+        });
+
+        return deferred.promise;
+    }
+
+    isMemberOfSet(set:string, key:string):q.Promise<boolean>
+    {
+        var deferred = q.defer<boolean>();
+
+        this.getConnection().sismember(set, key, function (error, result)
+        {
+            if (error)
+                deferred.reject(error);
+            else
+                deferred.resolve(result);
+        });
+
+        return deferred.promise;
+    }
+
+    removeFromSet(set:string, key:string):q.Promise<boolean>
+    {
+        var deferred = q.defer<boolean>();
+
+        this.getConnection().srem(set, key, function (error, result)
+        {
+            if (error)
+                deferred.reject(error);
+            else
+                deferred.resolve(result);
+        });
+
+        return deferred.promise;
+    }
+
 }
 export = CacheHelper

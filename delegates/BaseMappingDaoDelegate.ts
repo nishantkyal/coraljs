@@ -205,7 +205,6 @@ class BaseMappingDaoDelegate
     }
 
     create(mappingObject:Object, object:Object, transaction?:Object):q.Promise<any>;
-    create(mappingObject:Object, object:Object[], transaction?:Object):q.Promise<any>;
     create(mappingObject:Object, object:any, transaction?:Object):q.Promise<any>
     {
         var self = this;
@@ -232,8 +231,8 @@ class BaseMappingDaoDelegate
                     {
                         mappingObject[fk.getSourcePropertyName() + '_id'] = item.id;
                         return self.dao.create(mappingObject, transaction);
-                    })
-            })
+                    });
+            });
     }
 
     update(criteria:Object, newValues:any, transaction?:Object):q.Promise<any>;
