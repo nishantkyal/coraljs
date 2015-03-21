@@ -29,6 +29,7 @@ class SolrDao implements IDao
     create(data:Object):q.Promise<any>;
     create(data:any):q.Promise<any>
     {
+        var self = this;
         var deferred = q.defer<any>();
 
         this.solrClient.add(data, function(err:Error, obj:Object)
@@ -36,7 +37,10 @@ class SolrDao implements IDao
             if (!Utils.isNullOrEmpty(err))
                 deferred.reject(err);
             else
-                deferred.resolve(obj);
+                self.solrClient.commit(function(err:Error, obj:Object)
+                {
+                    deferred.resolve(obj);
+                });
         });
 
         return deferred.promise;
