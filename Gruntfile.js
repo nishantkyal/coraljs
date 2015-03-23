@@ -1,9 +1,11 @@
 ///<reference path='./_references.d.ts'/>
 var childProcess = require('child_process');
+
 function init(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-text-replace');
+
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         clean: {
@@ -59,6 +61,7 @@ function init(grunt) {
             "target": {}
         }
     });
+
     /* Generate indx.js by combining all generated .js files */
     grunt.registerMultiTask('generate-index', function () {
         this.files.forEach(function (file) {
@@ -69,6 +72,7 @@ function init(grunt) {
             grunt.file.write(file.dest, output);
         });
     });
+
     grunt.registerMultiTask("typescript", function () {
         var exec = childProcess.exec;
         var done = this.async();
@@ -78,13 +82,16 @@ function init(grunt) {
             done();
         });
     });
+
     grunt.registerMultiTask("sqlToModel", function () {
         var sqlString = grunt.option('sql');
         var sqlToModel = require('./common/sqlToModel');
         console.log(sqlString);
         sqlToModel.sqlToModel(sqlString);
     });
+
     grunt.registerTask('default', ['clean', 'typescript', 'concat', 'replace']);
 }
+
 module.exports = init;
 //# sourceMappingURL=Gruntfile.js.map
