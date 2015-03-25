@@ -34,7 +34,7 @@ var exported = {
     ForeignKey: ForeignKey,
     Formatter: Formatter,
     Utils: Utils,
-    sqlToModel: sqlToModel,
+    sqlToModel: sqlToModel
 };
 
 export = exported
