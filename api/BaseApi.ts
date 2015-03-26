@@ -5,6 +5,8 @@ import q                                                = require('q');
 
 class BaseApi
 {
+    static INCLUDE                                      = 'include';
+
     constructor(app)
     {
     }
@@ -29,6 +31,16 @@ class BaseApi
                 return function(req:express.Request) {
                     return parseInt(req.params[argName] || req.query[argName]);
                 };
+
+            if (argName == BaseApi.INCLUDE)
+                return function(req:express.Request)
+                {
+                    try {
+                        return JSON.parse(req.query[BaseApi.INCLUDE]);
+                    } catch (e) {
+                        return [];
+                    }
+                }
         });
 
         return function (req:express.Request, res:express.Response)
