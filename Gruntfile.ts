@@ -20,7 +20,7 @@ function init(grunt)
                 src: ['enums/*.d.ts', 'models/*.d.ts', 'dao/*.d.ts', 'delegates/*.d.ts', 'common/*.d.ts', 'caches/*.d.ts', 'api/*.d.ts'],
                 dest: 'Coral.d.ts',
                 options: {
-                    banner: "///<reference path='_references.d.ts'/>\ndeclare module 'Coral'\n{\nimport q = require(\"q\");\nimport log4js = require(\"log4js\");\nimport redis = require(\"redis\");\n\n",
+                    banner: "///<reference path='_references.d.ts'/>\ndeclare module 'Coral'\n{\nimport q = require(\"q\");\nimport log4js = require(\"log4js\");\nimport redis = require(\"redis\");\nimport express = require(\"express\");\n\n",
                     footer: '}'
                 }
             }
