@@ -87,4 +87,3 @@ function init(grunt) {
     grunt.registerTask('default', ['clean', 'typescript', 'concat', 'replace']);
 }
 module.exports = init;
-//# sourceMappingURL=Gruntfile.js.map

@@ -57,8 +57,8 @@ function populateHeaders(req) {
     if (value === null || value === undefined) return;
 
     if (member.location === 'headers' && member.type === 'map') {
-      util.each(value, function(key, value) {
-        req.httpRequest.headers[member.name + key] = value;
+      util.each(value, function(key, memberValue) {
+        req.httpRequest.headers[member.name + key] = memberValue;
       });
     } else if (member.location === 'header') {
       value = member.toWireFormat(value).toString();
@@ -93,8 +93,10 @@ function extractData(resp) {
     var header = (member.name || name).toLowerCase();
     if (member.location === 'headers' && member.type === 'map') {
       data[name] = {};
+      var location = member.isLocationName ? member.name : '';
+      var pattern = new RegExp('^' + location + '(.+)', 'i');
       util.each(r.headers, function (k, v) {
-        var result = k.match(new RegExp('^' + member.name + '(.+)', 'i'));
+        var result = k.match(pattern);
         if (result !== null) {
           data[name][result[1]] = v;
         }

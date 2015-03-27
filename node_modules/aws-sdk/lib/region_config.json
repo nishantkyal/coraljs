@@ -20,7 +20,9 @@
       "globalEndpoint": true
     },
     "us-gov-*/iam": "globalGovCloud",
-    "us-gov-*/sts": "globalGovCloud",
+    "us-gov-*/sts": {
+      "endpoint": "{service}.{region}.amazonaws.com"
+    },
     "us-gov-west-1/s3": "s3dash",
     "us-west-1/s3": "s3dash",
     "us-west-2/s3": "s3dash",
