@@ -93,7 +93,13 @@ class AbstractModel
             {
                 data[column] = _.map(self[column], function (obj:any)
                 {
-                    return obj.toJson();
+                    try
+                    {
+                        return obj.toJson();
+                    } catch (e)
+                    {
+                        return obj;
+                    }
                 });
             }
             else
