@@ -1,5 +1,6 @@
 ///<reference path='../_references.d.ts'/>
 import moment                                                       = require('moment');
+import moment_timezone                                              = require('moment-timezone');
 import accounting                                                   = require('accounting');
 import MoneyUnit                                                    = require('../enums/MoneyUnit');
 import Salutation                                                   = require('../enums/Salutation');
@@ -49,7 +50,7 @@ class Formatter
     static formatDate(m:Date):string;
     static formatDate(m:string):string;
     static formatDate(m:number):string;
-    static formatDate(m:any, format:string = 'DD/MM/YYYY hh:mm a ZZ'):string
+    static formatDate(m:any, format:string = 'DD/MM/YYYY hh:mm a', zone:string = 'Asia/Kolkata'):string
     {
         var isNegative = false;
         if (Utils.isNullOrEmpty(m))
@@ -63,7 +64,8 @@ class Formatter
         if (Utils.getObjectType(m) == 'String')
             if (m.search(/^[0-9]+$/) != -1)
                 m = parseInt(m);
-        return (isNegative ? '-' : '') + moment(m).format(format).toString();
+
+        return (isNegative ? '-' : '') + moment_timezone(m).tz(zone).format(format).toString();
     }
 
     static getNameInitials(firstName:string = ' ', lastName:string = ' '):string

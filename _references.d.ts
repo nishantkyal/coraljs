@@ -24,6 +24,7 @@
 ///<reference path='../DefinitelyTyped/jade/jade.d.ts'/>
 ///<reference path='../DefinitelyTyped/watch/watch.d.ts'/>
 ///<reference path='../DefinitelyTyped/moment/moment.d.ts'/>
+///<reference path='../DefinitelyTyped/moment-timezone/moment-timezone.d.ts'/>
 ///<reference path='../DefinitelyTyped/validator/validator.d.ts'/>
 ///<reference path='../DefinitelyTyped/accounting/accounting.d.ts'/>
 ///<reference path='../DefinitelyTyped/cheerio/cheerio.d.ts'/>
