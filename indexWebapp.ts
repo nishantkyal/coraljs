@@ -12,11 +12,11 @@ import Salutation = require("./enums/Salutation");
 import ServiceRequestStatus = require("./enums/ServiceRequestStatus");
 import AbstractModel = require("./models/AbstractModel");
 import BaseModel = require("./models/BaseModel");
+import BaseS3Model = require("./models/BaseS3Model");
 import ForeignKey = require("./models/ForeignKey");
 import Formatter = require("./common/Formatter");
 import Utils = require("./common/Utils");
 import sqlToModel = require("./common/sqlToModel");
-
 var exported = {
     CountryCode: CountryCode,
     CountryName: CountryName,
@@ -31,6 +31,7 @@ var exported = {
     ServiceRequestStatus: ServiceRequestStatus,
     AbstractModel: AbstractModel,
     BaseModel: BaseModel,
+    BaseS3Model: BaseS3Model,
     ForeignKey: ForeignKey,
     Formatter: Formatter,
     Utils: Utils,

@@ -4,11 +4,18 @@ import Utils                                                = require('../common
 
 class BaseS3Model extends AbstractModel
 {
-    getS3Path():string
-    {
-        this.logger.error('getS3Path not implemented');
-        throw new Error('getS3Path not implemented for model ' + Utils.getClassName(this));
-        return null;
-    }
+    static COL_BASE_PATH                                    = 'base_path';
+    static COL_FILE_NAME                                    = 'file_name';
+
+    private base_path:string;
+    private file_name:string;
+
+    /* Getters */
+    getBasePath()                                           { return this.base_path; }
+    getFileName()                                           { return this.file_name; }
+
+    /* Setters */
+    setBasePath(val)                                        { this.base_path = val; }
+    setFileName(val)                                        { this.file_name = val; }
 }
 export = BaseS3Model;

@@ -25,30 +25,35 @@ class S3Dao implements IDao
         });
     }
 
-    search(searchQuery?:BaseS3Model):q.Promise<string[]>;
-    search(searchQuery?:any):q.Promise<string[]>
+    search(searchQuery?:BaseS3Model):q.Promise<BaseS3Model[]>
     {
-        var deferred = q.defer<string[]>();
+        var deferred = q.defer<BaseS3Model[]>();
+        var self = this;
 
         this.s3.listObjects({
             'Bucket': this.bucket,
-            'Prefix': searchQuery.getS3Path()
+            'Prefix': searchQuery.getBasePath()
         }, function (err:any, data:any)
         {
             if (err)
                 deferred.reject(err);
             else
-                deferred.resolve(data.Contents);
+            {
+                var metaSearch = _.omit(searchQuery.toJson(), [BaseS3Model.COL_BASE_PATH, BaseS3Model.COL_FILE_NAME]);
+                deferred.resolve(_.map(_.where(data.Contents, metaSearch), function(object)
+                {
+                    return new self.modelClass(object);
+                }));
+            }
         });
 
         return deferred.promise;
     }
 
-    find(searchQuery:BaseS3Model):q.Promise<any>;
-    find(searchQuery:any):q.Promise<any>
+    find(searchQuery:BaseS3Model):q.Promise<any>
     {
         return this.search(searchQuery)
-        .then(
+            .then(
             function searched(results:any[])
             {
                 if (!Utils.isNullOrEmpty(results))
@@ -61,7 +66,6 @@ class S3Dao implements IDao
     update(criteria:Object, newValues:any):q.Promise<any>;
     update(srcObject:any, newObject:any):q.Promise<any>
     {
-        throw new Error('Update operation not supported on S3, do it yourself');
         return null;
     }
 
@@ -130,6 +134,5 @@ class S3Dao implements IDao
                 return self.delete(srcPath);
             });
     }
-
 }
 export = S3Dao;
