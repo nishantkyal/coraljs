@@ -6,4 +6,3 @@
 *.html
 !.gitignore
 !_references.d.ts
-node_modules/*
