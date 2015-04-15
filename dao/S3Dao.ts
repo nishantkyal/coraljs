@@ -45,7 +45,7 @@ class S3Dao implements IDao
                     .then(
                     function metadataFetched(models:BaseS3Model[])
                     {
-                        var metaSearch = _.omit(searchQuery.toJson(), [BaseS3Model.COL_FILE_NAME]);
+                        var metaSearch = _.pick(searchQuery.toJson(), self.modelClass.METADATA_FIELDS);
                         deferred.resolve(_.map(_.filter(models, function(object:BaseS3Model)
                         {
                             for (var key in metaSearch)
@@ -57,6 +57,8 @@ class S3Dao implements IDao
                             return true;
                         }), function(object)
                         {
+                            // Add back the non metadata fields since object return from S3 won't have that
+                            object = _.extend(object, _.omit(searchQuery, self.modelClass.METADATA_FIELDS));
                             return new self.modelClass(object);
                         }));
                     });
@@ -104,9 +106,12 @@ class S3Dao implements IDao
             .then(
             function searched(objects:BaseS3Model[])
             {
+                if (Utils.isNullOrEmpty(objects))
+                    throw new Error('No such files found');
+
                 return q.all(_.map(objects, function(object:BaseS3Model)
                 {
-                    return self.delete(object.getS3Key());
+                    return self.deleteFile(object.getS3Key());
                 }));
             });
     }
@@ -150,7 +155,7 @@ class S3Dao implements IDao
             'Bucket': this.bucket,
             'CopySource': src.getS3Key(),
             'Key': dest.getS3Key(),
-            'Metadata': _.omit(dest.toJson(), [BaseS3Model.COL_BASE_PATH, BaseS3Model.COL_FILE_NAME]),
+            'Metadata': _.omit(dest.toJson(), [BaseS3Model.COL_FILE_NAME]),
             'ACL': 'public-read'
         }, function (err:any, data:any)
         {

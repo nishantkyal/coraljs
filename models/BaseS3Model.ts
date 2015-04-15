@@ -5,6 +5,7 @@ import Utils                                                = require('../common
 class BaseS3Model extends AbstractModel
 {
     static COL_FILE_NAME                                    = 'file_name';
+    static METADATA_FIELDS:string[]                         = [];
 
     private file_name:string;
 
