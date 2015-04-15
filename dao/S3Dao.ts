@@ -38,13 +38,28 @@ class S3Dao implements IDao
             if (err)
                 deferred.reject(err);
             else
-            {
-                var metaSearch = _.omit(searchQuery.toJson(), [BaseS3Model.COL_BASE_PATH, BaseS3Model.COL_FILE_NAME]);
-                deferred.resolve(_.map(_.where(data.Contents, metaSearch), function(object)
+                return q.all(_.map(data.Contents, function(object:any)
                 {
-                    return new self.modelClass(object);
-                }));
-            }
+                    return self.get(object.Key);
+                }))
+                    .then(
+                    function metadataFetched(models:BaseS3Model[])
+                    {
+                        var metaSearch = _.omit(searchQuery.toJson(), [BaseS3Model.COL_FILE_NAME]);
+                        deferred.resolve(_.map(_.filter(models, function(object:BaseS3Model)
+                        {
+                            for (var key in metaSearch)
+                            {
+                                if (metaSearch[key] && (!object[key] || metaSearch[key].toString() != object[key].toString()))
+                                    return false;
+                            }
+
+                            return true;
+                        }), function(object)
+                        {
+                            return new self.modelClass(object);
+                        }));
+                    });
         });
 
         return deferred.promise;
@@ -62,55 +77,80 @@ class S3Dao implements IDao
             });
     }
 
-    update(criteria:number, newValues:any):q.Promise<any>;
-    update(criteria:Object, newValues:any):q.Promise<any>;
-    update(srcObject:any, newObject:any):q.Promise<any>
+    update(criteria:BaseS3Model, newValues:BaseS3Model):q.Promise<any>;
+    update(criteria:Object, newValues:Object):q.Promise<any>;
+    update(criteria:any, newValues:any):q.Promise<any>
     {
-        return null;
+        var self = this;
+
+        return this.search(criteria)
+            .then(
+            function searched(results:BaseS3Model[])
+            {
+                return q.all(_.map(results, function(result:BaseS3Model)
+                {
+                    return self.moveFile(result, _.extend(result.toJson(), newValues));
+                }));
+            });
     }
 
-    delete(object:number):q.Promise<any>;
     delete(object:Object):q.Promise<any>;
     delete(object:BaseS3Model):q.Promise<any>;
     delete(object:any):q.Promise<any>
     {
-        var deferred = q.defer();
+        var self = this;
 
-        this.s3.deleteObject({
-            'Bucket': this.bucket,
-            'Key': object.getS3Path()
-        }, function (err:any, data:any)
-        {
-            if (err)
-                deferred.reject(err);
-            else
-                deferred.resolve(data);
-        });
-
-        return deferred.promise;
+        return this.search(object)
+            .then(
+            function searched(objects:BaseS3Model[])
+            {
+                return q.all(_.map(objects, function(object:BaseS3Model)
+                {
+                    return self.delete(object.getS3Key());
+                }));
+            });
     }
 
 
     create(data:any, transaction?:Object):q.Promise<any>
     {
-        throw new Error('Create operation not supported on S3, use the s3UploadMiddleware');
+        throw new Error('Operation not supported');
         return null;
     }
 
     get(id:any, options?:IDaoFetchOptions, transaction?:Object):q.Promise<any>
     {
-        throw new Error("Get by ID operation not supported on S3, can't be done");
-        return null;
+        var deferred = q.defer();
+        var self = this;
+
+        this.s3.headObject({
+            'Bucket': this.bucket,
+            'Key': id
+        }, function (err:any, data:any)
+        {
+            if (err)
+                deferred.reject(err);
+            else
+            {
+                var model = new self.modelClass(data.Metadata);
+                model.setS3Key(id);
+                deferred.resolve(model);
+            }
+        });
+
+        return deferred.promise;
     }
 
-    private copyFile(srcPath:string, destPath:string):q.Promise<any>
+    /* Helper methods for S3 file operations */
+    private copyFile(src:BaseS3Model, dest:BaseS3Model):q.Promise<any>
     {
         var deferred = q.defer();
 
         this.s3.copyObject({
             'Bucket': this.bucket,
-            'CopySource': [this.bucket, srcPath].join('/'),
-            'Key': destPath,
+            'CopySource': src.getS3Key(),
+            'Key': dest.getS3Key(),
+            'Metadata': _.omit(dest.toJson(), [BaseS3Model.COL_BASE_PATH, BaseS3Model.COL_FILE_NAME]),
             'ACL': 'public-read'
         }, function (err:any, data:any)
         {
@@ -123,15 +163,33 @@ class S3Dao implements IDao
         return deferred.promise;
     }
 
-    private moveFile(srcPath:string, destPath:string):q.Promise<any>
+    private deleteFile(path:string):q.Promise<any>
+    {
+        var deferred = q.defer();
+
+        this.s3.deleteObject({
+            'Bucket': this.bucket,
+            'Key': path
+        }, function (err:any, data:any)
+        {
+            if (err)
+                deferred.reject(err);
+            else
+                deferred.resolve(data);
+        });
+
+        return deferred.promise;
+    }
+
+    private moveFile(src:BaseS3Model, dest:BaseS3Model):q.Promise<any>
     {
         var self = this;
 
-        return self.copyFile(srcPath, destPath)
+        return self.copyFile(src, dest)
             .then(
             function fileCopied()
             {
-                return self.delete(srcPath);
+                return self.deleteFile(src.getS3Key());
             });
     }
 }

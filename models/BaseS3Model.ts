@@ -4,18 +4,27 @@ import Utils                                                = require('../common
 
 class BaseS3Model extends AbstractModel
 {
-    static COL_BASE_PATH                                    = 'base_path';
     static COL_FILE_NAME                                    = 'file_name';
 
-    private base_path:string;
     private file_name:string;
 
     /* Getters */
-    getBasePath()                                           { return this.base_path; }
     getFileName()                                           { return this.file_name; }
+    getBasePath()                                           { throw new Error('getBasePath() not implemented')}
 
     /* Setters */
-    setBasePath(val)                                        { this.base_path = val; }
     setFileName(val)                                        { this.file_name = val; }
+
+    getS3Key():string
+    {
+        if (this.getBasePath() && this.getFileName())
+            return this.getBasePath() + '/' + this.getFileName();
+        return null;
+    }
+
+    setS3Key(val)
+    {
+        this.setFileName(val.substring(val.lastIndexOf('/') + 1));
+    }
 }
 export = BaseS3Model;
