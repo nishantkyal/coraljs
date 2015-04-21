@@ -77,6 +77,8 @@ class AbstractModel
         _.each(thisProtoConstructor['FK_COLUMNS'], function (column:string)
         {
             var setterMethod:string = 'set' + Utils.snakeToCamelCase(column);
+            if (!Utils.isNullOrEmpty(data[column]))
+                self[setterMethod].call(self, data[column]);
         });
     }
 
