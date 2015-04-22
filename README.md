@@ -1,7 +1,5 @@
-###Dependencies
-* Redis server (v2.8.4+)
-* Mysql (v5.5.32+)
-* Mysql Workbench
+###How to Install
+npm install coral.js
 
 ###Setup
 1. Checkout Typescript definitions from https://github.com/Infollion/DefinitelyTyped such that DefinitelyTyped and Coral are in same directory (called ROOT now on).
