@@ -37,5 +37,4 @@ var exported = {
     Utils: Utils,
     sqlToModel: sqlToModel
 };
-
-export = exported
+export = exported;

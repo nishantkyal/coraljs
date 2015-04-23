@@ -1,11 +1,8 @@
 {
     "name"        : "Coral",
     "version"     : "0.3.19",
-    "private"     : true,
-    "scripts"     : {
-        "start": "node app.js",
-        "test" : "nodeunit test"
-    },
+    "private"     : false,
+    "main"        : "index.js",
     "dependencies": {
         "accounting"          : "*",
         "connect"             : "*",

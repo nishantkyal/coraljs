@@ -1,0 +1,29 @@
+{
+  "name": "Coral",
+  "main": "indexWebapp.js",
+  "version": "0.0.0",
+  "homepage": "https://github.com/Infollion/SearchNTalk-Coral",
+  "authors": [
+    "nishant.kyal@gmail.com"
+  ],
+  "description": "Client side deps for Coral",
+  "moduleType": [
+    "amd"
+  ],
+  "keywords": [
+    "coral",
+    "orm"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "caches/*",
+    "api/*",
+    "dao/*",
+    "delegates/*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
