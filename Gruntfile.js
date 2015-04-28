@@ -13,24 +13,26 @@ function init(grunt) {
             "typescript": ["*/**/*.js", "*/**/*.js.map", "*/**/*.d.ts", "!_references.d.ts", "!Gruntfile.js", "!node_modules/**/*.js"]
         },
         concat: {
-            dist: {
+            server: {
                 src: ['enums/*.d.ts', 'models/*.d.ts', 'dao/*.d.ts', 'delegates/*.d.ts', 'common/*.d.ts', 'caches/*.d.ts', 'api/*.d.ts'],
-                dest: 'coraljs.d.ts',
+                dest: 'coraljs-server.d.ts',
                 options: {
                     banner: "declare module 'coral.js'\n{\nimport q = require(\"q\");\nimport log4js = require(\"log4js\");\nimport redis = require(\"redis\");\nimport express = require(\"express\");\n\n",
                     footer: '}'
                 }
-            }
-        },
-        'generate-index': {
-            target: {
-                src: ['enums/*.js', 'models/*.js', 'dao/*.js', 'delegates/*.js', 'common/*.js', 'caches/*.js', 'api/*.js'],
-                dest: 'index.js'
+            },
+            client: {
+                src: ['enums/*.d.ts', 'models/*.d.ts', 'common/*.d.ts', "delegates/BaseDaoDelegate.d.ts", "dao/IDaoFetchOptions.d.ts", "dao/IDao.d.ts"],
+                dest: 'coraljs-client.d.ts',
+                options: {
+                    banner: "declare module 'coral.js'\n{\nimport log4js = require(\"log4js\");\nimport q = require(\"q\");\n",
+                    footer: '}'
+                }
             }
         },
         replace: {
             'coral-ts': {
-                src: ['Coral.d.ts'],
+                src: ['coraljs-client.d.ts', 'coraljs-server.d.ts'],
                 overwrite: true,
                 replacements: [
                     {
