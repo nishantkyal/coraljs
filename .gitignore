@@ -1,8 +1,9 @@
 .DS_Store
 .idea
-*.js
 *.js.map
 *.d.ts
 *.html
 !.gitignore
 !_references.d.ts
+node_modules
+npm-debug.log

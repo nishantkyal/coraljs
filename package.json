@@ -1,5 +1,5 @@
 {
-    "name"        : "Coral",
+    "name"        : "coral.js",
     "version"     : "0.3.19",
     "private"     : false,
     "main"        : "index.js",
