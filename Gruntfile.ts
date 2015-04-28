@@ -18,9 +18,9 @@ function init(grunt)
         concat: {
             dist: {
                 src: ['enums/*.d.ts', 'models/*.d.ts', 'dao/*.d.ts', 'delegates/*.d.ts', 'common/*.d.ts', 'caches/*.d.ts', 'api/*.d.ts'],
-                dest: 'Coral.d.ts',
+                dest: 'coraljs.d.ts',
                 options: {
-                    banner: "///<reference path='_references.d.ts'/>\ndeclare module 'Coral'\n{\nimport q = require(\"q\");\nimport log4js = require(\"log4js\");\nimport redis = require(\"redis\");\nimport express = require(\"express\");\n\n",
+                    banner: "declare module 'coral.js'\n{\nimport q = require(\"q\");\nimport log4js = require(\"log4js\");\nimport redis = require(\"redis\");\nimport express = require(\"express\");\n\n",
                     footer: '}'
                 }
             }
