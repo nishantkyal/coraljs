@@ -1,6 +1,5 @@
 .DS_Store
 .idea
-*.js.map
 *.d.ts
 *.html
 !.gitignore
