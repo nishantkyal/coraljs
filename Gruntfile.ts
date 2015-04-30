@@ -18,7 +18,7 @@ function init(grunt)
         },
         concat: {
             coral: {
-                src: ['enums/*.d.ts', 'models/*.d.ts', 'dao/*.d.ts', 'delegates/*.d.ts', 'common/*.d.ts', 'caches/*.d.ts', 'api/*.d.ts'],
+                src: ['server/enums/*.d.ts', 'server/models/*.d.ts', 'server/dao/*.d.ts', 'server/delegates/*.d.ts', 'server/common/*.d.ts', 'server/caches/*.d.ts', 'server/api/*.d.ts'],
                 dest: 'coraljs.d.ts',
                 options: {
                     banner: "declare module 'coraljs'\n{\nimport q = require(\"q\");\nimport log4js = require(\"log4js\");\nimport redis = require(\"redis\");\nimport express = require(\"express\");\n\n",
@@ -53,13 +53,16 @@ function init(grunt)
         "ts": {
             "server": {
                 "src": ["index.ts"],
+                "outDir": "server",
                 "options": {
                     "module": "commonjs",
-                    sourceMap: true
+                    sourceMap: true,
+                    declaration: true
                 }
             },
             "client": {
                 "src": ["indexWebapp.ts"],
+                "outDir": "client",
                 "options": {
                     "module": "amd",
                     sourceMap: true

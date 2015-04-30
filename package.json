@@ -2,7 +2,7 @@
     "name"        : "coraljs",
     "version"     : "0.3.23",
     "private"     : false,
-    "main"        : "index.js",
+    "main"        : "server/index.js",
     "dependencies": {
         "accounting"          : "*",
         "connect"             : "*",
