@@ -16,7 +16,9 @@
     ],
     "license"    : "MIT",
     "ignore"     : [
-        "**/.*",
+        "common/*",
+        "models/*",
+        "enums/*",
         "caches/*",
         "api/*",
         "dao/*",
