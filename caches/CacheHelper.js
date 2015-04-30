@@ -1,14 +1,9 @@
-///<reference path='../_references.d.ts'/>
 var _ = require('underscore');
 var q = require('q');
 var redis = require('redis');
 var Utils = require('../common/Utils');
-/*
- Base class for all caches
- */
 var CacheHelper = (function () {
     function CacheHelper(host, port) {
-        // We're going to maintain just one connection to redis since both node and redis are single threaded
         this.connection = redis.createClient(port, host, { connect_timeout: 60000 });
         this.connection.on('error', function (error) {
             console.log(error);
@@ -72,9 +67,7 @@ var CacheHelper = (function () {
         });
         return deferred.promise;
     };
-    /* Manipulate hashes */
     CacheHelper.prototype.createHash = function (set, values, keyFieldName, expiry) {
-        // Create a clone for addition since we'll be removing from it to keep count
         var self = this;
         var deferred = q.defer();
         var clonedValues = JSON.parse(JSON.stringify(values));
@@ -175,7 +168,6 @@ var CacheHelper = (function () {
         });
         return deferred.promise;
     };
-    /* MANIPULATE ORDERED SETS */
     CacheHelper.prototype.addToOrderedSet = function (set, key, value) {
         var deferred = q.defer();
         var self = this;
@@ -190,7 +182,6 @@ var CacheHelper = (function () {
         return deferred.promise;
     };
     CacheHelper.prototype.addMultipleToOrderedSet = function (set, values, keyFieldName) {
-        // Create a clone for addition since we'll be removing from it to keep count
         var self = this;
         var deferred = q.defer();
         var clonedValues = JSON.parse(JSON.stringify(values));
@@ -281,7 +272,6 @@ var CacheHelper = (function () {
         });
         return deferred.promise;
     };
-    /* Sets */
     CacheHelper.prototype.addToSet = function (set, key) {
         var deferred = q.defer();
         this.getConnection().sadd(set, key, function (error, result) {

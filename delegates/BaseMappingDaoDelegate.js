@@ -1,4 +1,3 @@
-///<reference path='../_references.d.ts'/>
 var _ = require('underscore');
 var log4js = require('log4js');
 var q = require('q');
@@ -50,10 +49,6 @@ var BaseMappingDaoDelegate = (function () {
             throw error;
         });
     };
-    /*
-     * Perform search based on search query
-     * Also fetch joint fields
-     */
     BaseMappingDaoDelegate.prototype.search = function (search, options, foreignKeys, transaction) {
         if (foreignKeys === void 0) { foreignKeys = []; }
         var self = this;

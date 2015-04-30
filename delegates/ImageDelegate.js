@@ -1,4 +1,3 @@
-///<reference path='../_references.d.ts'/>
 var q = require('q');
 var fs = require('fs');
 var http = require('http');
@@ -55,7 +54,6 @@ var ImageDelegate = (function () {
     ImageDelegate.prototype.fetch = function (imageUrl, tempPath) {
         var deferred = q.defer();
         var file = fs.createWriteStream(tempPath);
-        // TODO: Use request instead of http
         var request = http.get(imageUrl, function (response) {
             if (response) {
                 response.pipe(file);

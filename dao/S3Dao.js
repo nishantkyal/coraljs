@@ -1,4 +1,3 @@
-///<reference path='../_references.d.ts'/>
 var _ = require('underscore');
 var q = require('q');
 var AWS = require('aws-sdk');
@@ -36,7 +35,6 @@ var S3Dao = (function () {
                         }
                         return true;
                     }), function (object) {
-                        // Add back the non metadata fields since object return from S3 won't have that
                         object = _.extend(object, _.omit(searchQuery, self.modelClass.METADATA_FIELDS));
                         return new self.modelClass(object);
                     }));
@@ -90,7 +88,6 @@ var S3Dao = (function () {
         });
         return deferred.promise;
     };
-    /* Helper methods for S3 file operations */
     S3Dao.prototype.copyFile = function (src, dest) {
         var deferred = q.defer();
         this.s3.copyObject({

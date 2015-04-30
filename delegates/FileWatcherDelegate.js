@@ -1,4 +1,3 @@
-///<reference path='../_references.d.ts'/>
 var _ = require('underscore');
 var watch = require('watch');
 var Utils = require('../common/Utils');

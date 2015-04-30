@@ -1,4 +1,3 @@
-///<reference path='./_references.d.ts'/>
 var CountryCode = require("./enums/CountryCode");
 var CountryName = require("./enums/CountryName");
 var DayName = require("./enums/DayName");

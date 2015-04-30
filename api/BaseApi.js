@@ -1,4 +1,3 @@
-///<reference path='../_references.d.ts'/>
 var _ = require('underscore');
 var BaseApi = (function () {
     function BaseApi(app) {

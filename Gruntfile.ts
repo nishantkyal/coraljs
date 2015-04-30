@@ -6,6 +6,7 @@ function init(grunt)
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-text-replace');
+    grunt.loadNpmTasks('grunt-ts');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -13,14 +14,14 @@ function init(grunt)
             "options": {
                 "force": true
             },
-            "typescript": ["*/**/*.js", "*/**/*.js.map", "*/**/*.d.ts", "!_references.d.ts", "!Gruntfile.js", "!node_modules/**/*.js"]
+            "typescript": ["*/**/*.js", "*/**/*.js.map", "*/**/*.d.ts", "!_references.d.ts", "!Gruntfile.js", "!node_modules/**/*"]
         },
         concat: {
             coral: {
                 src: ['enums/*.d.ts', 'models/*.d.ts', 'dao/*.d.ts', 'delegates/*.d.ts', 'common/*.d.ts', 'caches/*.d.ts', 'api/*.d.ts'],
                 dest: 'coraljs.d.ts',
                 options: {
-                    banner: "declare module 'coral.js'\n{\nimport q = require(\"q\");\nimport log4js = require(\"log4js\");\nimport redis = require(\"redis\");\nimport express = require(\"express\");\n\n",
+                    banner: "declare module 'coraljs'\n{\nimport q = require(\"q\");\nimport log4js = require(\"log4js\");\nimport redis = require(\"redis\");\nimport express = require(\"express\");\n\n",
                     footer: '}'
                 }
             }
@@ -49,12 +50,20 @@ function init(grunt)
                 ]
             }
         },
-        "typescript": {
-            "coral-index": {}
-        },
-        "sqlToModel": {
-            "target" : {
-
+        "ts": {
+            "server": {
+                "src": ["index.ts"],
+                "options": {
+                    "module": "commonjs",
+                    sourceMap: true
+                }
+            },
+            "client": {
+                "src": ["indexWebapp.ts"],
+                "options": {
+                    "module": "amd",
+                    sourceMap: true
+                }
             }
         }
     });
@@ -73,27 +82,6 @@ function init(grunt)
         });
     });
 
-    grunt.registerMultiTask("typescript", function ()
-    {
-        var exec = childProcess.exec;
-        var done = this.async();
-        exec('tsc -m commonjs -d --sourcemap index.ts', function (error, stdout, stderr)
-        {
-            console.log(stdout);
-            console.log(stderr);
-            done();
-        });
-    });
-
-    grunt.registerMultiTask("sqlToModel", function ()
-    {
-        var sqlString = grunt.option('sql');
-        var sqlToModel = require('./common/sqlToModel');
-        console.log(sqlString);
-        sqlToModel.sqlToModel(sqlString);
-    });
-
-    grunt.registerTask('default', ['clean', 'typescript', 'concat', 'replace']);
+    grunt.registerTask('default', ['clean', 'ts', 'concat', 'replace']);
 }
-
 export = init;

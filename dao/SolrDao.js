@@ -1,4 +1,3 @@
-///<reference path='../_references.d.ts'/>
 var q = require('q');
 var _ = require('underscore');
 var log4js = require('log4js');
@@ -8,7 +7,6 @@ var SolrDao = (function () {
         this.logger = log4js.getLogger(Utils.getClassName(this));
         this.solrClient = solrClient;
         this.modelClass = modelClass;
-        // Instantiate model once so that foreign keys etc get computed
         new modelClass();
     }
     SolrDao.prototype.create = function (data) {
@@ -91,7 +89,6 @@ var SolrDao = (function () {
         var deferred = q.defer();
         var self = this;
         self.find(criteria, { fields: ['id', '_version_'] }).then(function documentFetched(document) {
-            //newValues = newValues.toJson();
             newValues['_version_'] = document['_version_'];
             newValues['id'] = document['id'];
             self.solrClient.add(newValues, function (err, obj) {
@@ -117,7 +114,6 @@ var SolrDao = (function () {
         });
         return deferred.promise;
     };
-    /** Helper method to convert query objects to SQL fragments **/
     SolrDao.prototype.generateWhereStatement = function (criteria) {
         if (criteria === void 0) { criteria = {}; }
         var self = this;
@@ -137,7 +133,7 @@ var SolrDao = (function () {
                         whereStatement.push(key + ':' + value);
                         break;
                     case 'String':
-                        var values = value.split(' '); //TODO configure solr to support whitespace and * search together
+                        var values = value.split(' ');
                         _.each(values, function (val) {
                             whereStatement.push(key + ':*' + val + '* ');
                         });
