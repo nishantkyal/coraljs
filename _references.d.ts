@@ -33,3 +33,4 @@
 ///<reference path='../DefinitelyTyped/urijs/URI.d.ts'/>
 ///<reference path='../DefinitelyTyped/solr-client/solr-client.d.ts'/>
 ///<reference path='../DefinitelyTyped/aws-sdk/aws-sdk.d.ts'/>
+///<reference path='../DefinitelyTyped/semver/semver.d.ts'/>

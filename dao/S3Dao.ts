@@ -91,7 +91,7 @@ class S3Dao implements IDao
             {
                 return q.all(_.map(results, function(result:BaseS3Model)
                 {
-                    return self.moveFile(result, _.extend(result.toJson(), newValues));
+                    return self.moveFile(result, _.extend(new self.modelClass(result.toJson()), newValues));
                 }));
             });
     }

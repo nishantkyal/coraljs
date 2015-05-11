@@ -53,7 +53,7 @@ var S3Dao = (function () {
         var self = this;
         return this.search(criteria).then(function searched(results) {
             return q.all(_.map(results, function (result) {
-                return self.moveFile(result, _.extend(result.toJson(), newValues));
+                return self.moveFile(result, _.extend(new self.modelClass(result.toJson()), newValues));
             }));
         });
     };

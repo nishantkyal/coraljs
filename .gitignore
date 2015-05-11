@@ -6,3 +6,4 @@
 !_references.d.ts
 node_modules
 npm-debug.log
+.tscache

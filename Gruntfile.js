@@ -1,8 +1,11 @@
+var semver = require('semver');
 function init(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-text-replace');
     grunt.loadNpmTasks('grunt-ts');
+    grunt.loadNpmTasks('grunt-bump');
+    grunt.loadNpmTasks('grunt-prompt');
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         clean: {
@@ -63,6 +66,93 @@ function init(grunt) {
                     sourceMap: true
                 }
             }
+        },
+        'bump': {
+            options: {
+                files: ['package.json', 'bower.json'],
+                updateConfigs: [],
+                commit: true,
+                commitMessage: 'Release v<%= grunt.config("bump.version") %>',
+                commitFiles: ['package.json', 'bower.json'],
+                createTag: grunt.config("bump.files"),
+                tagName: 'v<%= grunt.config("bump.version") %>',
+                tagMessage: 'Version <%= grunt.config("bump.version") %>',
+                push: true,
+                pushTo: 'origin',
+                gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d',
+                globalReplace: false,
+                prereleaseName: false,
+                regExp: false
+            }
+        },
+        prompt: {
+            bump: {
+                options: {
+                    questions: [
+                        {
+                            config: 'bump.increment',
+                            type: 'list',
+                            message: 'Bump version from ' + '<%= pkg.version %>' + ' to:',
+                            choices: [
+                                {
+                                    value: 'build',
+                                    name: 'Build:  ' + ('<%= pkg.version %>' + '-?') + ' Unstable, betas, and release candidates.'
+                                },
+                                {
+                                    value: 'patch',
+                                    name: 'Patch:  ' + semver.inc('<%= pkg.version %>', 'patch') + ' Backwards-compatible bug fixes.'
+                                },
+                                {
+                                    value: 'minor',
+                                    name: 'Minor:  ' + semver.inc('<%= pkg.version %>', 'minor') + ' Add functionality in a backwards-compatible manner.'
+                                },
+                                {
+                                    value: 'major',
+                                    name: 'Major:  ' + semver.inc('<%= pkg.version %>', 'major') + ' Incompatible API changes.'
+                                },
+                                {
+                                    value: 'custom',
+                                    name: 'Custom: ?.?.? Specify version...'
+                                }
+                            ]
+                        },
+                        {
+                            config: 'bump.version',
+                            type: 'input',
+                            message: 'What specific version would you like',
+                            when: function (answers) {
+                                return answers['bump.increment'] === 'custom';
+                            },
+                            validate: function (value) {
+                                var valid = semver.valid(value);
+                                return valid || 'Must be a valid semver, such as 1.2.3-rc1. See http://semver.org/ for more details.';
+                            }
+                        },
+                        {
+                            config: 'bump.files',
+                            type: 'checkbox',
+                            message: 'What should get the new version:',
+                            choices: [
+                                {
+                                    value: 'package',
+                                    name: 'package.json' + (!grunt.file.isFile('package.json') ? ' not found, will create one' : ''),
+                                    checked: grunt.file.isFile('package.json')
+                                },
+                                {
+                                    value: 'bower',
+                                    name: 'bower.json' + (!grunt.file.isFile('bower.json') ? ' not found, will create one' : ''),
+                                    checked: grunt.file.isFile('bower.json')
+                                },
+                                {
+                                    value: 'git',
+                                    name: 'git tag',
+                                    checked: grunt.file.isDir('.git')
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
         }
     });
     /* Generate indx.js by combining all generated .js files */
@@ -76,6 +166,7 @@ function init(grunt) {
         });
     });
     grunt.registerTask('default', ['clean', 'ts', 'concat', 'replace']);
+    grunt.registerTask('publish', ['prompt:bump', 'bump']);
 }
 module.exports = init;
 //# sourceMappingURL=Gruntfile.js.map
