@@ -1,8 +1,8 @@
 {
     "name"       : "coraljs",
     "main"       : "client/indexWebapp.js",
-    "version"    : "0.3.24",
-    "homepage"   : "https://github.com/Infollion/SearchNTalk-Coral",
+    "version"    : "0.3.31",
+    "homepage"   : "https://github.com/nishantkyal/coraljs.git",
     "authors"    : [
         "nishant.kyal@gmail.com"
     ],
