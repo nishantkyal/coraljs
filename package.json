@@ -1,6 +1,6 @@
 {
     "name"        : "coraljs",
-    "version"     : "0.3.25",
+    "version"     : "0.3.27",
     "private"     : false,
     "main"        : "server/index.js",
     "dependencies": {
@@ -12,7 +12,7 @@
         "express"             : "3.4.1",
         "gm"                  : "1.16",
         "grunt"               : "*",
-        "grunt-bumpup"        : "*",
+        "grunt-bump"        : "*",
         "grunt-contrib-clean" : "*",
         "grunt-contrib-concat": "*",
         "grunt-text-replace"  : "*",
@@ -38,6 +38,7 @@
         "URIjs"               : "*",
         "awssum-amazon-s3"    : "*",
         "aws-sdk"             : "*",
-        "solr-client"         : "*"
+        "solr-client"         : "*",
+        "semver"              : "4.3.4"
     }
 }
