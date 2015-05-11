@@ -1,7 +1,7 @@
 {
     "name"       : "coraljs",
     "main"       : "client/indexWebapp.js",
-    "version"    : "0.3.31",
+    "version"    : "0.3.32",
     "homepage"   : "https://github.com/nishantkyal/coraljs.git",
     "authors"    : [
         "nishant.kyal@gmail.com"
