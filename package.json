@@ -1,6 +1,6 @@
 {
     "name"        : "coraljs",
-    "version"     : "0.3.29",
+    "version"     : "0.3.30",
     "private"     : false,
     "main"        : "server/index.js",
     "dependencies": {
