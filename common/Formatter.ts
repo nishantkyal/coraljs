@@ -1,47 +1,11 @@
 ///<reference path='../_references.d.ts'/>
 import moment                                                       = require('moment');
 import moment_timezone                                              = require('moment-timezone');
-import accounting                                                   = require('accounting');
-import MoneyUnit                                                    = require('../enums/MoneyUnit');
 import Salutation                                                   = require('../enums/Salutation');
 import Utils                                                        = require('../common/Utils');
 
 class Formatter
 {
-    static formatMoney(val:number, moneyUnit:MoneyUnit):string
-    {
-        switch (moneyUnit)
-        {
-            case MoneyUnit.PERCENT:
-                return accounting.formatMoney(val, {
-                    format: '%v %s',
-                    precision: 2,
-                    symbol: '%'
-                });
-            case MoneyUnit.USD:
-                return accounting.formatMoney(val, {
-                    format: '%s %v'
-                });
-            case MoneyUnit.INR:
-                return accounting.formatMoney(val, {
-                    format: '%s %v',
-                    symbol: 'Rs.'
-                });
-            case MoneyUnit.POINTS:
-                return accounting.formatMoney(val, {
-                    format: '%v %s',
-                    precision: 2,
-                    symbol: 'Points'
-                });
-        }
-
-        if (Utils.isNullOrEmpty(val))
-            return '';
-        else
-            return val.toString();
-    }
-
-
     static formatName(firstName:string, lastName?:string, title?:Salutation):string
     {
         return [Salutation[title], firstName, lastName].join(' ').trim();
@@ -92,11 +56,6 @@ class Formatter
         gmt_string +=  min < 10 ? ('0' + min.toString()) : min.toString();
 
         return gmt_string;
-    }
-
-    static formatCurrency(currency:MoneyUnit):string
-    {
-        return MoneyUnit[currency];
     }
 }
 export = Formatter

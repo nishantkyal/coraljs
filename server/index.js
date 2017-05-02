@@ -3,12 +3,7 @@ var CountryName = require("./enums/CountryName");
 var DayName = require("./enums/DayName");
 var ForeignKeyType = require("./enums/ForeignKeyType");
 var ImageSize = require("./enums/ImageSize");
-var IndustryCode = require("./enums/IndustryCode");
-var MoneyUnit = require("./enums/MoneyUnit");
-var PhoneType = require("./enums/PhoneType");
-var SMSStatus = require("./enums/SMSStatus");
 var Salutation = require("./enums/Salutation");
-var ServiceRequestStatus = require("./enums/ServiceRequestStatus");
 var AbstractModel = require("./models/AbstractModel");
 var BaseModel = require("./models/BaseModel");
 var BaseS3Model = require("./models/BaseS3Model");
@@ -35,12 +30,7 @@ var exported = {
     DayName: DayName,
     ForeignKeyType: ForeignKeyType,
     ImageSize: ImageSize,
-    IndustryCode: IndustryCode,
-    MoneyUnit: MoneyUnit,
-    PhoneType: PhoneType,
-    SMSStatus: SMSStatus,
     Salutation: Salutation,
-    ServiceRequestStatus: ServiceRequestStatus,
     AbstractModel: AbstractModel,
     BaseModel: BaseModel,
     BaseS3Model: BaseS3Model,

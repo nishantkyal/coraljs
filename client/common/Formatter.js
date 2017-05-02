@@ -1,36 +1,7 @@
-define(["require", "exports", 'moment-timezone', 'accounting', '../enums/MoneyUnit', '../enums/Salutation', '../common/Utils'], function (require, exports, moment_timezone, accounting, MoneyUnit, Salutation, Utils) {
+define(["require", "exports", 'moment-timezone', '../enums/Salutation', '../common/Utils'], function (require, exports, moment_timezone, Salutation, Utils) {
     var Formatter = (function () {
         function Formatter() {
         }
-        Formatter.formatMoney = function (val, moneyUnit) {
-            switch (moneyUnit) {
-                case 3 /* PERCENT */:
-                    return accounting.formatMoney(val, {
-                        format: '%v %s',
-                        precision: 2,
-                        symbol: '%'
-                    });
-                case 2 /* USD */:
-                    return accounting.formatMoney(val, {
-                        format: '%s %v'
-                    });
-                case 1 /* INR */:
-                    return accounting.formatMoney(val, {
-                        format: '%s %v',
-                        symbol: 'Rs.'
-                    });
-                case 4 /* POINTS */:
-                    return accounting.formatMoney(val, {
-                        format: '%v %s',
-                        precision: 2,
-                        symbol: 'Points'
-                    });
-            }
-            if (Utils.isNullOrEmpty(val))
-                return '';
-            else
-                return val.toString();
-        };
         Formatter.formatName = function (firstName, lastName, title) {
             return [Salutation[title], firstName, lastName].join(' ').trim();
         };
@@ -67,9 +38,6 @@ define(["require", "exports", 'moment-timezone', 'accounting', '../enums/MoneyUn
             gmt_string += Math.floor(Math.abs(offset) / 3600) + ':';
             gmt_string += min < 10 ? ('0' + min.toString()) : min.toString();
             return gmt_string;
-        };
-        Formatter.formatCurrency = function (currency) {
-            return MoneyUnit[currency];
         };
         return Formatter;
     })();

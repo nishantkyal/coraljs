@@ -1,4 +1,0 @@
-enum ServiceRequestStatus
-{
-}
-export = ServiceRequestStatus

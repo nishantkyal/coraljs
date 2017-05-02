@@ -3,8 +3,8 @@
     "version"     : "0.3.34",
     "private"     : false,
     "main"        : "server/index.js",
+    "typings"     : "coraljs.d.ts",
     "dependencies": {
-        "accounting"          : "*",
         "connect"             : "*",
         "connect-ensure-login": "0.1.1",
         "connect-flash"       : "*",

@@ -1,40 +1,9 @@
 var moment_timezone = require('moment-timezone');
-var accounting = require('accounting');
-var MoneyUnit = require('../enums/MoneyUnit');
 var Salutation = require('../enums/Salutation');
 var Utils = require('../common/Utils');
 var Formatter = (function () {
     function Formatter() {
     }
-    Formatter.formatMoney = function (val, moneyUnit) {
-        switch (moneyUnit) {
-            case 3 /* PERCENT */:
-                return accounting.formatMoney(val, {
-                    format: '%v %s',
-                    precision: 2,
-                    symbol: '%'
-                });
-            case 2 /* USD */:
-                return accounting.formatMoney(val, {
-                    format: '%s %v'
-                });
-            case 1 /* INR */:
-                return accounting.formatMoney(val, {
-                    format: '%s %v',
-                    symbol: 'Rs.'
-                });
-            case 4 /* POINTS */:
-                return accounting.formatMoney(val, {
-                    format: '%v %s',
-                    precision: 2,
-                    symbol: 'Points'
-                });
-        }
-        if (Utils.isNullOrEmpty(val))
-            return '';
-        else
-            return val.toString();
-    };
     Formatter.formatName = function (firstName, lastName, title) {
         return [Salutation[title], firstName, lastName].join(' ').trim();
     };
@@ -71,9 +40,6 @@ var Formatter = (function () {
         gmt_string += Math.floor(Math.abs(offset) / 3600) + ':';
         gmt_string += min < 10 ? ('0' + min.toString()) : min.toString();
         return gmt_string;
-    };
-    Formatter.formatCurrency = function (currency) {
-        return MoneyUnit[currency];
     };
     return Formatter;
 })();
