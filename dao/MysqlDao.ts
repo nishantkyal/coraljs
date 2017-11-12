@@ -8,18 +8,17 @@ import MysqlDelegate                                = require('../delegates/Mysq
 import AbstractModel                                = require('../models/AbstractModel');
 import Utils                                        = require('../common/Utils');
 import IDaoFetchOptions                             = require('../dao/IDaoFetchOptions');
+
 /*
  Base class for DAO
  */
-class MysqlDao implements IDao
-{
-    public modelClass:typeof AbstractModel;
-    public tableName:string;
-    public logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
+class MysqlDao implements IDao {
+    public modelClass: typeof AbstractModel;
+    public tableName: string;
+    public logger: log4js.Logger = log4js.getLogger(Utils.getClassName(this));
     mysqlDelegate = new MysqlDelegate();
 
-    constructor(modelClass:typeof AbstractModel)
-    {
+    constructor(modelClass: typeof AbstractModel) {
         this.modelClass = modelClass;
 
         // Instantiate model once so that foreign keys etc get computed
@@ -37,10 +36,9 @@ class MysqlDao implements IDao
      * @param data
      * @param transaction
      */
-    create(data:Object[], transaction?:Object):q.Promise<any>;
-    create(data:Object, transaction?:Object):q.Promise<any>;
-    create(data:any, transaction?:Object):q.Promise<any>
-    {
+    async create(data: Object[], transaction?: Object): Promise<any>
+    async create(data: Object, transaction?: Object): Promise<any>
+    async create(data: any, transaction?: Object): Promise<any> {
         var self = this;
         var dataAsArray = [].concat(data);
 
@@ -48,22 +46,19 @@ class MysqlDao implements IDao
         var values = [];
         var rows = [];
 
-        _.each(dataAsArray, function (row)
-        {
+        _.each(dataAsArray, function (row) {
             row = _.pick(row, self.modelClass['COLUMNS']);
 
             // 1. Remove fields with undefined values
             // 2. Check if it matches the existing list of fields being inserted
             // 3. If matches, create query string and values array
-            _.each(row, function (value, key)
-            {
+            _.each(row, function (value, key) {
                 if (value == undefined || Utils.getObjectType(value) == 'Array' || Utils.getObjectType(value) == 'Object')
                     delete row[key];
             });
 
             var fieldsToInsert = _.keys(row);
-            if (insertedFields.join(':') == fieldsToInsert.join(':') || insertedFields.length == 0)
-            {
+            if (insertedFields.join(':') == fieldsToInsert.join(':') || insertedFields.length == 0) {
                 values = values.concat(_.values(row));
                 rows.push(row);
             }
@@ -76,24 +71,19 @@ class MysqlDao implements IDao
         var query = 'INSERT INTO `' + self.tableName + '` (' + insertedFields.join(',') + ') VALUES ';
         query += Utils.repeatChar('(' + Utils.repeatChar('?', insertedFields.length, ',') + ')', rows.length, ',');
 
-        return self.mysqlDelegate.executeQuery(query, values, transaction)
-            .then(
-            function created():any
-            {
-                // Since there were no errors we can just echo back the input as result (implying that these rows were created successfully)
-                return data;
-            },
-            function createFailure(error)
-            {
-                self.logger.error('Error while creating a new %s, error: %s', self.tableName, error.message);
-                error.message = 'Error while creating a new ' + self.tableName + ', error: ' + error.message;
-                switch (error.code)
-                {
-                    case 'ER_DUP_ENTRY':
-                        error.message = Utils.snakeToCamelCase(self.tableName) + ' already exists with those details';
-                }
-                throw(error);
-            });
+        try {
+            await self.mysqlDelegate.executeQuery(query, values, transaction)
+        } catch (error) {
+            self.logger.error('Error while creating a new %s, error: %s', self.tableName, error.message);
+            error.message = 'Error while creating a new ' + self.tableName + ', error: ' + error.message;
+            switch (error.code) {
+                case 'ER_DUP_ENTRY':
+                    error.message = Utils.snakeToCamelCase(self.tableName) + ' already exists with those details';
+            }
+            throw(error);
+        }
+
+        return data;
     }
 
     /**
@@ -101,36 +91,30 @@ class MysqlDao implements IDao
      * @param id
      * @param fields
      */
-    get(id:number[], options?:IDaoFetchOptions, transaction?:Object):q.Promise<any>;
-    get(id:number, options?:IDaoFetchOptions, transaction?:Object):q.Promise<any>;
-    get(id:any, options?:IDaoFetchOptions, transaction?:Object):q.Promise<any>
-    {
+    async get(id: number[], options?: IDaoFetchOptions, transaction?: Object): Promise<any>;
+    async get(id: number, options?: IDaoFetchOptions, transaction?: Object): Promise<any>;
+    async get(id: any, options?: IDaoFetchOptions, transaction?: Object): Promise<any> {
         var self = this;
         if (Utils.getObjectType(id) == 'Array' && id.length > 1)
             return this.search({id: id}, options, transaction);
-        else
-        {
+        else {
             if (Utils.getObjectType(id) == 'Array')
                 id = id[0];
 
-            return this.find({id: id}, options, transaction)
-                .then(
-                function objectFetched(result:any)
-                {
-                    if (Utils.isNullOrEmpty(result))
-                    {
-                        var errorMessage:string = 'No ' + self.tableName.replace('_', ' ') + ' found for id: ' + id;
-                        self.logger.debug('No %s found for id: %s', self.tableName, id);
-                        throw new Error(errorMessage);
-                    }
-                    else
-                        return result;
-                },
-                function objectFetchError(error:Error)
-                {
-                    self.logger.error('GET failed table: %s, id: %s', self.tableName, id);
-                    throw(error);
-                });
+            try {
+                var result = await this.find({id: id}, options, transaction)
+            } catch (error) {
+                self.logger.error('GET failed table: %s, id: %s', self.tableName, id);
+                throw(error);
+            }
+
+            if (Utils.isNullOrEmpty(result)) {
+                var errorMessage: string = 'No ' + self.tableName.replace('_', ' ') + ' found for id: ' + id;
+                self.logger.debug('No %s found for id: %s', self.tableName, id);
+                throw new Error(errorMessage);
+            }
+            else
+                return result;
         }
     }
 
@@ -141,8 +125,7 @@ class MysqlDao implements IDao
      * @param fields
      * @returns {"q".Promise<U>|"q".Promise<undefined>|"q".Promise<any>}
      */
-    search(searchQuery?:Object, options:IDaoFetchOptions = {}, transaction?:Object):q.Promise<any>
-    {
+    async search(searchQuery?: Object, options: IDaoFetchOptions = {}, transaction?: Object): Promise<any> {
         var self = this;
         var whereStatements = this.generateWhereStatements(searchQuery);
         var wheres = whereStatements.where;
@@ -150,22 +133,21 @@ class MysqlDao implements IDao
         var selectColumns = !Utils.isNullOrEmpty(options.fields) ? options.fields.join(',') : '*';
 
         var whereStatementString;
-        var deleteClause:string = ' (deleted IS NULL OR deleted = 0) ';
+        var deleteClause: string = ' (deleted IS NULL OR deleted = 0) ';
 
-        if(wheres.length != 0 && !options.getDeleted)
+        if (wheres.length != 0 && !options.getDeleted)
             whereStatementString = 'WHERE ' + wheres.join(' AND ') + ' AND ' + deleteClause;
-        else if(wheres.length != 0 && options.getDeleted)
+        else if (wheres.length != 0 && options.getDeleted)
             whereStatementString = 'WHERE ' + wheres.join(' AND ');
-        else if(wheres.length == 0 && !options.getDeleted)
+        else if (wheres.length == 0 && !options.getDeleted)
             whereStatementString = 'WHERE ' + deleteClause;
         else
             whereStatementString = ' ';
 
         // TODO: Validate max > offset etc
         // Pagination
-        var limitClause:string = '';
-        if (options.max && options.offset)
-        {
+        var limitClause: string = '';
+        if (options.max && options.offset) {
             options.max = options.max || 18446744073709551610;
             limitClause = ' LIMIT ' + options.offset + ',' + options.max + ' ';
         }
@@ -182,18 +164,17 @@ class MysqlDao implements IDao
             'FROM `' + this.tableName + '` '
             + whereStatementString + limitClause + sortClause;
 
-        return self.mysqlDelegate.executeQuery(queryString, values, transaction)
-            .then(
-            function handleSearchResults(results:any[]):any
-            {
-                var typecastedResults = _.map(results, function (result) { return new self.modelClass(result); });
-                return typecastedResults;
-            },
-            function searchError(error:Error)
-            {
-                self.logger.error('SEARCH failed for table: %s, criteria: %s, error: %s', self.tableName, JSON.stringify(searchQuery), error.message);
-                throw(error);
+        try {
+            var results: any[] = await self.mysqlDelegate.executeQuery(queryString, values, transaction)
+            var typecastedResults = _.map(results, function (result) {
+                return new self.modelClass(result);
             });
+        } catch (error) {
+            self.logger.error('SEARCH failed for table: %s, criteria: %s, error: %s', self.tableName, JSON.stringify(searchQuery), error.message);
+            throw(error);
+        }
+
+        return typecastedResults;
     }
 
     /**
@@ -202,25 +183,21 @@ class MysqlDao implements IDao
      * @param fields
      * @returns {"q".Promise<U>|"q".Promise<undefined>|"q".Promise<any|null>}
      */
-    find(searchQuery:Object, options?:IDaoFetchOptions, transaction?:Object):q.Promise<any>
-    {
+    async find(searchQuery: Object, options?: IDaoFetchOptions, transaction?: Object): Promise<any> {
         var self = this;
         options.max = 1;
 
-        return self.search(searchQuery, options, transaction)
-            .then(
-            function handleSearchResults(result):any
-            {
-                if (result.length == 1)
-                    return new self.modelClass(result[0]);
-                else
-                    return result;
-            },
-            function findError(error:Error)
-            {
-                self.logger.error('FIND failed for table: %s, criteria: %s, error: %s', self.tableName, JSON.stringify(searchQuery), error.message);
-                throw(error);
-            });
+        try {
+            var result = await self.search(searchQuery, options, transaction)
+        } catch (error) {
+            self.logger.error('FIND failed for table: %s, criteria: %s, error: %s', self.tableName, JSON.stringify(searchQuery), error.message);
+            throw(error);
+        }
+
+        if (result.length == 1)
+            return result[0];
+        else
+            return result;
     }
 
     /**
@@ -229,10 +206,9 @@ class MysqlDao implements IDao
      * @param newValues
      * @param transaction
      */
-    update(criteria:number, newValues:any, transaction?:Object):q.Promise<any>;
-    update(criteria:Object, newValues:any, transaction?:Object):q.Promise<any>;
-    update(criteria:any, newValues:any, transaction?:Object):q.Promise<any>
-    {
+    async update(criteria: number, newValues: any, transaction?: Object): Promise<any>;
+    async update(criteria: Object, newValues: any, transaction?: Object): Promise<any>;
+    async update(criteria: any, newValues: any, transaction?: Object): Promise<any> {
         var self = this;
 
         if (Utils.getObjectType(criteria) == 'Number')
@@ -241,10 +217,16 @@ class MysqlDao implements IDao
         newValues = _.pick(newValues, self.modelClass['COLUMNS']);
 
         // Remove fields with null values
-        _.each(criteria, function (val, key) { if (val == undefined) delete criteria[key]; });
-        _.each(newValues, function (val, key) { if (val == undefined) delete newValues[key]; });
+        _.each(criteria, function (val, key) {
+            if (val == undefined) delete criteria[key];
+        });
+        _.each(newValues, function (val, key) {
+            if (val == undefined) delete newValues[key];
+        });
 
-        var updates = _.map(_.keys(newValues), function (updateColumn) { return updateColumn + ' = ?'; });
+        var updates = _.map(_.keys(newValues), function (updateColumn) {
+            return updateColumn + ' = ?';
+        });
         var values = _.values(newValues);
 
         // Compose criteria statements
@@ -254,19 +236,15 @@ class MysqlDao implements IDao
 
         var query = 'UPDATE `' + this.tableName + '` SET ' + updates.join(",") + ' WHERE ' + wheres.join(" AND ");
 
-        return self.mysqlDelegate.executeQuery(query, values, transaction)
-            .then(
-            function updateComplete(result:mysql.OkPacket):any
-            {
-                if (result.affectedRows == 0)
-                    self.logger.info('Update did not change any rows in table - %s, for criteria - %s and values - %s', self.tableName, wheres.join(' AND'), values.join(','));
-                return result;
-            },
-            function updateError(error:Error)
-            {
-                self.logger.error('UPDATE failed, error: %s, table: %s', error.message, self.tableName);
-                throw(error);
-            });
+        try {
+            var result: mysql.OkPacket = await self.mysqlDelegate.executeQuery(query, values, transaction);
+            if (result.affectedRows == 0)
+                self.logger.info('Update did not change any rows in table - %s, for criteria - %s and values - %s', self.tableName, wheres.join(' AND'), values.join(','));
+        } catch (error) {
+            self.logger.error('UPDATE failed, error: %s, table: %s', error.message, self.tableName);
+            throw(error);
+        }
+        return result;
     }
 
     /**
@@ -274,10 +252,9 @@ class MysqlDao implements IDao
      * @param criteria
      * @param transaction
      */
-    delete(criteria:number, transaction?:Object):q.Promise<any>;
-    delete(criteria:Object, transaction?:Object):q.Promise<any>;
-    delete(criteria:any, transaction?:Object):q.Promise<any>
-    {
+    async delete(criteria: number, transaction?: Object): Promise<any>;
+    async delete(criteria: Object, transaction?: Object): Promise<any>;
+    async delete(criteria: any, transaction?: Object): Promise<any> {
         var self = this;
 
         if (Utils.getObjectType(criteria) == 'Number')
@@ -289,73 +266,61 @@ class MysqlDao implements IDao
 
         var query = 'DELETE FROM `' + this.tableName + '` WHERE ' + wheres.join(' AND ');
 
-        return self.mysqlDelegate.executeQuery(query, values, transaction)
-            .fail(
-            function deleteFailed(error:Error)
-            {
-                self.logger.error('DELETE failed for table: %s, criteria: %s, error: %s', self.tableName, JSON.stringify(criteria), error.message);
-                throw(error);
-            });
+        try {
+            return await self.mysqlDelegate.executeQuery(query, values, transaction)
+        } catch (error) {
+            self.logger.error('DELETE failed for table: %s, criteria: %s, error: %s', self.tableName, JSON.stringify(criteria), error.message);
+            throw(error);
+        }
     }
 
     /** Helper method to convert query objects to SQL fragments **/
-    public generateWhereStatements(criteria:Object = {}):{where: string[]; values: any[]}
-    {
+    public generateWhereStatements(criteria: Object = {}): { where: string[]; values: any[] } {
         var self = this;
 
-        criteria = _.pick(criteria, self.modelClass['COLUMNS']);
+        //criteria = _.pick(criteria, self.modelClass['COLUMNS']);
 
         var whereStatements = [], values = [];
-        for (var key in criteria)
-        {
+        for (var key in criteria) {
             var query = criteria[key];
 
-            switch (Utils.getObjectType(query))
-            {
+            switch (Utils.getObjectType(query)) {
                 case 'Function':
-                    continue;
                     break;
                 case 'Object':
                     var operator = query['operator'];
                     var statement;
 
-                    if (operator && operator.toLowerCase() === 'between')
-                    {
+                    if (operator && operator.toLowerCase() === 'between') {
                         statement = key + ' ' + operator + ' ? AND ?';
                         values.push(query['value'][0]);
                         values.push(query['value'][1]);
                     }
-                    else if (operator && operator.toLowerCase() === 'greaterthan')
-                    {
+                    else if (operator && operator.toLowerCase() === 'greaterthan') {
                         statement = key + ' > ?';
                         values.push(query['value']);
                     }
-                    else if (operator && operator.toLowerCase() === 'lessthan')
-                    {
+                    else if (operator && operator.toLowerCase() === 'lessthan') {
                         statement = key + ' < ?';
                         values.push(query['value']);
                     }
-                    else if (operator && operator.toLowerCase() === 'or')
-                    {
-                        statement = '(' + key + ' = ? ' + operator + ' ' + key  + ' = ?) ';
+                    else if (operator && operator.toLowerCase() === 'or') {
+                        statement = '(' + key + ' = ? ' + operator + ' ' + key + ' = ?) ';
                         values.push(query['value'][0]);
                         values.push(query['value'][1]);
                     }
-                    else if (query['value'])
-                    {
+                    else if (query['value']) {
                         statement = key + ' ' + operator + ' ?';
                         values.push(query['value']);
                     }
-                    else if (query['raw'])
-                    {
+                    else if (query['raw']) {
                         statement = key + ' ' + query['raw'];
                     }
 
                     whereStatements.push(statement);
                     break;
                 case 'Array':
-                    if (query.length != 0)
-                    {
+                    if (query.length != 0) {
                         whereStatements.push(key + ' IN (?) ');
                         values.push(query);
                     }
@@ -375,4 +340,5 @@ class MysqlDao implements IDao
         return {where: whereStatements, values: values};
     }
 }
+
 export = MysqlDao

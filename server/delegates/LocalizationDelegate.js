@@ -1,26 +1,23 @@
-var i18n = require('i18n');
-var LocalizationDelegate = (function () {
-    function LocalizationDelegate() {
-    }
-    LocalizationDelegate.get = function (key, data, locale) {
-        if (locale === void 0) { locale = 'en'; }
+"use strict";
+const i18n = require("i18n");
+class LocalizationDelegate {
+    static get(key, data, locale = 'en') {
         if (locale)
             return i18n.__({ 'phrase': key, 'locale': locale }, data);
         return i18n.__(key);
-    };
-    LocalizationDelegate.setLocale = function (locale) {
+    }
+    static setLocale(locale) {
         i18n.setLocale(locale);
-    };
-    LocalizationDelegate.ctor = (function () {
-        i18n.configure({
-            defaultLocale: 'en',
-            locales: ['en'],
-            updateFiles: false,
-            directory: '/var/searchntalk/localization',
-            objectNotation: true
-        });
-    })();
-    return LocalizationDelegate;
+    }
+}
+LocalizationDelegate.ctor = (() => {
+    i18n.configure({
+        defaultLocale: 'en',
+        locales: ['en'],
+        updateFiles: false,
+        directory: '/var/searchntalk/localization',
+        objectNotation: true
+    });
 })();
 module.exports = LocalizationDelegate;
 //# sourceMappingURL=LocalizationDelegate.js.map

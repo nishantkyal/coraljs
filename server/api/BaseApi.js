@@ -1,14 +1,15 @@
-var _ = require('underscore');
-var BaseApi = (function () {
-    function BaseApi(app) {
+"use strict";
+const _ = require("underscore");
+class BaseApi {
+    constructor(app) {
     }
-    BaseApi.getEndpoint = function (baseUrl) {
+    static getEndpoint(baseUrl) {
         return null;
-    };
-    BaseApi.getIdEndpoint = function (id, baseUrl) {
+    }
+    static getIdEndpoint(id, baseUrl) {
         return null;
-    };
-    BaseApi.prototype.promiseMiddleware = function (handler) {
+    }
+    promiseMiddleware(handler) {
         var handlerSignature = handler.toString();
         var handlerArgs = handlerSignature.match(/\((.*)\)/)[1].split(",");
         var handlerArgParsers = _.map(handlerArgs, function (argName) {
@@ -32,15 +33,12 @@ var BaseApi = (function () {
             });
             parsedArguments.push(req);
             parsedArguments.push(res);
-            handler.apply(this, parsedArguments).then(function resolved(result) {
-                res.json(result);
-            }).fail(function handleError(error) {
-                res.send(500, error.message);
-            });
+            handler.apply(this, parsedArguments)
+                .then(function resolved(result) { res.json(result); })
+                .fail(function handleError(error) { res.send(500, error.message); });
         };
-    };
-    BaseApi.INCLUDE = 'include';
-    return BaseApi;
-})();
+    }
+}
+BaseApi.INCLUDE = 'include';
 module.exports = BaseApi;
 //# sourceMappingURL=BaseApi.js.map

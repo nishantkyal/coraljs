@@ -229,7 +229,7 @@ class Utils
             return escapedData[0];
     }
 
-    static setLongerTimeout(func:Function, interval:number, ...args)
+    static setLongerTimeout(func:(...args: any[]) => void , interval:number, ...args)
     {
         var maxTimeout = 0x7FFFFFFF; //setTimeout limit is MAX_INT32=(2^31-1)
         if (interval < maxTimeout)

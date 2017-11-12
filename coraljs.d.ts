@@ -543,11 +543,9 @@ export class ForeignKey {
 
 
 
-
 export class BaseMappingDao extends MysqlDao {
-    search(searchQuery: Object, options: IDaoFetchOptions, transaction?: Object): q.Promise<any>;
+    search(searchQuery: Object, options: IDaoFetchOptions, transaction?: Object): Promise<any>;
 }
-
 
 
 
@@ -555,16 +553,16 @@ export class BaseMappingDao extends MysqlDao {
 
 interface IDao {
     modelClass: typeof AbstractModel;
-    create(data: Object[], transaction?: Object): q.Promise<any>;
-    create(data: Object, transaction?: Object): q.Promise<any>;
-    get(id: number[], options?: IDaoFetchOptions, transaction?: Object): q.Promise<any>;
-    get(id: number, options?: IDaoFetchOptions, transaction?: Object): q.Promise<any>;
-    search(searchQuery?: Object, options?: IDaoFetchOptions, transaction?: Object): q.Promise<any>;
-    find(searchQuery: Object, options?: IDaoFetchOptions, transaction?: Object): q.Promise<any>;
-    update(criteria: number, newValues: any, transaction?: Object): q.Promise<any>;
-    update(criteria: Object, newValues: any, transaction?: Object): q.Promise<any>;
-    delete(criteria: number, transaction?: Object): q.Promise<any>;
-    delete(criteria: Object, transaction?: Object): q.Promise<any>;
+    create(data: Object[], transaction?: Object): Promise<any>;
+    create(data: Object, transaction?: Object): Promise<any>;
+    get(id: number[], options?: IDaoFetchOptions, transaction?: Object): Promise<any>;
+    get(id: number, options?: IDaoFetchOptions, transaction?: Object): Promise<any>;
+    search(searchery?: Object, options?: IDaoFetchOptions, transaction?: Object): Promise<any>;
+    find(searchery: Object, options?: IDaoFetchOptions, transaction?: Object): Promise<any>;
+    update(criteria: number, newValues: any, transaction?: Object): Promise<any>;
+    update(criteria: Object, newValues: any, transaction?: Object): Promise<any>;
+    delete(criteria: number, transaction?: Object): Promise<any>;
+    delete(criteria: Object, transaction?: Object): Promise<any>;
 }
 
 
@@ -583,53 +581,27 @@ interface IDaoFetchOptions {
 
 
 
-
 export class MysqlDao implements IDao {
     modelClass: typeof AbstractModel;
     tableName: string;
     logger: log4js.Logger;
     mysqlDelegate: MysqlDelegate;
     constructor(modelClass: typeof AbstractModel);
-    create(data: Object[], transaction?: Object): q.Promise<any>;
-    create(data: Object, transaction?: Object): q.Promise<any>;
-    get(id: number[], options?: IDaoFetchOptions, transaction?: Object): q.Promise<any>;
-    get(id: number, options?: IDaoFetchOptions, transaction?: Object): q.Promise<any>;
-    search(searchQuery?: Object, options?: IDaoFetchOptions, transaction?: Object): q.Promise<any>;
-    find(searchQuery: Object, options?: IDaoFetchOptions, transaction?: Object): q.Promise<any>;
-    update(criteria: number, newValues: any, transaction?: Object): q.Promise<any>;
-    update(criteria: Object, newValues: any, transaction?: Object): q.Promise<any>;
-    delete(criteria: number, transaction?: Object): q.Promise<any>;
-    delete(criteria: Object, transaction?: Object): q.Promise<any>;
+    create(data: Object[], transaction?: Object): Promise<any>;
+    create(data: Object, transaction?: Object): Promise<any>;
+    get(id: number[], options?: IDaoFetchOptions, transaction?: Object): Promise<any>;
+    get(id: number, options?: IDaoFetchOptions, transaction?: Object): Promise<any>;
+    search(searchQuery?: Object, options?: IDaoFetchOptions, transaction?: Object): Promise<any>;
+    find(searchQuery: Object, options?: IDaoFetchOptions, transaction?: Object): Promise<any>;
+    update(criteria: number, newValues: any, transaction?: Object): Promise<any>;
+    update(criteria: Object, newValues: any, transaction?: Object): Promise<any>;
+    delete(criteria: number, transaction?: Object): Promise<any>;
+    delete(criteria: Object, transaction?: Object): Promise<any>;
     generateWhereStatements(criteria?: Object): {
         where: string[];
         values: any[];
     };
 }
-
-
-
-
-
-
-
-export class S3Dao implements IDao {
-    private s3;
-    private bucket;
-    modelClass: typeof BaseS3Model;
-    constructor(modelClass: typeof BaseS3Model, awsAccessKey: string, accessKeySecret: string, region: string, bucket: string);
-    search(searchQuery?: BaseS3Model): q.Promise<BaseS3Model[]>;
-    find(searchQuery: BaseS3Model): q.Promise<any>;
-    update(criteria: BaseS3Model, newValues: BaseS3Model): q.Promise<any>;
-    update(criteria: Object, newValues: Object): q.Promise<any>;
-    delete(object: Object): q.Promise<any>;
-    delete(object: BaseS3Model): q.Promise<any>;
-    create(data: any, transaction?: Object): q.Promise<any>;
-    get(id: any, options?: IDaoFetchOptions, transaction?: Object): q.Promise<any>;
-    private copyFile(src, dest);
-    private deleteFile(path);
-    private moveFile(src, dest);
-}
-
 
 
 
@@ -643,19 +615,18 @@ export class SolrDao implements IDao {
     tableName: string;
     logger: log4js.Logger;
     constructor(modelClass: typeof AbstractModel, solrClient: Solr.SolrClient);
-    create(data: Object[]): q.Promise<any>;
-    create(data: Object): q.Promise<any>;
-    get(id: any, options?: IDaoFetchOptions): q.Promise<any>;
-    get(id: number, options?: IDaoFetchOptions): q.Promise<any>;
-    search(searchQuery: Object, options?: IDaoFetchOptions): q.Promise<any>;
-    find(searchQuery: Object, options?: IDaoFetchOptions): q.Promise<any>;
-    update(criteria: number, newValues: any): q.Promise<any>;
-    update(criteria: Object, newValues: any): q.Promise<any>;
-    delete(criteria: number): q.Promise<any>;
-    delete(criteria: Object): q.Promise<any>;
+    create(data: Object[]): Promise<any>;
+    create(data: Object): Promise<any>;
+    get(id: any, options?: IDaoFetchOptions): Promise<any>;
+    get(id: number, options?: IDaoFetchOptions): Promise<any>;
+    search(searchQuery: Object, options?: IDaoFetchOptions): Promise<any>;
+    find(searchQuery: Object, options?: IDaoFetchOptions): Promise<any>;
+    update(criteria: number, newValues: any): Promise<any>;
+    update(criteria: Object, newValues: any): Promise<any>;
+    delete(criteria: number): Promise<any>;
+    delete(criteria: Object): Promise<any>;
     generateWhereStatement(criteria?: Object): string[];
 }
-
 
 
 
@@ -669,44 +640,18 @@ export class BaseDaoDelegate {
     dao: IDao;
     constructor(dao: typeof BaseModel);
     constructor(dao: IDao);
-    get(id: any, options?: IDaoFetchOptions, foreignKeys?: ForeignKey[], transaction?: Object): q.Promise<any>;
-    find(search: Object, options?: IDaoFetchOptions, foreignKeys?: ForeignKey[], transaction?: Object): q.Promise<any>;
-    search(search?: Object, options?: IDaoFetchOptions, foreignKeys?: ForeignKey[], transaction?: Object): q.Promise<any>;
-    searchWithIncludes(search?: Object, options?: IDaoFetchOptions, includes?: Object[], transaction?: Object): q.Promise<any>;
-    processIncludes(baseSearchResults: BaseModel[], search?: Object, options?: IDaoFetchOptions, includes?: Object[], transaction?: Object): q.Promise<any>;
-    create(object: Object, transaction?: Object): q.Promise<any>;
-    create(object: Object[], transaction?: Object): q.Promise<any>;
-    update(criteria: Object, newValues: any, transaction?: Object): q.Promise<any>;
-    update(criteria: number, newValues: any, transaction?: Object): q.Promise<any>;
-    delete(criteria: number, softDelete?: boolean, transaction?: Object): q.Promise<any>;
-    delete(criteria: Object, softDelete?: boolean, transaction?: Object): q.Promise<any>;
-    save(object: Object, dbTransaction?: Object): q.Promise<any>;
-}
-
-
-
-
-
-
-
-
-
-export class BaseMappingDaoDelegate {
-    logger: log4js.Logger;
-    dao: MysqlDao;
-    constructor(dao: typeof BaseModel);
-    constructor(dao: MysqlDao);
-    get(id: any, options?: IDaoFetchOptions, foreignKeys?: ForeignKey[], transaction?: Object): q.Promise<any>;
-    find(search: Object, options?: IDaoFetchOptions, foreignKeys?: ForeignKey[], transaction?: Object): q.Promise<any>;
-    search(search: Object, options?: IDaoFetchOptions, foreignKeys?: ForeignKey[], transaction?: Object): q.Promise<any>;
-    searchWithIncludes(search?: Object, options?: IDaoFetchOptions, includes?: Object[], transaction?: Object): q.Promise<any>;
-    processIncludes(baseSearchResults: BaseModel[], search?: Object, options?: IDaoFetchOptions, includes?: Object[], transaction?: Object): any;
-    create(mappingObject: Object, object: Object, transaction?: Object): q.Promise<any>;
-    update(criteria: Object, newValues: any, transaction?: Object): q.Promise<any>;
-    update(criteria: number, newValues: any, transaction?: Object): q.Promise<any>;
-    delete(criteria: number, softDelete?: boolean, transaction?: Object): q.Promise<any>;
-    delete(criteria: Object, softDelete?: boolean, transaction?: Object): q.Promise<any>;
-    save(object: Object, dbTransaction?: Object): q.Promise<any>;
+    get(id: any, options?: IDaoFetchOptions, foreignKeys?: ForeignKey[], transaction?: Object): Promise<any>;
+    find(search: Object, options?: IDaoFetchOptions, foreignKeys?: ForeignKey[], transaction?: Object): Promise<any>;
+    search(search?: Object, options?: IDaoFetchOptions, foreignKeys?: ForeignKey[], transaction?: Object): Promise<any>;
+    searchWithIncludes(search?: Object, options?: IDaoFetchOptions, includes?: Object[], transaction?: Object): Promise<any>;
+    processIncludes(baseSearchResults: BaseModel[], search?: Object, options?: IDaoFetchOptions, includes?: Object[], transaction?: Object): Promise<any>;
+    create(object: Object, transaction?: Object): Promise<any>;
+    create(object: Object[], transaction?: Object): Promise<any>;
+    update(criteria: Object, newValues: any, transaction?: Object): Promise<any>;
+    update(criteria: number, newValues: any, transaction?: Object): Promise<any>;
+    delete(criteria: number, softDelete?: boolean, transaction?: Object): Promise<any>;
+    delete(criteria: Object, softDelete?: boolean, transaction?: Object): Promise<any>;
+    save(object: Object, dbTransaction?: Object): Promise<any>;
 }
 
 
@@ -751,17 +696,16 @@ export class LocalizationDelegate {
 }
 
 
-
 export class MysqlDelegate {
     private static pool;
     private logger;
     constructor(host?: string, database?: string, user?: string, password?: string, socketPath?: string);
-    createConnection(host: string, user: string, password: string, socketPath: string): q.Promise<any>;
-    getConnectionFromPool(): q.Promise<any>;
-    beginTransaction(transaction?: Object): q.Promise<any>;
-    executeQuery(query: string, parameters?: any[], connection?: any): q.Promise<any>;
-    executeInTransaction(thisArg: any, args?: IArguments): q.Promise<any>;
-    commit(transaction: any, result?: any): q.Promise<any>;
+    createConnection(host: string, user: string, password: string, socketPath: string): Promise<any>;
+    getConnectionFromPool(): Promise<any>;
+    beginTransaction(transaction?: Object): Promise<any>;
+    executeQuery(query: string, parameters?: any[], connection?: any): Promise<any>;
+    executeInTransaction(thisArg: any, args?: IArguments): Promise<any>;
+    commit(transaction: any, result?: any): Promise<any>;
 }
 
 
@@ -775,6 +719,13 @@ export class Formatter {
     static getNameInitials(firstName?: string, lastName?: string): string;
     static formatEmail(email: string, firstName?: string, lastName?: string, title?: Salutation): string;
     static formatTimezone(offset: any): string;
+}
+
+
+
+export class sqlToModel {
+    static sqlTypeToJsType(value: any): string;
+    static sqlToObject(sql: string): Object;
 }
 
 
@@ -799,17 +750,9 @@ export class Utils {
     static escapeObject(Obj: Object[]): Object[];
     static unEscapeObject(obj: Object): Object;
     static unEscapeObject(obj: Object[]): Object[];
-    static setLongerTimeout(func: Function, interval: number, ...args: any[]): any;
+    static setLongerTimeout(func: (...args: any[]) => void, interval: number, ...args: any[]): any;
     static generateUrl(urlPattern: string, values?: Object, baseUrl?: string): string;
     static removeParameterFromUrl(urlPattern: string): string;
-}
-
-
-
-export class sqlToModel {
-    static sqlTypeToJsType(value: any): string;
-    static sqlToObject(sql: string): Object;
-    static sqlToModel(sql: string): string;
 }
 
 

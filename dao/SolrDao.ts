@@ -25,30 +25,29 @@ class SolrDao implements IDao
         new modelClass();
     }
 
-    create(data:Object[]):q.Promise<any>;
-    create(data:Object):q.Promise<any>;
-    create(data:any):q.Promise<any>
+    create(data:Object[]):Promise<any>;
+    create(data:Object):Promise<any>;
+    create(data:any):Promise<any>
     {
         var self = this;
-        var deferred = q.defer<any>();
 
-        this.solrClient.add(data, function(err:Error, obj:Object)
-        {
-            if (!Utils.isNullOrEmpty(err))
-                deferred.reject(err);
-            else
-                self.solrClient.commit(function(err:Error, obj:Object)
-                {
-                    deferred.resolve(obj);
-                });
+        return new Promise<any>((resolve, reject) => {
+            self.solrClient.add(data, function(err:Error, obj:Object)
+            {
+                if (!Utils.isNullOrEmpty(err))
+                    reject(err);
+                else
+                    self.solrClient.commit(function(err:Error, obj:Object)
+                    {
+                        resolve(obj);
+                    });
+            });
         });
-
-        return deferred.promise;
     }
 
-    get(id:any, options?:IDaoFetchOptions):q.Promise<any>;
-    get(id:number, options?:IDaoFetchOptions):q.Promise<any>;
-    get(id:any, options?:IDaoFetchOptions):q.Promise<any>
+    get(id:any, options?:IDaoFetchOptions):Promise<any>;
+    get(id:number, options?:IDaoFetchOptions):Promise<any>;
+    get(id:any, options?:IDaoFetchOptions):Promise<any>
     {
         var self = this;
         if (Utils.getObjectType(id) == 'Array' && id.length > 1)
@@ -79,9 +78,8 @@ class SolrDao implements IDao
         }
     }
 
-    search(searchQuery:Object, options:IDaoFetchOptions = {}):q.Promise<any>
+    search(searchQuery:Object, options:IDaoFetchOptions = {}):Promise<any>
     {
-        var deferred = q.defer<any>();
         var self = this;
         var solrQuery = this.solrClient.createQuery();
 
@@ -93,7 +91,7 @@ class SolrDao implements IDao
         var queryStatements = self.generateWhereStatement(searchQuery);
 
         if(queryStatements.length == 0)
-            deferred.reject('Empty Search is not allowed.');
+            throw('Empty Search is not allowed.');
         else
             solrQuery.q(queryStatements.join(' AND '));
 
@@ -103,21 +101,21 @@ class SolrDao implements IDao
         if (!Utils.isNullOrEmpty(options.sort))
             _.each(options.sort, solrQuery.sort, solrQuery);
 
-        this.solrClient.search(solrQuery, function(err:Error, obj:Object)
-        {
-            if (!Utils.isNullOrEmpty(err))
-                deferred.reject(err);
-            else
-                deferred.resolve(_.map(obj['response']['docs'], function(doc)
-                {
-                    return new self.modelClass(doc);
-                }));
+        return new Promise<any>((resolve, reject) => {
+            self.solrClient.search(solrQuery, function(err:Error, obj:any)
+            {
+                if (!Utils.isNullOrEmpty(err))
+                    reject(err);
+                else
+                    resolve(_.map(obj.response.docs, function(doc)
+                    {
+                        return new self.modelClass(doc);
+                    }));
+            });
         });
-
-        return deferred.promise;
     }
 
-    find(searchQuery:Object, options:IDaoFetchOptions = {}):q.Promise<any>
+    find(searchQuery:Object, options:IDaoFetchOptions = {}):Promise<any>
     {
         var self = this;
         options.max = 1;
@@ -138,54 +136,47 @@ class SolrDao implements IDao
             });
     }
 
-    update(criteria:number, newValues:any):q.Promise<any>;
-    update(criteria:Object, newValues:any):q.Promise<any>;
-    update(criteria:any, newValues:any):q.Promise<any>
+    async update(criteria:number, newValues:any):Promise<any>;
+    async update(criteria:Object, newValues:any):Promise<any>;
+    async update(criteria:any, newValues:any):Promise<any>
     {
-        var deferred = q.defer<any>();
         var self = this;
 
-        self.find(criteria, {fields: ['id', '_version_']})
-            .then(
-            function documentFetched(document)
+        var document = await self.find(criteria, {fields: ['id', '_version_']})
+        newValues['_version_'] = document['_version_'];
+        newValues['id'] = document['id'];
+
+        return new Promise<string>((resolve, reject) => {
+            self.solrClient.add(newValues, function(err:Error, obj:any)
             {
-                //newValues = newValues.toJson();
-                newValues['_version_'] = document['_version_'];
-                newValues['id'] = document['id'];
-
-                self.solrClient.add(newValues, function(err:Error, obj:Object)
-                {
-                    if (!Utils.isNullOrEmpty(err))
-                        deferred.reject(err);
-                    else
-                        self.solrClient.commit(function(err:Error, obj:Object)
-                        {
-                            deferred.resolve(obj);
-                        });
-                });
+                if (!Utils.isNullOrEmpty(err))
+                    reject(err);
+                else
+                    self.solrClient.commit(function(err:Error, obj:any)
+                    {
+                        resolve(obj);
+                    });
             });
-
-        return deferred.promise;
+        });
     }
 
-    delete(criteria:number):q.Promise<any>;
-    delete(criteria:Object):q.Promise<any>;
-    delete(criteria:any):q.Promise<any>
+    delete(criteria:number):Promise<any>;
+    delete(criteria:Object):Promise<any>;
+    delete(criteria:any):Promise<any>
     {
-        var deferred = q.defer<any>();
-
         var solrQuery = this.solrClient.createQuery();
         solrQuery.q(criteria);
+        var self = this;
 
-        this.solrClient.deleteByQuery(solrQuery.build(), function(err:Error, obj:Object)
-        {
-            if (!Utils.isNullOrEmpty(err))
-                deferred.reject(err);
-            else
-                deferred.resolve(obj);
+        return new Promise<string>((resolve, reject) => {
+            self.solrClient.deleteByQuery(solrQuery.build(), function(err:Error, obj:any)
+            {
+                if (!Utils.isNullOrEmpty(err))
+                    reject(err);
+                else
+                    resolve(obj);
+            });
         });
-
-        return deferred.promise;
     }
 
     /** Helper method to convert query objects to SQL fragments **/

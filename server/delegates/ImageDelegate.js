@@ -1,16 +1,18 @@
-var q = require('q');
-var fs = require('fs');
-var http = require('http');
-var ImageSize = require('../enums/ImageSize');
+"use strict";
+const q = require("q");
+const fs = require("fs");
+const http = require("http");
+const ImageSize = require("../enums/ImageSize");
 var gm = require('gm');
-var ImageDelegate = (function () {
-    function ImageDelegate() {
+class ImageDelegate {
+    constructor() {
         this.imageMagick = gm.subClass({ imageMagick: true });
     }
-    ImageDelegate.prototype.resize = function (srcImagePath, outputPath, outputSize) {
+    resize(srcImagePath, outputPath, outputSize) {
         var deferred = q.defer();
         try {
-            this.imageMagick(srcImagePath).size(function doResize(err, size) {
+            this.imageMagick(srcImagePath)
+                .size(function doResize(err, size) {
                 if (err)
                     return deferred.reject(err);
                 if (size.width >= size.height && size.width > outputSize)
@@ -29,8 +31,8 @@ var ImageDelegate = (function () {
             deferred.reject(error);
         }
         return deferred.promise;
-    };
-    ImageDelegate.prototype.delete = function (srcImagePath) {
+    }
+    delete(srcImagePath) {
         var deferred = q.defer();
         fs.unlink(srcImagePath, function (err) {
             if (err)
@@ -39,10 +41,10 @@ var ImageDelegate = (function () {
                 deferred.resolve(srcImagePath);
         });
         return deferred.promise;
-    };
-    ImageDelegate.prototype.move = function (oldPath, newPath) {
+    }
+    move(oldPath, newPath) {
         var deferred = q.defer();
-        this.resize(oldPath, newPath, 50 /* SMALL */);
+        this.resize(oldPath, newPath, ImageSize.SMALL);
         fs.rename(oldPath, newPath, function (err) {
             if (err)
                 deferred.reject(err);
@@ -50,8 +52,8 @@ var ImageDelegate = (function () {
                 deferred.resolve('Moved ' + oldPath + ' to ' + newPath);
         });
         return deferred.promise;
-    };
-    ImageDelegate.prototype.fetch = function (imageUrl, tempPath) {
+    }
+    fetch(imageUrl, tempPath) {
         var deferred = q.defer();
         var file = fs.createWriteStream(tempPath);
         var request = http.get(imageUrl, function (response) {
@@ -66,8 +68,7 @@ var ImageDelegate = (function () {
                 deferred.reject('Error ');
         });
         return deferred.promise;
-    };
-    return ImageDelegate;
-})();
+    }
+}
 module.exports = ImageDelegate;
 //# sourceMappingURL=ImageDelegate.js.map

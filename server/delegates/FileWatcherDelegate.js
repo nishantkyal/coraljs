@@ -1,8 +1,9 @@
-var _ = require('underscore');
-var watch = require('watch');
-var Utils = require('../common/Utils');
-var FileWatcherDelegate = (function () {
-    function FileWatcherDelegate(path, filters, initHandler, createHandler, updateHandler, deleteHandler) {
+"use strict";
+const _ = require("underscore");
+const watch = require("watch");
+const Utils = require("../common/Utils");
+class FileWatcherDelegate {
+    constructor(path, filters, initHandler, createHandler, updateHandler, deleteHandler) {
         watch.createMonitor(path, {
             filter: function (file) {
                 return _.find(filters, function (filter) {
@@ -21,7 +22,6 @@ var FileWatcherDelegate = (function () {
                 monitor.on("changed", updateHandler);
         });
     }
-    return FileWatcherDelegate;
-})();
+}
 module.exports = FileWatcherDelegate;
 //# sourceMappingURL=FileWatcherDelegate.js.map

@@ -9,7 +9,7 @@ import Utils                                                = require('../common
 
 class BaseMappingDao extends MysqlDao
 {
-    search(searchQuery:Object, options:IDaoFetchOptions, transaction?:Object):q.Promise<any>
+    async search(searchQuery:Object, options:IDaoFetchOptions, transaction?:Object):Promise<any>
     {
         // Create join query to fetch the mapped resource automatically
         var fk:ForeignKey = this.modelClass['FOREIGN_KEYS'][0];
@@ -64,7 +64,7 @@ class BaseMappingDao extends MysqlDao
                     return typedMappingObject;
                 });
             })
-            .fail(
+            .catch(
             function handleFailure(error:Error)
             {
                 self.logger.error('SEARCH failed for mapping table: %s, criteria: %s, error: %s', self.tableName, JSON.stringify(searchQuery), error.message);

@@ -10,12 +10,10 @@ import BaseModel = require("./models/BaseModel");
 import BaseS3Model = require("./models/BaseS3Model");
 import ForeignKey = require("./models/ForeignKey");
 import SolrDao = require("./dao/SolrDao");
-import S3Dao = require("./dao/S3Dao");
 import MysqlDao = require("./dao/MysqlDao");
 import BaseMappingDao = require("./dao/BaseMappingDao");
 import BaseDaoDelegate = require("./delegates/BaseDaoDelegate");
 import BaseApi = require("./api/BaseApi");
-import BaseMappingDaoDelegate = require("./delegates/BaseMappingDaoDelegate");
 import FileWatcherDelegate = require("./delegates/FileWatcherDelegate");
 import GlobalIDDelegate = require("./delegates/GlobalIDDelegate");
 import ImageDelegate = require("./delegates/ImageDelegate");
@@ -38,12 +36,10 @@ var exported = {
     BaseS3Model: BaseS3Model,
     ForeignKey: ForeignKey,
     SolrDao: SolrDao,
-    S3Dao: S3Dao,
     MysqlDao: MysqlDao,
     BaseMappingDao: BaseMappingDao,
     BaseDaoDelegate: BaseDaoDelegate,
     BaseApi: BaseApi,
-    BaseMappingDaoDelegate: BaseMappingDaoDelegate,
     FileWatcherDelegate: FileWatcherDelegate,
     GlobalIDDelegate: GlobalIDDelegate,
     ImageDelegate: ImageDelegate,

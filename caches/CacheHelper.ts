@@ -13,11 +13,11 @@ class CacheHelper
     constructor(host:string, port:number)
     {
         // We're going to maintain just one connection to redis since both node and redis are single threaded
-        this.connection = redis.createClient(port, host, {connect_timeout: 60000});
+        this.connection = redis.createClient(port, host);
         this.connection.on('error', function (error)
         {
-            console.log(error);
-        })
+            throw(error);
+        });
     }
 
     getConnection():redis.RedisClient { return this.connection; }

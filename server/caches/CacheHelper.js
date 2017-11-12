@@ -1,19 +1,17 @@
-var _ = require('underscore');
-var q = require('q');
-var redis = require('redis');
-var Utils = require('../common/Utils');
-var CacheHelper = (function () {
-    function CacheHelper(host, port) {
-        this.connection = redis.createClient(port, host, { connect_timeout: 60000 });
+"use strict";
+const _ = require("underscore");
+const q = require("q");
+const redis = require("redis");
+const Utils = require("../common/Utils");
+class CacheHelper {
+    constructor(host, port) {
+        this.connection = redis.createClient(port, host);
         this.connection.on('error', function (error) {
-            console.log(error);
+            throw (error);
         });
     }
-    CacheHelper.prototype.getConnection = function () {
-        return this.connection;
-    };
-    CacheHelper.prototype.set = function (key, value, expiry, overwrite) {
-        if (overwrite === void 0) { overwrite = false; }
+    getConnection() { return this.connection; }
+    set(key, value, expiry, overwrite = false) {
         var deferred = q.defer();
         var self = this;
         var args = [key, JSON.stringify(value)];
@@ -28,8 +26,8 @@ var CacheHelper = (function () {
                 deferred.resolve(result);
         });
         return deferred.promise;
-    };
-    CacheHelper.prototype.mget = function (keys) {
+    }
+    mget(keys) {
         var deferred = q.defer();
         if (Utils.isNullOrEmpty(keys))
             return q.resolve(keys);
@@ -43,8 +41,8 @@ var CacheHelper = (function () {
             }));
         });
         return deferred.promise;
-    };
-    CacheHelper.prototype.get = function (key) {
+    }
+    get(key) {
         var deferred = q.defer();
         if (Utils.isNullOrEmpty(key))
             return q.resolve(key);
@@ -56,8 +54,8 @@ var CacheHelper = (function () {
             deferred.resolve(JSON.parse(result));
         });
         return deferred.promise;
-    };
-    CacheHelper.prototype.del = function (key) {
+    }
+    del(key) {
         var deferred = q.defer();
         this.getConnection().del(key, function (error, result) {
             if (error)
@@ -66,13 +64,14 @@ var CacheHelper = (function () {
                 deferred.resolve(result);
         });
         return deferred.promise;
-    };
-    CacheHelper.prototype.createHash = function (set, values, keyFieldName, expiry) {
+    }
+    createHash(set, values, keyFieldName, expiry) {
         var self = this;
         var deferred = q.defer();
         var clonedValues = JSON.parse(JSON.stringify(values));
         var row = clonedValues.shift();
-        this.addToHash(set, row[keyFieldName], row).then(function (result) {
+        this.addToHash(set, row[keyFieldName], row)
+            .then(function (result) {
             if (clonedValues.length == 0) {
                 if (expiry > 0)
                     setInterval(function () {
@@ -84,11 +83,12 @@ var CacheHelper = (function () {
                 return self.createHash(set, clonedValues, keyFieldName, expiry);
         });
         return deferred.promise;
-    };
-    CacheHelper.prototype.addToHash = function (set, key, value) {
+    }
+    addToHash(set, key, value) {
         var self = this;
         var deferred = q.defer();
-        this.delFromHash(set, key).then(function () {
+        this.delFromHash(set, key)
+            .then(function () {
             self.getConnection().hset(set, key, JSON.stringify(value), function (error, result) {
                 if (error)
                     deferred.reject(error);
@@ -97,8 +97,8 @@ var CacheHelper = (function () {
             });
         });
         return deferred.promise;
-    };
-    CacheHelper.prototype.getHashValues = function (set) {
+    }
+    getHashValues(set) {
         var deferred = q.defer();
         var self = this;
         self.getConnection().hvals(set, function (error, result) {
@@ -114,8 +114,8 @@ var CacheHelper = (function () {
                 deferred.reject(error);
         });
         return deferred.promise;
-    };
-    CacheHelper.prototype.getHashKeys = function (set) {
+    }
+    getHashKeys(set) {
         var deferred = q.defer();
         this.getConnection().hkeys(set, function (error, result) {
             if (error)
@@ -124,17 +124,14 @@ var CacheHelper = (function () {
                 deferred.resolve(result);
         });
         return deferred.promise;
-    };
-    CacheHelper.prototype.getHash = function (set) {
+    }
+    getHash(set) {
         var self = this;
         return q.all([
             self.getHashKeys(set),
             self.getHashValues(set)
-        ]).then(function valuesFetched() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i - 0] = arguments[_i];
-            }
+        ])
+            .then(function valuesFetched(...args) {
             var keys = args[0][0];
             var values = args[0][1];
             var indexed = {};
@@ -143,8 +140,8 @@ var CacheHelper = (function () {
             });
             return indexed;
         });
-    };
-    CacheHelper.prototype.getFromHash = function (set, key) {
+    }
+    getFromHash(set, key) {
         var deferred = q.defer();
         this.getConnection().hget(set, key, function (error, result) {
             if (error)
@@ -157,8 +154,8 @@ var CacheHelper = (function () {
                 deferred.resolve(JSON.parse(result));
         });
         return deferred.promise;
-    };
-    CacheHelper.prototype.delFromHash = function (set, key) {
+    }
+    delFromHash(set, key) {
         var deferred = q.defer();
         this.getConnection().hdel(set, key, function (error, result) {
             if (error)
@@ -167,11 +164,12 @@ var CacheHelper = (function () {
                 deferred.resolve(result);
         });
         return deferred.promise;
-    };
-    CacheHelper.prototype.addToOrderedSet = function (set, key, value) {
+    }
+    addToOrderedSet(set, key, value) {
         var deferred = q.defer();
         var self = this;
-        this.delFromOrderedSet(set, key).then(function () {
+        this.delFromOrderedSet(set, key)
+            .then(function () {
             self.getConnection().hset(set, key, JSON.stringify(value), function (error, result) {
                 if (error)
                     deferred.reject(error);
@@ -180,21 +178,22 @@ var CacheHelper = (function () {
             });
         });
         return deferred.promise;
-    };
-    CacheHelper.prototype.addMultipleToOrderedSet = function (set, values, keyFieldName) {
+    }
+    addMultipleToOrderedSet(set, values, keyFieldName) {
         var self = this;
         var deferred = q.defer();
         var clonedValues = JSON.parse(JSON.stringify(values));
         var row = clonedValues.shift();
-        this.addToOrderedSet(set, row[keyFieldName], row).then(function () {
+        this.addToOrderedSet(set, row[keyFieldName], row)
+            .then(function () {
             if (clonedValues.length == 0)
                 deferred.resolve(null);
             else
                 self.addMultipleToOrderedSet(set, clonedValues, keyFieldName);
         });
         return deferred.promise;
-    };
-    CacheHelper.prototype.getOrderedSet = function (set) {
+    }
+    getOrderedSet(set) {
         var self = this;
         var deferred = q.defer();
         this.getConnection().zcard(set, function (err, count) {
@@ -206,8 +205,8 @@ var CacheHelper = (function () {
             });
         });
         return deferred.promise;
-    };
-    CacheHelper.prototype.getFromOrderedSet = function (set, key) {
+    }
+    getFromOrderedSet(set, key) {
         var deferred = q.defer();
         this.getConnection().zrevrangebyscore(set, key, key, function (error, result) {
             if (error)
@@ -216,8 +215,8 @@ var CacheHelper = (function () {
                 deferred.resolve(result);
         });
         return deferred.promise;
-    };
-    CacheHelper.prototype.delFromOrderedSet = function (set, key) {
+    }
+    delFromOrderedSet(set, key) {
         var deferred = q.defer();
         this.getConnection().zremrangebyscore(set, key, key, function (error, result) {
             if (error)
@@ -230,8 +229,8 @@ var CacheHelper = (function () {
                 }
         });
         return deferred.promise;
-    };
-    CacheHelper.prototype.setExpiry = function (key, expiry) {
+    }
+    setExpiry(key, expiry) {
         var deferred = q.defer();
         this.getConnection().expire(key, expiry, function (error, result) {
             if (error)
@@ -240,8 +239,8 @@ var CacheHelper = (function () {
                 deferred.resolve(result);
         });
         return deferred.promise;
-    };
-    CacheHelper.prototype.incrementCounter = function (counterName) {
+    }
+    incrementCounter(counterName) {
         var deferred = q.defer();
         this.getConnection().incr(counterName, function (error, result) {
             if (error)
@@ -250,9 +249,8 @@ var CacheHelper = (function () {
                 deferred.resolve(result);
         });
         return deferred.promise;
-    };
-    CacheHelper.prototype.incrementHashKey = function (hash, counterName, increment) {
-        if (increment === void 0) { increment = 1; }
+    }
+    incrementHashKey(hash, counterName, increment = 1) {
         var deferred = q.defer();
         this.getConnection().hincrby(hash, counterName, increment, function (error, result) {
             if (error)
@@ -261,8 +259,8 @@ var CacheHelper = (function () {
                 deferred.resolve(result);
         });
         return deferred.promise;
-    };
-    CacheHelper.prototype.getKeys = function (nameOrPattern) {
+    }
+    getKeys(nameOrPattern) {
         var deferred = q.defer();
         this.getConnection().keys(nameOrPattern, function (error, result) {
             if (error)
@@ -271,8 +269,8 @@ var CacheHelper = (function () {
                 deferred.resolve(result);
         });
         return deferred.promise;
-    };
-    CacheHelper.prototype.addToSet = function (set, key) {
+    }
+    addToSet(set, key) {
         var deferred = q.defer();
         this.getConnection().sadd(set, key, function (error, result) {
             if (error)
@@ -281,8 +279,8 @@ var CacheHelper = (function () {
                 deferred.resolve(result);
         });
         return deferred.promise;
-    };
-    CacheHelper.prototype.isMemberOfSet = function (set, key) {
+    }
+    isMemberOfSet(set, key) {
         var deferred = q.defer();
         this.getConnection().sismember(set, key, function (error, result) {
             if (error)
@@ -291,8 +289,8 @@ var CacheHelper = (function () {
                 deferred.resolve(result);
         });
         return deferred.promise;
-    };
-    CacheHelper.prototype.removeFromSet = function (set, key) {
+    }
+    removeFromSet(set, key) {
         var deferred = q.defer();
         this.getConnection().srem(set, key, function (error, result) {
             if (error)
@@ -301,8 +299,7 @@ var CacheHelper = (function () {
                 deferred.resolve(result);
         });
         return deferred.promise;
-    };
-    return CacheHelper;
-})();
+    }
+}
 module.exports = CacheHelper;
 //# sourceMappingURL=CacheHelper.js.map

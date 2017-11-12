@@ -70,16 +70,20 @@ class AbstractModel
         _.each(thisProtoConstructor['COLUMNS'], function (column:string)
         {
             var setterMethod:string = 'set' + Utils.snakeToCamelCase(column);
-            if (!Utils.isNullOrEmpty(data[column]))
-                self[setterMethod].call(self, data[column]);
-        });
+            var columnData = data[thisProtoConstructor['COL_' + column.toUpperCase()]];
+
+            if (!Utils.isNullOrEmpty(columnData))
+                self[setterMethod].call(self, columnData);
+        }, self);
 
         _.each(thisProtoConstructor['FK_COLUMNS'], function (column:string)
         {
             var setterMethod:string = 'set' + Utils.snakeToCamelCase(column);
-            if (!Utils.isNullOrEmpty(data[column]))
-                self[setterMethod].call(self, data[column]);
-        });
+            var columnData = data[thisProtoConstructor['COL_' + column.toUpperCase()]];
+
+            if (!Utils.isNullOrEmpty(columnData))
+                self[setterMethod].call(self, columnData);
+        }, self);
     }
 
     toJson():any
@@ -157,7 +161,7 @@ class AbstractModel
                 return q.resolve(this[srcPropertyName]);
 
             self.logger.debug('Lazily Finding %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);
-            return fk.referenced_table.DELEGATE.find(Utils.createSimpleObject(fk.target_key, this[fk.src_key]))
+            var result = fk.referenced_table.DELEGATE.find(Utils.createSimpleObject(fk.target_key, this[fk.src_key]))
                 .then(
                 function success(result)
                 {
@@ -168,7 +172,7 @@ class AbstractModel
                 {
                     return self[getterMethod].call(self);
                 })
-                .fail(
+                .catch(
                 function handleFailure(error:Error)
                 {
                     self.logger.debug('Lazy loading failed for find %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);
@@ -216,7 +220,7 @@ class AbstractModel
                 {
                     return self[getterMethod].call(self);
                 })
-                .fail(
+                .catch(
                 function handleFailure(error:Error)
                 {
                     self.logger.debug('Lazy loading failed for search %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);

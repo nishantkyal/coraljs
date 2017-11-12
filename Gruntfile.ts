@@ -58,6 +58,8 @@ function init(grunt)
                 "outDir": "server",
                 "options": {
                     "module": "commonjs",
+                    "target": "es2016",
+                    "lib": ["es2016"],
                     sourceMap: true,
                     declaration: true
                 }
@@ -67,6 +69,8 @@ function init(grunt)
                 "outDir": "client",
                 "options": {
                     "module": "amd",
+                    "target": "es2016",
+                    "lib": ["ES2015"],
                     sourceMap: true
                 }
             }
@@ -174,7 +178,7 @@ function init(grunt)
         });
     });
 
-    grunt.registerTask('default', ['clean', 'ts', 'concat', 'replace']);
+    grunt.registerTask('default', ['clean', 'ts:server', 'concat', 'replace']);
     grunt.registerTask('publish', ['prompt:bump', 'bump']);
 }
 export = init;

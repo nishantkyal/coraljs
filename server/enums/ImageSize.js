@@ -1,3 +1,4 @@
+"use strict";
 var ImageSize;
 (function (ImageSize) {
     ImageSize[ImageSize["SMALL"] = 50] = "SMALL";
