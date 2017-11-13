@@ -1,6 +1,6 @@
 {
   "name": "coraljs",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": false,
   "main": "server/index.js",
   "types": "coraljs.d.ts",

@@ -21,7 +21,7 @@ function init(grunt)
         concat: {
             coral: {
                 src: ['server/enums/*.d.ts', 'server/models/*.d.ts', 'server/dao/*.d.ts', 'server/delegates/*.d.ts', 'server/common/*.d.ts', 'server/caches/*.d.ts', 'server/api/*.d.ts'],
-                dest: 'coraljs.d.ts',
+                dest: 'index.d.ts',
                 options: {
                     banner: "declare module 'coraljs'\n{\nimport q = require(\"q\");\nimport log4js = require(\"log4js\");\nimport redis = require(\"redis\");\nimport express = require(\"express\");\n\n",
                     footer: '}'
@@ -30,7 +30,7 @@ function init(grunt)
         },
         replace: {
             'coral-ts': {
-                src: ['coraljs.d.ts'],
+                src: ['index.d.ts'],
                 overwrite: true,
                 replacements: [
                     {
