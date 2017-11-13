@@ -1,9 +1,10 @@
 {
   "name": "coraljs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": false,
   "main": "server/index.js",
-  "typings": "coraljs.d.ts",
+  "types": "coraljs.d.ts",
+  "url": "https://github.com/nishantkyal/coraljs",
   "dependencies": {
     "connect": "*",
     "connect-flash": "*",

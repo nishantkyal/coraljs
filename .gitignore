@@ -1,8 +1,6 @@
-.DS_Store
 .idea
 *.d.ts
 *.html
-!.gitignore
 !_references.d.ts
 !coraljs.d.ts
 node_modules
