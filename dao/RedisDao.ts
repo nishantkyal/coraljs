@@ -1,8 +1,6 @@
-///<reference path='../_references.d.ts'/>
 import IDao                                                 = require('./IDao');
 import IDaoFetchOptions                                     = require('./IDaoFetchOptions');
 import AbstractModel                                        = require('../models/AbstractModel');
-import q                                                    = require('q');
 
 class RedisDao implements IDao
 {

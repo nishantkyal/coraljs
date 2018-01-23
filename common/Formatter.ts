@@ -1,4 +1,3 @@
-///<reference path='../_references.d.ts'/>
 import moment                                                       = require('moment');
 import moment_timezone                                              = require('moment-timezone');
 import Salutation                                                   = require('../enums/Salutation');

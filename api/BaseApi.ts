@@ -1,7 +1,5 @@
-///<reference path='../_references.d.ts'/>
 import _                                                = require('underscore');
 import express                                          = require('express');
-import q                                                = require('q');
 
 class BaseApi
 {
@@ -21,7 +19,7 @@ class BaseApi
         return null;
     }
 
-    promiseMiddleware(handler:(...args)=>q.Promise<any>)
+    promiseMiddleware(handler:(...args)=>Promise<any>)
     {
         var handlerSignature = handler.toString();
         var handlerArgs = handlerSignature.match(/\((.*)\)/)[1].split(",");

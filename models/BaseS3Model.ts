@@ -1,4 +1,3 @@
-///<reference path='../_references.d.ts'/>
 import AbstractModel                                        = require('./AbstractModel');
 import Utils                                                = require('../common/Utils');
 

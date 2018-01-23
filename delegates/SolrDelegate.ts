@@ -1,4 +1,3 @@
-///<reference path='../_references.d.ts'/>
 import solr_client                                      = require('solr-client');
 import http                                             = require('http');
 

@@ -1,4 +1,3 @@
-///<reference path='../_references.d.ts'/>
 import _                    = require('underscore');
 import Utils                = require('./Utils');
 

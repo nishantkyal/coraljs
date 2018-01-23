@@ -1,6 +1,6 @@
 {
   "name": "coraljs",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "private": false,
   "main": "server/index.js",
   "types": "coraljs.d.ts",
@@ -27,7 +27,6 @@
     "nodeunit": "*",
     "oauth2orize": "*",
     "oauth": "*",
-    "q": "0.9.7",
     "redis": "0.10.0",
     "request": "*",
     "underscore": "1.5.2",
@@ -37,6 +36,8 @@
     "aws-sdk": "*",
     "solr-client": "*",
     "semver": "4.3.4",
-    "typescript": "2.4.1"
+    "typescript": "2.4.1",
+    "@types/mysql": "^2.15.2",
+    "@types/underscore": "^1.8.7"
   }
 }

@@ -1,6 +1,4 @@
-///<reference path='../_references.d.ts'/>
 import mysql                                        = require('mysql');
-import q                                            = require('q');
 import _                                            = require('underscore');
 import log4js                                       = require('log4js');
 import IDao                                         = require('../dao/IDao');
@@ -36,9 +34,9 @@ class MysqlDao implements IDao {
      * @param data
      * @param transaction
      */
-    async create(data: Object[], transaction?: Object): Promise<any>
-    async create(data: Object, transaction?: Object): Promise<any>
-    async create(data: any, transaction?: Object): Promise<any> {
+    async create(data: Object[], transaction?: mysql.Connection): Promise<any>
+    async create(data: Object, transaction?: mysql.Connection): Promise<any>
+    async create(data: any, transaction?: mysql.Connection): Promise<any> {
         var self = this;
         var dataAsArray = [].concat(data);
 
@@ -91,9 +89,9 @@ class MysqlDao implements IDao {
      * @param id
      * @param fields
      */
-    async get(id: number[], options?: IDaoFetchOptions, transaction?: Object): Promise<any>;
-    async get(id: number, options?: IDaoFetchOptions, transaction?: Object): Promise<any>;
-    async get(id: any, options?: IDaoFetchOptions, transaction?: Object): Promise<any> {
+    async get(id: number[], options?: IDaoFetchOptions, transaction?: mysql.Connection): Promise<any>;
+    async get(id: number, options?: IDaoFetchOptions, transaction?: mysql.Connection): Promise<any>;
+    async get(id: any, options?: IDaoFetchOptions, transaction?: mysql.Connection): Promise<any> {
         var self = this;
         if (Utils.getObjectType(id) == 'Array' && id.length > 1)
             return this.search({id: id}, options, transaction);
@@ -125,7 +123,7 @@ class MysqlDao implements IDao {
      * @param fields
      * @returns {"q".Promise<U>|"q".Promise<undefined>|"q".Promise<any>}
      */
-    async search(searchQuery?: Object, options: IDaoFetchOptions = {}, transaction?: Object): Promise<any> {
+    async search(searchQuery?: Object, options: IDaoFetchOptions = {}, transaction?: mysql.Connection): Promise<any> {
         var self = this;
         var whereStatements = this.generateWhereStatements(searchQuery);
         var wheres = whereStatements.where;
@@ -183,7 +181,7 @@ class MysqlDao implements IDao {
      * @param fields
      * @returns {"q".Promise<U>|"q".Promise<undefined>|"q".Promise<any|null>}
      */
-    async find(searchQuery: Object, options?: IDaoFetchOptions, transaction?: Object): Promise<any> {
+    async find(searchQuery: Object, options?: IDaoFetchOptions, transaction?: mysql.Connection): Promise<any> {
         var self = this;
         options.max = 1;
 
@@ -206,9 +204,9 @@ class MysqlDao implements IDao {
      * @param newValues
      * @param transaction
      */
-    async update(criteria: number, newValues: any, transaction?: Object): Promise<any>;
-    async update(criteria: Object, newValues: any, transaction?: Object): Promise<any>;
-    async update(criteria: any, newValues: any, transaction?: Object): Promise<any> {
+    async update(criteria: number, newValues: any, transaction?: mysql.Connection): Promise<any>;
+    async update(criteria: Object, newValues: any, transaction?: mysql.Connection): Promise<any>;
+    async update(criteria: any, newValues: any, transaction?: mysql.Connection): Promise<any> {
         var self = this;
 
         if (Utils.getObjectType(criteria) == 'Number')
@@ -237,7 +235,7 @@ class MysqlDao implements IDao {
         var query = 'UPDATE `' + this.tableName + '` SET ' + updates.join(",") + ' WHERE ' + wheres.join(" AND ");
 
         try {
-            var result: mysql.OkPacket = await self.mysqlDelegate.executeQuery(query, values, transaction);
+            var result: any = await self.mysqlDelegate.executeQuery(query, values, transaction);
             if (result.affectedRows == 0)
                 self.logger.info('Update did not change any rows in table - %s, for criteria - %s and values - %s', self.tableName, wheres.join(' AND'), values.join(','));
         } catch (error) {
@@ -252,9 +250,9 @@ class MysqlDao implements IDao {
      * @param criteria
      * @param transaction
      */
-    async delete(criteria: number, transaction?: Object): Promise<any>;
-    async delete(criteria: Object, transaction?: Object): Promise<any>;
-    async delete(criteria: any, transaction?: Object): Promise<any> {
+    async delete(criteria: number, transaction?: mysql.Connection): Promise<any>;
+    async delete(criteria: Object, transaction?: mysql.Connection): Promise<any>;
+    async delete(criteria: any, transaction?: mysql.Connection): Promise<any> {
         var self = this;
 
         if (Utils.getObjectType(criteria) == 'Number')

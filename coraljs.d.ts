@@ -1,6 +1,5 @@
 declare module 'coraljs'
 {
-import q = require("q");
 import log4js = require("log4js");
 import redis = require("redis");
 import express = require("express");

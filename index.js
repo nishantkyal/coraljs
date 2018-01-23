@@ -1,5 +1,4 @@
 "use strict";
-///<reference path='./_references.d.ts'/>
 const CountryCode = require("./enums/CountryCode");
 const CountryName = require("./enums/CountryName");
 const DayName = require("./enums/DayName");

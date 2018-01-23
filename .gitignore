@@ -1,7 +1,6 @@
 .idea
 *.d.ts
 *.html
-!_references.d.ts
 !coraljs.d.ts
 node_modules
 npm-debug.log

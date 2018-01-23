@@ -1,4 +1,3 @@
-///<reference path='../_references.d.ts'/>
 import log4js                                       = require('log4js');
 import _                                            = require('underscore');
 import URI                                          = require('URIjs');

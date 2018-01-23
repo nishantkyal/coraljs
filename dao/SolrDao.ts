@@ -1,5 +1,3 @@
-///<reference path='../_references.d.ts'/>
-import q                                            = require('q');
 import _                                            = require('underscore');
 import log4js                                       = require('log4js');
 import solr_client                                  = require('solr-client');
@@ -11,12 +9,12 @@ import Utils                                        = require('../common/Utils')
 
 class SolrDao implements IDao
 {
-    private solrClient:Solr.SolrClient;
+    private solrClient:solr_client.SolrClient;
     public modelClass:typeof AbstractModel;
     public tableName:string;
     public logger:log4js.Logger = log4js.getLogger(Utils.getClassName(this));
 
-    constructor(modelClass:typeof AbstractModel, solrClient:Solr.SolrClient)
+    constructor(modelClass:typeof AbstractModel, solrClient:solr_client.SolrClient)
     {
         this.solrClient = solrClient;
         this.modelClass = modelClass;

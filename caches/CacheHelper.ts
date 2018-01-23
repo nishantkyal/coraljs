@@ -1,441 +1,385 @@
-///<reference path='../_references.d.ts'/>
 import _                                            = require('underscore');
-import q                                            = require('q');
 import redis                                        = require('redis');
 import Utils                                        = require('../common/Utils');
+
 /*
  Base class for all caches
  */
-class CacheHelper
-{
-    private connection:redis.RedisClient;
+class CacheHelper {
+    private connection: redis.RedisClient;
 
-    constructor(host:string, port:number)
-    {
+    constructor(host: string, port: number) {
         // We're going to maintain just one connection to redis since both node and redis are single threaded
         this.connection = redis.createClient(port, host);
-        this.connection.on('error', function (error)
-        {
+        this.connection.on('error', function (error) {
             throw(error);
         });
     }
 
-    getConnection():redis.RedisClient { return this.connection; }
+    getConnection(): redis.RedisClient {
+        return this.connection;
+    }
 
-    set(key, value, expiry?:number, overwrite:boolean = false):q.Promise<any>
-    {
-        var deferred = q.defer();
+    set(key, value, expiry?: number, overwrite: boolean = false): Promise<any> {
+        return new Promise<any>((resolve, reject) => {
+            var self = this;
+
+            var args = [key, JSON.stringify(value)];
+
+            if (expiry)
+                args.concat(['EX', expiry]);
+            if (!overwrite)
+                args.push('NX');
+
+            self.getConnection().set(args, function (error, result) {
+                if (error)
+                    reject(error);
+                else
+                    resolve(result);
+            });
+        });
+    }
+
+    mget(keys: string[]): Promise<any> {
         var self = this;
+        return new Promise<any>((resolve, reject) => {
+            if (Utils.isNullOrEmpty(keys))
+                process.nextTick(function () {
+                    resolve(keys);
+                });
 
-        var args = [key, JSON.stringify(value)];
+            self.getConnection().mget(keys, function (error, result: any) {
+                if (error)
+                    return reject(error);
 
-        if (expiry)
-            args.concat(['EX', expiry]);
-        if (!overwrite)
-            args.push('NX');
+                if (Utils.isNullOrEmpty(result))
+                    return resolve(result);
 
-        self.getConnection().set(args, function (error, result)
-        {
-            if (error)
-                deferred.reject(error);
-            else
-                deferred.resolve(result);
+                resolve(_.map(result, function (row: string) {
+                    return JSON.parse(row);
+                }));
+            });
+
         });
-        return deferred.promise;
     }
 
-    mget(keys:string[]):q.Promise<any>
-    {
-        var deferred = q.defer();
+    get(key: string): Promise<any> {
+        var self = this;
+        return new Promise<any>((resolve, reject) => {
+            process.nextTick(function () {
+                resolve(key);
+            });
 
-        if (Utils.isNullOrEmpty(keys))
-            return q.resolve(keys);
+            self.getConnection().get(key, function (error, result: any) {
+                if (error)
+                    return reject(error);
 
-        this.getConnection().mget(keys, function (error, result:any)
-        {
-            if (error)
-                return deferred.reject(error);
+                if (Utils.isNullOrEmpty(result))
+                    return resolve(result);
 
-            if (Utils.isNullOrEmpty(result))
-                return deferred.resolve(result);
+                resolve(JSON.parse(result));
+            });
 
-            deferred.resolve(_.map(result, function(row:string) {
-                return JSON.parse(row);
-            }));
         });
-
-        return deferred.promise;
     }
 
-    get(key:string):q.Promise<any>
-    {
-        var deferred = q.defer();
-
-        if (Utils.isNullOrEmpty(key))
-            return q.resolve(key);
-
-        this.getConnection().get(key, function (error, result:any)
-        {
-            if (error)
-                return deferred.reject(error);
-
-            if (Utils.isNullOrEmpty(result))
-                return deferred.resolve(result);
-
-            deferred.resolve(JSON.parse(result));
+    del(key): Promise<any> {
+        return new Promise<any>((resolve, reject) => {
+            this.getConnection().del(key, function (error, result) {
+                if (error)
+                    reject(error);
+                else
+                    resolve(result);
+            });
         });
-
-        return deferred.promise;
-    }
-
-    del(key):q.Promise<any>
-    {
-        var deferred = q.defer();
-        this.getConnection().del(key, function (error, result)
-        {
-            if (error)
-                deferred.reject(error);
-            else
-                deferred.resolve(result);
-        });
-        return deferred.promise;
     }
 
     /* Manipulate hashes */
-    createHash(set, values, keyFieldName, expiry):q.Promise<any>
-    {
+    createHash(set, values, keyFieldName, expiry): Promise<any> {
         // Create a clone for addition since we'll be removing from it to keep count
         var self = this;
-        var deferred = q.defer();
-        var clonedValues = JSON.parse(JSON.stringify(values));
-        var row = clonedValues.shift();
+        return new Promise<any>((resolve, reject) => {
+            var clonedValues = JSON.parse(JSON.stringify(values));
+            var row = clonedValues.shift();
 
-        this.addToHash(set, row[keyFieldName], row)
-            .then(
-            function (result):any
-            {
-                if (clonedValues.length == 0)
-                {
-                    if (expiry > 0)
-                        setInterval(function ()
-                        {
-                            self.del(set);
-                        }, expiry);
-                    return deferred.resolve(result);
+            self.addToHash(set, row[keyFieldName], row)
+                .then(
+                    function (result): any {
+                        if (clonedValues.length == 0) {
+                            if (expiry > 0)
+                                setInterval(function () {
+                                    self.del(set);
+                                }, expiry);
+                            return resolve(result);
+                        }
+                        else
+                            return self.createHash(set, clonedValues, keyFieldName, expiry);
+                    });
+        });
+    }
+
+    addToHash(set, key, value): Promise<any> {
+        var self = this;
+        return new Promise<any>((resolve, reject) => {
+            self.delFromHash(set, key)
+                .then(function () {
+                    self.getConnection().hset(set, key, JSON.stringify(value), function (error, result) {
+                        if (error)
+                            reject(error);
+                        else
+                            resolve(result);
+                    });
+                });
+        });
+    }
+
+    getHashValues(set): Promise<any> {
+        return new Promise<any>((resolve, reject) => {
+            var self = this;
+
+            self.getConnection().hvals(set, function (error, result: any) {
+                if (result) {
+                    if (Utils.getObjectType(result) == 'Array')
+                        resolve(_.map(result, function (row: string) {
+                            return JSON.parse(row);
+                        }));
+                    else
+                        resolve(JSON.parse(result));
                 }
                 else
-                    return self.createHash(set, clonedValues, keyFieldName, expiry);
+                    reject(error);
             });
-        return deferred.promise;
+        });
     }
 
-    addToHash(set, key, value):q.Promise<any>
-    {
-        var self = this;
-        var deferred = q.defer();
-
-        this.delFromHash(set, key)
-            .then(function ()
-            {
-                self.getConnection().hset(set, key, JSON.stringify(value), function (error, result)
-                {
-                    if (error)
-                        deferred.reject(error);
-                    else
-                        deferred.resolve(result);
-                });
-            });
-        return deferred.promise;
-    }
-
-    getHashValues(set):q.Promise<any>
-    {
-        var deferred = q.defer();
+    getHashKeys(set): Promise<any> {
         var self = this;
 
-        self.getConnection().hvals(set, function (error, result:any)
-        {
-            if (result)
-            {
-                if (Utils.getObjectType(result) == 'Array')
-                    deferred.resolve(_.map(result, function (row:string)
-                    {
-                        return JSON.parse(row);
-                    }));
+        return new Promise<any>((resolve, reject) => {
+            self.getConnection().hkeys(set, function (error, result) {
+                if (error)
+                    reject(error);
                 else
-                    deferred.resolve(JSON.parse(result));
-            }
-            else
-                deferred.reject(error);
+                    resolve(result);
+            });
         });
-        return deferred.promise;
     }
 
-    getHashKeys(set):q.Promise<any>
-    {
-        var deferred = q.defer();
-        this.getConnection().hkeys(set, function (error, result)
-        {
-            if (error)
-                deferred.reject(error);
-            else
-                deferred.resolve(result);
-        });
-        return deferred.promise;
-    }
-
-    getHash(set:string):q.Promise<any>
-    {
+    getHash(set: string): Promise<any> {
         var self = this;
 
-        return q.all([
+        return Promise.all([
             self.getHashKeys(set),
             self.getHashValues(set)
         ])
             .then(
-            function valuesFetched(...args)
-            {
-                var keys:string[] = args[0][0];
-                var values = args[0][1];
-                var indexed = {};
-                _.each(keys, function (code:string, index)
-                {
-                    indexed[code] = values[index];
+                function valuesFetched(...args) {
+                    var keys: string[] = args[0][0];
+                    var values = args[0][1];
+                    var indexed = {};
+                    _.each(keys, function (code: string, index) {
+                        indexed[code] = values[index];
+                    });
+                    return indexed;
                 });
-                return indexed;
+    }
+
+    getFromHash(set, key): Promise<any> {
+        var self = this;
+
+        return new Promise<any>((resolve, reject) => {
+            self.getConnection().hget(set, key, function (error, result: any) {
+                if (error)
+                    reject(error);
+                else if (Utils.getObjectType(result) == 'Array')
+                    resolve(_.map(result, function (row: any) {
+                        return JSON.parse(row);
+                    }));
+                else
+                    resolve(JSON.parse(result));
             });
+        });
     }
 
-    getFromHash(set, key):q.Promise<any>
-    {
-        var deferred = q.defer();
-        this.getConnection().hget(set, key, function (error, result:any)
-        {
-            if (error)
-                deferred.reject(error);
-            else if (Utils.getObjectType(result) == 'Array')
-                deferred.resolve(_.map(result, function (row:any)
-                {
-                    return JSON.parse(row);
-                }));
-            else
-                deferred.resolve(JSON.parse(result));
-        });
-        return deferred.promise;
-    }
+    delFromHash(set, key): Promise<any> {
+        var self = this;
 
-    delFromHash(set, key):q.Promise<any>
-    {
-        var deferred = q.defer();
-        this.getConnection().hdel(set, key, function (error, result)
-        {
-            if (error)
-                deferred.reject(error);
-            else
-                deferred.resolve(result);
+        return new Promise<any>((resolve, reject) => {
+            self.getConnection().hdel(set, key, function (error, result) {
+                if (error)
+                    reject(error);
+                else
+                    resolve(result);
+            });
         });
-        return deferred.promise;
     }
 
     /* MANIPULATE ORDERED SETS */
-    addToOrderedSet(set, key, value):q.Promise<any>
-    {
-        var deferred = q.defer();
+    addToOrderedSet(set, key, value): Promise<any> {
         var self = this;
 
-        this.delFromOrderedSet(set, key)
-            .then(
-            function ()
-            {
-                self.getConnection().hset(set, key, JSON.stringify(value), function (error, result)
-                {
-                    if (error)
-                        deferred.reject(error);
-                    else
-                        deferred.resolve(result);
-                });
-            }
-        );
-        return deferred.promise;
+        return new Promise<any>((resolve, reject) => {
+            self.delFromOrderedSet(set, key)
+                .then(
+                    function () {
+                        self.getConnection().hset(set, key, JSON.stringify(value), function (error, result) {
+                            if (error)
+                                reject(error);
+                            else
+                                resolve(result);
+                        });
+                    }
+                );
+        });
     }
 
-    addMultipleToOrderedSet(set, values, keyFieldName):q.Promise<any>
-    {
+    addMultipleToOrderedSet(set, values, keyFieldName): Promise<any> {
         // Create a clone for addition since we'll be removing from it to keep count
         var self = this;
-        var deferred = q.defer();
-        var clonedValues = JSON.parse(JSON.stringify(values));
-        var row = clonedValues.shift();
+        return new Promise<any>((resolve, reject) => {
+            var clonedValues = JSON.parse(JSON.stringify(values));
+            var row = clonedValues.shift();
 
-        this.addToOrderedSet(set, row[keyFieldName], row)
-            .then(
-            function ()
-            {
-                if (clonedValues.length == 0)
-                    deferred.resolve(null);
-                else
-                    self.addMultipleToOrderedSet(set, clonedValues, keyFieldName);
-            });
-        return deferred.promise;
+            self.addToOrderedSet(set, row[keyFieldName], row)
+                .then(
+                    function () {
+                        if (clonedValues.length == 0)
+                            resolve(null);
+                        else
+                            self.addMultipleToOrderedSet(set, clonedValues, keyFieldName);
+                    });
+        });
     }
 
-    getOrderedSet(set):q.Promise<any>
-    {
+    getOrderedSet(set): Promise<any> {
         var self = this;
-        var deferred = q.defer();
-
-        this.getConnection().zcard(set, function (err, count)
-        {
-            self.getConnection().zrange(set, 0, count, function (error, result)
-            {
-                if (result)
-                    deferred.resolve(result);
-                else
-                    deferred.reject(error);
+        return new Promise<any>((resolve, reject) => {
+            self.getConnection().zcard(set, function (err, count) {
+                self.getConnection().zrange(set, 0, count, function (error, result) {
+                    if (result)
+                        resolve(result);
+                    else
+                        reject(error);
+                });
             });
         });
-        return deferred.promise;
     }
 
-    getFromOrderedSet(set, key):q.Promise<any>
-    {
-        var deferred = q.defer();
-        this.getConnection().zrevrangebyscore(set, key, key, function (error, result)
-        {
-            if (error)
-                deferred.reject(error);
-            else
-                deferred.resolve(result);
+    getFromOrderedSet(set, key): Promise<any> {
+        var self = this;
+
+        return new Promise<any>((resolve, reject) => {
+            self.getConnection().zrevrangebyscore(set, key, key, function (error, result) {
+                if (error)
+                    reject(error);
+                else
+                    resolve(result);
+            });
         });
-        return deferred.promise;
     }
 
-    delFromOrderedSet(set, key):q.Promise<any>
-    {
-        var deferred = q.defer();
+    delFromOrderedSet(set, key): Promise<any> {
+        var self = this;
 
-        this.getConnection().zremrangebyscore(set, key, key, function (error, result)
-        {
-            if (error)
-                deferred.reject(error);
-            else
-                try
-                {
-                    deferred.resolve(result);
-                } catch (e)
-                {
+        return new Promise<any>((resolve, reject) => {
+            self.getConnection().zremrangebyscore(set, key, key, function (error, result) {
+                if (error)
+                    reject(error);
+                else
+                    try {
+                        resolve(result);
+                    } catch (e) {
 
-                }
+                    }
+            });
         });
-
-        return deferred.promise;
     }
 
-    setExpiry(key, expiry):q.Promise<any>
-    {
-        var deferred = q.defer();
-
-        this.getConnection().expire(key, expiry, function (error, result)
-        {
-            if (error)
-                deferred.reject(error);
-            else
-                deferred.resolve(result);
+    setExpiry(key, expiry): Promise<any> {
+        var self = this;
+        return new Promise<any>((resolve, reject) => {
+            self.getConnection().expire(key, expiry, function (error, result) {
+                if (error)
+                    reject(error);
+                else
+                    resolve(result);
+            });
         });
-
-        return deferred.promise;
     }
 
-    incrementCounter(counterName:string):q.Promise<any>
-    {
-        var deferred = q.defer();
-
-        this.getConnection().incr(counterName, function (error, result)
-        {
-            if (error)
-                deferred.reject(error);
-            else
-                deferred.resolve(result);
+    incrementCounter(counterName: string): Promise<any> {
+        var self = this;
+        return new Promise<any>((resolve, reject) => {
+            self.getConnection().incr(counterName, function (error, result) {
+                if (error)
+                    reject(error);
+                else
+                    resolve(result);
+            });
         });
-
-        return deferred.promise;
     }
 
-    incrementHashKey(hash:string, counterName:string, increment:number = 1):q.Promise<any>
-    {
-        var deferred = q.defer();
-
-        this.getConnection().hincrby(hash, counterName, increment, function (error, result)
-        {
-            if (error)
-                deferred.reject(error);
-            else
-                deferred.resolve(result);
+    incrementHashKey(hash: string, counterName: string, increment: number = 1): Promise<any> {
+        var self = this;
+        return new Promise<any>((resolve, reject) => {
+            self.getConnection().hincrby(hash, counterName, increment, function (error, result) {
+                if (error)
+                    reject(error);
+                else
+                    resolve(result);
+            });
         });
-
-        return deferred.promise;
     }
 
-    getKeys(nameOrPattern:string):q.Promise<string[]>
-    {
-        var deferred = q.defer<string[]>();
-
-        this.getConnection().keys(nameOrPattern, function (error, result)
-        {
-            if (error)
-                deferred.reject(error);
-            else
-                deferred.resolve(result);
-        });
-
-        return deferred.promise;
+    getKeys(nameOrPattern: string): Promise<string[]> {
+        var self = this;
+        return new Promise<any>((resolve, reject) => {
+                self.getConnection().keys(nameOrPattern, function (error, result) {
+                    if (error)
+                        reject(error);
+                    else
+                        resolve(result);
+                });
+            });
     }
 
     /* Sets */
-    addToSet(set:string, key:string):q.Promise<boolean>
-    {
-        var deferred = q.defer<boolean>();
-
-        this.getConnection().sadd(set, key, function (error, result)
-        {
-            if (error)
-                deferred.reject(error);
-            else
-                deferred.resolve(result);
+    addToSet(set: string, key: string): Promise<boolean> {
+        var self = this;
+        return new Promise<any>((resolve, reject) => {
+            self.getConnection().sadd(set, key, function (error, result) {
+                if (error)
+                    reject(error);
+                else
+                    resolve(result);
+            });
         });
-
-        return deferred.promise;
     }
 
-    isMemberOfSet(set:string, key:string):q.Promise<boolean>
-    {
-        var deferred = q.defer<boolean>();
-
-        this.getConnection().sismember(set, key, function (error, result)
-        {
-            if (error)
-                deferred.reject(error);
-            else
-                deferred.resolve(result);
+    isMemberOfSet(set: string, key: string): Promise<boolean> {
+        var self = this;
+        return new Promise<any>((resolve, reject) => {
+            self.getConnection().sismember(set, key, function (error, result) {
+                if (error)
+                    reject(error);
+                else
+                    resolve(result);
+            });
         });
-
-        return deferred.promise;
     }
 
-    removeFromSet(set:string, key:string):q.Promise<boolean>
-    {
-        var deferred = q.defer<boolean>();
-
-        this.getConnection().srem(set, key, function (error, result)
-        {
-            if (error)
-                deferred.reject(error);
-            else
-                deferred.resolve(result);
+    removeFromSet(set: string, key: string): Promise<boolean> {
+        var self = this;
+        return new Promise<any>((resolve, reject) => {
+            self.getConnection().srem(set, key, function (error, result) {
+                if (error)
+                    reject(error);
+                else
+                    resolve(result);
+            });
         });
-
-        return deferred.promise;
     }
 
 }
+
 export = CacheHelper

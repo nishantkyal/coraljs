@@ -67,7 +67,7 @@ class MysqlDelegate {
                 var connection = yield self.getConnectionFromPool();
                 self.logger.debug("Connection obtained");
                 return new Promise((resolve, reject) => {
-                    connection.beginTransaction(function handleTransactionCallback(error, transaction) {
+                    connection.beginTransaction(function handleTransactionCallback(error) {
                         if (error) {
                             self.logger.error("Failed to start a transaction");
                             reject('Failed to start a transaction');
@@ -94,7 +94,7 @@ class MysqlDelegate {
                 connection = yield self.getConnectionFromPool();
             return new Promise((resolve, reject) => {
                 connection.query(query, parameters, function handleQueryExecuted(err, rows) {
-                    connection.release();
+                    connection.destroy();
                     if (err)
                         reject(err);
                     else
@@ -116,7 +116,7 @@ class MysqlDelegate {
                 }, function operationFailed(error) {
                     transaction.rollback();
                     if (transaction)
-                        transaction.release();
+                        transaction.destroy();
                     throw (error);
                 });
             });
@@ -126,7 +126,7 @@ class MysqlDelegate {
         return new Promise((resolve, reject) => {
             transaction.commit(function transactionCommitted() {
                 if (transaction)
-                    transaction.release();
+                    transaction.destroy();
                 resolve(result);
             });
         });

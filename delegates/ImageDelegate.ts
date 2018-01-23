@@ -1,98 +1,81 @@
-///<reference path='../_references.d.ts'/>
-import q                                            = require('q');
 import fs                                           = require('fs');
 import http                                         = require('http');
 import ImageSize                                    = require('../enums/ImageSize');
-var gm                                              = require('gm');
 
-class ImageDelegate
-{
-    imageMagick = gm.subClass({ imageMagick: true });
+var gm = require('gm');
 
-    resize(srcImagePath:string, outputPath:string, outputSize:ImageSize):q.Promise<any>
-    {
-        var deferred = q.defer();
-        try
-        {
-            this.imageMagick(srcImagePath)
-                .size(function doResize(err, size)
-                {
-                    if (err)
-                        return deferred.reject(err);
+class ImageDelegate {
+    imageMagick = gm.subClass({imageMagick: true});
 
-                    if (size.width >= size.height && size.width > outputSize)
-                        this.resize(outputSize);
-                    else if (size.height > size.width && size.height > outputSize)
-                        this.resize(null, outputSize);
-
-                    this.write(outputPath, function (err)
-                    {
+    resize(srcImagePath: string, outputPath: string, outputSize: ImageSize): Promise<any> {
+        return new Promise<any>((resolve, reject) => {
+            try {
+                this.imageMagick(srcImagePath)
+                    .size(function doResize(err, size) {
                         if (err)
-                            deferred.reject(err);
-                        else
-                            deferred.resolve(outputPath);
+                            reject(err);
+
+                        if (size.width >= size.height && size.width > outputSize)
+                            this.resize(outputSize);
+                        else if (size.height > size.width && size.height > outputSize)
+                            this.resize(null, outputSize);
+
+                        this.write(outputPath, function (err) {
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(outputPath);
+                        });
                     });
-                });
-        } catch (error)
-        {
-            deferred.reject(error);
-        }
-
-        return deferred.promise;
-    }
-
-    delete(srcImagePath:string):q.Promise<any>
-    {
-        var deferred = q.defer();
-
-        fs.unlink(srcImagePath, function (err)
-        {
-            if (err)
-                deferred.reject(err);
-            else
-                deferred.resolve(srcImagePath);
-        });
-
-        return deferred.promise;
-    }
-
-    move(oldPath:string, newPath:string):q.Promise<any>
-    {
-        var deferred = q.defer();
-
-        this.resize(oldPath, newPath, ImageSize.SMALL);
-        fs.rename(oldPath, newPath, function (err)
-        {
-            if (err)
-                deferred.reject(err);
-            else
-                deferred.resolve('Moved ' + oldPath + ' to ' + newPath);
-        });
-
-        return deferred.promise;
-    }
-
-    fetch(imageUrl:string, tempPath:string):q.Promise<any>
-    {
-        var deferred = q.defer();
-        var file = fs.createWriteStream(tempPath);
-        // TODO: Use request instead of http
-        var request = http.get(imageUrl, function (response)
-        {
-            if (response)
-            {
-                response.pipe(file);
-                file.on('finish', function ()
-                {
-                    file.end();
-                });
-                deferred.resolve('Image Fetched from ' + imageUrl);
+            } catch (error) {
+                reject(error);
             }
-            else
-                deferred.reject('Error ');
-        });
 
-        return deferred.promise;
+        });
+    }
+
+    delete(srcImagePath: string): Promise<any> {
+        return new Promise<any>((resolve, reject) => {
+            fs.unlink(srcImagePath, function (err) {
+                if (err)
+                    reject(err);
+                else
+                    resolve(srcImagePath);
+            });
+        });
+    }
+
+    move(oldPath: string, newPath: string): Promise<any> {
+        var self = this;
+
+        return new Promise<any>((resolve, reject) => {
+            this.resize(oldPath, newPath, ImageSize.SMALL);
+            fs.rename(oldPath, newPath, function (err) {
+                if (err)
+                    reject(err);
+                else
+                    resolve('Moved ' + oldPath + ' to ' + newPath);
+            });
+        });
+    }
+
+    fetch(imageUrl: string, tempPath: string): Promise<any> {
+        return new Promise<any>((resolve, reject) => {
+            var file = fs.createWriteStream(tempPath);
+            // TODO: Use request instead of http
+            var request = http.get(imageUrl, function (response) {
+                if (response) {
+                    response.pipe(file);
+                    file.on('finish', function () {
+                        file.end();
+                    });
+                    resolve('Image Fetched from ' + imageUrl);
+                }
+                else
+                    reject('Error ');
+            });
+        });
     }
 }
+
 export = ImageDelegate

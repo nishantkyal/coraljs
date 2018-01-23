@@ -1,6 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 const log4js = require("log4js");
-const q = require("q");
 const _ = require("underscore");
 const Utils = require("../common/Utils");
 const ForeignKeyType = require("../enums/ForeignKeyType");
@@ -79,7 +86,9 @@ class AbstractModel {
         });
         return data;
     }
-    toString() { return '[object ' + Utils.getClassName(this) + ']'; }
+    toString() {
+        return '[object ' + Utils.getClassName(this) + ']';
+    }
     get(propertyName) {
         var thisProtoConstructor = this.__proto__.constructor;
         if (thisProtoConstructor['COLUMNS'].indexOf(propertyName) == -1)
@@ -103,20 +112,25 @@ class AbstractModel {
         var thisProto = this.__proto__;
         thisProto[getterMethod] = function () {
             var self = this;
-            if (typeof this[srcPropertyName] != "undefined")
-                return q.resolve(this[srcPropertyName]);
-            self.logger.debug('Lazily Finding %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);
-            var result = fk.referenced_table.DELEGATE.find(Utils.createSimpleObject(fk.target_key, this[fk.src_key]))
-                .then(function success(result) {
-                return self[setterMethod].call(self, result);
-            })
-                .then(function resultSet() {
-                return self[getterMethod].call(self);
-            })
-                .catch(function handleFailure(error) {
-                self.logger.debug('Lazy loading failed for find %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);
-                throw error;
-            });
+            return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
+                if (typeof this[srcPropertyName] != "undefined")
+                    process.nextTick(function () {
+                        resolve(self[srcPropertyName]);
+                    });
+                self.logger.debug('Lazily Finding %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);
+                var result = yield fk.referenced_table.DELEGATE.find(Utils.createSimpleObject(fk.target_key, this[fk.src_key]))
+                    .then(function success(result) {
+                    return self[setterMethod].call(self, result);
+                })
+                    .then(function resultSet() {
+                    return self[getterMethod].call(self);
+                })
+                    .catch(function handleFailure(error) {
+                    self.logger.debug('Lazy loading failed for find %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);
+                    throw error;
+                });
+                resolve(result);
+            }));
         };
         thisProto[setterMethod] = function (val) {
             this[srcPropertyName] = null;
@@ -134,20 +148,24 @@ class AbstractModel {
         var thisProto = this.__proto__;
         thisProto[getterMethod] = function () {
             var self = this;
-            if (typeof this[srcPropertyName] != "undefined")
-                return q.resolve(this[srcPropertyName]);
-            self.logger.debug('Lazily Searching %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);
-            return fk.referenced_table.DELEGATE.search(Utils.createSimpleObject(fk.target_key, this[fk.src_key]))
-                .then(function success(result) {
-                return self[setterMethod].call(self, result);
-            })
-                .then(function resultSet() {
-                return self[getterMethod].call(self);
-            })
-                .catch(function handleFailure(error) {
-                self.logger.debug('Lazy loading failed for search %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);
-                throw error;
-            });
+            return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
+                if (typeof this[srcPropertyName] != "undefined")
+                    process.nextTick(function () {
+                        resolve(self[srcPropertyName]);
+                    });
+                self.logger.debug('Lazily Searching %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);
+                return yield fk.referenced_table.DELEGATE.search(Utils.createSimpleObject(fk.target_key, this[fk.src_key]))
+                    .then(function success(result) {
+                    return self[setterMethod].call(self, result);
+                })
+                    .then(function resultSet() {
+                    return self[getterMethod].call(self);
+                })
+                    .catch(function handleFailure(error) {
+                    self.logger.debug('Lazy loading failed for search %s.%s', fk.referenced_table.TABLE_NAME, fk.target_key);
+                    throw error;
+                });
+            }));
         };
         thisProto[setterMethod] = function (val) {
             this[srcPropertyName] = null;

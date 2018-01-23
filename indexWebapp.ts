@@ -1,4 +1,3 @@
-///<reference path='./_references.d.ts'/>
 import CountryCode = require("./enums/CountryCode");
 import CountryName = require("./enums/CountryName");
 import DayName = require("./enums/DayName");

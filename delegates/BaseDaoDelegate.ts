@@ -1,7 +1,5 @@
-///<reference path='../_references.d.ts'/>
 import _                                                = require('underscore');
 import log4js                                           = require('log4js');
-import q                                                = require('q');
 import moment                                           = require('moment');
 import IDao                                             = require('../dao/IDao');
 import IDaoFetchOptions                                 = require('../dao/IDaoFetchOptions');

@@ -1,5 +1,3 @@
-///<reference path='./_references.d.ts'/>
-import childProcess                                         = require('child_process');
 import semver                                               = require('semver');
 function init(grunt)
 {

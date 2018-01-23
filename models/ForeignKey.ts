@@ -1,4 +1,3 @@
-///<reference path='../_references.d.ts'/>
 import AbstractModel                                            = require('./AbstractModel');
 import ForeignKeyType                                       = require('../enums/ForeignKeyType');
 

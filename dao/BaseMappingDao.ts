@@ -1,15 +1,13 @@
-///<reference path='../_references.d.ts'/>
 import _                                                    = require('underscore');
-import q                                                    = require('q');
+import mysql                                                = require('mysql');
 import IDaoFetchOptions                                     = require('./IDaoFetchOptions');
 import MysqlDao                                             = require('./MysqlDao');
 import ForeignKey                                           = require('../models/ForeignKey');
-import MysqlDelegate                                        = require('../delegates/MysqlDelegate');
 import Utils                                                = require('../common/Utils');
 
 class BaseMappingDao extends MysqlDao
 {
-    async search(searchQuery:Object, options:IDaoFetchOptions, transaction?:Object):Promise<any>
+    async search(searchQuery:Object, options:IDaoFetchOptions, transaction?:mysql.Connection):Promise<any>
     {
         // Create join query to fetch the mapped resource automatically
         var fk:ForeignKey = this.modelClass['FOREIGN_KEYS'][0];

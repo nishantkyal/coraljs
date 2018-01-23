@@ -1,4 +1,3 @@
-///<reference path='../_references.d.ts'/>
 import AbstractModel                                        = require('../models/AbstractModel');
 import IDaoFetchOptions                                     = require('../dao/IDaoFetchOptions');
 
