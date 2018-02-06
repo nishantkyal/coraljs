@@ -35,7 +35,9 @@ class MysqlDao {
                     if (value == undefined || Utils.getObjectType(value) == 'Array' || Utils.getObjectType(value) == 'Object')
                         delete row[key];
                 });
-                var fieldsToInsert = _.keys(row);
+                var fieldsToInsert = _.map(_.keys(row), function (columnName) {
+                    return self.modelClass['COL_' + columnName.toUpperCase()];
+                });
                 if (insertedFields.join(':') == fieldsToInsert.join(':') || insertedFields.length == 0) {
                     values = values.concat(_.values(row));
                     rows.push(row);
@@ -161,6 +163,7 @@ class MysqlDao {
                     delete newValues[key];
             });
             var updates = _.map(_.keys(newValues), function (updateColumn) {
+                var fieldName = self.modelClass['COL_' + updateColumn.toUpperCase()];
                 return updateColumn + ' = ?';
             });
             var values = _.values(newValues);
