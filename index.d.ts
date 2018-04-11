@@ -1,5 +1,6 @@
 declare module 'coraljs'
 {
+import q = require("q");
 import log4js = require("log4js");
 import redis = require("redis");
 import express = require("express");
@@ -465,15 +466,13 @@ export enum Salutation {
 
 
 
-
-
 export class AbstractModel {
     __proto__: any;
     static TABLE_NAME: string;
     static DELEGATE: BaseDaoDelegate;
     private static FOREIGN_KEYS;
     private static FK_COLUMNS;
-    logger: log4js.Logger;
+    logger: any;
     static PUBLIC_FIELDS: string[];
     constructor(data?: Object);
     toJson(): any;
@@ -485,7 +484,6 @@ export class AbstractModel {
     static getForeignKeyForSrcKey(srcKey: string): ForeignKey;
     static getForeignKeyForColumn(col: string): ForeignKey;
 }
-
 
 
 
@@ -511,7 +509,6 @@ export class BaseModel extends AbstractModel {
 
 
 
-
 export class BaseS3Model extends AbstractModel {
     static COL_FILE_NAME: string;
     static METADATA_FIELDS: string[];
@@ -522,7 +519,6 @@ export class BaseS3Model extends AbstractModel {
     getS3Key(): string;
     setS3Key(val: any): void;
 }
-
 
 
 
@@ -543,9 +539,8 @@ export class ForeignKey {
 
 
 export class BaseMappingDao extends MysqlDao {
-    search(searchQuery: Object, options: IDaoFetchOptions, transaction?: Object): Promise<any>;
+    search(searchQuery: Object, options: IDaoFetchOptions, transaction?: mysql.Connection): Promise<any>;
 }
-
 
 
 
@@ -586,16 +581,16 @@ export class MysqlDao implements IDao {
     logger: log4js.Logger;
     mysqlDelegate: MysqlDelegate;
     constructor(modelClass: typeof AbstractModel);
-    create(data: Object[], transaction?: Object): Promise<any>;
-    create(data: Object, transaction?: Object): Promise<any>;
-    get(id: number[], options?: IDaoFetchOptions, transaction?: Object): Promise<any>;
-    get(id: number, options?: IDaoFetchOptions, transaction?: Object): Promise<any>;
-    search(searchQuery?: Object, options?: IDaoFetchOptions, transaction?: Object): Promise<any>;
-    find(searchQuery: Object, options?: IDaoFetchOptions, transaction?: Object): Promise<any>;
-    update(criteria: number, newValues: any, transaction?: Object): Promise<any>;
-    update(criteria: Object, newValues: any, transaction?: Object): Promise<any>;
-    delete(criteria: number, transaction?: Object): Promise<any>;
-    delete(criteria: Object, transaction?: Object): Promise<any>;
+    create(data: Object[], transaction?: mysql.Connection): Promise<any>;
+    create(data: Object, transaction?: mysql.Connection): Promise<any>;
+    get(id: number[], options?: IDaoFetchOptions, transaction?: mysql.Connection): Promise<any>;
+    get(id: number, options?: IDaoFetchOptions, transaction?: mysql.Connection): Promise<any>;
+    search(searchQuery?: Object, options?: IDaoFetchOptions, transaction?: mysql.Connection): Promise<any>;
+    find(searchQuery: Object, options?: IDaoFetchOptions, transaction?: mysql.Connection): Promise<any>;
+    update(criteria: number, newValues: any, transaction?: mysql.Connection): Promise<any>;
+    update(criteria: Object, newValues: any, transaction?: mysql.Connection): Promise<any>;
+    delete(criteria: number, transaction?: mysql.Connection): Promise<any>;
+    delete(criteria: Object, transaction?: mysql.Connection): Promise<any>;
     generateWhereStatements(criteria?: Object): {
         where: string[];
         values: any[];
@@ -613,7 +608,7 @@ export class SolrDao implements IDao {
     modelClass: typeof AbstractModel;
     tableName: string;
     logger: log4js.Logger;
-    constructor(modelClass: typeof AbstractModel, solrClient: Solr.SolrClient);
+    constructor(modelClass: typeof AbstractModel, solrClient: solr_client.SolrClient);
     create(data: Object[]): Promise<any>;
     create(data: Object): Promise<any>;
     get(id: any, options?: IDaoFetchOptions): Promise<any>;
@@ -626,7 +621,6 @@ export class SolrDao implements IDao {
     delete(criteria: Object): Promise<any>;
     generateWhereStatement(criteria?: Object): string[];
 }
-
 
 
 
@@ -654,11 +648,9 @@ export class BaseDaoDelegate {
 }
 
 
-
 export class FileWatcherDelegate {
     constructor(path: string, filters: RegExp[], initHandler?: (files: string[]) => void, createHandler?: (file: string, stat: string) => void, updateHandler?: (file: string, curr: string, prev: string) => void, deleteHandler?: (file: string, stat: string) => void);
 }
-
 
 
 export class GlobalIDDelegate {
@@ -676,16 +668,13 @@ export class GlobalIDDelegate {
 
 
 
-
-
 export class ImageDelegate {
     imageMagick: any;
-    resize(srcImagePath: string, outputPath: string, outputSize: ImageSize): q.Promise<any>;
-    delete(srcImagePath: string): q.Promise<any>;
-    move(oldPath: string, newPath: string): q.Promise<any>;
-    fetch(imageUrl: string, tempPath: string): q.Promise<any>;
+    resize(srcImagePath: string, outputPath: string, outputSize: ImageSize): Promise<any>;
+    delete(srcImagePath: string): Promise<any>;
+    move(oldPath: string, newPath: string): Promise<any>;
+    fetch(imageUrl: string, tempPath: string): Promise<any>;
 }
-
 
 
 export class LocalizationDelegate {
@@ -695,18 +684,18 @@ export class LocalizationDelegate {
 }
 
 
+
 export class MysqlDelegate {
     private static pool;
     private logger;
     constructor(host?: string, database?: string, user?: string, password?: string, socketPath?: string);
-    createConnection(host: string, user: string, password: string, socketPath: string): Promise<any>;
-    getConnectionFromPool(): Promise<any>;
-    beginTransaction(transaction?: Object): Promise<any>;
-    executeQuery(query: string, parameters?: any[], connection?: any): Promise<any>;
+    createConnection(host: string, database: string, user: string, password: string, socketPath: string): Promise<mysql.Connection>;
+    getConnectionFromPool(): Promise<mysql.Connection>;
+    beginTransaction(transaction?: mysql.Connection): Promise<mysql.Connection>;
+    executeQuery(query: string, parameters?: any[], connection?: mysql.Connection): Promise<any>;
     executeInTransaction(thisArg: any, args?: IArguments): Promise<any>;
-    commit(transaction: any, result?: any): Promise<any>;
+    commit(transaction: mysql.Connection, result?: any): Promise<any>;
 }
-
 
 
 
@@ -721,12 +710,10 @@ export class Formatter {
 }
 
 
-
 export class sqlToModel {
     static sqlTypeToJsType(value: any): string;
     static sqlToObject(sql: string): Object;
 }
-
 
 
 export class Utils {
@@ -756,39 +743,34 @@ export class Utils {
 
 
 
-
-
 export class CacheHelper {
     private connection;
     constructor(host: string, port: number);
     getConnection(): redis.RedisClient;
-    set(key: any, value: any, expiry?: number, overwrite?: boolean): q.Promise<any>;
-    mget(keys: string[]): q.Promise<any>;
-    get(key: string): q.Promise<any>;
-    del(key: any): q.Promise<any>;
-    createHash(set: any, values: any, keyFieldName: any, expiry: any): q.Promise<any>;
-    addToHash(set: any, key: any, value: any): q.Promise<any>;
-    getHashValues(set: any): q.Promise<any>;
-    getHashKeys(set: any): q.Promise<any>;
-    getHash(set: string): q.Promise<any>;
-    getFromHash(set: any, key: any): q.Promise<any>;
-    delFromHash(set: any, key: any): q.Promise<any>;
-    addToOrderedSet(set: any, key: any, value: any): q.Promise<any>;
-    addMultipleToOrderedSet(set: any, values: any, keyFieldName: any): q.Promise<any>;
-    getOrderedSet(set: any): q.Promise<any>;
-    getFromOrderedSet(set: any, key: any): q.Promise<any>;
-    delFromOrderedSet(set: any, key: any): q.Promise<any>;
-    setExpiry(key: any, expiry: any): q.Promise<any>;
-    incrementCounter(counterName: string): q.Promise<any>;
-    incrementHashKey(hash: string, counterName: string, increment?: number): q.Promise<any>;
-    getKeys(nameOrPattern: string): q.Promise<string[]>;
-    addToSet(set: string, key: string): q.Promise<boolean>;
-    isMemberOfSet(set: string, key: string): q.Promise<boolean>;
-    removeFromSet(set: string, key: string): q.Promise<boolean>;
+    set(key: any, value: any, expiry?: number, overwrite?: boolean): Promise<any>;
+    mget(keys: string[]): Promise<any>;
+    get(key: string): Promise<any>;
+    del(key: any): Promise<any>;
+    createHash(set: any, values: any, keyFieldName: any, expiry: any): Promise<any>;
+    addToHash(set: any, key: any, value: any): Promise<any>;
+    getHashValues(set: any): Promise<any>;
+    getHashKeys(set: any): Promise<any>;
+    getHash(set: string): Promise<any>;
+    getFromHash(set: any, key: any): Promise<any>;
+    delFromHash(set: any, key: any): Promise<any>;
+    addToOrderedSet(set: any, key: any, value: any): Promise<any>;
+    addMultipleToOrderedSet(set: any, values: any, keyFieldName: any): Promise<any>;
+    getOrderedSet(set: any): Promise<any>;
+    getFromOrderedSet(set: any, key: any): Promise<any>;
+    delFromOrderedSet(set: any, key: any): Promise<any>;
+    setExpiry(key: any, expiry: any): Promise<any>;
+    incrementCounter(counterName: string): Promise<any>;
+    incrementHashKey(hash: string, counterName: string, increment?: number): Promise<any>;
+    getKeys(nameOrPattern: string): Promise<string[]>;
+    addToSet(set: string, key: string): Promise<boolean>;
+    isMemberOfSet(set: string, key: string): Promise<boolean>;
+    removeFromSet(set: string, key: string): Promise<boolean>;
 }
-
-
-
 
 
 export class BaseApi {
@@ -796,7 +778,7 @@ export class BaseApi {
     constructor(app: any);
     static getEndpoint(baseUrl?: string): string;
     static getIdEndpoint(id?: number, baseUrl?: string): string;
-    promiseMiddleware(handler: (...args) => q.Promise<any>): (req: express.Request, res: express.Response) => void;
+    promiseMiddleware(handler: (...args) => Promise<any>): (req: any, res: any) => void;
 }
 
 }

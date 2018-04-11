@@ -1,5 +1,4 @@
 *.ts
 Gruntfile*
 *.js.map
-!coraljs.d.ts
 !index.d.ts

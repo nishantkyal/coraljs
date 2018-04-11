@@ -1,7 +1,7 @@
 .idea
 *.d.ts
 *.html
-!coraljs.d.ts
+!index.d.ts
 node_modules
 npm-debug.log
 .tscache
