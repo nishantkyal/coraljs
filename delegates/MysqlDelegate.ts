@@ -28,11 +28,12 @@ class MysqlDelegate {
     /*
      * Helper method to get a connection from pool
      */
-    createConnection(host: string, user: string, password: string, socketPath: string): Promise<mysql.Connection> {
+    createConnection(host: string, database:string, user: string, password: string, socketPath: string): Promise<mysql.Connection> {
         var self = this;
         return new Promise<mysql.Connection>((resolve, reject) => {
             var connection = mysql.createConnection({
                 host: host,
+                database: database,
                 user: user,
                 password: password,
                 socketPath: socketPath

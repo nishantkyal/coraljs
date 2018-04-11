@@ -26,11 +26,12 @@ class MysqlDelegate {
             });
         }
     }
-    createConnection(host, user, password, socketPath) {
+    createConnection(host, database, user, password, socketPath) {
         var self = this;
         return new Promise((resolve, reject) => {
             var connection = mysql.createConnection({
                 host: host,
+                database: database,
                 user: user,
                 password: password,
                 socketPath: socketPath
