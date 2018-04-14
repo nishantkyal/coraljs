@@ -1,6 +1,6 @@
 {
   "name": "coraljs",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "private": false,
   "main": "server/index.js",
   "types": "index.d.ts",
@@ -16,6 +16,7 @@
     "nconf": "*",
     "redis": "0.10.0",
     "request": "*",
+    "watch": "0.9.0",
     "underscore": "1.5.2",
     "urijs": "*",
     "solr-client": "*"
@@ -27,7 +28,6 @@
     "grunt-contrib-concat": "*",
     "grunt-text-replace": "*",
     "grunt-ts": "6.0.0-beta.17",
-    "watch": "0.9.0",
     "typescript": "2.4.1",
     "@types/mysql": "^2.15.2",
     "@types/underscore": "^1.8.7",
