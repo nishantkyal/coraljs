@@ -1,7 +1,7 @@
 "use strict";
 const log4js = require("log4js");
 const _ = require("underscore");
-const URI = require("URIjs");
+const URI = require("urijs");
 class Utils {
     static getRandomString(length, characters) {
         var buf = [];
