@@ -1,6 +1,6 @@
 import log4js                                       = require('log4js');
 import _                                            = require('underscore');
-import URI                                          = require('URIjs');
+import URI                                          = require('urijs');
 
 class Utils
 {
