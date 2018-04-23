@@ -162,7 +162,7 @@ class MysqlDao implements IDao {
 
         var queryString = 'SELECT ' + selectColumns + ' ' +
             'FROM `' + this.tableName + '` '
-            + whereStatementString + limitClause + sortClause;
+            + whereStatementString + sortClause + limitClause;
 
         try {
             var results: any[] = await self.mysqlDelegate.executeQuery(queryString, values, transaction)
