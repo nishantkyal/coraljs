@@ -117,7 +117,7 @@ class MysqlDao {
                 sortClause = ' ORDER BY ' + options.sort.join(",");
             var queryString = 'SELECT ' + selectColumns + ' ' +
                 'FROM `' + this.tableName + '` '
-                + whereStatementString + limitClause + sortClause;
+                + whereStatementString + sortClause + limitClause;
             try {
                 var results = yield self.mysqlDelegate.executeQuery(queryString, values, transaction);
                 var typecastedResults = _.map(results, function (result) {
