@@ -1,6 +1,5 @@
 import _                                                = require('underscore');
 import log4js                                           = require('log4js');
-import moment                                           = require('moment');
 import IDao                                             = require('../dao/IDao');
 import IDaoFetchOptions                                 = require('../dao/IDaoFetchOptions');
 import MysqlDao                                         = require('../dao/MysqlDao');
@@ -8,7 +7,6 @@ import Utils                                            = require('../common/Uti
 import BaseModel                                        = require('../models/BaseModel');
 import ForeignKey                                       = require('../models/ForeignKey');
 import GlobalIdDelegate                                 = require('../delegates/GlobalIDDelegate');
-import ForeignKeyType                                   = require('../enums/ForeignKeyType');
 
 class BaseDaoDelegate {
     logger: log4js.Logger = log4js.getLogger(Utils.getClassName(this));
@@ -181,8 +179,8 @@ class BaseDaoDelegate {
         function prepareData(data: BaseModel) {
             var generatedId: number = new GlobalIdDelegate().generate(self.dao.modelClass.TABLE_NAME);
             data[BaseModel.COL_ID] = generatedId;
-            data[BaseModel.COL_CREATED] = moment().valueOf();
-            data[BaseModel.COL_UPDATED] = moment().valueOf();
+            data[BaseModel.COL_CREATED] = new Date();
+            data[BaseModel.COL_UPDATED] = new Date();
             return data;
         };
 
@@ -195,7 +193,7 @@ class BaseDaoDelegate {
     async update(criteria: number, newValues: any, transaction?: Object): Promise<any>;
     async update(criteria: any, newValues: any, transaction?: Object): Promise<any> {
         // Compose update statement based on newValues
-        newValues[BaseModel.COL_UPDATED] = new Date().getTime();
+        newValues[BaseModel.COL_UPDATED] = new Date();
         delete newValues[BaseModel.COL_CREATED];
         delete newValues[BaseModel.COL_ID];
 
@@ -209,7 +207,7 @@ class BaseDaoDelegate {
             throw new Error('Please specify what to delete');
 
         if (softDelete)
-            return this.dao.update(criteria, {'deleted': moment().valueOf()}, transaction);
+            return this.dao.update(criteria, {'deleted': new Date()}, transaction);
         else
             return this.dao.delete(criteria, transaction);
     }

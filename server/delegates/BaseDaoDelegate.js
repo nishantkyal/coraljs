@@ -9,7 +9,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const _ = require("underscore");
 const log4js = require("log4js");
-const moment = require("moment");
 const MysqlDao = require("../dao/MysqlDao");
 const Utils = require("../common/Utils");
 const BaseModel = require("../models/BaseModel");
@@ -152,8 +151,8 @@ class BaseDaoDelegate {
             function prepareData(data) {
                 var generatedId = new GlobalIdDelegate().generate(self.dao.modelClass.TABLE_NAME);
                 data[BaseModel.COL_ID] = generatedId;
-                data[BaseModel.COL_CREATED] = moment().valueOf();
-                data[BaseModel.COL_UPDATED] = moment().valueOf();
+                data[BaseModel.COL_CREATED] = new Date();
+                data[BaseModel.COL_UPDATED] = new Date();
                 return data;
             }
             ;
@@ -163,7 +162,7 @@ class BaseDaoDelegate {
     }
     update(criteria, newValues, transaction) {
         return __awaiter(this, void 0, void 0, function* () {
-            newValues[BaseModel.COL_UPDATED] = new Date().getTime();
+            newValues[BaseModel.COL_UPDATED] = new Date();
             delete newValues[BaseModel.COL_CREATED];
             delete newValues[BaseModel.COL_ID];
             return this.dao.update(criteria, newValues, transaction);
@@ -174,7 +173,7 @@ class BaseDaoDelegate {
             if (Utils.isNullOrEmpty(criteria))
                 throw new Error('Please specify what to delete');
             if (softDelete)
-                return this.dao.update(criteria, { 'deleted': moment().valueOf() }, transaction);
+                return this.dao.update(criteria, { 'deleted': new Date() }, transaction);
             else
                 return this.dao.delete(criteria, transaction);
         });
