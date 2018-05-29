@@ -88,6 +88,6 @@ function init(grunt)
         });
     });
 
-    grunt.registerTask('default', ['clean', 'ts:server', 'concat', 'replace']);
+    grunt.registerTask('default', ['clean', 'ts:server', 'concat', 'replace', 'generate-index']);
 }
 export = init;
