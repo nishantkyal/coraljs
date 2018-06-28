@@ -1,3 +1,4 @@
+import ModelDecorators = require("./decorators/ModelDecorators");
 import CountryCode = require("./enums/CountryCode");
 import CountryName = require("./enums/CountryName");
 import DayName = require("./enums/DayName");
@@ -47,5 +48,6 @@ declare var exported: {
     Utils: typeof Utils;
     sqlToModel: typeof sqlToModel;
     CacheHelper: typeof CacheHelper;
+    ModelDecorators: typeof ModelDecorators;
 };
 export = exported;

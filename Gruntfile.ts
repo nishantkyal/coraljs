@@ -1,4 +1,3 @@
-import semver                                               = require('semver');
 function init(grunt)
 {
     grunt.loadNpmTasks('grunt-contrib-concat');
@@ -17,10 +16,10 @@ function init(grunt)
         },
         concat: {
             coral: {
-                src: ['server/enums/*.d.ts', 'server/models/*.d.ts', 'server/dao/*.d.ts', 'server/delegates/*.d.ts', 'server/common/*.d.ts', 'server/caches/*.d.ts', 'server/api/*.d.ts'],
+                src: ['server/enums/*.d.ts', 'server/models/*.d.ts', 'server/dao/*.d.ts', 'server/delegates/*.d.ts', 'server/common/*.d.ts', 'server/caches/*.d.ts', 'server/api/*.d.ts', 'server/decorators/*.d.ts'],
                 dest: 'index.d.ts',
                 options: {
-                    banner: "declare module 'coraljs'\n{\nimport log4js = require(\"log4js\");\nimport redis = require(\"redis\");\nimport express = require(\"express\");\n\n",
+                    banner: "declare module 'coraljs'\n{\nimport solr_client = require(\"solr-client\");import mysql = require(\"mysql\");import log4js = require(\"log4js\");\nimport redis = require(\"redis\");\nimport express = require(\"express\");\n\n",
                     footer: '}'
                 }
             }
@@ -51,7 +50,7 @@ function init(grunt)
         },
         "ts": {
             "server": {
-                "src": ["index.ts"],
+                "src": ["index.ts", "decorators/*.ts"],
                 "outDir": "server",
                 "options": {
                     "module": "commonjs",
@@ -74,7 +73,7 @@ function init(grunt)
         }
     });
 
-    /* Generate indx.js by combining all generated .js files */
+    /* Generate index.js by combining all generated .js files */
     grunt.registerMultiTask('generate-index', function ()
     {
         this.files.forEach(function (file)
@@ -88,6 +87,6 @@ function init(grunt)
         });
     });
 
-    grunt.registerTask('default', ['clean', 'ts:server', 'concat', 'replace', 'generate-index']);
+    grunt.registerTask('default', ['clean', 'ts:server', 'concat', 'replace']);
 }
 export = init;

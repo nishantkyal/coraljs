@@ -1,4 +1,5 @@
 "use strict";
+const ModelDecorators = require("./decorators/ModelDecorators");
 const CountryCode = require("./enums/CountryCode");
 const CountryName = require("./enums/CountryName");
 const DayName = require("./enums/DayName");
@@ -47,7 +48,8 @@ var exported = {
     Formatter: Formatter,
     Utils: Utils,
     sqlToModel: sqlToModel,
-    CacheHelper: CacheHelper
+    CacheHelper: CacheHelper,
+    ModelDecorators: ModelDecorators
 };
 module.exports = exported;
 //# sourceMappingURL=index.js.map

@@ -1,12 +1,10 @@
 "use strict";
-const semver = require("semver");
 function init(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-text-replace');
     grunt.loadNpmTasks('grunt-ts');
     grunt.loadNpmTasks('grunt-bump');
-    grunt.loadNpmTasks('grunt-prompt');
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         clean: {
@@ -17,10 +15,10 @@ function init(grunt) {
         },
         concat: {
             coral: {
-                src: ['server/enums/*.d.ts', 'server/models/*.d.ts', 'server/dao/*.d.ts', 'server/delegates/*.d.ts', 'server/common/*.d.ts', 'server/caches/*.d.ts', 'server/api/*.d.ts'],
+                src: ['server/enums/*.d.ts', 'server/models/*.d.ts', 'server/dao/*.d.ts', 'server/delegates/*.d.ts', 'server/common/*.d.ts', 'server/caches/*.d.ts', 'server/api/*.d.ts', 'server/decorators/*.d.ts'],
                 dest: 'index.d.ts',
                 options: {
-                    banner: "declare module 'coraljs'\n{\n\nimport log4js = require(\"log4js\");\nimport redis = require(\"redis\");\nimport express = require(\"express\");\n\n",
+                    banner: "declare module 'coraljs'\n{\nimport solr_client = require(\"solr-client\");import mysql = require(\"mysql\");import log4js = require(\"log4js\");\nimport redis = require(\"redis\");\nimport express = require(\"express\");\n\n",
                     footer: '}'
                 }
             }
@@ -51,7 +49,7 @@ function init(grunt) {
         },
         "ts": {
             "server": {
-                "src": ["index.ts"],
+                "src": ["index.ts", "decorators/*.ts"],
                 "outDir": "server",
                 "options": {
                     "module": "commonjs",
@@ -71,96 +69,9 @@ function init(grunt) {
                     sourceMap: true
                 }
             }
-        },
-        'bump': {
-            options: {
-                files: ['package.json', 'bower.json'],
-                updateConfigs: [],
-                commit: true,
-                commitMessage: 'Release v<%= grunt.config("bump.version") %>',
-                commitFiles: ['package.json', 'bower.json'],
-                createTag: grunt.config("bump.files"),
-                tagName: 'v<%= grunt.config("bump.version") %>',
-                tagMessage: 'Version <%= grunt.config("bump.version") %>',
-                push: true,
-                pushTo: 'origin',
-                gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d',
-                globalReplace: false,
-                prereleaseName: false,
-                regExp: false
-            }
-        },
-        prompt: {
-            bump: {
-                options: {
-                    questions: [
-                        {
-                            config: 'bump.increment',
-                            type: 'list',
-                            message: 'Bump version from ' + '<%= pkg.version %>' + ' to:',
-                            choices: [
-                                {
-                                    value: 'build',
-                                    name: 'Build:  ' + ('<%= pkg.version %>' + '-?') + ' Unstable, betas, and release candidates.'
-                                },
-                                {
-                                    value: 'patch',
-                                    name: 'Patch:  ' + semver.inc('<%= pkg.version %>', 'patch') + ' Backwards-compatible bug fixes.'
-                                },
-                                {
-                                    value: 'minor',
-                                    name: 'Minor:  ' + semver.inc('<%= pkg.version %>', 'minor') + ' Add functionality in a backwards-compatible manner.'
-                                },
-                                {
-                                    value: 'major',
-                                    name: 'Major:  ' + semver.inc('<%= pkg.version %>', 'major') + ' Incompatible API changes.'
-                                },
-                                {
-                                    value: 'custom',
-                                    name: 'Custom: ?.?.? Specify version...'
-                                }
-                            ]
-                        },
-                        {
-                            config: 'bump.version',
-                            type: 'input',
-                            message: 'What specific version would you like',
-                            when: function (answers) {
-                                return answers['bump.increment'] === 'custom';
-                            },
-                            validate: function (value) {
-                                var valid = semver.valid(value);
-                                return valid || 'Must be a valid semver, such as 1.2.3-rc1. See http://semver.org/ for more details.';
-                            }
-                        },
-                        {
-                            config: 'bump.files',
-                            type: 'checkbox',
-                            message: 'What should get the new version:',
-                            choices: [
-                                {
-                                    value: 'package',
-                                    name: 'package.json' + (!grunt.file.isFile('package.json') ? ' not found, will create one' : ''),
-                                    checked: grunt.file.isFile('package.json')
-                                },
-                                {
-                                    value: 'bower',
-                                    name: 'bower.json' + (!grunt.file.isFile('bower.json') ? ' not found, will create one' : ''),
-                                    checked: grunt.file.isFile('bower.json')
-                                },
-                                {
-                                    value: 'git',
-                                    name: 'git tag',
-                                    checked: grunt.file.isDir('.git')
-                                }
-                            ]
-                        }
-                    ]
-                }
-            }
         }
     });
-    /* Generate indx.js by combining all generated .js files */
+    /* Generate index.js by combining all generated .js files */
     grunt.registerMultiTask('generate-index', function () {
         this.files.forEach(function (file) {
             var output = file.src.map(function (filepath) {
@@ -171,7 +82,6 @@ function init(grunt) {
         });
     });
     grunt.registerTask('default', ['clean', 'ts:server', 'concat', 'replace']);
-    grunt.registerTask('publish', ['prompt:bump', 'bump']);
 }
 module.exports = init;
 //# sourceMappingURL=Gruntfile.js.map

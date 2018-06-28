@@ -1,6 +1,5 @@
 declare module 'coraljs'
 {
-
 import log4js = require("log4js");
 import redis = require("redis");
 import express = require("express");
@@ -779,6 +778,16 @@ export class BaseApi {
     static getEndpoint(baseUrl?: string): string;
     static getIdEndpoint(id?: number, baseUrl?: string): string;
     promiseMiddleware(handler: (...args) => Promise<any>): (req: any, res: any) => void;
+}
+
+
+import "reflect-metadata";
+export class ModelDecorators {
+    static tableName(tableName: string): (target: any) => void;
+    static columnName(colName: string): {
+        (target: Function): void;
+        (target: Object, propertyKey: string | symbol): void;
+    };
 }
 
 }

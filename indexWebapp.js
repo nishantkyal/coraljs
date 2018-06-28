@@ -1,17 +1,17 @@
 "use strict";
-const CountryCode = require("./enums/CountryCode");
-const CountryName = require("./enums/CountryName");
-const DayName = require("./enums/DayName");
-const ForeignKeyType = require("./enums/ForeignKeyType");
-const ImageSize = require("./enums/ImageSize");
-const Salutation = require("./enums/Salutation");
-const AbstractModel = require("./models/AbstractModel");
-const BaseModel = require("./models/BaseModel");
-const BaseS3Model = require("./models/BaseS3Model");
-const ForeignKey = require("./models/ForeignKey");
-const Formatter = require("./common/Formatter");
-const Utils = require("./common/Utils");
-const sqlToModel = require("./common/sqlToModel");
+var CountryCode = require("./enums/CountryCode");
+var CountryName = require("./enums/CountryName");
+var DayName = require("./enums/DayName");
+var ForeignKeyType = require("./enums/ForeignKeyType");
+var ImageSize = require("./enums/ImageSize");
+var Salutation = require("./enums/Salutation");
+var AbstractModel = require("./models/AbstractModel");
+var BaseModel = require("./models/BaseModel");
+var BaseS3Model = require("./models/BaseS3Model");
+var ForeignKey = require("./models/ForeignKey");
+var Formatter = require("./common/Formatter");
+var Utils = require("./common/Utils");
+var sqlToModel = require("./common/sqlToModel");
 var exported = {
     CountryCode: CountryCode,
     CountryName: CountryName,
