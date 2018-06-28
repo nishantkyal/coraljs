@@ -1,6 +1,6 @@
 declare module 'coraljs'
 {
-import log4js = require("log4js");
+import solr_client = require("solr-client");import mysql = require("mysql");import log4js = require("log4js");
 import redis = require("redis");
 import express = require("express");
 
@@ -788,6 +788,7 @@ export class ModelDecorators {
         (target: Function): void;
         (target: Object, propertyKey: string | symbol): void;
     };
+    static getColumnName(target: any, propertyKey: string): any;
 }
 
 }

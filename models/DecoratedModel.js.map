@@ -1,1 +1,0 @@
-{"version":3,"file":"DecoratedModel.js","sourceRoot":"","sources":["DecoratedModel.ts"],"names":[],"mappings":";;;;;;;;;;;;;;;;;;;;AAAA,+DAAkE;AAClE,+CAAkD;AAGlD;IAA6B,kCAAa;IAItC;eACI,iBAAO;IACX,CAAC;IAJD;QADC,eAAe,CAAC,UAAU,CAAC,IAAI,CAAC;;oDACT;IAFtB,cAAc;QADnB,eAAe,CAAC,SAAS,CAAC,MAAM,CAAC;;OAC5B,cAAc,CAOnB;IAAD,qBAAC;CAAA,AAPD,CAA6B,aAAa,GAOzC;AACD,iBAAS,cAAc,CAAC"}

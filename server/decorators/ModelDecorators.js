@@ -9,6 +9,9 @@ class ModelDecorators {
     static columnName(colName) {
         return Reflect.metadata("columnName", colName);
     }
+    static getColumnName(target, propertyKey) {
+        return Reflect.getMetadata("columnName", target, propertyKey);
+    }
 }
 module.exports = ModelDecorators;
 //# sourceMappingURL=ModelDecorators.js.map
