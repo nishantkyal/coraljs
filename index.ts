@@ -10,7 +10,6 @@ import BaseModel = require("./models/BaseModel");
 import BaseS3Model = require("./models/BaseS3Model");
 import ForeignKey = require("./models/ForeignKey");
 import SolrDao = require("./dao/SolrDao");
-import DynamoDao = require("./dao/DynamoDao");
 import MysqlDao = require("./dao/MysqlDao");
 import BaseMappingDao = require("./dao/BaseMappingDao");
 import BaseDaoDelegate = require("./delegates/BaseDaoDelegate");
@@ -37,7 +36,6 @@ var exported = {
     BaseS3Model: BaseS3Model,
     ForeignKey: ForeignKey,
     SolrDao: SolrDao,
-    DynamoDao: DynamoDao,
     MysqlDao: MysqlDao,
     BaseMappingDao: BaseMappingDao,
     BaseDaoDelegate: BaseDaoDelegate,
