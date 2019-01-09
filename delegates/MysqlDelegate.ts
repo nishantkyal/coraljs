@@ -46,7 +46,7 @@ class MysqlDelegate {
         var self = this;
         return new Promise<mysql.Connection>((resolve, reject) => {
 
-            if (Utils.isNullOrEmpty(MysqlDelegate.pool))
+            if (!Utils.isNullOrEmpty(MysqlDelegate.pool))
             {
                 MysqlDelegate.pool.getConnection(
                     function handleConnection(err, connection) {
