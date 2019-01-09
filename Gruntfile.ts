@@ -16,10 +16,14 @@ function init(grunt)
         },
         concat: {
             coral: {
-                src: ['server/enums/*.d.ts', 'server/models/*.d.ts', 'server/dao/*.d.ts', 'server/delegates/*.d.ts', 'server/common/*.d.ts', 'server/caches/*.d.ts', 'server/api/*.d.ts', 'server/decorators/*.d.ts'],
+                src: ['enums/*.d.ts', 'models/*.d.ts', 'dao/*.d.ts', 'delegates/*.d.ts', 'common/*.d.ts', 'caches/*.d.ts', 'api/*.d.ts', 'decorators/*.d.ts'],
+                dest: 'index.d.ts'
+            },
+            'coral-banner': {
+                src: ["index.d.ts"],
                 dest: 'index.d.ts',
                 options: {
-                    banner: "declare module 'coraljs'\n{\nimport solr_client = require(\"solr-client\");import mysql = require(\"mysql\");import log4js = require(\"log4js\");\nimport redis = require(\"redis\");\nimport express = require(\"express\");\n\n",
+                    banner: "declare module 'coraljs'\n{\nimport solr_client = require('solr-client');\nimport mysql = require('mysql');\nimport log4js = require('log4js');\nimport redis = require('redis');\nimport express = require('express');\n\n",
                     footer: '}'
                 }
             }
@@ -42,7 +46,7 @@ function init(grunt)
                         to: ''
                     },
                     {
-                        from: /import[^"^\n]*;/g,
+                        from: /import[^\n]*;/g,
                         to: ''
                     }
                 ]
@@ -50,14 +54,14 @@ function init(grunt)
         },
         "ts": {
             "server": {
-                "src": ["index.ts", "decorators/*.ts"],
-                "outDir": "server",
+                src: ['enums/*.ts', 'models/*.ts', 'dao/*.ts', 'delegates/*.ts', 'common/*.ts', 'caches/*.ts', 'api/*.ts', 'decorators/*.ts'],
                 "options": {
                     "module": "commonjs",
                     "target": "es2016",
                     "lib": ["es2016"],
                     sourceMap: true,
-                    declaration: true
+                    declaration: true,
+                    experimentalDecorators: true
                 }
             },
             "client": {
@@ -73,20 +77,6 @@ function init(grunt)
         }
     });
 
-    /* Generate index.js by combining all generated .js files */
-    grunt.registerMultiTask('generate-index', function ()
-    {
-        this.files.forEach(function (file)
-        {
-            var output = file.src.map(function (filepath)
-            {
-                var filename = filepath.match(/\/([A-Za-z]*)\.js/);
-                return 'exports.' + filename[1] + ' = require("./' + filepath + '");';
-            }).join('\n');
-            grunt.file.write(file.dest, output);
-        });
-    });
-
-    grunt.registerTask('default', ['clean', 'ts:server', 'concat', 'replace']);
+    grunt.registerTask('default', ['clean', 'ts:server', 'concat:coral', 'replace', 'concat:coral-banner']);
 }
 export = init;

@@ -9,9 +9,23 @@ class MysqlDelegate {
     // Connection pool
     private static pool: mysql.Pool;
     private logger: log4js.Logger = log4js.getLogger(Utils.getClassName(this));
+    private mysqlHost:string;
+    private mysqlDb:string;
+    private mysqlUser:string;
+    private mysqlPassword:string;
+    private mysqlSocket:string;
+    private poolWaitForConnections:boolean;
+    private poolQueueLimit:number;
+    private poolConnectionLimit:number;
 
-    constructor(host?: string, database?: string, user?: string, password?: string, socketPath?: string) {
-        if (Utils.isNullOrEmpty(MysqlDelegate.pool) && !Utils.isNullOrEmpty(host)) {
+    constructor(host?: string, database?: string, user?: string, password?: string, socketPath?: string, usePool:boolean = true) {
+        this.mysqlHost = host;
+        this.mysqlDb = database;
+        this.mysqlUser = user;
+        this.mysqlPassword = password;
+        this.mysqlSocket = socketPath;
+
+        if (Utils.isNullOrEmpty(MysqlDelegate.pool) && !Utils.isNullOrEmpty(host) && usePool) {
             MysqlDelegate.pool = mysql.createPool({
                 host: host,
                 database: database,
@@ -19,7 +33,7 @@ class MysqlDelegate {
                 password: password,
                 socketPath: socketPath,
                 supportBigNumbers: true,
-                waitForConnections: false,
+                waitForConnections: true,
                 connectionLimit: 20
             });
         }
@@ -28,43 +42,40 @@ class MysqlDelegate {
     /*
      * Helper method to get a connection from pool
      */
-    createConnection(host: string, database:string, user: string, password: string, socketPath: string): Promise<mysql.Connection> {
+    private async getConnection(): Promise<mysql.Connection> {
         var self = this;
         return new Promise<mysql.Connection>((resolve, reject) => {
-            var connection = mysql.createConnection({
-                host: host,
-                database: database,
-                user: user,
-                password: password,
-                socketPath: socketPath
-            });
 
-            connection.connect(function (err) {
-                if (err) {
-                    self.logger.error('Error when establishing a mysql connection, error: ' + err);
-                    reject(err);
-                }
-                else
-                    resolve(connection);
-            });
-        });
-    }
+            if (Utils.isNullOrEmpty(MysqlDelegate.pool))
+            {
+                MysqlDelegate.pool.getConnection(
+                    function handleConnection(err, connection) {
+                        if (err) {
+                            self.logger.error('MysqlDelegate: Failed to get new connection, error: %s', JSON.stringify(err));
+                            reject('Failed to get a DB connection');
+                        }
+                        else if (connection)
+                            resolve(connection);
+                    });
+            } else {
+                var connection = mysql.createConnection({
+                    host: self.mysqlHost,
+                    database: self.mysqlDb,
+                    user: self.mysqlUser,
+                    password: self.mysqlPassword,
+                    socketPath: self.mysqlSocket
+                });
 
-    /*
-     * Helper method to get a connection from pool
-     */
-    async getConnectionFromPool(): Promise<mysql.Connection> {
-        var self = this;
-        return new Promise<mysql.Connection>((resolve, reject) => {
-            MysqlDelegate.pool.getConnection(
-                function handleConnection(err, connection) {
+                connection.connect(function (err) {
                     if (err) {
-                        self.logger.error('MysqlDelegate: Failed to get new connection, error: %s', JSON.stringify(err));
-                        reject('Failed to get a DB connection');
+                        self.logger.error('Error when establishing a mysql connection, error: ' + err);
+                        reject(err);
                     }
-                    else if (connection)
+                    else
                         resolve(connection);
                 });
+            }
+
         });
     }
 
@@ -75,7 +86,7 @@ class MysqlDelegate {
         var self = this;
 
         if (Utils.isNullOrEmpty(transaction)) {
-            var connection = await self.getConnectionFromPool()
+            var connection = await self.getConnection()
             self.logger.debug("Connection obtained");
             return new Promise<mysql.Connection>((resolve, reject) => {
                 connection.beginTransaction(
@@ -108,7 +119,7 @@ class MysqlDelegate {
         var self = this;
 
         if (!connection)
-            connection = await self.getConnectionFromPool();
+            connection = await self.getConnection();
 
         return new Promise<string>((resolve, reject) => {
             connection.query(query, parameters,

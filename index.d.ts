@@ -1,8 +1,10 @@
 declare module 'coraljs'
 {
-import solr_client = require("solr-client");import mysql = require("mysql");import log4js = require("log4js");
-import redis = require("redis");
-import express = require("express");
+import solr_client = require('solr-client');
+import mysql = require('mysql');
+import log4js = require('log4js');
+import redis = require('redis');
+import express = require('express');
 
 export enum CountryCode {
     AD = 376,
@@ -521,6 +523,13 @@ export class BaseS3Model extends AbstractModel {
 
 
 
+export class DecoratedModel extends AbstractModel {
+    private property;
+    constructor();
+}
+
+
+
 
 export class ForeignKey {
     type: ForeignKeyType;
@@ -594,6 +603,24 @@ export class MysqlDao implements IDao {
         where: string[];
         values: any[];
     };
+}
+
+
+
+
+
+export class RedisDao implements IDao {
+    modelClass: typeof AbstractModel;
+    create(data: Object[], transaction?: Object): Promise<any>;
+    create(data: Object, transaction?: Object): Promise<any>;
+    get(id: number[], options?: IDaoFetchOptions, transaction?: Object): Promise<any>;
+    get(id: number, options?: IDaoFetchOptions, transaction?: Object): Promise<any>;
+    search(searchQuery?: Object, options?: IDaoFetchOptions, transaction?: Object): Promise<any>;
+    find(searchQuery: Object, options?: IDaoFetchOptions, transaction?: Object): Promise<any>;
+    update(criteria: number, newValues: any, transaction?: Object): Promise<any>;
+    update(criteria: Object, newValues: any, transaction?: Object): Promise<any>;
+    delete(criteria: number, transaction?: Object): Promise<any>;
+    delete(criteria: Object, transaction?: Object): Promise<any>;
 }
 
 
@@ -687,13 +714,26 @@ export class LocalizationDelegate {
 export class MysqlDelegate {
     private static pool;
     private logger;
-    constructor(host?: string, database?: string, user?: string, password?: string, socketPath?: string);
-    createConnection(host: string, database: string, user: string, password: string, socketPath: string): Promise<mysql.Connection>;
-    getConnectionFromPool(): Promise<mysql.Connection>;
+    private mysqlHost;
+    private mysqlDb;
+    private mysqlUser;
+    private mysqlPassword;
+    private mysqlSocket;
+    private poolWaitForConnections;
+    private poolQueueLimit;
+    private poolConnectionLimit;
+    constructor(host?: string, database?: string, user?: string, password?: string, socketPath?: string, usePool?: boolean);
+    private getConnection();
     beginTransaction(transaction?: mysql.Connection): Promise<mysql.Connection>;
     executeQuery(query: string, parameters?: any[], connection?: mysql.Connection): Promise<any>;
     executeInTransaction(thisArg: any, args?: IArguments): Promise<any>;
     commit(transaction: mysql.Connection, result?: any): Promise<any>;
+}
+
+
+
+export class SolrDelegate {
+    createConnection(host: string, port: string, path: string, core: string): solr_client.SolrClient;
 }
 
 
@@ -781,7 +821,7 @@ export class BaseApi {
 }
 
 
-import "reflect-metadata";
+
 export class ModelDecorators {
     static tableName(tableName: string): (target: any) => void;
     static columnName(colName: string): {
